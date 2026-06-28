@@ -1698,6 +1698,20 @@ function PageInner() {
       try {
         const h = new Date().getHours();
         const wet = !!(weather && weather.wet);
+        // Serve a recent cached feed for this area + time so we do not re-bill
+        // Google every time the user returns to Home or nudges a filter.
+        const bucket = h < 11 ? "m" : h < 16 ? "l" : h < 21 ? "d" : "n";
+        const ckey = `wf_sug_${center.lat.toFixed(3)}_${center.lng.toFixed(3)}_${bucket}_${intent || "none"}_${wet ? "wet" : "dry"}`;
+        try {
+          const raw = localStorage.getItem(ckey);
+          if (raw) {
+            const obj = JSON.parse(raw);
+            if (obj && obj.ts && Date.now() - obj.ts < 45 * 60 * 1000 && Array.isArray(obj.places) && obj.places.length) {
+              if (!cancelled) { setSuggested(obj.places); loadBlurbs(obj.places.slice(0, 8)); }
+              return;
+            }
+          }
+        } catch {}
         let plans;
         const intentDef = intent ? INTENTS.find((x) => x.id === intent) : null;
         if (intentDef) plans = intentDef.plans.slice();
@@ -1731,6 +1745,7 @@ function PageInner() {
           { cat: "food", kw: "" },
         ];
         if (wet) plans = plans.filter((p) => { const k = p.kw || ""; return !(k.includes("park") || k.includes("rooftop") || k.includes("outdoor")); });
+        plans = plans.slice(0, 3); // cap parallel Google searches per load to control cost
         const results = await Promise.all(plans.map((pl) =>
           searchPlaces(pl.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", pl.kw).catch(() => [])
         ));
@@ -1751,6 +1766,7 @@ function PageInner() {
           ri++;
         }
         merged = merged.slice(0, 24);
+        try { localStorage.setItem(ckey, JSON.stringify({ ts: Date.now(), places: merged })); } catch {}
         if (!cancelled) { setSuggested(merged); loadBlurbs(merged.slice(0, 8)); }
       } catch {
         if (!cancelled) setSuggested([]);
@@ -2340,7 +2356,6 @@ function PageInner() {
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
           const hasAffinity = activeSignals.length >= 2;
           const displayList = hasAffinity ? applyAffinity(list, affinities) : list;
-          const heroPhoto = ((displayList.find((x) => x && x.photo)) || {}).photo || null;
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
@@ -2355,7 +2370,7 @@ function PageInner() {
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0 }}>
               {!isDesktop && (
-              <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, ...(heroPhoto ? { backgroundImage: `linear-gradient(180deg, rgba(13,17,23,.38) 0%, rgba(13,17,23,.62) 55%, rgba(13,17,23,.86) 100%), url("${heroPhoto}")`, backgroundSize: "cover", backgroundPosition: "center" } : { background: C.adim }) }}>
+              <div style={{ border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.adim} 55%)` }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 11 : 6 }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
@@ -2445,7 +2460,7 @@ function PageInner() {
               </div>
               {isDesktop && (
                 <div style={{ width: 340, flexShrink: 0, position: "sticky", top: 12 }}>
-                  <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, ...(heroPhoto ? { backgroundImage: `linear-gradient(180deg, rgba(13,17,23,.38) 0%, rgba(13,17,23,.62) 55%, rgba(13,17,23,.86) 100%), url("${heroPhoto}")`, backgroundSize: "cover", backgroundPosition: "center" } : { background: C.adim }) }}>
+                  <div style={{ border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.adim} 55%)` }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 10 : 6 }}>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 10, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
