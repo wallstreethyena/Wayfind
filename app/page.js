@@ -774,15 +774,14 @@ function generateHooks(places, locName) {
 // This is what makes "What's the most overrated spot?" pop — "overrated" glows.
 function renderHookText(text, highlightWord, color) {
   if (!highlightWord || !text) return <span>{text}</span>;
-  const escaped = highlightWord.replace(/[.*+?^${}()|[\]\]/g, "\$&");
-  const parts = text.split(new RegExp(`(${escaped})`, "gi"));
+  const lw = highlightWord.toLowerCase();
+  const ti = text.toLowerCase().indexOf(lw);
+  if (ti === -1) return <span>{text}</span>;
   return (
     <>
-      {parts.map((part, i) =>
-        part.toLowerCase() === highlightWord.toLowerCase()
-          ? <span key={i} style={{ color, fontStyle: "italic" }}>{part}</span>
-          : <span key={i}>{part}</span>
-      )}
+      <span>{text.slice(0, ti)}</span>
+      <span style={{ color, fontStyle: "italic" }}>{text.slice(ti, ti + highlightWord.length)}</span>
+      <span>{text.slice(ti + highlightWord.length)}</span>
     </>
   );
 }
