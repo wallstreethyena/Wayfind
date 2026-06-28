@@ -878,6 +878,36 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces })
   );
 }
 
+// ─── Single full-width editorial hook card, for weaving into the feed ─────────
+function HookSolo({ h, place, liked, onOpen, onLike }) {
+  if (!h) return null;
+  const acc = h.accent || C.accent;
+  const photo = place && place.photo;
+  return (
+    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 200, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+      {photo
+        ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+        : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.88) 100%)" }} />
+      <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${acc}70`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
+          <span style={{ fontSize: 11 }}>{h.emoji}</span>
+          <span style={{ fontSize: 9, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "0.8px" }}>{h.label}</span>
+        </div>
+        <button onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }} style={{ width: 30, height: 30, borderRadius: "50%", background: liked ? acc : "rgba(0,0,0,.55)", border: `1.5px solid ${liked ? acc : "rgba(255,255,255,.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, cursor: "pointer", backdropFilter: "blur(4px)" }}>{liked ? "❤️" : "🤍"}</button>
+      </div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 15px" }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.22, marginBottom: 8, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,.65)", lineHeight: 1.3, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.detail}</div>
+          <div style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "6px 14px" }}>{h.cta || "See more →"}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Worth the Drive? widget ─────────────────────────────────────────────────
 // Interactive voting widget — shows on detail sheets for far-away places or
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
@@ -1269,10 +1299,6 @@ function PageInner() {
     else {
       nextLiked[p.id] = true; delete nextDis[p.id];
       recordSignal(p, "like");
-      const n = Object.keys(nextLiked).length;
-      if (n >= 3 && !signupDone) {
-        try { if (!localStorage.getItem("wf_signup_shown")) { localStorage.setItem("wf_signup_shown", "1"); setTimeout(() => setSignupOpen(true), 700); } } catch {}
-      }
     }
     setLiked(nextLiked); setDisliked(nextDis);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); } catch {}
@@ -2480,11 +2506,23 @@ function PageInner() {
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
               ))}
               {hookCards.length > 0 && (
-                <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={toggleHookLike} allPlaces={[...(suggested || []), ...places].filter(Boolean)} />
+                <HooksBanner hooks={hookCards.slice(0, 3)} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={toggleHookLike} allPlaces={[...(suggested || []), ...places].filter(Boolean)} />
               )}
-              {!suggestedLoading && suggested !== null && displayList.slice(4).map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 5} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
-              ))}
+              {!suggestedLoading && suggested !== null && (() => {
+                const rest = displayList.slice(4);
+                const inlineHooks = hookCards.slice(3);
+                const pm = {};
+                [...(suggested || []), ...places].filter(Boolean).forEach((pp) => { if (pp && pp.id) pm[pp.id] = pp; });
+                const out = [];
+                rest.forEach((p, i) => {
+                  if (i > 0 && i % 6 === 0 && inlineHooks.length) {
+                    const h = inlineHooks[(Math.floor(i / 6) - 1) % inlineHooks.length];
+                    if (h) out.push(<HookSolo key={`hook-${h.id}-${i}`} h={h} place={pm[h.placeId]} liked={hookLikes.has(h.id)} onOpen={openHook} onLike={toggleHookLike} />);
+                  }
+                  out.push(<PlaceCard key={p.id} p={p} rank={i + 5} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />);
+                });
+                return out;
+              })()}
               <div style={{ height: 20 }} />
               </div>
               {isDesktop && (
@@ -3459,41 +3497,6 @@ function PageInner() {
           </div>
         );
       })()}
-
-      {/* Sign-up sheet — triggers after 3 likes, captures email for data pipeline */}
-      {signupOpen && !signupDone && (
-        <div style={sheetBg} onClick={() => setSignupOpen(false)}>
-          <div style={{ ...sheet, padding: "20px 16px 32px" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 6 }}>Wayfind is learning your taste</div>
-            <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>
-              You have liked {Object.keys(liked).length} places. Sign up to save your taste profile across devices and get picks that get sharper over time.
-            </div>
-            <input
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitSignup()}
-              placeholder="Your email"
-              type="email"
-              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, outline: "none", marginBottom: 12 }}
-            />
-            <button onClick={submitSignup} disabled={!signupEmail.trim()} style={{ width: "100%", padding: 14, background: signupEmail.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: signupEmail.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 800, cursor: signupEmail.trim() ? "pointer" : "default" }}>
-              Save my profile →
-            </button>
-            <button onClick={() => setSignupOpen(false)} style={{ display: "block", width: "100%", marginTop: 10, padding: "8px 0", background: "transparent", border: "none", color: C.muted, fontSize: 13, cursor: "pointer" }}>Not now</button>
-          </div>
-        </div>
-      )}
-      {signupDone && signupOpen && (
-        <div style={sheetBg} onClick={() => setSignupOpen(false)}>
-          <div style={{ ...sheet, padding: "32px 16px 40px", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 40, marginBottom: 10 }}>🎯</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8 }}>You are in</div>
-            <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 20 }}>Your taste profile is saved. Keep liking and disliking spots — the feed gets better with every signal.</div>
-            <button onClick={() => setSignupOpen(false)} style={{ padding: "12px 32px", background: C.accent, border: "none", borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>Let's go</button>
-          </div>
-        </div>
-      )}
 
       {/* Copied toast */}
       {toast && (

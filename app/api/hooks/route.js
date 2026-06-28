@@ -44,7 +44,7 @@ export async function POST(req) {
       ? `User preference signals: likes ${Object.entries(likedCats).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k}(${v})`).join(", ")}`
       : "";
 
-    const systemPrompt = `You write short, provocative discovery hooks for Wayfind, a local restaurant and experience app. Your goal is to make users stop scrolling, feel something, and click. Use real place names and real numbers. Be specific. Be opinion-forward. Never fabricate data. Return only valid JSON, no markdown.`;
+    const systemPrompt = `You are Wayfind's editorial voice: sharp, confident, a little provocative, like a local friend who always knows the move. You write short discovery hooks that make people stop scrolling and tap. Rules: every hook leads with a real place name or a real number from the data. Be specific and take a stance. Ban generic filler ("great spot", "check it out", "hidden gem" unless the data earns it). Never fabricate facts, ratings, distances, or claims; use only what the data supports. Vary the emotional angle so no two hooks feel alike. Return only valid JSON, no markdown.`;
 
     const localList = localPlaces.slice(0, 15).map((p) =>
       [`id:${p.id}`, p.name, p.rating ? `${p.rating}★` : "", p.reviews ? `${p.reviews} reviews` : "", p.distMi != null ? `${p.distMi.toFixed(1)} mi` : "", p.openNow === true ? "OPEN" : p.openNow === false ? "CLOSED" : "", p.price || ""].filter(Boolean).join(" | ")
