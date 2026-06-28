@@ -1,13 +1,13 @@
 "use client";
-import { Component, useEffect, useRef, useState } from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace } from "../lib/google";
+import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import MapView from "./components/MapView";
 
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
   red: "#EF4444", purple: "#A78BFA", pink: "#F472B6", gold: "#FBBF24",
-  text: "#E2E8F0", muted: "#64748B", light: "#94A3B8",
+  text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };
 const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎯", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
 // Each category gets its own accent color, used on the selected category tab.
@@ -59,6 +59,46 @@ const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#A
 // Google attributes. Nothing here is invented.
 const HINTS = {};
 const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
+
+// Signal engine — captures like/dislike/open/save per place, drives personalised ranking.
+// All data stays on-device (localStorage) until the user opts in by signing up.
+function loadSignals() {
+  try { return JSON.parse(localStorage.getItem("wf_signals") || "[]"); } catch { return []; }
+}
+function saveSignals(sigs) {
+  try { localStorage.setItem("wf_signals", JSON.stringify(sigs.slice(0, 1000))); } catch {}
+}
+// Per-category and per-badge affinity weights. Half-life = 5 days.
+function computeAffinities(sigs) {
+  const catW = {}; const badgeW = {};
+  const HL = 5 * 24 * 3600 * 1000;
+  const now = Date.now();
+  const W = { like: 1.5, save: 2.0, open: 0.2, dislike: -1.3 };
+  for (const s of sigs) {
+    const w = (W[s.action] || 0) * Math.pow(0.5, (now - s.ts) / HL);
+    if (s.cat) catW[s.cat] = (catW[s.cat] || 0) + w;
+    for (const b of (s.badges || [])) badgeW[b] = (badgeW[b] || 0) + w;
+  }
+  return { catW, badgeW };
+}
+// Blend Wayfind Score with personal affinity AND distance to re-rank the feed.
+// Nearby places rank above equally-scored distant ones.
+function applyAffinity(places, affinities) {
+  const { catW, badgeW } = affinities;
+  const maxC = Math.max(...Object.values(catW).map(Math.abs), 0.01);
+  const maxB = Math.max(...Object.values(badgeW).map(Math.abs), 0.01);
+  return places.map((p) => {
+    const pc = (primaryCategory(p) || "").toLowerCase();
+    let boost = ((catW[pc] || 0) / maxC) * 14;
+    for (const b of experienceBadges(p, null, 6).map((x) => x.key)) {
+      boost += ((badgeW[b] || 0) / maxB) * 9;
+    }
+    boost = Math.max(-20, Math.min(boost, 30));
+    // Distance penalty: 1 point per 3 miles, max 15 points — same as searchPlaces
+    const distPenalty = Math.min(15, (p.distMi || 0) / 3);
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty };
+  }).sort((a, b) => b._ps - a._ps);
+}
 
 // Build an absolute share URL on the current origin.
 function originUrl(path) {
@@ -401,61 +441,7 @@ function Loader({ label, size, pad }) {
   );
 }
 
-// A friendly prompt to install Wayfind to the home screen. On Android Chrome it
-// triggers the real native install. On iOS, Apple does not allow an app to
-// install itself, so the best possible is a clear one-time instruction.
-function InstallPrompt() {
-  const [show, setShow] = useState(false);
-  const [ios, setIos] = useState(false);
-  const deferred = useRef(null);
-  useEffect(() => {
-    try {
-      const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
-      if (standalone) return;
-      if (localStorage.getItem("wf_installed") || localStorage.getItem("wf_install_dismissed")) return;
-      const onInstalled = () => { try { localStorage.setItem("wf_installed", "1"); } catch {} setShow(false); };
-      window.addEventListener("appinstalled", onInstalled);
-      const ua = navigator.userAgent || "";
-      const isIOS = /iphone|ipad|ipod/i.test(ua);
-      let t;
-      if (isIOS) {
-        setIos(true);
-        t = setTimeout(() => setShow(true), 2500);
-        return () => { clearTimeout(t); window.removeEventListener("appinstalled", onInstalled); };
-      }
-      const onBip = (e) => { e.preventDefault(); deferred.current = e; setShow(true); };
-      window.addEventListener("beforeinstallprompt", onBip);
-      return () => { window.removeEventListener("beforeinstallprompt", onBip); window.removeEventListener("appinstalled", onInstalled); };
-    } catch {}
-  }, []);
-  if (!show) return null;
-  const dismiss = () => { setShow(false); try { localStorage.setItem("wf_install_dismissed", "1"); } catch {} };
-  const install = async () => {
-    const d = deferred.current;
-    if (d) { try { d.prompt(); const c = await d.userChoice; if (c && c.outcome === "accepted") { try { localStorage.setItem("wf_installed", "1"); } catch {} } } catch {} deferred.current = null; }
-    setShow(false);
-  };
-  return (
-    <div style={{ position: "fixed", left: 12, right: 12, bottom: "calc(12px + env(safe-area-inset-bottom))", zIndex: 1200, maxWidth: 460, margin: "0 auto", background: C.panel, border: `1px solid ${C.accent}`, borderRadius: 16, padding: 14, boxShadow: "0 12px 40px rgba(0,0,0,.55)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ flexShrink: 0 }}><Logo size={34} /></div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Add Wayfind to your home screen</div>
-          {!ios && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 3 }}>Open it like a real app, full screen and one tap away.</div>}
-        </div>
-        {!ios && <button onClick={install} style={{ flexShrink: 0, background: C.accent, color: "#fff", border: "none", borderRadius: 999, padding: "9px 16px", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Add</button>}
-        <button onClick={dismiss} aria-label="Dismiss" style={{ flexShrink: 0, background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer", lineHeight: 1, alignSelf: "flex-start" }}>✕</button>
-      </div>
-      {ios && (
-        <div style={{ marginTop: 11, display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ display: "flex", gap: 9, alignItems: "center" }}><span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 999, background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>1</span><span style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>Tap the Share button at the bottom of Safari (the square with an arrow pointing up).</span></div>
-          <div style={{ display: "flex", gap: 9, alignItems: "center" }}><span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 999, background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>2</span><span style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>Scroll down and tap Add to Home Screen.</span></div>
-          <div style={{ display: "flex", gap: 9, alignItems: "center" }}><span style={{ flexShrink: 0, width: 20, height: 20, borderRadius: 999, background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>3</span><span style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>Tap Add in the top corner, then open Wayfind from your home screen.</span></div>
-        </div>
-      )}
-    </div>
-  );
-}
+
 
 function Tag({ label, color, dim }) {
   return (
@@ -658,16 +644,308 @@ class ErrorBoundary extends Component {
   }
 }
 
+// ─── Hook content engine ─────────────────────────────────────────────────────
+// Generates provocative, data-driven hook cards from real place data.
+// Every hook references an actual place — nothing is invented.
+function generateHooks(places, locName) {
+  if (!places || places.length < 4) return [];
+  const city = (locName || "your area").split(",")[0];
+  const h = new Date().getHours();
+  const mealLabel = h < 11 ? "breakfast" : h < 15 ? "lunch" : h < 21 ? "dinner" : "late-night";
+  const hooks = [];
+  const byScore = [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+
+  // LOCAL SOURCE — only places ≤15 miles. Used for city-specific hooks so "most
+  // talked about in Parrish" can't pull Saint Pete (30 miles away).
+  const LOCAL_MILES = 15;
+  const local = places.filter((p) => p.distMi == null || p.distMi <= LOCAL_MILES);
+  const localByScore = [...local].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+
+  // #1 — absolute best (local first, fall back to all)
+  const best = localByScore[0] || byScore[0];
+  if (best) hooks.push({
+    id: "best", accent: "#FBBF24", emoji: "⭐", label: "#1 right now", highlightWord: "highest-rated",
+    hook: `The highest-rated spot near you right now`,
+    detail: `${best.name}${best.rating ? ` · ★${best.rating}` : ""}${best.reviews ? ` · ${best.reviews.toLocaleString()} reviews` : ""}`,
+    cta: "See why →", action: { type: "detail", place: best },
+  });
+
+  // Hidden gem — high rating, low review count (local only — can't be a gem if it's far)
+  const gems = local.filter((p) => p.rating >= 4.5 && p.reviews >= 15 && p.reviews < 350)
+    .sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  if (gems[0]) hooks.push({
+    id: "gem", accent: "#A78BFA", emoji: "💎", label: "Hidden gem", highlightWord: "haven't found",
+    hook: `The best ${mealLabel} spot in ${city} most people haven't found`,
+    detail: `${gems[0].name} · ★${gems[0].rating} · only ${gems[0].reviews} reviews`,
+    cta: "Show me →", action: { type: "detail", place: gems[0] },
+  });
+
+  // Skip this — low rated with enough reviews to trust. Local only.
+  const duds = local.filter((p) => p.rating && p.rating < 3.9 && p.reviews && p.reviews >= 80)
+    .sort((a, b) => (a.rating || 5) - (b.rating || 5));
+  if (duds.length >= 1) hooks.push({
+    id: "skip", accent: "#EF4444", emoji: "🚫", label: "Skip this", highlightWord: "waste",
+    hook: `Don't waste your money here in ${city}`,
+    detail: duds.slice(0, 2).map((p) => `${p.name} ★${p.rating}`).join("  ·  "),
+    cta: "See who →", action: { type: "detail", place: duds[0] },
+  });
+
+  // Worth the drive — INTENTIONALLY uses far places (>14 miles). This is the only
+  // hook type that should reference distant spots.
+  const farBest = places.filter((p) => p.distMi != null && p.distMi > 14 && p.rating >= 4.5)
+    .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  if (farBest[0]) hooks.push({
+    id: "drive", accent: "#38BDF8", emoji: "🚗", label: "Worth the drive?", highlightWord: "drive",
+    hook: `Would you drive ${Math.round(farBest[0].distMi)} miles for this?`,
+    detail: `${farBest[0].name} · ★${farBest[0].rating}`,
+    cta: "Decide →", action: { type: "detail", place: farBest[0] },
+  });
+
+  // Best value — cheap and good. Local only.
+  const vals = local.filter((p) => p.rating >= 4.3 && p.priceNum != null && p.priceNum <= 1)
+    .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  if (vals[0]) hooks.push({
+    id: "value", accent: "#22C55E", emoji: "💰", label: "Best value", highlightWord: "under $$",
+    hook: `Top ${mealLabel} spots near you under $$`,
+    detail: `${vals[0].name} · ★${vals[0].rating} · ${vals[0].price || "$"}`,
+    cta: "Show me →", action: { type: "experience", key: "value" },
+  });
+
+  // Open right now — local only (not "open right now 25 miles away")
+  const openGreat = local.filter((p) => p.openNow === true && p.rating >= 4.4)
+    .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  if (openGreat[0]) hooks.push({
+    id: "open", accent: "#22C55E", emoji: "🟢", label: "Open right now", highlightWord: "worth the trip",
+    hook: `Open right now and actually worth the trip`,
+    detail: `${openGreat[0].name} · ★${openGreat[0].rating}`,
+    cta: "Let's go →", action: { type: "detail", place: openGreat[0] },
+  });
+
+  // Most talked about — LOCAL ONLY. "Most talked about in Parrish" must be in Parrish.
+  const talked = [...local].sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+  if (talked[0] && talked[0].reviews >= 100) hooks.push({
+    id: "popular", accent: "#F472B6", emoji: "🔥", label: "Most talked about", highlightWord: "overrated",
+    hook: `What's the most overrated spot in ${city}?`,
+    detail: `${talked[0].name} · ${talked[0].reviews?.toLocaleString()} people weighed in · ★${talked[0].rating}`,
+    cta: "Judge it →", action: { type: "detail", place: talked[0] },
+  });
+
+  // Local itinerary — local only for the food + nightlife chain
+  const foodTop = localByScore.find((p) => (primaryCategory(p) || "") === "Food");
+  const nightTop = localByScore.find((p) => (primaryCategory(p) || "") === "Nightlife");
+  if (foodTop && nightTop) hooks.push({
+    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "tonight",
+    hook: `Quick local itinerary for tonight`,
+    detail: `${foodTop.name} for dinner → ${nightTop.name} for drinks`,
+    cta: "See both →", action: { type: "detail", place: foodTop },
+  });
+
+  // Top 5 summary — entry point to the ranked list
+  if (byScore.length >= 5) hooks.push({
+    id: "top5", accent: "#FBBF24", emoji: "🏆", label: `Top 5 in ${city}`,
+    hook: `Top 5 spots within 20 minutes of you`,
+    detail: byScore.slice(0, 3).map((p) => p.name).join("  ·  "),
+    cta: "See all →", action: { type: "explore" },
+  });
+
+  // Late night bonus
+  if (h >= 21 || h < 3) {
+    const late = places.filter((p) => p.openNow === true).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+    if (late[0]) hooks.push({
+      id: "latenight", accent: "#A78BFA", emoji: "🌙", label: "Still open",
+      hook: `Still open and still worth it tonight`,
+      detail: `${late[0].name} · ★${late[0].rating}`,
+      cta: "Head there →", action: { type: "detail", place: late[0] },
+    });
+  }
+
+  // Shuffle so the order varies on each session
+  for (let i = hooks.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [hooks[i], hooks[j]] = [hooks[j], hooks[i]];
+  }
+  return hooks.slice(0, 8);
+}
+
+// ─── HooksBanner component ────────────────────────────────────────────────────
+// Horizontal snap-scroll strip of AI-generated provocative hook cards.
+// Each card has a like button. Tapping the card opens a themed detail sheet.
+// Renders the hook text with one key word highlighted in the tile's accent color.
+// This is what makes "What's the most overrated spot?" pop — "overrated" glows.
+function renderHookText(text, highlightWord, color) {
+  if (!highlightWord || !text) return <span>{text}</span>;
+  const lw = highlightWord.toLowerCase();
+  const ti = text.toLowerCase().indexOf(lw);
+  if (ti === -1) return <span>{text}</span>;
+  return (
+    <>
+      <span>{text.slice(0, ti)}</span>
+      <span style={{ color, fontStyle: "italic" }}>{text.slice(ti, ti + highlightWord.length)}</span>
+      <span>{text.slice(ti + highlightWord.length)}</span>
+    </>
+  );
+}
+
+// ─── HooksBanner component — magazine photo-card style ────────────────────────
+// Each tile is a full photo background with dark overlay + bold editorial
+// typography. The hook's accent word glows in the tile's color. Matches the
+// visual style of premium discovery apps.
+function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces }) {
+  if (!hooks || hooks.length === 0) return null;
+  const liked = likedIds || new Set();
+  // Build a place lookup so each tile can show its place's real photo
+  const placeMap = {};
+  (allPlaces || []).forEach((p) => { if (p && p.id) placeMap[p.id] = p; });
+
+  return (
+    <div style={{ margin: "0 -12px 14px", paddingLeft: 12 }}>
+      {totalLiked > 0 && (
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
+          <span>❤️</span>
+          <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingRight: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory", msOverflowStyle: "none", scrollbarWidth: "none" }}>
+        {hooks.map((h) => {
+          const isLiked = liked.has(h.id);
+          const acc = h.accent || C.accent;
+          const place = placeMap[h.placeId];
+          const photo = place && place.photo;
+          return (
+            <div
+              key={h.id}
+              onClick={() => onOpen && onOpen(h)}
+              style={{
+                flexShrink: 0, width: 290, height: 185,
+                scrollSnapAlign: "start", borderRadius: 18,
+                overflow: "hidden", position: "relative", cursor: "pointer",
+                boxShadow: isLiked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)",
+              }}
+            >
+              {/* Background: place photo or rich gradient fallback */}
+              {photo
+                ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+                : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />
+              }
+              {/* Cinematic dark overlay — lighter at top, very dark at bottom */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.88) 100%)" }} />
+              {/* Subtle accent glow in the corner */}
+              <div style={{ position: "absolute", bottom: 0, right: 0, width: 120, height: 120, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
+
+              {/* ── Top row: badge label + like button ── */}
+              <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${acc}70`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
+                  <span style={{ fontSize: 11 }}>{h.emoji}</span>
+                  <span style={{ fontSize: 9, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "0.8px" }}>{h.label}</span>
+                </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }}
+                  style={{ width: 30, height: 30, borderRadius: "50%", background: isLiked ? acc : "rgba(0,0,0,.55)", border: `1.5px solid ${isLiked ? acc : "rgba(255,255,255,.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, cursor: "pointer", backdropFilter: "blur(4px)" }}
+                >
+                  {isLiked ? "❤️" : "🤍"}
+                </button>
+              </div>
+
+              {/* ── Bottom: hook text + detail + CTA ── */}
+              <div onClick={() => onOpen && onOpen(h)} style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 13px" }}>
+                <div style={{ fontSize: 19, fontWeight: 800, color: "#fff", lineHeight: 1.25, marginBottom: 7, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>
+                  {renderHookText(h.hook, h.highlightWord, acc)}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,.6)", lineHeight: 1.3, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {h.detail}
+                  </div>
+                  <div style={{ flexShrink: 0, fontSize: 11.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "5px 12px" }}>
+                    {h.cta || "See more →"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <div style={{ flexShrink: 0, width: 4 }} />
+      </div>
+    </div>
+  );
+}
+
+// ─── Worth the Drive? widget ─────────────────────────────────────────────────
+// Interactive voting widget — shows on detail sheets for far-away places or
+// when the user came from a "Worth the drive?" hook. Captures yes/no, then
+// reveals the live community tally.
+function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
+  const hasVoted = !!myVote;
+  const total = votes ? (votes.yes || 0) + (votes.no || 0) : 0;
+  const yesPct = total > 0 ? Math.round(((votes.yes || 0) / total) * 100) : 0;
+  return (
+    <div style={{ background: "rgba(56,189,248,.08)", border: "1.5px solid rgba(56,189,248,.35)", borderRadius: 16, padding: "16px 16px", marginBottom: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <span style={{ fontSize: 22 }}>🚗</span>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: "#E2E8F0" }}>Worth the drive?</div>
+          {place.distMi != null && <div style={{ fontSize: 12, color: "#64748B" }}>{place.distMi.toFixed(1)} miles from you — weigh in</div>}
+        </div>
+      </div>
+      {!hasVoted ? (
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={() => onVote("yes")}
+            style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #22C55E", background: "rgba(34,197,94,.12)", color: "#22C55E", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
+          >
+            🚗 Yes, worth it
+          </button>
+          <button
+            onClick={() => onVote("no")}
+            style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #64748B", background: "transparent", color: "#94A3B8", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+          >
+            🤷 Not really
+          </button>
+        </div>
+      ) : (
+        <div>
+          {total > 0 ? (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: yesPct >= 50 ? "#22C55E" : "#EF4444" }}>{yesPct}%</span>
+                <span style={{ fontSize: 12, color: "#64748B" }}>say yes · {total} vote{total === 1 ? "" : "s"} total</span>
+              </div>
+              <div style={{ height: 9, background: "#2D3748", borderRadius: 999, overflow: "hidden", marginBottom: 10 }}>
+                <div style={{ height: "100%", width: `${yesPct}%`, background: yesPct >= 50 ? "#22C55E" : "#EF4444", borderRadius: 999, transition: "width 0.6s ease" }} />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
+                <span style={{ color: "#22C55E", fontWeight: 700 }}>🚗 {votes.yes || 0} say worth it</span>
+                <span style={{ color: "#64748B" }}>{votes.no || 0} say not really</span>
+              </div>
+              <div style={{ marginTop: 10, fontSize: 12, color: "#64748B", borderTop: "1px solid #2D3748", paddingTop: 8 }}>
+                You voted: <span style={{ fontWeight: 700, color: myVote === "yes" ? "#22C55E" : "#EF4444" }}>{myVote === "yes" ? "✓ Worth the drive" : "✗ Not really"}</span>
+              </div>
+            </>
+          ) : (
+            <div style={{ textAlign: "center", padding: "6px 0" }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: myVote === "yes" ? "#22C55E" : "#94A3B8", marginBottom: 4 }}>
+                {myVote === "yes" ? "🚗 You said it's worth the drive!" : "You said not really. Fair enough."}
+              </div>
+              <div style={{ fontSize: 12, color: "#64748B" }}>Results will show as others weigh in.</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PageInner() {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("best");
+  const [searchRadius, setSearchRadius] = useState(24000); // meters, default ~15 miles
+  const [showRadiusWheel, setShowRadiusWheel] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [deviceLoc, setDeviceLoc] = useState(null);
-  const [locName, setLocName] = useState(DEFAULT_CENTER.name);
+  const [locName, setLocName] = useState("");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [places, setPlaces] = useState([]);
@@ -733,12 +1011,45 @@ function PageInner() {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState("⭐");
   const manualRef = useRef(false);
+  // Hook state — declared before hookCards memo to avoid temporal dead zone.
+  const [aiHooks, setAiHooks] = useState(null);
+  const [hookLikes, setHookLikes] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]")); } catch { return new Set(); } });
+  const [hookDetail, setHookDetail] = useState(null);
+  // Hook cards — computed from real data, refreshes when the place list changes.
+  const hookCards = useMemo(() => {
+    // AI hooks take priority — they use real place data for truly provocative copy.
+    // Fall back to static templates while AI response is loading or if it fails.
+    if (aiHooks && aiHooks.length > 0) return aiHooks;
+    const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
+    return generateHooks(src, locName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiHooks, suggested && suggested.length, places && places.length, locName]);
+  function handleHookAction(h) {
+    if (!h || !h.action) return;
+    const { type, place, key } = h.action;
+    if (type === "detail" && place) openDetail(place);
+    else if (type === "experience" && key) openExperience(key);
+    else if (type === "explore") setScreen("explore");
+  }
   const debounceRef = useRef(null);
   const tokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
   const insightFullCache = useRef({});
   const detailCache = useRef({});
+  // Engagement signals — stored in localStorage, used to personalise the feed.
+  const [signals, setSignals] = useState(() => { try { if (typeof window === "undefined") return []; return loadSignals(); } catch { return []; } });
+  const [liked, setLiked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked") || "{}"); } catch { return {}; } });
+  const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
+  const [signupOpen, setSignupOpen] = useState(false);
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupDone, setSignupDone] = useState(() => { try { return !!localStorage.getItem("wf_signed_up"); } catch { return false; } });
+  // "Worth the Drive?" feature
+  const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
+  const [myVotes, setMyVotes] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_drive_votes") || "{}"); } catch { return {}; } });
+  const [communityVotes, setCommunityVotes] = useState({});
+  const [searchMode, setSearchMode] = useState(false);
+  const [searchLabel, setSearchLabel] = useState("");
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
     const el = galleryRef.current;
@@ -855,17 +1166,98 @@ function PageInner() {
     const url = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://wayfind-xi.vercel.app";
     shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind");
   }
-  function pickCat(id) {
-    setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null);
-    if (screen === "map") setMapMode("places");
-    else setScreen("explore");
-  }
+  function pickCat(id) { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
   useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} }, [cat]);
   function pickSub(id) { setSub(id); setVibe("all"); }
 
+  // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
+  function recordSignal(p, action) {
+    const pc = (primaryCategory(p) || "").toLowerCase();
+    const badges = experienceBadges(p, null, 6).map((b) => b.key);
+    const sig = { id: p.id, cat: pc, badges, rating: p.rating || null, action, ts: Date.now() };
+    const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
+    setSignals(next);
+    saveSignals(next);
+  }
+  function toggleLike(e, p) {
+    e.stopPropagation();
+    const wasLiked = !!liked[p.id];
+    const nextLiked = { ...liked }; const nextDis = { ...disliked };
+    if (wasLiked) { delete nextLiked[p.id]; }
+    else {
+      nextLiked[p.id] = true; delete nextDis[p.id];
+      recordSignal(p, "like");
+      const n = Object.keys(nextLiked).length;
+      if (n >= 3 && !signupDone) {
+        try { if (!localStorage.getItem("wf_signup_shown")) { localStorage.setItem("wf_signup_shown", "1"); setTimeout(() => setSignupOpen(true), 700); } } catch {}
+      }
+    }
+    setLiked(nextLiked); setDisliked(nextDis);
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); } catch {}
+  }
+  function toggleDislike(e, p) {
+    e.stopPropagation();
+    const wasDis = !!disliked[p.id];
+    const nextLiked = { ...liked }; const nextDis = { ...disliked };
+    if (wasDis) { delete nextDis[p.id]; }
+    else { nextDis[p.id] = true; delete nextLiked[p.id]; recordSignal(p, "dislike"); }
+    setLiked(nextLiked); setDisliked(nextDis);
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); } catch {}
+  }
+  function toggleHookLike(hookId) {
+    const next = new Set(hookLikes);
+    if (next.has(hookId)) next.delete(hookId);
+    else next.add(hookId);
+    setHookLikes(next);
+    try { localStorage.setItem("wf_hook_likes", JSON.stringify([...next])); } catch {}
+  }
+  function openHook(h) {
+    // If no place ID or we have a themed body, open the detail sheet.
+    // Otherwise fall through to the existing action handler.
+    if (h && (h.placeId || h.themeBody)) { setHookDetail(h); }
+    else handleHookAction(h);
+  }
+
+  // Load community votes for a place when its detail opens (drive widget)
+  useEffect(() => {
+    if (!detail || !detail.id) return;
+    if (detail.distMi == null || detail.distMi < 20) { if (detailContext !== "drive") return; }
+    fetch(`/api/vote?placeId=${encodeURIComponent(detail.id)}`)
+      .then((r) => r.json())
+      .then((data) => setCommunityVotes((prev) => ({ ...prev, [detail.id]: data })))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail]);
+
+  async function handleVote(place, vote) {
+    if (!place || !place.id || myVotes[place.id]) return;
+    const next = { ...myVotes, [place.id]: vote };
+    setMyVotes(next);
+    try { localStorage.setItem("wf_drive_votes", JSON.stringify(next)); } catch {}
+    try {
+      const res = await fetch("/api/vote", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ placeId: place.id, vote, placeName: place.name, distMi: place.distMi }),
+      });
+      const data = await res.json();
+      if (data && !data.error) setCommunityVotes((prev) => ({ ...prev, [place.id]: data }));
+    } catch {}
+  }
+
+  async function submitSignup() {
+    const email = signupEmail.trim();
+    if (!email || signupDone) return;
+    try { await fetch("/api/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, likes: Object.keys(liked).length, signals: signals.length }) }); } catch {}
+    setSignupDone(true);
+    try { localStorage.setItem("wf_signed_up", "1"); } catch {}
+  }
+
   // Open a place: pull deep data (cached), then run the AI grounded in it.
-  async function openDetail(p) {
+  async function openDetail(p, context) {
     setDetail(p);
+    setDetailContext(context || null);
+    recordSignal(p, "open"); // implicit engagement signal
     try { recentRef.current = [p.id, ...recentRef.current.filter((x) => x !== p.id)].slice(0, 20); } catch {}
     setReviewsOpen(false);
     setHoursOpen(false);
@@ -1103,13 +1495,13 @@ function PageInner() {
   }, []);
 
   useEffect(() => {
-    if (keyMissing || !center) return;
+    if (keyMissing || !center || searchMode) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
       setErr("");
       try {
-        const results = await searchPlaces(cat, sub, { lat: center.lat, lng: center.lng }, 24000, vibe);
+        const results = await searchPlaces(cat, sub, { lat: center.lat, lng: center.lng }, searchRadius, vibe);
         if (!cancelled) { setPlaces(results); loadBlurbs(results); }
       } catch (e) {
         if (!cancelled) { setErr("Could not load places. Check your API key and that billing is enabled."); setPlaces([]); }
@@ -1119,7 +1511,7 @@ function PageInner() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center]);
+  }, [cat, sub, vibe, center, searchRadius]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -1289,6 +1681,32 @@ function PageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center, weather, intent]);
 
+  // Fetch AI-generated hooks once we have real place data to ground them on.
+  // Falls back to the static generateHooks() output if the API call fails.
+  useEffect(() => {
+    const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
+    if (src.length < 3) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/hooks", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            places: src.slice(0, 20).map((p) => ({ id: p.id, name: p.name, rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow, price: p.price, type: p.type })),
+            locName, hour: new Date().getHours(),
+            weather: weather ? { temp: weather.temp, label: weather.label } : null,
+            signals: signals.slice(0, 50),
+          }),
+        });
+        const data = await res.json();
+        if (!cancelled && data.hooks && data.hooks.length > 0) setAiHooks(data.hooks);
+      } catch { /* fall back to static hooks silently */ }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggested && suggested.length, places && places.length]);
+
   // Lightweight events strip for the For You screen. Fail-soft: any error just
   // hides the strip and never blocks the picks.
   useEffect(() => {
@@ -1332,29 +1750,102 @@ function PageInner() {
     try {
       const { AutocompleteSuggestion, AutocompleteSessionToken } = await getLoader().importLibrary("places");
       if (!tokenRef.current) tokenRef.current = new AutocompleteSessionToken();
+      // Geographic types — anything else is treated as an establishment/place.
+      const AREA_TYPES = new Set([
+        "locality", "administrative_area_level_1", "administrative_area_level_2",
+        "administrative_area_level_3", "administrative_area_level_4",
+        "postal_code", "country", "colloquial_area", "neighborhood",
+        "sublocality", "sublocality_level_1", "route", "geocode",
+      ]);
       let res;
       try {
+        // No type filter — let Google surface both places and areas.
+        // Location bias keeps establishment results close to the current center.
         res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-          input: q, sessionToken: tokenRef.current,
-          includedPrimaryTypes: ["locality", "administrative_area_level_3", "postal_code"],
+          input: q,
+          sessionToken: tokenRef.current,
+          ...(center ? { locationBias: { center: { lat: center.lat, lng: center.lng }, radius: 50000 } } : {}),
         });
-      } catch (inner) {
-        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({ input: q, sessionToken: tokenRef.current });
+      } catch {
+        res = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+          input: q,
+          sessionToken: tokenRef.current,
+        });
       }
       const list = (res?.suggestions || [])
         .map((s) => s.placePrediction)
         .filter(Boolean)
-        .map((pp) => ({ text: (pp.text && (pp.text.text || pp.text)) || "", pp }))
+        .map((pp) => {
+          const text = (pp.text && (pp.text.text || pp.text)) || "";
+          const types = pp.types || [];
+          const kind = types.some((t) => AREA_TYPES.has(t)) ? "area" : "place";
+          return { text, pp, kind };
+        })
         .filter((x) => x.text)
-        .slice(0, 5);
+        .slice(0, 6);
       setSuggestions(list);
-    } catch (e) {
+    } catch {
       setSuggestions([]);
     }
   }
 
   async function pickSuggestion(item) {
     setSuggestions([]);
+    setQuery("");
+    tokenRef.current = null;
+
+    if (item.kind === "place") {
+      // Route straight to the place's detail sheet.
+      setLoading(true);
+      try {
+        const place = item.pp.toPlace();
+        await place.fetchFields({
+          fields: [
+            "id", "location", "displayName", "formattedAddress", "types",
+            "rating", "userRatingCount", "photos", "priceLevel",
+            "regularOpeningHours", "businessStatus",
+          ],
+        });
+        const photoUrl = (place.photos || [])[0]?.getURI?.({ maxWidth: 800 }) || null;
+        const allPhotos = (place.photos || []).slice(0, 6).map((ph) => ph.getURI?.({ maxWidth: 800 })).filter(Boolean);
+        const PRICE_LEVELS = ["FREE", "INEXPENSIVE", "MODERATE", "EXPENSIVE", "VERY_EXPENSIVE"];
+        const priceNum = place.priceLevel != null
+          ? (typeof place.priceLevel === "number" ? place.priceLevel : PRICE_LEVELS.indexOf(String(place.priceLevel)))
+          : null;
+        const placeObj = {
+          id: place.id,
+          name: (place.displayName?.text || place.displayName || item.text).split(",")[0].trim(),
+          lat: place.location?.lat(),
+          lng: place.location?.lng(),
+          address: place.formattedAddress || "",
+          type: (place.types || [])[0] || "",
+          types: place.types || [],
+          rating: place.rating || null,
+          reviews: place.userRatingCount || 0,
+          priceNum: priceNum >= 0 ? priceNum : null,
+          price: priceNum > 0 ? "$".repeat(priceNum) : null,
+          photo: photoUrl,
+          photos: allPhotos,
+          openNow: place.regularOpeningHours?.isOpen?.() ?? null,
+          mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${place.id}`,
+          labels: [],
+          wfScore: null,
+        };
+        // Recenter explore list to this place's area for the "similar spots" context.
+        if (place.location) {
+          setCenter({ lat: place.location.lat(), lng: place.location.lng() });
+          manualRef.current = true;
+        }
+        openDetail(placeObj);
+      } catch {
+        showToast("Could not load this place");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Area / city — recenter and reload the explore feed.
     setLoading(true);
     manualRef.current = true;
     try {
@@ -1366,13 +1857,13 @@ function PageInner() {
         const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
         setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
       }
-    } catch (e) {
+    } catch {
       try {
         const c = await geocodeCity(item.text);
         if (c) { setCenter(c); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); }
       } catch {}
     } finally {
-      setQuery(""); tokenRef.current = null; setLoading(false);
+      setLoading(false);
     }
   }
 
@@ -1380,8 +1871,7 @@ function PageInner() {
     const q = query.trim();
     if (!q) return;
     setSuggestions([]);
-    // If the query names an experience we offer (burgers, rooftop, live music…),
-    // open that curated search instead of treating it as a place name.
+    // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
     if (ql.length >= 3) {
       const expHit = Object.keys(EXPERIENCES).find((k) => {
@@ -1393,10 +1883,45 @@ function PageInner() {
     }
     setLoading(true);
     manualRef.current = true;
+    // Use the device GPS if available (more accurate than geocoded center)
+    const searchCenter = deviceLoc
+      ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
+      : center ? { lat: center.lat, lng: center.lng } : null;
     try {
+      // Try nearby place / chain search within 20 miles first.
+      // This handles McDonald's, Burger King, any specific restaurant or business.
+      if (searchCenter) {
+        const nearby = await searchNearbyPlaces(q, searchCenter, 20);
+        if (nearby && nearby.length > 0) {
+          setQuery("");
+          setSearchMode(true);
+          if (nearby.length === 1) {
+            // Single match — open detail directly
+            setLoading(false);
+            openDetail(nearby[0]);
+          } else {
+            // Multiple locations (chain, etc.) — show sorted list closest first
+            setPlaces(nearby);
+            setSearchLabel(`${nearby.length} results for "${q}"`);
+            setSortBy("near");
+            setScreen("explore");
+            setLoading(false);
+            loadBlurbs(nearby.slice(0, 6));
+          }
+          return;
+        }
+      }
+      // Fall back to area / city geocode search.
       const c = await geocodeCity(q);
-      if (c) { setCenter(c); setLocName(c.name.split(",").slice(0, 2).join(",").trim()); setQuery(""); }
-      else setErr("City not found. Try another spelling.");
+      if (c) {
+        setCenter(c);
+        setLocName(c.name.split(",").slice(0, 2).join(",").trim());
+        setSearchMode(false);
+        setSearchLabel("");
+        setQuery("");
+      } else {
+        setErr("Nothing found. Try a restaurant name, chain, or city.");
+      }
     } catch {
       setErr("Search failed. Try again.");
     } finally { setLoading(false); }
@@ -1502,12 +2027,17 @@ function PageInner() {
       <div style={{ padding: "10px 2px 6px" }}>
         {loading ? <Loader label="Finding the best spots" pad="0" /> : (
           <>
-            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, letterSpacing: "-0.2px" }}>{picksHeader(cat)}</div>
-            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>
-              {view.length} near me ·{" "}
-              <span onClick={() => setSortOpen((o) => !o)} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>
-                {sortBy === "near" ? "closest first" : "ranked best first"} ▾
-              </span>
+            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, letterSpacing: "-0.2px" }}>{searchLabel || picksHeader(cat)}</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+              <div style={{ fontSize: 12.5, color: C.muted }}>
+                {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
+                <span onClick={() => setSortOpen((o) => !o)} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>
+                  {sortBy === "near" ? "closest first" : "ranked best first"} ▾
+                </span>
+              </div>
+              {searchLabel && (
+                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("best"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+              )}
             </div>
           </>
         )}
@@ -1529,8 +2059,14 @@ function PageInner() {
           <span style={{ fontSize: 13 }}>Try another category or city.</span>
         </div>
       )}
-      {view.map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} line={blurbs[p.id]} onBadge={openExperience} />
+      {view.slice(0, 3).map((p, i) => (
+        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
+      ))}
+      {view.length > 3 && hookCards.length > 0 && (
+        <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={toggleHookLike} allPlaces={[...(suggested || []), ...places].filter(Boolean)} />
+      )}
+      {view.slice(3).map((p, i) => (
+        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
       ))}
     </>
   );
@@ -1555,7 +2091,7 @@ function PageInner() {
               onChange={(e) => onQueryChange(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
-              placeholder="Pick an area to find experiences…"
+              placeholder="Search a restaurant, bar, or city…"
               style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
@@ -1566,7 +2102,11 @@ function PageInner() {
                     onMouseDown={(e) => { e.preventDefault(); pickSuggestion(s); }}
                     style={{ padding: "11px 14px", fontSize: 14, color: C.text, borderBottom: i < suggestions.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
                   >
-                    <span style={{ color: C.muted }}>📍</span>{s.text}
+                    <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? "🍴" : "📍"}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
+                      {s.kind === "place" && <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>Go to this place</div>}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1584,7 +2124,16 @@ function PageInner() {
             const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
             const on = cat === c.id && screen !== "surprise" && screen !== "suggested";
             return (
-              <button key={c.id} onClick={() => pickCat(c.id)} style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 22, border: `1.5px solid ${on ? cc.c : C.border}`, background: on ? cc.dim : "transparent", color: on ? cc.c : C.light, fontSize: 14, fontWeight: on ? 700 : 600, cursor: "pointer", whiteSpace: "nowrap" }}>{c.label}</button>
+              <button key={c.id} onClick={() => {
+                // When on the map tab: update the category so pins refresh, but
+                // NEVER navigate away. Bypass pickCat entirely to avoid any
+                // closure or batching issue that could set screen to "explore".
+                if (screen === "map") {
+                  setCat(c.id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel("");
+                } else {
+                  pickCat(c.id);
+                }
+              }} style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 22, border: `1.5px solid ${on ? cc.c : C.border}`, background: on ? cc.dim : "transparent", color: on ? cc.c : C.light, fontSize: 14, fontWeight: on ? 700 : 600, cursor: "pointer", whiteSpace: "nowrap" }}>{c.label}</button>
             );
           })}
         </div>
@@ -1600,17 +2149,9 @@ function PageInner() {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: (isDesktop && screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested") ? "hidden" : (screen === "map" ? "hidden" : "auto"), padding: (isDesktop && screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested") ? 0 : (screen === "map" ? 0 : "12px 12px 0") }}>
-        {isDesktop && screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested" ? (
-          <div style={{ flex: 1, minHeight: 0, display: "flex", overflow: "hidden" }}>
-            <div style={{ width: 460, flexShrink: 0, overflowY: "auto", padding: "12px 12px 0", borderRight: `1px solid ${C.border}` }}>{exploreList}</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <MapView places={view} center={center} category={cat} deviceLoc={deviceLoc} onSelect={openDetail} />
-            </div>
-          </div>
-        ) : (
-          <>
-            {screen === "explore" && <div>{exploreList}</div>}
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px 24px" }}>
+        <>
+            {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
             {screen === "map" && (() => {
               const dateChips = [];
               const now = new Date();
@@ -1651,10 +2192,14 @@ function PageInner() {
               );
             })()}
           </>
-        )}
 
         {screen === "suggested" && (() => {
           const list = suggested || [];
+          const affinities = computeAffinities(signals);
+          const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
+          const hasAffinity = activeSignals.length >= 2;
+          const displayList = hasAffinity ? applyAffinity(list, affinities) : list;
+          const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
           const intentDef = intent ? INTENTS.find((x) => x.id === intent) : null;
@@ -1663,7 +2208,9 @@ function PageInner() {
           if (weather) reasons.push("today's weather");
           if (Object.values(lists).some((l) => (l.places || []).length)) reasons.push("places you have saved");
           return (
-            <div>
+            <div style={isDesktop ? { display: "flex", gap: 24, alignItems: "flex-start" } : {}}>
+              {/* LEFT column on desktop: intent chips + hooks + feed */}
+              <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, marginBottom: 8 }}>Why are you heading out?</div>
                 <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
@@ -1675,11 +2222,53 @@ function PageInner() {
                   })}
                 </div>
               </div>
+              {/* Sort options + distance wheel on main screen */}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: 3, gap: 2 }}>
+                  <button onClick={() => setSortBy("best")} style={{ padding: "5px 14px", borderRadius: 999, border: "none", background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#fff" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
+                  <button onClick={() => setSortBy("near")} style={{ padding: "5px 14px", borderRadius: 999, border: "none", background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#fff" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Near me</button>
+                </div>
+                {sortBy === "near" && (
+                  <button onClick={() => setShowRadiusWheel((o) => !o)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+                    📏 {Math.round(searchRadius / 1609)} mi {showRadiusWheel ? "▲" : "▼"}
+                  </button>
+                )}
+              </div>
+              {sortBy === "near" && showRadiusWheel && (
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600, marginBottom: 8 }}>How far are you willing to go?</div>
+                  <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+                    {[
+                      { label: "5 mi", val: 8047 },
+                      { label: "10 mi", val: 16093 },
+                      { label: "15 mi", val: 24140 },
+                      { label: "20 mi", val: 32187 },
+                      { label: "30 mi", val: 48280 },
+                      { label: "50 mi", val: 80467 },
+                    ].map((r) => {
+                      const on = searchRadius === r.val;
+                      return (
+                        <button key={r.val} onClick={() => { setSearchRadius(r.val); setShowRadiusWheel(false); }} style={{ flexShrink: 0, padding: "10px 18px", borderRadius: 12, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.accent : C.card, color: on ? "#fff" : C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", textAlign: "center" }}>
+                          <div>{r.label}</div>
+                          <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{on ? "selected" : "away"}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {hookCards.length > 0 && (
+                <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={toggleHookLike} allPlaces={[...(suggested || []), ...places].filter(Boolean)} />
+              )}
+              {!isDesktop && (
               <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 11 : 6 }}>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
-                    <div style={{ fontSize: 21, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div>
+                    {locName ? (
+                      <div style={{ fontSize: 21, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div>
+                    ) : null}
                   </div>
                   {weather && (
                     <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 7 }}>
@@ -1701,14 +2290,20 @@ function PageInner() {
                 )}
                 <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{intentDef ? intentDef.icon + " " + intentDef.label + " near you" : "✨ Picked for you " + part}</div>
                 <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{intentDef ? "Curated for " + intentDef.label.toLowerCase() + ", ranked by the Wayfind Score and shaped by " + reasons.join(", ") + "." : "A mix of food, drinks, nightlife, parks and things to do near you, ranked by the Wayfind Score and shaped by " + reasons.join(", ") + "."}</div>
-                {list.length > 0 && <div style={{ fontSize: 12, color: C.muted, marginTop: 7, fontWeight: 600 }}>⭐ {list.length} spots worth your time, ranked best first</div>}
+                {list.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 7, flexWrap: "wrap" }}>
+                    <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>⭐ {list.length} spots worth your time, ranked best first</div>
+                    {hasAffinity && <span style={{ fontSize: 11, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "2px 8px" }}>🎯 Ranked for your taste</span>}
+                  </div>
+                )}
                 <div style={{ display: "flex", gap: 8, marginTop: 13 }}>
                   <button onClick={rollDice} style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
                   <button onClick={() => setScreen("explore")} style={{ flex: 1, padding: "11px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: "transparent", color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Browse all ↗</button>
                 </div>
                 <div style={{ fontSize: 11.5, color: C.muted, marginTop: 8, lineHeight: 1.5 }}>Pick for me lands you on one of these spots at random, for when you cannot decide. Browse all opens the full menu by category.</div>
               </div>
-              {foryouEvents && foryouEvents.length > 0 && (
+              )}
+              {!isDesktop && foryouEvents && foryouEvents.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🎟️ Events nearby</div>
@@ -1728,17 +2323,68 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {suggestedLoading && <Loader label="Reading the moment" pad="8px 2px" />}
-              {!suggestedLoading && list.length === 0 && (
+              {(suggestedLoading || suggested === null) && <Loader label="Reading the moment" pad="8px 2px" />}
+              {!suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={52} /></div>
                   <strong style={{ display: "block", color: C.light }}>Nothing to suggest just yet</strong>
                   <span style={{ fontSize: 13 }}>Try again in a moment or pick a category.</span>
                 </div>
               )}
-              {!suggestedLoading && list.map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} line={blurbs[p.id]} onBadge={openExperience} />
+              {!suggestedLoading && suggested !== null && displayList.map((p, i) => (
+                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
               ))}
+              <div style={{ height: 20 }} />
+              </div>
+              {isDesktop && (
+                <div style={{ width: 340, flexShrink: 0, position: "sticky", top: 12 }}>
+                  <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 10 : 6 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
+                        {locName ? <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div> : null}
+                      </div>
+                      {weather && <div style={{ flexShrink: 0 }}><span style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{weather.icon} {weather.temp}°</span></div>}
+                    </div>
+                    {weather && (
+                      <div style={{ display: "flex", gap: 5, marginBottom: 11, flexWrap: "wrap" }}>
+                        {weather.label && <span style={wstat}>{weather.label}</span>}
+                        {weather.hi != null && weather.lo != null && <span style={wstat}>H {weather.hi}° · L {weather.lo}°</span>}
+                        {weather.feels != null && <span style={wstat}>Feels {weather.feels}°</span>}
+                        {weather.wind != null && <span style={wstat}>💨 {weather.wind} mph</span>}
+                        {weather.uv != null && <span style={wstat}>☀️ UV {weather.uv}</span>}
+                        {weather.sunset && <span style={wstat}>🌇 {weather.sunset}</span>}
+                      </div>
+                    )}
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{intentDef ? intentDef.icon + " " + intentDef.label + " near you" : "✨ Picked for you " + part}</div>
+                    {list.length > 0 && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5, fontWeight: 600 }}>⭐ {list.length} spots, ranked best first</div>}
+                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                      <button onClick={rollDice} style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
+                      <button onClick={() => setScreen("explore")} style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: "transparent", color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Browse all ↗</button>
+                    </div>
+                  </div>
+                  {foryouEvents && foryouEvents.length > 0 && (
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>🎟️ Events nearby</div>
+                        <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                        {foryouEvents.slice(0, 6).map((e) => {
+                          const f = formatEventDate(e.date, e.time);
+                          return (
+                            <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 10, cursor: "pointer" }}>
+                              <div style={{ fontSize: 10, fontWeight: 800, color: C.purple, marginBottom: 3 }}>{f.wd} {f.mo} {f.day}{f.time ? " · " + f.time : ""}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+                              <div style={{ fontSize: 10.5, color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📍 {e.venue || e.city || "Nearby"}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })()}
@@ -1791,6 +2437,27 @@ function PageInner() {
                     <button onClick={() => openDetail(p)} style={{ flex: 1, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>See full details</button>
                     <button onClick={() => setSurprisePick(pickSurprise(surprisePool))} style={{ flex: 1, background: "transparent", color: C.accent, border: `1.5px solid ${C.accent}`, borderRadius: 12, fontSize: 14, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>✨ Try another</button>
                   </div>
+                  {/* Other picks — fills the screen and adds discovery */}
+                  {surprisePool.filter((o) => o && o.id !== p.id).length > 0 && (
+                    <div style={{ marginTop: 22 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: "0.3px", textTransform: "uppercase", marginBottom: 10 }}>Other great picks nearby</div>
+                      {surprisePool.filter((o) => o && o.id !== p.id).slice(0, 4).map((other) => (
+                        <div key={other.id} onClick={() => setSurprisePick(other)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 8, cursor: "pointer" }}>
+                          <FallbackImg src={other.photo} icon="🍽️" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{other.name}</div>
+                            <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
+                              {other.rating && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {other.rating}</span>}
+                              {other.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {other.distMi.toFixed(1)} mi</span>}
+                              {other.openNow === true && <span style={{ fontSize: 11, fontWeight: 600, color: C.green }}>Open</span>}
+                              {other.openNow === false && <span style={{ fontSize: 11, fontWeight: 600, color: C.red }}>Closed</span>}
+                            </div>
+                          </div>
+                          <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1852,7 +2519,7 @@ function PageInner() {
                 </div>
               )}
               {!expLoading && list.map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} line={blurbs[p.id]} onBadge={openExperience} selectedBadge={activeBadge} />
+                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} selectedBadge={activeBadge} />
               ))}
             </div>
           );
@@ -1897,7 +2564,7 @@ function PageInner() {
                   <button onClick={rollDice} style={{ width: "100%", marginBottom: 14, padding: "12px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
                 )}
                 {lists[activeList].places.map((p) => (
-                  <PlaceCard key={p.id} p={p} saved onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onBadge={openExperience} />
+                  <PlaceCard key={p.id} p={p} saved liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onBadge={openExperience} />
                 ))}
               </>
             )}
@@ -1913,7 +2580,7 @@ function PageInner() {
               <button onClick={() => { setSharedList(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
             </div>
             {sharedList.map((p) => (
-              <PlaceCard key={p.id} p={p} saved={isSaved(p.id)} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onBadge={openExperience} />
+              <PlaceCard key={p.id} p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => setSaveTarget(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onBadge={openExperience} />
             ))}
           </div>
         )}
@@ -2153,6 +2820,16 @@ function PageInner() {
 
               {detailExtra && detailExtra.editorial && (
                 <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 14, paddingLeft: 10, borderLeft: `3px solid ${C.border}` }}>{detailExtra.editorial}</div>
+              )}
+
+              {/* Worth the Drive? widget — shows for far-away places or when opened from the drive hook */}
+              {detail && (detailContext === "drive" || (detail.distMi != null && detail.distMi >= 20)) && (
+                <WorthTheDriveWidget
+                  place={detail}
+                  myVote={(myVotes || {})[detail.id]}
+                  votes={(communityVotes || {})[detail.id]}
+                  onVote={(v) => handleVote(detail, v)}
+                />
               )}
 
               {/* 2. Why Wayfind picked it */}
@@ -2428,7 +3105,217 @@ function PageInner() {
         </div>
       )}
 
-      <InstallPrompt />
+      {/* Hook editorial page — full-screen themed experience, not a sheet */}
+      {hookDetail && (() => {
+        const allSrc = [...(suggested || []), ...places].filter(Boolean);
+        const acc = hookDetail.accent || C.accent;
+        const theme = hookDetail.theme || "best";
+        const isLiked = hookLikes.has(hookDetail.id);
+        const primaryId = hookDetail.placeId;
+
+        // Theme-specific place curation — each theme shows the right number
+        // of places, curated from real data. "Top 5" = exactly 5. "Skip" = 3.
+        let themePlaces = [];
+        const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+        if (theme === "top5" || theme === "best") {
+          themePlaces = byScore.slice(0, 5);
+        } else if (theme === "gem") {
+          themePlaces = allSrc.filter((p) => p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 450).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+          const pri = allSrc.find((x) => x.id === primaryId);
+          if (pri && !themePlaces.find((p) => p.id === pri.id)) themePlaces = [pri, ...themePlaces].slice(0, 5);
+        } else if (theme === "skip") {
+          themePlaces = allSrc.filter((p) => p.rating && p.rating < 3.9 && p.reviews >= 50).sort((a, b) => (a.rating || 5) - (b.rating || 5)).slice(0, 4);
+        } else if (theme === "value") {
+          themePlaces = allSrc.filter((p) => p.rating >= 4.2 && (p.priceNum === 1 || p.priceNum === 0)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 5);
+        } else if (theme === "open") {
+          themePlaces = allSrc.filter((p) => p.openNow === true).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 5);
+        } else if (theme === "popular" || theme === "overrated") {
+          themePlaces = [...allSrc].sort((a, b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 5);
+        } else if (theme === "drive") {
+          themePlaces = allSrc.filter((p) => p.distMi != null && p.distMi > 12 && p.rating >= 4.4).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 3);
+        } else if (theme === "itinerary") {
+          const food = allSrc.filter((p) => (primaryCategory(p) || "") === "Food").sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 2);
+          const night = allSrc.filter((p) => (primaryCategory(p) || "") === "Nightlife").sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 2);
+          themePlaces = [...food, ...night];
+        } else if (theme === "latenight") {
+          themePlaces = allSrc.filter((p) => p.openNow === true).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 5);
+        } else {
+          const pri = allSrc.find((x) => x.id === primaryId);
+          themePlaces = pri ? [pri, ...byScore.filter((p) => p.id !== pri.id).slice(0, 4)] : byScore.slice(0, 5);
+        }
+        if (themePlaces.length === 0 && primaryId) {
+          const pri = allSrc.find((x) => x.id === primaryId);
+          if (pri) themePlaces = [pri];
+        }
+
+        const MEDALS = { 0: "🥇", 1: "🥈", 2: "🥉" };
+        const rankColours = { 0: "#FBBF24", 1: "#CBD5E1", 2: "#CD7F32" };
+        const showRank = theme === "top5" || theme === "best";
+        const showWarn = theme === "skip";
+
+        return (
+          <div style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, display: "flex", flexDirection: "column", overflowY: "hidden" }}>
+            {/* Gradient hero header */}
+            <div style={{ background: `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", flexShrink: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "none", color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: 0 }}>‹ Back</button>
+                <button
+                  onClick={() => toggleHookLike(hookDetail.id)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, borderRadius: 999, padding: "6px 14px", color: isLiked ? acc : C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+                >
+                  {isLiked ? "❤️ Saved" : "🤍 Save"}
+                  {hookLikes.size > 0 && <span style={{ fontSize: 10.5, color: C.muted }}>· {hookLikes.size}</span>}
+                </button>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>{hookDetail.emoji} {hookDetail.label}</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: C.text, lineHeight: 1.25, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
+                {hookDetail.themeTitle || hookDetail.hook}
+              </div>
+              {hookDetail.themeBody && (
+                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.6, marginBottom: 8 }}>{hookDetail.themeBody}</div>
+              )}
+              <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
+                {themePlaces.length} {theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks"} · Tap any to see full details
+              </div>
+            </div>
+
+            {/* Scrollable editorial list */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px calc(24px + env(safe-area-inset-bottom))" }}>
+              {themePlaces.length === 0 && (
+                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+                  <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={48} /></div>
+                  <div style={{ fontSize: 14, color: C.light }}>Not enough data for this filter right now</div>
+                </div>
+              )}
+
+              {themePlaces.map((p, i) => {
+                const isFeatured = i === 0;
+                const medalEmoji = MEDALS[i];
+                const rankColor = rankColours[i] || C.accent;
+                const badges = experienceBadges(p, null, 2);
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => { setHookDetail(null); openDetail(p, hookDetail.theme); }}
+                    style={{
+                      background: isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card,
+                      border: `1.5px solid ${isFeatured ? acc + "60" : C.border}`,
+                      borderRadius: 16, marginBottom: 10, overflow: "hidden", cursor: "pointer",
+                      boxShadow: isFeatured ? `0 4px 20px ${acc}20` : "none",
+                    }}
+                  >
+                    {/* Featured (first) place: large photo on top */}
+                    {isFeatured && (
+                      <div style={{ position: "relative" }}>
+                        <FallbackImg src={p.photo} icon="🍽️" style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
+                        {showRank && (
+                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", borderRadius: 10, padding: "5px 10px", display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontSize: 20 }}>{medalEmoji || "🏆"}</span>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>#{i + 1} Pick</span>
+                          </div>
+                        )}
+                        {showWarn && (
+                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(239,68,68,.85)", borderRadius: 10, padding: "5px 12px" }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>⚠️ Skip this</span>
+                          </div>
+                        )}
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(13,17,23,.95))", padding: "20px 14px 12px" }}>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>{p.name}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Card body */}
+                    <div style={{ display: isFeatured ? "block" : "flex", padding: isFeatured ? "12px 14px 14px" : 0, gap: 0 }}>
+                      {!isFeatured && (
+                        <div style={{ position: "relative", flexShrink: 0 }}>
+                          <FallbackImg src={p.photo} icon="🍽️" style={{ width: 86, height: 86, objectFit: "cover", display: "block" }} />
+                          {showRank && (
+                            <div style={{ position: "absolute", top: 5, left: 5, width: 22, height: 22, borderRadius: "50%", background: rankColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: medalEmoji ? 14 : 10, fontWeight: 800, color: "#0D1117" }}>
+                              {medalEmoji || (i + 1)}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div style={{ padding: isFeatured ? 0 : "10px 12px", flex: 1, minWidth: 0 }}>
+                        {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5 }}>{p.name}</div>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5 }}>
+                          {p.rating && (
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: showWarn ? C.red : (p.rating >= 4.5 ? C.green : "#3F8F4E"), color: "#0D1117", fontWeight: 800, fontSize: 13, padding: "2px 8px", borderRadius: 7 }}>
+                              ★ {p.rating}
+                            </span>
+                          )}
+                          {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
+                          {p.openNow === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
+                          {p.openNow === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
+                          {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                          {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
+                        </div>
+                        {badges.length > 0 && (
+                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
+                            {badges.map((b) => (
+                              <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {b.label}</span>
+                            ))}
+                          </div>
+                        )}
+                        {isFeatured && (
+                          <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Bottom save action */}
+              {themePlaces.length > 0 && (
+                <button
+                  onClick={() => toggleHookLike(hookDetail.id)}
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 0", borderRadius: 14, border: `1.5px solid ${isLiked ? acc : C.border}`, background: isLiked ? acc + "20" : "transparent", color: isLiked ? acc : C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", marginTop: 4 }}
+                >
+                  {isLiked ? "❤️ Saved to my picks" : "🤍 Save this list"}
+                  {hookLikes.size > 0 && <span style={{ fontSize: 12, color: C.muted }}>· {hookLikes.size} total</span>}
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Sign-up sheet — triggers after 3 likes, captures email for data pipeline */}
+      {signupOpen && !signupDone && (
+        <div style={sheetBg} onClick={() => setSignupOpen(false)}>
+          <div style={{ ...sheet, padding: "20px 16px 32px" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
+            <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 6 }}>Wayfind is learning your taste</div>
+            <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>
+              You have liked {Object.keys(liked).length} places. Sign up to save your taste profile across devices and get picks that get sharper over time.
+            </div>
+            <input
+              value={signupEmail}
+              onChange={(e) => setSignupEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitSignup()}
+              placeholder="Your email"
+              type="email"
+              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, outline: "none", marginBottom: 12 }}
+            />
+            <button onClick={submitSignup} disabled={!signupEmail.trim()} style={{ width: "100%", padding: 14, background: signupEmail.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: signupEmail.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 800, cursor: signupEmail.trim() ? "pointer" : "default" }}>
+              Save my profile →
+            </button>
+            <button onClick={() => setSignupOpen(false)} style={{ display: "block", width: "100%", marginTop: 10, padding: "8px 0", background: "transparent", border: "none", color: C.muted, fontSize: 13, cursor: "pointer" }}>Not now</button>
+          </div>
+        </div>
+      )}
+      {signupDone && signupOpen && (
+        <div style={sheetBg} onClick={() => setSignupOpen(false)}>
+          <div style={{ ...sheet, padding: "32px 16px 40px", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 40, marginBottom: 10 }}>🎯</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8 }}>You are in</div>
+            <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 20 }}>Your taste profile is saved. Keep liking and disliking spots — the feed gets better with every signal.</div>
+            <button onClick={() => setSignupOpen(false)} style={{ padding: "12px 32px", background: C.accent, border: "none", borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>Let's go</button>
+          </div>
+        </div>
+      )}
 
       {/* Copied toast */}
       {toast && (
@@ -2494,13 +3381,13 @@ function PageInner() {
   );
 }
 
-function PlaceCard({ p, rank, saved, onDetail, onSave, line, onBadge, selectedBadge }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, line, onBadge, selectedBadge }) {
   const badges = experienceBadges(p, selectedBadge, 3);
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   const take = line || templateBlurb(p);
   return (
-    <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       <div style={{ display: "flex" }}>
         <FallbackImg src={p.photo} icon="🍽️" style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
@@ -2530,8 +3417,14 @@ function PlaceCard({ p, rank, saved, onDetail, onSave, line, onBadge, selectedBa
             ))}
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><span style={{ color: C.accent }}>✨ </span>{take}</div>
-          <div style={{ display: "flex", gap: 8, marginTop: 9 }}>
-            <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Favorited" : "♡ Favorite"}</button>
+          <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+            <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
+            {onLike && (
+              <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}>👍{liked ? " Liked" : ""}</button>
+            )}
+            {onDislike && (
+              <button onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}>👎{disliked ? " Nope" : ""}</button>
+            )}
             <button onClick={(e) => { e.stopPropagation(); shareLink(p.name, p.mapsUrl || "", null, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
         </div>

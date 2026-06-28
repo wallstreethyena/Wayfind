@@ -151,20 +151,27 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       markersRef.current.push(pin);
     }
 
+    // Track center + first-5 place IDs together so we re-fit whenever data changes
+    // but don't snap the map back while the user is panning between draws.
     const cc = center ? `${center.lat.toFixed(4)},${center.lng.toFixed(4)}` : "";
-    const centerChanged = cc && lastCenterRef.current && cc !== lastCenterRef.current;
-    lastCenterRef.current = cc;
-    if (centerChanged) {
-      map.setCenter({ lat: center.lat, lng: center.lng });
-      map.setZoom(12);
-    } else if (places && places.length) {
-      map.fitBounds(bounds, 60);
-      if (places.length === 1) map.setZoom(15);
-    } else if (events && events.filter((e) => e && e.lat != null && e.lng != null).length) {
-      map.fitBounds(bounds, 60);
-    } else if (center) {
-      map.setCenter(center);
-      map.setZoom(12);
+    const placeKey = (places || []).slice(0, 5).map((p) => p.id || "").join(",");
+    const stateKey = cc + "|" + placeKey;
+    const stateChanged = stateKey !== lastCenterRef.current;
+
+    if (stateChanged) {
+      lastCenterRef.current = stateKey;
+      if (places && places.length > 0) {
+        // Always fit to the actual pins, not the search center.
+        // This is what fixes the "only 1 pin visible" issue when places are
+        // clustered 15+ miles from the address center.
+        map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
+        if (places.length === 1) map.setZoom(15);
+      } else if (evList.length > 0) {
+        map.fitBounds(bounds, 60);
+      } else if (center) {
+        map.setCenter({ lat: center.lat, lng: center.lng });
+        map.setZoom(12);
+      }
     }
   }
 
