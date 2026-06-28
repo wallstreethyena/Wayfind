@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.5";
+const BUILD = "v2.6";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -106,6 +106,34 @@ function applyAffinity(places, affinities) {
 function originUrl(path) {
   if (typeof window === "undefined") return path;
   return window.location.origin + path;
+}
+
+// A stable, anonymous, per-device id (no personal data — just a random string)
+// used to attribute pooled engagement events and measure return visits. Created
+// once and kept in localStorage. Returns null if storage is unavailable.
+function deviceId() {
+  try {
+    if (typeof window === "undefined") return null;
+    let id = localStorage.getItem("wf_device");
+    if (!id) { id = "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("wf_device", id); }
+    return id;
+  } catch { return null; }
+}
+
+// Module-level event logger (no user attribution — device id only). Used by
+// leaf components like PlaceCard that sit outside the main component scope.
+function logEventAnon(action, place, extra) {
+  try {
+    if (!supabase) return;
+    supabase.from("events").insert({
+      action,
+      place_id: (place && place.id) || null,
+      place_name: (place && place.name) || null,
+      device_id: deviceId(),
+      user_id: null,
+      meta: extra || null,
+    }).then(() => {}, () => {});
+  } catch (e) {}
 }
 
 // Compact a place down to what a shared list needs to render.
@@ -1338,6 +1366,7 @@ function PageInner() {
 
   function shareApp() {
     const url = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://wayfind-xi.vercel.app";
+    logEvent("share", null, { kind: "app" });
     shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind");
   }
   function pickCat(id) { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
@@ -1357,6 +1386,24 @@ function PageInner() {
     setSignals(next);
     saveSignals(next);
   }
+  // Pooled, anonymous engagement log. One fire-and-forget row per action into a
+  // shared Supabase "events" table — this is the proprietary signal Google can't
+  // give us (what locals actually like, save, and share). Never throws, never
+  // blocks the UI, and only writes when a backend is configured.
+  function logEvent(action, place, extra) {
+    try {
+      if (!supabase) return;
+      const row = {
+        action,
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+        device_id: deviceId(),
+        user_id: user ? user.id : null,
+        meta: extra || null,
+      };
+      supabase.from("events").insert(row).then(() => {}, () => {});
+    } catch (e) {}
+  }
   function toggleLike(e, p) {
     e.stopPropagation();
     const wasLiked = !!liked[p.id];
@@ -1365,6 +1412,7 @@ function PageInner() {
     else {
       nextLiked[p.id] = true; delete nextDis[p.id];
       recordSignal(p, "like");
+      logEvent("like", p);
     }
     setLiked(nextLiked); setDisliked(nextDis);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); } catch {}
@@ -1381,7 +1429,7 @@ function PageInner() {
     const wasDis = !!disliked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     if (wasDis) { delete nextDis[p.id]; }
-    else { nextDis[p.id] = true; delete nextLiked[p.id]; recordSignal(p, "dislike"); }
+    else { nextDis[p.id] = true; delete nextLiked[p.id]; recordSignal(p, "dislike"); logEvent("dislike", p); }
     setLiked(nextLiked); setDisliked(nextDis);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); } catch {}
   }
@@ -1643,8 +1691,9 @@ function PageInner() {
     const placeId = params.get("place");
     if (listStr) {
       const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); }
+      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); }
     } else if (placeId) {
+      logEvent("share_open", null, { kind: "place", place_id: placeId });
       (async () => {
         const p = await fetchPlaceById(placeId);
         if (p) openDetail(p);
@@ -2138,6 +2187,7 @@ function PageInner() {
     const has = fav.places.some((x) => x.id === p.id);
     setLists({ ...lists, favorites: { ...fav, places: has ? fav.places.filter((x) => x.id !== p.id) : [...fav.places, p] } });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
+    if (!has) logEvent("save", p);
     if (supabase && user) {
       if (has) {
         supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", p.id).eq("list_name", "Favorites").then(() => {}, () => {});
@@ -2201,6 +2251,7 @@ function PageInner() {
   }
   async function shareList(places, title) {
     if (!places || !places.length) return;
+    logEvent("share", null, { kind: "list", n: places.length, title: title || "" });
     const url = await buildListShareUrl(places, title);
     shareLink(`Wayfind list: ${title}`, url, () => showToast("Link copied"), "A few places I think we should check out. Found them on Wayfind");
   }
@@ -3067,7 +3118,7 @@ function PageInner() {
         <div style={sheetBg} onClick={() => setDetail(null)}>
           <div style={sheet} onClick={(e) => e.stopPropagation()}>
             <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
-              <button onClick={() => shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`)} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Share ↗</button>
+              <button onClick={() => { logEvent("share", detail, { kind: "place" }); shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Share ↗</button>
               <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕ Close</button>
             </div>
             {detail.photos && detail.photos.length > 0 ? (
@@ -3448,7 +3499,16 @@ function PageInner() {
 
       {/* Hook editorial page — full-screen themed experience, not a sheet */}
       {hookDetail && (() => {
-        const allSrc = [...(suggested || []), ...places].filter(Boolean);
+        // Merge the two source lists, but de-dupe by id — a place that appears
+        // in both the suggested feed and the nearby search would otherwise show
+        // up twice in a themed list.
+        const allSrc = (() => {
+          const seen = new Set(); const out = [];
+          [...(suggested || []), ...places].filter(Boolean).forEach((p) => {
+            if (p && p.id && !seen.has(p.id)) { seen.add(p.id); out.push(p); }
+          });
+          return out;
+        })();
         const acc = hookDetail.accent || C.accent;
         const theme = hookDetail.theme || "best";
         const isLiked = hookLikes.has(hookDetail.id);
@@ -3488,6 +3548,8 @@ function PageInner() {
           const pri = allSrc.find((x) => x.id === primaryId);
           if (pri) themePlaces = [pri];
         }
+        // Safety net: no theme should ever render the same place twice.
+        themePlaces = themePlaces.filter((p, i, a) => p && p.id && a.findIndex((x) => x && x.id === p.id) === i);
 
         const MEDALS = { 0: "🥇", 1: "🥈", 2: "🥉" };
         const rankColours = { 0: "#FBBF24", 1: "#CBD5E1", 2: "#CD7F32" };
@@ -3794,7 +3856,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             {onDislike && (
               <button onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}>👎{disliked ? " Nope" : ""}</button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); shareLink(p.name, p.mapsUrl || "", null, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
+            <button onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); shareLink(p.name, p.mapsUrl || "", null, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
         </div>
       </div>

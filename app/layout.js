@@ -1,12 +1,34 @@
 export const metadata = {
+  metadataBase: new URL("https://wayfind-xi.vercel.app"),
   title: "Wayfind",
-  description: "Discover the best places, anywhere.",
+  description: "Find great things to do near you, right now.",
   manifest: "/manifest.webmanifest",
   applicationName: "Wayfind",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Wayfind",
+  },
+  openGraph: {
+    title: "Wayfind",
+    description: "Find great things to do near you, right now.",
+    url: "https://wayfind-xi.vercel.app",
+    siteName: "Wayfind",
+    type: "website",
+    images: [
+      {
+        url: "/api/og?t=" + encodeURIComponent("Find great places near you"),
+        width: 1200,
+        height: 630,
+        alt: "Wayfind",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wayfind",
+    description: "Find great things to do near you, right now.",
+    images: ["/api/og?t=" + encodeURIComponent("Find great places near you")],
   },
 };
 
