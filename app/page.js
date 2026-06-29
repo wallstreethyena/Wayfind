@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.9";
+const BUILD = "v3.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1071,6 +1071,7 @@ function PageInner() {
   const [sortOpen, setSortOpen] = useState(false);
   const [heroNonce, setHeroNonce] = useState(0); // taps on "show another angle" cycle the hero pick
   const [pickOpen, setPickOpen] = useState(false); // Pick-for-me panel expanded
+  const [menuSheet, setMenuSheet] = useState(null); // which app-tile sheet is open: menu|explore|experiences|weather|null
   const [homeRolling, setHomeRolling] = useState(false); // dice animating in the panel
   const [homeDiceFace, setHomeDiceFace] = useState("🎲");
   const [rollHistory, setRollHistory] = useState([]); // session-only history of dice rolls
@@ -2472,13 +2473,14 @@ function PageInner() {
         </div>
         <div style={{ display: "flex", gap: 8, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
+            <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none", opacity: 0.85 }}>🔍</span>
             <input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
-              placeholder="Search a restaurant, bar, or city…"
-              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, color: C.text, fontSize: 15, outline: "none" }}
+              placeholder="Search a place, or a new location"
+              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px 12px 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
               <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
@@ -2502,8 +2504,8 @@ function PageInner() {
         </div>
       </div>
 
-      {/* Category tabs (Explore + Map) */}
-      {screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && (
+      {/* Category tabs (Explore + Map). Hidden on home, where the app-tile grid replaces it. */}
+      {screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested" && (
         <div style={{ display: "flex", gap: 7, overflowX: "auto", padding: "10px 14px", background: C.panel, flexShrink: 0 }}>
           <button key="surprise" onClick={openSurprise} style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 22, border: `1.5px solid ${C.purple}`, background: screen === "surprise" ? C.purple : "transparent", color: screen === "surprise" ? "#0D1117" : C.purple, fontSize: 14, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>🎁 Surprise Me</button>
           {CATEGORIES.map((c) => {
@@ -2622,6 +2624,44 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
+              {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 16 }}>
+                <button onClick={() => setMenuSheet("menu")} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.border}`, background: `linear-gradient(150deg, ${C.card} 0%, ${C.panel} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, padding: 8 }}>
+                  <span style={{ fontSize: 30, lineHeight: 1 }}>🧭</span>
+                  <span style={{ fontSize: 14, fontWeight: 800 }}>Menu</span>
+                  <span style={{ fontSize: 10.5, color: C.muted }}>All categories</span>
+                </button>
+                <button onClick={openSurprise} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.purple}`, background: `linear-gradient(150deg, rgba(167,139,250,.22) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, padding: 8 }}>
+                  <span style={{ fontSize: 30, lineHeight: 1 }}>🎁</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: C.purple }}>Surprise Me</span>
+                  <span style={{ fontSize: 10.5, color: C.muted }}>One bold pick</span>
+                </button>
+                <button onClick={() => setMenuSheet("explore")} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: 8 }}>
+                  <span style={{ fontSize: 28, lineHeight: 1 }}>📍</span>
+                  <span style={{ fontSize: 13.5, fontWeight: 800, color: C.accent, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName ? locName.split(",")[0] : "Explore"}</span>
+                  <span style={{ fontSize: 10.5, color: C.muted }}>About this area</span>
+                </button>
+                <button onClick={() => setMenuSheet("experiences")} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.gold}`, background: `linear-gradient(150deg, rgba(251,191,36,.18) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, padding: 8 }}>
+                  <span style={{ fontSize: 28, lineHeight: 1 }}>✨</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: C.gold }}>Experiences</span>
+                  <span style={{ fontSize: 10.5, color: C.muted }}>Pick an occasion</span>
+                </button>
+                {weather && (
+                  <button onClick={() => setMenuSheet("weather")} style={{ gridColumn: "1 / -1", borderRadius: 18, border: `1.5px solid ${C.blue}`, background: `linear-gradient(150deg, rgba(56,189,248,.16) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "14px 18px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: 34, lineHeight: 1 }}>{weather.icon}</span>
+                      <div style={{ textAlign: "left" }}>
+                        <div style={{ fontSize: 22, fontWeight: 800 }}>{weather.temp}°</div>
+                        {weather.label && <div style={{ fontSize: 11.5, color: C.muted }}>{weather.label}</div>}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      {weather.sunset && <div style={{ fontSize: 12.5, fontWeight: 700, color: C.blue }}>🌅 {weather.sunset}</div>}
+                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>Tap for details</div>
+                    </div>
+                  </button>
+                )}
+              </div>
               {!suggestedLoading && suggested !== null && heroPick && (
                 <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
                   <div onClick={() => openDetail(heroPick)} style={{ cursor: "pointer" }}>
@@ -3800,6 +3840,84 @@ function PageInner() {
             </div>
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
+          </div>
+        </div>
+      )}
+
+      {/* App-tile sheets: opened from the home navigation grid */}
+      {menuSheet && (
+        <div style={sheetBg} onClick={() => setMenuSheet(null)}>
+          <div style={{ ...sheet, padding: "20px 16px 28px" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
+            {menuSheet === "menu" && (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>🧭 Browse by category</div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>Pick a category to explore near {locName ? locName.split(",")[0] : "you"}.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                  {CATEGORIES.map((c) => {
+                    const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
+                    return (
+                      <button key={c.id} onClick={() => { setMenuSheet(null); pickCat(c.id); }} style={{ height: 84, borderRadius: 16, border: `1.5px solid ${cc.c}`, background: cc.dim, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 15, fontWeight: 800 }}>
+                        <span style={{ fontSize: 26, lineHeight: 1 }}>{CAT_ICONS[c.id] || "📍"}</span>
+                        <span>{c.label.replace(/^\S+\s/, "")}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            {menuSheet === "explore" && (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>📍 {locName || "Your area"}</div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>What's around you right now.</div>
+                {weather && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
+                    <span style={{ fontSize: 26 }}>{weather.icon}</span>
+                    <div style={{ fontSize: 14, color: C.light }}><b style={{ color: C.text }}>{weather.temp}°</b>{weather.label ? " · " + weather.label : ""}{weather.sunset ? " · 🌅 " + weather.sunset : ""}</div>
+                  </div>
+                )}
+                <div style={{ fontSize: 14, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+                  {(suggested ? suggested.length : places.length) > 0 ? (<><b style={{ color: C.text }}>{suggested ? suggested.length : places.length} spots</b> worth your time nearby, ranked best first.</>) : "Loading the best spots near you."}
+                </div>
+                <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Browse all spots →</button>
+              </>
+            )}
+            {menuSheet === "experiences" && (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>✨ Why are you heading out?</div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>Pick an occasion and the feed reshapes around it.</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                  {INTENTS.map((it) => {
+                    const on = intent === it.id;
+                    return (
+                      <button key={it.id} onClick={() => { setIntent(on ? null : it.id); setMenuSheet(null); }} style={{ height: 76, borderRadius: 16, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 14, fontWeight: 800 }}>
+                        <span style={{ fontSize: 24, lineHeight: 1 }}>{it.icon}</span>
+                        <span>{it.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+            {menuSheet === "weather" && weather && (
+              <>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>{weather.icon} Weather right now</div>
+                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>{locName ? locName.split(",")[0] : "Your area"}, live conditions.</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+                  <span style={{ fontSize: 52, lineHeight: 1 }}>{weather.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 38, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
+                    {weather.label && <div style={{ fontSize: 14, color: C.light, marginTop: 4 }}>{weather.label}</div>}
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
+                  {weather.feels != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Feels like</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.feels}°</div></div>)}
+                  {weather.wind != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Wind</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>💨 {weather.wind} mph</div></div>)}
+                  {weather.sunset && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Sunset</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>🌅 {weather.sunset}</div></div>)}
+                  {weather.rain != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Rain chance</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.rain}%</div></div>)}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
