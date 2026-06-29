@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.6";
+const BUILD = "v3.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -942,7 +942,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
 
               {/* ── Bottom: hook text + detail + CTA ── */}
               <div onClick={() => onOpen && onOpen(h)} style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 13px" }}>
-                <div style={{ fontSize: 19, fontWeight: 800, color: "#fff", lineHeight: 1.25, marginBottom: 7, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>
+                <div style={{ fontSize: 19, fontWeight: 800, color: "#fff", lineHeight: 1.25, marginBottom: 7, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                   {renderHookText(h.hook, h.highlightWord, acc)}
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -2685,9 +2685,10 @@ function PageInner() {
                     <span style={{ fontSize: 24, lineHeight: 1 }}>🎲</span>
                     <span style={{ fontSize: 12, fontWeight: 800, color: C.accent }}>Pick for me</span>
                   </button>
-                  <button onClick={() => setMenuSheet("explore")} style={{ minHeight: 82, borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "12px 6px" }}>
-                    <span style={{ fontSize: 23, lineHeight: 1 }}>📍</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: C.green, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName ? locName.split(",")[0] : "Explore"}</span>
+                  <button onClick={() => setMenuSheet("explore")} style={{ minHeight: 82, borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, padding: "12px 6px" }}>
+                    <span style={{ fontSize: 22, lineHeight: 1 }}>📍</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: C.green }}>This area</span>
+                    {locName && <span style={{ fontSize: 9.5, fontWeight: 600, color: C.muted, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{locName.split(",")[0]}</span>}
                   </button>
                   <button onClick={() => setMenuSheet("experiences")} style={{ minHeight: 82, borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, padding: "12px 6px" }}>
                     <span style={{ fontSize: 23, lineHeight: 1 }}>✨</span>
@@ -2733,26 +2734,7 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {!isDesktop && (
-              <div style={{ border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.adim} 55%)` }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 11 : 6 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
-                    {locName ? (
-                      <div style={{ fontSize: 21, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div>
-                    ) : null}
-                  </div>
-                </div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{intentDef ? intentDef.icon + " " + intentDef.label + " near you" : "✨ " + moment + " picks"}</div>
-                <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{intentDef ? "Curated for " + intentDef.label.toLowerCase() + ", ranked by the Wayfind Score and tuned to " + moment.toLowerCase() + "." : "The best-rated, currently open spots near you, tuned to " + moment.toLowerCase() + "."}</div>
-                {list.length > 0 && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 7, flexWrap: "wrap" }}>
-                    <div style={{ fontSize: 12, color: C.muted, fontWeight: 600 }}>⭐ {list.length} spots worth your time, ranked best first</div>
-                    {hasAffinity && <span style={{ fontSize: 11, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "2px 8px" }}>🎯 Ranked for your taste</span>}
-                  </div>
-                )}
-              </div>
-              )}
+              {/* v3.7: mobile inline "You are exploring" card removed — it duplicated the 📍 This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
               {libraryEvents && libraryEvents.length > 0 && (
                 <div style={{ marginBottom: 16, border: `1.5px solid ${C.blue}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(56,189,248,.12) 0%, ${C.card} 60%)` }}>
                   <div style={{ padding: "14px 16px 10px" }}>
@@ -2825,12 +2807,28 @@ function PageInner() {
               {!suggestedLoading && suggested !== null && homeFeed.slice(0, 4).map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
               ))}
-              {hookCards.length > 0 && (
-                <HooksBanner hooks={hookCards.slice(0, 3)} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
-              )}
+              {hookCards.length > 0 && (() => {
+                // v3.7: show exactly two discovery cards — pin Top 5 (the entry into the
+                // ranked list), then one rotating provocative hook. The rest weave into
+                // the feed below. Title styled to match the "Events nearby" section.
+                const t5 = hookCards.find((h) => h.id === "top5");
+                const oth = hookCards.filter((h) => h.id !== "top5");
+                const bannerHooks = (t5 ? [t5, ...oth] : oth).slice(0, 2);
+                if (!bannerHooks.length) return null;
+                return (
+                  <div style={{ margin: "2px 2px 0" }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 8 }}>📍 Near you right now</div>
+                    <HooksBanner hooks={bannerHooks} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
+                  </div>
+                );
+              })()}
               {!suggestedLoading && suggested !== null && (() => {
                 const rest = homeFeed.slice(4);
-                const inlineHooks = hookCards.slice(3);
+                // v3.7: keep the two banner hooks out of the inline weave so nothing repeats.
+                const _t5 = hookCards.find((h) => h.id === "top5");
+                const _oth = hookCards.filter((h) => h.id !== "top5");
+                const _bannerIds = new Set((_t5 ? [_t5, ..._oth] : _oth).slice(0, 2).map((h) => h.id));
+                const inlineHooks = hookCards.filter((h) => !_bannerIds.has(h.id));
                 const pm = {};
                 [...(suggested || []), ...places].filter(Boolean).forEach((pp) => { if (pp && pp.id) pm[pp.id] = pp; });
                 const out = [];
