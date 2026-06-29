@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.2";
+const BUILD = "v2.3";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -512,6 +512,20 @@ function CleanTile({ onClick, color, icon, label, sub, labelColor }) {
 
 // v4.0: shared sheet header so every app-tile sheet opens with the same hero treatment —
 // a colored icon badge that matches its tile, a large title, and a muted subtitle.
+function RadiusSlider({ mi, onChange, where }) {
+  return (
+    <div style={{ padding: "12px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+      <style>{".wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;outline:none;margin:6px 0;cursor:pointer}.wf-radius::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer;margin-top:-11px}.wf-radius::-moz-range-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer}"}</style>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent }}>{mi} mi</span></div>
+        <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
+      </div>
+      <input type="range" min={1} max={30} step={1} value={mi} onChange={(e) => onChange(Number(e.target.value))} className="wf-radius" aria-label="Search distance in miles" />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: C.muted, fontWeight: 700 }}><span>1 mi</span><span>30 mi</span></div>
+    </div>
+  );
+}
+
 function SheetHero({ icon, title, subtitle, color }) {
   return (
     <div style={{ marginBottom: 18 }}>
@@ -1215,6 +1229,8 @@ function PageInner() {
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
   const [pendingRadius, setPendingRadius] = useState(24140);
+  const [radiusOpen, setRadiusOpen] = useState(false);
+  const [sliderMi, setSliderMi] = useState(15);
   const [showRadiusWheel, setShowRadiusWheel] = useState(false);
   const [showNearbyExp, setShowNearbyExp] = useState(false); // v3.7 Phase 2: ✨ Nearby experiences dropdown in the sort row
   const [sortOpen, setSortOpen] = useState(false);
@@ -2556,7 +2572,7 @@ function PageInner() {
   // truth without flooding the home row.
   const HOME_CHIPS = ["localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "outdoor", "breakfast", "coffee"].filter((k) => EXPERIENCES[k]);
   const view = sortBy === "near"
-    ? [...places].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
+    ? [...places].filter((p) => sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi).sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
     : [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
   const exploreList = (
@@ -2584,9 +2600,12 @@ function PageInner() {
         <div style={{ padding: "0 2px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => setSortBy("best")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
-            <button onClick={() => { setSortBy("near"); setPendingRadius(searchRadius); setRadiusSheet(true); }} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
+            <button onClick={() => { if (sortBy !== "near") { setSortBy("near"); setSliderMi(Math.min(30, Math.max(1, Math.round(searchRadius / 1609.34)))); setRadiusOpen(true); } else { setRadiusOpen((o) => !o); } }} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
             <button onClick={() => setShowNearbyExp((o) => !o)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Refine {showNearbyExp ? "▲" : "▼"}</button>
           </div>
+          {sortBy === "near" && radiusOpen && (
+            <div style={{ marginTop: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
+          )}
           {showNearbyExp && (
             <div style={{ marginTop: 10, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
               <div style={{ fontSize: 11, color: C.muted, fontWeight: 800, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.4px" }}>How far are you willing to go?</div>
@@ -2927,7 +2946,8 @@ function PageInner() {
             if (weather && weather.temp != null && weather.temp >= 58 && weather.temp <= 92 && !(weather.label && /rain|storm|snow|sleet/i.test(weather.label))) heroWhy.push("great weather match");
             heroWhy.push("strong " + whyPick + " pick");
           }
-          const feedList = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
+          const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
+          const feedList = sortBy === "near" ? feedList0.filter((p) => p && (sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi)) : feedList0;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
           // chosen order first (score for Best, distance for Closest), then stably push
           // open-now to the top, unknown-status next, opens-later below that, and closed
@@ -3043,9 +3063,12 @@ function PageInner() {
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Your picks</div>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button onClick={() => setSortBy("best")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
-                    <button onClick={() => { setSortBy("near"); setPendingRadius(searchRadius); setRadiusSheet(true); }} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
+                    <button onClick={() => { if (sortBy !== "near") { setSortBy("near"); setSliderMi(Math.min(30, Math.max(1, Math.round(searchRadius / 1609.34)))); setRadiusOpen(true); } else { setRadiusOpen((o) => !o); } }} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
                   </div>
                 </div>
+              )}
+              {!suggestedLoading && suggested !== null && list.length > 0 && sortBy === "near" && radiusOpen && (
+                <div style={{ marginBottom: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
               )}
               {!suggestedLoading && suggested !== null && homeFeed.slice(0, 4).map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
