@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.3";
+const BUILD = "v2.4";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -73,6 +73,17 @@ const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#A
 // prefetched top results have an entry; everything else falls back to name plus
 // Google attributes. Nothing here is invented.
 const HINTS = {};
+const OFFERS = {};
+function offerLabel(o) {
+  if (!o) return "Offer";
+  const t = (o.offer_type || "").toLowerCase();
+  if (t.indexOf("happy") >= 0) return "Happy hour";
+  if (t.indexOf("kids") >= 0) return "Kids eat free";
+  if (t.indexOf("bogo") >= 0) return "2 for 1";
+  if (t.indexOf("percent") >= 0 || t.indexOf("%") >= 0) return "Save today";
+  if (t === "partner" || o.source === "partner") return "Partner offer";
+  return "Offer";
+}
 const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
 
 // Signal engine — captures like/dislike/open/save per place, drives personalised ranking.
@@ -1250,6 +1261,7 @@ function PageInner() {
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
   const [detailExtra, setDetailExtra] = useState(null);
+  const [offers, setOffers] = useState({});
   const [lightbox, setLightbox] = useState(null);
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const [hoursOpen, setHoursOpen] = useState(false);
@@ -1847,7 +1859,23 @@ function PageInner() {
       setEventsLoading(false);
     }
   }
+  async function loadOffers(list) {
+    try {
+      if (!supabase || !Array.isArray(list) || !list.length) return;
+      const { data } = await supabase.from("offers").select("*");
+      if (!data || !data.length) return;
+      const norm = (x) => (x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const map = {};
+      list.forEach((p) => {
+        if (!p) return;
+        const off = data.find((o) => (o.google_place_id && o.google_place_id === p.id) || (o.normalized_business_name && o.normalized_business_name === norm(p.name)));
+        if (off) { map[p.id] = off; OFFERS[p.id] = off; }
+      });
+      if (Object.keys(map).length) setOffers((prev) => ({ ...prev, ...map }));
+    } catch (e) {}
+  }
   async function loadBlurbs(list) {
+    loadOffers(list);
     if (!Array.isArray(list) || !list.length) { setBlurbs({}); return; }
     // 1. Seed instantly from the 30-day on-device line cache. These cost nothing:
     //    no Google call, no AI call. Repeat searches of the same area are free.
@@ -2400,7 +2428,7 @@ function PageInner() {
 
   async function submitSearch() {
     const q = query.trim();
-    if (!q) return;
+    if (!q) { openSurprise(); return; }
     setSuggestions([]);
     // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
@@ -3832,6 +3860,31 @@ function PageInner() {
                 )}
               </div>
 
+              {detailExtra && (detailExtra.phone || detailExtra.website) && (
+                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                  {detailExtra.phone && <a href={"tel:" + detailExtra.phone} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>📞 Call</a>}
+                  {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
+                </div>
+              )}
+
+              {detail && offers[detail.id] && (() => {
+                const o = offers[detail.id];
+                return (
+                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>{offerLabel(o)}</span>
+                      {o.last_verified_at && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>✓ Verified</span>}
+                    </div>
+                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{o.offer_title}</div>
+                    {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
+                    {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
+                    {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
+                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
+                    {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
+                  </div>
+                );
+              })()}
+
               {isBeach(detail) && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF", marginBottom: 8 }}>🏖️ Beach conditions</div>
@@ -4511,6 +4564,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   const take = line || templateBlurb(p);
+  const offer = OFFERS[p.id];
   return (
     <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       <div style={{ display: "flex" }}>
@@ -4524,6 +4578,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, paddingRight: 4 }}>{p.name}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
+            {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {pcat && <span style={{ fontSize: 12, fontWeight: 800, color: CAT_LABEL_COLOR[pcat] || C.light }}>{pcat}</span>}
             {p.rating && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: p.rating >= 4.5 ? C.green : p.rating >= 4.0 ? "#3F8F4E" : C.card, color: p.rating >= 4.0 ? "#0D1117" : C.light, fontWeight: 800, fontSize: 14, padding: "2px 8px", borderRadius: 8 }}>★ {p.rating}</span>}
             {p.reviews > 0 && (() => { const cf = confidenceOf(p.reviews); return (
