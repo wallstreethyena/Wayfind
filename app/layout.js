@@ -17,7 +17,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/api/og?t=" + encodeURIComponent("Find great places near you"),
+        url: "/api/og?t=" + encodeURIComponent("Find great places near you") + "&v=3",
         width: 1200,
         height: 630,
         alt: "Wayfind",
@@ -28,7 +28,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Wayfind",
     description: "Find great things to do near you, right now.",
-    images: ["/api/og?t=" + encodeURIComponent("Find great places near you")],
+    images: ["/api/og?t=" + encodeURIComponent("Find great places near you") + "&v=3"],
   },
 };
 

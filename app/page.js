@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v1.8";
+const BUILD = "v2.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1812,14 +1812,16 @@ function PageInner() {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName }),
+        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.round((searchRadius || 24140) / 1609.34) }),
       });
       const data = await res.json();
       setEventsUnavailable(!!data.unavailable);
       setEventsError(!!data.error);
       setEventCounts(data && data.counts ? data.counts : null);
       try { if (data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
-      setEvents(data && Array.isArray(data.events) ? data.events : []);
+      const evs = data && Array.isArray(data.events) ? data.events : [];
+      setEvents(evs);
+      if (!data.unavailable && !data.error && evs.length === 0) logEvent("events_none", null, { loc: locName || "", lat: center.lat, lng: center.lng });
     } catch {
       setEventsError(true);
       setEvents([]);
@@ -1978,7 +1980,7 @@ function PageInner() {
       setErr("");
       try {
         const results = await searchPlaces(cat, sub, { lat: center.lat, lng: center.lng }, searchRadius, vibe);
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); }
+        if (!cancelled) { setPlaces(results); loadBlurbs(results); if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
       } finally {
@@ -2606,8 +2608,8 @@ function PageInner() {
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>{CAT_ICONS[cat]}</div>
-          <strong style={{ display: "block", color: C.light }}>Nothing found here</strong>
-          <span style={{ fontSize: 13 }}>Try another category or city.</span>
+          <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
+          <span style={{ fontSize: 13 }}>We're still adding spots in your area. Try another category nearby.</span>
         </div>
       )}
       {view.slice(0, 3).map((p, i) => (
@@ -3434,8 +3436,8 @@ function PageInner() {
               {!eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No upcoming plans found</strong>
-                  <span style={{ fontSize: 13 }}>Try searching a bigger city nearby.</span>
+                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
+                  <span style={{ fontSize: 13 }}>We're still expanding Wayfind events to your area. Check back soon.</span>
                 </div>
               )}
               {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
