@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v1.0";
+const BUILD = "v1.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1236,6 +1236,7 @@ function PageInner() {
   const [eventCounts, setEventCounts] = useState(null);
   const [mapMode, setMapMode] = useState("places");
   const [mapDate, setMapDate] = useState("all");
+  const [mapPreview, setMapPreview] = useState(null);
   const [weather, setWeather] = useState(null);
   const [suggested, setSuggested] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -1562,7 +1563,7 @@ function PageInner() {
   // at changes — category, sub-filter, vibe, sort, intent, distance, or screen.
   // Without this, changing a filter leaves you stranded mid-list looking at
   // different content.
-  useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} }, [cat, sub, vibe, sortBy, intent, searchRadius, screen, activeBadge, expSort, expOpenOnly]);
+  useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); }, [cat, sub, vibe, sortBy, intent, searchRadius, screen, activeBadge, expSort, expOpenOnly]);
   function pickSub(id) { setSub(id); setVibe("all"); }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
@@ -2671,7 +2672,7 @@ function PageInner() {
               const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
               return (
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} onSelect={openDetail} onSelectEvent={openVenue} />
+                  <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} onSelect={(p) => setMapPreview(p)} onSelectEvent={openVenue} />
                   <div style={{ position: "absolute", top: 12, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     <button onClick={() => setMapMode("places")} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "places" ? C.accent : "transparent", color: mapMode === "places" ? "#fff" : C.light }}>Places</button>
                     <button onClick={() => { setMapMode("events"); if (!events) loadEvents(); }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
@@ -2700,7 +2701,7 @@ function PageInner() {
                       {eventsUnavailable && <div style={{ fontSize: 11.5, color: "#fff", textAlign: "center", marginTop: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>Add a Ticketmaster key in Vercel to switch events on.</div>}
                     </div>
                   )}
-                  {mapMode === "places" && subs.length > 0 && (
+                  {mapMode === "places" && subs.length > 0 && !mapPreview && (
                     <div style={{ position: "absolute", left: 0, right: 0, bottom: 26, zIndex: 5, padding: "0 12px" }}>
                       <div style={{ display: "flex", gap: 6, overflowX: "auto", background: "rgba(13,17,23,.92)", border: `1px solid ${C.border}`, borderRadius: 14, padding: 8, WebkitOverflowScrolling: "touch" }}>
                         {subs.map((s) => (
@@ -2709,6 +2710,38 @@ function PageInner() {
                       </div>
                     </div>
                   )}
+                  {mapMode === "places" && mapPreview && (() => {
+                    const mp = mapPreview;
+                    const sl = scoreLabel(mp.wfScore);
+                    const opensLater = mp.openNow === false && mp.nextOpen && mp.nextOpen.today;
+                    const openList = (view || []).filter((x) => x && x.openNow === true && x.distMi != null);
+                    const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
+                    let tag = null;
+                    if (closestOpen && closestOpen.id === mp.id) tag = { t: "Closest open spot", c: C.green };
+                    else if (mp.distMi != null && mp.distMi >= 25 && (mp.rating || 0) >= 4.5) tag = { t: "Worth the drive", c: C.gold };
+                    return (
+                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
+                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
+                          <div onClick={() => openDetail(mp)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
+                            <FallbackImg src={mp.photo} icon="📍" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
+                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{mp.name}</div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
+                                {sl && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{sl.word}</span>}
+                                {mp.rating && <span style={{ color: "#F59E0B", fontSize: 12 }}>★ {mp.rating}</span>}
+                                {mp.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
+                                {mp.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
+                                {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
+                              </div>
+                              {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
+                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: tag ? 4 : 5 }}>See details →</div>
+                            </div>
+                          </div>
+                          <button onClick={(ev) => { ev.stopPropagation(); setMapPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })()}
