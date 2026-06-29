@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.5";
+const BUILD = "v2.6";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -525,8 +525,8 @@ function CleanTile({ onClick, color, icon, label, sub, labelColor }) {
 // a colored icon badge that matches its tile, a large title, and a muted subtitle.
 function RadiusSlider({ mi, onChange, where }) {
   return (
-    <div style={{ padding: "12px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-      <style>{".wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;outline:none;margin:6px 0;cursor:pointer}.wf-radius::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer;margin-top:-11px}.wf-radius::-moz-range-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer}"}</style>
+    <div style={{ padding: "9px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+      <style>{".wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;outline:none;margin:2px 0;cursor:pointer}.wf-radius::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer;margin-top:-11px}.wf-radius::-moz-range-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer}"}</style>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
@@ -1502,6 +1502,19 @@ function PageInner() {
     const open = pool.filter((p) => p.openNow === true);
     const src = (open.length >= 3 ? open : pool).slice(0, 8);
     return src[Math.floor(Math.random() * src.length)];
+  }
+  function rerollSurprise() {
+    const pool = (surprisePool || []).filter(Boolean);
+    if (!pool.length) { showToast("Nothing to roll here yet"); return; }
+    setRolling(true);
+    const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
+    setTimeout(() => {
+      clearInterval(iv);
+      setRolling(false);
+      setDiceFace("🎲");
+      setSurprisePick(pool[Math.floor(Math.random() * pool.length)]);
+    }, 800);
   }
 
   // The pool the dice rolls from depends on where the user is: their favorites,
@@ -3118,14 +3131,19 @@ function PageInner() {
                 // v3.7: show exactly two discovery cards — pin Top 5 (the entry into the
                 // ranked list), then one rotating provocative hook. The rest weave into
                 // the feed below. Title styled to match the "Events nearby" section.
-                const t5 = hookCards.find((h) => h.id === "top5");
-                const oth = hookCards.filter((h) => h.id !== "top5");
-                const bannerHooks = (t5 ? [t5, ...oth] : oth).slice(0, 2);
-                if (!bannerHooks.length) return null;
+                if (!suggested || !suggested.length) return null;
                 return (
                   <div style={{ margin: "2px 2px 0" }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 8 }}>📍 Near you right now</div>
-                    <HooksBanner hooks={bannerHooks} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
+                    <div onClick={openSurprise} style={{ position: "relative", overflow: "hidden", borderRadius: 18, cursor: "pointer", background: `linear-gradient(135deg, ${C.purple}2E 0%, ${C.accent}1F 52%, ${C.card} 100%)`, border: `1.5px solid ${C.purple}`, padding: 17 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                        <div style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>🎲</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 19, fontWeight: 800, color: C.text, letterSpacing: "-0.2px" }}>Roll the Dice</div>
+                          <div style={{ fontSize: 12.5, color: C.light, marginTop: 3, lineHeight: 1.45 }}>Cannot decide? We pick one strong spot near you, tuned to what you like. Roll as many times as you want.</div>
+                        </div>
+                      </div>
+                      <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, background: C.purple, color: "#0D1117", borderRadius: 999, fontSize: 13.5, fontWeight: 800, padding: "9px 18px" }}>🎲 Roll for me →</div>
+                    </div>
                   </div>
                 );
               })()}
@@ -3234,7 +3252,7 @@ function PageInner() {
             <div>
               <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "4px 2px 10px" }}>‹ Back</div>
               <div style={{ paddingBottom: 6 }}>
-                <div style={{ fontSize: 24, fontWeight: 800, color: C.text }}>✨ Your {period} Pick</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
                 <div style={{ fontSize: 13, color: C.muted, marginTop: 3, lineHeight: 1.5 }}>{sSub}</div>
               </div>
               {surpriseLoading && <Loader label="Finding something good" pad="16px 2px" />}
@@ -3282,7 +3300,7 @@ function PageInner() {
                     ) : (
                       <button onClick={() => openDetail(p)} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "12px 0", cursor: "pointer" }}>See details</button>
                     )}
-                    <button onClick={() => setSurprisePick(pickSurprise(surprisePool))} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>✨ Try another</button>
+                    <button onClick={rerollSurprise} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>🎲 Roll again</button>
                   </div>
                   {/* v4.6: backup picks split into Open now and For later so closed spots are labeled, not hidden in prime slots. */}
                   {(() => {
