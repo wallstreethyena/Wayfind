@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.0";
+const BUILD = "v4.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -489,8 +489,8 @@ function ImgTile({ src, onClick, overlay, fallback }) {
 // weather tile passes a small <img>); `labelColor` overrides the label color when needed.
 function CleanTile({ onClick, color, icon, label, sub, labelColor }) {
   return (
-    <button onClick={onClick} style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", minHeight: 96, borderRadius: 16, cursor: "pointer", padding: "10px 6px", textAlign: "center", border: `1.5px solid ${color}`, background: `linear-gradient(150deg, ${color}26, ${color}0D 72%), ${C.card}`, boxShadow: "0 2px 10px rgba(0,0,0,.28)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5 }}>
-      <span style={{ fontSize: 30, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 32 }}>{icon}</span>
+    <button onClick={onClick} style={{ position: "relative", width: "100%", minHeight: 76, borderRadius: 14, cursor: "pointer", padding: "8px 6px", textAlign: "center", border: `1.5px solid ${color}`, background: `linear-gradient(150deg, ${color}26, ${color}0D 72%), ${C.card}`, boxShadow: "0 2px 10px rgba(0,0,0,.28)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+      <span style={{ fontSize: 27, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 29 }}>{icon}</span>
       <span style={{ fontSize: 12.5, fontWeight: 800, color: labelColor || color }}>{label}</span>
       {sub && <span style={{ fontSize: 9.5, fontWeight: 700, color: C.muted, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{sub}</span>}
     </button>
@@ -2700,7 +2700,7 @@ function PageInner() {
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
               {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
               <div style={{ marginBottom: 16 }}>
-                <button onClick={() => setMenuSheet("menu")} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px", marginBottom: 14 }}>
+                <button onClick={() => setMenuSheet("menu")} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", marginBottom: 12 }}>
                   <span style={{ width: 32, height: 32, flexShrink: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4 }}>
                     <span style={{ background: C.accent, borderRadius: 3 }} />
                     <span style={{ background: C.accent, borderRadius: 3, opacity: 0.65 }} />
@@ -2729,7 +2729,7 @@ function PageInner() {
                 <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
                   <div onClick={() => openDetail(heroPick)} style={{ cursor: "pointer" }}>
                     <div style={{ position: "relative" }}>
-                      <FallbackImg src={heroPick.photo} icon="📍" style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }} />
+                      <FallbackImg src={heroPick.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
                       <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
                         <span style={{ fontSize: 12 }}>{heroIsGem ? "💎" : "✨"}</span>
                         <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{heroIsGem ? "Hidden gem for right now" : "Start here · " + moment + " pick"}</span>
@@ -2758,38 +2758,7 @@ function PageInner() {
                 </div>
               )}
               {/* v3.7: mobile inline "You are exploring" card removed — it duplicated the 📍 This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
-              {libraryEvents && libraryEvents.length > 0 && (
-                <div style={{ marginBottom: 16, border: `1.5px solid ${C.blue}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(56,189,248,.12) 0%, ${C.card} 60%)` }}>
-                  <div style={{ padding: "14px 16px 10px" }}>
-                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(56,189,248,.16)", border: `1px solid ${C.blue}55`, borderRadius: 999, padding: "4px 10px", marginBottom: 8 }}>
-                      <span style={{ fontSize: 12 }}>📚</span>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: C.blue, textTransform: "uppercase", letterSpacing: "0.6px" }}>Local &amp; Community</span>
-                    </div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Happening at the library</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Free local programs near you this week</div>
-                  </div>
-                  <div style={{ padding: "0 12px 12px" }}>
-                    {libraryEvents.slice(0, 3).map((e, i) => {
-                      const dt = e.date ? new Date(e.date + "T00:00:00") : null;
-                      const shown = Math.min(libraryEvents.length, 3);
-                      return (
-                        <div key={e.id || i} onClick={() => { if (e.url) window.open(e.url, "_blank", "noopener"); }} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: i < shown - 1 ? 8 : 0, cursor: "pointer" }}>
-                          <div style={{ flexShrink: 0, width: 46, textAlign: "center" }}>
-                            {dt && <div style={{ fontSize: 11, fontWeight: 800, color: C.blue, textTransform: "uppercase" }}>{dt.toLocaleDateString(undefined, { month: "short" })}</div>}
-                            {dt && <div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1 }}>{dt.getDate()}</div>}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
-                            <div style={{ fontSize: 12, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.time ? e.time + " · " : ""}{e.venue || "Manatee County Library"}</div>
-                          </div>
-                          <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
-                        </div>
-                      );
-                    })}
-                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 10, textAlign: "center" }}>Manatee County Public Library · via LibCal</div>
-                  </div>
-                </div>
-              )}
+              {/* v4.1: standalone "Happening at the library" card removed from home — this content now lives in the Community tile sheet (menuSheet === "community"). libraryEvents state and fetch are unchanged. */}
               {!isDesktop && foryouEvents && foryouEvents.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
