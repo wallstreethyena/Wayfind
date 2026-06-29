@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v5.5";
+const BUILD = "v1.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -728,6 +728,18 @@ function placeVibe(p, weather) {
     return body ? { icon: "🍽️", title: "Good to know", body } : null;
   }
   return null;
+}
+
+// Straight-line miles between two coords. Used to recompute distance from the
+// user's real location when a place is opened from a flow that searched around a
+// different point (e.g. an event venue searched near the event, not near you).
+function miBetween(aLat, aLng, bLat, bLng) {
+  if (aLat == null || aLng == null || bLat == null || bLng == null) return null;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const R = 3958.8;
+  const dLat = toRad(bLat - aLat), dLng = toRad(bLng - aLng);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
 }
 
 function todayHours(extra) {
@@ -1529,8 +1541,14 @@ function PageInner() {
     const ctr = (e.lat != null && e.lng != null) ? { lat: e.lat, lng: e.lng } : center;
     try {
       const v = await findPlace(q, ctr);
-      if (v) openDetail(v);
-      else showToast("Could not find this venue");
+      if (v) {
+        if (v.lat != null && v.lng != null && center && center.lat != null) {
+          const d = miBetween(center.lat, center.lng, v.lat, v.lng);
+          if (d != null) v.distMi = d;
+        }
+        v._event = { name: e.name || "Event", date: e.date || "", time: e.time || "", url: e.url || "" };
+        openDetail(v);
+      } else showToast("Could not find this venue");
     } catch { showToast("Could not load venue details"); }
   }
 
@@ -3380,6 +3398,7 @@ function PageInner() {
           <div style={sheet} onClick={(e) => e.stopPropagation()}>
             <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
               <button onClick={() => { logEvent("share", detail, { kind: "place" }); shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Share spot</button>
+              <button onClick={() => quickSaveFavorite(detail)} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, background: isSaved(detail.id) ? C.adim : C.card, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{isSaved(detail.id) ? "✓ Saved" : "❤️ Save"}</button>
               <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕ Close</button>
             </div>
             {detail.photos && detail.photos.length > 0 ? (
@@ -3401,6 +3420,14 @@ function PageInner() {
             )}
             <div style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
               {/* 1. Basics */}
+              {detail._event && (
+                <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 12, padding: "10px 13px", marginBottom: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 3 }}>🎟️ Event</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1.3 }}>{detail._event.name}</div>
+                  {(detail._event.date || detail._event.time) && <div style={{ fontSize: 13, fontWeight: 700, color: C.light, marginTop: 3 }}>{[detail._event.date, detail._event.time].filter(Boolean).join(" · ")}</div>}
+                  <div style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>at {detail.name}</div>
+                </div>
+              )}
               <div style={{ fontSize: 21, fontWeight: 800, marginBottom: 6, color: C.text, lineHeight: 1.25 }}>{detail.name}</div>
               {detail.address && (
                 <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 10, lineHeight: 1.4 }}>📍 {detail.address}</a>
@@ -3417,9 +3444,27 @@ function PageInner() {
                   </span>
                 )}
                 {detail.priceNum != null ? <PriceMeter level={detail.priceNum} word /> : (detail.price && <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>{detail.price}</span>)}
-                {detail.openNow != null && <span style={{ fontSize: 13, fontWeight: 700, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open" : "Closed"}</span>}
+                {detail.openNow != null && <button onClick={() => setHoursOpen((o) => !o)} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "transparent", border: "none", padding: 0, cursor: "pointer", fontSize: 13, fontWeight: 700, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open" : "Closed"} <span style={{ fontSize: 10 }}>{hoursOpen ? "▴" : "▾"}</span></button>}
                 {detail.distMi != null && <span style={{ fontSize: 13, color: C.muted }}>· {detail.distMi.toFixed(1)} mi</span>}
               </div>
+
+              {hoursOpen && (
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
+                  {detailExtra && detailExtra.hours && detailExtra.hours.length > 0 ? (
+                    detailExtra.hours.map((line, i) => {
+                      const parts = line.split(": ");
+                      return (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5, color: C.light, padding: "2px 0" }}>
+                          <span style={{ fontWeight: 600, color: C.text }}>{parts[0]}</span>
+                          <span style={{ textAlign: "right" }}>{parts.slice(1).join(": ")}</span>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra ? "Hours not listed for this place." : "Loading hours…"}</div>
+                  )}
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
                 {experienceBadges(detail, null, 4).map((b) => (
@@ -3730,27 +3775,7 @@ function PageInner() {
                 )}
               </div>
 
-              {detailExtra && detailExtra.hours && detailExtra.hours.length > 0 && (
-                <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 12, marginBottom: 4 }}>
-                  <div onClick={() => setHoursOpen((o) => !o)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.text }}>
-                    <span>🕒 Hours</span>
-                    <span style={{ fontSize: 12, color: C.accent, fontWeight: 800 }}>{hoursOpen ? "▴" : "▾"}</span>
-                  </div>
-                  {hoursOpen && (
-                    <div style={{ marginTop: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
-                      {detailExtra.hours.map((line, i) => {
-                        const parts = line.split(": ");
-                        return (
-                          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5, color: C.light, padding: "2px 0" }}>
-                            <span style={{ fontWeight: 600, color: C.text }}>{parts[0]}</span>
-                            <span style={{ textAlign: "right" }}>{parts.slice(1).join(": ")}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
+              {/* Hours now expand from the Open/Closed status badge near the title. */}
 
             </div>
           </div>
