@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v1.5";
+const BUILD = "v1.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -31,6 +31,10 @@ function Grabber() {
   );
 }
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
+const FEATURED_AREAS = [
+  { name: "Realengo, Rio de Janeiro", short: "Realengo", lat: -22.8847, lng: -43.4286, radius: 48280 },
+  { name: "Padre Miguel, Rio de Janeiro", short: "Padre Miguel", lat: -22.8770, lng: -43.4470, radius: 48280 },
+];
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
 const INTENTS = [
@@ -1207,8 +1211,10 @@ function PageInner() {
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("best");
-  const [searchRadius, setSearchRadius] = useState(24140); // meters, default ~15 miles (matches the 15 mi Refine option)
+  const [searchRadius, setSearchRadius] = useState(24140); // meters, ~15 miles default
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
+  const [radiusSheet, setRadiusSheet] = useState(false);
+  const [pendingRadius, setPendingRadius] = useState(24140);
   const [showRadiusWheel, setShowRadiusWheel] = useState(false);
   const [showNearbyExp, setShowNearbyExp] = useState(false); // v3.7 Phase 2: ✨ Nearby experiences dropdown in the sort row
   const [sortOpen, setSortOpen] = useState(false);
@@ -2356,6 +2362,17 @@ function PageInner() {
     }
   }
 
+  function jumpToArea(a) {
+    manualRef.current = true;
+    setSearchMode(false);
+    setCenter({ lat: a.lat, lng: a.lng, name: a.name });
+    setLocName(a.name);
+    setSearchRadius(a.radius || 24140);
+    setQuery("");
+    setSuggestions([]);
+    try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
+  }
+
   async function submitSearch() {
     const q = query.trim();
     if (!q) return;
@@ -2554,7 +2571,7 @@ function PageInner() {
         <div style={{ padding: "0 2px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => setSortBy("best")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
-            <button onClick={() => setSortBy("near")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
+            <button onClick={() => { setSortBy("near"); setPendingRadius(searchRadius); setRadiusSheet(true); }} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
             <button onClick={() => setShowNearbyExp((o) => !o)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Refine {showNearbyExp ? "▲" : "▼"}</button>
           </div>
           {showNearbyExp && (
@@ -2636,15 +2653,15 @@ function PageInner() {
             <button onClick={shareApp} aria-label="Share Wayfind" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, fontSize: 15, fontWeight: 700, borderRadius: 999, cursor: "pointer", background: "transparent", color: C.muted, border: `1px solid ${C.border}` }}>{shareCopied ? "✓" : "↗"}</button>
           </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, position: "relative" }}>
-          <div style={{ position: "relative", width: "100%" }}>
+        <div style={{ display: "flex", gap: 8, position: "relative" }}>
+          <div style={{ flex: 1, position: "relative" }}>
             <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none", opacity: 0.85 }}>🔍</span>
             <input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
-              placeholder="Search a place, or a new location"
+              placeholder="Search a place or city"
               style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px 12px 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
@@ -2665,11 +2682,15 @@ function PageInner() {
               </div>
             )}
           </div>
-          <button onClick={submitSearch} style={{ width: "100%", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", border: "none", borderRadius: 14, color: "#fff", fontSize: 15, fontWeight: 800, height: 48, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 4px 14px rgba(249,115,22,.45)" }}>
-            <svg width="13" height="16" viewBox="0 0 24 24" fill="#fff" aria-hidden="true" style={{ display: "block" }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
-            Wayfind It
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
-          </button>
+          <button onClick={submitSearch} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", border: "none", borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 800, padding: "0 16px", height: 48, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 2px 10px rgba(249,115,22,.4)" }}>Wayfind It</button>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Featured:</span>
+          {FEATURED_AREAS.map((a) => (
+            <button key={a.name} onClick={() => jumpToArea(a)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+              <span>📍</span>{a.short}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -2987,7 +3008,7 @@ function PageInner() {
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Your picks</div>
                   <div style={{ display: "flex", gap: 6 }}>
                     <button onClick={() => setSortBy("best")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
-                    <button onClick={() => setSortBy("near")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
+                    <button onClick={() => { setSortBy("near"); setPendingRadius(searchRadius); setRadiusSheet(true); }} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
                   </div>
                 </div>
               )}
@@ -3441,6 +3462,31 @@ function PageInner() {
           <div style={{ fontSize: 92, lineHeight: 1, animation: "wfroll 0.5s linear infinite" }}>{diceFace}</div>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>Finding your spot…</div>
           <div style={{ fontSize: 12.5, color: C.light }}>Letting the dice decide</div>
+        </div>
+      )}
+      {radiusSheet && (
+        <div style={sheetBg} onClick={() => setRadiusSheet(false)}>
+          <div style={{ ...sheet, padding: "6px 16px calc(20px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setRadiusSheet(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
+            <div style={{ textAlign: "center", marginTop: 4 }}>
+              <div style={{ fontSize: 30 }}>📍</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginTop: 4 }}>How far should we look?</div>
+              <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>Search distance from {locName || center.name || "you"}.</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 18 }}>
+              {[{ mi: 3, v: 4828 }, { mi: 5, v: 8047 }, { mi: 10, v: 16093 }, { mi: 15, v: 24140 }, { mi: 25, v: 40234 }, { mi: 30, v: 48280 }].map((r) => {
+                const on = pendingRadius === r.v;
+                return (
+                  <button key={r.v} onClick={() => setPendingRadius(r.v)} style={{ padding: "16px 8px", borderRadius: 14, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, fontSize: 18, fontWeight: 800, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <span>{r.mi}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: on ? C.accent : C.muted }}>miles</span>
+                  </button>
+                );
+              })}
+            </div>
+            <button onClick={() => { setSearchRadius(pendingRadius); setRadiusSheet(false); }} style={{ width: "100%", marginTop: 18, height: 52, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 15.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>Search this area</button>
+            <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 10 }}>We only search again when you tap the button, to save data.</div>
+          </div>
         </div>
       )}
       {diceChoose && !rolling && (
