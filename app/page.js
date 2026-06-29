@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.6";
+const BUILD = "v4.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1149,7 +1149,7 @@ function PageInner() {
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("best");
-  const [searchRadius, setSearchRadius] = useState(24000); // meters, default ~15 miles
+  const [searchRadius, setSearchRadius] = useState(24140); // meters, default ~15 miles (matches the 15 mi Refine option)
   const [showRadiusWheel, setShowRadiusWheel] = useState(false);
   const [showNearbyExp, setShowNearbyExp] = useState(false); // v3.7 Phase 2: ✨ Nearby experiences dropdown in the sort row
   const [sortOpen, setSortOpen] = useState(false);
@@ -2428,7 +2428,7 @@ function PageInner() {
       <div style={{ padding: "10px 2px 6px" }}>
         {loading ? <Loader label="Finding the best spots" pad="0" /> : (
           <>
-            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, letterSpacing: "-0.2px" }}>{searchLabel || picksHeader(cat)}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.3px" }}>{searchLabel || picksHeader(cat)}</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
               <div style={{ fontSize: 12.5, color: C.muted }}>
                 {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
@@ -2445,54 +2445,37 @@ function PageInner() {
       </div>
       {!loading && (
         <div style={{ padding: "0 2px 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => setSortBy("best")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
             <button onClick={() => setSortBy("near")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
-            <button onClick={() => { setShowNearbyExp((o) => !o); setShowRadiusWheel(false); }} style={{ display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>✨ Nearby {showNearbyExp ? "▲" : "▼"}</button>
-            {sortBy === "near" && (
-              <button onClick={() => { setShowRadiusWheel((o) => !o); setShowNearbyExp(false); }} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 999, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📏 {Math.round(searchRadius / 1609)} mi {showRadiusWheel ? "▲" : "▼"}</button>
-            )}
+            <button onClick={() => setShowNearbyExp((o) => !o)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Refine {showNearbyExp ? "▲" : "▼"}</button>
           </div>
           {showNearbyExp && (
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600, marginBottom: 8 }}>Curated experiences near you</div>
+            <div style={{ marginTop: 10, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 800, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.4px" }}>How far are you willing to go?</div>
+              <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+                {[{ label: "5 mi", val: 8047 }, { label: "10 mi", val: 16093 }, { label: "15 mi", val: 24140 }, { label: "20 mi", val: 32187 }, { label: "30 mi", val: 48280 }, { label: "50 mi", val: 80467 }].map((r) => {
+                  const on = searchRadius === r.val;
+                  return (
+                    <button key={r.val} onClick={() => setSearchRadius(r.val)} style={{ flexShrink: 0, padding: "9px 16px", borderRadius: 12, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.accent : C.panel, color: on ? "#fff" : C.light, fontSize: 13.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{r.label}</button>
+                  );
+                })}
+              </div>
+              <div style={{ fontSize: 11, color: C.muted, fontWeight: 800, margin: "16px 0 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>Curated experiences near you</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {HOME_CHIPS.map((k) => {
                   const e = EXPERIENCES[k];
                   if (!e) return null;
                   return (
-                    <button key={k} onClick={() => { setShowNearbyExp(false); openExperience(k); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.card, color: C.light, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                    <button key={k} onClick={() => { setShowNearbyExp(false); openExperience(k); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.panel, color: C.light, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                       <span>{e.icon}</span><span>{e.label}</span>
                     </button>
                   );
                 })}
               </div>
+              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5, marginTop: 16, paddingTop: 12, borderTop: `1px solid ${C.border}` }}><b style={{ color: C.light }}>Best</b> = star rating weighted by number of reviews, so trusted favorites rank above lightly reviewed spots.</div>
             </div>
           )}
-          {sortBy === "near" && showRadiusWheel && (
-            <div style={{ marginBottom: 10 }}>
-              <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600, marginBottom: 8 }}>How far are you willing to go?</div>
-              <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                {[
-                  { label: "5 mi", val: 8047 },
-                  { label: "10 mi", val: 16093 },
-                  { label: "15 mi", val: 24140 },
-                  { label: "20 mi", val: 32187 },
-                  { label: "30 mi", val: 48280 },
-                  { label: "50 mi", val: 80467 },
-                ].map((r) => {
-                  const on = searchRadius === r.val;
-                  return (
-                    <button key={r.val} onClick={() => { setSearchRadius(r.val); setShowRadiusWheel(false); }} style={{ flexShrink: 0, padding: "10px 18px", borderRadius: 12, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.accent : C.card, color: on ? "#fff" : C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", textAlign: "center" }}>
-                      <div>{r.label}</div>
-                      <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{on ? "selected" : "away"}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>Best = star rating weighted by number of reviews, so trusted favorites rank above lightly reviewed spots.</div>
         </div>
       )}
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err}</div>}
@@ -2586,7 +2569,7 @@ function PageInner() {
             })}
           </div>
         ) : (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 7, padding: "10px 14px", background: C.panel, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 7, padding: "10px 14px", background: C.panel, flexShrink: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
             <button key="surprise" onClick={openSurprise} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 22, border: `1.5px solid ${C.purple}`, background: screen === "surprise" ? C.purple : "transparent", color: screen === "surprise" ? "#0D1117" : C.purple, fontSize: 13.5, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>🎁 Surprise Me</button>
             {CATEGORIES.map((c) => {
               const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
@@ -2601,9 +2584,9 @@ function PageInner() {
 
       {/* Sub-filter row. v3.8: Explore shows it as 4-across tiles; on the Map it is moved onto the map as a bottom overlay (see map render below). */}
       {screen === "explore" && subs.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 7, padding: "2px 14px 10px", background: C.panel, flexShrink: 0 }}>
+        <div style={{ display: "flex", gap: 7, padding: "2px 14px 10px", background: C.panel, flexShrink: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           {subs.map((s) => (
-            <button key={s.id} onClick={() => pickSub(s.id)} style={{ minHeight: 40, padding: "8px 6px", borderRadius: 12, border: `1.5px solid ${sub === s.id ? C.accent : C.border}`, background: sub === s.id ? C.accent : C.card, color: sub === s.id ? "#fff" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.label}</button>
+            <button key={s.id} onClick={() => pickSub(s.id)} style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 999, border: `1.5px solid ${sub === s.id ? C.accent : C.border}`, background: sub === s.id ? C.accent : C.card, color: sub === s.id ? "#fff" : C.light, fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{s.label}</button>
           ))}
         </div>
       )}
