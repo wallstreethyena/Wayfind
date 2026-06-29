@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v1.3";
+const BUILD = "v1.4";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -21,6 +21,15 @@ const CAT_COLOR = {
   hotels: { c: "#38BDF8", dim: "rgba(56,189,248,.15)" },
   shopping: { c: "#22C55E", dim: "rgba(34,197,94,.15)" },
 };
+const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
+// A small grab handle at the top of every bottom sheet, so it reads as "pull down to close".
+function Grabber() {
+  return (
+    <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "9px 0 5px" }}>
+      <div style={{ width: 38, height: 5, borderRadius: 99, background: "#3A4453" }} />
+    </div>
+  );
+}
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
@@ -1302,7 +1311,6 @@ function PageInner() {
   const tokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
-  const detailSheetRef = useRef(null);
   const sheetDragRef = useRef({});
   const insightFullCache = useRef({});
   const detailCache = useRef({});
@@ -1555,82 +1563,43 @@ function PageInner() {
     } catch { showToast("Could not load venue details"); }
   }
 
-  // Swipe down to close the detail sheet. Engages only when the content is at the
-  // top and the pull is clearly downward, so vertical scrolling and the horizontal
-  // photo gallery keep working. Tapping Close still works as before.
-  function sheetTouchStart(e) {
-    const el = detailSheetRef.current;
+  // Swipe a bottom sheet down (from its top) to close it, shared across every pop-up
+  // sheet. Engages only when the sheet is scrolled to the top and the pull is clearly
+  // downward, so normal scrolling and any horizontal content keep working; each sheet
+  // passes its own close action. Tapping a Close button still works too.
+  function sheetDragStart(e, onClose) {
+    const el = e.currentTarget;
     const t = e.touches[0];
-    sheetDragRef.current = { y0: t.clientY, x0: t.clientX, atTop: el ? el.scrollTop <= 0 : true, active: true, decided: false, dragging: false, dy: 0 };
-    if (el) el.style.transition = "none";
+    sheetDragRef.current = { el, onClose, y0: t.clientY, x0: t.clientX, atTop: el.scrollTop <= 0, active: true, decided: false, dragging: false, dy: 0 };
+    el.style.transition = "none";
   }
-  function sheetTouchMove(e) {
+  function sheetDragMove(e) {
     const d = sheetDragRef.current;
-    if (!d || !d.active) return;
+    if (!d || !d.active || !d.el) return;
     const dy = e.touches[0].clientY - d.y0;
     const dx = e.touches[0].clientX - d.x0;
     if (!d.decided) {
-      if (Math.abs(dy) < 8 && Math.abs(dx) < 8) return;
+      if (Math.abs(dy) < 6 && Math.abs(dx) < 6) return;
       d.decided = true;
       d.dragging = d.atTop && dy > 0 && Math.abs(dy) > Math.abs(dx);
       if (!d.dragging) { d.active = false; return; }
     }
-    if (d.dragging && dy > 0) {
-      d.dy = dy;
-      const el = detailSheetRef.current;
-      if (el) el.style.transform = "translateY(" + dy + "px)";
-    }
+    if (d.dragging && dy > 0) { d.dy = dy; d.el.style.transform = "translateY(" + dy + "px)"; }
   }
-  function sheetTouchEnd() {
+  function sheetDragEnd() {
     const d = sheetDragRef.current;
-    const el = detailSheetRef.current;
-    if (el) el.style.transition = "transform .25s ease";
-    if (d && d.dragging && d.dy > 110) {
-      if (el) el.style.transform = "translateY(100%)";
-      setTimeout(() => setDetail(null), 180);
-    } else if (el) {
+    const el = d && d.el;
+    if (!el) { sheetDragRef.current = {}; return; }
+    el.style.transition = SHEET_EASE;
+    if (d.dragging && d.dy > 90) {
+      el.style.transform = "translateY(110%)";
+      const oc = d.onClose;
+      setTimeout(() => { try { oc && oc(); } catch (er) {} }, 340);
+    } else {
       el.style.transform = "translateY(0px)";
     }
     sheetDragRef.current = {};
   }
-
-  // Swipe in from the left edge to go back: dismisses whatever is open (sheet,
-  // preview, detail) or steps a sub-screen back to Explore. Listeners are passive,
-  // so it never blocks scrolling, the photo gallery, or the map; it is gated to the
-  // left edge and a clear rightward motion to avoid misfires; and it does nothing
-  // when there is nothing to back out of. A latest-value ref keeps state current.
-  const goBackRef = useRef(null);
-  goBackRef.current = () => {
-    if (lightbox) { setLightbox(null); return; }
-    if (allExpOpen) { setAllExpOpen(false); return; }
-    if (newListOpen) { setNewListOpen(false); return; }
-    if (authOpen) { setAuthOpen(false); return; }
-    if (accountOpen) { setAccountOpen(false); return; }
-    if (saveTarget) { setSaveTarget(null); return; }
-    if (menuSheet) { setMenuSheet(null); return; }
-    if (detail) { setDetail(null); return; }
-    if (mapPreview) { setMapPreview(null); return; }
-    if (activeList) { setActiveList(null); return; }
-    if (screen === "surprise" || screen === "experience") { setScreen("explore"); return; }
-  };
-  useEffect(() => {
-    let sx = 0, sy = 0, edge = false, decided = false, fire = false;
-    function ts(e) { const t = e.touches && e.touches[0]; if (!t) return; sx = t.clientX; sy = t.clientY; edge = t.clientX <= 24; decided = false; fire = false; }
-    function tm(e) {
-      if (!edge) return;
-      const t = e.touches && e.touches[0]; if (!t) return;
-      const dx = t.clientX - sx, dy = t.clientY - sy;
-      if (!decided) { if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return; decided = true; fire = dx > 0 && Math.abs(dx) > Math.abs(dy) * 1.3; }
-    }
-    function te(e) {
-      if (edge && fire) { const t = e.changedTouches && e.changedTouches[0]; const dx = t ? t.clientX - sx : 0; if (dx > 70 && goBackRef.current) goBackRef.current(); }
-      edge = false; decided = false; fire = false;
-    }
-    document.addEventListener("touchstart", ts, { passive: true });
-    document.addEventListener("touchmove", tm, { passive: true });
-    document.addEventListener("touchend", te, { passive: true });
-    return () => { document.removeEventListener("touchstart", ts); document.removeEventListener("touchmove", tm); document.removeEventListener("touchend", te); };
-  }, []);
 
   function shareApp() {
     const url = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://wayfind-xi.vercel.app";
@@ -3463,7 +3432,8 @@ function PageInner() {
       )}
       {diceChoose && !rolling && (
         <div onClick={() => setDiceChoose(false)} style={{ position: "fixed", inset: 0, zIndex: 1100, background: "rgba(13,17,23,.85)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-          <div onClick={(ev) => ev.stopPropagation()} style={{ width: "100%", maxWidth: 480, maxHeight: "82vh", overflowY: "auto", background: C.panel, borderTopLeftRadius: 20, borderTopRightRadius: 20, border: `1px solid ${C.border}`, padding: "18px 16px calc(22px + env(safe-area-inset-bottom))" }}>
+          <div onClick={(ev) => ev.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setDiceChoose(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd} style={{ width: "100%", maxWidth: 480, maxHeight: "82vh", overflowY: "auto", overscrollBehaviorY: "contain", transition: SHEET_EASE, background: C.panel, borderTopLeftRadius: 20, borderTopRightRadius: 20, border: `1px solid ${C.border}`, padding: "6px 16px calc(22px + env(safe-area-inset-bottom))" }}>
+            <Grabber />
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 3 }}>🎲 Pick for me</div>
             <div style={{ fontSize: 13, color: C.light, marginBottom: 14, lineHeight: 1.5 }}>Pick what you are in the mood for and the dice lands you on a top rated spot near you that is open now.</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
@@ -3507,7 +3477,8 @@ function PageInner() {
       {/* Detail sheet */}
       {detail && (
         <div style={sheetBg} onClick={() => setDetail(null)}>
-          <div ref={detailSheetRef} style={{ ...sheet, overscrollBehaviorY: "contain" }} onClick={(e) => e.stopPropagation()} onTouchStart={sheetTouchStart} onTouchMove={sheetTouchMove} onTouchEnd={sheetTouchEnd}>
+          <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setDetail(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
               <button onClick={() => { logEvent("share", detail, { kind: "place" }); shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Share spot</button>
               <button onClick={() => quickSaveFavorite(detail)} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, background: isSaved(detail.id) ? C.adim : C.card, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{isSaved(detail.id) ? "✓ Saved" : "❤️ Save"}</button>
@@ -3896,7 +3867,8 @@ function PageInner() {
 
       {allExpOpen && (
         <div onClick={() => setAllExpOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-          <div onClick={(ev) => ev.stopPropagation()} style={{ background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "82dvh", overflowY: "auto", padding: "18px 16px calc(18px + env(safe-area-inset-bottom))" }}>
+          <div onClick={(ev) => ev.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAllExpOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd} style={{ background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "82dvh", overflowY: "auto", overscrollBehaviorY: "contain", transition: SHEET_EASE, padding: "6px 16px calc(18px + env(safe-area-inset-bottom))" }}>
+            <Grabber />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>All experiences</div>
               <button onClick={() => setAllExpOpen(false)} aria-label="Close" style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 999, width: 34, height: 34, fontSize: 16, cursor: "pointer" }}>✕</button>
@@ -4127,7 +4099,8 @@ function PageInner() {
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && (
         <div style={sheetBg} onClick={() => setAccountOpen(false)}>
-          <div style={{ ...sheet, padding: "20px 16px 28px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
               <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, textTransform: "uppercase", flexShrink: 0 }}>{(user.email || "?").slice(0, 1)}</div>
@@ -4148,7 +4121,8 @@ function PageInner() {
       {/* App-tile sheets: opened from the home navigation grid */}
       {menuSheet && (
         <div style={sheetBg} onClick={() => setMenuSheet(null)}>
-          <div style={{ ...sheet, padding: "20px 16px 28px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setMenuSheet(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             {menuSheet === "menu" && (
               <>
@@ -4307,7 +4281,8 @@ function PageInner() {
       {/* Save-to-list sheet */}
       {authOpen && (
         <div style={sheetBg} onClick={() => setAuthOpen(false)}>
-          <div style={{ ...sheet, padding: "20px 16px 32px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
             <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
@@ -4338,7 +4313,8 @@ function PageInner() {
       )}
       {saveTarget && (
         <div style={sheetBg} onClick={() => setSaveTarget(null)}>
-          <div style={{ ...sheet, padding: "20px 16px 32px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setSaveTarget(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>Add to favorites</div>
@@ -4360,7 +4336,8 @@ function PageInner() {
       {/* Create-list sheet */}
       {newListOpen && (
         <div style={sheetBg} onClick={() => setNewListOpen(false)}>
-          <div style={{ ...sheet, padding: "20px 16px 32px" }} onClick={(e) => e.stopPropagation()}>
+          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setNewListOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+            <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, color: C.text }}>New list</div>
             <input
