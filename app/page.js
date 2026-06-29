@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.9";
+const BUILD = "v5.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2929,6 +2929,24 @@ function PageInner() {
           const sSub = sOpen ? "Open now, nearby, and worth your time."
             : sOpensLater ? (p.nextOpen.label + " · a strong pick for a little later.")
             : "A top pick nearby, chosen for rating, distance, and fit.";
+          // v5.0: state-aware primary action. Never tell someone to drive to a closed place.
+          const openAlt = surprisePool.find((o) => o && o.openNow === true && (!p || o.id !== p.id)) || null;
+          const goMaps = () => { if (p && p.mapsUrl) window.open(p.mapsUrl, "_blank", "noopener"); else if (p) openDetail(p); };
+          let primaryLabel = "Take me there →";
+          let primaryAction = goMaps;
+          if (p && !sOpen) {
+            if (sOpensLater) { primaryLabel = "Plan for " + p.nextOpen.label.replace(/^opens\s+/i, "") + " →"; primaryAction = goMaps; }
+            else { primaryLabel = isSaved(p.id) ? "Saved ✓" : "Save for later →"; primaryAction = () => quickSaveFavorite(p); }
+          }
+          const sWhy = [];
+          if (p) {
+            if (sOpen) sWhy.push("open now");
+            else if (sOpensLater) sWhy.push("opens " + p.nextOpen.label.replace(/^opens\s+/i, "").trim());
+            if (p.rating != null && p.rating >= 4.5) sWhy.push("local favorite");
+            else if (sl && sl.word) sWhy.push(sl.word.toLowerCase() + " rated");
+            if (p.distMi != null && p.distMi <= 20) sWhy.push("close enough");
+            sWhy.push("strong " + period.toLowerCase() + " option");
+          }
           return (
             <div>
               <div onClick={() => setScreen("explore")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "4px 2px 10px" }}>‹ Back</div>
@@ -2959,6 +2977,7 @@ function PageInner() {
                         {p.openNow === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
                         {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                       </div>
+                      {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
                       {badges.length > 0 && (
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
                           {badges.map((b) => (
@@ -2969,9 +2988,13 @@ function PageInner() {
                       {blurbs[p.id] && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45, marginTop: 10 }}><span style={{ color: C.accent }}>✨ </span>{blurbs[p.id]}</div>}
                     </div>
                   </div>
-                  <button onClick={() => { if (p.mapsUrl) window.open(p.mapsUrl, "_blank", "noopener"); else openDetail(p); }} style={{ width: "100%", marginTop: 12, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "14px 0", cursor: "pointer" }}>Take me there →</button>
+                  <button onClick={primaryAction} style={{ width: "100%", marginTop: 12, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "14px 0", cursor: "pointer" }}>{primaryLabel}</button>
                   <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                    <button onClick={() => openDetail(p)} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "12px 0", cursor: "pointer" }}>See details</button>
+                    {!sOpen && openAlt ? (
+                      <button onClick={() => setSurprisePick(openAlt)} style={{ flex: 1, background: "transparent", color: C.green, border: `1.5px solid ${C.green}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>Find open now</button>
+                    ) : (
+                      <button onClick={() => openDetail(p)} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "12px 0", cursor: "pointer" }}>See details</button>
+                    )}
                     <button onClick={() => setSurprisePick(pickSurprise(surprisePool))} style={{ flex: 1, background: "transparent", color: C.accent, border: `1.5px solid ${C.accent}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>✨ Try another</button>
                   </div>
                   {/* v4.6: backup picks split into Open now and For later so closed spots are labeled, not hidden in prime slots. */}
@@ -3970,11 +3993,7 @@ function PageInner() {
             )}
             {menuSheet === "explore" && (
               <>
-                <SheetHero icon="📍" title={locName || "Nearby"} subtitle="The best rated, currently open spots near you." color={C.green} />
-                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 16 }}>{intent ? (() => { const id = INTENTS.find((x) => x.id === intent); return id ? "Tuned for " + id.label.toLowerCase() + ", ranked by the Wayfind Score." : "The best-rated, currently open spots near you."; })() : "The best-rated, currently open spots near you, ranked best first."}</div>
-                <div style={{ fontSize: 14, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-                  {(suggested ? suggested.length : places.length) > 0 ? (<><b style={{ color: C.text }}>{suggested ? suggested.length : places.length} spots</b> worth your time nearby, ranked best first.</>) : "Loading the best spots near you."}
-                </div>
+                <SheetHero icon="📍" title={locName || "Nearby"} subtitle="Open spots near you, ranked best first." color={C.accent} />
                 {(() => {
                   const src = (suggested && suggested.length ? suggested : places) || [];
                   if (src.length < 4) return null;
@@ -3991,7 +4010,7 @@ function PageInner() {
                     </div>
                   );
                 })()}
-                <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.green, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Browse all spots →</button>
+                <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Show me the best spots →</button>
               </>
             )}
             {menuSheet === "pick" && (
