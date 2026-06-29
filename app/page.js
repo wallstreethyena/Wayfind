@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.1";
+const BUILD = "v3.2";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -868,7 +868,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
           <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
         </div>
       )}
-      <div style={{ display: "flex", flexWrap: isDesktop ? "wrap" : "nowrap", gap: 12, overflowX: isDesktop ? "visible" : "auto", paddingRight: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollSnapType: isDesktop ? "none" : "x mandatory", msOverflowStyle: "none", scrollbarWidth: "none" }}>
+      <div style={{ margin: isDesktop ? "0 -12px 14px" : "0 0 14px", gap: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none", ...(isDesktop ? { display: "flex", flexWrap: "wrap", overflowX: "visible", paddingLeft: 12, paddingRight: 12 } : { display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }) }}>
         {hooks.map((h) => {
           const isLiked = liked.has(h.id);
           const acc = h.accent || C.accent;
@@ -879,7 +879,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
               key={h.id}
               onClick={() => onOpen && onOpen(h)}
               style={{
-                flexShrink: 0, width: 290, height: 185,
+                flexShrink: 0, width: isDesktop ? 290 : "100%", height: isDesktop ? 185 : 152,
                 scrollSnapAlign: "start", borderRadius: 18,
                 overflow: "hidden", position: "relative", cursor: "pointer",
                 boxShadow: isLiked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)",
@@ -2624,6 +2624,7 @@ function PageInner() {
           const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : (blurbs[heroPick.id] || "")) : "";
           const heroIsGem = !!(heroPick && heroGem && heroPick.id === heroGem.id && (!heroTop || heroGem.id !== heroTop.id));
           const feedList = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
+          const homeFeed = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : feedList;
           return (
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
@@ -2707,21 +2708,7 @@ function PageInner() {
                       <div style={{ fontSize: 21, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div>
                     ) : null}
                   </div>
-                  {weather && (
-                    <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 7 }}>
-                      <span style={{ fontSize: 30, lineHeight: 1 }}>{weather.icon}</span>
-                      <span style={{ fontSize: 24, fontWeight: 800, color: C.text }}>{weather.temp}°</span>
-                    </div>
-                  )}
                 </div>
-                {weather && (
-                  <div style={{ display: "flex", gap: 7, marginBottom: 13, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-                    {weather.label && <span style={wstat}>{weather.label}</span>}
-                    {weather.feels != null && <span style={wstat}>Feels {weather.feels}°</span>}
-                    {weather.wind != null && <span style={wstat}>💨 {weather.wind} mph</span>}
-                    {weather.sunset && <span style={wstat}>🌅 Sunset {weather.sunset}</span>}
-                  </div>
-                )}
                 <div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{intentDef ? intentDef.icon + " " + intentDef.label + " near you" : "✨ " + moment + " picks"}</div>
                 <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{intentDef ? "Curated for " + intentDef.label.toLowerCase() + ", ranked by the Wayfind Score and tuned to " + moment.toLowerCase() + "." : "The best-rated, currently open spots near you, tuned to " + moment.toLowerCase() + "."}</div>
                 {list.length > 0 && (
@@ -2761,17 +2748,6 @@ function PageInner() {
                 )}
               </div>
               )}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, marginBottom: 8 }}>Why are you heading out?</div>
-                <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                  {INTENTS.map((it) => {
-                    const on = intent === it.id;
-                    return (
-                      <button key={it.id} onClick={() => setIntent(on ? null : it.id)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 15px", borderRadius: 999, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontSize: 14, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{it.icon} {it.label}</button>
-                    );
-                  })}
-                </div>
-              </div>
               {libraryEvents && libraryEvents.length > 0 && (
                 <div style={{ marginBottom: 16, border: `1.5px solid ${C.blue}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(56,189,248,.12) 0%, ${C.card} 60%)` }}>
                   <div style={{ padding: "14px 16px 10px" }}>
@@ -2810,14 +2786,14 @@ function PageInner() {
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🎟️ Events nearby</div>
                     <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                   </div>
-                  <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                    {foryouEvents.map((e) => {
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                    {foryouEvents.slice(0, 6).map((e) => {
                       const f = formatEventDate(e.date, e.time);
                       return (
-                        <div key={e.id} onClick={() => openVenue(e)} style={{ flexShrink: 0, width: 190, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 12, cursor: "pointer" }}>
-                          <div style={{ fontSize: 11.5, fontWeight: 800, color: C.purple, marginBottom: 4 }}>{f.wd} {f.mo} {f.day}{f.time ? " · " + f.time : ""}</div>
-                          <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-                          <div style={{ fontSize: 11.5, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
+                        <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, cursor: "pointer", minWidth: 0 }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.mo} {f.day}{f.time ? " · " + f.time : ""}</div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+                          <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
                         </div>
                       );
                     })}
@@ -2832,14 +2808,23 @@ function PageInner() {
                   <span style={{ fontSize: 13 }}>Try again in a moment or pick a category.</span>
                 </div>
               )}
-              {!suggestedLoading && suggested !== null && feedList.slice(0, 4).map((p, i) => (
+              {!suggestedLoading && suggested !== null && list.length > 0 && (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Your picks</div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button onClick={() => setSortBy("best")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
+                    <button onClick={() => setSortBy("near")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>
+                  </div>
+                </div>
+              )}
+              {!suggestedLoading && suggested !== null && homeFeed.slice(0, 4).map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
               ))}
               {hookCards.length > 0 && (
                 <HooksBanner hooks={hookCards.slice(0, 3)} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
               )}
               {!suggestedLoading && suggested !== null && (() => {
-                const rest = feedList.slice(4);
+                const rest = homeFeed.slice(4);
                 const inlineHooks = hookCards.slice(3);
                 const pm = {};
                 [...(suggested || []), ...places].filter(Boolean).forEach((pp) => { if (pp && pp.id) pm[pp.id] = pp; });
