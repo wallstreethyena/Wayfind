@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.2";
+const BUILD = "v3.3";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -589,6 +589,37 @@ function eventSegmentMeta(seg, genre) {
 // An honest "what to wear" suggestion built only from signals we actually have:
 // today's live weather, the venue's type, and its price tier. No invented
 // specifics, no product links — just a practical nudge.
+// Deterministic lunar phase from a known new-moon epoch. Pure math, no API, no
+// fabrication: same date always yields the same phase.
+function moonPhase(date) {
+  const synodic = 29.530588853;
+  const epochDays = Date.UTC(2000, 0, 6, 18, 14, 0) / 86400000;
+  const nowDays = date.getTime() / 86400000;
+  const age = (((nowDays - epochDays) % synodic) + synodic) % synodic;
+  const illum = Math.round(((1 - Math.cos((2 * Math.PI * age) / synodic)) / 2) * 100);
+  let name, emoji;
+  if (age < 1.85) { name = "New moon"; emoji = "🌑"; }
+  else if (age < 5.54) { name = "Waxing crescent"; emoji = "🌒"; }
+  else if (age < 9.23) { name = "First quarter"; emoji = "🌓"; }
+  else if (age < 12.92) { name = "Waxing gibbous"; emoji = "🌔"; }
+  else if (age < 16.61) { name = "Full moon"; emoji = "🌕"; }
+  else if (age < 20.30) { name = "Waning gibbous"; emoji = "🌖"; }
+  else if (age < 23.99) { name = "Last quarter"; emoji = "🌗"; }
+  else if (age < 27.68) { name = "Waning crescent"; emoji = "🌘"; }
+  else { name = "New moon"; emoji = "🌑"; }
+  return { name, emoji, illum };
+}
+// An honest heads-up derived only from the real numbers already fetched. Not an
+// official alert; just a sensible tip when a condition crosses a threshold.
+function weatherAdvisory(w) {
+  if (!w) return null;
+  if (w.rain != null && w.rain >= 60) return { icon: "🌧️", text: "Showers likely today. Worth keeping an indoor backup in mind." };
+  if (w.wind != null && w.wind >= 25) return { icon: "💨", text: "Breezy out there. Patios and the beach may be gusty." };
+  if (w.uv != null && w.uv >= 8) return { icon: "🧴", text: "Very high UV today. Sunscreen if you'll be out a while." };
+  if (w.hi != null && w.hi >= 95) return { icon: "🥵", text: "Hot one today. Hydrate and lean toward shade." };
+  if (w.lo != null && w.lo <= 40) return { icon: "🧥", text: "Cool later on. Bring a layer if you're out tonight." };
+  return null;
+}
 function whatToWear(p, weather) {
   if (!p) return null;
   const t = ((p.type || "") + " " + (Array.isArray(p.types) ? p.types.join(" ") : "")).toLowerCase();
@@ -3900,6 +3931,22 @@ function PageInner() {
                 <div style={{ fontSize: 14, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
                   {(suggested ? suggested.length : places.length) > 0 ? (<><b style={{ color: C.text }}>{suggested ? suggested.length : places.length} spots</b> worth your time nearby, ranked best first.</>) : "Loading the best spots near you."}
                 </div>
+                {(() => {
+                  const src = (suggested && suggested.length ? suggested : places) || [];
+                  if (src.length < 4) return null;
+                  const counts = {};
+                  src.forEach((p) => { const c = primaryCategory(p); if (c) counts[c] = (counts[c] || 0) + 1; });
+                  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 2);
+                  if (!top.length) return null;
+                  const gems = src.filter((p) => (p.rating || 0) >= 4.5).length;
+                  const catLine = top.map(([c, n]) => `${c} (${n})`).join(" and ");
+                  return (
+                    <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700, marginBottom: 5 }}>The local scene</div>
+                      Strongest around here: {catLine}.{gems > 0 ? ` ${gems} spot${gems === 1 ? "" : "s"} sitting at 4.5★ or higher.` : ""}
+                    </div>
+                  );
+                })()}
                 <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Browse all spots →</button>
               </>
             )}
@@ -3924,6 +3971,12 @@ function PageInner() {
               <>
                 <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>{weather.icon} Weather right now</div>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>{locName ? locName.split(",")[0] : "Your area"}, live conditions.</div>
+                {(() => { const adv = weatherAdvisory(weather); return adv ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
+                    <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
+                    <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45 }}>{adv.text}</div>
+                  </div>
+                ) : null; })()}
                 <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
                   <span style={{ fontSize: 52, lineHeight: 1 }}>{weather.icon}</span>
                   <div>
@@ -3936,6 +3989,19 @@ function PageInner() {
                   {weather.wind != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Wind</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>💨 {weather.wind} mph</div></div>)}
                   {weather.sunset && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Sunset</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>🌅 {weather.sunset}</div></div>)}
                   {weather.rain != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Rain chance</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.rain}%</div></div>)}
+                  {weather.hi != null && weather.lo != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>High / Low</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.hi}° / {weather.lo}°</div></div>)}
+                  {weather.humidity != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Humidity</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.humidity}%</div></div>)}
+                  {weather.uv != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>UV index</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.uv}{weather.uv >= 8 ? " · high" : weather.uv >= 6 ? " · mod" : ""}</div></div>)}
+                  {(() => { const m = moonPhase(new Date()); return (
+                    <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 16px" }}>
+                      <span style={{ fontSize: 34, lineHeight: 1 }}>{m.emoji}</span>
+                      <div>
+                        <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Tonight's moon</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginTop: 2 }}>{m.name}</div>
+                        <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{m.illum}% illuminated</div>
+                      </div>
+                    </div>
+                  ); })()}
                 </div>
               </>
             )}
