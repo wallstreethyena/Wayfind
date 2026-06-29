@@ -314,6 +314,116 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
   } catch { return { configured: true, events: [] }; }
 }
 
+// --- Manatee County Public Library (LibCal) ---------------------------------
+// Public iCal feed, no key required (cid 14834). Parsed, curated, and gated by
+// proximity so we never show Manatee events to someone exploring elsewhere.
+// Fail-soft like every other source: any error yields an empty list.
+function haversineMi(lat1, lng1, lat2, lng2) {
+  const R = 3958.8;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function unfoldICS(text) {
+  // RFC 5545 line unfolding: a line break followed by space or tab continues the prior line.
+  return text.replace(/\r\n[ \t]/g, "").replace(/\n[ \t]/g, "");
+}
+function unescapeICS(s) {
+  return (s || "").replace(/\\n/gi, " ").replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\\\/g, "\\").trim();
+}
+function parseICSDate(val) {
+  const m = (val || "").match(/(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?/);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  const hasTime = m[4] != null;
+  const hh = hasTime ? m[4] : null, mi = hasTime ? m[5] : null;
+  const date = `${m[1]}-${m[2]}-${m[3]}`;
+  const time = hasTime ? `${hh}:${mi}` : "";
+  let dt;
+  if (hasTime) dt = m[7] ? new Date(Date.UTC(y, mo - 1, d, +hh, +mi)) : new Date(y, mo - 1, d, +hh, +mi);
+  else dt = new Date(y, mo - 1, d);
+  return { date, time, dt };
+}
+function parseLibCalICS(text) {
+  const lines = unfoldICS(text).split(/\r\n|\n|\r/);
+  const events = [];
+  let cur = null;
+  for (const line of lines) {
+    if (line === "BEGIN:VEVENT") { cur = {}; continue; }
+    if (line === "END:VEVENT") { if (cur) events.push(cur); cur = null; continue; }
+    if (!cur) continue;
+    const idx = line.indexOf(":");
+    if (idx === -1) continue;
+    const key = line.slice(0, idx).split(";")[0].toUpperCase();
+    const val = line.slice(idx + 1);
+    if (key === "SUMMARY") cur.summary = unescapeICS(val);
+    else if (key === "DTSTART") cur.start = val;
+    else if (key === "LOCATION") cur.location = unescapeICS(val);
+    else if (key === "DESCRIPTION") cur.description = unescapeICS(val);
+    else if (key === "URL") cur.url = val.trim();
+    else if (key === "UID") cur.uid = val.trim();
+    else if (key === "CATEGORIES") cur.categories = unescapeICS(val);
+  }
+  return events;
+}
+// Routine recurring programs we curate OUT, so the card surfaces discovery-worthy
+// events (author talks, special programs, all-ages) rather than a wall of repeats.
+const LIBCAL_ROUTINE = ["story time", "storytime", "baby", "toddler", "lapsit", "mother goose", "tech help", "one-on-one", "one on one", "drop-in", "drop in", "playgroup", "open play", "stay and play", "study hall", "tax aide", "tax-aide", "book a librarian", "sensory", "homework help"];
+function libcalIsRoutine(title) {
+  const t = (title || "").toLowerCase();
+  return LIBCAL_ROUTINE.some((k) => t.includes(k));
+}
+async function fromLibCal(lat, lng) {
+  if (lat == null || lng == null) return { configured: false, events: [] };
+  // Bradenton, center of Manatee County. Only serve this feed inside the region.
+  const inRegion = haversineMi(lat, lng, 27.4799, -82.5748) <= 35;
+  if (!inRegion) return { configured: true, events: [] };
+  try {
+    const r = await fetch("https://manateelibrary.libcal.com/ical_subscribe.php?cid=14834", { headers: { "User-Agent": "Wayfind/1.0 (+https://wayfind-xi.vercel.app)" } });
+    if (!r.ok) return { configured: true, events: [] };
+    const text = await r.text();
+    const raw = parseLibCalICS(text);
+    const now = new Date();
+    const horizon = new Date(now.getTime() + 21 * 86400000);
+    const parsed = raw
+      .map((e) => ({ e, ds: e.start ? parseICSDate(e.start) : null }))
+      .filter((x) => x.ds && x.ds.dt);
+    parsed.sort((a, b) => a.ds.dt - b.ds.dt);
+    const seen = new Set();
+    const out = [];
+    for (const { e, ds } of parsed) {
+      if (ds.dt < now || ds.dt > horizon) continue;
+      if (!e.summary) continue;
+      if (/^cancelled/i.test(e.summary)) continue;
+      const title = e.summary.replace(/^cancelled:?\s*/i, "").trim();
+      if (!title || libcalIsRoutine(title)) continue;
+      const norm = title.toLowerCase();
+      if (seen.has(norm)) continue;
+      seen.add(norm);
+      out.push({
+        id: "lib_" + (e.uid || norm).replace(/[^a-z0-9]/gi, "").slice(0, 40),
+        name: title,
+        date: ds.date,
+        time: ds.time,
+        venue: e.location || "",
+        city: "",
+        segment: "Community",
+        genre: e.categories || "",
+        image: null,
+        price: null,
+        url: e.url || "https://manateelibrary.libcal.com/calendar/events",
+        ticketed: false,
+        civic: true,
+        source: "Manatee County Library",
+      });
+      if (out.length >= 12) break;
+    }
+    return { configured: true, events: out };
+  } catch { return { configured: true, events: [] }; }
+}
+
 export async function POST(req) {
   try {
     const { lat, lng, keyword, radius, city } = await req.json();
@@ -326,6 +436,7 @@ export async function POST(req) {
       fromBandsintown(lat, lng, radius, keyword),
       fromSerpEvents(lat, lng, keyword, city),
       fromOpenWebNinja(lat, lng, keyword, city),
+      fromLibCal(lat, lng),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
@@ -334,7 +445,7 @@ export async function POST(req) {
     let merged = dedupe(results.flatMap((r) => r.events || []));
     merged = merged.filter((e) => e.date).sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""))).slice(0, 90);
 
-    const labels = ["Ticketmaster", "SeatGeek", "PredictHQ", "Bandsintown", "Google", "Google"];
+    const labels = ["Ticketmaster", "SeatGeek", "PredictHQ", "Bandsintown", "Google", "Google", "Manatee County Library"];
     const sources = [...new Set(labels.filter((_, i) => results[i] && results[i].configured))];
     const counts = {};
     labels.forEach((lab, i) => { if (results[i] && results[i].configured) counts[lab] = (counts[lab] || 0) + ((results[i].events && results[i].events.length) || 0); });

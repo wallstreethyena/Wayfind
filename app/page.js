@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.0";
+const BUILD = "v3.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1108,6 +1108,7 @@ function PageInner() {
   const [suggestedLoading, setSuggestedLoading] = useState(false);
   const [intent, setIntent] = useState(null);
   const [foryouEvents, setForyouEvents] = useState(null);
+  const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
   const [beachCondLoading, setBeachCondLoading] = useState(false);
@@ -2012,8 +2013,11 @@ function PageInner() {
         if (!r.ok) { if (!cancelled) setForyouEvents([]); return; }
         const data = await r.json();
         const evs = (data && data.events) || [];
-        if (!cancelled) setForyouEvents(evs.slice(0, 8));
-      } catch { if (!cancelled) setForyouEvents([]); }
+        if (!cancelled) {
+          setForyouEvents(evs.slice(0, 8));
+          setLibraryEvents(evs.filter((e) => e && e.civic).slice(0, 6));
+        }
+      } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2768,6 +2772,38 @@ function PageInner() {
                   })}
                 </div>
               </div>
+              {libraryEvents && libraryEvents.length > 0 && (
+                <div style={{ marginBottom: 16, border: `1.5px solid ${C.blue}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(56,189,248,.12) 0%, ${C.card} 60%)` }}>
+                  <div style={{ padding: "14px 16px 10px" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(56,189,248,.16)", border: `1px solid ${C.blue}55`, borderRadius: 999, padding: "4px 10px", marginBottom: 8 }}>
+                      <span style={{ fontSize: 12 }}>📚</span>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: C.blue, textTransform: "uppercase", letterSpacing: "0.6px" }}>Local &amp; Community</span>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Happening at the library</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Free local programs near you this week</div>
+                  </div>
+                  <div style={{ padding: "0 12px 12px" }}>
+                    {libraryEvents.slice(0, 3).map((e, i) => {
+                      const dt = e.date ? new Date(e.date + "T00:00:00") : null;
+                      const shown = Math.min(libraryEvents.length, 3);
+                      return (
+                        <div key={e.id || i} onClick={() => { if (e.url) window.open(e.url, "_blank", "noopener"); }} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: i < shown - 1 ? 8 : 0, cursor: "pointer" }}>
+                          <div style={{ flexShrink: 0, width: 46, textAlign: "center" }}>
+                            {dt && <div style={{ fontSize: 11, fontWeight: 800, color: C.blue, textTransform: "uppercase" }}>{dt.toLocaleDateString(undefined, { month: "short" })}</div>}
+                            {dt && <div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1 }}>{dt.getDate()}</div>}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
+                            <div style={{ fontSize: 12, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.time ? e.time + " · " : ""}{e.venue || "Manatee County Library"}</div>
+                          </div>
+                          <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
+                        </div>
+                      );
+                    })}
+                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 10, textAlign: "center" }}>Manatee County Public Library · via LibCal</div>
+                  </div>
+                </div>
+              )}
               {!isDesktop && foryouEvents && foryouEvents.length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
