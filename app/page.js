@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.4";
+const BUILD = "v3.5";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -264,17 +264,17 @@ function picksHeader(cat) {
 // Open-Meteo API so Wayfind can show local weather and reason about it.
 function weatherFromCode(code) {
   const c = Number(code);
-  if (c === 0) return { icon: "☀️", label: "Clear", warm: true };
-  if (c === 1 || c === 2) return { icon: "🌤️", label: "Partly cloudy", warm: true };
-  if (c === 3) return { icon: "☁️", label: "Overcast" };
-  if (c === 45 || c === 48) return { icon: "🌫️", label: "Fog" };
-  if (c >= 51 && c <= 57) return { icon: "🌦️", label: "Drizzle", wet: true };
-  if (c >= 61 && c <= 67) return { icon: "🌧️", label: "Rain", wet: true };
-  if (c >= 71 && c <= 77) return { icon: "❄️", label: "Snow", wet: true };
-  if (c >= 80 && c <= 82) return { icon: "🌦️", label: "Showers", wet: true };
-  if (c >= 85 && c <= 86) return { icon: "🌨️", label: "Snow", wet: true };
-  if (c >= 95) return { icon: "⛈️", label: "Storms", wet: true };
-  return { icon: "🌡️", label: "" };
+  if (c === 0) return { icon: "☀️", img: "sunny", label: "Clear", warm: true };
+  if (c === 1 || c === 2) return { icon: "🌤️", img: "partly", label: "Partly cloudy", warm: true };
+  if (c === 3) return { icon: "☁️", img: "cloudy", label: "Overcast" };
+  if (c === 45 || c === 48) return { icon: "🌫️", img: "cloudy", label: "Fog" };
+  if (c >= 51 && c <= 57) return { icon: "🌦️", img: "rain", label: "Drizzle", wet: true };
+  if (c >= 61 && c <= 67) return { icon: "🌧️", img: "rain", label: "Rain", wet: true };
+  if (c >= 71 && c <= 77) return { icon: "❄️", img: "snow", label: "Snow", wet: true };
+  if (c >= 80 && c <= 82) return { icon: "🌦️", img: "rain", label: "Showers", wet: true };
+  if (c >= 85 && c <= 86) return { icon: "🌨️", img: "snow", label: "Snow", wet: true };
+  if (c >= 95) return { icon: "⛈️", img: "storm", label: "Storms", wet: true };
+  return { icon: "🌡️", img: "cloudy", label: "" };
 }
 
 // A clean, honest one-liner built only from a place's stats. Used instantly and
@@ -1908,7 +1908,7 @@ function PageInner() {
             rain: day && day.precipitation_probability_max ? day.precipitation_probability_max[0] : null,
             uv: day && day.uv_index_max ? Math.round(day.uv_index_max[0]) : null,
             sunset,
-            icon: w.icon, label: w.label, warm: w.warm, wet: w.wet,
+            icon: w.icon, img: w.img, label: w.label, warm: w.warm, wet: w.wet,
           });
         }
       } catch { if (!cancelled) setWeather(null); }
@@ -2662,15 +2662,18 @@ function PageInner() {
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
               {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 16 }}>
-                <button onClick={() => setMenuSheet("menu")} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.border}`, background: `linear-gradient(150deg, ${C.card} 0%, ${C.panel} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, padding: 8 }}>
-                  <span style={{ width: 28, height: 28, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4 }}>
+                <button onClick={() => setMenuSheet("menu")} style={{ gridColumn: "1 / -1", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "16px 18px" }}>
+                  <span style={{ width: 32, height: 32, flexShrink: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4 }}>
                     <span style={{ background: C.accent, borderRadius: 3 }} />
                     <span style={{ background: C.accent, borderRadius: 3, opacity: 0.65 }} />
                     <span style={{ background: C.accent, borderRadius: 3, opacity: 0.65 }} />
                     <span style={{ background: C.accent, borderRadius: 3 }} />
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 800 }}>Menu</span>
-                  <span style={{ fontSize: 10.5, color: C.muted }}>All categories</span>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: 17, fontWeight: 800 }}>Pick a category</div>
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Food, nightlife, beaches, hotels and more</div>
+                  </div>
+                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20 }}>›</span>
                 </button>
                 <button onClick={openSurprise} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.purple}`, background: `linear-gradient(150deg, rgba(167,139,250,.22) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, padding: 8 }}>
                   <span style={{ fontSize: 30, lineHeight: 1 }}>🎁</span>
@@ -2688,18 +2691,10 @@ function PageInner() {
                   <span style={{ fontSize: 10.5, color: C.muted }}>Pick an occasion</span>
                 </button>
                 {weather && (
-                  <button onClick={() => setMenuSheet("weather")} style={{ gridColumn: "1 / -1", borderRadius: 18, border: `1.5px solid ${C.blue}`, background: `linear-gradient(150deg, rgba(56,189,248,.16) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "14px 18px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 34, lineHeight: 1 }}>{weather.icon}</span>
-                      <div style={{ textAlign: "left" }}>
-                        <div style={{ fontSize: 22, fontWeight: 800 }}>{weather.temp}°</div>
-                        {weather.label && <div style={{ fontSize: 11.5, color: C.muted }}>{weather.label}</div>}
-                      </div>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      {weather.sunset && <div style={{ fontSize: 12.5, fontWeight: 700, color: C.blue }}>🌅 {weather.sunset}</div>}
-                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>Tap for details</div>
-                    </div>
+                  <button onClick={() => setMenuSheet("weather")} style={{ height: 98, borderRadius: 18, border: `1.5px solid ${C.blue}`, background: `linear-gradient(150deg, rgba(56,189,248,.16) 0%, ${C.card} 100%)`, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, padding: 8 }}>
+                    <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 40, width: "auto", display: "block" }} />
+                    <span style={{ fontSize: 19, fontWeight: 800 }}>{weather.temp}°</span>
+                    {weather.sunset && <span style={{ fontSize: 10, color: C.muted }}>🌅 {weather.sunset}</span>}
                   </button>
                 )}
               </div>
@@ -3974,7 +3969,7 @@ function PageInner() {
             )}
             {menuSheet === "weather" && weather && (
               <>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>{weather.icon} Weather right now</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>Weather right now</div>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>{locName ? locName.split(",")[0] : "Your area"}, live conditions.</div>
                 {(() => { const adv = weatherAdvisory(weather); return adv ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
@@ -3983,7 +3978,7 @@ function PageInner() {
                   </div>
                 ) : null; })()}
                 <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
-                  <span style={{ fontSize: 52, lineHeight: 1 }}>{weather.icon}</span>
+                  <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 64, width: "auto", display: "block" }} />
                   <div>
                     <div style={{ fontSize: 38, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
                     {weather.label && <div style={{ fontSize: 14, color: C.light, marginTop: 4 }}>{weather.label}</div>}
