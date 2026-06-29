@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.9";
+const BUILD = "v4.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -481,6 +481,31 @@ function ImgTile({ src, onClick, overlay, fallback }) {
       {!err && overlay}
       {err && <div style={{ width: "100%", height: "100%", minHeight: 82, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, padding: "12px 6px" }}>{fallback}</div>}
     </button>
+  );
+}
+
+// v4.0: clean home-grid tile in the Pick-a-category style — a thin colored frame, a faint
+// matching wash, and the app font. No images, no glow. `icon` takes an emoji or a node (the
+// weather tile passes a small <img>); `labelColor` overrides the label color when needed.
+function CleanTile({ onClick, color, icon, label, sub, labelColor }) {
+  return (
+    <button onClick={onClick} style={{ position: "relative", width: "100%", aspectRatio: "1 / 1", minHeight: 96, borderRadius: 16, cursor: "pointer", padding: "10px 6px", textAlign: "center", border: `1.5px solid ${color}`, background: `linear-gradient(150deg, ${color}26, ${color}0D 72%), ${C.card}`, boxShadow: "0 2px 10px rgba(0,0,0,.28)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5 }}>
+      <span style={{ fontSize: 30, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", minHeight: 32 }}>{icon}</span>
+      <span style={{ fontSize: 12.5, fontWeight: 800, color: labelColor || color }}>{label}</span>
+      {sub && <span style={{ fontSize: 9.5, fontWeight: 700, color: C.muted, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{sub}</span>}
+    </button>
+  );
+}
+
+// v4.0: shared sheet header so every app-tile sheet opens with the same hero treatment —
+// a colored icon badge that matches its tile, a large title, and a muted subtitle.
+function SheetHero({ icon, title, subtitle, color }) {
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 54, borderRadius: 16, border: `1.5px solid ${color}`, background: `linear-gradient(150deg, ${color}26, ${color}0D 72%), ${C.card}`, fontSize: 28, lineHeight: 1, marginBottom: 11 }}>{icon}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{title}</div>
+      {subtitle && <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{subtitle}</div>}
+    </div>
   );
 }
 
@@ -2690,27 +2715,14 @@ function PageInner() {
                 </button>
                 <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "0 2px 9px" }}>Discover {locName ? locName.split(",")[0] : "your area"}</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                  <ImgTile src="/tiles/surprise.png" onClick={openSurprise}
-                    fallback={<><span style={{ fontSize: 24, lineHeight: 1 }}>🎁</span><span style={{ fontSize: 12, fontWeight: 800, color: C.purple }}>Surprise Me</span></>} />
-                  <ImgTile src="/tiles/dice.png" onClick={() => setMenuSheet("pick")}
-                    fallback={<><span style={{ fontSize: 24, lineHeight: 1 }}>🎲</span><span style={{ fontSize: 12, fontWeight: 800, color: C.accent }}>Pick for me</span></>} />
-                  <ImgTile src="/tiles/location.png" onClick={() => setMenuSheet("explore")}
-                    overlay={<div style={{ position: "absolute", left: 0, right: 0, bottom: "11%", textAlign: "center", padding: "0 6px", pointerEvents: "none" }}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>This area</div>
-                      {locName && <div style={{ fontSize: 9.5, fontWeight: 700, color: "#FFD9A8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{locName.split(",")[0]}</div>}
-                    </div>}
-                    fallback={<><span style={{ fontSize: 22, lineHeight: 1 }}>📍</span><span style={{ fontSize: 12, fontWeight: 800, color: C.green }}>This area</span>{locName && <span style={{ fontSize: 9.5, fontWeight: 600, color: C.muted, maxWidth: "100%", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", padding: "0 2px" }}>{locName.split(",")[0]}</span>}</>} />
-                  <ImgTile src="/tiles/experiences.png" onClick={() => setMenuSheet("experiences")}
-                    fallback={<><span style={{ fontSize: 23, lineHeight: 1 }}>✨</span><span style={{ fontSize: 12, fontWeight: 800, color: C.gold }}>Experiences</span></>} />
+                  <CleanTile onClick={openSurprise} color={C.purple} icon="🎁" label="Surprise Me" sub="One bold pick" />
+                  <CleanTile onClick={() => setMenuSheet("pick")} color={C.accent} icon="🎲" label="Pick for me" sub="Roll the dice" />
+                  <CleanTile onClick={() => setMenuSheet("explore")} color={C.green} icon="📍" label="This area" sub={locName ? locName.split(",")[0] : "Explore"} />
+                  <CleanTile onClick={() => setMenuSheet("experiences")} color={C.gold} icon="✨" label="Experiences" sub="Pick an occasion" />
                   {weather && (
-                    <ImgTile src="/tiles/weather.png" onClick={() => setMenuSheet("weather")}
-                      overlay={<div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, padding: "0 6px", pointerEvents: "none" }}>
-                        <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 30, width: "auto", display: "block" }} />
-                        <div style={{ fontSize: 17, fontWeight: 800, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{weather.temp}°</div>
-                        {weather.label && <div style={{ fontSize: 9.5, fontWeight: 700, color: "#BFE3FF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%", textShadow: "0 1px 4px rgba(0,0,0,.85)" }}>{weather.label}</div>}
-                      </div>}
-                      fallback={<><img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 28, width: "auto", display: "block" }} /><span style={{ fontSize: 13, fontWeight: 800, color: C.blue }}>{weather.temp}° <span style={{ color: C.muted, fontWeight: 700 }}>Weather</span></span></>} />
+                    <CleanTile onClick={() => setMenuSheet("weather")} color={C.blue} labelColor="#fff" icon={<img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 30, width: "auto", display: "block" }} />} label={weather.temp + "°"} sub={weather.label} />
                   )}
+                  <CleanTile onClick={() => setMenuSheet("community")} color="#2DD4BF" icon="📚" label="Community" sub="Local events" />
                 </div>
               </div>
               {!suggestedLoading && suggested !== null && heroPick && (
@@ -3886,8 +3898,7 @@ function PageInner() {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             {menuSheet === "menu" && (
               <>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>Browse by category</div>
-                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>Pick a category to explore near {locName ? locName.split(",")[0] : "you"}.</div>
+                <SheetHero icon="🧭" title="Browse by category" subtitle={"Pick a category to explore near " + (locName ? locName.split(",")[0] : "you") + "."} color={C.accent} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                   {CATEGORIES.map((c) => {
                     const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
@@ -3901,10 +3912,36 @@ function PageInner() {
                 </div>
               </>
             )}
+            {menuSheet === "community" && (
+              <>
+                <SheetHero icon="📚" title="Local & Community" subtitle="Free local programs and civic events near you." color="#2DD4BF" />
+                {libraryEvents && libraryEvents.length > 0 ? (
+                  <>
+                    {libraryEvents.slice(0, 12).map((e, i) => {
+                      const dt = e.date ? new Date(e.date + "T00:00:00") : null;
+                      return (
+                        <div key={(e.id || e.name || "ev") + "-" + i} onClick={() => { if (e.url) window.open(e.url, "_blank", "noopener"); }} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: 8, cursor: e.url ? "pointer" : "default" }}>
+                          <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
+                            {dt ? (<><div style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", textTransform: "uppercase", letterSpacing: "0.3px" }}>{dt.toLocaleDateString(undefined, { month: "short" })}</div><div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1.05 }}>{dt.getDate()}</div></>) : (<div style={{ fontSize: 22 }}>📚</div>)}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+                            <div style={{ fontSize: 12, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.time ? e.time + " · " : ""}{e.venue || "Manatee County Library"}</div>
+                          </div>
+                          {e.url && <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>}
+                        </div>
+                      );
+                    })}
+                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 10, textAlign: "center" }}>Manatee County Public Library · via LibCal</div>
+                  </>
+                ) : (
+                  <div style={{ textAlign: "center", padding: "28px 16px", color: C.muted, fontSize: 13.5, lineHeight: 1.5 }}>No local programs loaded right now. Check back soon for library events, workshops, and civic happenings nearby.</div>
+                )}
+              </>
+            )}
             {menuSheet === "explore" && (
               <>
-                <div style={{ fontSize: 11, fontWeight: 800, color: C.green, letterSpacing: "0.7px", textTransform: "uppercase", marginBottom: 5 }}>You are exploring</div>
-                <div style={{ fontSize: 23, fontWeight: 800, color: C.text, marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName || "Your area"}</div>
+                <SheetHero icon="📍" title={locName || "This area"} subtitle="The best rated, currently open spots near you." color={C.green} />
                 <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 16 }}>{intent ? (() => { const id = INTENTS.find((x) => x.id === intent); return id ? "Tuned for " + id.label.toLowerCase() + ", ranked by the Wayfind Score." : "The best-rated, currently open spots near you."; })() : "The best-rated, currently open spots near you, ranked best first."}</div>
                 <div style={{ fontSize: 14, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
                   {(suggested ? suggested.length : places.length) > 0 ? (<><b style={{ color: C.text }}>{suggested ? suggested.length : places.length} spots</b> worth your time nearby, ranked best first.</>) : "Loading the best spots near you."}
@@ -3930,8 +3967,7 @@ function PageInner() {
             )}
             {menuSheet === "pick" && (
               <>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>🎲 Pick for me</div>
-                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 18 }}>Can't decide? Roll and Wayfind lands you on one great spot near you. Keep rolling — your rolls are saved below so you can go back to one you liked.</div>
+                <SheetHero icon="🎲" title="Pick for me" subtitle="Can't decide? Roll and Wayfind lands you on one great spot nearby. Your rolls are saved below." color={C.accent} />
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 6 }}>
                   <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ width: 84, height: 84, borderRadius: 20, border: `2px solid ${C.accent}`, background: C.adim, fontSize: 42, cursor: homeRolling ? "default" : "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", animation: homeRolling ? "wfbob 0.4s ease-in-out infinite" : "none" }}>{homeRolling ? homeDiceFace : "🎲"}</button>
                   <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ padding: "11px 26px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: homeRolling ? "default" : "pointer", opacity: homeRolling ? 0.6 : 1 }}>{rollHistory.length ? "Roll again" : "Roll the dice"}</button>
@@ -3959,8 +3995,7 @@ function PageInner() {
             )}
             {menuSheet === "experiences" && (
               <>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>✨ Why are you heading out?</div>
-                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>Pick an occasion and the feed reshapes around it.</div>
+                <SheetHero icon="✨" title="Experiences" subtitle="Pick an occasion and the feed reshapes around it." color={C.gold} />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                   {INTENTS.map((it) => {
                     const on = intent === it.id;
@@ -3980,8 +4015,7 @@ function PageInner() {
             )}
             {menuSheet === "weather" && weather && (
               <>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>Weather right now</div>
-                <div style={{ fontSize: 13, color: C.muted, marginBottom: 16 }}>{locName ? locName.split(",")[0] : "Your area"}, live conditions.</div>
+                <SheetHero icon="🌤️" title="Weather right now" subtitle={(locName ? locName.split(",")[0] : "Your area") + ", live conditions."} color={C.blue} />
                 {(() => { const adv = weatherAdvisory(weather); return adv ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
                     <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
