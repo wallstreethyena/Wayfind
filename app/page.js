@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.4";
+const BUILD = "v6.5";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -31,10 +31,7 @@ function Grabber() {
   );
 }
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
-const FEATURED_AREAS = [
-  { name: "Realengo, Rio de Janeiro", short: "Realengo", lat: -22.8847, lng: -43.4286, radius: 48280 },
-  { name: "Padre Miguel, Rio de Janeiro", short: "Padre Miguel", lat: -22.8770, lng: -43.4470, radius: 48280 },
-];
+const FEATURED_AREAS = [];
 
 // Intent: Wayfind asks WHY you are going out, then reshapes every pick around it.
 const INTENTS = [
@@ -1473,18 +1470,51 @@ function placesForHook(hook, allSrc) {
 }
 
 // ─── Single full-width editorial hook card, for weaving into the feed ─────────
-// v5.2: short, punchy, data-true one-liner for a hook card subtitle (3-5 words).
+// v6.5: short, punchy, data-true one-liner for a hook card subtitle. Each signal
+// bucket holds several lines, and one is chosen deterministically from the place id
+// so the same place always reads the same, but two similar places never repeat.
 function wittyLine(p) {
   if (!p) return "";
   const r = p.rating, n = p.reviews || 0, d = p.distMi, pr = p.priceNum;
-  if (r != null && r >= 4.7 && n >= 300) return "Locals can't get enough";
-  if (r != null && r >= 4.5 && n > 0 && n < 250) return "A quiet local gem";
-  if (pr != null && pr <= 2 && r != null && r >= 4.2) return "Highly rated, easy price";
-  if (r != null && r >= 4.5) return "Rated near the top";
-  if (n >= 2000) return "The one everyone knows";
-  if (d != null && d <= 2) return "Right around the corner";
-  if (r != null && r >= 4.2) return "Worth a real look";
-  return "Worth checking out";
+  let seed = 0; const s = String(p.id || p.name || "");
+  for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
+  const pick = (arr) => arr[seed % arr.length];
+  if (r != null && r >= 4.7 && n >= 500) return pick([
+    "A near perfect score, earned the hard way", "Thousands rave, and they are not wrong",
+    "The kind of rating that is no accident", "Sets the bar the others chase",
+  ]);
+  if (r != null && r >= 4.6 && n >= 150) return pick([
+    "Quietly excellent, loudly loved", "Punches above its review count",
+    "A local secret not staying secret", "Rated like a place twice its size",
+  ]);
+  if (r != null && r >= 4.4 && n > 0 && n < 150) return pick([
+    "A small gem before everyone finds it", "Under the radar, over delivers",
+    "Few reviews, all of them glowing", "The kind of find you brag about",
+  ]);
+  if (pr != null && pr <= 1 && r != null && r >= 4.2) return pick([
+    "Great taste, gentle on the wallet", "Cheap to walk in, hard to forget",
+    "Proof that good is not pricey",
+  ]);
+  if (pr != null && pr >= 3 && r != null && r >= 4.4) return pick([
+    "Worth the splurge, by the reviews", "A treat yourself kind of night",
+    "Pricey, and they still come back",
+  ]);
+  if (n >= 3000) return pick([
+    "The one the whole town has tried", "Everybody has a story about this place",
+    "Famous for a reason, clearly",
+  ]);
+  if (d != null && d <= 2) return pick([
+    "Practically around the corner", "Close enough to walk off dinner", "Right in your backyard",
+  ]);
+  if (d != null && d > 10 && r != null && r >= 4.4) return pick([
+    "Far enough to feel like a trip", "The drive is part of the reward", "Worth pointing the car at",
+  ]);
+  if (r != null && r >= 4.2) return pick([
+    "Solid pick, no asterisks", "Consistently gets it right", "A safe bet that still surprises",
+  ]);
+  return pick([
+    "Worth a closer look", "Might be your next regular", "One to keep on the list",
+  ]);
 }
 function HookSolo({ h, place, liked, onOpen, onLike, onShare }) {
   if (!h) return null;
@@ -1517,7 +1547,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare }) {
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 15px" }}>
         <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.22, marginBottom: 8, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,.95)", lineHeight: 1.3, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{wittyLine(place) || h.detail}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,.95)", lineHeight: 1.3, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{h.subtitle || wittyLine(place) || h.detail}</div>
           <div style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "6px 14px" }}>{h.cta || "See more →"}</div>
         </div>
       </div>
@@ -3242,7 +3272,7 @@ function PageInner() {
             <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, marginLeft: 8, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 48, height: 48, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.light, cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg></button>
           ))}
         </div>
-        {screen === "suggested" && (
+        {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
           {FEATURED_AREAS.map((a) => (
@@ -3491,9 +3521,11 @@ function PageInner() {
             if (bs.length < 5) return null;
             const cityN = locName ? locName.split(",")[0] : "you";
             return {
-              id: "top5", accent: C.accent, emoji: "🧭", label: `Wayfind Picks · ${cityN}`,
-              theme: "best", placeId: bs[0].id,
-              hook: `The top 10 picks near ${cityN} right now`,
+              id: "top5", accent: C.accent, emoji: "🧭", label: "Wayfind Picks",
+              theme: "best", placeId: bs[0].id, highlightWord: "top 10",
+              hook: `The top 10 near ${cityN} right now`,
+              subtitle: "Ten spots worth your time, ranked",
+              cta: "See the top 10 →",
               themeTitle: `Wayfind Picks · Top 10 in ${cityN}`,
               themeBody: `The ten highest-scoring spots near you, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it. Anything past 10 miles is flagged so you can weigh the drive.`,
             };
@@ -3609,32 +3641,27 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {picksHook && (
-                <div onClick={() => openHook(picksHook)} style={{ position: "relative", overflow: "hidden", borderRadius: 18, cursor: "pointer", background: `linear-gradient(135deg, ${C.accent}26 0%, ${C.card} 70%)`, border: `1.5px solid ${C.accent}`, padding: 17, marginBottom: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <span style={{ position: "relative", width: 40, height: 40, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <span style={{ position: "absolute", inset: -6, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
-                    </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 3 }}>Wayfind Picks</div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>The top 10 near {locName ? locName.split(",")[0] : "you"} right now</div>
-                      <div style={{ fontSize: 12.5, color: C.light, marginTop: 4, lineHeight: 1.45 }}>Ranked by the Wayfind Score. Anything past 10 miles, we flag so you can weigh the drive.</div>
-                    </div>
-                  </div>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, background: C.accent, color: "#0D1117", borderRadius: 999, fontSize: 13.5, fontWeight: 800, padding: "9px 18px" }}>See the top 10 →</div>
-                </div>
-              )}
-              {/* v4.2: editorial hook cards restored full-width, variety of angles, stacked, never a squared grid */}
-              {sectionHooks.length > 0 && (() => {
+              {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
+              {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
+              {(picksHook || sectionHooks.length > 0 || (suggested && suggested.length > 0)) && (() => {
                 const pmH = {};
                 [...(suggested || []), ...places].filter(Boolean).forEach((pp) => { if (pp && pp.id) pmH[pp.id] = pp; });
+                const picksTop = picksHook ? pmH[picksHook.placeId] : null;
+                const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
+                const canRoll = !!(suggested && suggested.length > 0);
+                const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 10 }}>Worth a look near {locName ? locName.split(",")[0] : "you"}</div>
+                    {picksHook && (
+                      <HookSolo h={picksHook} place={picksTop ? { ...picksTop, distMi: null } : null} liked={hookLikes.has(picksHook.id)} onOpen={openHook} onLike={onHookHeart} onShare={() => shareHook(picksHook, picksTop)} />
+                    )}
                     {sectionHooks.map((h) => (
-                      <HookSolo key={"homehook-" + h.id} h={h} place={pmH[h.placeId]} liked={hookLikes.has(h.id)} onOpen={openHook} onLike={onHookHeart} onShare={(hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); }} />
+                      <HookSolo key={"homehook-" + h.id} h={h} place={pmH[h.placeId]} liked={hookLikes.has(h.id)} onOpen={openHook} onLike={onHookHeart} onShare={shareHook} />
                     ))}
+                    {canRoll && (
+                      <HookSolo h={diceHook} place={null} liked={false} onOpen={() => openSurprise()} />
+                    )}
                   </div>
                 );
               })()}
@@ -3670,26 +3697,7 @@ function PageInner() {
                 </div>
               )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
-              {hookCards.length > 0 && (() => {
-                // v3.7: show exactly two discovery cards — pin Top 5 (the entry into the
-                // ranked list), then one rotating provocative hook. The rest weave into
-                // the feed below. Title styled to match the "Events nearby" section.
-                if (!suggested || !suggested.length) return null;
-                return (
-                  <div style={{ margin: "2px 2px 0" }}>
-                    <div onClick={openSurprise} style={{ position: "relative", overflow: "hidden", borderRadius: 18, cursor: "pointer", background: `linear-gradient(135deg, ${C.purple}2E 0%, ${C.accent}1F 52%, ${C.card} 100%)`, border: `1.5px solid ${C.purple}`, padding: 17 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>🎲</div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 19, fontWeight: 800, color: C.text, letterSpacing: "-0.2px" }}>Roll the Dice</div>
-                          <div style={{ fontSize: 12.5, color: C.light, marginTop: 3, lineHeight: 1.45 }}>Cannot decide? We pick one strong spot near you, tuned to what you like. Roll as many times as you want.</div>
-                        </div>
-                      </div>
-                      <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, background: C.purple, color: "#0D1117", borderRadius: 999, fontSize: 13.5, fontWeight: 800, padding: "9px 18px" }}>🎲 Roll for me →</div>
-                    </div>
-                  </div>
-                );
-              })()}
+              {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
               <div style={{ height: 20 }} />
               </div>
