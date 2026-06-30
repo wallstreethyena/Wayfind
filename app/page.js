@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.16";
+const BUILD = "v6.17";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -651,6 +651,12 @@ function NavIcon({ name, color, size }) {
   if (name === "events") return (<svg {...p}><rect x="3" y="7" width="18" height="10" rx="2.5" /><path d="M14 7 V17" strokeDasharray="1.6 2.2" /></svg>);
   if (name === "map") return (<svg {...p}><path d="M9 4.5 L3 7 V19.5 L9 17 L15 19.5 L21 17 V4.5 L15 7 L9 4.5 Z" /><path d="M9 4.5 V17" /><path d="M15 7 V19.5" /></svg>);
   if (name === "saved") return (<svg {...p}><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>);
+  if (name === "food") return (<svg {...p}><path d="M7 3v6" /><path d="M5 3v4" /><path d="M9 3v4" /><path d="M7 9v12" /><path d="M16.5 3c-1.6 1-2.3 3-2.3 5.2 0 1.7 1 2.5 2.3 2.7V21" /></svg>);
+  if (name === "nightlife") return (<svg {...p}><path d="M5 5h14l-7 8-7-8Z" /><path d="M12 13v6" /><path d="M8.5 19.5h7" /></svg>);
+  if (name === "attractions") return (<svg {...p}><path d="M12 4l2.3 4.7 5.2.8-3.8 3.7.9 5.2-4.6-2.5-4.6 2.5.9-5.2-3.8-3.7 5.2-.8Z" /></svg>);
+  if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
+  if (name === "hotels") return (<svg {...p}><path d="M3 18v-6h18v6" /><path d="M6 12V9h5v3" /><path d="M3 19.5V17" /><path d="M21 19.5V17" /></svg>);
+  if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
   return null;
 }
 
@@ -1833,6 +1839,8 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
 function PageInner() {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
+  const [moodOpen, setMoodOpen] = useState(false); // inline "what are you in the mood for" accordion
+  const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("near");
@@ -3782,7 +3790,7 @@ function PageInner() {
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
               {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
               <div style={{ marginBottom: 16 }}>
-                <button onClick={() => setMenuSheet("menu")} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", marginBottom: 12 }}>
+                <button onClick={() => setMoodOpen((v) => !v)} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
                   <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
                     <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
@@ -3791,8 +3799,21 @@ function PageInner() {
                     <div style={{ fontSize: 17, fontWeight: 800 }}>What are you in the mood for?</div>
                     <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Food, nightlife, beaches, and more</div>
                   </div>
-                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20 }}>›</span>
+                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: moodOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.28s ease" }}>›</span>
                 </button>
+                <div style={{ overflow: "hidden", maxHeight: moodOpen ? 240 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
+                  <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "10px 4px" }}>
+                    {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
+                      const on = moodPick === m.id;
+                      return (
+                        <button key={m.id} onClick={() => { setMoodPick(m.id); pickCat(m.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "11px 2px", background: "transparent", border: "none", cursor: "pointer" }}>
+                          <NavIcon name={m.id} color={on ? C.accent : C.muted} size={24} />
+                          <span style={{ fontSize: 11.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, whiteSpace: "nowrap" }}>{m.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 {/* v6.13: the "Discover" 4-tile grid was removed. It was redundant: Surprise = the dice (in feed + mood menu), Nearby = the feed + category browse, Events = bottom nav. The one non-redundant entry, Occasions, now lives behind the mood button so it is not orphaned. One door to explore, the feed below it. */}
                 {weather && (
                   <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
