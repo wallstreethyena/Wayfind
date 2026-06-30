@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v5.9";
+const BUILD = "v6.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3507,11 +3507,9 @@ function PageInner() {
               {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
               <div style={{ marginBottom: 16 }}>
                 <button onClick={() => setMenuSheet("menu")} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", marginBottom: 12 }}>
-                  <span style={{ width: 32, height: 32, flexShrink: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 4 }}>
-                    <span style={{ background: C.accent, borderRadius: 3 }} />
-                    <span style={{ background: C.accent, borderRadius: 3, opacity: 0.65 }} />
-                    <span style={{ background: C.accent, borderRadius: 3, opacity: 0.65 }} />
-                    <span style={{ background: C.accent, borderRadius: 3 }} />
+                  <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
+                    <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
                   </span>
                   <div style={{ textAlign: "left" }}>
                     <div style={{ fontSize: 17, fontWeight: 800 }}>What are you in the mood for?</div>
