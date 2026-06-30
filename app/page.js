@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.9";
+const BUILD = "v6.10";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1661,43 +1661,77 @@ function decisionReason(p) {
   if (open === false) body = "Closed right now, so save it for later. " + body;
   return { verdict, body: body.charAt(0).toUpperCase() + body.slice(1) };
 }
+// v6.10: a short, decision-based line for a home card. Frames the call (closest pick,
+// worth the drive, best open now) and adds a use case or tradeoff by kind. Two lines max,
+// so it never truncates. Lightly varied by place id.
+function decisionLine(p, ctx) {
+  if (!p) return "";
+  ctx = ctx || {};
+  const w = ctx.weather;
+  const kind = placeKind(p);
+  const r = p.rating, n = p.reviews || 0, d = p.distMi, open = liveOpen(p), pr = p.priceNum;
+  const cat = (primaryCategory(p) || "spot").toLowerCase();
+  let seed = 0; const s = String(p.id || p.name || "");
+  for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
+  const pick = (arr) => arr[seed % arr.length];
+  let lead;
+  if (open === false) lead = pick(["Closed now, one to save for later", "Worth saving, it is closed right now"]);
+  else if (d != null && d <= 5 && r != null && r >= 4.4) lead = pick([`Closest strong ${cat} pick near you`, `A strong ${cat} pick right nearby`]);
+  else if (d != null && d > 12 && r != null && r >= 4.5) lead = pick([`Worth the ${Math.round(d)} mile drive`, `A ${Math.round(d)} mile trip that earns it`]);
+  else if (open === true && r != null && r >= 4.6 && n >= 300) lead = pick(["One of the highest rated, open now", "Top rated near you, open now"]);
+  else if (r != null && r >= 4.5) lead = pick([`A strong ${cat} pick`, `One of the better ${cat} picks near you`]);
+  else lead = pick([`A solid ${cat} option nearby`, "Worth a look nearby"]);
+  let use = "";
+  if (kind === "restaurant") use = (pr != null && pr >= 3) ? ", better for a proper sit-down" : (pr != null && pr <= 1) ? ", good for an easy bite" : pick([", better for a sit-down than takeout", ", a dependable table"]);
+  else if (kind === "cafe") use = pick([", easy for coffee or a catch up", ", good for a slow morning"]);
+  else if (kind === "bar") use = ", best after dark";
+  else if (kind === "waterfront") use = ", and it shines near sunset";
+  else if (kind === "scenic") use = ", best for the view, not a quick stop";
+  else if (kind === "nature") use = (w && (w.wet || (w.rain != null && w.rain >= 50))) ? ", though the weather is iffy today" : ", good for a walk";
+  else if (kind === "beach") use = ", weather permitting";
+  else if (kind === "museum") use = ", an indoor, slower pace";
+  else if (kind === "wildlife") use = ", easy with kids";
+  else if (kind === "entertainment") use = ", a full outing";
+  else if (kind === "landmark") use = ", worth a deliberate stop";
+  return lead + use + ".";
+}
 function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage }) {
   if (!h) return null;
   const acc = h.accent || C.accent;
   const photo = place && place.photo;
   const tiles = (collage || []).filter(Boolean).slice(0, 4);
   return (
-    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 200, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
-      {tiles.length >= 2
+    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 220, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+      {h.brand
+        ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
+        : tiles.length >= 2
         ? <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 1.5 }}>{tiles.map((src, i) => <img key={i} src={src} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />)}</div>
         : photo
         ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
         : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.88) 100%)" }} />
-      <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.88) 100%)" }} />
+      <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${acc}70`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.55)", border: `1px solid ${acc}66`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
             <span style={{ fontSize: 11 }}>{h.emoji}</span>
             <span style={{ fontSize: 9, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "0.8px" }}>{h.label}</span>
           </div>
           {place && place.distMi != null && (
-            <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(0,0,0,.6)", border: "1px solid rgba(255,255,255,.25)", borderRadius: 999, padding: "4px 9px", backdropFilter: "blur(4px)" }}>
-              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.9)" }}>{place.distMi.toFixed(1)} mi</span>
+            <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(0,0,0,.55)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 9px", backdropFilter: "blur(4px)" }}>
+              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.85)" }}>{place.distMi.toFixed(1)} mi</span>
             </div>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 7, flexShrink: 0 }}>
-          <button onClick={(e) => { e.stopPropagation(); onShare && onShare(h, place); }} aria-label="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.55)", border: "1.5px solid rgba(255,255,255,.35)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "#fff" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-          <button onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }} aria-label="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: liked ? acc : "rgba(0,0,0,.55)", border: `1.5px solid ${liked ? acc : "rgba(255,255,255,.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, cursor: "pointer", backdropFilter: "blur(4px)" }}>{liked ? "❤️" : "🤍"}</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          <button onClick={(e) => { e.stopPropagation(); onShare && onShare(h, place); }} aria-label="Share" style={{ width: 27, height: 27, borderRadius: "50%", background: "rgba(0,0,0,.32)", border: "1px solid rgba(255,255,255,.22)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "rgba(255,255,255,.85)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+          <button onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }} aria-label="Save" style={{ width: 27, height: 27, borderRadius: "50%", background: liked ? acc : "rgba(0,0,0,.32)", border: `1px solid ${liked ? acc : "rgba(255,255,255,.22)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, cursor: "pointer", backdropFilter: "blur(4px)", opacity: liked ? 1 : 0.9 }}>{liked ? "❤️" : "🤍"}</button>
         </div>
       </div>
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 15px" }}>
-        <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1.22, marginBottom: 8, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,.95)", lineHeight: 1.3, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{h.subtitle || wittyLine(place) || h.detail}</div>
-          <div style={{ flexShrink: 0, fontSize: 12, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "6px 14px" }}>{h.cta || "See more →"}</div>
-        </div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 5, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
+        <div style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.34, marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.subtitle || wittyLine(place) || h.detail}</div>
+        <div style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px" }}>{h.cta || "See more →"}</div>
       </div>
     </div>
   );
@@ -3808,9 +3842,9 @@ function PageInner() {
                 const usedPhotos = new Set([heroPick && heroPick.photo, ...picksPhotos].filter(Boolean));
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 10 }}>Worth a look near {locName ? locName.split(",")[0] : "you"}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 10 }}>Best near {locName ? locName.split(",")[0] : "you"} right now</div>
                     {picksHook && (
-                      <HookSolo h={picksHook} collage={picksPhotos.length >= 2 ? picksPhotos : null} place={picksPhotos.length >= 2 ? null : (picksTop ? { ...picksTop, distMi: null } : null)} liked={hookLikes.has(picksHook.id)} onOpen={openHook} onLike={onHookHeart} onShare={() => shareHook(picksHook, picksTop)} />
+                      <HookSolo h={{ ...picksHook, brand: true }} liked={hookLikes.has(picksHook.id)} onOpen={openHook} onLike={onHookHeart} onShare={() => shareHook(picksHook, picksTop)} />
                     )}
                     {/* v6.6: editorial cards lead with the place name + a calm, complete, location-safe reason and one CTA ("View place"). They never print a city in copy, so they cannot contradict the header. Photo-backed cards come first. */}
                     {[...sectionHooks]
@@ -3823,7 +3857,8 @@ function PageInner() {
                         const cat = primaryCategory(pl);
                         const tag = experienceBadges(pl, null, 1)[0];
                         const catEmoji = (tag && tag.icon) || ({ Food: "🍽️", Nightlife: "🍸", Activities: "🎯", Shopping: "🛍️", Hotels: "🏨" })[cat] || h.emoji || "📍";
-                        const dh = { id: h.id, accent: h.accent || C.accent, emoji: catEmoji, label: (tag && tag.label) || cat || "Pick", hook: pl.name, subtitle: pickReason(pl, { weather, night: isNightNow(weather), compact: true }), cta: "View place" };
+                        const catColor = ({ Food: C.accent, Nightlife: C.purple, Activities: C.blue, Shopping: C.pink, Hotels: C.teal })[cat] || C.accent;
+                        const dh = { id: h.id, accent: catColor, emoji: catEmoji, label: (tag && tag.label) || cat || "Pick", hook: pl.name, subtitle: decisionLine(pl, { weather, night: isNightNow(weather) }), cta: "View place" };
                         return (
                           <HookSolo key={"homehook-" + h.id} h={dh} place={pl} liked={isSaved(pl.id)} onOpen={() => openDetail(pl)} onLike={() => quickSaveFavorite(pl)} onShare={() => shareHook(h, pl)} />
                         );
