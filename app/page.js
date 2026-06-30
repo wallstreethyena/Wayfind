@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v5.5";
+const BUILD = "v5.6";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3528,7 +3528,7 @@ function PageInner() {
                     <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 42, width: "auto", flexShrink: 0, display: "block" }} />
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
-                      <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weather.label || ""}{weather.hi != null && weather.lo != null ? ` · H ${weather.hi}° L ${weather.lo}°` : ""}</div>
+                      <div style={{ fontSize: 11.5, color: C.text, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weather.label || ""}{weather.hi != null && weather.lo != null ? ` · H ${weather.hi}° L ${weather.lo}°` : ""}</div>
                     </div>
                     <div style={{ marginLeft: "auto", display: "flex", gap: 14, alignItems: "center", flexShrink: 0 }}>
                       {weather.feels != null && (<div style={{ textAlign: "center" }}><div style={{ fontSize: 9.5, color: C.muted, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.4px" }}>Feels</div><div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, marginTop: 1 }}>{weather.feels}°</div></div>)}
@@ -3556,12 +3556,12 @@ function PageInner() {
                       <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{heroPick.name}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
                         {heroSl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{heroSl.word}</span>}
-                        {heroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{heroSl.s}/10</span>}
+                        {heroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.text }}>{heroSl.s}/10</span>}
                         {heroPick.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {heroPick.rating}</span>}
-                        {heroPick.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.reviews.toLocaleString()} reviews</span>}
+                        {heroPick.reviews != null && <span style={{ fontSize: 12, color: C.text }}>· {heroPick.reviews.toLocaleString()} reviews</span>}
                         {liveOpen(heroPick) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
                         {liveOpen(heroPick) === false && <span style={{ fontSize: 12, fontWeight: 700, color: heroPick.nextOpen && heroPick.nextOpen.today ? C.gold : C.red }}>· {heroPick.nextOpen && heroPick.nextOpen.today ? heroPick.nextOpen.label : "Closed"}</span>}
-                        {heroPick.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.distMi.toFixed(1)} mi</span>}
+                        {heroPick.distMi != null && <span style={{ fontSize: 12, color: C.text }}>· {heroPick.distMi.toFixed(1)} mi</span>}
                       </div>
                       {heroWhy.length > 0 && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{heroWhy.slice(0, 4).join(" · ")}</div>}
                     </div>
