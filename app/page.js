@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.0";
+const BUILD = "v4.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1574,6 +1574,17 @@ function PageInner() {
         if (!cancelled && disRows) { let curD = {}; try { curD = JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch {} disRows.forEach((r, i) => { if (r.place && r.place.id && !curD[r.place.id]) curD[r.place.id] = { place: r.place, ts: Date.now() - i }; }); try { localStorage.setItem("wf_disliked_items", JSON.stringify(curD)); } catch {} setDislikedItems(curD); }
         const { data: shrRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Shared");
         if (!cancelled && shrRows) { let curS = {}; try { curS = JSON.parse(localStorage.getItem("wf_shared_items") || "{}"); } catch {} shrRows.forEach((r, i) => { if (r.place && r.place.id && !curS[r.place.id]) curS[r.place.id] = { place: r.place, ts: Date.now() - i }; }); try { localStorage.setItem("wf_shared_items", JSON.stringify(curS)); } catch {} setSharedItems(curS); }
+        try {
+          const srvL = new Set((likeRows || []).map((r) => r.place_id));
+          const lL = JSON.parse(localStorage.getItem("wf_liked_items") || "{}");
+          Object.keys(lL).forEach((id) => { const pl = lL[id] && lL[id].place; if (pl && pl.id && !srvL.has(id)) supabase.from("likes").upsert({ user_id: user.id, place_id: pl.id, place: pl }, { onConflict: "user_id,place_id" }).then(() => {}, () => {}); });
+          const srvD = new Set((disRows || []).map((r) => r.place && r.place.id));
+          const lD = JSON.parse(localStorage.getItem("wf_disliked_items") || "{}");
+          Object.keys(lD).forEach((id) => { const pl = lD[id] && lD[id].place; if (pl && pl.id && !srvD.has(id)) supabase.from("saved_places").upsert({ user_id: user.id, place_id: pl.id, place: pl, list_name: "Disliked" }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {}); });
+          const srvS = new Set((shrRows || []).map((r) => r.place && r.place.id));
+          const lS = JSON.parse(localStorage.getItem("wf_shared_items") || "{}");
+          Object.keys(lS).forEach((id) => { const pl = lS[id] && lS[id].place; if (pl && pl.id && !srvS.has(id)) supabase.from("saved_places").upsert({ user_id: user.id, place_id: pl.id, place: pl, list_name: "Shared" }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {}); });
+        } catch {}
       } catch {}
     })();
     return () => { cancelled = true; };
@@ -3658,12 +3669,11 @@ function PageInner() {
                 ? <div key={l.id}>{row}</div>
                 : <SwipeRow key={l.id} onDelete={() => deleteList(l.id)}>{row}</SwipeRow>;
             })}
-            {(Object.keys(likedItems || {}).length + Object.keys(dislikedItems || {}).length + Object.keys(sharedItems || {}).length) > 0 && (
+            {(
               <>
                 <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 2 }}>From your activity</div>
                 {[{ k: "liked", name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems }, { k: "disliked", name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems }, { k: "shared", name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems }].map((f) => {
                   const cnt = Object.keys(f.items || {}).length;
-                  if (cnt === 0) return null;
                   return (
                     <div key={f.k} onClick={() => setSysFolder(f.k)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
                       <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{f.emoji}</div>
