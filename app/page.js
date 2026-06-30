@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.1";
+const BUILD = "v3.2";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -704,14 +704,50 @@ function moonPhase(date) {
 }
 // An honest heads-up derived only from the real numbers already fetched. Not an
 // official alert; just a sensible tip when a condition crosses a threshold.
+function uvLabel(uv) {
+  if (uv == null) return "";
+  if (uv >= 11) return "extreme";
+  if (uv >= 8) return "very high";
+  if (uv >= 6) return "high";
+  if (uv >= 3) return "moderate";
+  return "low";
+}
+function isNightNow(w) {
+  if (!w) return false;
+  const now = Date.now();
+  return !!((w.sunsetMs && now > w.sunsetMs) || (w.sunriseMs && now < w.sunriseMs));
+}
 function weatherAdvisory(w) {
   if (!w) return null;
+  if (isNightNow(w)) {
+    if (w.rain != null && w.rain >= 40) return { icon: "🌧️", text: "Storms possible tonight. Check radar before a drive, and lean toward covered spots." };
+    if (w.feels != null && w.feels >= 88) return { icon: "🥵", text: "Warm, muggy night. Outdoor patios will feel hotter than the number suggests." };
+    if (w.wind != null && w.wind >= 20) return { icon: "💨", text: "Breezy after dark. Rooftops and the water will feel gusty." };
+    if (w.lo != null && w.lo <= 45) return { icon: "🧥", text: "Cooling off tonight. Grab a layer if you are heading out." };
+    return null;
+  }
   if (w.rain != null && w.rain >= 60) return { icon: "🌧️", text: "Showers likely today. Worth keeping an indoor backup in mind." };
   if (w.wind != null && w.wind >= 25) return { icon: "💨", text: "Breezy out there. Patios and the beach may be gusty." };
   if (w.uv != null && w.uv >= 8) return { icon: "🧴", text: "Very high UV today. Sunscreen if you'll be out a while." };
   if (w.hi != null && w.hi >= 95) return { icon: "🥵", text: "Hot one today. Hydrate and lean toward shade." };
   if (w.lo != null && w.lo <= 40) return { icon: "🧥", text: "Cool later on. Bring a layer if you're out tonight." };
   return null;
+}
+function wayfindWeatherTake(w) {
+  if (!w) return null;
+  const night = isNightNow(w);
+  const stormy = (w.rain != null && w.rain >= 40) || w.wet;
+  const muggy = (w.feels != null && w.feels >= 88) || (w.dew != null && w.dew >= 70);
+  const windy = w.wind != null && w.wind >= 20;
+  const hot = w.temp != null && w.temp >= 90;
+  const cold = w.temp != null && w.temp <= 50;
+  const good = [], avoid = [];
+  if (stormy) { good.push("indoor dining", "covered patios", "short drives"); avoid.push("uncovered seating", "long walks", "the beach"); }
+  else if (muggy || hot) { good.push("air-conditioned spots", "indoor dining", night ? "late patios" : "early or shaded seating"); avoid.push(night ? "stuffy rooms" : "midday sun", "long walks"); }
+  else if (windy) { good.push("sheltered indoor spots", "covered patios"); avoid.push("rooftops", "the open beach"); }
+  else if (cold) { good.push("cozy indoor spots", "heated patios"); avoid.push("long stretches outside"); }
+  else { good.push("outdoor patios", night ? "rooftop bars" : "a walk", night ? "evening strolls" : "the beach"); }
+  return { good: good.slice(0, 3), avoid: avoid.slice(0, 3), night };
 }
 function whatToWear(p, weather) {
   if (!p) return null;
@@ -2163,24 +2199,27 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,uv_index_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`);
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,sunrise,uv_index_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`);
         const d = await r.json();
         const cur = d && d.current ? d.current : null;
         const day = d && d.daily ? d.daily : null;
         if (cur && !cancelled) {
           const w = weatherFromCode(cur.weather_code);
-          let sunset = null;
-          try { if (day && day.sunset && day.sunset[0]) { const sd = new Date(day.sunset[0]); sunset = sd.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); } } catch {}
+          let sunset = null, sunsetMs = null, sunriseMs = null, updated = null;
+          try { if (day && day.sunset && day.sunset[0]) { const sd = new Date(day.sunset[0]); sunset = sd.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); sunsetMs = sd.getTime(); } } catch {}
+          try { if (day && day.sunrise && day.sunrise[0]) sunriseMs = new Date(day.sunrise[0]).getTime(); } catch {}
+          try { updated = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }); } catch {}
           setWeather({
             temp: Math.round(cur.temperature_2m),
             feels: cur.apparent_temperature != null ? Math.round(cur.apparent_temperature) : null,
             humidity: cur.relative_humidity_2m != null ? Math.round(cur.relative_humidity_2m) : null,
             wind: cur.wind_speed_10m != null ? Math.round(cur.wind_speed_10m) : null,
+            dew: cur.dew_point_2m != null ? Math.round(cur.dew_point_2m) : null,
             hi: day && day.temperature_2m_max ? Math.round(day.temperature_2m_max[0]) : null,
             lo: day && day.temperature_2m_min ? Math.round(day.temperature_2m_min[0]) : null,
             rain: day && day.precipitation_probability_max ? day.precipitation_probability_max[0] : null,
             uv: day && day.uv_index_max ? Math.round(day.uv_index_max[0]) : null,
-            sunset,
+            sunset, sunsetMs, sunriseMs, updated,
             icon: w.icon, img: w.img, label: w.label, warm: w.warm, wet: w.wet,
           });
         }
@@ -4526,7 +4565,7 @@ function PageInner() {
             )}
             {menuSheet === "weather" && weather && (
               <>
-                <SheetHero icon="🌤️" title="Weather right now" subtitle={(locName ? locName.split(",")[0] : "Your area") + ", live conditions."} color={C.blue} />
+                <SheetHero icon="🌤️" title={isNightNow(weather) ? "Tonight's weather" : "Weather right now"} subtitle={(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")} color={C.blue} />
                 {(() => { const adv = weatherAdvisory(weather); return adv ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
                     <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
@@ -4540,6 +4579,13 @@ function PageInner() {
                     {weather.label && <div style={{ fontSize: 14, color: C.light, marginTop: 4 }}>{weather.label}</div>}
                   </div>
                 </div>
+                {(() => { const t = wayfindWeatherTake(weather); if (!t || (!t.good.length && !t.avoid.length)) return null; return (
+                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: "13px 14px", marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", color: C.accent, textTransform: "uppercase", marginBottom: 8 }}>Wayfind take · {t.night ? "tonight" : "today"}</div>
+                    {t.good.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5, marginBottom: t.avoid.length ? 7 : 0 }}><span style={{ color: C.green, fontWeight: 800, flexShrink: 0 }}>Good for</span><span>{t.good.join(", ")}</span></div>}
+                    {t.avoid.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5 }}><span style={{ color: C.muted, fontWeight: 800, flexShrink: 0 }}>Skip</span><span>{t.avoid.join(", ")}</span></div>}
+                  </div>
+                ); })()}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                   {weather.feels != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Feels like</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.feels}°</div></div>)}
                   {weather.wind != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Wind</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>💨 {weather.wind} mph</div></div>)}
@@ -4547,7 +4593,8 @@ function PageInner() {
                   {weather.rain != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Rain chance</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.rain}%</div></div>)}
                   {weather.hi != null && weather.lo != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>High / Low</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.hi}° / {weather.lo}°</div></div>)}
                   {weather.humidity != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Humidity</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.humidity}%</div></div>)}
-                  {weather.uv != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>UV index</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.uv}{weather.uv >= 8 ? " · high" : weather.uv >= 6 ? " · mod" : ""}</div></div>)}
+                  {weather.uv != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Today's UV peak</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.uv} · {uvLabel(weather.uv)}</div></div>)}
+                  {weather.dew != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Dew point</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.dew}°{weather.dew >= 70 ? " · muggy" : weather.dew >= 60 ? " · sticky" : " · comfy"}</div></div>)}
                   {(() => { const m = moonPhase(new Date()); return (
                     <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 16px" }}>
                       <span style={{ fontSize: 34, lineHeight: 1 }}>{m.emoji}</span>
