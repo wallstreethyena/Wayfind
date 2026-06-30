@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.11";
+const BUILD = "v6.12";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3838,8 +3838,14 @@ function PageInner() {
                 const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
                 // Top 10 reads as a collection: a 4 photo collage from the highest scoring places, not one borrowed place photo.
                 const picksPhotos = [...displayList].filter((p) => p && p.photo).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 4).map((p) => p.photo);
-                // No two cards on screen should share an image. Seed the used set with the hero photo and the collage photos.
+                // No place may appear twice in the feed. Dedupe by place id first (photo urls are not stable across fetches), never repeat the hero, and keep photo only as a secondary guard.
                 const usedPhotos = new Set([heroPick && heroPick.photo, ...picksPhotos].filter(Boolean));
+                const usedIds = new Set([heroPick && heroPick.id].filter(Boolean));
+                const seenEditorialPlace = new Set();
+                const editorialHooks = [...sectionHooks]
+                  .filter((h) => pmH[h.placeId] && !usedIds.has(pmH[h.placeId].id))
+                  .filter((h) => { const id = pmH[h.placeId].id; if (seenEditorialPlace.has(id)) return false; seenEditorialPlace.add(id); return true; })
+                  .sort((a, b) => ((pmH[b.placeId] && pmH[b.placeId].photo) ? 1 : 0) - ((pmH[a.placeId] && pmH[a.placeId].photo) ? 1 : 0));
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 10 }}>Best near {locName ? locName.split(",")[0] : "you"} right now</div>
@@ -3847,13 +3853,12 @@ function PageInner() {
                       <HookSolo h={{ ...picksHook, brand: true }} liked={hookLikes.has(picksHook.id)} onOpen={openHook} onLike={onHookHeart} onShare={() => shareHook(picksHook, picksTop)} />
                     )}
                     {/* v6.6: editorial cards lead with the place name + a calm, complete, location-safe reason and one CTA ("View place"). They never print a city in copy, so they cannot contradict the header. Photo-backed cards come first. */}
-                    {[...sectionHooks]
-                      .filter((h) => pmH[h.placeId])
-                      .sort((a, b) => ((pmH[b.placeId] && pmH[b.placeId].photo) ? 1 : 0) - ((pmH[a.placeId] && pmH[a.placeId].photo) ? 1 : 0))
+                    {editorialHooks
                       .map((h) => {
                         const pl = pmH[h.placeId];
-                        if (pl.photo && usedPhotos.has(pl.photo)) return null; // no repeated images across cards on screen
+                        if (pl.photo && usedPhotos.has(pl.photo)) return null; // secondary image guard
                         if (pl.photo) usedPhotos.add(pl.photo);
+                        usedIds.add(pl.id);
                         const cat = primaryCategory(pl);
                         const tag = experienceBadges(pl, null, 1)[0];
                         const catEmoji = (tag && tag.icon) || ({ Food: "🍽️", Nightlife: "🍸", Activities: "🎯", Shopping: "🛍️", Hotels: "🏨" })[cat] || h.emoji || "📍";
