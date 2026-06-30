@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.8";
+const BUILD = "v3.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -485,8 +485,11 @@ function FallbackImg({ src, alt, style, icon, onClick }) {
   const [bad, setBad] = useState(false);
   if (!src || bad) {
     return (
-      <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #1C2230, #2D3748)", cursor: "default" }}>
-        <span style={{ fontSize: 26, opacity: 0.45 }}>{icon || "📍"}</span>
+      <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)", cursor: "default" }}>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
+          <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
+          <circle cx="12" cy="9.4" r="2.4" />
+        </svg>
       </div>
     );
   }
@@ -2718,18 +2721,16 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             <img src="/wordmark.png" alt="wayfind" onClick={openSuggested} style={{ height: 30, width: "auto", display: "block", cursor: "pointer" }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
-            <span style={{ fontSize: 9, fontWeight: 600, color: C.muted, opacity: 0.5, marginLeft: 4 }}>{BUILD}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
-              <button onClick={() => setAuthOpen(true)} style={{ flexShrink: 0, fontSize: 13, fontWeight: 800, padding: "7px 14px", borderRadius: 999, cursor: "pointer", background: C.card, color: C.accent, border: `1px solid ${C.accent}` }}>Sign in</button>
+              <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.light, cursor: "pointer" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg></button>
             ))}
-            <button onClick={shareApp} aria-label="Share Wayfind" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, fontSize: 15, fontWeight: 700, borderRadius: 999, cursor: "pointer", background: "transparent", color: C.muted, border: `1px solid ${C.border}` }}>{shareCopied ? "✓" : "↗"}</button>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8, position: "relative" }}>
+        <div style={{ display: "flex", gap: 0, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
             <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none", opacity: 0.85 }}>🔍</span>
             <input
@@ -2738,7 +2739,7 @@ function PageInner() {
               onKeyDown={(e) => e.key === "Enter" && submitSearch()}
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
               placeholder="Search a place or city"
-              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px 12px 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, color: C.text, fontSize: 15, outline: "none" }}
+              style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
               <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
@@ -2758,11 +2759,11 @@ function PageInner() {
               </div>
             )}
           </div>
-          <button onClick={submitSearch} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", border: "none", borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 800, padding: "0 16px", height: 48, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 2px 10px rgba(249,115,22,.4)" }}>Wayfind It</button>
+          <button onClick={submitSearch} aria-label="Wayfind it" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", border: "none", borderRadius: "0 14px 14px 0", color: "#fff", fontSize: 22, fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 10px rgba(249,115,22,.4)" }}>→</button>
         </div>
         {screen === "suggested" && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Featured:</span>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Recently added:</span>
           {FEATURED_AREAS.map((a) => (
             <button key={a.name} onClick={() => jumpToArea(a)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "5px 11px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
               <span>📍</span>{a.short}
@@ -2812,7 +2813,7 @@ function PageInner() {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px 24px" }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px 40px" }}>
         <>
             {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
             {screen === "map" && (() => {
@@ -3659,9 +3660,8 @@ function PageInner() {
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setDetail(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
-              <button onClick={() => { logEvent("share", detail, { kind: "place" }); shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Share spot</button>
-              <button onClick={() => quickSaveFavorite(detail)} style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, background: isSaved(detail.id) ? C.adim : C.card, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>{isSaved(detail.id) ? "✓ Saved" : "❤️ Save"}</button>
-              <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", gap: 6, height: 38, padding: "0 16px", borderRadius: 19, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕ Close</button>
+              <button onClick={() => { logEvent("share", detail, { kind: "place" }); shareLink(detail.name, originUrl("/?place=" + encodeURIComponent(detail.id)), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share spot" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+              <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 17, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕</button>
             </div>
             {detail.photos && detail.photos.length > 0 ? (
               <div style={{ position: "relative" }}>
@@ -3873,80 +3873,7 @@ function PageInner() {
                     </div>
                   );
                 })()}
-              </div>
-
-              {/* 4. Actions — for a closed place the main action becomes Save, not "go now". */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                {detail.openNow === false ? (
-                  <>
-                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>❤️ Save for later</button>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                  </>
-                ) : (
-                  <>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.accent, borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Open in Google Maps ↗</a>
-                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>❤️ Favorite</button>
-                  </>
-                )}
-              </div>
-
-              {detailExtra && (detailExtra.phone || detailExtra.website) && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  {detailExtra.phone && <a href={"tel:" + detailExtra.phone} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>📞 Call</a>}
-                  {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
-                </div>
-              )}
-
-              {detail && offers[detail.id] && (() => {
-                const o = offers[detail.id];
-                return (
-                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>{offerLabel(o)}</span>
-                      {o.last_verified_at && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>✓ Verified</span>}
-                    </div>
-                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{o.offer_title}</div>
-                    {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
-                    {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
-                    {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
-                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
-                    {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
-                    <div onClick={() => { logEvent("offer_report", detail, { offer_id: o.id }); showToast("Thanks, we will take a look"); }} style={{ textAlign: "center", fontSize: 11, color: C.muted, marginTop: 10, cursor: "pointer", textDecoration: "underline" }}>Report an issue</div>
-                  </div>
-                );
-              })()}
-
-              {isBeach(detail) && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF", marginBottom: 8 }}>🏖️ Beach conditions</div>
-                  {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind and water…</div>}
-                  {!beachCondLoading && beachCond && (() => {
-                    const bc = beachCond;
-                    const dir = bc.windDir != null ? compass(bc.windDir) : null;
-                    const opp = bc.windDir != null ? compass((bc.windDir + 180) % 360) : null;
-                    let shore = null;
-                    if (bc.windDir != null && bc.waveDir != null) {
-                      let diff = Math.abs(bc.windDir - bc.waveDir) % 360;
-                      if (diff > 180) diff = 360 - diff;
-                      shore = diff <= 60 ? "onshore" : diff >= 120 ? "offshore" : "cross";
-                    }
-                    const waveFt = bc.waveHeight != null ? (bc.waveHeight * 3.281).toFixed(1) : null;
-                    const hasAny = bc.wind != null || shore || waveFt;
-                    return (
-                      <div>
-                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.gust ? " (gusts " + bc.gust + ")" : ""}{dir ? " from the " + dir : ""}</div>}
-                        {shore && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🧭 {shore === "onshore" ? "Blowing in off the water" : shore === "offshore" ? "Blowing out toward the water" : "Blowing along the beach"}</div>}
-                        {waveFt && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {waveFt} ft{bc.wavePeriod != null ? ", " + Math.round(bc.wavePeriod) + "s apart" : ""}</div>}
-                        {dir && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginTop: 4 }}>Tent tip: the wind comes from the {dir}, so set your tent or windbreak with the opening facing the {opp}, away from the wind.</div>}
-                        {!hasAny && <div style={{ fontSize: 13, color: C.muted }}>Live conditions are not available for this spot right now.</div>}
-                      </div>
-                    );
-                  })()}
-                  {!beachCondLoading && !beachCond && <div style={{ fontSize: 13, color: C.muted }}>Live conditions aren't available right now.</div>}
-                </div>
-              )}
-
-              <div style={{ marginBottom: 4 }}>
+              <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
                 <button onClick={() => { const n = !showMore; setShowMore(n); if (n) { loadFullInsight(detail, detailExtra); loadVideos(detail); } }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 12, padding: "12px 14px" }}>
                   <span>{showMore ? "Show less" : "✨ Tips, videos & more"}</span>
                   <span style={{ fontSize: 12, fontWeight: 800 }}>{showMore ? "▴" : "▾"}</span>
@@ -4062,6 +3989,80 @@ function PageInner() {
                   </div>
                 )}
               </div>
+              </div>
+
+              {/* 4. Actions — for a closed place the main action becomes Save, not "go now". */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                {detail.openNow === false ? (
+                  <>
+                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>❤️ Save for later</button>
+                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                  </>
+                ) : (
+                  <>
+                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.accent, borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Open in Google Maps ↗</a>
+                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>❤️ Favorite</button>
+                  </>
+                )}
+              </div>
+
+              {detailExtra && (detailExtra.phone || detailExtra.website) && (
+                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                  {detailExtra.phone && <a href={"tel:" + detailExtra.phone} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>📞 Call</a>}
+                  {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
+                </div>
+              )}
+
+              {detail && offers[detail.id] && (() => {
+                const o = offers[detail.id];
+                return (
+                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>{offerLabel(o)}</span>
+                      {o.last_verified_at && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>✓ Verified</span>}
+                    </div>
+                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{o.offer_title}</div>
+                    {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
+                    {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
+                    {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
+                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
+                    {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
+                    <div onClick={() => { logEvent("offer_report", detail, { offer_id: o.id }); showToast("Thanks, we will take a look"); }} style={{ textAlign: "center", fontSize: 11, color: C.muted, marginTop: 10, cursor: "pointer", textDecoration: "underline" }}>Report an issue</div>
+                  </div>
+                );
+              })()}
+
+              {isBeach(detail) && (
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF", marginBottom: 8 }}>🏖️ Beach conditions</div>
+                  {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind and water…</div>}
+                  {!beachCondLoading && beachCond && (() => {
+                    const bc = beachCond;
+                    const dir = bc.windDir != null ? compass(bc.windDir) : null;
+                    const opp = bc.windDir != null ? compass((bc.windDir + 180) % 360) : null;
+                    let shore = null;
+                    if (bc.windDir != null && bc.waveDir != null) {
+                      let diff = Math.abs(bc.windDir - bc.waveDir) % 360;
+                      if (diff > 180) diff = 360 - diff;
+                      shore = diff <= 60 ? "onshore" : diff >= 120 ? "offshore" : "cross";
+                    }
+                    const waveFt = bc.waveHeight != null ? (bc.waveHeight * 3.281).toFixed(1) : null;
+                    const hasAny = bc.wind != null || shore || waveFt;
+                    return (
+                      <div>
+                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.gust ? " (gusts " + bc.gust + ")" : ""}{dir ? " from the " + dir : ""}</div>}
+                        {shore && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🧭 {shore === "onshore" ? "Blowing in off the water" : shore === "offshore" ? "Blowing out toward the water" : "Blowing along the beach"}</div>}
+                        {waveFt && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {waveFt} ft{bc.wavePeriod != null ? ", " + Math.round(bc.wavePeriod) + "s apart" : ""}</div>}
+                        {dir && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginTop: 4 }}>Tent tip: the wind comes from the {dir}, so set your tent or windbreak with the opening facing the {opp}, away from the wind.</div>}
+                        {!hasAny && <div style={{ fontSize: 13, color: C.muted }}>Live conditions are not available for this spot right now.</div>}
+                      </div>
+                    );
+                  })()}
+                  {!beachCondLoading && !beachCond && <div style={{ fontSize: 13, color: C.muted }}>Live conditions aren't available right now.</div>}
+                </div>
+              )}
+
+
 
               {/* Hours now expand from the Open/Closed status badge near the title. */}
 
@@ -4319,6 +4320,7 @@ function PageInner() {
             </div>
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
+            <div style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD}</div>
           </div>
         </div>
       )}

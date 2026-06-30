@@ -186,12 +186,15 @@ const EVENT_PIN_SVG =
   "</svg>";
 
 const DARK_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#1d2330" }] },
+  { elementType: "geometry", stylers: [{ color: "#232b39" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0D1117" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#9AA5B1" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0e1726" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2a3140" }] },
-  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#7c8794" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#DCE3EC" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#1B4060" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9FC1DE" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#21392b" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#3d4759" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#4d5870" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#AEB8C5" }] },
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "off" }] },
 ];
