@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.9";
+const BUILD = "v5.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3433,21 +3433,7 @@ function PageInner() {
             if (weather && weather.temp != null && weather.temp >= 58 && weather.temp <= 92 && !(weather.label && /rain|storm|snow|sleet/i.test(weather.label))) heroWhy.push("great weather match");
             heroWhy.push("strong " + whyPick + " pick");
           }
-          // v4.8: top-of-feed "Picked for you right now" — two standout places + two things today.
-          const heroTwo = (() => {
-            const out = heroOrder.filter(Boolean);
-            for (const p of displayList) { if (out.length >= 2) break; if (p && p.id && !out.find((x) => x && x.id === p.id)) out.push(p); }
-            return out.slice(0, 2);
-          })();
-          const heroTwoIds = new Set(heroTwo.map((p) => p && p.id));
-          const heroEvents = dedupeEvents(foryouEvents || [], true).filter(Boolean).slice(0, 2);
-          const heroEventIds = new Set(heroEvents.map((e) => e && e.id));
-          const heroPart = h < 11 ? "this morning" : h < 15 ? "around lunch" : h < 17 ? "this afternoon" : h < 22 ? "this evening" : "tonight";
-          const heroPlace = locName ? locName.split(",")[0] : "you";
-          let heroIntro = `A few things worth doing ${heroPart} near ${heroPlace}`;
-          if (weather && weather.temp != null) heroIntro += `, with it ${weather.temp}°${weather.label ? " and " + weather.label.toLowerCase() : ""} out`;
-          heroIntro += ".";
-          const feedList0 = displayList.filter((p) => p && !heroTwoIds.has(p.id));
+          const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
           const feedListN = sortBy === "near" ? feedList0.filter((p) => p && (sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi)) : feedList0;
           const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
@@ -3502,53 +3488,39 @@ function PageInner() {
                   </button>
                 )}
               </div>
-              {!suggestedLoading && suggested !== null && heroTwo.length > 0 && (
-                <div style={{ marginBottom: 4 }}>
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 6 }}>Picked for you right now</div>
-                    <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5 }}>{heroIntro}</div>
-                    <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 4 }}>Just chosen for this moment. It updates as the day, the weather, and what you tap change.</div>
-                  </div>
-                  {heroTwo.map((p, i) => (
-                    <div key={"herotwo-" + p.id} onClick={() => openDetail(p)} style={{ marginBottom: 12, border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 18, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card, boxShadow: "0 6px 22px rgba(0,0,0,.3)" }}>
-                      <div style={{ position: "relative" }}>
-                        <FallbackImg src={p.photo} icon="📍" style={{ width: "100%", height: 150, objectFit: "cover", display: "block" }} />
-                        <div style={{ position: "absolute", top: 10, left: 10, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${(p.openNow === true ? C.green : C.accent)}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: p.openNow === true ? C.green : C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{p.openNow === true ? "Open now" : (p.openNow === false && p.nextOpen && p.nextOpen.today ? "Opens " + p.nextOpen.label : (i === 0 ? "Top pick nearby" : "Also near you"))}</span>
-                        </div>
-                      </div>
-                      <div style={{ padding: "13px 15px 15px" }}>
-                        <div style={{ fontSize: 18, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{p.name}</div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 7 }}>
-                          {p.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {p.rating}</span>}
-                          {p.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.reviews.toLocaleString()} reviews</span>}
-                          {p.openNow === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
-                          {p.openNow === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span>}
-                          {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi < 1 ? "right by you" : p.distMi.toFixed(1) + " mi"}</span>}
-                        </div>
-                        {whyNow(p) && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
+              {!suggestedLoading && suggested !== null && heroPick && (
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
+              )}
+              {!suggestedLoading && suggested !== null && heroPick && (
+                <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
+                  <div onClick={() => openDetail(heroPick)} style={{ cursor: "pointer" }}>
+                    <div style={{ position: "relative" }}>
+                      <FallbackImg src={heroPick.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
+                      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
+                        <span style={{ fontSize: 12 }}>{heroBadgeIcon}</span>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{heroBadgeText}</span>
                       </div>
                     </div>
-                  ))}
-                  {heroEvents.length > 0 && (
-                    <>
-                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, margin: "6px 2px 8px" }}>Also happening near you</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 14 }}>
-                        {heroEvents.map((e) => {
-                          const f = formatEventDate(e.date, e.time);
-                          const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
-                          return (
-                            <div key={"heroev-" + e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 12, cursor: "pointer", minWidth: 0 }}>
-                              <div style={{ fontSize: 10.5, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-                              <div style={{ fontSize: 10.5, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                            </div>
-                          );
-                        })}
+                    <div style={{ padding: 16 }}>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{heroPick.name}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                        {heroSl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{heroSl.word}</span>}
+                        {heroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{heroSl.s}/10</span>}
+                        {heroPick.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {heroPick.rating}</span>}
+                        {heroPick.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.reviews.toLocaleString()} reviews</span>}
+                        {liveOpen(heroPick) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
+                        {liveOpen(heroPick) === false && <span style={{ fontSize: 12, fontWeight: 700, color: heroPick.nextOpen && heroPick.nextOpen.today ? C.gold : C.red }}>· {heroPick.nextOpen && heroPick.nextOpen.today ? heroPick.nextOpen.label : "Closed"}</span>}
+                        {heroPick.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.distMi.toFixed(1)} mi</span>}
                       </div>
-                    </>
-                  )}
-                  <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 16, padding: "0 2px" }}>Tap any of these to head out, or scroll for the full ranked list near you.</div>
+                      {heroWhy.length > 0 && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{heroWhy.slice(0, 4).join(" · ")}</div>}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 10, padding: "0 16px 16px" }}>
+                    <button onClick={() => openDetail(heroPick)} style={{ flex: 2, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>Take me there →</button>
+                    {heroOrder.length > 1 && (
+                      <button onClick={() => setHeroNonce((n) => n + 1)} style={{ flex: 1, background: "transparent", color: C.accent, border: `1.5px solid ${C.accent}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>Another angle</button>
+                    )}
+                  </div>
                 </div>
               )}
               {/* v4.2: editorial hook cards restored full-width, variety of angles, stacked, never a squared grid */}
@@ -3573,7 +3545,7 @@ function PageInner() {
                     <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                    {dedupeEvents(foryouEvents, true).filter((e) => !heroEventIds.has(e.id)).slice(0, 6).map((e) => {
+                    {dedupeEvents(foryouEvents, true).slice(0, 6).map((e) => {
                       const f = formatEventDate(e.date, e.time);
                       const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
                       return (
@@ -3680,7 +3652,7 @@ function PageInner() {
                         <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                        {dedupeEvents(foryouEvents, true).filter((e) => !heroEventIds.has(e.id)).slice(0, 6).map((e) => {
+                        {dedupeEvents(foryouEvents, true).slice(0, 6).map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           return (
                             <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 10, cursor: "pointer" }}>
@@ -4932,6 +4904,59 @@ function PageInner() {
                     <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 16 }}>
                       <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700, marginBottom: 5 }}>The local scene</div>
                       Strongest around here: {catLine}.{gems > 0 ? ` ${gems} spot${gems === 1 ? "" : "s"} sitting at 4.5★ or higher.` : ""}
+                    </div>
+                  );
+                })()}
+                {(() => {
+                  const src = dedupePlaces([...(suggested || []), ...places]);
+                  if (!src.length) return null;
+                  const openFirst = src.filter((p) => p && p.openNow === true);
+                  const base = (openFirst.length >= 2 ? openFirst : src).filter(Boolean);
+                  const picks = base.slice(0, 2);
+                  if (picks.length === 0) return null;
+                  const evs = dedupeEvents(foryouEvents || [], true).filter(Boolean).slice(0, 2);
+                  return (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, marginBottom: 8 }}>Start with these</div>
+                      {picks.map((p, i) => (
+                        <div key={"nbpick-" + p.id} onClick={() => { setMenuSheet(null); openDetail(p); }} style={{ marginBottom: 10, border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card }}>
+                          <div style={{ position: "relative" }}>
+                            <FallbackImg src={p.photo} icon="📍" style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
+                            <div style={{ position: "absolute", top: 9, left: 9, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${(p.openNow === true ? C.green : C.accent)}80`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
+                              <span style={{ fontSize: 9.5, fontWeight: 800, color: p.openNow === true ? C.green : C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{p.openNow === true ? "Open now" : (i === 0 ? "Top pick nearby" : "Also near you")}</span>
+                            </div>
+                          </div>
+                          <div style={{ padding: "11px 13px 13px" }}>
+                            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{p.name}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
+                              {p.rating != null && <span style={{ fontSize: 12.5, color: "#F59E0B" }}>★ {p.rating}</span>}
+                              {p.reviews != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.reviews.toLocaleString()} reviews</span>}
+                              {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
+                              {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span>}
+                              {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                            </div>
+                            {whyNow(p) && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 7 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
+                          </div>
+                        </div>
+                      ))}
+                      {evs.length > 0 && (
+                        <>
+                          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, margin: "6px 2px 8px" }}>Happening near you</div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 9, marginBottom: 4 }}>
+                            {evs.map((e) => {
+                              const f = formatEventDate(e.date, e.time);
+                              const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
+                              return (
+                                <div key={"nbev-" + e.id} onClick={() => { setMenuSheet(null); openVenue(e); }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>
+                                  <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
+                                  <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+                                  <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
                     </div>
                   );
                 })()}
