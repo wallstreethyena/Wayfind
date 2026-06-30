@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.2";
+const BUILD = "v6.3";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1216,15 +1216,15 @@ function generateHooks(places, locName) {
     cta: "See both →", action: { type: "detail", place: foodTop },
   });
 
-  // Wayfind Top 5 — the flagship branded entry into the curated picks sheet.
+  // Wayfind Picks — the flagship branded entry into the curated picks sheet.
   if (byScore.length >= 5) hooks.push({
-    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Top 5 · ${city}`, highlightWord: "top 5",
-    hook: `Wayfind's top 5 picks in ${city} right now`,
+    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "top 10",
+    hook: `The top 10 picks near ${city} right now`,
     detail: byScore.slice(0, 3).map((p) => p.name).join("  ·  "),
     theme: "best", placeId: byScore[0].id,
-    themeTitle: `Wayfind Top 5 in ${city}`,
-    themeBody: `The five highest-scoring spots near you right now, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it.`,
-    cta: "See the 5 →", action: { type: "explore" },
+    themeTitle: `Wayfind Picks · Top 10 in ${city}`,
+    themeBody: `The ten highest-scoring spots near you, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it. Anything past 10 miles is flagged so you can weigh the drive.`,
+    cta: "See the top 10 →", action: { type: "explore" },
   });
 
   // Late night bonus
@@ -1439,7 +1439,7 @@ function placesForHook(hook, allSrc) {
   const primaryId = hook && hook.placeId;
   const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   let out = [];
-  if (theme === "top5" || theme === "best") out = byScore.slice(0, 5);
+  if (theme === "top5" || theme === "best") out = byScore.slice(0, 10);
   else if (theme === "gem") {
     out = allSrc.filter((p) => p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 450).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
     const pri = allSrc.find((x) => x.id === primaryId);
@@ -3469,8 +3469,22 @@ function PageInner() {
           const heroPick = heroOrder.length ? heroOrder[heroNonce % heroOrder.length] : null;
           const heroSl = heroPick ? scoreLabel(heroPick.wfScore) : null;
           const heroHook = heroPick ? hookCards.find((hk) => hk && hk.placeId === heroPick.id) : null;
-          const sectionHooks = hookCards.filter((hk) => hk && (!heroHook || hk.id !== heroHook.id)).slice(0, 5);
+          const sectionHooks = hookCards.filter((hk) => hk && hk.id !== "top5" && (!heroHook || hk.id !== heroHook.id)).slice(0, 5);
           const sectionHookIds = new Set(sectionHooks.map((hk) => hk.id));
+          // Wayfind Picks hero hook — the single entry into the curated top 10 sheet.
+          // Built from the live feed so it works whether or not AI hooks are present.
+          const picksHook = (() => {
+            const bs = [...displayList].filter(Boolean).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+            if (bs.length < 5) return null;
+            const cityN = locName ? locName.split(",")[0] : "you";
+            return {
+              id: "top5", accent: C.accent, emoji: "🧭", label: `Wayfind Picks · ${cityN}`,
+              theme: "best", placeId: bs[0].id,
+              hook: `The top 10 picks near ${cityN} right now`,
+              themeTitle: `Wayfind Picks · Top 10 in ${cityN}`,
+              themeBody: `The ten highest-scoring spots near you, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it. Anything past 10 miles is flagged so you can weigh the drive.`,
+            };
+          })();
           const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : (blurbs[heroPick.id] || "")) : "";
           const heroIsGem = !!(heroPick && heroGem && heroPick.id === heroGem.id && (!heroTop || heroGem.id !== heroTop.id));
           // Honest hero badge: only say "start here" when the place is genuinely open now.
@@ -3582,6 +3596,22 @@ function PageInner() {
                   </div>
                 </div>
               )}
+              {picksHook && (
+                <div onClick={() => openHook(picksHook)} style={{ position: "relative", overflow: "hidden", borderRadius: 18, cursor: "pointer", background: `linear-gradient(135deg, ${C.accent}26 0%, ${C.card} 70%)`, border: `1.5px solid ${C.accent}`, padding: 17, marginBottom: 16 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <span style={{ position: "relative", width: 40, height: 40, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <span style={{ position: "absolute", inset: -6, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: 3 }}>Wayfind Picks</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>The top 10 near {locName ? locName.split(",")[0] : "you"} right now</div>
+                      <div style={{ fontSize: 12.5, color: C.light, marginTop: 4, lineHeight: 1.45 }}>Ranked by the Wayfind Score. Anything past 10 miles, we flag so you can weigh the drive.</div>
+                    </div>
+                  </div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 14, background: C.accent, color: "#0D1117", borderRadius: 999, fontSize: 13.5, fontWeight: 800, padding: "9px 18px" }}>See the top 10 →</div>
+                </div>
+              )}
               {/* v4.2: editorial hook cards restored full-width, variety of angles, stacked, never a squared grid */}
               {sectionHooks.length > 0 && (() => {
                 const pmH = {};
@@ -3626,21 +3656,7 @@ function PageInner() {
                   <span style={{ fontSize: 13 }}>Try again in a moment or pick a category.</span>
                 </div>
               )}
-              {!suggestedLoading && suggested !== null && list.length > 0 && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 10 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Wayfind Picks</div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => setSortBy("best")} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
-                    <button onClick={() => { if (sortBy !== "near") { setSortBy("near"); setSliderMi(Math.min(30, Math.max(1, Math.round(searchRadius / 1609.34)))); setRadiusOpen(true); } else { setRadiusOpen((o) => !o); } }} style={{ padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>{Object.keys(offers).length > 0 && <button onClick={() => setDealsOnly((d) => !d)} style={{ marginLeft: 8, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${dealsOnly ? C.accent : C.border}`, background: dealsOnly ? C.accent : "transparent", color: dealsOnly ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>🏷️ Deals</button>}
-                  </div>
-                </div>
-              )}
-              {!suggestedLoading && suggested !== null && list.length > 0 && sortBy === "near" && radiusOpen && (
-                <div style={{ marginBottom: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
-              )}
-              {!suggestedLoading && suggested !== null && homeFeed.slice(0, 4).map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
-              ))}
+              {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {hookCards.length > 0 && (() => {
                 // v3.7: show exactly two discovery cards — pin Top 5 (the entry into the
                 // ranked list), then one rotating provocative hook. The rest weave into
@@ -3661,22 +3677,7 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {!suggestedLoading && suggested !== null && (() => {
-                const rest = homeFeed.slice(4);
-                // v3.7: keep the two banner hooks out of the inline weave so nothing repeats.
-                const inlineHooks = hookCards.filter((h) => h && !sectionHookIds.has(h.id) && (!heroHook || h.id !== heroHook.id));
-                const pm = {};
-                [...(suggested || []), ...places].filter(Boolean).forEach((pp) => { if (pp && pp.id) pm[pp.id] = pp; });
-                const out = [];
-                rest.forEach((p, i) => {
-                  if (i > 0 && i % 6 === 0 && inlineHooks.length) {
-                    const h = inlineHooks[(Math.floor(i / 6) - 1) % inlineHooks.length];
-                    if (h) out.push(<HookSolo key={`hook-${h.id}-${i}`} h={h} place={pm[h.placeId]} liked={hookLikes.has(h.id)} onOpen={openHook} onLike={onHookHeart} onShare={(hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); }} />);
-                  }
-                  out.push(<PlaceCard key={p.id} p={p} rank={i + 5} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />);
-                });
-                return out;
-              })()}
+              {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
               <div style={{ height: 20 }} />
               </div>
               {isDesktop && (
@@ -4394,22 +4395,18 @@ function PageInner() {
                 />
               )}
 
-              {/* 2. Why Wayfind picked it */}
-              <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-                  <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.5px" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</span>
-                  {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ display: "inline-flex", alignItems: "baseline", gap: 4 }}><span style={{ fontSize: 22, fontWeight: 900, color: C.accent, lineHeight: 1 }}>{sl.s}</span><span style={{ fontSize: 11, color: C.muted, fontWeight: 700 }}>/ 10</span></span> : null; })()}
-                </div>
+              {/* 2. Why Wayfind picked it — calm card. The score already sits in the chip row above, so it is not repeated here. */}
+              <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 14 }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</div>
                 <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5, marginTop: 7 }}>{(() => {
                   const r = detail.rating, n = detail.reviews, d = detail.distMi;
                   const lead = r != null && r >= 4.5 ? "A local favorite" : r != null && r >= 4 ? "A well-rated spot" : "A solid pick";
                   const strong = r != null && r >= 4.3;
                   const rev = n ? " with " + n.toLocaleString() + " reviews" : "";
                   const dist = d == null ? "."
-                    : d <= 5 ? ", and it's close by."
-                    : d <= 12 ? ", a short " + Math.round(d) + " mile drive."
-                    : d <= 25 ? (strong ? ", " + Math.round(d) + " miles out but worth the drive." : ", though it's " + Math.round(d) + " miles out.")
-                    : (strong ? ", a " + Math.round(d) + " mile haul but a strong pick." : ", a long " + Math.round(d) + " miles away.");
+                    : d <= 4 ? ", and it's close by."
+                    : d <= 10 ? ", a short " + Math.round(d) + " mile drive."
+                    : (strong ? ", " + Math.round(d) + " miles out but worth the drive." : ", " + Math.round(d) + " miles out — worth the drive?");
                   return lead + rev + dist;
                 })()}</div>
                 <button onClick={() => setWhyOpen((o) => !o)} style={{ marginTop: 9, background: "transparent", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "4px 12px", cursor: "pointer" }}>{whyOpen ? "Hide ▴" : "Why? ▾"}</button>
@@ -4432,23 +4429,7 @@ function PageInner() {
                   <span style={{ fontSize: 16 }}>💡</span>
                   <span style={{ fontSize: 14.5, fontWeight: 800, color: C.light }}>Insider tip</span>
                 </div>
-                {(() => {
-                  const th = todayHours(detailExtra);
-                  const chips = [];
-                  if (liveOpen(detail) === true) chips.push({ c: C.green, t: th ? "Open now · " + th : "Open now" });
-                  else if (liveOpen(detail) === false) chips.push({ c: C.red, t: th ? "Closed now · " + th + " today" : "Closed now" });
-                  else if (th) chips.push({ c: C.light, t: "Today: " + th });
-                  if (detail.price) chips.push({ c: C.light, t: detail.price });
-                  if (detail.rating) chips.push({ c: C.gold, t: "★ " + detail.rating + (detail.reviews ? " (" + detail.reviews.toLocaleString() + ")" : "") });
-                  if (!chips.length) return null;
-                  return (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 11 }}>
-                      {chips.map((ch, i) => (
-                        <span key={i} style={{ fontSize: 12, fontWeight: 800, color: ch.c, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 11px" }}>{ch.t}</span>
-                      ))}
-                    </div>
-                  );
-                })()}
+                {/* Chips removed: Open now, rating, and price already live in the chip row above. This card leads with the tip itself. */}
                 {insightLoading && (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted }}>
                     <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
@@ -4837,6 +4818,7 @@ function PageInner() {
                           {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
                           {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
                           {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                          {p.distMi != null && p.distMi > 10 && <span style={{ fontSize: 11, fontWeight: 800, color: C.gold }}>· worth the drive?</span>}
                           {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
                         </div>
                         {badges.length > 0 && (

@@ -6,6 +6,7 @@ export const runtime = "edge";
 // featuring the Wayfind pin logo. Photo-free so it always renders.
 // Query params: t = title, loc = location, n = #spots.
 export async function GET(req) {
+  try {
   const { searchParams } = new URL(req.url);
   const kind = searchParams.get("kind") || "list";
   const O = "#F97316";
@@ -117,4 +118,15 @@ export async function GET(req) {
     ),
     { width: 1200, height: 630 }
   );
+  } catch (e) {
+    return new ImageResponse(
+      (
+        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: BG, color: "#F1F5F9" }}>
+          <div style={{ display: "flex", fontSize: 84, fontWeight: 800, color: O }}>Wayfind</div>
+          <div style={{ display: "flex", fontSize: 30, fontWeight: 500, color: "#94A3B8", marginTop: 16 }}>Great places near you, ranked best first.</div>
+        </div>
+      ),
+      { width: 1200, height: 630 }
+    );
+  }
 }
