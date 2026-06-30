@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.2";
+const BUILD = "v3.3";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -819,6 +819,29 @@ function miBetween(aLat, aLng, bLat, bLng) {
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
 }
 
+// Recompute open/closed from the stored hours at render time, so the badge is
+// honest about *now* and not the moment we fetched. Falls back to the fetched
+// snapshot when periods are unavailable, so it can never be worse than before.
+function liveOpen(p) {
+  try {
+    const oh = p && p.oh; const off = p && p.utcOffset;
+    if (oh && oh.periods && oh.periods.length && off != null) {
+      const d = new Date(Date.now() + off * 60000);
+      const cur = d.getUTCDay() * 1440 + d.getUTCHours() * 60 + d.getUTCMinutes();
+      for (const per of oh.periods) {
+        const o = per.open; if (!o) continue;
+        const c = per.close; if (!c) return true;
+        const oMin = o.day * 1440 + (o.hour || 0) * 60 + (o.minute || 0);
+        const cMin = c.day * 1440 + (c.hour || 0) * 60 + (c.minute || 0);
+        if (oMin === cMin) return true;
+        if (oMin < cMin) { if (cur >= oMin && cur < cMin) return true; }
+        else { if (cur >= oMin || cur < cMin) return true; }
+      }
+      return false;
+    }
+  } catch {}
+  return p && p.openNow != null ? p.openNow : null;
+}
 function todayHours(extra) {
   const hrs = extra && Array.isArray(extra.hours) ? extra.hours : null;
   if (!hrs) return null;
@@ -2949,7 +2972,7 @@ function PageInner() {
                   {mapMode === "places" && mapPreview && (() => {
                     const mp = mapPreview;
                     const sl = scoreLabel(mp.wfScore);
-                    const opensLater = mp.openNow === false && mp.nextOpen && mp.nextOpen.today;
+                    const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
                     const openList = (view || []).filter((x) => x && x.openNow === true && x.distMi != null);
                     const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
                     let tag = null;
@@ -2965,8 +2988,8 @@ function PageInner() {
                               <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
                                 {sl && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{sl.word}</span>}
                                 {mp.rating && <span style={{ color: "#F59E0B", fontSize: 12 }}>★ {mp.rating}</span>}
-                                {mp.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
-                                {mp.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
+                                {liveOpen(mp) === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
+                                {liveOpen(mp) === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
                                 {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
                               </div>
                               {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
@@ -3141,8 +3164,8 @@ function PageInner() {
                         {heroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{heroSl.s}/10</span>}
                         {heroPick.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {heroPick.rating}</span>}
                         {heroPick.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.reviews.toLocaleString()} reviews</span>}
-                        {heroPick.openNow === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
-                        {heroPick.openNow === false && <span style={{ fontSize: 12, fontWeight: 700, color: heroPick.nextOpen && heroPick.nextOpen.today ? C.gold : C.red }}>· {heroPick.nextOpen && heroPick.nextOpen.today ? heroPick.nextOpen.label : "Closed"}</span>}
+                        {liveOpen(heroPick) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
+                        {liveOpen(heroPick) === false && <span style={{ fontSize: 12, fontWeight: 700, color: heroPick.nextOpen && heroPick.nextOpen.today ? C.gold : C.red }}>· {heroPick.nextOpen && heroPick.nextOpen.today ? heroPick.nextOpen.label : "Closed"}</span>}
                         {heroPick.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {heroPick.distMi.toFixed(1)} mi</span>}
                       </div>
                       {heroWhy.length > 0 && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{heroWhy.slice(0, 4).join(" · ")}</div>}
@@ -3349,8 +3372,8 @@ function PageInner() {
                         {sl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{sl.word}</span>}
                         {sl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{sl.s}/10</span>}
                         {p.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {p.rating}</span>}
-                        {p.openNow === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Open now</span>}
-                        {p.openNow === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
+                        {liveOpen(p) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Open now</span>}
+                        {liveOpen(p) === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
                         {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                       </div>
                       {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
@@ -3953,8 +3976,8 @@ function PageInner() {
                 {(() => {
                   const th = todayHours(detailExtra);
                   const chips = [];
-                  if (detail.openNow === true) chips.push({ c: C.green, t: th ? "Open now · " + th : "Open now" });
-                  else if (detail.openNow === false) chips.push({ c: C.red, t: th ? "Closed now · " + th + " today" : "Closed now" });
+                  if (liveOpen(detail) === true) chips.push({ c: C.green, t: th ? "Open now · " + th : "Open now" });
+                  else if (liveOpen(detail) === false) chips.push({ c: C.red, t: th ? "Closed now · " + th + " today" : "Closed now" });
                   else if (th) chips.push({ c: C.light, t: "Today: " + th });
                   if (detail.price) chips.push({ c: C.light, t: detail.price });
                   if (detail.rating) chips.push({ c: C.gold, t: "★ " + detail.rating + (detail.reviews ? " (" + detail.reviews.toLocaleString() + ")" : "") });
@@ -4112,7 +4135,7 @@ function PageInner() {
 
               {/* 4. Actions — for a closed place the main action becomes Save, not "go now". */}
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                {detail.openNow === false ? (
+                {liveOpen(detail) === false ? (
                   <>
                     <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>❤️ Save for later</button>
                     <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
@@ -4364,8 +4387,8 @@ function PageInner() {
                             </span>
                           )}
                           {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
-                          {p.openNow === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
-                          {p.openNow === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
+                          {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
+                          {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
                           {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                           {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
                         </div>
