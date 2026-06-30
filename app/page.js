@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.9";
+const BUILD = "v4.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1130,6 +1130,7 @@ function renderHookText(text, highlightWord, color) {
 // visual style of premium discovery apps.
 function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, isDesktop }) {
   if (!hooks || hooks.length === 0) return null;
+  const shown = hooks.slice(0, 1); // global rule: at most one hook card, never a stacked grid
   const liked = likedIds || new Set();
   // Build a place lookup so each tile can show its place's real photo
   const placeMap = {};
@@ -1143,8 +1144,8 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
           <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
         </div>
       )}
-      <div style={{ margin: isDesktop ? "0 -12px 14px" : "0 0 14px", gap: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none", ...(isDesktop ? { display: "flex", flexWrap: "wrap", overflowX: "visible", paddingLeft: 12, paddingRight: 12 } : { display: "grid", gridTemplateColumns: "repeat(2, 1fr)" }) }}>
-        {hooks.map((h) => {
+      <div style={{ margin: isDesktop ? "0 -12px 14px" : "0 0 14px", gap: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none", ...(isDesktop ? { display: "flex", flexWrap: "wrap", overflowX: "visible", paddingLeft: 12, paddingRight: 12 } : { display: "block" }) }}>
+        {shown.map((h) => {
           const isLiked = liked.has(h.id);
           const acc = h.accent || C.accent;
           const place = placeMap[h.placeId];
@@ -2735,7 +2736,7 @@ function PageInner() {
         if (!error) return originUrl(`/s/${code}?${q}`);
       } catch {}
     }
-    return originUrl(`/s/${payload}?${q}`);
+    return originUrl("/");
   }
   async function shareList(places, title) {
     if (!places || !places.length) return;
