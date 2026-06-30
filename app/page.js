@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v5.2";
+const BUILD = "v5.4";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -744,6 +744,12 @@ function moonPhase(date) {
   else if (age < 27.68) { name = "Waning crescent"; emoji = "🌘"; }
   else { name = "New moon"; emoji = "🌑"; }
   return { name, emoji, illum };
+}
+// v5.4: pick the moon image for the current phase; a clouded moon for overcast nights.
+function moonImgName(date, cloudy) {
+  if (cloudy) return "moon-cloud";
+  const map = { "New moon": "moon-new", "Waxing crescent": "moon-waxing-crescent", "First quarter": "moon-first-quarter", "Waxing gibbous": "moon-waxing-gibbous", "Full moon": "moon-full", "Waning gibbous": "moon-waning-gibbous", "Last quarter": "moon-last-quarter", "Waning crescent": "moon-waning-crescent" };
+  return map[moonPhase(date).name] || "moon-full";
 }
 // An honest heads-up derived only from the real numbers already fetched. Not an
 // official alert; just a sensible tip when a condition crosses a threshold.
@@ -3523,6 +3529,7 @@ function PageInner() {
                         <span style={{ fontSize: 12 }}>{heroBadgeIcon}</span>
                         <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{heroBadgeText}</span>
                       </div>
+                      <button onClick={(e) => { e.stopPropagation(); logEvent("share", heroPick, { kind: "hero" }); addShared(heroPick); shareLink(heroPick.name, originUrl("/?place=" + encodeURIComponent(heroPick.id)), () => showToast("Link copied"), "Check out " + heroPick.name + " on Wayfind"); }} aria-label="Share" style={{ position: "absolute", top: 12, right: 12, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.62)", border: "1.5px solid rgba(255,255,255,.4)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "#fff" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                     </div>
                     <div style={{ padding: 16 }}>
                       <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{heroPick.name}</div>
@@ -5001,6 +5008,17 @@ function PageInner() {
                     </div>
                   );
                 })()}
+                {(() => {
+                  const near = ((suggested && suggested.length ? suggested : places) || []).filter(Boolean);
+                  if (near.length >= 1) return null;
+                  return (
+                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 16px", marginBottom: 12, textAlign: "center" }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>Quiet right around {locName ? locName.split(",")[0] : "you"}</div>
+                      <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 12 }}>We did not find much in your immediate area. Want to look a little farther out?</div>
+                      <button onClick={() => { setMenuSheet(null); setPendingRadius(Math.max(searchRadius || 0, 40234)); setRadiusSheet(true); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Search a wider area →</button>
+                    </div>
+                  );
+                })()}
                 <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Show me the best spots →</button>
               </>
             )}
@@ -5008,7 +5026,7 @@ function PageInner() {
               <>
                 <SheetHero icon="🎲" title="Pick for me" subtitle="Can't decide? Roll and Wayfind lands you on one great spot nearby. Your rolls are saved below." color={C.accent} />
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 6 }}>
-                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ width: 84, height: 84, borderRadius: 20, border: `2px solid ${C.accent}`, background: C.adim, fontSize: 42, cursor: homeRolling ? "default" : "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", animation: homeRolling ? "wfbob 0.4s ease-in-out infinite" : "none" }}>{homeRolling ? homeDiceFace : "🎲"}</button>
+                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ width: 84, height: 84, borderRadius: 20, border: `2px solid ${C.accent}`, background: C.adim, fontSize: 42, cursor: homeRolling ? "default" : "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", animation: homeRolling ? "wfroll 0.5s linear infinite" : "none" }}>{homeRolling ? homeDiceFace : "🎲"}</button>
                   <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ padding: "11px 26px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: homeRolling ? "default" : "pointer", opacity: homeRolling ? 0.6 : 1 }}>{rollHistory.length ? "Roll again" : "Roll the dice"}</button>
                 </div>
                 {rollHistory.length > 0 && (
@@ -5055,26 +5073,34 @@ function PageInner() {
             {menuSheet === "weather" && weather && (
               <>
                 {/* v4.7: no static icon tile above the title. The live condition icon sits to the right of the words. */}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{isNightNow(weather) ? "Tonight's weather" : "Weather right now"}</div>
-                    <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")}</div>
-                  </div>
-                  <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 52, width: "auto", flexShrink: 0, display: "block" }} />
-                </div>
+                {(() => {
+                  const hr = new Date().getHours();
+                  const timeLabel = hr < 5 ? "Late-night weather" : hr < 12 ? "This morning's weather" : hr < 17 ? "This afternoon's weather" : hr < 21 ? "This evening's weather" : "Tonight's weather";
+                  const night = isNightNow(weather);
+                  const cloudyNight = night && !!weather.img && weather.img !== "sunny";
+                  const headIcon = night ? ("/wx/" + moonImgName(new Date(), cloudyNight) + ".png") : ("/wx/" + (weather.img || "cloudy") + ".png");
+                  return (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{timeLabel}</div>
+                        <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")}</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 11, flexShrink: 0 }}>
+                        <img src={headIcon} alt="" style={{ height: 58, width: "auto", display: "block" }} />
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontSize: 32, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
+                          {weather.label && <div style={{ fontSize: 12.5, color: C.light, marginTop: 3 }}>{weather.label}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
                 {(() => { const adv = weatherAdvisory(weather); return adv ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
                     <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
                     <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45 }}>{adv.text}</div>
                   </div>
                 ) : null; })()}
-                <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
-                  <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 64, width: "auto", display: "block" }} />
-                  <div>
-                    <div style={{ fontSize: 38, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
-                    {weather.label && <div style={{ fontSize: 14, color: C.light, marginTop: 4 }}>{weather.label}</div>}
-                  </div>
-                </div>
                 {(() => { const t = wayfindWeatherTake(weather); if (!t || (!t.good.length && !t.avoid.length)) return null; return (
                   <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: "13px 14px", marginBottom: 16 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", color: C.accent, textTransform: "uppercase", marginBottom: 8 }}>Wayfind take · {t.night ? "tonight" : "today"}</div>
@@ -5093,7 +5119,7 @@ function PageInner() {
                   {weather.dew != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Dew point</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.dew}°{weather.dew >= 70 ? " · muggy" : weather.dew >= 60 ? " · sticky" : " · comfy"}</div></div>)}
                   {(() => { const m = moonPhase(new Date()); return (
                     <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 16px" }}>
-                      <span style={{ fontSize: 34, lineHeight: 1 }}>{m.emoji}</span>
+                      <img src={"/wx/" + moonImgName(new Date(), false) + ".png"} alt="" style={{ height: 40, width: "auto", display: "block", flexShrink: 0 }} />
                       <div>
                         <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Tonight's moon</div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginTop: 2 }}>{m.name}</div>
@@ -5104,7 +5130,7 @@ function PageInner() {
                 </div>
                 <button onClick={shareWeather} style={{ width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
-                  {isNightNow(weather) ? "Share tonight's weather" : "Share the weather"}
+                  {isNightNow(weather) ? "Share the weather tonight" : "Share the weather"}
                 </button>
               </>
             )}
