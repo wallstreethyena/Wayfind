@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.8";
+const BUILD = "v6.9";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1616,6 +1616,50 @@ function pickReason(p, ctx) {
     if (clause) line += ", " + clause;
   }
   return line.charAt(0).toUpperCase() + line.slice(1);
+}
+// v6.9: the detail page "decision brief". Returns a one-line judgment verdict (use case)
+// and a supporting body (signals + a real tradeoff), so the page reads like a sharp local
+// guide instead of a row of database fields. Deterministic and honest.
+function decisionReason(p) {
+  if (!p) return { verdict: "", body: "" };
+  const kind = placeKind(p);
+  const r = p.rating, n = p.reviews || 0, d = p.distMi, open = liveOpen(p);
+  const verdicts = {
+    scenic: "Best as a scenic stop or sunset run, not a quick errand.",
+    beach: "Worth a few hours when the weather cooperates, not a quick stop.",
+    nature: "Best with the time to walk it, not a quick errand.",
+    museum: "A plan-around-it visit. Give it real time.",
+    wildlife: "A half day kind of place, especially with kids.",
+    entertainment: "A full outing. Come with time and energy.",
+    landmark: "Worth a deliberate stop, not a drive by.",
+    waterfront: "Best for a relaxed meal with a view, not a rushed bite.",
+    bar: "Built for the evening, not the afternoon.",
+    cafe: "An easy, low effort stop any time of day.",
+    restaurant: "A reliable sit down. Worth booking ahead if it is busy.",
+    hotel: "A comfortable base if you are staying over.",
+    shopping: "Worth it if you have the time to browse.",
+    generic: "Worth a deliberate look when you are nearby.",
+  };
+  const verdict = verdicts[kind] || verdicts.generic;
+  const qual = (r != null && r >= 4.6 && n >= 300) ? `Strong reviews from ${n.toLocaleString()} people`
+    : (r != null && r >= 4.5 && n >= 50) ? `A ${r} with ${n.toLocaleString()} reviews behind it`
+    : (r != null && r >= 4.2) ? "Well rated nearby"
+    : (n >= 1000) ? "A popular local spot" : "Worth a closer look";
+  const dist = d == null ? "" : d <= 4 ? ", and it is close by" : d <= 10 ? `, a short ${Math.round(d)} mile drive` : `, and the ${Math.round(d)} mile drive pays off`;
+  const tradeoffs = {
+    scenic: " — skip it if heights or crowds bother you.",
+    beach: ", though it lives and dies by the weather.",
+    nature: " — bring water and check the forecast first.",
+    museum: ", an indoor and slower pace either way.",
+    wildlife: ", and an easy crowd pleaser rain or shine.",
+    entertainment: " — best with a half day to spare.",
+    landmark: ", and it rewards reading up a little first.",
+    waterfront: ", and it shines near sunset.",
+    bar: " — a night out, not a daytime stop.",
+  };
+  let body = qual + dist + (tradeoffs[kind] || ".");
+  if (open === false) body = "Closed right now, so save it for later. " + body;
+  return { verdict, body: body.charAt(0).toUpperCase() + body.slice(1) };
 }
 function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage }) {
   if (!h) return null;
@@ -4366,8 +4410,7 @@ function PageInner() {
         <div style={sheetBg} onClick={() => setDetail(null)}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setDetail(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
-            <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: `1px solid ${C.border}` }}>
-              <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share spot" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+            <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "flex-end", borderBottom: `1px solid ${C.border}` }}>
               <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 17, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕</button>
             </div>
             <div style={{ position: "relative" }}>
@@ -4417,9 +4460,7 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {detail.address && (
-                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 12, lineHeight: 1.4 }}>📍 {detail.address}</a>
-              )}
+              {!detail._event && (() => { const dv = decisionReason(detail).verdict; return dv ? <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, lineHeight: 1.36, marginBottom: 13, letterSpacing: "-0.2px" }}><span style={{ color: C.accent }}>Wayfind take: </span>{dv}</div> : null; })()}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 13 }}>
                 {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ display: "inline-flex", alignItems: "baseline", gap: 4, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontWeight: 800 }}><span style={{ fontSize: 14 }}>{sl.s}</span><span style={{ fontSize: 10.5, fontWeight: 800, opacity: .8 }}>/ 10</span></span> : null; })()}
@@ -4451,6 +4492,9 @@ function PageInner() {
                 )}
                 <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share" style={{ flexShrink: 0, width: 46, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
+              {detail.address && (
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>📍 {detail.address}</a>
+              )}
 
               {hoursOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
@@ -4541,32 +4585,10 @@ function PageInner() {
                 />
               )}
 
-              {/* 2. Why Wayfind picked it — calm card. The score already sits in the chip row above, so it is not repeated here. */}
+              {/* 2. Why Wayfind picked it — a judgment-driven decision reason, not a formula. No expand button; the deeper context lives in the insider tip and Tips, videos & more. */}
               <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 14 }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</div>
-                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5, marginTop: 7 }}>{(() => {
-                  const r = detail.rating, n = detail.reviews, d = detail.distMi;
-                  const lead = r != null && r >= 4.5 ? "A local favorite" : r != null && r >= 4 ? "A well-rated spot" : "A solid pick";
-                  const strong = r != null && r >= 4.3;
-                  const rev = n ? " with " + n.toLocaleString() + " reviews" : "";
-                  const dist = d == null ? "."
-                    : d <= 4 ? ", and it's close by."
-                    : d <= 10 ? ", a short " + Math.round(d) + " mile drive."
-                    : (strong ? ", " + Math.round(d) + " miles out but worth the drive." : ", " + Math.round(d) + " miles out — worth the drive?");
-                  return lead + rev + dist;
-                })()}</div>
-                <button onClick={() => setWhyOpen((o) => !o)} style={{ marginTop: 9, background: "transparent", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "4px 12px", cursor: "pointer" }}>{whyOpen ? "Hide ▴" : "Why? ▾"}</button>
-                {whyOpen && (() => {
-                  const sl = scoreLabel(detail.wfScore);
-                  const cf = confidenceOf(detail.reviews);
-                  return (
-                    <div style={{ marginTop: 10, fontSize: 12.5, color: C.light, lineHeight: 1.55 }}>
-                      {sl && <div style={{ marginBottom: 6, color: C.text, fontWeight: 700 }}>{sl.s}/10 · {sl.word}{detail.reviews > 0 ? ` · ${detail.reviews.toLocaleString()} reviews` : ""}{cf ? ` · ${cf.label.toLowerCase()}` : ""}</div>}
-                      {insight && insight.verdict && <div style={{ marginBottom: 6, color: C.text }}>{insight.verdict}</div>}
-                      <div>The Wayfind Score is the Google rating weighted by how many people rated it, so consistently strong places rank higher. The same place always scores the same.</div>
-                    </div>
-                  );
-                })()}
+                <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, marginTop: 7 }}>{decisionReason(detail).body}</div>
               </div>
 
               {/* 3. Insider tip */}
