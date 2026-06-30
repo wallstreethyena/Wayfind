@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.13";
+const BUILD = "v6.14";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -184,10 +184,13 @@ function decodeList(str) {
 // rich preview card instead of showing the raw link as plain text.
 async function shareLink(title, url, onCopied, text) {
   try {
-    if (navigator.share) { await navigator.share({ title, text: text || title, url }); return; }
+    // Share the bare URL only. iMessage and most apps suppress the link
+    // preview card whenever accompanying text is included, so passing text
+    // here would hide the branded Wayfind card. The card carries the title.
+    if (navigator.share) { await navigator.share({ title, url }); return; }
   } catch { return; }
   try {
-    await navigator.clipboard.writeText(text ? `${text}\n${url}` : url);
+    await navigator.clipboard.writeText(url);
     if (onCopied) onCopied();
   } catch {
     if (onCopied) onCopied();
