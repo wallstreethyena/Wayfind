@@ -4,13 +4,38 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.15";
+const BUILD = "v6.16";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
   red: "#EF4444", purple: "#A78BFA", pink: "#F472B6", gold: "#FBBF24",
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };
+// ─── Affiliate config ────────────────────────────────────────────────────────
+// Fill these in AFTER you are approved, then redeploy and the links go live
+// automatically. Nothing here is secret; affiliate ids appear in public URLs.
+//  • Viator: your Partner ID from partners.viator.com (format P12345678).
+//  • Ticketmaster: leave blank until you join their Impact program, then set the
+//    tracking param they give you. Until then "Get tickets" links work normally,
+//    just untracked.
+const AFFIL = {
+  viatorPid: "",                 // e.g. "P12345678"
+  viatorCampaign: "wayfind",
+  ticketmasterParam: "",         // e.g. "irgwc=1&clickid=..." once approved, else blank
+};
+// Build a Viator search link for a place or area, tracked when a Partner ID is set.
+function viatorSearchUrl(query) {
+  const q = encodeURIComponent((query || "").trim());
+  let u = `https://www.viator.com/searchResults/all?text=${q}`;
+  if (AFFIL.viatorPid) u += `&pid=${encodeURIComponent(AFFIL.viatorPid)}&mcid=42383&medium=link&campaign=${encodeURIComponent(AFFIL.viatorCampaign || "wayfind")}`;
+  return u;
+}
+// Pass a ticket/event URL through here so it gains affiliate tracking the moment a
+// Ticketmaster param is set. Fails soft: returns the plain URL when not configured.
+function ticketUrl(url) {
+  if (!url || !AFFIL.ticketmasterParam) return url;
+  try { return url + (url.indexOf("?") >= 0 ? "&" : "?") + AFFIL.ticketmasterParam; } catch { return url; }
+}
 const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎯", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
 // Each category gets its own accent color, used on the selected category tab.
 const CAT_COLOR = {
@@ -1064,7 +1089,7 @@ function EventCard({ e, onVenue }) {
         {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
         <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
           {cta.show
-            ? <a href={e.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{cta.label}</a>
+            ? <a href={ticketUrl(e.url)} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{cta.label}</a>
             : <span />}
           {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, opacity: 0.75 }}>{e.source}</span>}
         </div>
@@ -3902,7 +3927,7 @@ function PageInner() {
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                             <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 5, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
-                            <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) window.open(featured.url, "_blank", "noopener"); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
+                            <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) window.open(ticketUrl(featured.url), "_blank", "noopener"); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
                           </div>
                         </div>
                       );
@@ -3936,6 +3961,14 @@ function PageInner() {
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
+              <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 7 }}>
+                  <a href="/privacy" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Privacy</a>
+                  <span style={{ color: C.border }}>·</span>
+                  <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
+                </div>
+                <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
+              </div>
               <div style={{ height: 20 }} />
               </div>
               {isDesktop && (
@@ -4661,6 +4694,18 @@ function PageInner() {
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</div>
                 <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, marginTop: 7 }}>{decisionReason(detail).body}</div>
               </div>
+
+              {/* Viator experiences: shown only for activity-type places Viator actually sells (attractions, museums, nature, scenic, etc.), never restaurants, bars, or hotels. This is an affiliate link, disclosed in Terms; it is tracked once a Partner ID is set in AFFIL and works untracked until then. */}
+              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
+                <a href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                  <span style={{ fontSize: 18 }}>🎟️</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
+                  </div>
+                  <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+                </a>
+              )}
 
               {/* 3. Insider tip */}
               <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px" }}>
