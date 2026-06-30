@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v5.8";
+const BUILD = "v5.9";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4222,23 +4222,29 @@ function PageInner() {
               <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share spot" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               <button onClick={() => setDetail(null)} aria-label="Close" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 17, fontWeight: 700, lineHeight: 1, cursor: "pointer" }}>✕</button>
             </div>
-            {detail.photos && detail.photos.length > 0 ? (
-              <div style={{ position: "relative" }}>
-                <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
-                  {detail.photos.map((src, i) => (
-                    <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: detail.photos.length > 1 ? "88%" : "100%", flexShrink: 0, height: 240, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
-                  ))}
+            <div style={{ position: "relative" }}>
+              {detail.photos && detail.photos.length > 0 ? (
+                <div style={{ position: "relative" }}>
+                  <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                    {detail.photos.map((src, i) => (
+                      <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: detail.photos.length > 1 ? "88%" : "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                    ))}
+                  </div>
+                  {detail.photos.length > 1 && (
+                    <>
+                      <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
+                      <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
+                    </>
+                  )}
                 </div>
-                {detail.photos.length > 1 && (
-                  <>
-                    <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
-                    <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
-                  </>
-                )}
+              ) : (
+                <FallbackImg src={detail.photo} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => detail.photo && setLightbox(detail.photo)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: detail.photo ? "zoom-in" : "default" }} />
+              )}
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
+                {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
+                <div style={{ fontSize: 27, fontWeight: 800, color: "#fff", lineHeight: 1.13, letterSpacing: "-0.5px", textShadow: "0 2px 12px rgba(0,0,0,.8)" }}>{detail.name}</div>
               </div>
-            ) : (
-              <FallbackImg src={detail.photo} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => detail.photo && setLightbox(detail.photo)} style={{ width: "100%", height: 220, objectFit: "cover", cursor: detail.photo ? "zoom-in" : "default" }} />
-            )}
+            </div>
             <div style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
               {/* 1. Basics */}
               {detail._event && (() => {
@@ -4263,28 +4269,39 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {detail._event && <div style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 4 }}>Venue</div>}
-              <div style={{ fontSize: 21, fontWeight: 800, marginBottom: 6, color: C.text, lineHeight: 1.25 }}>{detail.name}</div>
               {detail.address && (
-                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 10, lineHeight: 1.4 }}>📍 {detail.address}</a>
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 12, lineHeight: 1.4 }}>📍 {detail.address}</a>
               )}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-                {(() => { const pc = primaryCategory(detail); return pc ? <span style={{ fontSize: 12.5, fontWeight: 800, color: CAT_LABEL_COLOR[pc] || C.light }}>{pc}</span> : null; })()}
-                {detail.rating && (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                    <span style={{ color: "#F59E0B" }}>★</span>
-                    <span style={{ fontSize: 13, color: C.muted }}>{detail.rating}</span>
-                    {detail.reviews > 0 && (
-                      <button onClick={() => { const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer", fontSize: 13, color: C.accent, fontWeight: 700, textDecoration: "underline" }}>{detail.reviews.toLocaleString()} reviews {reviewsOpen ? "▴" : "▾"}</button>
-                    )}
-                  </span>
+              {/* Verdict: one consistent row of the things that decide whether to go */}
+              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginBottom: 13 }}>
+                {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ display: "inline-flex", alignItems: "baseline", gap: 4, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontWeight: 800 }}><span style={{ fontSize: 14 }}>{sl.s}</span><span style={{ fontSize: 10.5, fontWeight: 800, opacity: .8 }}>/ 10</span></span> : null; })()}
+                {detail.rating != null && (
+                  <button onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 11px", cursor: detail.reviews > 0 ? "pointer" : "default" }}>
+                    <span style={{ color: "#F59E0B", fontSize: 12.5 }}>★</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{detail.rating}</span>
+                    {detail.reviews > 0 && <span style={{ fontSize: 11.5, color: C.muted }}>({detail.reviews.toLocaleString()}) {reviewsOpen ? "▴" : "▾"}</span>}
+                  </button>
                 )}
-                {detail.priceNum != null ? <PriceMeter level={detail.priceNum} word /> : (detail.price && <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>{detail.price}</span>)}
-                {detail.openNow != null && (detail._event
-                  ? <button onClick={() => setHoursOpen((o) => !o)} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "transparent", border: "none", padding: 0, cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: C.muted }}>{detail.openNow ? "Venue open now" : "Venue currently closed"} <span style={{ fontSize: 10 }}>{hoursOpen ? "▴" : "▾"}</span></button>
-                  : <button onClick={() => setHoursOpen((o) => !o)} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: "transparent", border: "none", padding: 0, cursor: "pointer", fontSize: 13, fontWeight: 700, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open" : "Closed"} <span style={{ fontSize: 10 }}>{hoursOpen ? "▴" : "▾"}</span></button>
+                {detail.openNow != null && (
+                  <button onClick={() => setHoursOpen((o) => !o)} style={{ display: "inline-flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "5px 11px", cursor: "pointer", border: `1px solid ${detail._event ? C.border : (detail.openNow ? "rgba(34,197,94,.45)" : "rgba(239,68,68,.45)")}`, background: detail._event ? C.card : (detail.openNow ? "rgba(34,197,94,.14)" : "rgba(239,68,68,.14)"), color: detail._event ? C.muted : (detail.openNow ? C.green : C.red), fontSize: 12.5, fontWeight: 800 }}>{detail._event ? (detail.openNow ? "Venue open" : "Venue closed") : (detail.openNow ? "Open now" : "Closed")} <span style={{ fontSize: 10 }}>{hoursOpen ? "▴" : "▾"}</span></button>
                 )}
-                {detail.distMi != null && <span style={{ fontSize: 13, color: C.muted }}>· {detail.distMi.toFixed(1)} mi</span>}
+                {detail.distMi != null && <span style={{ display: "inline-flex", alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 11px", fontSize: 12.5, fontWeight: 700, color: C.light }}>{detail.distMi.toFixed(1)} mi</span>}
+                {detail.priceNum != null ? <PriceMeter level={detail.priceNum} word /> : (detail.price && <span style={{ fontSize: 12.5, color: C.green, fontWeight: 800, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 11px" }}>{detail.price}</span>)}
+              </div>
+              {/* Primary actions, right where you decide. For a closed place, Save leads instead of "go now". */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                {liveOpen(detail) === false ? (
+                  <>
+                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: "12px 0", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>❤️ Save for later</button>
+                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 14.5, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                  </>
+                ) : (
+                  <>
+                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: "12px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer" }}>❤️ Save</button>
+                  </>
+                )}
+                <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share" style={{ flexShrink: 0, width: 46, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
 
               {hoursOpen && (
@@ -4568,21 +4585,6 @@ function PageInner() {
                   </div>
                 )}
               </div>
-              </div>
-
-              {/* 4. Actions — for a closed place the main action becomes Save, not "go now". */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                {liveOpen(detail) === false ? (
-                  <>
-                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>❤️ Save for later</button>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                  </>
-                ) : (
-                  <>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.accent, borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Open in Google Maps ↗</a>
-                    <button onClick={() => { setDetail(null); setSaveTarget(detail); }} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, cursor: "pointer" }}>❤️ Favorite</button>
-                  </>
-                )}
               </div>
 
               {detailExtra && (detailExtra.phone || detailExtra.website) && (
