@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v4.6";
+const BUILD = "v4.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2893,6 +2893,22 @@ function PageInner() {
   function openRename(id) {
     setListMenu(null); setRenamingList(id); setNewName((lists[id] && lists[id].name) || "");
   }
+  // v4.7: share the current conditions as a clean text summary plus a link home.
+  // A weather-specific preview card is the next step; the text already carries the read.
+  function shareWeather() {
+    if (!weather) return;
+    const place = locName ? locName.split(",")[0] : "your area";
+    const when = isNightNow(weather) ? "Tonight" : "Right now";
+    const t = wayfindWeatherTake(weather);
+    const cond = (weather.label || "").toLowerCase();
+    let txt = `${when} in ${place}: ${weather.temp}°`;
+    if (cond) txt += `, ${cond}`;
+    if (weather.feels != null) txt += `, feels ${weather.feels}°`;
+    txt += ".";
+    if (t && t.good && t.good.length) txt += ` Good for ${t.good.join(", ")}.`;
+    txt += " via Wayfind";
+    shareLink(`${when} in ${place}`, originUrl("/"), () => showToast("Copied"), txt);
+  }
   // Build a shareable link. With Supabase we store the list and share a short
   // code, so the URL is clean and unfurls into a rich preview. Without it we
   // fall back to the long self-contained link.
@@ -4867,7 +4883,14 @@ function PageInner() {
             )}
             {menuSheet === "weather" && weather && (
               <>
-                <SheetHero icon="🌤️" title={isNightNow(weather) ? "Tonight's weather" : "Weather right now"} subtitle={(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")} color={C.blue} />
+                {/* v4.7: no static icon tile above the title. The live condition icon sits to the right of the words. */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{isNightNow(weather) ? "Tonight's weather" : "Weather right now"}</div>
+                    <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")}</div>
+                  </div>
+                  <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 52, width: "auto", flexShrink: 0, display: "block" }} />
+                </div>
                 {(() => { const adv = weatherAdvisory(weather); return adv ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
                     <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
@@ -4891,7 +4914,7 @@ function PageInner() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                   {weather.feels != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Feels like</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.feels}°</div></div>)}
                   {weather.wind != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Wind</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>💨 {weather.wind} mph</div></div>)}
-                  {weather.sunset && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Sunset</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>🌅 {weather.sunset}</div></div>)}
+                  {weather.sunset && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Sunset</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}><img src="/wx/sunset.png" alt="" style={{ height: 18, width: "auto", verticalAlign: "middle", marginRight: 4 }} />{weather.sunset}</div></div>)}
                   {weather.rain != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Rain chance</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.rain}%</div></div>)}
                   {weather.hi != null && weather.lo != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>High / Low</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.hi}° / {weather.lo}°</div></div>)}
                   {weather.humidity != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Humidity</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.humidity}%</div></div>)}
@@ -4908,6 +4931,10 @@ function PageInner() {
                     </div>
                   ); })()}
                 </div>
+                <button onClick={shareWeather} style={{ width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
+                  {isNightNow(weather) ? "Share tonight's weather" : "Share the weather"}
+                </button>
               </>
             )}
           </div>
