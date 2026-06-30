@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.18";
+const BUILD = "v6.19";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1359,9 +1359,9 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }}
-                  style={{ width: 30, height: 30, borderRadius: "50%", background: isLiked ? acc : "rgba(0,0,0,.55)", border: `1.5px solid ${isLiked ? acc : "rgba(255,255,255,.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, cursor: "pointer", backdropFilter: "blur(4px)" }}
+                  style={{ width: 30, height: 30, borderRadius: "50%", background: isLiked ? acc : "rgba(0,0,0,.55)", border: `1.5px solid ${isLiked ? acc : "rgba(255,255,255,.35)"}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "#fff" }}
                 >
-                  {isLiked ? "❤️" : "🤍"}
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill={isLiked ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
                 </button>
               </div>
 
@@ -1729,7 +1729,7 @@ function decisionLine(p, ctx) {
   else if (kind === "landmark") use = ", worth a deliberate stop";
   return lead + use + ".";
 }
-function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage }) {
+function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare }) {
   if (!h) return null;
   const acc = h.accent || C.accent;
   const photo = place && place.photo;
@@ -1758,8 +1758,12 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage }) {
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+          {!hideShare && (
           <button onClick={(e) => { e.stopPropagation(); onShare && onShare(h, place); }} aria-label="Share" style={{ width: 27, height: 27, borderRadius: "50%", background: "rgba(0,0,0,.32)", border: "1px solid rgba(255,255,255,.22)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "rgba(255,255,255,.85)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-          <button onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }} aria-label="Save" style={{ width: 27, height: 27, borderRadius: "50%", background: liked ? acc : "rgba(0,0,0,.32)", border: `1px solid ${liked ? acc : "rgba(255,255,255,.22)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, cursor: "pointer", backdropFilter: "blur(4px)", opacity: liked ? 1 : 0.9 }}>{liked ? "❤️" : "🤍"}</button>
+          )}
+          {!hideLike && (
+          <button onClick={(e) => { e.stopPropagation(); onLike && onLike(h.id); }} aria-label="Save" style={{ width: 27, height: 27, borderRadius: "50%", background: liked ? acc : "rgba(0,0,0,.32)", border: `1px solid ${liked ? acc : "rgba(255,255,255,.22)"}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", color: "#fff" }}><svg width="14" height="14" viewBox="0 0 24 24" fill={liked ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
+          )}
         </div>
       </div>
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
@@ -3801,14 +3805,14 @@ function PageInner() {
                   </div>
                   <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: moodOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.28s ease" }}>›</span>
                 </button>
-                <div style={{ overflow: "hidden", maxHeight: moodOpen ? 240 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
-                  <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "10px 4px" }}>
+                <div style={{ overflow: "hidden", maxHeight: moodOpen ? 170 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
+                  <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 4px" }}>
                     {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
                       const on = moodPick === m.id;
                       return (
-                        <button key={m.id} onClick={() => { setMoodPick(m.id); pickCat(m.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "11px 2px", background: "transparent", border: "none", cursor: "pointer" }}>
-                          <NavIcon name={m.id} color={on ? C.accent : C.muted} size={24} />
-                          <span style={{ fontSize: 11.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, whiteSpace: "nowrap" }}>{m.label}</span>
+                        <button key={m.id} onClick={() => { setMoodPick(m.id); pickCat(m.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
+                          <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
+                          <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
                         </button>
                       );
                     })}
@@ -3880,33 +3884,43 @@ function PageInner() {
                 // No place may appear twice in the feed. Dedupe by place id first (photo urls are not stable across fetches), never repeat the hero, and keep photo only as a secondary guard.
                 const usedPhotos = new Set([heroPick && heroPick.photo, ...picksPhotos].filter(Boolean));
                 const usedIds = new Set([heroPick && heroPick.id].filter(Boolean));
-                const seenEditorialPlace = new Set();
-                const editorialHooks = [...sectionHooks]
-                  .filter((h) => pmH[h.placeId] && !usedIds.has(pmH[h.placeId].id))
-                  .filter((h) => { const id = pmH[h.placeId].id; if (seenEditorialPlace.has(id)) return false; seenEditorialPlace.add(id); return true; })
-                  .sort((a, b) => ((pmH[b.placeId] && pmH[b.placeId].photo) ? 1 : 0) - ((pmH[a.placeId] && pmH[a.placeId].photo) ? 1 : 0));
+                // Themed experience cards: each card is a distinct experience with its own
+                // description, illustrated by a real nearby place, and it opens that curated list on tap.
+                const THEME_ORDER = ["localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "breakfast", "coffee"];
+                const THEME_COLOR = { localfav: C.gold, gem: C.teal, value: C.green, instagram: C.pink, waterfront: C.blue, livemusic: C.purple, family: C.green, romantic: C.pink, breakfast: C.accent, coffee: C.accent };
+                const expPool = [];
+                const seenPool = new Set();
+                for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
+                const poolKeys = new Map();
+                expPool.forEach((p) => { try { poolKeys.set(p.id, new Set(experienceBadges(p, null, 99).map((b) => b.key))); } catch (er) { poolKeys.set(p.id, new Set()); } });
+                const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
+                const usedThemePlace = new Set([heroPick && heroPick.id].filter(Boolean));
+                const themeCards = [];
+                for (const key of THEME_ORDER) {
+                  const e = EXPERIENCES[key];
+                  if (!e) continue;
+                  const match = expPool.filter((p) => p && p.photo && !usedThemePlace.has(p.id) && matchesExp(p, key)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0];
+                  if (!match) continue;
+                  usedThemePlace.add(match.id);
+                  themeCards.push({ key, place: match, e });
+                  if (themeCards.length >= 7) break;
+                }
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 10 }}>Best near {locName ? locName.split(",")[0] : "you"} right now</div>
                     {picksHook && (
                       <HookSolo h={{ ...picksHook, brand: true }} liked={hookLikes.has(picksHook.id)} onOpen={openHook} onLike={onHookHeart} onShare={() => shareHook(picksHook, picksTop)} />
                     )}
-                    {/* v6.6: editorial cards lead with the place name + a calm, complete, location-safe reason and one CTA ("View place"). They never print a city in copy, so they cannot contradict the header. Photo-backed cards come first. */}
-                    {editorialHooks
-                      .map((h) => {
-                        const pl = pmH[h.placeId];
-                        if (pl.photo && usedPhotos.has(pl.photo)) return null; // secondary image guard
-                        if (pl.photo) usedPhotos.add(pl.photo);
-                        usedIds.add(pl.id);
-                        const cat = primaryCategory(pl);
-                        const tag = experienceBadges(pl, null, 1)[0];
-                        const catEmoji = (tag && tag.icon) || ({ Food: "🍽️", Nightlife: "🍸", Activities: "🎯", Shopping: "🛍️", Hotels: "🏨" })[cat] || h.emoji || "📍";
-                        const catColor = ({ Food: C.accent, Nightlife: C.purple, Activities: C.blue, Shopping: C.pink, Hotels: C.teal })[cat] || C.accent;
-                        const dh = { id: h.id, accent: catColor, emoji: catEmoji, label: (tag && tag.label) || cat || "Pick", hook: pl.name, subtitle: decisionLine(pl, { weather, night: isNightNow(weather) }), cta: "View place" };
-                        return (
-                          <HookSolo key={"homehook-" + h.id} h={dh} place={pl} liked={isSaved(pl.id)} onOpen={() => openDetail(pl)} onLike={() => quickSaveFavorite(pl)} onShare={() => shareHook(h, pl)} />
-                        );
-                      })}
+                    {themeCards.length > 0 && (
+                      <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", margin: "4px 0 10px" }}>Browse by experience</div>
+                    )}
+                    {/* Each themed card = one experience, its own description, a real nearby place for the photo, and the curated list on tap. */}
+                    {themeCards.map(({ key, place, e }) => {
+                      const dh = { id: "exp-" + key, accent: THEME_COLOR[key] || C.accent, emoji: e.icon, label: e.label, hook: e.title, subtitle: e.lead, cta: "See all →" };
+                      return (
+                        <HookSolo key={"exp-" + key} h={dh} place={place} hideLike hideShare onOpen={() => openExperience(key)} />
+                      );
+                    })}
                     {canRoll && (
                       <HookSolo h={diceHook} place={null} liked={false} onOpen={() => openSurprise()} />
                     )}
