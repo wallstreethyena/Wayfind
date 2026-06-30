@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v2.6";
+const BUILD = "v2.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1352,15 +1352,6 @@ function PageInner() {
   const sheetDragRef = useRef({});
   const insightFullCache = useRef({});
   const detailCache = useRef({});
-  const radiusDebounce = useRef(null);
-  function onRadiusSlide(mi) {
-    setSliderMi(mi);
-    if (radiusDebounce.current) clearTimeout(radiusDebounce.current);
-    radiusDebounce.current = setTimeout(() => {
-      const meters = Math.round(mi * 1609.34);
-      setSearchRadius((cur) => (Math.abs(cur - meters) > 800 ? meters : cur));
-    }, 650);
-  }
   // Engagement signals — stored in localStorage, used to personalise the feed.
   const [signals, setSignals] = useState(() => { try { if (typeof window === "undefined") return []; return loadSignals(); } catch { return []; } });
   const [liked, setLiked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked") || "{}"); } catch { return {}; } });
@@ -2657,7 +2648,7 @@ function PageInner() {
             <button onClick={() => setShowNearbyExp((o) => !o)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Refine {showNearbyExp ? "▲" : "▼"}</button>
           </div>
           {sortBy === "near" && radiusOpen && (
-            <div style={{ marginTop: 10 }}><RadiusSlider mi={sliderMi} onChange={onRadiusSlide} where={locName ? locName.split(",")[0] : "you"} /></div>
+            <div style={{ marginTop: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
           )}
           {showNearbyExp && (
             <div style={{ marginTop: 10, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
@@ -3122,7 +3113,7 @@ function PageInner() {
                 </div>
               )}
               {!suggestedLoading && suggested !== null && list.length > 0 && sortBy === "near" && radiusOpen && (
-                <div style={{ marginBottom: 10 }}><RadiusSlider mi={sliderMi} onChange={onRadiusSlide} where={locName ? locName.split(",")[0] : "you"} /></div>
+                <div style={{ marginBottom: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
               )}
               {!suggestedLoading && suggested !== null && homeFeed.slice(0, 4).map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
