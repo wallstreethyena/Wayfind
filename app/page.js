@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v3.3";
+const BUILD = "v3.4";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2719,6 +2719,11 @@ function PageInner() {
     ? [...places].filter((p) => sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi).sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
     : [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   const view = dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase;
+  // Explore now opens on a single standout, just like the home screen. Prefer a
+  // place you can actually go to now; the rest of the ranked list follows below.
+  const exHero = (!loading && view.length > 0) ? (view.find((p) => liveOpen(p) === true) || view[0]) : null;
+  const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
+  const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
 
   const exploreList = (
     <>
@@ -2746,39 +2751,53 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button onClick={() => setSortBy("best")} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "best" ? C.accent : C.border}`, background: sortBy === "best" ? C.accent : "transparent", color: sortBy === "best" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>⭐ Best</button>
             <button onClick={() => { if (sortBy !== "near") { setSortBy("near"); setSliderMi(Math.min(30, Math.max(1, Math.round(searchRadius / 1609.34)))); setRadiusOpen(true); } else { setRadiusOpen((o) => !o); } }} style={{ padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${sortBy === "near" ? C.accent : C.border}`, background: sortBy === "near" ? C.accent : "transparent", color: sortBy === "near" ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>📍 Closest</button>{Object.keys(offers).length > 0 && <button onClick={() => setDealsOnly((d) => !d)} style={{ marginLeft: 8, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${dealsOnly ? C.accent : C.border}`, background: dealsOnly ? C.accent : "transparent", color: dealsOnly ? "#0D1117" : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>🏷️ Deals</button>}
-            <button onClick={() => setShowNearbyExp((o) => !o)} style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 5, padding: "6px 14px", borderRadius: 999, border: `1.5px solid ${showNearbyExp ? C.accent : C.border}`, background: showNearbyExp ? C.adim : "transparent", color: showNearbyExp ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Refine {showNearbyExp ? "▲" : "▼"}</button>
           </div>
           {sortBy === "near" && radiusOpen && (
             <div style={{ marginTop: 10 }}><RadiusSlider mi={sliderMi} onChange={setSliderMi} where={locName ? locName.split(",")[0] : "you"} /></div>
           )}
-          {showNearbyExp && (
-            <div style={{ marginTop: 10, padding: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 800, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.4px" }}>How far are you willing to go?</div>
-              <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                {[{ label: "5 mi", val: 8047 }, { label: "10 mi", val: 16093 }, { label: "15 mi", val: 24140 }, { label: "20 mi", val: 32187 }, { label: "30 mi", val: 48280 }, { label: "50 mi", val: 80467 }].map((r) => {
-                  const on = searchRadius === r.val;
-                  return (
-                    <button key={r.val} onClick={() => setSearchRadius(r.val)} style={{ flexShrink: 0, padding: "9px 16px", borderRadius: 12, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.accent : C.panel, color: on ? "#fff" : C.light, fontSize: 13.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{r.label}</button>
-                  );
-                })}
-              </div>
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 800, margin: "16px 0 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>Curated experiences near you</div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {HOME_CHIPS.map((k) => {
-                  const e = EXPERIENCES[k];
-                  if (!e) return null;
-                  return (
-                    <button key={k} onClick={() => { setShowNearbyExp(false); openExperience(k); }} style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.panel, color: C.light, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-                      <span>{e.icon}</span><span>{e.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.5, marginTop: 16, paddingTop: 12, borderTop: `1px solid ${C.border}` }}><b style={{ color: C.light }}>Best</b> = star rating weighted by number of reviews, so trusted favorites rank above lightly reviewed spots.</div>
-            </div>
-          )}
+          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingTop: 10, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+            {HOME_CHIPS.map((k) => { const e = EXPERIENCES[k]; if (!e) return null; return (
+              <button key={k} onClick={() => openExperience(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                <span>{e.icon}</span><span>{e.label}</span>
+              </button>
+            ); })}
+          </div>
         </div>
       )}
+      {exHero && (
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
+      )}
+      {exHero && (() => {
+        const open = liveOpen(exHero);
+        const badgeIcon = open === true ? "✨" : "📍";
+        const badgeText = open === true ? "Open now · top pick" : "Top pick nearby";
+        return (
+          <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
+            <div onClick={() => openDetail(exHero)} style={{ cursor: "pointer" }}>
+              <div style={{ position: "relative" }}>
+                <FallbackImg src={exHero.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
+                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
+                  <span style={{ fontSize: 12 }}>{badgeIcon}</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
+                </div>
+              </div>
+              <div style={{ padding: 16 }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{exHero.name}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                  {exHeroSl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{exHeroSl.word}</span>}
+                  {exHeroSl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{exHeroSl.s}/10</span>}
+                  {exHero.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {exHero.rating}</span>}
+                  {exHero.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.reviews.toLocaleString()} reviews</span>}
+                  {open === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
+                  {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
+                  {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
+                </div>
+                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err}</div>}
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
@@ -2787,16 +2806,16 @@ function PageInner() {
           <span style={{ fontSize: 13 }}>We're still adding spots in your area. Try another category nearby.</span>
         </div>
       )}
-      {view.slice(0, 3).map((p, i) => (
+      {restView.slice(0, 3).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
       ))}
-      {view.length > 3 && hookCards.length > 0 && (
+      {restView.length > 3 && hookCards.length > 0 && (
         <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
       )}
-      {view.slice(3, visibleCount).map((p, i) => (
+      {restView.slice(3, visibleCount).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
       ))}
-      {!loading && view.length > visibleCount && (
+      {!loading && restView.length > visibleCount && (
         <div style={{ padding: "2px 2px 10px" }}>
           <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
           <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
@@ -4487,6 +4506,10 @@ function PageInner() {
                     );
                   })}
                 </div>
+                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, height: 62, borderRadius: 16, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
+                  <span style={{ fontSize: 20 }}>🎲</span>
+                  <span>Can't decide? Let's Wayfind it</span>
+                </button>
               </>
             )}
             {menuSheet === "community" && (
