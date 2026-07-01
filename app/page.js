@@ -3,6 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
+import * as Trips from "../lib/trips";
 
 const BUILD = "v6.25";
 const C = {
@@ -717,6 +718,7 @@ function NavIcon({ name, color, size }) {
   if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
   if (name === "hotels") return (<svg {...p}><path d="M3 18v-6h18v6" /><path d="M6 12V9h5v3" /><path d="M3 19.5V17" /><path d="M21 19.5V17" /></svg>);
   if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
+  if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
   return null;
 }
 
@@ -741,6 +743,20 @@ function Tag({ label, color, dim }) {
       border: dim ? `1px solid ${C.border}` : "none",
       textTransform: "capitalize", whiteSpace: "nowrap",
     }}>{label}</span>
+  );
+}
+
+// City-folder icon for the trip planner. Two-letter state code for now; this is
+// the single swap point where an SVG state silhouette drops in later.
+function StateBadge({ code, size }) {
+  const sz = size || 48;
+  const has = code && code.length === 2;
+  return (
+    <div style={{ width: sz, height: sz, borderRadius: sz > 34 ? 12 : 8, background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      {has
+        ? <span style={{ fontSize: Math.round(sz * 0.36), fontWeight: 800, letterSpacing: "0.5px", color: C.accent }}>{code}</span>
+        : <span style={{ fontSize: Math.round(sz * 0.42) }}>📍</span>}
+    </div>
   );
 }
 
@@ -1986,6 +2002,12 @@ function PageInner() {
   const [videos, setVideos] = useState(null);
   const [videosLoading, setVideosLoading] = useState(false);
   const [sharedList, setSharedList] = useState(null);
+  // Trip planner: destinations keyed by city+state. Own store, persisted
+  // separately from lists. See lib/trips.js for the model.
+  const [trips, setTrips] = useState({});
+  const [activeTrip, setActiveTrip] = useState(null);   // open trip key, or null for the index
+  const [tripNoteEdit, setTripNoteEdit] = useState(null); // place id whose note is being edited
+  const [tripMoveFor, setTripMoveFor] = useState(null);   // place id being moved to another trip
   const [events, setEvents] = useState(null);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsUnavailable, setEventsUnavailable] = useState(false);
@@ -2784,6 +2806,16 @@ function PageInner() {
     try { localStorage.setItem("wayfind_lists", JSON.stringify(lists)); } catch {}
   }, [lists]);
 
+  // Trip planner store: load once on mount, then persist on every change.
+  useEffect(() => {
+    try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
+  }, []);
+  const tripsHydrated = useRef(false);
+  useEffect(() => {
+    if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
+    try { localStorage.setItem("wayfind_trips", JSON.stringify(trips)); } catch {}
+  }, [trips]);
+
   useEffect(() => {
     if (keyMissing) return;
     if (navigator.geolocation) {
@@ -3302,12 +3334,16 @@ function PageInner() {
 
   function saveToList(listId) {
     if (!saveTarget) return;
+    const target = saveTarget;
+    const existing = lists[listId];
+    const wasAdd = existing && !existing.places.some((p) => p.id === target.id);
     setLists((prev) => {
       const l = prev[listId];
       if (!l) return prev;
-      const has = l.places.some((p) => p.id === saveTarget.id);
-      return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== saveTarget.id) : [...l.places, saveTarget] } };
+      const has = l.places.some((p) => p.id === target.id);
+      return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== target.id) : [...l.places, target] } };
     });
+    if (wasAdd) setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
     setSaveTarget(null);
   }
   // One-tap save straight to Favorites from a card heart.
@@ -3322,6 +3358,9 @@ function PageInner() {
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
     if (!has) logEvent("save", p);
+    // Auto-file into the city trip on save only. Unsaving from Favorites must
+    // not remove it from a trip: the trip is an independent, curated plan.
+    if (!has) setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
     if (supabase && user) {
       if (has) {
         supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", p.id).eq("list_name", "Favorites").then(() => {}, () => {});
@@ -4451,6 +4490,107 @@ function PageInner() {
             )}
           </div>
         )}
+        {screen === "itinerary" && !activeTrip && (() => {
+          const list = Trips.tripList(trips);
+          return (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
+                <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
+                {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
+              </div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
+              {list.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>No trips yet. Save any place from Home or the Map and a city trip is created for you automatically.</div>
+              ) : (
+                list.map((t) => {
+                  const st = Trips.tripStats(t);
+                  return (
+                    <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
+                      <StateBadge code={t.state} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
+                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+                      </div>
+                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          );
+        })()}
+
+        {screen === "itinerary" && activeTrip && trips[activeTrip] && (() => {
+          const t = trips[activeTrip];
+          const items = Trips.sortedItems(t);
+          const st = Trips.tripStats(t);
+          const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
+          const tripCtl = { width: 34, height: 30, borderRadius: 8, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
+          const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 18, cursor: "pointer" };
+          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { try { window.open(u, "_blank"); } catch {} try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
+          return (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
+                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
+                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+                </div>
+                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
+              </div>
+              {items.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
+              ) : items.map((it, i) => {
+                const p = it.place;
+                const editing = tripNoteEdit === p.id;
+                const moving = tripMoveFor === p.id;
+                return (
+                  <div key={p.id} style={{ marginBottom: 12 }}>
+                    <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
+                      <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
+                      {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
+                    </div>
+                    {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
+                    {editing && (
+                      <div style={{ marginTop: 6 }}>
+                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 13, resize: "vertical" }} />
+                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                          <button onClick={() => { const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Save note</button>
+                          <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Cancel</button>
+                        </div>
+                      </div>
+                    )}
+                    {moving && (
+                      <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
+                        <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
+                        {others.length === 0 ? (
+                          <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
+                        ) : others.map((o) => (
+                          <div key={o.key} onClick={() => { setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", borderRadius: 8, cursor: "pointer" }}>
+                            <StateBadge code={o.state} size={28} />
+                            <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
+                          </div>
+                        ))}
+                        <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "4px 2px", cursor: "pointer" }}>Cancel</button>
+                      </div>
+                    )}
+                    {!editing && !moving && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1))} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
+                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1))} disabled={i === items.length - 1} style={{ ...tripCtl, opacity: i === items.length - 1 ? 0.35 : 1 }}>↓</button>
+                        <button onClick={() => setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id))} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.accent } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
+                        <button onClick={() => { setTripNoteEdit(p.id); setTripMoveFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
+                        <button onClick={() => { setTripMoveFor(p.id); setTripNoteEdit(null); }} style={tripChip}>Move</button>
+                        <button onClick={() => { if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); }} style={{ ...tripChip, color: C.red }}>Remove</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
         {screen === "shared" && sharedList && (
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
@@ -4618,10 +4758,10 @@ function PageInner() {
 
       {/* Bottom nav */}
       <div style={{ background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", flexShrink: 0, paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }].map((s) => {
+        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
-          <button key={s.id} onClick={() => { setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } }} style={{ flex: 1, padding: "12px 8px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer" }}>
+          <button key={s.id} onClick={() => { setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } }} style={{ flex: 1, padding: "12px 8px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer" }}>
             <NavIcon name={s.icon} color={active ? C.accent : C.muted} />
             <span style={{ fontSize: 11, fontWeight: active ? 700 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </button>
