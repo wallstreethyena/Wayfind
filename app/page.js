@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.23";
+const BUILD = "v6.25";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -451,6 +451,35 @@ function faveTier(name) {
 }
 const isLocalFave = (name) => faveTier(name) >= 1;
 const isBestOf = (name) => faveTier(name) === 2;
+
+// v6.25: founder-curated "note from Wayfind" for specific properties. Hand-written insider
+// knowledge, not scraped or AI. Keyed by the normalized venue name, with an optional
+// coordinate gate so a same-named property elsewhere never picks up the wrong note.
+const CURATED_NOTES = {
+  hiltonorlando: {
+    match: { lat: 28.4270, lng: -81.4693, radiusMi: 2.5 },
+    title: "A note from Wayfind",
+    intro: "From a recent stay, the things worth knowing before you book.",
+    items: [
+      { icon: "🅿️", head: "Parking is not included", body: "Plan for it. Self and valet are both extra on top of the room rate." },
+      { icon: "💆", head: "Book the eforea Spa and your valet is covered", body: "A spa booking gets your valet validated at the spa. Valet runs about $50 on its own, so the visit effectively pays for your parking that day." },
+      { icon: "💳", head: "Bring a Hilton Honors Amex, Gold status pays off", body: "Gold members get the daily food and beverage credit, $15 per guest, plus a complimentary room upgrade when one is available." },
+      { icon: "🌇", head: "Pick your side for the view", body: "The north side, away from the pool, faces the theme parks. The pool side looks toward SeaWorld and has the best seat for the fireworks." },
+      { icon: "🎆", head: "Fireworks from the pool side", body: "SeaWorld's Ignite fireworks and drone show typically starts around 9:00 PM on select summer nights, mostly Fridays and Saturdays through early September. Times shift, so check the SeaWorld app the day of." },
+    ],
+  },
+};
+function curatedNote(p) {
+  if (!p || !p.name) return null;
+  const note = CURATED_NOTES[wfNorm(p.name)];
+  if (!note) return null;
+  if (note.match && p.lat != null && p.lng != null) {
+    const dLat = p.lat - note.match.lat, dLng = p.lng - note.match.lng;
+    const approxMi = Math.sqrt(dLat * dLat + dLng * dLng) * 69;
+    if (approxMi > (note.match.radiusMi || 3)) return null;
+  }
+  return note;
+}
 
 const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 800 },
@@ -1476,7 +1505,11 @@ function betterAlternatives(current, pool, n) {
     if (curD != null && p.distMi != null && p.distMi <= curD - 2) { reasons.push("closer, " + p.distMi.toFixed(1) + " mi vs " + curD.toFixed(1)); edge += 3; }
     if (curP != null && p.priceNum != null && p.priceNum < curP && (p.rating || 0) >= curR - 0.2) { reasons.push("more affordable"); edge += 1; }
     if ((p.reviews || 0) >= curRev * 2 && (p.reviews || 0) >= 300 && (p.rating || 0) >= curR - 0.1) { reasons.push("more reviewed, " + p.reviews.toLocaleString()); edge += 1; }
-    if (reasons.length) out.push({ p, reasons: reasons.slice(0, 2), edge: edge + ((p.wfScore || 0) / 1000) });
+    if (reasons.length) {
+      let kf = "";
+      try { const dk = experienceBadges(p, null, 3).map((b) => b.key).filter((k) => !["localfav", "gem", "value", "bestof"].includes(k)); if (dk.length) { const lab = EXPERIENCES[dk[0]] && EXPERIENCES[dk[0]].label ? EXPERIENCES[dk[0]].label.toLowerCase() : ""; if (lab) kf = "known for " + lab; } } catch (e) {}
+      out.push({ p, reasons: reasons.slice(0, 2), knownFor: kf, edge: edge + ((p.wfScore || 0) / 1000) });
+    }
   });
   out.sort((a, b) => b.edge - a.edge);
   return out.slice(0, n || 3);
@@ -1729,7 +1762,9 @@ function decisionReason(p) {
     waterfront: ", and it shines near sunset.",
     bar: " — a night out, not a daytime stop.",
   };
-  let body = qual + dist + (tradeoffs[kind] || ".");
+  const descKeys = (() => { try { return experienceBadges(p, null, 4).map((b) => b.key).filter((k) => !["localfav", "gem", "value", "bestof"].includes(k)); } catch (e) { return []; } })();
+  const knownFor = descKeys.length ? (", known for " + descKeys.slice(0, 2).map((k) => (EXPERIENCES[k] && EXPERIENCES[k].label ? EXPERIENCES[k].label.toLowerCase() : "")).filter(Boolean).join(" and ")) : "";
+  let body = qual + knownFor + dist + (tradeoffs[kind] || ".");
   if (open === false) body = "Closed right now, so save it for later. " + body;
   return { verdict, body: body.charAt(0).toUpperCase() + body.slice(1) };
 }
@@ -2775,7 +2810,24 @@ function PageInner() {
       setLoading(true);
       setErr("");
       try {
-        const results = await searchPlaces(cat, sub, { lat: center.lat, lng: center.lng }, searchRadius, vibe);
+        // v6.24: widen the local feed. When browsing a whole category (sub "all"), fan out across
+        // every subcategory query and merge, so the feed surfaces far more of what actually exists
+        // locally instead of a single 20-result page. Costs one Google call per subcategory; results
+        // are deduped here and again by name in the view.
+        const ctr = { lat: center.lat, lng: center.lng };
+        let results;
+        const subsList = (SUBFILTERS[cat] || []).filter((s) => s && s.id && s.id !== "all");
+        if (sub === "all" && subsList.length) {
+          const batches = await Promise.all(
+            [searchPlaces(cat, "all", ctr, searchRadius, vibe).catch(() => [])].concat(
+              subsList.map((s) => searchPlaces(cat, s.id, ctr, searchRadius, vibe).catch(() => []))
+            )
+          );
+          const seen = new Set(); results = [];
+          batches.forEach((arr) => (arr || []).forEach((p) => { if (p && p.id && !seen.has(p.id)) { seen.add(p.id); results.push(p); } }));
+        } else {
+          results = await searchPlaces(cat, sub, ctr, searchRadius, vibe);
+        }
         if (!cancelled) { setPlaces(results); loadBlurbs(results); if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
@@ -4755,6 +4807,26 @@ function PageInner() {
                 />
               )}
 
+              {/* v6.25: founder curated note, shown only for properties in CURATED_NOTES. Hand-written, leads the page. */}
+              {(() => { const cn = curatedNote(detail); if (!cn) return null; return (
+                <div style={{ background: `linear-gradient(135deg, ${C.adim} 0%, ${C.card} 55%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "14px 15px", marginBottom: 14 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: cn.intro ? 3 : 10 }}>
+                    <span style={{ fontSize: 15 }}>📌</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{cn.title}</span>
+                  </div>
+                  {cn.intro && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 11 }}>{cn.intro}</div>}
+                  {cn.items.map((it, i) => (
+                    <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: i < cn.items.length - 1 ? 11 : 0 }}>
+                      <span style={{ fontSize: 16, flexShrink: 0, lineHeight: 1.3 }}>{it.icon}</span>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, lineHeight: 1.35 }}>{it.head}</div>
+                        <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 2 }}>{it.body}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ); })()}
+
               {/* 2. Why Wayfind picked it — a judgment-driven decision reason, not a formula. No expand button; the deeper context lives in the insider tip and Tips, videos & more. */}
               <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 14 }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</div>
@@ -4802,8 +4874,8 @@ function PageInner() {
                   );
                 })()}
               <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                <button onClick={() => { const n = !showMore; setShowMore(n); if (n) { loadFullInsight(detail, detailExtra); loadVideos(detail); } }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, cursor: "pointer", fontSize: 14, fontWeight: 800, color: C.light, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}>
-                  <span>{showMore ? "Show less" : "✨ Tips, videos & more"}</span>
+                <button onClick={() => { const n = !showMore; setShowMore(n); if (n) { loadFullInsight(detail, detailExtra); loadVideos(detail); } }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.accent, background: "transparent", border: "none", padding: "2px 0" }}>
+                  <span>{showMore ? "Show less" : "More tips, videos & details"}</span>
                   <span style={{ fontSize: 12, fontWeight: 800 }}>{showMore ? "▴" : "▾"}</span>
                 </button>
                 {showMore && (
@@ -4982,7 +5054,7 @@ function PageInner() {
               {(() => {
                 const altPool = dedupePlaces([...(suggested || []), ...places]);
                 const alts = betterAlternatives(detail, altPool, 3);
-                const Row = (p, reasons) => (
+                const Row = (p, reasons, knownFor) => (
                   <div key={"alt-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
                     <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
                     <div style={{ minWidth: 0, flex: 1 }}>
@@ -4994,6 +5066,7 @@ function PageInner() {
                         {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                       </div>
                       {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.accent, fontWeight: 700, lineHeight: 1.4, marginTop: 3 }}>Better here: {reasons.join(" · ")}</div>}
+                      {knownFor ? <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.4, marginTop: 2 }}>{knownFor.charAt(0).toUpperCase() + knownFor.slice(1)}</div> : null}
                     </div>
                     <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
                   </div>
@@ -5003,7 +5076,7 @@ function PageInner() {
                     <div style={{ marginBottom: 16 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Could be a better fit</div>
                       <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>A few spots nearby that beat this one on something that might matter to you. Tap to compare.</div>
-                      {alts.map(({ p, reasons }) => Row(p, reasons))}
+                      {alts.map(({ p, reasons, knownFor }) => Row(p, reasons, knownFor))}
                     </div>
                   );
                 }
