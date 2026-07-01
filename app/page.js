@@ -4,6 +4,8 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
+import * as Ranking from "../lib/ranking";
+import * as Dining from "../lib/dining";
 
 const BUILD = "v6.25";
 const C = {
@@ -1127,6 +1129,13 @@ function eventCategory(e) {
   if (has(/\b(run|race|5k|10k|marathon|sport|tournament|yoga|fitness|cycling|golf)\b/)) return { icon: "🏃", short: "Active", color: "#38BDF8" };
   return seg;
 }
+function EventHeroBg({ image, acc }) {
+  const [bad, setBad] = useState(false);
+  if (image && !bad) {
+    return <img src={image} alt="" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } catch {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />;
+  }
+  return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
+}
 function EventArt({ e, seg, height }) {
   const [bad, setBad] = useState(false);
   const acc = (seg && seg.color) || C.accent;
@@ -1558,7 +1567,7 @@ function placesForHook(hook, allSrc) {
   const primaryId = hook && hook.placeId;
   const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   let out = [];
-  if (theme === "top5" || theme === "best") out = byScore.slice(0, 10);
+  if (theme === "top5" || theme === "best") out = (hook && hook._ctx) ? Ranking.rankByConditions(allSrc, hook._ctx).slice(0, 10) : byScore.slice(0, 10);
   else if (theme === "gem") {
     out = allSrc.filter((p) => p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 450).sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
     const pri = allSrc.find((x) => x.id === primaryId);
@@ -1852,7 +1861,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
   const photo = place && place.photo;
   const tiles = (collage || []).filter(Boolean).slice(0, 4);
   return (
-    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 220, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 187, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
       {h.brand
         ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
         : tiles.length >= 2
@@ -4018,6 +4027,46 @@ function PageInner() {
               )}
               {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
+              {/* v6.25: Top 10 cards — the ranked best of the area and the best food, right at the top. Data-driven off the current location, so a searched city gets its own top 10 automatically. */}
+              {!browseCat && (suggested && suggested.length > 0) && (() => {
+                const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+                const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
+                const cityN = locName ? locName.split(",")[0] : "you";
+                const top10 = Ranking.rankByConditions(areaPool, condCtx).slice(0, 10);
+                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx).slice(0, 10);
+                const row = (p, i, n) => (
+                  <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                    <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
+                    <FallbackImg src={p.photo} icon="🍽️" style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
+                        {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ color: C.light, fontWeight: 600 }}>{cz}</span> : null; })()}
+                        {p.rating && <span style={{ color: "#F59E0B", fontWeight: 700 }}>★ {p.rating}</span>}
+                        {(() => { const dining = ["Food", "Nightlife"].includes(Ranking.coarseCat(p) || ""); const c = Dining.costForTwo(p); return dining && c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
+                        {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
+                        {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
+                        {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
+                      </div>
+                    </div>
+                    <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
+                  </div>
+                );
+                const card = (title, sub, list) => (list.length >= 3 ? (
+                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 14px", marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 2, gap: 8 }}>
+                      <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
+                      <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
+                    </div>
+                    <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 6, lineHeight: 1.35 }}>{sub}</div>
+                    {list.map((p, i) => row(p, i, list.length))}
+                  </div>
+                ) : null);
+                return (<>
+                  {card("🧭 Top 10 near " + cityN, "The best spots right now, ranked by quality, distance, weather and time of day.", top10)}
+                  {card("🍽️ Top 10 food near " + cityN, "The best places to eat right now, ranked.", food10)}
+                </>);
+              })()}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
                 const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
@@ -4033,17 +4082,33 @@ function PageInner() {
                 const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
                 const avail = [];
                 for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) avail.push({ key, place: match, e }); }
-                // v6.22: the hero rotates by day so it varies without a button. The rest of the experiences render as a stack below it, so the user sees every angle at once (local favorites, gems, value, waterfront, live music...). Deduped so the hero theme is not repeated.
-                const dayIdx = new Date().getDate();
-                const pick = avail.length ? avail[dayIdx % avail.length] : null;
-                const restExp = avail.filter((a) => !pick || a.key !== pick.key);
+                // v6.25: the hero is now the single best move for right now, ranked by
+                // quality + distance + today's weather + the time of day (see lib/ranking.js),
+                // so a stormy afternoon stops opening on an outdoor pick. The themed
+                // experiences (gems, value, waterfront...) all move into the stack below.
+                const condCtx = { weather, hour: h, isWeekend: [0, 6].includes(new Date().getDay()) };
+                const heroPhotoPool = expPool.filter((p) => p && p.photo);
+                const heroCandidates = heroPhotoPool.filter((p) => p.openNow !== false);
+                const condRanked = Ranking.rankByConditions(heroCandidates.length ? heroCandidates : heroPhotoPool, condCtx);
+                const heroPlace = condRanked[0] || null;
+                const cityHero = locName ? locName.split(",")[0] : "you";
+                const heroHook = heroPlace ? {
+                  id: "top10now", accent: C.accent, emoji: "🧭", label: "Your Next Move",
+                  theme: "best", placeId: heroPlace.id, highlightWord: "top 10", _ctx: condCtx,
+                  hook: Ranking.heroReason(heroPlace, condCtx),
+                  subtitle: "The best move near " + cityHero + " right now, ranked",
+                  cta: "See the top 10 →",
+                  themeTitle: "Wayfind Picks · Top 10 near " + cityHero,
+                  themeBody: "The ten best spots near you for right now, ranked by quality, distance, today's weather, and the time of day. Rain pushes indoor picks up, clear skies favor the outdoors, and anything closed drops down. No ads, no paid placement.",
+                } : null;
+                const restExp = avail.filter((a) => !heroPlace || a.place.id !== heroPlace.id);
                 const mkHook = (a) => { const t = themedHook(a.key, a.place); return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: a.e.label, theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: t.hook, subtitle: t.sub, cta: t.cta, themeTitle: a.e.title, themeBody: a.e.lead }; };
                 const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    {pick && (<>
+                    {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
-                      <HookSolo h={mkHook(pick)} place={pick.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(pick), pick.place)} />
+                      <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
@@ -4071,10 +4136,8 @@ function PageInner() {
                       const rel = relLabel(featured);
                       const acc = C.purple;
                       return (
-                        <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 196, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
-                          {featured.image
-                            ? <img src={featured.image} alt="" draggable={false} style={{ position: "absolute", inset: "-5%", width: "110%", height: "110%", objectFit: "cover", filter: "blur(2px) saturate(1.12)" }} />
-                            : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />}
+                        <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 167, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
+                          <EventHeroBg image={featured.image} acc={acc} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                           <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -4839,6 +4902,19 @@ function PageInner() {
                 {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light }}>{detail.distMi.toFixed(1)} mi</span></>)}
                 {detail.priceNum != null ? (<><span style={{ color: C.border }}>·</span><PriceMeter level={detail.priceNum} word /></>) : (detail.price && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>))}
               </div>
+              {/* What it is and what it costs: the two things missing when you cannot decide. */}
+              {!detail._event && (() => {
+                const cz = Dining.cuisineLabel(detail);
+                const isDining = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || "");
+                if (!cz && !isDining) return null;
+                const cost = Dining.costForTwo(detail);
+                return (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: -4, marginBottom: 14 }}>
+                    {cz && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "4px 11px" }}>{cz}</span>}
+                    {isDining && <span title={cost.real ? "From Google's price range" : (cost.listed ? "Estimated from the price tier" : "Google lists no price for this spot")} style={{ fontSize: 12.5, fontWeight: 700, color: cost.listed ? C.green : C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 11px", whiteSpace: "nowrap" }}>💵 {cost.text}</span>}
+                  </div>
+                );
+              })()}
               {/* Primary actions, right where you decide. For a closed place, Save leads instead of "go now". */}
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                 {liveOpen(detail) === false ? (
@@ -5033,7 +5109,7 @@ function PageInner() {
                               <div style={lab}>Good for</div>
                               <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                                 {goodFor.slice(0, 6).map((g, i) => (
-                                  <span key={i} style={{ fontSize: 12, fontWeight: 600, color: C.green, background: "rgba(34,197,94,.12)", border: "1px solid rgba(34,197,94,.4)", borderRadius: 999, padding: "4px 11px" }}>✓ {g}</span>
+                                  <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, color: C.text, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px" }}><span style={{ color: C.green, fontWeight: 800 }}>✓</span>{g}</span>
                                 ))}
                               </div>
                             </>
@@ -5876,6 +5952,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {pcat && <span style={{ fontSize: 12, fontWeight: 800, color: CAT_LABEL_COLOR[pcat] || C.light }}>{pcat}</span>}
+            {(() => { const cz = Dining.cuisineLabel(p); return cz && cz !== pcat ? <span style={{ fontSize: 12, fontWeight: 700, color: C.light }}>{cz}</span> : null; })()}
             {p.rating && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: p.rating >= 4.5 ? C.green : p.rating >= 4.0 ? "#3F8F4E" : C.card, color: p.rating >= 4.0 ? "#0D1117" : C.light, fontWeight: 800, fontSize: 14, padding: "2px 8px", borderRadius: 8 }}>★ {p.rating}</span>}
             {p.reviews > 0 && (() => { const cf = confidenceOf(p.reviews); return (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, color: C.muted }}>
