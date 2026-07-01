@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.21";
+const BUILD = "v6.22";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1879,6 +1879,7 @@ function PageInner() {
   const [cat, setCat] = useState("food");
   const [moodOpen, setMoodOpen] = useState(false); // inline "what are you in the mood for" accordion
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
+  const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("near");
@@ -2260,6 +2261,8 @@ function PageInner() {
     setQuery("");
     setEventCat("all");
     setEventDate("all");
+    setBrowseCat(null);
+    setMoodPick(null);
     setScreen("suggested");
     try { window.scrollTo(0, 0); } catch {}
   }
@@ -3842,14 +3845,22 @@ function PageInner() {
                 <div style={{ overflow: "hidden", maxHeight: moodOpen ? 170 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
                   <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 4px" }}>
                     {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
-                      const on = moodPick === m.id;
+                      const on = browseCat === m.id;
                       return (
-                        <button key={m.id} onClick={() => { setMoodPick(m.id); pickCat(m.id); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
+                        <button key={m.id} onClick={() => { const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
                           <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
                           <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
                         </button>
                       );
                     })}
+                  </div>
+                </div>
+                {/* v6.22: the tapped category's sub-menu slides down here. Flat outlined chips, "All" selected by default, tapping one re-fetches the feed below. Beach has no sub-menu, so nothing drops. */}
+                <div style={{ overflow: "hidden", maxHeight: (moodOpen && browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 56 : 0, opacity: (moodOpen && browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.30s cubic-bezier(.4,0,.2,1), opacity 0.24s ease" }}>
+                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2 }}>
+                    {(SUBFILTERS[browseCat] || []).map((s) => { const son = sub === s.id; return (
+                      <button key={s.id} onClick={() => setSub(s.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{s.label}</button>
+                    ); })}
                   </div>
                 </div>
                 {/* v6.13: the "Discover" 4-tile grid was removed. It was redundant: Surprise = the dice (in feed + mood menu), Nearby = the feed + category browse, Events = bottom nav. The one non-redundant entry, Occasions, now lives behind the mood button so it is not orphaned. One door to explore, the feed below it. */}
@@ -3868,10 +3879,24 @@ function PageInner() {
                   </button>
                 )}
               </div>
+              {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
+              {browseCat && (
+                <div style={{ marginBottom: 16 }}>
+                  {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
+                      <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
+                      <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
+                      <span style={{ fontSize: 13 }}>Try another category or widen your area.</span>
+                    </div>
+                  ) : view.map((p, i) => (
+                    <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} />
+                  ))}
+                </div>
+              )}
               {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
-              {(suggested && suggested.length > 0) && (() => {
+              {!browseCat && (suggested && suggested.length > 0) && (() => {
                 const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
@@ -3885,33 +3910,32 @@ function PageInner() {
                 const matchesExp = (p, key) => { const e = EXPERIENCES[key]; if (!e) return false; if (e.filter) { try { return !!e.filter(p); } catch (er) { return false; } } const ks = poolKeys.get(p.id); return ks ? ks.has(key) : false; };
                 const avail = [];
                 for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) avail.push({ key, place: match, e }); }
-                const pick = avail.length ? avail[heroNonce % avail.length] : null;
+                // v6.22: the hero rotates by day so it varies without a button. The rest of the experiences render as a stack below it, so the user sees every angle at once (local favorites, gems, value, waterfront, live music...). Deduped so the hero theme is not repeated.
+                const dayIdx = new Date().getDate();
+                const pick = avail.length ? avail[dayIdx % avail.length] : null;
+                const restExp = avail.filter((a) => !pick || a.key !== pick.key);
+                const mkHook = (a) => { const t = themedHook(a.key, a.place); return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: a.e.label, theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: t.hook, subtitle: t.sub, cta: t.cta, themeTitle: a.e.title, themeBody: a.e.lead }; };
+                const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    {pick && (() => {
-                      const { key, place, e } = pick;
-                      const t = themedHook(key, place);
-                      const dh = { id: "exp-" + key, accent: THEME_COLOR[key] || C.accent, emoji: e.icon, label: e.label, theme: key, placeId: place.id, highlightWord: t.hl, hook: t.hook, subtitle: t.sub, cta: t.cta, themeTitle: e.title, themeBody: e.lead };
-                      return (<>
-                        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
-                        <HookSolo h={dh} place={place} hideLike onOpen={openHook} onShare={() => shareHook(dh, place)} />
-                        {avail.length > 1 && (
-                          <button onClick={() => setHeroNonce((n) => n + 1)} style={{ display: "block", width: "100%", margin: "0 0 14px", padding: "10px 0", background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Show me another experience</button>
-                        )}
-                      </>);
-                    })()}
-                    <HookSolo h={diceHook} place={null} liked={false} onOpen={() => openSurprise()} />
+                    {pick && (<>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
+                      <HookSolo h={mkHook(pick)} place={pick.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(pick), pick.place)} />
+                    </>)}
+                    {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
+                    {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
+                    <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => openSurprise()} />
                   </div>
                 );
               })()}
               {/* v3.7: mobile inline "You are exploring" card removed — it duplicated the 📍 This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
               {/* v4.1: standalone "Happening at the library" card removed from home — this content now lives in the Community tile sheet (menuSheet === "community"). libraryEvents state and fetch are unchanged. */}
-              {!isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => { if (!e || !e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff >= 0 && diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; };
                 const withImg = evs.filter((e) => e && e.image);
                 const featured = (withImg.length ? withImg : evs).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"))[0];
-                const rest = evs.filter((e) => e && (!featured || e.id !== featured.id)).slice(0, 6);
+                const rest = evs.filter((e) => e && (!featured || e.id !== featured.id)).slice(0, 24);
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -3926,7 +3950,7 @@ function PageInner() {
                       return (
                         <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 196, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
                           {featured.image
-                            ? <img src={featured.image} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            ? <img src={featured.image} alt="" draggable={false} style={{ position: "absolute", inset: "-5%", width: "110%", height: "110%", objectFit: "cover", filter: "blur(2px) saturate(1.12)" }} />
                             : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />}
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                           <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
@@ -3945,14 +3969,14 @@ function PageInner() {
                       );
                     })()}
                     {rest.length > 0 && (
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const evRel = relLabel(e);
                           return (
-                            <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, cursor: "pointer", minWidth: 0 }}>
+                            <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, cursor: "pointer", width: 150, flexShrink: 0, scrollSnapAlign: "start" }}>
                               <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}>{e.name}</div>
                               <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
                             </div>
                           );
@@ -3962,8 +3986,8 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {(suggestedLoading || suggested === null) && <Loader label="Reading the moment" pad="8px 2px" />}
-              {!suggestedLoading && suggested !== null && list.length === 0 && (
+              {!browseCat && (suggestedLoading || suggested === null) && <Loader label="Reading the moment" pad="8px 2px" />}
+              {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={52} /></div>
                   <strong style={{ display: "block", color: C.light }}>Nothing to suggest just yet</strong>
