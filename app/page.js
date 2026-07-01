@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 
-const BUILD = "v6.22";
+const BUILD = "v6.23";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -144,7 +144,7 @@ function applyAffinity(places, affinities) {
     boost = Math.max(-20, Math.min(boost, 30));
     // Distance penalty: 1 point per 3 miles, max 15 points — same as searchPlaces
     const distPenalty = Math.min(15, (p.distMi || 0) / 3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -425,10 +425,38 @@ function templateBlurb(p) {
 
 // Curated experiences. Each one is a real search plus an honest filter. Badges
 // on cards map straight into these, so a badge means the same thing everywhere.
+// v6.22: curated local favorites for the Sarasota-Manatee launch market, drawn from
+// regional best-of lists (Sarasota Magazine, SRQ Magazine) and established local dining
+// guides. Names only, matched against places Google already returns. Nothing is fabricated:
+// if a spot closes, Google stops returning it and it silently drops out. Two tiers —
+// BEST_OF = editorially recognized (shown as the "Best of Sarasota" surface); the wider
+// LOCAL_FAVE set feeds the existing "Local favorites" experience and a small ranking lift.
+const BEST_OF_NAMES = ["Selva Grill","Owens Fish Camp","Indigenous","Michael's On East","Duval's","Cafe Barbosso","Morton's Market","Marina Jack","Mirna's Cuban Cuisine","Mimi's Brasserie","Florence and the Spice Boys","Ringside","Station 400","Mademoiselle Paris","Focaccia Sandwich","Arts & Central","Siesta Key Summer House","C'est La Vie","Columbia Restaurant","99 Bottles","The Ringling","Marie Selby Botanical Gardens","Mote Marine","Myakka River State Park","Sarasota Opera House","The Bay Park","Lido Beach","Siesta Key Beach","St. Armands Circle","St. Regis Longboat Key","Beach House Waterfront","Wicked Cantina","Anna Maria Oyster Bar","Bridge Street Bistro","Pier 22","The Sandbar Restaurant","The Ugly Grouper","The Waterfront Restaurant","Beach Bistro","Calusa Brewing","Big Top Brewing","Motorworks Brewing","JDub's Brewing","Cask & Ale"];
+const LOCAL_FAVE_EXTRA = ["Olive Eats","The Breakfast Cottage","Sun Garden Cafe","Toastique","Focaccia","Mouthole Smashburgers","Fin & Tonic","The 1818 Grill","Lefty's Oyster","Rufa","Peruvian Grill","El Ceviche","Aji Ceviche Bar","Big Water Fish Market","Kolucan Mexican","Tsunami Sushi","Euphemia Haye","Fiorelli Winery","Burns Court Cinema","Elysian Fields","Der Dutchman","Smoqehouse","Coquina Beach Cafe","Gulf Drive Cafe","Skinny's Place","The Doctor's Office","Rod n Reel Pier","Poppo's Taqueria","Sign of the Mermaid","Blue Marlin Grill","Island Creperie","The Donut Experiment","Bridge Tender Inn","O'Bricks","Chateau 13","enRich Bistro","Joey D's","Oma'z Pizza","Darwin Brewing","Sarasota Brewing Company","Mandeville Beer Garden","Oak & Stone","3 Keys Brewing","Brew Life","3 Car Garage Brewing","Good Liquid Brewing","3 Bridges Brewing","Off the Wagon","Origin Craft Beer","Cock & Bull","Evie's Tavern","Loaded Cannon Distillery","Vin Cella","Siesta Key Wine Bar","Growler's Pub","Sun King Sarasota"];
+const wfNorm = (s) => (s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
+const BEST_OF_SET = new Set(BEST_OF_NAMES.map(wfNorm));
+const LOCAL_FAVE_SET = new Set([...BEST_OF_NAMES, ...LOCAL_FAVE_EXTRA].map(wfNorm));
+const LOCAL_FAVE_KEYS = [...LOCAL_FAVE_SET];
+const _faveCache = new Map();
+function faveTier(name) {
+  const n = wfNorm(name);
+  if (!n) return 0;
+  if (_faveCache.has(n)) return _faveCache.get(n);
+  let tier = 0;
+  if (BEST_OF_SET.has(n)) tier = 2;
+  else if (LOCAL_FAVE_SET.has(n)) tier = 1;
+  else { for (const k of LOCAL_FAVE_KEYS) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) { tier = BEST_OF_SET.has(k) ? 2 : 1; break; } } }
+  _faveCache.set(n, tier);
+  return tier;
+}
+const isLocalFave = (name) => faveTier(name) >= 1;
+const isBestOf = (name) => faveTier(name) === 2;
+
 const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 800 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Local favorite",  title: "Local Favorites",  cat: "food",      lead: "Spots people keep coming back to, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
+  bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
   rooftop:   { icon: "🌆", label: "Rooftop",         title: "Rooftop Spots",    cat: "nightlife", keyword: "rooftop", lead: "Drinks and a view from up top." },
   romantic:  { icon: "💕", label: "Romantic",        title: "Date Night",       cat: "food",      keyword: "romantic restaurant", lead: "Low light, good wine, and a table for two." },
@@ -474,6 +502,9 @@ function experienceBadges(p, selectedKey, max) {
   // Reputation, computed from rating and review volume and price.
   if (p.rating >= 4.6 && p.reviews >= 800) q.add("localfav");
   if (p.rating >= 4.5 && p.reviews >= 2500) q.add("localfav");
+  // v6.22: curated local favorites also earn the badge, matched by name (see faveTier). Editorially recognized ones get "bestof".
+  if (isLocalFave(p.name)) q.add("localfav");
+  if (isBestOf(p.name)) q.add("bestof");
   if (p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 800) q.add("gem");
   if (p.rating >= 4.2 && p.priceNum != null && p.priceNum <= 2) q.add("value");
 
@@ -516,7 +547,7 @@ function experienceBadges(p, selectedKey, max) {
   const typeMap = [["pizza", "pizza"], ["sushi", "sushi"], ["steak", "steak"], ["seafood", "seafood"], ["hamburger", "burgers"], ["burger", "burgers"], ["mexican", "mexican"], ["taco", "mexican"], ["italian", "italian"], ["bakery", "dessert"], ["ice cream", "dessert"], ["ice_cream", "dessert"], ["dessert", "dessert"], ["donut", "dessert"], ["coffee", "coffee"], ["cafe", "coffee"], ["brewery", "beer"], ["brew_pub", "beer"], ["brewpub", "beer"]];
   for (const [needle, key] of typeMap) { if (tt.includes(needle)) q.add(key); }
 
-  const order = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "livemusic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "cocktails", "wine", "beer", "sports", "coffee", "breakfast", "family", "groups", "dog", "gem", "value", "localfav"];
+  const order = ["bestof", "museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "livemusic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "cocktails", "wine", "beer", "sports", "coffee", "breakfast", "family", "groups", "dog", "gem", "value", "localfav"];
   let keys = order.filter((k) => q.has(k) && EXPERIENCES[k]);
   if (selectedKey && EXPERIENCES[selectedKey]) {
     keys = keys.filter((k) => k !== selectedKey);
@@ -1745,6 +1776,7 @@ function themedHook(key, p) {
   const r = (p && p.rating != null) ? p.rating : null;
   const rs = r != null ? r + "★" : "";
   switch (key) {
+    case "bestof": return { hook: n + " is one of the local institutions people here name among the best.", sub: "A Best of Sarasota pick", cta: "See the Best of Sarasota →", hl: "the best" };
     case "localfav": return { hook: r != null ? n + " is a " + rs + " local favorite people keep coming back to." : n + " is a local favorite people keep coming back to.", sub: "A spot the neighborhood claims as its own", cta: "See local favorites →", hl: r != null ? rs : "favorite" };
     case "gem": return { hook: r != null ? n + " is the " + rs + " gem most people walk right past." : n + " is the gem most people walk right past.", sub: "Quietly excellent, not yet crowded", cta: "See hidden gems →", hl: "gem" };
     case "value": return { hook: r != null ? n + " is " + rs + " and still won't break the bank." : n + " won't break the bank.", sub: "Genuinely good, genuinely affordable", cta: "See great value →", hl: r != null ? rs : "bank" };
@@ -3361,10 +3393,10 @@ function PageInner() {
   // A short, curated row of the most useful experiences. Every other badge stays
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
-  const HOME_CHIPS = ["localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "outdoor", "breakfast", "coffee"].filter((k) => EXPERIENCES[k]);
+  const HOME_CHIPS = ["bestof", "localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "outdoor", "breakfast", "coffee"].filter((k) => EXPERIENCES[k]);
   const viewBase = sortBy === "near"
     ? [...places].filter((p) => sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi).sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
-    : [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+    : [...places].sort((a, b) => ((b.wfScore || 0) + faveTier(b.name) * 4) - ((a.wfScore || 0) + faveTier(a.name) * 4));
   const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
@@ -3900,8 +3932,8 @@ function PageInner() {
                 const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "breakfast", "coffee"];
-                const THEME_COLOR = { localfav: C.gold, gem: C.teal, value: C.green, instagram: C.pink, waterfront: C.blue, livemusic: C.purple, family: C.green, romantic: C.pink, breakfast: C.accent, coffee: C.accent };
+                const THEME_ORDER = ["bestof", "localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "breakfast", "coffee"];
+                const THEME_COLOR = { bestof: C.gold, localfav: C.gold, gem: C.teal, value: C.green, instagram: C.pink, waterfront: C.blue, livemusic: C.purple, family: C.green, romantic: C.pink, breakfast: C.accent, coffee: C.accent };
                 const expPool = [];
                 const seenPool = new Set();
                 for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
