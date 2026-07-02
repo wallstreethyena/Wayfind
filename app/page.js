@@ -9,7 +9,8 @@ import * as Tags from "../lib/tags";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v3.7";
+const BUILD = "beta";
+const BUILD_ID = "v3.9";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -375,25 +376,10 @@ function picksHeader(cat) {
 
 // WMO weather code to a small icon and word. Used with the free, keyless
 // Open-Meteo API so Wayfind can show local weather and reason about it.
-function moonPhase(ms) {
-  // Deterministic phase from a known new moon (2000-01-06 18:14 UTC), synodic month 29.53059d.
-  const syn = 29.530588853;
-  const days = (ms - Date.UTC(2000, 0, 6, 18, 14)) / 86400000;
-  let age = days % syn; if (age < 0) age += syn;
-  const f = age / syn;
-  if (f < 0.03 || f > 0.97) return { icon: "\uD83C\uDF11", label: "New moon" };
-  if (f < 0.22) return { icon: "\uD83C\uDF12", label: "Waxing crescent" };
-  if (f < 0.28) return { icon: "\uD83C\uDF13", label: "First quarter" };
-  if (f < 0.47) return { icon: "\uD83C\uDF14", label: "Waxing gibbous" };
-  if (f < 0.53) return { icon: "\uD83C\uDF15", label: "Full moon" };
-  if (f < 0.72) return { icon: "\uD83C\uDF16", label: "Waning gibbous" };
-  if (f < 0.78) return { icon: "\uD83C\uDF17", label: "Last quarter" };
-  return { icon: "\uD83C\uDF18", label: "Waning crescent" };
-}
 function hourIcon(code, isDay, ms) {
   // At night, clear/partly conditions show the actual moon phase; precip keeps its icon.
   const w = weatherFromCode(code);
-  if (!isDay && (code === 0 || code === 1 || code === 2)) { const m = moonPhase(ms); return { icon: m.icon, label: m.label }; }
+  if (!isDay && (code === 0 || code === 1 || code === 2)) { const m = moonPhase(new Date(ms)); return { icon: m.emoji, label: m.name }; }
   return { icon: w.icon, label: w.label };
 }
 function weatherFromCode(code) {
@@ -712,7 +698,7 @@ function FallbackImg({ src, alt, style, icon, onClick }) {
       </div>
     );
   }
-  return <img src={src} alt={alt || ""} loading="lazy" draggable={false} onError={() => setBad(true)} onClick={onClick} style={style} />;
+  return <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onError={() => setBad(true)} onClick={onClick} style={style} />;
 }
 
 // v3.9: a home-grid tile backed by a generated image (public/tiles/*.png). If the image
@@ -919,9 +905,6 @@ function eventSegmentMeta(seg, genre) {
   return { icon: "🎪", short: seg || "Other", color: "#94A3B8" };
 }
 
-// An honest "what to wear" suggestion built only from signals we actually have:
-// today's live weather, the venue's type, and its price tier. No invented
-// specifics, no product links — just a practical nudge.
 // Deterministic lunar phase from a known new-moon epoch. Pure math, no API, no
 // fabrication: same date always yields the same phase.
 function moonPhase(date) {
@@ -5908,7 +5891,7 @@ function PageInner() {
             </div>
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
-            <div style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD}</div>
+            <div style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD} · {BUILD_ID}</div>
           </div>
         </div>
       )}

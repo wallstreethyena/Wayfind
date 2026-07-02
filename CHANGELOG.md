@@ -4,6 +4,41 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.9 (header: beta) - duplicate moonPhase fixed, gate gains semantic layer
+- Root cause of the failed deploy: v3.7 added a second moonPhase for the
+  weather wheel, unaware the codebase already had one (richer: name, emoji,
+  illumination) powering the existing moon-image system. ES modules forbid
+  duplicate top-level declarations, so Vercel's compiler rejected it, while
+  the local gate (tsc, syntax-only under allowJs) passed it. Both statements
+  in the prior changelog claiming "gate clean" were technically true and
+  practically wrong; this entry corrects the record.
+- Fix: the duplicate is deleted; hourIcon now uses the original moonPhase
+  (icon from emoji, label from name). One lunar algorithm remains.
+- New permanent gate layer: scripts/check-dupes.mjs scans all first-party
+  files for duplicate top-level declarations and blocks the build. Wired into
+  prebuild between the JSX parse and the fixtures, locally and on Vercel.
+  Verified: it fails on the pre-fix file, passes after.
+- Cleanup: removed an orphaned comment left from the deleted placeVibe fn.
+
+## v3.8 (header: beta) - verification, hardening audit, speed pass
+- Header now displays "beta" per founder request. The numeric build (v3.8)
+  moved to the footer ("Wayfind beta · v3.8") so deploys stay verifiable at a
+  glance without a version number in the header.
+- Supabase crash audit CLOSED: the codebase has exactly one client, the
+  hardened wrapper in lib/supabase.js (cleans values, normalizes http->https,
+  validates shape, try/catches createClient, falls back to null); every auth
+  and analytics call is null-guarded. Zero other createClient sites exist
+  (verified by repo-wide grep). The dead deploys ran an older unhardened
+  client on a fresh project before env vars existed; that failure class
+  cannot recur on this code.
+- Speed: feed thumbnails now lazy-load with async decode (offscreen images no
+  longer block first paint); preconnect hints added for Google Places, Google
+  Maps, and Open-Meteo so first API round-trips start earlier.
+- Cleanup notes: moodOpen/moodAll state is inert (zero callers) and retained
+  harmlessly after an over-strict removal guard tripped. Feed thumbnails
+  already had lazy loading from an earlier pass; this build adds async decode.
+- Full gate at build time: JSX compile clean, all modules parse, 30 fixtures.
+
 ## v3.7 - header weather + hourly forecast wheel, logo, flat submenu words
 - Header now shows current condition icon + FEELS-LIKE temp (not actual temp)
   left of the sign-in. Tapping it opens a horizontally scrolling forecast

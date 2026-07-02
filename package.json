@@ -6,7 +6,8 @@
     "dev": "next dev",
     "test": "node scripts/test-tags.mjs",
     "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/page.js \"app/p/[id]/page.js\" app/components/MapView.js",
-    "prebuild": "npm run check:jsx && node scripts/test-tags.mjs",
+    "check:dupes": "node scripts/check-dupes.mjs",
+    "prebuild": "npm run check:jsx && npm run check:dupes && node scripts/test-tags.mjs",
     "build": "next build",
     "start": "next start"
   },
