@@ -5,9 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "test": "node scripts/test-tags.mjs",
-    "prebuild": "node scripts/test-tags.mjs",
+    "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/page.js \"app/p/[id]/page.js\" app/components/MapView.js",
+    "prebuild": "npm run check:jsx && node scripts/test-tags.mjs",
     "build": "next build",
     "start": "next start"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5"
   },
   "dependencies": {
     "next": "14.2.5",

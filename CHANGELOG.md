@@ -4,6 +4,34 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v2.8 - permanent two-layer deploy gate
+- prebuild now runs check:jsx (real TypeScript/JSX parse of app/page.js, the
+  share landing page, and MapView with allowJs, the same parser class Vercel
+  uses) AND the 27 trust fixtures. Either failure kills the build before next
+  build starts, locally and on Vercel. No manual validation step remains.
+- typescript pinned as a devDependency so the gate runs identically on Vercel.
+- App code identical to v2.7 (the menu consolidation + JSX structure fix).
+  Deploy this instead of v2.7; the 14-point live checklist applies with the
+  header reading v2.8.
+
+## v2.7 - v2.6 build fix + validator hardening
+- v2.6 never reached production: Vercel's compiler rejected it (the prebuild
+  fixture gate passed, compile failed after, prod stayed safely on v2.5). Root
+  cause: the consolidation splice removed the mood block's outer wrapper open,
+  but that wrapper enclosed the weather card and browse results too, so its
+  close 250 lines later became an orphan. Fixed by restoring the single
+  wrapper open after the new unified control; structure re-pairs identically
+  to the proven v2.5 layout.
+- Local validator was silently broken: tsc refused .jsx without allowJs
+  (TS6504) and the error filter hid the refusal, so "syntax clean" was a no-op
+  and Vercel was the only real JSX parser. Validator now runs with allowJs and
+  reads all compiler errors; it reproduced Vercel's exact failure, then
+  confirmed the fix.
+- lib/package.json declares "type": "module", removing the MODULE_TYPELESS
+  warning from every build log (root next.config.js remains CJS, unaffected).
+- Carries the full v2.6 menu consolidation unchanged; acceptance mapping in
+  the v2.6 entry applies to this build.
+
 ## v2.6 - menu consolidation (the actual one)
 - Home now has ONE decision system. The v2.1 chips row, the "What are you in
   the mood for?" card, the six-icon category grid, and the always-visible meal

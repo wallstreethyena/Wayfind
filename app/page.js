@@ -8,7 +8,7 @@ import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v2.6";
+const BUILD = "v2.8";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4201,6 +4201,7 @@ function PageInner() {
                   </div>
                 );
               })()}
+              <div style={{ marginBottom: 16 }}>
                 {weather && (
                   <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
                     <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 42, width: "auto", flexShrink: 0, display: "block" }} />
