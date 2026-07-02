@@ -4,6 +4,49 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.12 (header: beta) - founder batch + env advisor gate
+- Submenu typography harmonized with the menu tiles: same font, colors, and
+  weight system, one scrolling row. Size is 11px, not the tiles' 9.5px, the
+  one deliberate deviation: text-only items at 9.5px fall below a comfortable
+  tap target; 11px is the floor that keeps touch reliable.
+- Weather is now visually part of the header: the feels-like chip carries a
+  small rotating indicator showing it expands, and the forecast wheel hangs
+  from the header (squared top, attached) instead of floating as a card.
+- Beach day subfilters: Waterfront dining and Parks removed; Parking ("beach
+  parking lots and garages") and Gift shops ("beach shops and souvenir gift
+  stores") added; Marinas kept.
+- Night out subfilters: Cocktails removed; Wine bars replaced by Speakeasy
+  ("speakeasy bars and hidden lounges"). All new queries are real and
+  well-indexed; nothing fake enters the menu.
+- New fourth gate layer: scripts/check-env.mjs prints clear build-log warnings
+  when Supabase or Google keys are missing/malformed. Non-fatal by design
+  (hardened client degrades gracefully); it exists to turn silent config
+  failures into one readable line.
+
+## v3.11 (header: beta) - dead-code sweep + config re-coupled
+- Removed, grep-proven dead: moodOpen/moodAll state, tagsFor (old colored-tag
+  system, zero callers since the v2.0 trust layer), and the three sheet
+  handlers orphaned by the v3.5 menu (openWorthDrive, openMustDos,
+  openOpenNow). openRainy stays (events empty-state uses it). Dormant-feature
+  ledger: Worth the drive / Must-dos / Open now are unreachable by design
+  until the menu regains entries; openRainy is the 5-line template if revived.
+- lib/categories.js is source of truth again: the six home tiles now render
+  from CATEGORY_TILES (zero visual change), and new fixtures pin the tile set,
+  so the regression lock guards the live UI instead of a shadow config.
+- Prod console.log dev-gated; one unused variable removed after a scoped
+  inertness check.
+
+## v3.10 (header: beta) - submenu, final form
+- Subfilters now render as ONE horizontally scrolling row that can never wrap
+  to a second line; nothing was removed to force the fit, the row scrolls.
+- Visual treatment mirrors the category tiles exactly: muted words at rest,
+  accent text + dim fill + accent border when active, same weight system. No
+  pill bubbles, no underlines. Slide-down animation on category tap retained,
+  container height tightened for the single row.
+- Icons on subfilters deliberately omitted (founder delegated the call):
+  12px glyphs for Brunch/Quick bites read as clutter, and the earlier spec was
+  "just the words, like the row above." Additive later if wanted.
+
 ## v3.9 (header: beta) - duplicate moonPhase fixed, gate gains semantic layer
 - Root cause of the failed deploy: v3.7 added a second moonPhase for the
   weather wheel, unaware the codebase already had one (richer: name, emoji,

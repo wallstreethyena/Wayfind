@@ -10,7 +10,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.9";
+const BUILD_ID = "v3.12";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -565,7 +565,6 @@ function experienceBadges(p, selectedKey, max, audit) {
   const lim = max || 3;
   const L = p.labels || [];
   const nm = (p.name || "").toLowerCase();
-  const t = (p.type || "").toLowerCase();
   const q = new Set();
   const hint = (HINTS[p.id] || "").toLowerCase();
   const said = (arr) => arr.some((w) => nm.includes(w) || hint.includes(w));
@@ -655,16 +654,6 @@ function primaryCategory(p) {
   return null;
 }
 
-function tagsFor(p) {
-  const t = [];
-  if (p.rating >= 4.6 && p.reviews >= 300) t.push({ label: "Top rated", color: C.gold });
-  if (p.rating >= 4.3 && p.priceNum != null && p.priceNum <= 2) t.push({ label: "Great value", color: C.green });
-  if (p.reviews >= 2000) t.push({ label: "Very popular", color: C.blue });
-  if (p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600) t.push({ label: "Hidden gem", color: C.purple });
-  if (p.distMi != null && p.distMi <= 5) t.push({ label: "Nearby", color: C.pink });
-  if (p.type) t.push({ label: p.type, color: C.muted, dim: true });
-  return t.slice(0, 5);
-}
 
 // Top 5 ranking medals: 1 gold, 2 silver, 3 to 5 bronze.
 // How much to trust the rating, based purely on how many people rated it.
@@ -2089,9 +2078,7 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
 function PageInner() {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
-  const [moodOpen, setMoodOpen] = useState(false); // inline "what are you in the mood for" accordion
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
-  const [moodAll, setMoodAll] = useState(false); // "All categories" second layer inside the mood card
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
@@ -2210,9 +2197,6 @@ function PageInner() {
   const intentCtx = () => ({ weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) });
   const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
   const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
-  const openMustDos = () => { const pool = dedupePlaces((homeTodo || []).filter((pp) => { const c = Ranking.coarseCat(pp) || primaryCategory(pp); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true); const list = Ranking.rankByConditions(pool, intentCtx()).slice(0, 10); setCuisineSheet({ title: "Tourist must-dos", sub: "The area's signature stops, ranked.", label: "must-do", list }); };
-  const openOpenNow = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => pp.openNow === true && (pp.distMi == null || pp.distMi <= 4)), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Open near you now", sub: "Open right now within a few miles, ranked.", label: "open now", list }); };
-  const openWorthDrive = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => pp.distMi != null && pp.distMi >= 8), intentCtx(), (pp) => (pp.wfScore || 0) + featuredBoost(pp.name)).slice(0, 10); setCuisineSheet({ title: "Worth the drive", sub: "Unusually strong picks 8+ miles out, ranked by quality with no distance penalty.", label: "worth the drive", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
@@ -2816,7 +2800,7 @@ function PageInner() {
       setEventsUnavailable(!!data.unavailable);
       setEventsError(!!data.error);
       setEventCounts(data && data.counts ? data.counts : null);
-      try { if (data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
+      try { if (process.env.NODE_ENV !== "production" && data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
       const evs = data && Array.isArray(data.events) ? data.events : [];
       setEvents(evs);
       if (!data.unavailable && !data.error && evs.length === 0) logEvent("events_none", null, { loc: locName || "", lat: center.lat, lng: center.lng });
@@ -3845,6 +3829,7 @@ function PageInner() {
               <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ marginLeft: "auto", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
                 <span style={{ fontSize: 18 }}>{weather.icon}</span>
                 <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
+                <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
           </div>
@@ -4191,7 +4176,7 @@ function PageInner() {
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
               {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
-                <div style={{ marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: `1px solid ${C.accent}`, borderRadius: 16, padding: "12px 8px 14px", boxShadow: "0 8px 24px rgba(0,0,0,.34)" }}>
+                <div style={{ marginTop: -2, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: `1px solid ${C.accent}`, borderTopWidth: 0, borderRadius: "0 0 16px 16px", padding: "12px 8px 14px", boxShadow: "0 10px 24px rgba(0,0,0,.34)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
                     <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
                     <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
@@ -4226,7 +4211,7 @@ function PageInner() {
                   <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>What are you in the mood for?</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2 }}>
-                  {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
+                  {Cats.CATEGORY_TILES.map((m) => {
                     const on = browseCat === m.id;
                     return (
                       <button key={m.id} onClick={() => { try { logEvent("intent_chip", null, { intent: m.label, layer: 1 }); } catch (e) {} const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 1px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", minWidth: 0 }}>
@@ -4236,10 +4221,10 @@ function PageInner() {
                     );
                   })}
                 </div>
-                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 200 : 0, opacity: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.36s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
-                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 18, flexWrap: "wrap" }}>
+                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 96 : 0, opacity: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.36s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
                     {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
-                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 4px", border: "none", background: "transparent", color: son ? C.accent : C.light, fontSize: 13.5, fontWeight: son ? 800 : 600, cursor: "pointer", whiteSpace: "nowrap", borderBottom: son ? `2px solid ${C.accent}` : "2px solid transparent" }}>{sf.label}</button>
+                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
                     ); })}
                   </div>
                 </div>

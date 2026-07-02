@@ -74,5 +74,8 @@ const _missing = Cats.REQUIRED.filter((r) => !_ids.has(r));
 ok("all core discovery categories present" + (_missing.length ? " (missing: " + _missing.join(", ") + ")" : ""), _missing.length === 0);
 ok("every category has a valid action", [...Cats.INTENTS, ...Cats.DISCOVER].every((x) => Cats.validAct(x.act)));
 
+ok("home renders exactly six category tiles", Cats.CATEGORY_TILES.length === 6);
+ok("tile ids are the canonical six", ["food","nightlife","attractions","beach","hotels","shopping"].every((id, i) => Cats.CATEGORY_TILES[i] && Cats.CATEGORY_TILES[i].id === id));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
