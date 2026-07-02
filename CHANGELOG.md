@@ -4,6 +4,28 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v2.6 - menu consolidation (the actual one)
+- Home now has ONE decision system. The v2.1 chips row, the "What are you in
+  the mood for?" card, the six-icon category grid, and the always-visible meal
+  pills are all removed and replaced by a single primary intent row: Tonight,
+  With kids, Date night, Rainy day, Food, Things to do, Hidden gems, Worth the
+  drive. Contextual subfilters appear ONLY after Food (All/Breakfast/Lunch/
+  Dinner/Coffee/Dessert/Drinks) or Things to do (All/Outdoors/Museums/Family/
+  Tours) is selected; tapping the active pill again clears it.
+- Acceptance test mapping: initial load shows search, one primary row, weather
+  intelligence, Best move hero, feed. No meal pills before Food. No duplicate
+  Food control anywhere on home. Selecting Food or Things to do visibly takes
+  over the feed (hero and Top 10 modules yield to the intent's results) and
+  clears back with one tap.
+- Worth the drive is now honest and live: quality-ranked picks 8+ miles out
+  from the loaded pool, no distance penalty, labeled as such.
+- Staged, not faked: deep per-intent submenus (Toddler friendly, Animals,
+  Shows, Date-night facets) wait until each has a real data mapping; inventing
+  those filters would put unjustified controls on screen, against the trust
+  layer. They will land inside the With kids and Date night screens.
+- Night out / Beach / Stays / Shopping remain reachable on the Explore and Map
+  screens; home is intents, not a category directory.
+
 ## v2.5 - photo compliance + cost guardrail
 - Photo author attributions are now captured from Google (normalize keeps
   photoAttrs/photoAttr) and displayed on large-photo surfaces: a caption in the

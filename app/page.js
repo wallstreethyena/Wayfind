@@ -8,7 +8,7 @@ import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v2.5";
+const BUILD = "v2.6";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2205,6 +2205,7 @@ function PageInner() {
   const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const openMustDos = () => { const pool = dedupePlaces((homeTodo || []).filter((pp) => { const c = Ranking.coarseCat(pp) || primaryCategory(pp); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true); const list = Ranking.rankByConditions(pool, intentCtx()).slice(0, 10); setCuisineSheet({ title: "Tourist must-dos", sub: "The area's signature stops, ranked.", label: "must-do", list }); };
   const openOpenNow = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => pp.openNow === true && (pp.distMi == null || pp.distMi <= 4)), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Open near you now", sub: "Open right now within a few miles, ranked.", label: "open now", list }); };
+  const openWorthDrive = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => pp.distMi != null && pp.distMi >= 8), intentCtx(), (pp) => (pp.wfScore || 0) + featuredBoost(pp.name)).slice(0, 10); setCuisineSheet({ title: "Worth the drive", sub: "Unusually strong picks 8+ miles out, ranked by quality with no distance penalty.", label: "worth the drive", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
@@ -4164,58 +4165,42 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {/* v2.1: intent-first entry. "What are you trying to do right now?" Each chip opens an existing surface or a ranked quick list from loaded data. */}
-              {!browseCat && (
-                <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 12px", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                  {[
-                    { l: "Tonight", a: () => setScreen("events") },
-                    { l: "With kids", a: () => openExperience("family") },
-                    { l: "Date night", a: () => openExperience("romantic") },
-                    { l: "Rainy day", a: openRainy },
-                    { l: "Cheap eats", a: () => openExperience("value") },
-                    { l: "Hidden gems", a: () => openExperience("gem") },
-                    { l: "Must-dos", a: openMustDos },
-                    { l: "Open now", a: openOpenNow },
-                  ].map((c) => (
-                    <button key={c.l} onClick={() => { try { logEvent("intent_chip", null, { intent: c.l }); } catch (e) {} c.a(); }} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.l}</button>
-                  ))}
-                </div>
-              )}
-              {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
-              <div style={{ marginBottom: 16 }}>
-                <button onClick={() => setMoodOpen((v) => !v)} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
-                  <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
-                    <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
-                  </span>
-                  <div style={{ textAlign: "left" }}>
-                    <div style={{ fontSize: 17, fontWeight: 800 }}>What are you in the mood for?</div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Food, nightlife, beaches, and more</div>
+              {/* v2.6: ONE decision system. A single primary intent row; contextual
+                  subfilters appear only after Food or Things to do is selected. This
+                  consolidates the old stack (chips row + mood card + category grid +
+                  always-visible meal pills) into one clear decision path. */}
+              {(() => {
+                const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+                const PRIMARY = [
+                  { id: "tonight", l: "Tonight", go: () => setScreen("events") },
+                  { id: "kids", l: "With kids", go: () => openExperience("family") },
+                  { id: "date", l: "Date night", go: () => openExperience("romantic") },
+                  { id: "rainy", l: "Rainy day", go: openRainy },
+                  { id: "food", l: "Food", cat: "food" },
+                  { id: "todo", l: "Things to do", cat: "attractions" },
+                  { id: "gems", l: "Hidden gems", go: () => openExperience("gem") },
+                  { id: "drive", l: "Worth the drive", go: openWorthDrive },
+                ];
+                return (
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 2px", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                      {PRIMARY.map((c) => {
+                        const on = c.cat ? browseCat === c.cat : false;
+                        return (
+                          <button key={c.id} onClick={() => { try { logEvent("intent_chip", null, { intent: c.l }); } catch (e) {} if (c.cat) pickBrowse(c.cat); else c.go(); }} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: on ? C.adim : C.card, border: `1px solid ${on ? C.accent : C.border}`, color: on ? C.accent : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.l}{on ? "  ✕" : ""}</button>
+                        );
+                      })}
+                    </div>
+                    {browseCat && (SUBFILTERS[browseCat] || []).length > 1 && (
+                      <div style={{ display: "flex", gap: 7, overflowX: "auto", marginTop: 9, paddingLeft: 2, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                        {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
+                          <button key={sf.id} onClick={() => setSub(sf.id)} style={{ flexShrink: 0, padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
+                        ); })}
+                      </div>
+                    )}
                   </div>
-                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: moodOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.28s ease" }}>›</span>
-                </button>
-                <div style={{ overflow: "hidden", maxHeight: moodOpen ? 170 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
-                  <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 4px" }}>
-                    {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
-                      const on = browseCat === m.id;
-                      return (
-                        <button key={m.id} onClick={() => { const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
-                          <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
-                          <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                {/* v6.22: the tapped category's sub-menu slides down here. Flat outlined chips, "All" selected by default, tapping one re-fetches the feed below. Beach has no sub-menu, so nothing drops. */}
-                <div style={{ overflow: "hidden", maxHeight: (moodOpen && browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 56 : 0, opacity: (moodOpen && browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.30s cubic-bezier(.4,0,.2,1), opacity 0.24s ease" }}>
-                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2 }}>
-                    {(SUBFILTERS[browseCat] || []).map((s) => { const son = sub === s.id; return (
-                      <button key={s.id} onClick={() => setSub(s.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{s.label}</button>
-                    ); })}
-                  </div>
-                </div>
-                {/* v6.13: the "Discover" 4-tile grid was removed. It was redundant: Surprise = the dice (in feed + mood menu), Nearby = the feed + category browse, Events = bottom nav. The one non-redundant entry, Occasions, now lives behind the mood button so it is not orphaned. One door to explore, the feed below it. */}
+                );
+              })()}
                 {weather && (
                   <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
                     <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 42, width: "auto", flexShrink: 0, display: "block" }} />
