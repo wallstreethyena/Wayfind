@@ -1861,7 +1861,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
   const photo = place && place.photo;
   const tiles = (collage || []).filter(Boolean).slice(0, 4);
   return (
-    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 187, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 163, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
       {h.brand
         ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
         : tiles.length >= 2
@@ -1869,7 +1869,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
         : photo
         ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
         : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.88) 100%)" }} />
+      <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 12%, ${acc}26 100%), linear-gradient(180deg, rgba(13,17,23,.32) 0%, rgba(13,17,23,.7) 38%, rgba(13,17,23,.93) 66%, #0D1117 100%)` }} />
       <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
@@ -1892,11 +1892,13 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
           )}
         </div>
       </div>
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-        <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 5, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
-        <div style={{ fontSize: 13.5, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.34, marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.subtitle || wittyLine(place) || h.detail}</div>
-        {h.metaLine && <div style={{ marginBottom: 9 }}><span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 800, color: "#fff", background: "rgba(0,0,0,.42)", border: "1px solid rgba(255,255,255,.3)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>{h.metaLine}</span></div>}
-        <div style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px" }}>{h.cta || "See more →"}</div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 13px 12px" }}>
+        <div style={{ fontSize: 17.5, fontWeight: 800, color: "#fff", lineHeight: 1.16, marginBottom: 3, letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{renderHookText(h.hook, h.highlightWord, acc)}</div>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,.9)", lineHeight: 1.3, marginBottom: 9, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{h.subtitle || wittyLine(place) || h.detail}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 15px" }}>{h.cta || "See more →"}</span>
+          {h.metaLine && <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 800, color: "#fff", background: "rgba(0,0,0,.5)", border: "1px solid rgba(255,255,255,.28)", borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>{h.metaLine}</span>}
+        </div>
       </div>
     </div>
   );
@@ -2083,6 +2085,8 @@ function PageInner() {
     const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
     setCuisineSheet({ label, list });
   };
+  const [top10Open, setTop10Open] = useState(false);
+  const [food10Open, setFood10Open] = useState(false);
   const [hookDetail, setHookDetail] = useState(null);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
@@ -4061,19 +4065,24 @@ function PageInner() {
                     <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
                   </div>
                 );
-                const card = (title, sub, list) => (list.length >= 3 ? (
+                const card = (title, sub, list, open, onToggle) => (list.length >= 3 ? (
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 14px", marginBottom: 16 }}>
-                    <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 2, gap: 8 }}>
-                      <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
-                      <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
+                    <div onClick={onToggle} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer" }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
+                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
+                        <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
+                        <span style={{ fontSize: 15, color: C.muted, display: "inline-block", transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+                      </div>
                     </div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginBottom: 6, lineHeight: 1.35 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
-                    {list.map((p, i) => row(p, i, list.length))}
+                    {open && <div style={{ marginTop: 8 }}>{list.map((p, i) => row(p, i, list.length))}</div>}
                   </div>
                 ) : null);
                 return (<>
-                  {card("🧭 Top 10 near " + cityN, "The best spots right now, ranked by quality, distance, weather and time of day.", top10)}
-                  {card("🍽️ Top 10 food near " + cityN, "The best places to eat right now, ranked.", food10)}
+                  {card("🧭 Top 10 near " + cityN, "The best spots right now, ranked by quality, distance, weather and time of day.", top10, top10Open, () => setTop10Open((v) => !v))}
+                  {card("🍽️ Top 10 food near " + cityN, "The best places to eat right now, ranked.", food10, food10Open, () => setFood10Open((v) => !v))}
                 </>);
               })()}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
@@ -4156,7 +4165,7 @@ function PageInner() {
                       const rel = relLabel(featured);
                       const acc = C.purple;
                       return (
-                        <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 167, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
+                        <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 145, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
                           <EventHeroBg image={featured.image} acc={acc} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                           <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
@@ -4167,7 +4176,7 @@ function PageInner() {
                             {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><span style={{ fontSize: 11 }}>{seg.icon}</span><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
                           </div>
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 5, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
                             <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) window.open(ticketUrl(featured.url), "_blank", "noopener"); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
                           </div>
