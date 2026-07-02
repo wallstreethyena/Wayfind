@@ -9,7 +9,7 @@ import * as Tags from "../lib/tags";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v3.2";
+const BUILD = "v3.5";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4167,56 +4167,37 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {/* v3.2: the original menu, back and pinned. Always expanded, sticky at the
-                  top like the bottom nav; content scrolls underneath. Tapping a category
-                  slides its submenu down (animated, no pop). Premium gradient shell. */}
-              <div style={{ position: "sticky", top: 0, zIndex: 40, margin: "0 -16px", padding: "8px 16px 12px", background: `linear-gradient(180deg, ${C.bg} 0%, ${C.bg} 84%, rgba(13,17,23,0) 100%)` }}>
-                <div style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, display: "flex", alignItems: "center", gap: 14, padding: "12px 16px" }}>
-                  <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
-                    <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
+              {/* v3.5: one box. Six icon tiles exposed at top (Food, Night out, Things to
+                  do, Beach day, Stays, Shopping). Tapping a category slides its subfilters
+                  down INSIDE the same box, in the same tile visual language (icon-less pills
+                  that match the top row's weight); tapping again collapses. Inline in normal
+                  flow, no sticky, no bleed. "In the mood for" folded in as a soft header. */}
+              <div style={{ marginBottom: 10, background: `linear-gradient(158deg, ${C.adim}66 0%, ${C.panel} 60%)`, border: `1.5px solid ${C.accent}`, borderRadius: 18, padding: "12px 12px 14px", boxShadow: `0 8px 24px rgba(0,0,0,.32)` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
+                  <span style={{ position: "relative", width: 24, height: 24, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ position: "absolute", inset: -4, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
+                    <svg width="19" height="19" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative" }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
                   </span>
-                  <div style={{ textAlign: "left" }}>
-                    <div style={{ fontSize: 17, fontWeight: 800 }}>What are you in the mood for?</div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Food, nightlife, beaches, and more</div>
-                  </div>
-                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: "rotate(90deg)" }}>›</span>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>What are you in the mood for?</div>
                 </div>
-                <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2, background: `linear-gradient(165deg, ${C.adim}44 0%, ${C.panel} 55%)`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 4px", boxShadow: "0 10px 26px rgba(0,0,0,.38)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2 }}>
                   {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
                     const on = browseCat === m.id;
                     return (
-                      <button key={m.id} onClick={() => { try { logEvent("intent_chip", null, { intent: m.label, layer: 1 }); } catch (e) {} const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
+                      <button key={m.id} onClick={() => { try { logEvent("intent_chip", null, { intent: m.label, layer: 1 }); } catch (e) {} const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 1px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", minWidth: 0 }}>
                         <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
                         <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
                       </button>
                     );
                   })}
                 </div>
-                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 120 : 0, opacity: browseCat ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
-                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2, paddingBottom: 2 }}>
+                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 200 : 0, opacity: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.36s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
                     {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
-                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
+                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "8px 15px", borderRadius: 10, border: `1px solid ${son ? C.accent : C.border}`, background: son ? C.adim : C.card, color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
                     ); })}
                   </div>
                 </div>
-              </div>
-              <div style={{ marginBottom: 16 }}>
-                {weather && (
-                  <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
-                    <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 42, width: "auto", flexShrink: 0, display: "block" }} />
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
-                      {(() => { const t = wayfindWeatherTake(weather); return t && t.good && t.good.length ? <div style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>Good for {t.good.slice(0, 2).join(" and ")}</div> : null; })()}
-                      <div style={{ fontSize: 11.5, color: C.text, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weather.label || ""}{weather.hi != null && weather.lo != null ? ` · H ${weather.hi}° L ${weather.lo}°` : ""}</div>
-                    </div>
-                    <div style={{ marginLeft: "auto", display: "flex", gap: 14, alignItems: "center", flexShrink: 0 }}>
-                      {weather.feels != null && (<div style={{ textAlign: "center" }}><div style={{ fontSize: 9.5, color: C.muted, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.4px" }}>Feels</div><div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, marginTop: 1 }}>{weather.feels}°</div></div>)}
-                      {weather.rain != null && (<div style={{ textAlign: "center" }}><div style={{ fontSize: 9.5, color: C.muted, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.4px" }}>Rain</div><div style={{ fontSize: 14.5, fontWeight: 800, color: weather.rain >= 50 ? C.blue : C.text, marginTop: 1 }}>{weather.rain}%</div></div>)}
-                      <span style={{ color: C.muted, fontSize: 18 }}>›</span>
-                    </div>
-                  </button>
-                )}
               </div>
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (

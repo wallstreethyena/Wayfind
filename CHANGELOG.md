@@ -4,6 +4,48 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.5 (beta) - one-box exposed menu, expanded subcategories
+- Single rounded panel. Six icon tiles (Food, Night out, Things to do, Beach
+  day, Stays, Shopping) exposed at the top, always visible. "What are you in
+  the mood for?" folded in as a soft one-line header inside the same box.
+- Tapping a category slides its subfilters down INSIDE the box, above a divider,
+  in the same visual language as the tiles; tapping the category again
+  collapses. Inline in normal flow: no sticky, no negative-margin bleed, so the
+  page stays square (the v3.2 sideways bug stays fixed).
+- Subcategories expanded to real, queryable sets across all six:
+  Food: All/Breakfast/Brunch/Lunch/Dinner/Quick bites/Coffee/Dessert/Drinks.
+  Night out: All/Bars/Clubs/Cocktails/Wine bars/Karaoke/Sports bars/Live music.
+  Things to do: All/Outdoors/Museums/Family/Tours/Landmarks/Arts.
+  Beach day: All/Beaches/Waterfront dining/Parks/Marinas (new set).
+  Stays: All/Luxury/Budget/Beach/Boutique.
+  Shopping: All/Malls/Boutiques/Markets/Outlets.
+  Every subfilter maps to a real Google Places query, none padded with tags
+  that would return junk.
+
+## v3.4 - Option B: premium mood card + icon tiles, slide-down chip subfilters
+- Restored the "What are you in the mood for?" card and the six icon tiles
+  (Food, Night out, Things to do, Beach day, Stays, Shopping) as two stacked
+  rounded panels, matching the founder's reference screenshot.
+- Rendered INLINE in normal flow: no sticky positioning, no negative-margin
+  edge bleed. This is the correct fix for the v3.2 sideways-shift bug, which
+  was caused by a -16px margin with no matching container padding.
+- Card is the visual anchor (decorative); the six tiles are the controls.
+  Tapping a category slides its subfilters down as rounded chip-bubble pills
+  (styled like the Top-10 expandable cards); tapping the same category again
+  collapses them. Animated max-height, no pop.
+- Two separate boxes as in the reference, not merged. Category taps log
+  intent_chip so analytics continue.
+
+## v3.3 - revert to plain category chips, fix sideways layout
+- Removed the sticky pinned menu that shifted the page off-axis. Root cause:
+  the bar used a -16px bleed margin with no matching container padding, so it
+  pushed the column sideways and caused horizontal scroll. Gone.
+- Removed the "What are you in the mood for?" header line entirely.
+- Removed the six icon/sticker tiles. Categories are now a plain horizontal
+  row of text chips (Food, Night out, Things to do, Beach day, Stays,
+  Shopping) that scrolls sideways; tap one to browse and reveal its subfilters,
+  tap again to clear. Nothing sticky, nothing bleeding to the edges.
+
 ## v3.2 - the original menu, pinned (founder direction)
 - The original "What are you in the mood for?" card and six-tile grid (Food,
   Night out, Things to do, Beach day, Stays, Shopping) are restored verbatim
