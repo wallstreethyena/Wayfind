@@ -9,7 +9,7 @@ import * as Tags from "../lib/tags";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v3.5";
+const BUILD = "v3.7";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -375,6 +375,27 @@ function picksHeader(cat) {
 
 // WMO weather code to a small icon and word. Used with the free, keyless
 // Open-Meteo API so Wayfind can show local weather and reason about it.
+function moonPhase(ms) {
+  // Deterministic phase from a known new moon (2000-01-06 18:14 UTC), synodic month 29.53059d.
+  const syn = 29.530588853;
+  const days = (ms - Date.UTC(2000, 0, 6, 18, 14)) / 86400000;
+  let age = days % syn; if (age < 0) age += syn;
+  const f = age / syn;
+  if (f < 0.03 || f > 0.97) return { icon: "\uD83C\uDF11", label: "New moon" };
+  if (f < 0.22) return { icon: "\uD83C\uDF12", label: "Waxing crescent" };
+  if (f < 0.28) return { icon: "\uD83C\uDF13", label: "First quarter" };
+  if (f < 0.47) return { icon: "\uD83C\uDF14", label: "Waxing gibbous" };
+  if (f < 0.53) return { icon: "\uD83C\uDF15", label: "Full moon" };
+  if (f < 0.72) return { icon: "\uD83C\uDF16", label: "Waning gibbous" };
+  if (f < 0.78) return { icon: "\uD83C\uDF17", label: "Last quarter" };
+  return { icon: "\uD83C\uDF18", label: "Waning crescent" };
+}
+function hourIcon(code, isDay, ms) {
+  // At night, clear/partly conditions show the actual moon phase; precip keeps its icon.
+  const w = weatherFromCode(code);
+  if (!isDay && (code === 0 || code === 1 || code === 2)) { const m = moonPhase(ms); return { icon: m.icon, label: m.label }; }
+  return { icon: w.icon, label: w.label };
+}
 function weatherFromCode(code) {
   const c = Number(code);
   if (c === 0) return { icon: "☀️", img: "sunny", label: "Clear", warm: true };
@@ -2086,6 +2107,7 @@ function PageInner() {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
   const [moodOpen, setMoodOpen] = useState(false); // inline "what are you in the mood for" accordion
+  const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const [moodAll, setMoodAll] = useState(false); // "All categories" second layer inside the mood card
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
@@ -3099,7 +3121,7 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,sunrise,uv_index_max&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`);
+        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,sunrise,uv_index_max&hourly=temperature_2m,apparent_temperature,weather_code,is_day&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=2`);
         const d = await r.json();
         const cur = d && d.current ? d.current : null;
         const day = d && d.daily ? d.daily : null;
@@ -3121,6 +3143,18 @@ function PageInner() {
             uv: day && day.uv_index_max ? Math.round(day.uv_index_max[0]) : null,
             sunset, sunsetMs, sunriseMs, updated,
             icon: w.icon, img: w.img, label: w.label, warm: w.warm, wet: w.wet,
+            hourly: (() => {
+              try {
+                const h = d.hourly; if (!h || !h.time) return [];
+                const now = Date.now(); const out = [];
+                for (let i = 0; i < h.time.length; i++) {
+                  const t = new Date(h.time[i]).getTime();
+                  if (t < now - 3600000) continue;
+                  out.push({ ms: t, feels: h.apparent_temperature != null ? Math.round(h.apparent_temperature[i]) : Math.round(h.temperature_2m[i]), code: h.weather_code[i], day: h.is_day ? !!h.is_day[i] : true });
+                }
+                return out.filter((_, i) => i % 3 === 0).slice(0, 7);
+              } catch (e) { return []; }
+            })(),
           });
         }
       } catch { if (!cancelled) setWeather(null); }
@@ -3821,9 +3855,15 @@ function PageInner() {
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <img src="/wordmark.png" alt="wayfind" onClick={openSuggested} style={{ height: 30, width: "auto", display: "block", cursor: "pointer" }} />
+            <img src="/wordmark.png" alt="wayfind" onClick={openSuggested} style={{ height: 34, width: "auto", display: "block", cursor: "pointer" }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
             <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginLeft: 6, flexShrink: 0, opacity: 0.65 }}>{BUILD}</span>
+            {weather && weather.feels != null && (
+              <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ marginLeft: "auto", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
+                <span style={{ fontSize: 18 }}>{weather.icon}</span>
+                <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
+              </button>
+            )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {supabase && (user ? (
@@ -4167,6 +4207,28 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
+              {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
+                <div style={{ marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: `1px solid ${C.accent}`, borderRadius: 16, padding: "12px 8px 14px", boxShadow: "0 8px 24px rgba(0,0,0,.34)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
+                    <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
+                    {weather.hourly.map((h, idx) => {
+                      const hi = hourIcon(h.code, h.day, h.ms);
+                      const dt = new Date(h.ms);
+                      const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
+                      return (
+                        <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 62, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.accent : "transparent"}` }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.accent : C.muted, marginBottom: 5 }}>{tl}</div>
+                          <div style={{ fontSize: 23, lineHeight: 1, marginBottom: 5 }}>{hi.icon}</div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{h.feels}°</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {/* v3.5: one box. Six icon tiles exposed at top (Food, Night out, Things to
                   do, Beach day, Stays, Shopping). Tapping a category slides its subfilters
                   down INSIDE the same box, in the same tile visual language (icon-less pills
@@ -4192,9 +4254,9 @@ function PageInner() {
                   })}
                 </div>
                 <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 200 : 0, opacity: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.36s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
-                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 18, flexWrap: "wrap" }}>
                     {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
-                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "8px 15px", borderRadius: 10, border: `1px solid ${son ? C.accent : C.border}`, background: son ? C.adim : C.card, color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
+                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 4px", border: "none", background: "transparent", color: son ? C.accent : C.light, fontSize: 13.5, fontWeight: son ? 800 : 600, cursor: "pointer", whiteSpace: "nowrap", borderBottom: son ? `2px solid ${C.accent}` : "2px solid transparent" }}>{sf.label}</button>
                     ); })}
                   </div>
                 </div>

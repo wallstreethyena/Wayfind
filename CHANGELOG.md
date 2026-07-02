@@ -4,6 +4,30 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.7 - header weather + hourly forecast wheel, logo, flat submenu words
+- Header now shows current condition icon + FEELS-LIKE temp (not actual temp)
+  left of the sign-in. Tapping it opens a horizontally scrolling forecast
+  strip: next 18 hours in 3-hour steps, feels-like per cell, snap-scrolling.
+  Data is real (Open-Meteo hourly, newly requested; forecast_days=2 so late
+  hours resolve). At night, clear/partly cells show the actual MOON PHASE
+  (computed from date); precip keeps its own icon.
+- Honest limit: iOS Safari ignores the web Vibration API, so there is no
+  physical haptic "clack" on iPhone. The strip snap-scrolls and reads tactile
+  but the phone will not buzz; that is a browser constraint, not a bug.
+- Logo enlarged (30->34px).
+- Submenu subfilters flattened: when a category expands, subfilters render as
+  clean underlined words (active = accent + underline), not outlined bubble
+  chips, matching the tile row above.
+- Pin note: the header wordmark is a baked PNG, so its i-dot pixels cannot be
+  restyled in code; the mood-card pin remains the accent teardrop. If you want
+  the header pin changed, that is a logo-file swap, not a code change.
+
+## v3.6 - trim Food subfilters
+- Removed Coffee, Dessert, and Drinks from the Food subfilter row per request.
+  Food is now: All, Breakfast, Brunch, Lunch, Dinner, Quick bites. Those
+  removed queries still exist elsewhere (Coffee has its own signals; Drinks
+  overlaps Night out), just not as Food chips. Reversible if wanted back.
+
 ## v3.5 (beta) - one-box exposed menu, expanded subcategories
 - Single rounded panel. Six icon tiles (Food, Night out, Things to do, Beach
   day, Stays, Shopping) exposed at the top, always visible. "What are you in
