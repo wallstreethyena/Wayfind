@@ -8,7 +8,7 @@ import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v2.8";
+const BUILD = "v3.0";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4165,39 +4165,53 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {/* v2.6: ONE decision system. A single primary intent row; contextual
-                  subfilters appear only after Food or Things to do is selected. This
-                  consolidates the old stack (chips row + mood card + category grid +
-                  always-visible meal pills) into one clear decision path. */}
+              {/* v3.0: the mood card IS the menu. One premium selector: collapsed it asks the question (or shows the active intent), expanded it offers the intents, and Food / Things to do reveal their subfilters inside the same panel. No duplicate chip row, no grid, no stacked systems. */}
               {(() => {
                 const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
-                const PRIMARY = [
-                  { id: "tonight", l: "Tonight", go: () => setScreen("events") },
-                  { id: "kids", l: "With kids", go: () => openExperience("family") },
-                  { id: "date", l: "Date night", go: () => openExperience("romantic") },
-                  { id: "rainy", l: "Rainy day", go: openRainy },
+                const go = (label, fn, collapse) => { try { logEvent("intent_chip", null, { intent: label }); } catch (e) {} if (collapse) setMoodOpen(false); fn(); };
+                const INTENTS = [
+                  { id: "tonight", l: "Tonight", act: () => go("Tonight", () => setScreen("events"), true) },
                   { id: "food", l: "Food", cat: "food" },
                   { id: "todo", l: "Things to do", cat: "attractions" },
-                  { id: "gems", l: "Hidden gems", go: () => openExperience("gem") },
-                  { id: "drive", l: "Worth the drive", go: openWorthDrive },
+                  { id: "kids", l: "With kids", act: () => go("With kids", () => openExperience("family"), true) },
+                  { id: "date", l: "Date night", act: () => go("Date night", () => openExperience("romantic"), true) },
+                  { id: "rainy", l: "Rainy day", act: () => go("Rainy day", openRainy, false) },
+                  { id: "gems", l: "Hidden gems", act: () => go("Hidden gems", () => openExperience("gem"), true) },
+                  { id: "drive", l: "Worth the drive", act: () => go("Worth the drive", openWorthDrive, false) },
                 ];
+                const city = locName ? locName.split(",")[0] : "you";
+                const activeLabel = browseCat === "food" ? "Food" : browseCat === "attractions" ? "Things to do" : null;
+                const subs = browseCat ? (SUBFILTERS[browseCat] || []) : [];
+                const subPick = browseCat && sub !== "all" ? (subs.find((x) => x.id === sub) || {}).label : null;
+                const title = activeLabel ? activeLabel + " near " + city + (subPick ? " · " + subPick : "") : "What are you in the mood for?";
+                const subtitle = activeLabel ? subs.filter((x) => x.id !== "all").map((x) => x.label).join(", ") : "Tonight, food, things to do, date night, and more";
                 return (
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 2px", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                      {PRIMARY.map((c) => {
-                        const on = c.cat ? browseCat === c.cat : false;
-                        return (
-                          <button key={c.id} onClick={() => { try { logEvent("intent_chip", null, { intent: c.l }); } catch (e) {} if (c.cat) pickBrowse(c.cat); else c.go(); }} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: on ? C.adim : C.card, border: `1px solid ${on ? C.accent : C.border}`, color: on ? C.accent : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.l}{on ? "  ✕" : ""}</button>
-                        );
-                      })}
-                    </div>
-                    {browseCat && (SUBFILTERS[browseCat] || []).length > 1 && (
-                      <div style={{ display: "flex", gap: 7, overflowX: "auto", marginTop: 9, paddingLeft: 2, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                        {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
-                          <button key={sf.id} onClick={() => setSub(sf.id)} style={{ flexShrink: 0, padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
+                  <div style={{ marginBottom: 16 }}>
+                    <button onClick={() => setMoodOpen((v) => !v)} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
+                      <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
+                        <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
+                      </span>
+                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 17, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
+                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{subtitle}</div>
+                      </div>
+                      <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: moodOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.28s ease", flexShrink: 0 }}>›</span>
+                    </button>
+                    <div style={{ overflow: "hidden", maxHeight: moodOpen ? 220 : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 12px" }}>
+                        {INTENTS.map((c) => { const on = c.cat ? browseCat === c.cat : false; return (
+                          <button key={c.id} onClick={() => { if (c.cat) { try { logEvent("intent_chip", null, { intent: c.l }); } catch (e) {} pickBrowse(c.cat); } else c.act(); }} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: on ? C.adim : C.card, border: `1px solid ${on ? C.accent : C.border}`, color: on ? C.accent : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.l}{on ? "  ✕" : ""}</button>
                         ); })}
                       </div>
-                    )}
+                    </div>
+                    <div style={{ overflow: "hidden", maxHeight: (moodOpen && subs.length > 1) ? 120 : 0, opacity: (moodOpen && subs.length > 1) ? 1 : 0, transition: "max-height 0.30s cubic-bezier(.4,0,.2,1), opacity 0.24s ease" }}>
+                      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2 }}>
+                        {subs.map((sf) => { const son = sub === sf.id; return (
+                          <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
+                        ); })}
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
@@ -5103,53 +5117,10 @@ function PageInner() {
             </div>
             <div style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
               {/* 1. Basics */}
-              {detail._event && (() => {
-                const ef = formatEventDate(detail._event.date, detail._event.time);
-                const human = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (ef.time || [detail._event.date, detail._event.time].filter(Boolean).join(" · "));
-                const url = detail._event.url || "";
-                const hasTickets = /ticket|seatgeek|stubhub|axs|livenation|eventbrite/i.test(url);
-                const place = locName ? locName.split(",")[0] : "you";
-                const why = [];
-                if (detail.rating != null) why.push("★ " + detail.rating + " venue"); else why.push("at " + detail.name);
-                if (detail.distMi != null) why.push(detail.distMi.toFixed(1) + " mi from " + place);
-                return (
-                  <div style={{ border: `1.5px solid ${C.accent}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
-                    <div style={{ padding: "14px 15px" }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Know before you go</div>
-                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3, marginBottom: 8 }}>Event time from the venue listing.</div>
-                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>🎟️ Upcoming event</div>
-                      <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{detail._event.name}</div>
-                      {human && <div style={{ fontSize: 14, fontWeight: 800, color: C.accent, marginTop: 7 }}>{human}</div>}
-                      <div style={{ fontSize: 13, color: C.light, marginTop: 5 }}>📍 {detail.name}{detail.distMi != null ? " · " + detail.distMi.toFixed(1) + " mi" : ""}</div>
-                      {why.length > 0 && <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 7 }}>{why.join(", ") + "."}</div>}
-                      {url && <a href={url} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", marginTop: 12, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{hasTickets ? "Get tickets ↗" : "View event ↗"}</a>}
-                    </div>
-                  </div>
-                );
-              })()}
-              {!detail._event && (() => {
-                const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                const A = (v) => Array.isArray(v) ? v.filter((x) => x && String(x).trim()) : [];
-                const verdict = (ins && ins.verdict && String(ins.verdict).trim()) ? ins.verdict
-                  : (detail.rating != null && detail.rating >= 4.3 ? "A highly reviewed nearby option with a strong rating." : "Worth a look while you are nearby.");
-                const bestFor = ins ? A(ins.bestFor) : [];
-                const goWhen = ins ? ((ins.goWhen && String(ins.goWhen).trim()) || (ins.bestTime && String(ins.bestTime).trim()) || "") : "";
-                const skipIf = ins && ins.skipIf && String(ins.skipIf).trim() ? ins.skipIf : "";
-                const Row = (label, value) => (
-                  <div style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 13.5, lineHeight: 1.4 }}>
-                    <span style={{ color: C.muted, fontWeight: 800, flexShrink: 0 }}>{label}</span>
-                    <span style={{ color: C.text }}>{value}</span>
-                  </div>
-                );
-                return (
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, lineHeight: 1.36, marginBottom: (bestFor.length || goWhen || skipIf) ? 10 : 0, letterSpacing: "-0.2px" }}><span style={{ color: C.accent }}>Wayfind verdict: </span>{verdict}</div>
-                    {bestFor.length > 0 && Row("Best for", bestFor.slice(0, 4).join(", "))}
-                    {goWhen && Row("Go when", goWhen)}
-                    {skipIf && Row("Skip if", skipIf)}
-                  </div>
-                );
-              })()}
+
+              {detail.address && (
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
+              )}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.accent, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
@@ -5174,65 +5145,12 @@ function PageInner() {
                   <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open now" : "Closed"}</span>
                 </>))}
                 {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light }}>{detail.distMi.toFixed(1)} mi</span></>)}
-                {detail.priceNum != null ? (<><span style={{ color: C.border }}>·</span><PriceMeter level={detail.priceNum} word /></>) : (detail.price && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>))}
+                {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light, fontWeight: 700 }}>{cz}</span></>) : null; })()}
+                {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (detail.price) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>); return null; })()}
               </div>
               {!detail._event && Tags.requiresParkAdmission(detail.types) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
               )}
-              {/* What it is and what it costs: the two things missing when you cannot decide. */}
-              {!detail._event && (() => {
-                const cz = Dining.cuisineLabel(detail);
-                const isDining = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || "");
-                if (!cz && !isDining) return null;
-                const cost = Dining.costForTwo(detail);
-                return (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: -4, marginBottom: 14 }}>
-                    {cz && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "4px 11px" }}>{cz}</span>}
-                    {isDining && <span title={cost.real ? "From Google's price range" : (cost.listed ? "Estimated from the price tier" : "Google lists no price for this spot")} style={{ fontSize: 12.5, fontWeight: 700, color: cost.listed ? C.green : C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 11px", whiteSpace: "nowrap" }}>{cost.text}</span>}
-                  </div>
-                );
-              })()}
-              {/* Primary actions, one global order: Directions leads, Save is secondary. Open state already shows in the status row. */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                {detail._event && detail._event.url ? (<>
-                  <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "12px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
-                  <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 14.5, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                </>) : (<>
-                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "12px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                <button onClick={() => quickSaveFavorite(detail)} style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}><svg width="15" height="15" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>{isSaved(detail.id) ? "Saved ✓" : "Save"}</button>
-                </>)}
-                <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share" style={{ flexShrink: 0, width: 46, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-              </div>
-              {!detail._event && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  <button onClick={(e) => toggleLike(e, detail)} style={{ flex: 1, padding: "10px 0", background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>Like</button>
-                  <button onClick={(e) => toggleDislike(e, detail)} style={{ flex: 1, padding: "10px 0", background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 0, marginRight: 6, verticalAlign: "-2px", transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>Not for me</button>
-                </div>
-              )}
-              {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
-                  {insightFull.mustTry.filter((x) => x && String(x).trim()).slice(0, 3).map((d, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 5 }}>
-                      <span style={{ color: C.accent, fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>{d}</span>
-                    </div>
-                  ))}
-                  {insightFull.pairing && String(insightFull.pairing).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Pairs well: </span>{insightFull.pairing}</div>}
-                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>From what reviewers mention most.</div>
-                </div>
-              )}
-              {detail.address && (
-                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
-              )}
-              {!detail._event && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your note</div>
-                  <textarea key={detail.id} ref={noteRef} defaultValue={placeNotes[detail.id] || ""} placeholder="Add your own review or notes. Saved on your device and shown here whenever you open this place." rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
-                  <button onClick={savePlaceNote} style={{ marginTop: 8, padding: "8px 16px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 10, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save note</button>
-                </div>
-              )}
-
               {hoursOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
                   {detailExtra && detailExtra.hours && detailExtra.hours.length > 0 ? (
@@ -5252,19 +5170,111 @@ function PageInner() {
                 </div>
               )}
 
+              {/* Action dock: one row. Directions (or Get tickets for events) is the single primary; everything else is a quiet icon. */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "stretch" }}>
+                {detail._event && detail._event.url ? (
+                  <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
+                ) : (
+                  <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                )}
+                {detail._event && detail._event.url && (
+                  <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
+                )}
+                {!detail._event && (<>
+                  <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
+                  <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 46, background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
+                  <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
+                </>)}
+                <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+              </div>
+              {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
+              <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
+                {insightLoading && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
+                    <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
+                    Reading the reviews
+                  </div>
+                )}
+                {!insightLoading && (() => {
+                  const ins = insight && !insight.error && !insight.unavailable ? insight : null;
+                  const S = (v) => (v && String(v).trim()) ? String(v).trim() : "";
+                  const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
+                  let why = ins ? S(ins.why) : "";
+                  if (!why && ins) {
+                    const goWhen = S(ins.goWhen) || S(ins.bestTime);
+                    const skipIf = S(ins.skipIf);
+                    why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
+                  }
+                  if (!why) why = detail.rating != null && detail.rating >= 4.3 ? "A highly reviewed nearby option with a strong rating." : "Worth a look while you are nearby.";
+                  return <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{why}</div>;
+                })()}
+              </div>
+              {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
+                  {insightFull.mustTry.filter((x) => x && String(x).trim()).slice(0, 3).map((d, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 5 }}>
+                      <span style={{ color: C.accent, fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{i + 1}</span>
+                      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>{d}</span>
+                    </div>
+                  ))}
+                  {insightFull.pairing && String(insightFull.pairing).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Pairs well: </span>{insightFull.pairing}</div>}
+                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>From what reviewers mention most.</div>
+                </div>
+              )}
+              {/* 3. Insider tip */}
+              <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>More details</div>
+              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
+                <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                  <span style={{ fontSize: 18 }}>🎟️</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
+                  </div>
+                  <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+                </a>
+              )}
+
+              {!detail._event && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your note</div>
+                  <textarea key={detail.id} ref={noteRef} defaultValue={placeNotes[detail.id] || ""} placeholder="Add your own review or notes. Saved on your device and shown here whenever you open this place." rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                  <button onClick={savePlaceNote} style={{ marginTop: 8, padding: "8px 16px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 10, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save note</button>
+                </div>
+              )}
+
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
                 {experienceBadges(detail, null, 4).map((b) => (
                   <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
                 ))}
               </div>
 
-              {(() => { const v = placeVibe(detail, weather); if (!v) return null; return (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 6 }}>{v.icon} {v.title}</div>
-                  <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5 }}>{v.body}</div>
-                </div>
-              ); })()}
-
+              {detail._event && (() => {
+                const ef = formatEventDate(detail._event.date, detail._event.time);
+                const human = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (ef.time || [detail._event.date, detail._event.time].filter(Boolean).join(" · "));
+                const url = detail._event.url || "";
+                const hasTickets = /ticket|seatgeek|stubhub|axs|livenation|eventbrite/i.test(url);
+                const place = locName ? locName.split(",")[0] : "you";
+                const why = [];
+                if (detail.rating != null) why.push("★ " + detail.rating + " venue"); else why.push("at " + detail.name);
+                if (detail.distMi != null) why.push(detail.distMi.toFixed(1) + " mi from " + place);
+                return (
+                  <div style={{ border: `1.5px solid ${C.accent}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
+                    <div style={{ padding: "14px 15px" }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Know before you go</div>
+                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3, marginBottom: 8 }}>Event time from the venue listing.</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>🎟️ Upcoming event</div>
+                      <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{detail._event.name}</div>
+                      {human && <div style={{ fontSize: 14, fontWeight: 800, color: C.accent, marginTop: 7 }}>{human}</div>}
+                      <div style={{ fontSize: 13, color: C.light, marginTop: 5 }}>📍 {detail.name}{detail.distMi != null ? " · " + detail.distMi.toFixed(1) + " mi" : ""}</div>
+                      {why.length > 0 && <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 7 }}>{why.join(", ") + "."}</div>}
+                      {url && <a href={url} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", marginTop: 12, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{hasTickets ? "Get tickets ↗" : "View event ↗"}</a>}
+                    </div>
+                  </div>
+                );
+              })()}
               {reviewsOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 10 }}>What people say</div>
@@ -5344,58 +5354,7 @@ function PageInner() {
               ); })()}
 
               {/* 2. Why Wayfind picked it — a judgment-driven decision reason, not a formula. No expand button; the deeper context lives in the insider tip and Tips, videos & more. */}
-              {(() => {
-                const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                const why = ins && ins.whyPicked && String(ins.whyPicked).trim() ? ins.whyPicked : "";
-                if (!why) return null;
-                return (
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 14 }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "WHY THIS VENUE" : "WHY WAYFIND PICKED IT"}</div>
-                    <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, marginTop: 7 }}>{why}</div>
-                  </div>
-                );
-              })()}
-
               {/* Viator experiences: shown only for activity-type places Viator actually sells (attractions, museums, nature, scenic, etc.), never restaurants, bars, or hotels. This is an affiliate link, disclosed in Terms; it is tracked once a Partner ID is set in AFFIL and works untracked until then. */}
-              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
-                <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                  <span style={{ fontSize: 18 }}>🎟️</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
-                  </div>
-                  <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
-                </a>
-              )}
-
-              {/* 3. Insider tip */}
-              <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}>
-                  <span style={{ fontSize: 16 }}>💡</span>
-                  <span style={{ fontSize: 14.5, fontWeight: 800, color: C.light }}>Insider tip</span>
-                </div>
-                {/* Chips removed: Open now, rating, and price already live in the chip row above. This card leads with the tip itself. */}
-                {insightLoading && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted }}>
-                    <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
-                    Reading the reviews for the best tip
-                  </div>
-                )}
-                {!insightLoading && insight && !insight.unavailable && !insight.error && (() => {
-                  const ins = insight || {};
-                  const tip = ins.tip || (Array.isArray(ins.tips) && ins.tips[0]) || ins.mustTry || "";
-                  const bestTime = "";
-                  const caution = ins.caution || (Array.isArray(ins.cautions) && ins.cautions[0]) || "";
-                  const hasTip = tip && String(tip).trim();
-                  if (!hasTip && !bestTime && !caution) return null;
-                  return (
-                    <div>
-                      {hasTip && <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.5, fontWeight: 600, marginBottom: bestTime || caution ? 10 : 0 }}>{tip}</div>}
-                      {bestTime && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13, color: C.light, marginBottom: caution ? 5 : 0 }}><span>📅</span><span>{bestTime}</span></div>}
-                      {caution && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13, color: C.light }}><span>⚠️</span><span>{caution}</span></div>}
-                    </div>
-                  );
-                })()}
               <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
                 <button onClick={() => { const n = !showMore; setShowMore(n); if (n) { loadFullInsight(detail, detailExtra); loadVideos(detail); } }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.accent, background: "transparent", border: "none", padding: "2px 0" }}>
                   <span>{showMore ? "Show less" : "See photos, tips & details"}</span>

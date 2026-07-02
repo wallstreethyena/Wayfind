@@ -57,7 +57,7 @@ export async function POST(req) {
         (hasReviews ? "keywords (array of 3 to 5 short lowercase words reviewers most commonly use; empty array if unclear), " : "keywords (empty array), ") +
         "vibe (2 to 4 words that capture the actual atmosphere).";
     } else {
-      maxTokens = 500;
+      maxTokens = 700;
       system =
         voice +
         (hasReviews ? "Base every point on what the real visitor reviews actually say. " : "Using ONLY the facts provided, be specific and concrete. ") +
@@ -70,6 +70,7 @@ export async function POST(req) {
         "goWhen (short phrase for the best time or use case to go, e.g. 'Before 6 PM', 'Weekday lunch'; empty string if unclear), " +
         (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. 'you want quiet or upscale food', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
         (hasReviews ? "whyPicked (one concrete sentence of evidence for why this is a solid pick, drawn from what reviewers emphasize, not generic praise; empty string if unclear), " : "whyPicked (empty string), ") +
+        (hasReviews ? "why (one flowing paragraph of 4 to 6 real sentences that merges everything decision-useful: why this place was picked, what reviewers specifically praise by name, what to order or not miss, when to go, who it is best for, when to skip it, and any caveat such as park admission or a long drive; grounded ONLY in the provided reviews and facts, reading like real local insight, never bullet fragments; empty string if the evidence is thin), " : "why (empty string), ") +
         (hasReviews ? "caution (ONE specific honest thing to know or common complaint that would change a decision; empty string if none stands out), " : "caution (empty string), ") +
         (hasReviews ? "tip (ONE concrete insider tip a regular would actually give; empty string if none)." : "tip (empty string).");
     }

@@ -4,6 +4,50 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.0 - the mood card is the menu (v2.6 overcorrection fixed)
+- v2.6 consolidated by deletion; the intent was consolidation by promotion.
+  The "What are you in the mood for?" card is back as the single premium
+  decision controller and the horizontal chip row above it is gone.
+- Collapsed, the card asks the question; with an intent active it shows the
+  choice ("Food near Orlando · Breakfast") with the subfilter list as its
+  subtitle. Tapping expands one panel with the eight intents: Tonight, Food,
+  Things to do, With kids, Date night, Rainy day, Hidden gems, Worth the
+  drive. Food and Things to do stay stateful, take over the feed, and reveal
+  their subfilters inside the same panel; tapping the active intent clears it.
+  Tonight, kids, date night and gems route to their surfaces; Rainy day and
+  Worth the drive open their ranked sheets.
+- One system: no chip row, no six-icon grid, no always-visible meal pills.
+  Model is mood selector, intent, subfilters, results.
+- Carries the v2.9 detail rebuild and everything prior. Deploy this; header
+  reads v3.0.
+
+## v2.9 - detail page rebuild (structure, not polish)
+- The detail sheet is restructured to the required order: hero image with the
+  name in the image area, address directly under it, ONE metadata row (score,
+  rating and reviews, open status or event timing, distance, cuisine or
+  category, cost for two), park-admission cue, one action dock (Directions or
+  Get tickets as the single orange primary; Save, Like, Not for me, Share as
+  quiet icons in the same row), then "Why Wayfind picked this" near the top,
+  then What to order / Don't miss, a neutral "More details" card (the old
+  expandable), tours, and only then Your note and the tag chips. More like
+  this and comparisons stay lower. Debug audit unchanged.
+- "Why Wayfind picked this" is now the soul of the page: a new grounded `why`
+  field in /api/insight returns one flowing 4-6 sentence paragraph (why picked,
+  what reviewers praise by name, what to order, when to go, who it is for,
+  when to skip, caveats), evidence-only, empty when thin. Until a fresh
+  insight carries `why` (cached ones will not), the section composes honestly
+  from the existing grounded fields; the plain-rating fallback remains the
+  floor. Never faked.
+- Deleted as repeated or generic content: the separate Wayfind verdict block,
+  the standalone Insider tip line, the whyPicked box, the cuisine/cost chip
+  row (absorbed into the metadata row), the second thumbs row, and the
+  placeVibe template card (the last template-copy generator on the page).
+- Acceptance mapping: premium top matching the cards (hero+identity), name and
+  address grouped, metadata grouped in one row, one action area, verdict and
+  tip merged into Why Wayfind picked this, no chip stacks as primary content,
+  note and More like this demoted. Verify live; JSX order is covered by the
+  compile gate, feel is covered by your eyes.
+
 ## v2.8 - permanent two-layer deploy gate
 - prebuild now runs check:jsx (real TypeScript/JSX parse of app/page.js, the
   share landing page, and MapView with allowJs, the same parser class Vercel
