@@ -4,6 +4,21 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.13 (header label removed) - weather truly in the header
+- The forecast wheel now renders directly under the header row, above the
+  search bar, so tapping the chip drops it from the header and pushes the page
+  down. This was a DOM relocation, not a styling trick.
+- Orange border around the wheel removed; gradient and shadow kept; corners
+  rounded only at the bottom so it reads as part of the header.
+- "beta" removed from the header. Deploy verification now lives only in the
+  footer ("Wayfind beta · v3.13"); check there after each deploy.
+- Header chip now shows the condition word under the feels-like temp; wheel
+  cells now show time / icon / feels-like / condition, completing the original
+  spec (forecast word was missing from cells).
+- Note: the chip shows the current feels-like; the "Now" cell shows this
+  hour's value from the hourly series. They can differ by a degree or two;
+  both are real readings, not a bug.
+
 ## v3.12 (header: beta) - founder batch + env advisor gate
 - Submenu typography harmonized with the menu tiles: same font, colors, and
   weight system, one scrolling row. Size is 11px, not the tiles' 9.5px, the

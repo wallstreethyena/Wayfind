@@ -10,7 +10,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.12";
+const BUILD_ID = "v3.13";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3824,11 +3824,13 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             <img src="/wordmark.png" alt="wayfind" onClick={openSuggested} style={{ height: 34, width: "auto", display: "block", cursor: "pointer" }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
-            <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginLeft: 6, flexShrink: 0, opacity: 0.65 }}>{BUILD}</span>
             {weather && weather.feels != null && (
               <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ marginLeft: "auto", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
                 <span style={{ fontSize: 18 }}>{weather.icon}</span>
-                <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
+                <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
+                  <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
+                  {weather.label ? <span style={{ fontSize: 8.5, fontWeight: 600, color: C.muted }}>{weather.label}</span> : null}
+                </span>
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
@@ -3841,6 +3843,29 @@ function PageInner() {
             ))}
           </div>
         </div>
+        )}
+        {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
+          <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
+              <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
+            </div>
+            <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
+              {weather.hourly.map((h, idx) => {
+                const hi = hourIcon(h.code, h.day, h.ms);
+                const dt = new Date(h.ms);
+                const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
+                return (
+                  <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 64, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.accent : "transparent"}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.accent : C.muted, marginBottom: 5 }}>{tl}</div>
+                    <div style={{ fontSize: 23, lineHeight: 1, marginBottom: 5 }}>{hi.icon}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{h.feels}°</div>
+                    <div style={{ fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weatherFromCode(h.code).label}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
         <div style={{ display: "flex", gap: 0, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
@@ -4175,28 +4200,6 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
-                <div style={{ marginTop: -2, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: `1px solid ${C.accent}`, borderTopWidth: 0, borderRadius: "0 0 16px 16px", padding: "12px 8px 14px", boxShadow: "0 10px 24px rgba(0,0,0,.34)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
-                    <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
-                  </div>
-                  <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
-                    {weather.hourly.map((h, idx) => {
-                      const hi = hourIcon(h.code, h.day, h.ms);
-                      const dt = new Date(h.ms);
-                      const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
-                      return (
-                        <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 62, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.accent : "transparent"}` }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.accent : C.muted, marginBottom: 5 }}>{tl}</div>
-                          <div style={{ fontSize: 23, lineHeight: 1, marginBottom: 5 }}>{hi.icon}</div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{h.feels}°</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
               {/* v3.5: one box. Six icon tiles exposed at top (Food, Night out, Things to
                   do, Beach day, Stays, Shopping). Tapping a category slides its subfilters
                   down INSIDE the same box, in the same tile visual language (icon-less pills
