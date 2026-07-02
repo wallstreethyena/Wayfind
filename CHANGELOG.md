@@ -4,6 +4,21 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.2 - the original menu, pinned (founder direction)
+- The original "What are you in the mood for?" card and six-tile grid (Food,
+  Night out, Things to do, Beach day, Stays, Shopping) are restored verbatim
+  and now render ALWAYS EXPANDED, pinned sticky at the top of home like the
+  bottom nav; the feed scrolls underneath a soft gradient fade.
+- Tapping a category slides its submenu down (animated max-height, no pop);
+  tapping it again clears. Selected sub pill gets the accent fill.
+- Premium shell: gradient grid background, soft shadow, the card keeps its
+  glow. Category taps now log intent_chip so the analytics stream continues.
+- v3.0/v3.1 mood-menu variants superseded, never deployed. lib/categories.js
+  and its regression fixtures remain in the repo for future surfaces.
+- Assumption to verify live: the sticky bar bleeds edge-to-edge assuming the
+  screen's 16px gutter; if your device shows misaligned edges, it is a one
+  line margin fix, send a screenshot.
+
 ## v3.1 - full discovery restored, two-layer, regression-locked
 - The categories removed from home in v2.6 (Nightlife, Beach, Stays, Shopping)
   are back, plus the full second layer the advisor specified: Breakfast,

@@ -9,7 +9,7 @@ import * as Tags from "../lib/tags";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v3.1";
+const BUILD = "v3.2";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4167,68 +4167,40 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {/* v3.1: two-layer discovery, one controller. The mood card asks the question; expanded it offers the intents (layer 1) and an "All categories" section with the complete discovery set (layer 2) from lib/categories.js. Nothing hardcoded, nothing removed, regression-tested. */}
-              {(() => {
-                const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
-                const run = (item, layer) => {
-                  try { logEvent("intent_chip", null, { intent: item.label, layer }); } catch (e) {}
-                  const a = item.act || {};
-                  if (a.type === "screen") { setMoodOpen(false); setScreen(a.screen); }
-                  else if (a.type === "exp") { setMoodOpen(false); openExperience(a.key); }
-                  else if (a.type === "sheet") { if (a.sheet === "rainy") openRainy(); else if (a.sheet === "drive") openWorthDrive(); else if (a.sheet === "mustdos") openMustDos(); }
-                  else if (a.type === "browse") { pickBrowse(a.cat); }
-                  else if (a.type === "sub") { if (browseCat !== a.cat) pickBrowse(a.cat); setSub(a.sub); }
-                };
-                const isOn = (item) => { const a = item.act || {}; if (a.type === "browse") return browseCat === a.cat; if (a.type === "sub") return browseCat === a.cat && sub === a.sub; return false; };
-                const city = locName ? locName.split(",")[0] : "you";
-                const CATL = { food: "Food", attractions: "Things to do", nightlife: "Nightlife", beach: "Beach", hotels: "Stays", shopping: "Shopping" };
-                const activeLabel = browseCat ? (CATL[browseCat] || null) : null;
-                const subs = browseCat ? (SUBFILTERS[browseCat] || []) : [];
-                const subPick = browseCat && sub !== "all" ? (subs.find((x) => x.id === sub) || {}).label : null;
-                const title = activeLabel ? activeLabel + " near " + city + (subPick ? " · " + subPick : "") : "What are you in the mood for?";
-                const subtitle = activeLabel ? (subs.filter((x) => x.id !== "all").map((x) => x.label).join(", ") || "Tap to change or clear") : "Tonight, food, nightlife, beaches, and more";
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    <button onClick={() => setMoodOpen((v) => !v)} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
-                      <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
-                        <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
-                      </span>
-                      <div style={{ textAlign: "left", minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: 17, fontWeight: 800, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</div>
-                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{subtitle}</div>
-                      </div>
-                      <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: moodOpen ? "rotate(90deg)" : "rotate(0deg)", transition: "transform 0.28s ease", flexShrink: 0 }}>›</span>
-                    </button>
-                    <div style={{ overflow: "hidden", maxHeight: moodOpen ? (moodAll ? 680 : 250) : 0, opacity: moodOpen ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.25s ease" }}>
-                      <div style={{ marginTop: 10, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 12px" }}>
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                          {Cats.INTENTS.map((c) => { const on = isOn(c); return (
-                            <button key={c.id} onClick={() => run(c, 1)} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: on ? C.adim : C.card, border: `1px solid ${on ? C.accent : C.border}`, color: on ? C.accent : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.label}{on ? "  ✕" : ""}</button>
-                          ); })}
-                        </div>
-                        <button onClick={() => setMoodAll((v) => !v)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", background: "transparent", border: "none", color: C.muted, fontSize: 11, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", cursor: "pointer", padding: "10px 2px 2px" }}>
-                          <span>All categories</span><span style={{ transform: moodAll ? "rotate(90deg)" : "none", transition: "transform .25s", color: C.accent, fontSize: 15 }}>›</span>
-                        </button>
-                        {moodAll && (
-                          <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 8 }}>
-                            {Cats.DISCOVER.map((c) => { const on = isOn(c); return (
-                              <button key={c.id} onClick={() => run(c, 2)} style={{ padding: "6px 12px", borderRadius: 999, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : C.border}`, color: on ? C.accent : C.light, fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>{c.label}{on ? "  ✕" : ""}</button>
-                            ); })}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div style={{ overflow: "hidden", maxHeight: (moodOpen && subs.length > 1) ? 120 : 0, opacity: (moodOpen && subs.length > 1) ? 1 : 0, transition: "max-height 0.30s cubic-bezier(.4,0,.2,1), opacity 0.24s ease" }}>
-                      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2 }}>
-                        {subs.map((sf) => { const son = sub === sf.id; return (
-                          <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
-                        ); })}
-                      </div>
-                    </div>
+              {/* v3.2: the original menu, back and pinned. Always expanded, sticky at the
+                  top like the bottom nav; content scrolls underneath. Tapping a category
+                  slides its submenu down (animated, no pop). Premium gradient shell. */}
+              <div style={{ position: "sticky", top: 0, zIndex: 40, margin: "0 -16px", padding: "8px 16px 12px", background: `linear-gradient(180deg, ${C.bg} 0%, ${C.bg} 84%, rgba(13,17,23,0) 100%)` }}>
+                <div style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, display: "flex", alignItems: "center", gap: 14, padding: "12px 16px" }}>
+                  <span style={{ position: "relative", width: 34, height: 34, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span style={{ position: "absolute", inset: -5, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
+                    <svg width="27" height="27" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative", filter: `drop-shadow(0 2px 6px ${C.accent}66)` }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
+                  </span>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontSize: 17, fontWeight: 800 }}>What are you in the mood for?</div>
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>Food, nightlife, beaches, and more</div>
                   </div>
-                );
-              })()}
+                  <span style={{ marginLeft: "auto", color: C.accent, fontSize: 20, transform: "rotate(90deg)" }}>›</span>
+                </div>
+                <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2, background: `linear-gradient(165deg, ${C.adim}44 0%, ${C.panel} 55%)`, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 4px", boxShadow: "0 10px 26px rgba(0,0,0,.38)" }}>
+                  {[{ id: "food", label: "Food" }, { id: "nightlife", label: "Night out" }, { id: "attractions", label: "Things to do" }, { id: "beach", label: "Beach day" }, { id: "hotels", label: "Stays" }, { id: "shopping", label: "Shopping" }].map((m) => {
+                    const on = browseCat === m.id;
+                    return (
+                      <button key={m.id} onClick={() => { try { logEvent("intent_chip", null, { intent: m.label, layer: 1 }); } catch (e) {} const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "4px 1px", background: "transparent", border: "none", cursor: "pointer", minWidth: 0 }}>
+                        <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
+                        <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 120 : 0, opacity: browseCat ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+                  <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 9, paddingLeft: 2, paddingBottom: 2 }}>
+                    {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
+                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ padding: "6px 13px", borderRadius: 9, border: `1px solid ${son ? C.accent : C.border}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.light, fontSize: 12.5, fontWeight: son ? 800 : 600, cursor: "pointer" }}>{sf.label}</button>
+                    ); })}
+                  </div>
+                </div>
+              </div>
               <div style={{ marginBottom: 16 }}>
                 {weather && (
                   <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
