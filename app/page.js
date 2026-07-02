@@ -5,9 +5,10 @@ import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
+import * as Tags from "../lib/tags";
 import * as Dining from "../lib/dining";
 
-const BUILD = "v1.8";
+const BUILD = "v2.1";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -552,7 +553,7 @@ const EXPERIENCES = {
 // price, the place name, and Google attribute flags), sorted by how defining it
 // is, and capped. selectedKey, when set, is always shown first so a curated page
 // never hides the reason a place is on it. Nothing is fabricated.
-function experienceBadges(p, selectedKey, max) {
+function experienceBadges(p, selectedKey, max, audit) {
   const lim = max || 3;
   const L = p.labels || [];
   const nm = (p.name || "").toLowerCase();
@@ -580,11 +581,12 @@ function experienceBadges(p, selectedKey, max) {
   // Attractions: zoos, aquariums, parks and theme parks are honestly family
   // and outdoor places even when Google sets no restaurant-style attribute.
   const ts = (p.types || []).join(" ").toLowerCase();
+  const tokens = (p.types || []).map((x) => String(x).toLowerCase());
   if (["zoo", "aquarium", "amusement_park", "water_park", "theme_park"].some((x) => ts.includes(x))) q.add("family");
-  if (["zoo", "aquarium", "amusement_park", "water_park", "theme_park", "national_park", "state_park", "botanical_garden", "campground", "beach"].some((x) => ts.includes(x))) q.add("outdoor");
+  if (tokens.some((x) => ["zoo", "national_park", "state_park", "botanical_garden", "campground", "beach", "park", "garden", "rv_park", "hiking_area"].includes(x))) q.add("outdoor");
   // v6.8: type-true tags so museums, preserves, landmarks and scenic spots stop defaulting to "local favorite".
   if (["museum", "art_gallery"].some((x) => ts.includes(x)) || said(["museum", "gallery"])) q.add("museum");
-  if (["national_park", "state_park", "natural_feature", "botanical_garden", "campground", "hiking", "_park"].some((x) => ts.includes(x)) || said(["preserve", "nature trail", "trailhead"])) q.add("nature");
+  if (tokens.some((x) => ["national_park", "state_park", "natural_feature", "botanical_garden", "campground", "hiking_area", "park", "garden"].includes(x)) || said(["preserve", "nature trail", "trailhead"])) q.add("nature");
   if (["amusement_park", "theme_park", "water_park", "bowling_alley", "movie_theater", "aquarium", "zoo"].some((x) => ts.includes(x))) q.add("entertainment");
   if (said(["skyway", "overlook", "lookout", "lighthouse", "observation deck"]) || ts.includes("natural_feature")) q.add("instagram");
 
@@ -602,15 +604,25 @@ function experienceBadges(p, selectedKey, max) {
   if (L.includes("Good for groups")) q.add("groups");
   if (L.includes("Dog friendly")) q.add("dog");
 
-  // Cuisine, read from ALL of the Google types (not just the first), so an
-  // "American restaurant" that Google also tags hamburger_restaurant still earns
-  // its burger badge. Names help too (a place literally called "Pizza ...").
-  const tt = ((p.types || []).join(" ") + " " + t + " " + nm).toLowerCase();
-  const typeMap = [["pizza", "pizza"], ["sushi", "sushi"], ["steak", "steak"], ["seafood", "seafood"], ["hamburger", "burgers"], ["burger", "burgers"], ["mexican", "mexican"], ["taco", "mexican"], ["italian", "italian"], ["bakery", "dessert"], ["ice cream", "dessert"], ["ice_cream", "dessert"], ["dessert", "dessert"], ["donut", "dessert"], ["coffee", "coffee"], ["cafe", "coffee"], ["brewery", "beer"], ["brew_pub", "beer"], ["brewpub", "beer"]];
-  for (const [needle, key] of typeMap) { if (tt.includes(needle)) q.add(key); }
+  // Cuisine, read from the place's actual cuisine identity (its *_restaurant
+  // Google type via Dining.cuisineLabel) or its literal name. Noisy secondary
+  // tokens like "cafe"/"bakery" on a full restaurant no longer mint Coffee or
+  // Bakery badges; those require it to BE the identity or be name-evident.
+  const cz = (Dining.cuisineLabel(p) || "").toLowerCase();
+  const CUIS = [["pizza", "pizza"], ["sushi", "sushi"], ["steak", "steak"], ["seafood", "seafood"], ["hamburger", "burgers"], ["burger", "burgers"], ["mexican", "mexican"], ["taco", "mexican"], ["italian", "italian"]];
+  for (const [needle, key] of CUIS) { if (cz.includes(needle) || nm.includes(needle)) q.add(key); }
+  if (tokens.includes("bakery") && !cz || cz.includes("bakery") || cz.includes("dessert") || /bakery|dessert|donut|doughnut|ice cream|gelato|patisserie|pastry/.test(nm)) q.add("dessert");
+  if (tokens.includes("coffee_shop") || (tokens.includes("cafe") && !cz) || cz.includes("coffee") || cz.includes("cafe") || /coffee|café|cafe\b|espresso|roaster/.test(nm)) q.add("coffee");
+  if (tokens.some((x) => x.includes("brew")) || /brewery|brewing|brewpub|brew pub|taproom/.test(nm)) q.add("beer");
 
   const order = ["bestof", "museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "livemusic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "cocktails", "wine", "beer", "sports", "coffee", "breakfast", "family", "groups", "dog", "gem", "value", "localfav"];
   let keys = order.filter((k) => q.has(k) && EXPERIENCES[k]);
+  // v2.0 trust gate: category compatibility on top of the evidence gates. A tag
+  // must pass BOTH to show. Audit (when passed) records the decision trail.
+  const identity = Tags.resolveIdentity(p.types || [], !!p._event);
+  const gate = Tags.filterAllowed(identity, keys);
+  if (audit) { audit.identity = identity; audit.candidates = keys.slice(); audit.blocked = gate.blocked; audit.shown = gate.shown.slice(); }
+  keys = gate.shown;
   if (selectedKey && EXPERIENCES[selectedKey]) {
     keys = keys.filter((k) => k !== selectedKey);
     keys.unshift(selectedKey);
@@ -2149,8 +2161,16 @@ function PageInner() {
     const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
     setCuisineSheet({ label, list });
   };
+  // v2.1: intent entries. Each opens an existing surface or a ranked quick list
+  // built from data already loaded. No new fetching, no new card systems.
+  const intentCtx = () => ({ weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) });
+  const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
+  const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
+  const openMustDos = () => { const pool = dedupePlaces((homeTodo || []).filter((pp) => { const c = Ranking.coarseCat(pp) || primaryCategory(pp); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true); const list = Ranking.rankByConditions(pool, intentCtx()).slice(0, 10); setCuisineSheet({ title: "Tourist must-dos", sub: "The area's signature stops, ranked.", label: "must-do", list }); };
+  const openOpenNow = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => pp.openNow === true && (pp.distMi == null || pp.distMi <= 4)), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Open near you now", sub: "Open right now within a few miles, ranked.", label: "open now", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
+  const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
   const noteRef = useRef(null);
   const [placeNotes, setPlaceNotes] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); } catch { return {}; } });
   const savePlaceNote = () => {
@@ -2824,7 +2844,7 @@ function PageInner() {
         body: JSON.stringify({
           name: p.name, type: p.type, city: locName,
           rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
-          category: cat, sub, mode: "compact",
+          category: cat, sub, mode: "compact", kind: (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction"),
           editorial: extra ? extra.editorial : null,
           reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
           attributes: p.labels || [],
@@ -2855,7 +2875,7 @@ function PageInner() {
         body: JSON.stringify({
           name: p.name, type: p.type, city: locName,
           rating: p.rating, reviewCount: p.reviews, price: p.price, openNow: p.openNow,
-          category: cat, sub, mode: "full",
+          category: cat, sub, mode: "full", kind: (["Food", "Nightlife"].includes(primaryCategory(p) || "") ? "dining" : "attraction"),
           editorial: extra ? extra.editorial : null,
           reviews: extra && extra.reviews ? extra.reviews.map((r) => r.text).slice(0, 5) : [],
           attributes: p.labels || [],
@@ -3687,7 +3707,7 @@ function PageInner() {
         </div>
       )}
       {exHero && (
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
       )}
       {exHero && (() => {
         const open = liveOpen(exHero);
@@ -4105,6 +4125,23 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
+              {/* v2.1: intent-first entry. "What are you trying to do right now?" Each chip opens an existing surface or a ranked quick list from loaded data. */}
+              {!browseCat && (
+                <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 12px", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                  {[
+                    { l: "Tonight", a: () => setScreen("events") },
+                    { l: "With kids", a: () => openExperience("family") },
+                    { l: "Date night", a: () => openExperience("romantic") },
+                    { l: "Rainy day", a: openRainy },
+                    { l: "Cheap eats", a: () => openExperience("value") },
+                    { l: "Hidden gems", a: () => openExperience("gem") },
+                    { l: "Must-dos", a: openMustDos },
+                    { l: "Open now", a: openOpenNow },
+                  ].map((c) => (
+                    <button key={c.l} onClick={c.a} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{c.l}</button>
+                  ))}
+                </div>
+              )}
               {/* App-tile navigation grid: replaces the scrolling category row on home. Each tile opens its own sheet. */}
               <div style={{ marginBottom: 16 }}>
                 <button onClick={() => setMoodOpen((v) => !v)} style={{ width: "100%", borderRadius: 18, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", gap: 14, padding: "13px 16px" }}>
@@ -4144,7 +4181,8 @@ function PageInner() {
                   <button onClick={() => setMenuSheet("weather")} style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, background: `linear-gradient(120deg, ${C.blue}1F 0%, ${C.card} 58%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 14px", marginTop: 10, cursor: "pointer", textAlign: "left" }}>
                     <img src={"/wx/" + (weather.img || "cloudy") + ".png"} alt="" style={{ height: 42, width: "auto", flexShrink: 0, display: "block" }} />
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
+                      <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
+                      {(() => { const t = wayfindWeatherTake(weather); return t && t.good && t.good.length ? <div style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, marginTop: 3 }}>Good for {t.good.slice(0, 2).join(" and ")}</div> : null; })()}
                       <div style={{ fontSize: 11.5, color: C.text, marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weather.label || ""}{weather.hi != null && weather.lo != null ? ` · H ${weather.hi}° L ${weather.lo}°` : ""}</div>
                     </div>
                     <div style={{ marginLeft: "auto", display: "flex", gap: 14, alignItems: "center", flexShrink: 0 }}>
@@ -4171,53 +4209,6 @@ function PageInner() {
               )}
               {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
-              {/* v6.25: Top 10 cards — the ranked best of the area and the best food, right at the top. Data-driven off the current location, so a searched city gets its own top 10 automatically. */}
-              {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
-                const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
-                const cityN = locName ? locName.split(",")[0] : "you";
-                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name);
-                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).slice(0, 10);
-                const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
-                const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).slice(0, 10);
-                const row = (p, i, n) => (
-                  <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                    <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
-                    <FallbackImg src={p.photo} icon="🍽️" style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
-                        {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ color: C.light, fontWeight: 600 }}>{cz}</span> : null; })()}
-                        {p.rating && <span style={{ color: "#F59E0B", fontWeight: 700 }}>★ {p.rating}</span>}
-                        {(() => { const dining = ["Food", "Nightlife"].includes(Ranking.coarseCat(p) || ""); const c = Dining.costForTwo(p); return dining && c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
-                        {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
-                        {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
-                        {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
-                      </div>
-                    </div>
-                    <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
-                  </div>
-                );
-                const card = (title, sub, list, open, onToggle) => (list.length >= 3 ? (
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 14px", marginBottom: 16 }}>
-                    <div onClick={onToggle} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer" }}>
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
-                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
-                        <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
-                        <span style={{ fontSize: 15, color: C.muted, display: "inline-block", transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
-                      </div>
-                    </div>
-                    {open && <div style={{ marginTop: 8 }}>{list.map((p, i) => row(p, i, list.length))}</div>}
-                  </div>
-                ) : null);
-                return (<>
-                  {card("🍽️ Top 10 food near " + cityN, "The best places to eat right now, ranked by quality, distance and time.", food10, food10Open, () => setFood10Open((v) => !v))}
-                  {card("🎯 Top 10 things to do near " + cityN, "The best attractions and activities right now, ranked.", todo10, top10Open, () => setTop10Open((v) => !v))}
-                </>);
-              })()}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
                 const shareHook = (hk, pl) => { if (!pl) return; logEvent("share", pl, { kind: "hook" }); addShared(pl); shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind"); };
@@ -4269,7 +4260,7 @@ function PageInner() {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {heroPlace && (<>
-                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Your next move</div>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
                       <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
@@ -4280,6 +4271,53 @@ function PageInner() {
               })()}
               {/* v3.7: mobile inline "You are exploring" card removed — it duplicated the 📍 This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
               {/* v4.1: standalone "Happening at the library" card removed from home — this content now lives in the Community tile sheet (menuSheet === "community"). libraryEvents state and fetch are unchanged. */}
+              {/* v6.25: Top 10 cards — the ranked best of the area and the best food, right at the top. Data-driven off the current location, so a searched city gets its own top 10 automatically. */}
+              {!browseCat && (suggested && suggested.length > 0) && (() => {
+                const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+                const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
+                const cityN = locName ? locName.split(",")[0] : "you";
+                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name);
+                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).slice(0, 10);
+                const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
+                const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).slice(0, 10);
+                const row = (p, i, n) => (
+                  <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                    <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
+                    <FallbackImg src={p.photo} icon="🍽️" style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
+                        {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ color: C.light, fontWeight: 600 }}>{cz}</span> : null; })()}
+                        {p.rating && <span style={{ color: "#F59E0B", fontWeight: 700 }}>★ {p.rating}</span>}
+                        {(() => { const dining = ["Food", "Nightlife"].includes(Ranking.coarseCat(p) || ""); const c = Dining.costForTwo(p); return dining && c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
+                        {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
+                        {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
+                        {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
+                      </div>
+                    </div>
+                    <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
+                  </div>
+                );
+                const card = (title, sub, list, open, onToggle) => (list.length >= 3 ? (
+                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 14px", marginBottom: 16 }}>
+                    <div onClick={onToggle} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer" }}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
+                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
+                        <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
+                        <span style={{ fontSize: 15, color: C.muted, display: "inline-block", transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
+                      </div>
+                    </div>
+                    {open && <div style={{ marginTop: 8 }}>{list.map((p, i) => row(p, i, list.length))}</div>}
+                  </div>
+                ) : null);
+                return (<>
+                  {card("Best places to eat right now", "Ranked by what is worth your time: open status, ratings, distance, weather and time of day.", food10, food10Open, () => setFood10Open((v) => !v))}
+                  {card("Best things to do today", "Ranked by what is worth your time: quality, distance, weather and time of day.", todo10, top10Open, () => setTop10Open((v) => !v))}
+                </>);
+              })()}
               {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => { if (!e || !e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff >= 0 && diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; };
@@ -4346,6 +4384,7 @@ function PageInner() {
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
               <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
+              <div style={{ height: 72 }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 7 }}>
                   <a href="/privacy" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Privacy</a>
                   <span style={{ color: C.border }}>·</span>
@@ -4476,7 +4515,7 @@ function PageInner() {
                           ))}
                         </div>
                       )}
-                      {blurbs[p.id] && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45, marginTop: 10 }}><span style={{ color: C.accent }}>✨ </span>{blurbs[p.id]}</div>}
+                      {blurbs[p.id] && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45, marginTop: 10 }}>{blurbs[p.id]}</div>}
                     </div>
                   </div>
                   <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
@@ -4999,10 +5038,8 @@ function PageInner() {
         <div style={sheetBg} onClick={() => window.history.back()}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
-            <div style={{ position: "sticky", top: 0, zIndex: 5, background: C.panel, padding: "10px 12px", paddingTop: "max(10px, env(safe-area-inset-top))", display: "flex", alignItems: "center", justifyContent: "flex-end", borderBottom: `1px solid ${C.border}` }}>
-              <button onClick={() => window.history.back()} aria-label="Back" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
-            </div>
             <div style={{ position: "relative" }}>
+              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
               {detail.photos && detail.photos.length > 0 ? (
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
@@ -5041,6 +5078,8 @@ function PageInner() {
                 return (
                   <div style={{ border: `1.5px solid ${C.accent}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
                     <div style={{ padding: "14px 15px" }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Know before you go</div>
+                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3, marginBottom: 8 }}>Event time from the venue listing.</div>
                       <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>🎟️ Upcoming event</div>
                       <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{detail._event.name}</div>
                       {human && <div style={{ fontSize: 14, fontWeight: 800, color: C.accent, marginTop: 7 }}>{human}</div>}
@@ -5100,6 +5139,9 @@ function PageInner() {
                 {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light }}>{detail.distMi.toFixed(1)} mi</span></>)}
                 {detail.priceNum != null ? (<><span style={{ color: C.border }}>·</span><PriceMeter level={detail.priceNum} word /></>) : (detail.price && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>))}
               </div>
+              {!detail._event && Tags.requiresParkAdmission(detail.types) && (
+                <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
+              )}
               {/* What it is and what it costs: the two things missing when you cannot decide. */}
               {!detail._event && (() => {
                 const cz = Dining.cuisineLabel(detail);
@@ -5109,34 +5151,25 @@ function PageInner() {
                 return (
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: -4, marginBottom: 14 }}>
                     {cz && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "4px 11px" }}>{cz}</span>}
-                    {isDining && <span title={cost.real ? "From Google's price range" : (cost.listed ? "Estimated from the price tier" : "Google lists no price for this spot")} style={{ fontSize: 12.5, fontWeight: 700, color: cost.listed ? C.green : C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 11px", whiteSpace: "nowrap" }}>💵 {cost.text}</span>}
+                    {isDining && <span title={cost.real ? "From Google's price range" : (cost.listed ? "Estimated from the price tier" : "Google lists no price for this spot")} style={{ fontSize: 12.5, fontWeight: 700, color: cost.listed ? C.green : C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "4px 11px", whiteSpace: "nowrap" }}>{cost.text}</span>}
                   </div>
                 );
               })()}
-              {/* Primary actions, right where you decide. For a closed place, Save leads instead of "go now". */}
+              {/* Primary actions, one global order: Directions leads, Save is secondary. Open state already shows in the status row. */}
               <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                {liveOpen(detail) === false ? (
-                  <>
-                    <button onClick={() => quickSaveFavorite(detail)} style={{ flex: 1, padding: "12px 0", background: C.accent, border: "none", borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}><svg width="15" height="15" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>{isSaved(detail.id) ? "Saved ✓" : "Save for later"}</button>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 14.5, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                  </>
-                ) : (
-                  <>
-                    <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: "12px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
-                    <button onClick={() => quickSaveFavorite(detail)} style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}><svg width="15" height="15" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>{isSaved(detail.id) ? "Saved ✓" : "Save"}</button>
-                  </>
-                )}
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ flex: 1, padding: "12px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                <button onClick={() => quickSaveFavorite(detail)} style={{ flex: 1, padding: "12px 0", background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, fontSize: 14.5, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}><svg width="15" height="15" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>{isSaved(detail.id) ? "Saved ✓" : "Save"}</button>
                 <button onClick={() => { logEvent("share", detail, { kind: "place" }); addShared(detail); shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`); }} aria-label="Share" style={{ flexShrink: 0, width: 46, padding: "12px 0", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
               {!detail._event && (
                 <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  <button onClick={(e) => toggleLike(e, detail)} style={{ flex: 1, padding: "10px 0", background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>👍 Like</button>
-                  <button onClick={(e) => toggleDislike(e, detail)} style={{ flex: 1, padding: "10px 0", background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>👎 Not for me</button>
+                  <button onClick={(e) => toggleLike(e, detail)} style={{ flex: 1, padding: "10px 0", background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>Like</button>
+                  <button onClick={(e) => toggleDislike(e, detail)} style={{ flex: 1, padding: "10px 0", background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 0, marginRight: 6, verticalAlign: "-2px", transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>Not for me</button>
                 </div>
               )}
               {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>🍽️ What to order</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
                   {insightFull.mustTry.filter((x) => x && String(x).trim()).slice(0, 3).map((d, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 5 }}>
                       <span style={{ color: C.accent, fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{i + 1}</span>
@@ -5152,7 +5185,7 @@ function PageInner() {
               )}
               {!detail._event && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>📝 Your note</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your note</div>
                   <textarea key={detail.id} ref={noteRef} defaultValue={placeNotes[detail.id] || ""} placeholder="Add your own review or notes. Saved on your device and shown here whenever you open this place." rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
                   <button onClick={savePlaceNote} style={{ marginTop: 8, padding: "8px 16px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 10, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save note</button>
                 </div>
@@ -5173,6 +5206,7 @@ function PageInner() {
                   ) : (
                     <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra ? "Hours not listed for this place." : "Loading hours…"}</div>
                   )}
+                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
                 </div>
               )}
 
@@ -5403,7 +5437,7 @@ function PageInner() {
               {/* 5. Optional collapsed */}
               <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 12, marginBottom: 4 }}>
                 <div onClick={() => { const n = !venueEventsOpen; setVenueEventsOpen(n); if (n && venueEvents === null && !venueEventsLoading) loadVenueEvents(detail); }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.text }}>
-                  <span>🎟️ What's happening nearby</span>
+                  <span>What's happening nearby</span>
                   <span style={{ fontSize: 12, color: C.accent, fontWeight: 800 }}>{venueEventsOpen ? "▴" : "▾"}</span>
                 </div>
                 {venueEventsOpen && (
@@ -5498,6 +5532,24 @@ function PageInner() {
 
               {/* Hours now expand from the Open/Closed status badge near the title. */}
 
+              {debugOn && !detail._event && (() => {
+                const audit = {};
+                experienceBadges(detail, null, 99, audit);
+                const ai = insight && !insight.error && !insight.unavailable ? insight : {};
+                const aiRow = (k) => { const v = ai[k]; const has = Array.isArray(v) ? v.filter(Boolean).length > 0 : !!(v && String(v).trim()); return k + ": " + (has ? "shown" : "empty/hidden"); };
+                return (
+                  <div style={{ marginBottom: 16, padding: "10px 12px", background: "#0A0E14", border: "1px dashed #30363D", borderRadius: 10, fontFamily: "ui-monospace, monospace", fontSize: 10.5, color: "#8B949E", lineHeight: 1.6, overflowWrap: "anywhere" }}>
+                    <div style={{ color: "#F97316", fontWeight: 800 }}>TRUST AUDIT</div>
+                    <div>identity: {audit.identity}</div>
+                    <div>types: {(detail.types || []).join(", ") || "none"}</div>
+                    <div>candidates: {(audit.candidates || []).join(", ") || "none"}</div>
+                    <div>shown: {(audit.shown || []).join(", ") || "none"}</div>
+                    <div>blocked: {(audit.blocked || []).map((b) => b.key + " (" + b.reason + ")").join("; ") || "none"}</div>
+                    <div>park admission cue: {String(Tags.requiresParkAdmission(detail.types))}</div>
+                    <div>ai fields: {["verdict", "bestFor", "goWhen", "skipIf", "whyPicked", "tip", "caution", "mustTry"].map(aiRow).join(" · ")}</div>
+                  </div>
+                );
+              })()}
               {/* v6.25: "More like this" — similar experience among loaded places, matched on shared traits. */}
               {!detail._event && (() => {
                 const simPool = dedupePlaces([...(suggested || []), ...places]);
@@ -5602,10 +5654,10 @@ function PageInner() {
           <div onClick={() => setCuisineSheet(null)} style={{ position: "fixed", inset: 0, zIndex: 95, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
             <div onClick={(e) => e.stopPropagation()} style={{ background: "#0D1117", width: "100%", maxWidth: 640, maxHeight: "82vh", overflowY: "auto", borderRadius: "20px 20px 0 0", border: `1px solid ${C.border}`, padding: "16px 16px 28px" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4, gap: 10 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Top {cs.label} near you</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>{cs.title || ("Top " + cs.label + " near you")}</div>
                 <button onClick={() => setCuisineSheet(null)} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 24, cursor: "pointer", lineHeight: 1, flexShrink: 0 }}>×</button>
               </div>
-              <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>{list.length > 0 ? "The best " + cs.label.toLowerCase() + " spots loaded nearby, ranked by quality, distance and time." : "No " + cs.label.toLowerCase() + " spots loaded nearby yet. Try searching this cuisine."}</div>
+              <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>{list.length > 0 ? (cs.sub || ("The best " + cs.label.toLowerCase() + " spots loaded nearby, ranked by quality, distance and time.")) : (cs.title ? "Nothing loaded for this yet. Give the area a moment to finish loading, then try again." : "No " + cs.label.toLowerCase() + " spots loaded nearby yet. Try searching this cuisine.")}</div>
               {list.map((p, i) => (
                 <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                   <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
@@ -6236,7 +6288,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m
-              ? <div style={{ fontSize: 21, lineHeight: 1, flexShrink: 0, width: 28, textAlign: "center" }}>{m.emoji}</div>
+              ? <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
               : <div style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
             )}
             <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, paddingRight: 4 }}>{p.name}</div>
@@ -6268,14 +6320,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label}</button>
             ))}
           </div>
-          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><span style={{ color: C.accent }}>✨ </span>{take}</div>
+          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
-              <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}>👍{liked ? " Liked" : ""}</button>
+              <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>
             )}
             {onDislike && (
-              <button onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}>👎{disliked ? " Nope" : ""}</button>
+              <button onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 0, marginRight: 0, verticalAlign: "-2px", transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{disliked ? " Nope" : ""}</button>
             )}
             <button onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); addShared(p); shareLink(p.name, p.mapsUrl || "", null, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>

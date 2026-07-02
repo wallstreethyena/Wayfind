@@ -4,6 +4,69 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v2.1 - intent-first homepage
+- Intent chips now sit at the top of the home feed: Tonight, With kids, Date
+  night, Rainy day, Cheap eats, Hidden gems, Must-dos, Open now. Each opens an
+  existing surface (events, family, romantic, value, gem experiences) or a
+  ranked quick list built from already-loaded data. Zero new fetching.
+- Decision before lists: the "Best move right now" hero and experiences now
+  render ABOVE the two ranked list cards instead of below them.
+- Renames: "Your next move" is now "Best move right now"; "Top 10 food near
+  Orlando" is "Best places to eat right now"; "Top 10 things to do near
+  Orlando" is "Best things to do today". Repeated city dropped (header has it).
+- Weather is now intelligence, not a widget: smaller, with a "Good for indoor
+  dining and covered patios" style line derived from the real numbers.
+- Bottom spacer so the last card never hides under the nav.
+- Residual for v2.2 (logged, not forgotten): the mood card still renders above
+  the hero, and lifting the hero above weather needs block-boundary refactoring
+  in the 6k-line home render that I will not do blind. Worth the drive and
+  Food + experience chips wait on farther-radius fetch and the destinations
+  feature respectively.
+
+## v2.0 - global trust layer
+- New lib/tags.js: one primary identity per place (dining, theme park,
+  attraction, museum, park, hotel, shopping, event) resolved from Google types
+  with restaurant-beats-tourist_attraction precedence, plus a category
+  compatibility allowlist. Badges must now pass BOTH the v1.9 evidence gates
+  and the compatibility gate.
+- Regression tests: scripts/test-tags.mjs runs the acceptance fixture list
+  (Diagon, Bocas, cafe, bakery, park, theme park, T-Rex, SeaWorld, Disney
+  Springs, event labels, missing price). 20/20 passing at build time; run
+  "node scripts/test-tags.mjs" after any tag/identity change.
+- Trust audit mode: add ?debug=1 to the URL (or set localStorage wf_debug=1)
+  and every place detail shows identity, Google types, candidate badges, shown,
+  blocked with deterministic reasons, park-admission flag, and which AI fields
+  returned vs hidden.
+- "May require park admission." cue on true theme/water/amusement parks only.
+- Venue-appropriate section labels: What to order (dining), Don't miss
+  (attractions/theme parks/museums), What to see (parks), Know before you go
+  (events). The AI must-try prompt now matches the venue kind.
+- Freshness cues where the source is truly known: "Hours from Google." in the
+  hours panel and "Event time from the venue listing." on event details.
+- Verdict prompt now attributes taste/service claims to reviewers while
+  staying decisive.
+- Deferred with reasons: numeric confidence scores, multi-source arbitration,
+  and a review-clustering pipeline. Single structured source today (Google
+  Places + event APIs); the gates provide the trust, the floats would be
+  ceremony. Revisit when a second data source lands.
+
+## v1.9 - trust and hierarchy pass
+- Fixed wrong tags at the definition level. "Nature & trails" matched theme
+  parks via an "_park" substring; nature and outdoor now use exact Google type
+  tokens. Cuisine badges (Steakhouse, Bakery & sweets, Coffee) now require the
+  place's real cuisine identity or a name-evident match; noisy secondary type
+  tokens on a full restaurant no longer mint them.
+- One global CTA order on the detail sheet: Directions is always the primary
+  orange action, Save is secondary with saved state, share third. No more
+  swapping based on open status.
+- Removed the dead header zone: the back button now floats over the hero photo
+  instead of occupying its own empty bar.
+- Core UI emojis replaced: like/dislike are SVG icons on cards and detail,
+  medals are clean rank chips, sparkles and section-header emojis removed.
+  Category tab icons and weather art left for the homepage pass.
+- Share landing pages now state "Wayfind is an independent guide, not
+  affiliated with the venues listed" (GetYourGuide-style compliance hygiene).
+
 ## v1.8 - credibility pass (P0 from product review)
 - Event vs venue status separated. An event detail now leads with event timing
   (Tonight / Tomorrow / date / Ended) instead of "Venue closed"; venue hours are
