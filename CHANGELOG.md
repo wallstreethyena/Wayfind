@@ -4,6 +4,24 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.14 - make the moat visible (Grok review reconciliation)
+- Review triage: "beta tag" was already removed in v3.13 (reviewer graded an
+  older deploy). "No differentiation" is wrong about the engine, right about
+  the screen: the weather/time ranking exists but was invisible on hot days
+  because heroReason had no hot-weather branch, so a 101-degree afternoon
+  showed generic copy. Fixed: hot regime + indoor venue now reads "A cool
+  escape from the heat right now." Fixtures added (hot day surfaces the line;
+  hot day never says get outside).
+- Hero photo sharpness: hero cards now use the 1000px photo instead of the
+  480px thumbnail already being fetched. Free quality, zero new API calls.
+- Rejected from the review, with reasons: AI-generated place photos (violates
+  the no-fabrication trust rules this app is built on); itinerary drag-drop,
+  social layer, AR (pre-validation bets; the review's own "show it to 20
+  tourists" comes first and decides which of these earns investment);
+  crowd-aware ranking (no honest crowd data source exists in the stack).
+- Converged verdict: two independent reviews plus this advisor now all say
+  the same next step is real users watching the screen. That is the roadmap.
+
 ## v3.13 (header label removed) - weather truly in the header
 - The forecast wheel now renders directly under the header row, above the
   search bar, so tapping the chip drops it from the header and pushes the page
