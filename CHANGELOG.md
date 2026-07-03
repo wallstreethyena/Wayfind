@@ -4,6 +4,75 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.33 - provenance record (doc-only)
+- PROVENANCE.md added: dated, factual record of creation timeline, sole
+  authorship on personal resources, and the ownership chain into Wayfind LLC
+  upon formation, expressly reserving the Work as a prior invention relative
+  to any subsequent employment. Supporting evidence by design; the
+  load-bearing items are the pre-start LLC + IP assignment, the copyright
+  registration, and the prior-inventions schedule at onboarding.
+
+## v3.32 - legal hygiene (notice layer)
+- Proprietary LICENSE added (all rights reserved) and a copyright line in the
+  footer. Copyright exists automatically on creation; these establish notice.
+  The load-bearing moves live outside the repo: private GitHub visibility,
+  the LLC + IP assignment, trademark knockout search, and ToS/Privacy/DMCA
+  docs now that accounts, UGC, and a giveaway are live.
+
+## v3.31 - the Annual Giveaway (Nov 1 draw) + chair-timing addendum
+- Gold giveaway card on home, live Jul 4 through Oct 31 by date gate: win a
+  3-night Hilton Orlando stay by sharing any 3 places or lists while signed
+  in. Progress pill (X of 3 shared / entered), sign-in gated so it feeds the
+  account loop, and a full Official Rules sheet behind "How it works":
+  no-purchase, window, random draw ~Nov 1, ARV $600-900 with winner-pays-tax,
+  18+ US, void-where-prohibited, and NOT-affiliated-with-Hilton/Apple
+  disclaimers. Have counsel skim before the fall push; if ARV crosses $600
+  the winner gets a 1099.
+- Entry engine: every share surface now logs AND marks (the card-row share
+  button was not logging at all; fixed). App-shares excluded. Server events
+  are the source of truth; the on-device progress meter can undercount for
+  multi-device users, disclosed in the rules. supabase/giveaway-draw.sql is
+  the one-query Nov 1 draw (entrant pool + random winner).
+- Phase 2 flagged for pre-October: referral-coded share links counting opens
+  on distinct devices, the fraud-resistant "3 different people" version.
+- Parc Soleil note gains the pattern: chairs book ~3 days out (matching
+  3-night owner stays), so reserve the day before check-in.
+
+## v3.30 - linked Insider notes + the Parc Soleil chair hack (verified)
+- Insider notes can now carry a tappable link pill (owner-vouched links only;
+  community Tips remain plain text by design, auto-linking stranger URLs is an
+  attack surface). Link taps log as note_link.
+- First linked gem: Hilton Grand Vacations Parc Soleil. The welcome-letter
+  chair instructions are often broken; the working system is the resort's own
+  Recreation Team ORGANIZER page on Eventbrite, verified live today. We
+  publish the organizer page, not a ticket URL, because ticket IDs rotate and
+  the organizer page is the permanent front door where each drop appears; the
+  note explains the morning-of drop behavior so an empty page reads correctly.
+  Framed as a guest-service tip for people staying there, deliberately not as
+  a way around owner gating.
+- Research verdict on record: no Eventbrite siblings found; these are
+  property-level staff systems, unindexed between drops. Scaling path: gems
+  get added one map entry at a time as discovered, community Tips will
+  collect them organically from guests, and the monetizable version of this
+  feature is ResortPass (cabanas/day passes at hundreds of hotels, real
+  affiliate program) — founder application recommended.
+
+## v3.29 - the FINAL menu (founder-declared) + map decluttering
+- Menu freeze acknowledged and enforced by architecture: CategoryMenu is one
+  component rendering home, map, and itinerary, so this final version and any
+  future tweak propagate site-wide by construction. A do-not-fork banner now
+  tops the component.
+- The final form: glass panel (translucent with backdrop blur) so the map
+  stays visible beneath it; tighter padding; subfilters COLLAPSED by default
+  behind a "Filters: <current> ▼" toggle that shows the active pick,
+  expands on tap, and re-collapses on selection; a right-edge fade plus
+  chevron announces that the tile row slides.
+- Map decluttered: the duplicate bottom subfilter strip is gone (the menu owns
+  filtering), the sign-in/account button no longer renders on the map, and
+  the search bar collapses to a magnifier that slides the field down on tap
+  and tucks away again on blur. Collapsing the filters also ends the menu's
+  collision with the rank legend.
+
 ## v3.28 - navigation audit fixes + curated composite top 10s
 - Navigation audit verdict: two real traps. The browse takeover had no visible
   exit (toggling the tile off was the only way back, undiscoverable), and
