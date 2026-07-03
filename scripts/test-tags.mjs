@@ -1,6 +1,7 @@
 import * as Tags from "../lib/tags.js";
 import * as D from "../lib/dining.js";
 import * as R from "../lib/ranking.js";
+import * as Hol from "../lib/holidays.js";
 import * as Cats from "../lib/categories.js";
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; console.log("PASS  " + name); } else { fail++; console.log("FAIL  " + name); } };
@@ -83,6 +84,15 @@ for (const w of [{ temp: 99, rain: 5 }, { temp: 101 }]) {
 }
 ok("hot day surfaces the indoor-escape hero line", !!_hot);
 if (_hot) ok("hot day never tells you to get outside", R.heroReason({ name: "Leu Gardens", types: ["park", "botanical_garden"] }, { weather: _hot, hour: 13 }) !== "Great weather to get outside");
+
+const _h26 = Object.fromEntries(Hol.holidaysFor(2026).map((h) => [h.key, h.date]));
+ok("july4 2026 lands on July 4", _h26.july4.getMonth() === 6 && _h26.july4.getDate() === 4);
+ok("memorial day 2026 is May 25", _h26.memorial.getMonth() === 4 && _h26.memorial.getDate() === 25);
+ok("thanksgiving 2026 is Nov 26", _h26.thanksgiving.getMonth() === 10 && _h26.thanksgiving.getDate() === 26);
+ok("mlk 2026 is Jan 19", _h26.mlk.getMonth() === 0 && _h26.mlk.getDate() === 19);
+ok("window opens 3 days before july4", Hol.activeHoliday(new Date(2026, 6, 1, 12)) && Hol.activeHoliday(new Date(2026, 6, 1, 12)).key === "july4");
+ok("window closes after the holiday", Hol.activeHoliday(new Date(2026, 6, 5, 9)) === null || Hol.activeHoliday(new Date(2026, 6, 5, 9)).key !== "july4");
+ok("june 28 is outside the window", !(Hol.activeHoliday(new Date(2026, 5, 28, 12)) && Hol.activeHoliday(new Date(2026, 5, 28, 12)).key === "july4"));
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

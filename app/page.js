@@ -6,11 +6,12 @@ import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
+import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.19";
+const BUILD_ID = "v3.24";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -65,6 +66,52 @@ function GlowPin({ size = 26 }) {
       <svg width={s} height={s} viewBox="0 0 24 24" style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(249,115,22,.5))" }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#fff" /></svg>
     </span>
   );
+}
+function iconForPlace(p) {
+  const h = ((((p && p.name) || "") + " " + (((p && p.types) || []).join(" "))).toLowerCase());
+  const T = [["burger|white castle|shake shack|five guys|mcdonald|wendy|hamburger", "\uD83C\uDF54"], ["pizza", "\uD83C\uDF55"], ["taco|mexican|burrito", "\uD83C\uDF2E"], ["sushi|japanese|ramen", "\uD83C\uDF63"], ["chinese|noodle|wok", "\uD83E\uDD61"], ["italian|pasta", "\uD83C\uDF5D"], ["coffee|cafe|espresso", "\u2615"], ["bakery|donut|doughnut|pastry", "\uD83E\uDD50"], ["ice cream|gelato", "\uD83C\uDF66"], ["bbq|barbecue|smokehouse", "\uD83C\uDF56"], ["seafood|crab|lobster|oyster", "\uD83E\uDD9E"], ["steak|churrasc|brazilian", "\uD83E\uDD69"], ["breakfast|brunch|pancake|waffle", "\uD83E\uDD5E"], ["night_club|cocktail|lounge|pub|brewery|\\bbar\\b", "\uD83C\uDF78"], ["wine", "\uD83C\uDF77"], ["hotel|resort|lodging|\\binn\\b", "\uD83C\uDFE8"], ["beach", "\uD83C\uDFD6\uFE0F"], ["park|garden|trail", "\uD83C\uDF33"], ["museum|gallery", "\uD83C\uDFDB\uFE0F"], ["theater|theatre|cinema", "\uD83C\uDFAD"], ["mall|boutique|market|shopping|store", "\uD83D\uDECD\uFE0F"], ["aquarium", "\uD83D\uDC20"], ["zoo|wildlife", "\uD83E\uDD81"], ["golf", "\u26F3"]];
+  for (const [rx, ic] of T) { try { if (new RegExp(rx).test(h)) return ic; } catch (e) {} }
+  try { const c = Ranking.coarseCat(p); if (c === "Food") return "\uD83C\uDF7D\uFE0F"; if (c === "Nightlife") return "\uD83C\uDF78"; } catch (e) {}
+  return "\uD83D\uDCCD";
+}
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
+  const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
+  return (
+    <div style={{ marginBottom: 10, background: `linear-gradient(158deg, ${C.adim}66 0%, ${C.panel} 60%)`, border: "none", borderRadius: 0, padding: heading ? "14px 12px 14px" : "10px 12px 12px" }}>
+      {heading && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
+          <GlowPin size={22} />
+          <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.4px", lineHeight: 1.1, color: C.text }}>{heading}</div>
+        </div>
+      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2 }}>
+        {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 1px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", minWidth: 0 }}>
+            <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
+            <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
+          </button>
+        ); })}
+      </div>
+      <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+        <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
+          {subs.map((sf) => { const son = sub === sf.id; return (
+            <button key={sf.id} onClick={() => onSub(sf.id)} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
+          ); })}
+        </div>
+      </div>
+    </div>
+  );
+}
+function FeaturedTag({ name }) {
+  if (!(featuredBoost(name) > 0)) return null;
+  return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>⭐ Featured</span>;
+}
+function listShareUrl(key, title, n, loc, hk) {
+  const q = ["t=" + encodeURIComponent(String(title || "").slice(0, 60))];
+  if (hk) q.push("hk=" + encodeURIComponent(hk));
+  if (n) q.push("n=" + n);
+  if (loc) q.push("loc=" + encodeURIComponent(String(loc).split(",")[0].slice(0, 30)));
+  return originUrl("/l/" + encodeURIComponent(key) + "?" + q.join("&"));
 }
 function mapsRouteUrl(list) {
   const pts = (list || []).filter((pp) => pp && pp.lat != null && pp.lng != null).slice(0, 9);
@@ -498,6 +545,8 @@ const WAYFIND_NOTES = {
     "Eating two or more meals? The All-Day Dining Deal usually beats paying per meal at the quick-service spots. It does not cover Sharks Underwater Grill, so pair the deal for lunch with Sharks for dinner.",
     "Quick-service pecking order from regulars: Voyager's Smokehouse first, Seafire Grill second.",
     "Ride Mako and Manta in the first hour after opening, then move indoors for shows and aquariums during the mid-afternoon heat.",
+    "On many summer and holiday nights the park closes with fireworks over the lagoon; stake out the Bayside lakefront about 20 minutes before close.",
+    "Visiting twice within a year? The annual pass usually beats two single-day tickets and adds parking and in-park discounts; run that math before buying a day ticket.",
   ],
 };
 function wayfindNotes(name) {
@@ -506,7 +555,11 @@ function wayfindNotes(name) {
   for (const k in WAYFIND_NOTES) { if (n.startsWith(k) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_NOTES[k]; }
   return null;
 }
-const WAYFIND_FEATURED = { "t-rex cafe": 18 };
+const WAYFIND_FEATURED = {
+  "t-rex cafe": 18,
+  "hilton orlando": 14,
+  "seaworld orlando": 14,
+};
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -2126,11 +2179,18 @@ function PageInner() {
     if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed")) { setA2hs(true); try { logEvent("a2hs_shown"); } catch (e) {} }
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
+  const _expLinked = useRef(false);
+  useEffect(() => { try {
+    if (_expLinked.current) return; _expLinked.current = true;
+    const sp = new URLSearchParams(window.location.search);
+    const k = sp.get("exp");
+    if (k) { setTimeout(() => { try { if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); } else { openExperience(k); } } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
+  } catch (e) {} }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
-  const [sortBy, setSortBy] = useState("near");
+  const [sortBy, setSortBy] = useState("best");
   const [searchRadius, setSearchRadius] = useState(48280); // meters, ~30 miles default
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
@@ -2219,9 +2279,10 @@ function PageInner() {
   const [insightLoading, setInsightLoading] = useState(false);
   const [insightFull, setInsightFull] = useState(null);
   const [insightFullLoading, setInsightFullLoading] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+  const [showMore, setShowMore] = useState(true);
+  useEffect(() => { if (detail && !detail._event) { try { loadFullInsight(detail, detailExtra); } catch (e) {} try { loadVideos(detail); } catch (e) {} } }, [detail && detail.id]);
   const [themesOpen, setThemesOpen] = useState(false);
-  const [lists, setLists] = useState({ favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] }, custom: { id: "custom", name: "Customize me", emoji: "✨", places: [] } });
+  const [lists, setLists] = useState({ favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] } });
   const [activeList, setActiveList] = useState(null);
   const [saveTarget, setSaveTarget] = useState(null);
   const [newListOpen, setNewListOpen] = useState(false);
@@ -2232,6 +2293,22 @@ function PageInner() {
   const [aiHooks, setAiHooks] = useState(null);
   const [hookLikes, setHookLikes] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]")); } catch { return new Set(); } });
   const [cuisineSheet, setCuisineSheet] = useState(null);
+  const openHoliday = async (h) => {
+    const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
+    if (!hol) return;
+    const content = Hol.contentFor(hol.key, hol.name);
+    const theme = Hol.themeFor(hol.key);
+    try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
+    try {
+      const lists = await Promise.all(content.queries.map((q) => G.searchNearbyPlaces(q, center).catch(() => [])));
+      let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
+      pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+      pool = pool.slice(0, 12);
+      if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
+      setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), label: hol.name + " picks", take: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
+    } catch (e) { showToast("Could not load " + hol.name + " picks"); }
+  };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
@@ -2248,8 +2325,19 @@ function PageInner() {
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
   const noteRef = useRef(null);
-  const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Insider tip", text: legacy[k] }; } return c; } catch { return {}; } });
-  const [commentType, setCommentType] = useState("Insider tip");
+  const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } return c; } catch { return {}; } });
+  const [commentType, setCommentType] = useState("Tip");
+  const [placePosts, setPlacePosts] = useState([]);
+  useEffect(() => {
+    let live = true;
+    setPlacePosts([]);
+    if (!supabase || !detail || detail._event || !detail.id) return;
+    (async () => { try {
+      const { data } = await supabase.from("comments").select("id,place_id,user_id,author,type,body,created_at").eq("place_id", detail.id).order("created_at", { ascending: false }).limit(20);
+      if (live && Array.isArray(data)) setPlacePosts(data);
+    } catch (e) {} })();
+    return () => { live = false; };
+  }, [detail && detail.id]);
   const [hookDetail, setHookDetail] = useState(null);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
@@ -2962,7 +3050,7 @@ function PageInner() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem("wayfind_lists");
-      if (raw) { const saved = JSON.parse(raw); setLists({ favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] }, custom: { id: "custom", name: "Customize me", emoji: "✨", places: [] }, ...saved }); }
+      if (raw) { const saved = JSON.parse(raw); const _m = { favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] }, ...saved }; if (_m.custom && !((_m.custom.places || []).length)) delete _m.custom; setLists(_m); }
     } catch {}
   }, []);
 
@@ -4014,6 +4102,11 @@ function PageInner() {
               const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
               return (
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
+                    <div style={{ borderRadius: 14, overflow: "hidden", boxShadow: "0 8px 24px rgba(0,0,0,.45)" }}>
+                      <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} />
+                    </div>
+                  </div>
                   <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 12, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     <button onClick={() => setMapMode("places")} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "places" ? C.accent : "transparent", color: mapMode === "places" ? "#fff" : C.light }}>Places</button>
@@ -4240,35 +4333,8 @@ function PageInner() {
             <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
-              {/* v3.5: one box. Six icon tiles exposed at top (Food, Night out, Things to
-                  do, Beach day, Stays, Shopping). Tapping a category slides its subfilters
-                  down INSIDE the same box, in the same tile visual language (icon-less pills
-                  that match the top row's weight); tapping again collapses. Inline in normal
-                  flow, no sticky, no bleed. "In the mood for" folded in as a soft header. */}
-              <div style={{ marginTop: -10, marginBottom: 10, background: `linear-gradient(158deg, ${C.adim}66 0%, ${C.panel} 60%)`, border: "none", borderRadius: 0, padding: "14px 12px 14px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
-                  <GlowPin size={22} />
-                  <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.5px", lineHeight: 1.1, color: C.text }}>what are you in the mood for?</div>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2 }}>
-                  {Cats.CATEGORY_TILES.map((m) => {
-                    const on = browseCat === m.id;
-                    return (
-                      <button key={m.id} onClick={() => { try { logEvent("intent_chip", null, { intent: m.label, layer: 1 }); } catch (e) {} const nv = browseCat === m.id ? null : m.id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "8px 1px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", minWidth: 0 }}>
-                        <NavIcon name={m.id} color={on ? C.accent : C.muted} size={21} />
-                        <span style={{ fontSize: 9.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div style={{ overflow: "hidden", maxHeight: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 96 : 0, opacity: (browseCat && (SUBFILTERS[browseCat] || []).length > 1) ? 1 : 0, transition: "max-height 0.36s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
-                  <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
-                    {(SUBFILTERS[browseCat] || []).map((sf) => { const son = sub === sf.id; return (
-                      <button key={sf.id} onClick={() => setSub(sf.id)} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
-                    ); })}
-                  </div>
-                </div>
-              </div>
+              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
+              <CategoryMenu heading="what are you in the mood for?" activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -4349,6 +4415,18 @@ function PageInner() {
                   <div style={{ marginBottom: 16 }}>
                     {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
+                      {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
+                        <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _c.stripe }} />
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                            <span style={{ fontSize: 22 }}>{_h.emoji}</span>
+                            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _c.text, textTransform: "uppercase" }}>Holiday special · {_ct.tag}</span>
+                          </div>
+                          <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_ct.headline(locName)}</div>
+                          <div style={{ fontSize: 12.5, color: _c.text, marginTop: 5, lineHeight: 1.4 }}>{_ct.sub}</div>
+                          <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _c.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the picks ›</div>
+                        </div>
+                      ); })()}
                       <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
@@ -4371,7 +4449,7 @@ function PageInner() {
                 const row = (p, i, n) => (
                   <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                     <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
-                    <FallbackImg src={p.photo} icon="🍽️" style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                    <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
@@ -4576,7 +4654,7 @@ function PageInner() {
           }
           return (
             <div>
-              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 800, fontSize: 16, cursor: "pointer", padding: "6px 2px 12px" }}>‹ Back</div>
+              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 10 }}>‹ Back</div>
               <div style={{ paddingBottom: 4 }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, lineHeight: 1.45 }}>{sSub}</div>
@@ -4592,7 +4670,7 @@ function PageInner() {
               {!surpriseLoading && p && (
                 <div>
                   <div onClick={() => openDetail(p)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
-                    <FallbackImg src={p.photo} icon="🍽️" style={{ width: "100%", height: 168, objectFit: "cover", display: "block" }} />
+                    <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 168, objectFit: "cover", display: "block" }} />
                     <div style={{ padding: 13 }}>
                       <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>{p.name}</div>
                       {p.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>📍 {p.address}</div>}
@@ -4685,14 +4763,22 @@ function PageInner() {
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (
             <div>
-              <div onClick={() => { setScreen("explore"); setActiveBadge(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 800, fontSize: 16, cursor: "pointer", padding: "6px 2px 12px" }}>‹ Back</div>
-              <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14 }}>
-                <div style={{ fontSize: 34, lineHeight: 1 }}>{exp.icon}</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: C.text, marginTop: 6 }}>{exp.title}</div>
-                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 6 }}>{exp.lead}</div>
-                <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginTop: 8 }}>Based on rating, review volume, distance, relevance, and real experience signals.</div>
-                {!expLoading && <div style={{ fontSize: 12, color: C.muted, marginTop: 8, fontWeight: 600 }}>{list.length} place{list.length === 1 ? "" : "s"} found</div>}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <div onClick={() => { setScreen("home"); setActiveBadge(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button onClick={() => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} shareLink(exp.title, listShareUrl(activeBadge, exp.title, list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + exp.title); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                  {(() => { const u = mapsRouteUrl(list); return u ? (<a href={u} target="_blank" rel="noreferrer" aria-label="Open this list in Google Maps" title="Open in Maps" onClick={() => { try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 9) }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, textDecoration: "none" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></a>) : null; })()}
+                  {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: exp.title, label: exp.title }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
+                </div>
               </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <span style={{ fontSize: 16 }}>{exp.icon}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", color: C.accent, textTransform: "uppercase" }}>Wayfind picks</span>
+              </div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{exp.title}</div>
+              <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
+              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals. No ads, no paid placement.</div>
+              {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
               {!expLoading && (expPlaces || []).length > 0 && (
                 <div style={{ display: "flex", gap: 7, marginBottom: 12, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
@@ -4857,6 +4943,7 @@ function PageInner() {
           const list = Trips.tripList(trips);
           return (
             <div>
+              <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} setScreen("home"); setTimeout(() => pickBrowse(id), 60); }} onSub={() => {}} />
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
                 <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
@@ -5138,7 +5225,7 @@ function PageInner() {
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ position: "relative" }}>
-              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
+              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
               {detail.photos && detail.photos.length > 0 ? (
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
@@ -5293,22 +5380,44 @@ function PageInner() {
                 </a>
               )}
 
+              {!detail._event && placePosts.length > 0 && (
+                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Community takes</span>
+                    <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>
+                  </div>
+                  {placePosts.slice(0, 6).map((cp, i) => (
+                    <div key={cp.id || i} style={{ paddingTop: i ? 9 : 0, marginTop: i ? 9 : 0, borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
+                        <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light }}>{cp.author || "member"}</span>
+                        <span style={{ fontSize: 9, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}44`, borderRadius: 999, padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>{cp.type}</span>
+                        {user && cp.user_id === user.id && (
+                          <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) noteRef.current.value = cp.body || ""; }} style={{ marginLeft: "auto", background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer" }}>Edit</button>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5 }}>{cp.body}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
               {!detail._event && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your take</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 2 }}>Your take</div>
+                  <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 7 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                    {["Insider tip", "Best dish", "Recommendation", "Review"].map((t) => (
+                    {["Tip", "Best dish", "Warning", "Review"].map((t) => (
                       <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.accent : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.accent : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
                     ))}
                   </div>
-                  <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + ". Saved on your device and shown here whenever you open this place."} rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
-                  <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} showToast(v ? commentType + " saved" : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length }); } catch (e) {} }} style={{ marginTop: 8, padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                  <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                  <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); showToast(v ? (posting ? commentType + " posted" : commentType + " saved on this device") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then(() => { setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); }); } catch (e) {} } }} style={{ marginTop: 8, padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
                   {placeComments[detail.id] && (
                     <div style={{ marginTop: 8, fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></div>
                   )}
                 </div>
               )}
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
+                <FeaturedTag name={detail.name} />
                 {experienceBadges(detail, null, 4).map((b) => (
                   <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
                 ))}
@@ -5419,10 +5528,6 @@ function PageInner() {
               {/* 2. Why Wayfind picked it — a judgment-driven decision reason, not a formula. No expand button; the deeper context lives in the insider tip and Tips, videos & more. */}
               {/* Viator experiences: shown only for activity-type places Viator actually sells (attractions, museums, nature, scenic, etc.), never restaurants, bars, or hotels. This is an affiliate link, disclosed in Terms; it is tracked once a Partner ID is set in AFFIL and works untracked until then. */}
               <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                <button onClick={() => { const n = !showMore; setShowMore(n); if (n) { loadFullInsight(detail, detailExtra); loadVideos(detail); } }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, cursor: "pointer", fontSize: 13.5, fontWeight: 800, color: C.accent, background: "transparent", border: "none", padding: "2px 0" }}>
-                  <span>{showMore ? "Show less" : "See photos, tips & details"}</span>
-                  <span style={{ fontSize: 12, fontWeight: 800 }}>{showMore ? "▴" : "▾"}</span>
-                </button>
                 {showMore && (
                   <div style={{ marginTop: 10 }}>
                     {insightFullLoading && !insightFull && <div style={{ fontSize: 13, color: C.muted }}>Pulling the details together…</div>}
@@ -5725,7 +5830,7 @@ function PageInner() {
               {list.map((p, i) => (
                 <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                   <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
-                  <FallbackImg src={p.photo} icon="🍽️" style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                  <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
@@ -5756,7 +5861,7 @@ function PageInner() {
         // Theme-specific place curation — each theme shows the right number
         // of places, curated from real data. "Top 5" = exactly 5. "Skip" = 3.
         const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-        let themePlaces = placesForHook(hookDetail, allSrc);
+        let themePlaces = hookDetail.places || placesForHook(hookDetail, allSrc);
 
         if (themePlaces.length === 0 && primaryId) {
           const pri = allSrc.find((x) => x.id === primaryId);
@@ -5775,11 +5880,12 @@ function PageInner() {
             {/* Gradient hero header */}
             <div style={{ background: `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "none", color: acc, fontSize: 17, fontWeight: 800, cursor: "pointer", padding: "2px 0" }}>‹ Back</button>
+                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px" }}>‹ Back</button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {(() => { const u = mapsRouteUrl(themePlaces); return u ? (
                     <a href={u} target="_blank" rel="noreferrer" aria-label="Open this list in Google Maps" title="Open in Maps" onClick={() => { try { logEvent("maps_list", null, { theme, n: Math.min(themePlaces.length, 9) }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, textDecoration: "none" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></a>
                   ) : null; })()}
+                  <button onClick={() => { const _k = (hookDetail && (hookDetail.key || hookDetail.id)) || theme; const _t = (hookDetail && (hookDetail.title || hookDetail.label)) || "Top picks"; try { logEvent("share", null, { kind: "list", theme: _k }); } catch (e) {} shareLink(_t, listShareUrl(_k, _t, themePlaces.length, locName, hookDetail.hol || ""), () => showToast("Link copied"), "Check this Wayfind list: " + _t); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                   <button onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }} aria-label={isLiked ? "Saved to lists" : "Save to lists"} title={isLiked ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, color: isLiked ? acc : C.muted, cursor: "pointer" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? acc : "none"} stroke={isLiked ? acc : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
                   </button>
@@ -5825,7 +5931,7 @@ function PageInner() {
                     {/* Featured (first) place: large photo on top */}
                     {isFeatured && (
                       <div style={{ position: "relative" }}>
-                        <FallbackImg src={p.photo} icon="🍽️" style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
+                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
                         {showRank && (
                           <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", borderRadius: 10, padding: "5px 10px", display: "flex", alignItems: "center", gap: 6 }}>
                             <span style={{ fontSize: 20 }}>{medalEmoji || "🏆"}</span>
@@ -5847,7 +5953,7 @@ function PageInner() {
                     <div style={{ display: isFeatured ? "block" : "flex", padding: isFeatured ? "12px 14px 14px" : 0, gap: 0 }}>
                       {!isFeatured && (
                         <div style={{ position: "relative", flexShrink: 0 }}>
-                          <FallbackImg src={p.photo} icon="🍽️" style={{ width: 86, height: 86, objectFit: "cover", display: "block" }} />
+                          <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 86, height: 86, objectFit: "cover", display: "block" }} />
                           {showRank && (
                             <div style={{ position: "absolute", top: 5, left: 5, width: 22, height: 22, borderRadius: "50%", background: rankColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: medalEmoji ? 14 : 10, fontWeight: 800, color: "#0D1117" }}>
                               {medalEmoji || (i + 1)}
@@ -6352,7 +6458,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   return (
     <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       <div style={{ display: "flex" }}>
-        <FallbackImg src={p.photo} icon="🍽️" style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m

@@ -4,6 +4,99 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.24 - honest medals + one list language
+- Ranking: the category browse defaulted to a pure distance sort while
+  stamping ranked medals on the result, which is how a 3.8 outranked a 4.8.
+  Default is now "best" (the conditions ranker: rating, review volume,
+  distance, weather/time fit). Closest remains one tap away. Correction on
+  record: the earlier "Google raw order" theory was wrong; the sort existed,
+  the default pointed at the wrong one.
+- Detail sheet floating Back moved top-left and slightly higher, clear of the
+  photo carousel arrow.
+- Explore (badge) pages now speak the Top-10 page's language: open typography
+  header (eyebrow, big title, lead, methodology, "N curated picks" divider)
+  replacing the boxed card, and the same share / open-in-Maps / heart trio
+  top right, with share deep-linking back into the same list. Back now
+  returns HOME instead of dumping people on the explore hub, which was the
+  "different landing page" mystery.
+- Remaining deliberate delta, decision pending: explore uses standard
+  PlaceCards while the Top-10 page uses its own medal cards; the medal cards
+  are the outlier and should eventually converge on PlaceCard.
+
+## v3.23 - community takes (the differentiator groundwork)
+- Takes are no longer private notes: signed-in saves now POST to a Supabase
+  comments table (one per person per place, editable), and every detail page
+  fetches and renders "Community takes" with author, type chip, and body.
+  Signed-out saves stay device-local with an honest toast. REQUIRES a one-time
+  2-minute setup: run supabase/comments.sql in the Supabase SQL editor; until
+  then the feature degrades silently to local-only.
+- New taxonomy, each type a distinct engine signal: Tip (logistics and how to
+  do the place right), Best dish (feeds what-to-order identity), Warning (the
+  negative signal the app was missing), Review (overall verdict; schema has a
+  rating column so stars can land later without a migration). Legacy Insider
+  tips migrate to Tip, Recommendations to Review.
+- Strategy note on record: community signal BLENDS with the review-grounded
+  AI, it does not replace it; user data starts modifying scores only once a
+  place has real density. Collected from day one so the data exists.
+- "See photos, tips & details" accordion removed; the full insight and videos
+  now render on every detail open. Cost note: those loads used to be tap-gated
+  and now fire per open; the per-place insight cache keeps it bounded.
+
+## v3.22 - holiday system (calendar, themed hero, curated lists, themed unfurls)
+- lib/holidays.js: all 11 federal holidays computed per year in pure date
+  math, so recurrence is automatic forever. Window: 3 days before the holiday
+  through the holiday itself. Seven fixtures lock the date logic (41 total).
+- Themed hero card renders above the normal hero only inside the window;
+  July 4th ships fully curated (fireworks viewing queries with a retail
+  filter, because a naive fireworks search ranks fireworks STORES first).
+  The other ten holidays get honest generic weekend picks until each is
+  themed; no invented holiday claims.
+- Tapping the card fetches on demand (rides the query cache, cost-bounded)
+  and opens the standard experience screen via a places override, which means
+  share, open-in-Maps route, and save-to-lists all work on holiday lists for
+  free. Location follows the app center: current GPS or any searched city.
+- Shared holiday lists unfurl as THEMED cards: the OG generator gained a
+  holiday layer (July 4th: navy field, red stripe, fireworks tag) with full
+  fallbacks so every existing card is pixel-identical. Deep links route
+  hol- keys back into the holiday list on open.
+- Deploying today lands inside the live July 4th window: instant proof, and
+  the card should vanish on its own July 5th, which is the real trigger test.
+
+## v3.21 - shared menu everywhere, smart icons, pill backs
+- CategoryMenu extracted as one component; home, Map (as a floating overlay
+  above the map), and Itinerary (as a launcher that jumps into browsing) now
+  render the identical menu system. Mood title reduced to 20px inside it.
+- Map note: the map already had its own small chip row; if the overlay
+  duplicates it visually, say so and the old row goes next pass.
+- Weather chip verdict: it was never removed; code intact since v3.15. If it
+  is missing live after this deploy, the wheel will be too, and the cause is
+  a failed weather fetch, not a missing feature.
+- Smart per-place icons: photo-less cards now show a fitting icon (burger
+  joints get a burger, cafes coffee, hotels a hotel, 24-rule table with
+  honest category fallbacks) instead of a generic plate.
+- "Customize me" default list removed from Favorites and resurrection-proofed
+  on load (an empty stored copy is deleted; one with saved places survives so
+  nothing of yours is destroyed).
+- Back buttons are now bordered pills with accent text everywhere, not just
+  bigger: visible and unmistakable as a global rule.
+- Share icon beside the map button on hero pages: already shipped in v3.20.
+
+## v3.20 - the traffic build: labeled Featured + shareable lists
+- Featured placements are now LABELED: a gold "Featured" tag renders beside
+  the badges anywhere a boosted place appears (feed cards and detail).
+  Featured set: T-Rex Cafe, Hilton Orlando, SeaWorld Orlando. Caveat: the
+  matcher is prefix-based, so "hilton orlando" may also catch sister Hiltons
+  whose names start the same; tighten if seen live.
+- SeaWorld Insider notes gained fireworks timing and the annual-pass math,
+  phrased durable (no prices, no show names that rot).
+- Shareable lists, end to end: every experience/Top-10 page has a share
+  button; links land on a new /l/[key] route whose OG metadata renders the
+  existing list-style card (title, count, city), so group-chat unfurls are
+  branded; tapping deep-links into /?exp=<key>, which the app now reads once
+  on load and opens THAT exact list, then cleans the URL. The tap no longer
+  dumps people on home.
+- Gates extended: the compile and duplicate checks now cover the new route.
+
 ## v3.19 - the leverage build (install nudge; share billboards verified)
 - Add-to-home-screen nudge: slim dismissible banner on a visitor's SECOND
   visit, never shown when already installed. Android gets a real one-tap

@@ -84,10 +84,14 @@ export async function GET(req) {
   const loc = (searchParams.get("loc") || "").slice(0, 60);
   const n = (searchParams.get("n") || "").replace(/[^0-9]/g, "").slice(0, 3);
   const sub = (searchParams.get("sub") || "").slice(0, 100);
+  const hk = (searchParams.get("hk") || "").slice(0, 20);
+  const HOLS = { july4: { bg: "#0A1128", stripe: "#B22234", tag: "4TH OF JULY \u00b7 HOLIDAY SPECIAL", emoji: "\uD83C\uDF86", text: "#FFD7D7" } };
+  const HT = HOLS[hk] || null;
 
   return new ImageResponse(
     (
-      <div style={{ width: "1200px", height: "630px", display: "flex", backgroundColor: BG, fontFamily: "sans-serif", position: "relative" }}>
+      <div style={{ width: "1200px", height: "630px", display: "flex", backgroundColor: HT ? HT.bg : BG, fontFamily: "sans-serif", position: "relative" }}>
+        {HT ? (<div style={{ position: "absolute", display: "flex", top: 0, left: 0, width: "1200px", height: "16px", backgroundColor: HT.stripe }} />) : null}
         {/* warm glow behind the pin */}
         <div style={{ position: "absolute", display: "flex", top: -40, right: -140, width: 780, height: 780, borderRadius: 780, backgroundImage: "radial-gradient(circle, rgba(249,115,22,0.28) 0%, rgba(249,115,22,0) 62%)" }} />
 
@@ -100,6 +104,7 @@ export async function GET(req) {
 
         {/* text column */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 64px", width: 770, height: "100%" }}>
+          {HT ? (<div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 14 }}><div style={{ display: "flex", fontSize: 46 }}>{HT.emoji}</div><div style={{ display: "flex", fontSize: 25, fontWeight: 800, color: HT.text, letterSpacing: 3 }}>{HT.tag}</div></div>) : null}
           <div style={{ display: "flex", fontSize: 46, fontWeight: 800, color: "#FFFFFF", letterSpacing: -0.5, marginBottom: 20 }}>wayfind</div>
           <div style={{ display: "flex", fontSize: 72, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.04, letterSpacing: -2, maxWidth: 640, textShadow: "0 2px 30px rgba(0,0,0,0.4)" }}>{title}</div>
           {(n || loc) ? (
