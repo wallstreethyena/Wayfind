@@ -1,5 +1,5 @@
 "use client";
-import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.27";
+const BUILD_ID = "v3.28";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2205,7 +2205,7 @@ function PageInner() {
     if (_expLinked.current) return; _expLinked.current = true;
     const sp = new URLSearchParams(window.location.search);
     const k = sp.get("exp");
-    if (k) { setTimeout(() => { try { if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); } else { openExperience(k); } } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
+    if (k) { setTimeout(() => { try { if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); } else if (k.indexOf("cur-") === 0) { openCurated(k.slice(4)); } else { openExperience(k); } } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
   } catch (e) {} }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
@@ -2327,8 +2327,31 @@ function PageInner() {
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
       if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
-      setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), label: hol.name + " picks", take: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
+      setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
+  };
+  const CURATED = {
+    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The ten meals worth leaving the house for, organized by when you are hungry: three breakfast spots, three for lunch, three for dinner, and one quick bite. Ranked inside each slot by the Wayfind Score. Tap any one for the full case.", slots: [{ label: "Breakfast", n: 3, q: "best breakfast restaurants" }, { label: "Lunch", n: 3, q: "best lunch restaurants" }, { label: "Dinner", n: 3, q: "best dinner restaurants" }, { label: "Quick bite", n: 1, q: "best quick bites fast casual" }] },
+    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The best of the area in one list: the two theme parks worth a full day, one movie theater for the rain hours, and the standout attractions and tours around you. Attraction pages include bookable tours. Live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
+    shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }] },
+  };
+  const openCurated = async (kind) => {
+    const c = CURATED[kind]; if (!c) return;
+    try { logEvent("curated_open", null, { kind }); } catch (e) {}
+    try {
+      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).catch(() => [])));
+      const used = new Set(); const out = []; const sections = [];
+      c.slots.forEach((sl, ix) => {
+        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id));
+        pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+        const take = pool.slice(0, sl.n);
+        take.forEach((pp) => used.add(pp.id));
+        if (take.length) sections.push({ label: sl.label, count: take.length });
+        out.push(...take);
+      });
+      if (!out.length) { showToast("Nothing found nearby for that yet"); return; }
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: out, sections });
+    } catch (e) { showToast("Could not load that list"); }
   };
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
@@ -4358,6 +4381,7 @@ function PageInner() {
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
                 <div style={{ marginBottom: 16 }}>
+                  <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 12 }}>‹ Back</div>
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
@@ -4442,6 +4466,11 @@ function PageInner() {
                       ); })()}
                       <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
                     </>)}
+                    <div style={{ display: "flex", gap: 8, overflowX: "auto", margin: "2px 0 12px", paddingBottom: 2, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                      {[["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences"], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping"]].map(([k, ic, lb]) => (
+                        <button key={k} onClick={() => openCurated(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 15px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}><span style={{ fontSize: 15 }}>{ic}</span>{lb} \u203a</button>
+                      ))}
+                    </div>
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => openSurprise()} />
@@ -5224,7 +5253,7 @@ function PageInner() {
         {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
-          <button key={s.id} onClick={() => { setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } }} style={{ flex: 1, padding: "12px 8px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer" }}>
+          <button key={s.id} onClick={() => { if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } }} style={{ flex: 1, padding: "12px 8px 10px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, background: "transparent", border: "none", cursor: "pointer" }}>
             <NavIcon name={s.icon} color={active ? C.accent : C.muted} />
             <span style={{ fontSize: 11, fontWeight: active ? 700 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </button>
@@ -5932,8 +5961,9 @@ function PageInner() {
                 const rankColor = rankColours[i] || C.accent;
                 const badges = experienceBadges(p, null, 2);
                 return (
+                  <Fragment key={p.id}>
+                    {hookDetail.sections && (() => { let acc = 0; for (const sec of hookDetail.sections) { if (i === acc) return <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.9px", textTransform: "uppercase", color: C.accent, margin: i === 0 ? "2px 2px 10px" : "18px 2px 10px" }}>{sec.label}</div>; acc += sec.count; } return null; })()}
                   <div
-                    key={p.id}
                     onClick={() => { setHookDetail(null); openDetail(p, hookDetail.theme); }}
                     style={{
                       background: isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card,
@@ -6003,6 +6033,7 @@ function PageInner() {
                       </div>
                     </div>
                   </div>
+                  </Fragment>
                 );
               })}
 

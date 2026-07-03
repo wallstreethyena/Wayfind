@@ -4,6 +4,26 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.28 - navigation audit fixes + curated composite top 10s
+- Navigation audit verdict: two real traps. The browse takeover had no visible
+  exit (toggling the tile off was the only way back, undiscoverable), and
+  tapping the already-active Home tab did nothing. Fixed both: a Back pill now
+  tops every browse takeover, and tapping active Home resets to the default
+  feed, the standard mobile convention.
+- Curated composite lists, reachable from three chips under the hero: Top 10
+  Food (3 breakfast, 3 lunch, 3 dinner, 1 quick bite, deduped, ranked inside
+  each slot), Top 10 Experiences (2 theme parks, 1 movie theater, 7 top
+  attractions whose detail pages carry the Viator tour links), Top 10
+  Shopping. Each opens the standard experience screen with visible SECTION
+  LABELS between slots and a plain-language lead explaining what the list is
+  and how it was picked. Share and deep links work (cur- keys). The 3-events
+  slot is deferred one build: event objects have a different shape than
+  places and faking them as places would violate the trust rules; it needs a
+  proper event-row renderer.
+- Latent bug found and fixed: the experience screen titles read themeTitle
+  and themeBody, so the holiday list has been opening with an EMPTY header
+  since v3.22; holiday and composites now populate the correct fields.
+
 ## v3.27 - the map list locates instead of leaving
 - Tapping a row in the map drawer no longer jumps to the detail page: the
   drawer collapses, the map pans and zooms to that pin, and the preview card
