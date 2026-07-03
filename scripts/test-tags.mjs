@@ -90,9 +90,10 @@ ok("july4 2026 lands on July 4", _h26.july4.getMonth() === 6 && _h26.july4.getDa
 ok("memorial day 2026 is May 25", _h26.memorial.getMonth() === 4 && _h26.memorial.getDate() === 25);
 ok("thanksgiving 2026 is Nov 26", _h26.thanksgiving.getMonth() === 10 && _h26.thanksgiving.getDate() === 26);
 ok("mlk 2026 is Jan 19", _h26.mlk.getMonth() === 0 && _h26.mlk.getDate() === 19);
-ok("window opens 3 days before july4", Hol.activeHoliday(new Date(2026, 6, 1, 12)) && Hol.activeHoliday(new Date(2026, 6, 1, 12)).key === "july4");
+ok("july4 window active once juneteenth passes", Hol.activeHoliday(new Date(2026, 5, 20, 12)) && Hol.activeHoliday(new Date(2026, 5, 20, 12)).key === "july4");
+ok("overlapping windows: nearest holiday wins", Hol.activeHoliday(new Date(2026, 5, 14, 12)) && Hol.activeHoliday(new Date(2026, 5, 14, 12)).key === "juneteenth");
 ok("window closes after the holiday", Hol.activeHoliday(new Date(2026, 6, 5, 9)) === null || Hol.activeHoliday(new Date(2026, 6, 5, 9)).key !== "july4");
-ok("june 28 is outside the window", !(Hol.activeHoliday(new Date(2026, 5, 28, 12)) && Hol.activeHoliday(new Date(2026, 5, 28, 12)).key === "july4"));
+ok("june 12 is outside the window", !(Hol.activeHoliday(new Date(2026, 5, 12, 12)) && Hol.activeHoliday(new Date(2026, 5, 12, 12)).key === "july4"));
 
 ok("member signal silent below 3 authors", R.memberDelta({ authors: 2, warnAuthors: 0 }) === 0 && R.memberDelta(null) === 0);
 ok("member signal positive and capped", R.memberDelta({ authors: 3, warnAuthors: 0 }) === 0.45 && R.memberDelta({ authors: 10, warnAuthors: 0 }) === 0.75);

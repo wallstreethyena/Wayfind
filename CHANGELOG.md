@@ -4,6 +4,38 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.35 - one comment room + working edit/delete + fireworks encore
+- Community takes and the composer are now ONE card: an inset "Add yours"
+  panel on top (visibly a write zone: darker background, its own border),
+  everyone's posts flowing directly below it, yours where you just typed.
+  Empty state invites the first tip.
+- Edit fixed: the old handler filled a textarea in a different card below the
+  fold, so nothing appeared to happen; the composer now sits above and Edit
+  focuses it with the post loaded. Delete added with a two-tap confirm; it
+  clears the server row, the local copy, and the composer. REQUIRES one SQL
+  line (appended to supabase/comments.sql): the delete RLS policy; without it
+  server deletes silently fail while local clears.
+- Holiday card encore, additive: five twinkling sparks in gold, white, and
+  red plus a slow diagonal light sweep, layered over the existing rings and
+  glow.
+
+## v3.34 - landing fix, hero-integrated Top 10s, holiday upgrades, row actions
+- Landing bug fixed: ?place= share links opened the place but never cleaned
+  the URL, so a shared link stuck in history reopened that place on every
+  launch. The param is now stripped after consumption, same as ?exp=.
+- Curated Top 10s moved INSIDE the hero card as a flat text row (no pill
+  bubbles), time-aware: before 2pm Food / Experiences / Shopping; from 2pm
+  until early morning Food / Nightlife / Events (Events jumps to the tab).
+  The 2pm threshold is one constant if the founder meant a later hour. New
+  Top 10 Nightlife composite: 5 bars and lounges, 3 live music, 2 late-night
+  eats.
+- Holiday cards now show 3 WEEKS before each holiday (fixtures updated;
+  overlapping windows resolve to the nearest upcoming holiday by list order),
+  and the card gained a house-style share button top-right, themed unfurl and
+  giveaway credit included.
+- Every list row (Top 10s, holiday, badge lists) now carries Save + Share
+  icons top-right in the house circle style; shares credit the giveaway.
+
 ## v3.33 - provenance record (doc-only)
 - PROVENANCE.md added: dated, factual record of creation timeline, sole
   authorship on personal resources, and the ownership chain into Wayfind LLC

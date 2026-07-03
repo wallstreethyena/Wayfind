@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.33";
+const BUILD_ID = "v3.35";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2093,7 +2093,7 @@ function themedHook(key, p) {
   }
 }
 
-function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare }) {
+function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare, extra }) {
   if (!h) return null;
   const acc = h.accent || C.accent;
   const photo = place && ((place.photos && place.photos[0]) || place.photo);
@@ -2138,6 +2138,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
           {h.metaLine && <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 800, color: "#fff", background: "rgba(0,0,0,.5)", border: "1px solid rgba(255,255,255,.28)", borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>{h.metaLine}</span>}
         </div>
       </div>
+      {extra ? <div style={{ position: "relative", marginTop: 11 }}>{extra}</div> : null}
     </div>
   );
 }
@@ -2362,6 +2363,7 @@ function PageInner() {
   const CURATED = {
     food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The ten meals worth leaving the house for, organized by when you are hungry: three breakfast spots, three for lunch, three for dinner, and one quick bite. Ranked inside each slot by the Wayfind Score. Tap any one for the full case.", slots: [{ label: "Breakfast", n: 3, q: "best breakfast restaurants" }, { label: "Lunch", n: 3, q: "best lunch restaurants" }, { label: "Dinner", n: 3, q: "best dinner restaurants" }, { label: "Quick bite", n: 1, q: "best quick bites fast casual" }] },
     experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The best of the area in one list: the two theme parks worth a full day, one movie theater for the rain hours, and the standout attractions and tours around you. Attraction pages include bookable tours. Live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
+    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Where tonight actually happens: the best bars and lounges, the live music rooms worth the cover, and the late-night eats for after. Ranked inside each slot by the Wayfind Score.", slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }] },
     shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }] },
   };
   const openCurated = async (kind) => {
@@ -2402,9 +2404,10 @@ function PageInner() {
   const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } return c; } catch { return {}; } });
   const [commentType, setCommentType] = useState("Tip");
   const [placePosts, setPlacePosts] = useState([]);
+  const [confirmDel, setConfirmDel] = useState(false);
   useEffect(() => {
     let live = true;
-    setPlacePosts([]);
+    setPlacePosts([]); setConfirmDel(false);
     if (!supabase || !detail || detail._event || !detail.id) return;
     (async () => { try {
       const { data } = await supabase.from("comments").select("id,place_id,user_id,author,type,body,created_at").eq("place_id", detail.id).order("created_at", { ascending: false }).limit(20);
@@ -3134,6 +3137,7 @@ function PageInner() {
     try { params = new URLSearchParams(window.location.search); } catch { return; }
     const listStr = params.get("list");
     const placeId = params.get("place");
+    if (placeId) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
     if (listStr) {
       const pl = decodeList(listStr);
       if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); }
@@ -4473,11 +4477,16 @@ function PageInner() {
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                          <style>{"@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}"}</style>
+                          <style>{"@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: -6, right: 150, width: 54, height: 54, borderRadius: "50%", border: "1.5px solid #7EA6FF", opacity: 0, animation: "wfBurst 2.4s ease-out 1.5s infinite", pointerEvents: "none" }} />
+                          {[[18, 52, 4, "#FFD166", "2s", "0s"], [8, 122, 3, "#FFFFFF", "2.6s", ".5s"], [34, 88, 3, "#FF9EA0", "2.2s", "1s"], [5, 188, 4, "#FFD166", "2.4s", "1.4s"], [27, 152, 3, "#FFFFFF", "1.9s", ".8s"]].map(([t, r, sz, c, d, dl], _i) => (
+                            <span key={_i} style={{ position: "absolute", top: t, right: r, width: sz, height: sz, borderRadius: "50%", background: c, boxShadow: `0 0 6px ${c}`, animation: `wfTwinkle ${d} ease-in-out ${dl} infinite`, pointerEvents: "none" }} />
+                          ))}
+                          <span style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "46%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,.09) 44%, rgba(255,255,255,.16) 50%, rgba(255,255,255,.09) 56%, transparent 100%)", animation: "wfSweep 5.6s ease-in-out infinite", pointerEvents: "none" }} />
                           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _c.stripe, animation: "wfGlow 2.6s ease-in-out infinite" }} />
+                          <button onClick={(e) => { e.stopPropagation(); const _t = _ct.headline(locName); try { logEvent("share", null, { kind: "list", theme: "hol-" + _h.key }); } catch (er) {} giveawayMark("list:hol-" + _h.key); shareLink(_t, listShareUrl("hol-" + _h.key, _t, 0, locName, _h.key), () => showToast("Link copied"), "Check this out on Wayfind: " + _t); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
                             <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(255,209,102,.6))" }}>{_h.emoji}</span>
                             <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _c.text, textTransform: "uppercase" }}>Holiday special · {_ct.tag}</span>
@@ -4518,13 +4527,14 @@ function PageInner() {
                           </div>
                         </div>
                       )}
-                      <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
+                      <HookSolo extra={(() => { const _hr = new Date().getHours(); const _eve = _hr >= 14 || _hr < 5; const _items = _eve ? [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife"], ["events", "\uD83C\uDF9F\uFE0F", "Events tonight"]] : [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences"], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping"]]; return (
+                        <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
+                          {_items.map(([k, ic, lb]) => (
+                            <button key={k} onClick={(e) => { e.stopPropagation(); if (k === "events") { setScreen("events"); } else { openCurated(k); } }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, color: "rgba(255,255,255,.95)", fontSize: 12.5, fontWeight: 800, cursor: "pointer", textShadow: "0 1px 6px rgba(0,0,0,.55)" }}><span style={{ fontSize: 14 }}>{ic}</span>{lb} \u203a</button>
+                          ))}
+                        </div>
+                      ); })()} h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
                     </>)}
-                    <div style={{ display: "flex", gap: 8, overflowX: "auto", margin: "2px 0 12px", paddingBottom: 2, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                      {[["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences"], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping"]].map(([k, ic, lb]) => (
-                        <button key={k} onClick={() => openCurated(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 15px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}><span style={{ fontSize: 15 }}>{ic}</span>{lb} \u203a</button>
-                      ))}
-                    </div>
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => openSurprise()} />
@@ -5484,39 +5494,46 @@ function PageInner() {
                 </a>
               )}
 
-              {!detail._event && placePosts.length > 0 && (
+              {!detail._event && (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
                     <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Community takes</span>
-                    <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>
+                    {placePosts.length > 0 && <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>}
                   </div>
-                  {placePosts.slice(0, 6).map((cp, i) => (
-                    <div key={cp.id || i} style={{ paddingTop: i ? 9 : 0, marginTop: i ? 9 : 0, borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                  <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 11px", marginBottom: placePosts.length ? 12 : 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 2 }}>Add yours</div>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                      {["Tip", "Best dish", "Warning", "Review"].map((t) => (
+                        <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.accent : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.accent : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
+                      ))}
+                    </div>
+                    <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
+                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); showToast(v ? (posting ? commentType + " posted" : commentType + " saved on this device") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then(() => { setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                      {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
+                    </div>
+                  </div>
+                  {placePosts.length > 0 ? placePosts.slice(0, 6).map((cp, i) => (
+                    <div key={cp.id || i} style={{ paddingTop: 10, marginTop: i ? 10 : 0, borderTop: `1px solid ${C.border}` }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
                         <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light }}>{cp.author || "member"}</span>
                         <span style={{ fontSize: 9, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}44`, borderRadius: 999, padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>{cp.type}</span>
                         {user && cp.user_id === user.id && (
-                          <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) noteRef.current.value = cp.body || ""; }} style={{ marginLeft: "auto", background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer" }}>Edit</button>
+                          <span style={{ marginLeft: "auto", display: "inline-flex", gap: 10 }}>
+                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus(); } }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
+                            {confirmDel ? (
+                              <button onClick={() => { try { supabase.from("comments").delete().eq("user_id", user.id).eq("place_id", detail.id).then(() => {}, () => {}); } catch (e) {} setPlacePosts((pp) => (pp || []).filter((x) => x.user_id !== user.id)); const next = { ...placeComments }; delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} if (noteRef.current) noteRef.current.value = ""; setConfirmDel(false); showToast("Deleted"); try { logEvent("user_comment_delete", detail, {}); } catch (e) {} }} style={{ background: "transparent", border: "none", color: "#F26D6D", fontSize: 10.5, fontWeight: 800, cursor: "pointer", padding: 0 }}>Confirm delete</button>
+                            ) : (
+                              <button onClick={() => { setConfirmDel(true); setTimeout(() => setConfirmDel(false), 3500); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Delete</button>
+                            )}
+                          </span>
                         )}
                       </div>
                       <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5 }}>{cp.body}</div>
                     </div>
-                  ))}
-                </div>
-              )}
-              {!detail._event && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 2 }}>Your take</div>
-                  <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 7 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
-                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                    {["Tip", "Best dish", "Warning", "Review"].map((t) => (
-                      <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.accent : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.accent : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
-                    ))}
-                  </div>
-                  <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
-                  <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); showToast(v ? (posting ? commentType + " posted" : commentType + " saved on this device") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then(() => { setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); }); } catch (e) {} } }} style={{ marginTop: 8, padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
-                  {placeComments[detail.id] && (
-                    <div style={{ marginTop: 8, fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></div>
+                  )) : (
+                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 10 }}>Be the first to share a tip for this place.</div>
                   )}
                 </div>
               )}
@@ -6066,7 +6083,13 @@ function PageInner() {
                           )}
                         </div>
                       )}
-                      <div style={{ padding: isFeatured ? 0 : "10px 12px", flex: 1, minWidth: 0 }}>
+                      <div style={{ padding: isFeatured ? 0 : "10px 12px", flex: 1, minWidth: 0, position: "relative" }}>
+                        {(() => { const _sv = isSaved(p.id); return (
+                          <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6, zIndex: 2 }}>
+                            <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: _sv ? acc : "rgba(0,0,0,.38)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.28)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
+                            <button onClick={(e) => { e.stopPropagation(); try { logEvent("share", p, { kind: "place" }); } catch (er) {} giveawayMark(p.id); shareLink(p.name, (typeof window !== "undefined" ? window.location.origin : "") + "?place=" + encodeURIComponent(p.id), () => showToast("Link copied"), "Check out " + p.name + " on Wayfind"); }} aria-label="Share" title="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.38)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                          </div>
+                        ); })()}
                         {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5 }}>{p.name}</div>}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5 }}>
                           {p.rating && (
