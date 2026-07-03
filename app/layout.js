@@ -52,7 +52,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
-      <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>{children}</body>
+      <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>
+        <link rel="preconnect" href="https://places.googleapis.com" />
+        <link rel="preconnect" href="https://maps.googleapis.com" />
+        <link rel="preconnect" href="https://api.open-meteo.com" />
+        {children}
+      </body>
     </html>
   );
 }

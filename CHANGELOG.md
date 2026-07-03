@@ -4,6 +4,55 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.27 - the map list locates instead of leaving
+- Tapping a row in the map drawer no longer jumps to the detail page: the
+  drawer collapses, the map pans and zooms to that pin, and the preview card
+  pops with See details as the tap-through. A map list should find things on
+  the map; details are one tap further.
+- Preview card shows an honest drive estimate beside distance: straight-line
+  miles x 1.3 route factor at 28 mph urban average plus 3 minutes to get
+  rolling, floored at 4, displayed with an approximate mark. Real Directions
+  timing costs per call; this is the correct trade until traffic-aware ETAs
+  earn their bill.
+- Drawer thumbnails without photos now use the smart icon brain instead of a
+  generic pin.
+- MapView gained a focus prop with a fly-to effect; the map instance was
+  already ref-held, so this was an addition, not surgery.
+
+## v3.26 - one map menu, holiday fix, fireworks polish
+- Holiday bug owned and fixed: openHoliday called searchNearbyPlaces through a
+  G. namespace that never existed (imports are named), the ReferenceError fell
+  into the catch, and the catch surfaced as "Could not load 4th of July
+  picks." One-line fix; the picks now actually fetch.
+- Map has ONE menu: the old Food/Night Out chip row above the map is deleted;
+  the shared CategoryMenu overlay is the menu, now on a solid panel with a
+  border so it stops ghosting over the map. Places/Events toggle and the rank
+  legend moved below it (they briefly sit under an open subfilter row, which
+  is acceptable while actively filtering).
+- Home: "what are you in the mood for" heading removed; the menu leads with
+  the tiles.
+- Tiles enlarged into one horizontally scrolling row: 24px icons, 11px labels
+  that never wrap, so Things to do stops breaking onto two lines.
+- Search dropdown now uses the smart icon brain (Burger King reads as a
+  burger); the hardcoded fork is gone.
+- July 4th card got the premium treatment: three staggered firework burst
+  rings, a glowing stripe, and a glowing emoji, all CSS, no cost.
+
+## v3.25 - the score becomes ours (member signal plumbing)
+- New pure Ranking.memberDelta: community takes now feed the Wayfind Score,
+  silent below 3 distinct authors per place so one person can never move a
+  number, capped at +/-0.75 so Google-scale evidence still anchors it;
+  Warnings pull down, Tips/Best dish/Reviews push up. Three fixtures lock the
+  threshold and caps (44 total).
+- Wired non-blocking into all three list pipelines (category browse,
+  experience pages, holiday lists) via one batched comments query per fetch;
+  lists paint instantly and adjust silently if signal exists. Inert today by
+  design: nothing visible changes until real takes accumulate.
+- Detail page shows "N member takes" beside the score, with "in score" once
+  the threshold is met, so collection is visible before it is influential.
+- Methodology copy updated to disclose the new input. A score that quietly
+  changed its inputs would break the trust layer; this one says so on screen.
+
 ## v3.24 - honest medals + one list language
 - Ranking: the category browse defaulted to a pure distance sort while
   stamping ranked medals on the result, which is how a 3.8 outranked a 4.8.

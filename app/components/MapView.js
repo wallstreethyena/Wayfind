@@ -35,12 +35,23 @@ function placePinSVG(fill, num, numColor) {
     "</svg>";
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const circleRef = useRef(null);
   const lastCenterRef = useRef("");
+
+  // Drawer rows hand us a focus target: fly to the pin so the list locates
+  // instead of navigating away.
+  useEffect(() => {
+    if (!focus || focus.lat == null || !mapRef.current) return;
+    try {
+      mapRef.current.panTo({ lat: focus.lat, lng: focus.lng });
+      const z = mapRef.current.getZoom ? mapRef.current.getZoom() : 12;
+      if (z < 14) mapRef.current.setZoom(14);
+    } catch (e) {}
+  }, [focus && focus.ts]);
 
   useEffect(() => {
     let cancelled = false;

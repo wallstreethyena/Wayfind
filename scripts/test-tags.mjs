@@ -94,5 +94,9 @@ ok("window opens 3 days before july4", Hol.activeHoliday(new Date(2026, 6, 1, 12
 ok("window closes after the holiday", Hol.activeHoliday(new Date(2026, 6, 5, 9)) === null || Hol.activeHoliday(new Date(2026, 6, 5, 9)).key !== "july4");
 ok("june 28 is outside the window", !(Hol.activeHoliday(new Date(2026, 5, 28, 12)) && Hol.activeHoliday(new Date(2026, 5, 28, 12)).key === "july4"));
 
+ok("member signal silent below 3 authors", R.memberDelta({ authors: 2, warnAuthors: 0 }) === 0 && R.memberDelta(null) === 0);
+ok("member signal positive and capped", R.memberDelta({ authors: 3, warnAuthors: 0 }) === 0.45 && R.memberDelta({ authors: 10, warnAuthors: 0 }) === 0.75);
+ok("warnings pull down within caps", R.memberDelta({ authors: 4, warnAuthors: 2 }) === 0.1 && R.memberDelta({ authors: 3, warnAuthors: 3 }) === -0.3);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
