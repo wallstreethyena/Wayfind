@@ -10,12 +10,9 @@ export async function POST(req) {
     const key = process.env.ANTHROPIC_API_KEY;
     if (!key) return Response.json({ unavailable: true }, { status: 200 });
     const mode = p.mode === "full" ? "full" : "compact";
-    const kind = p.kind === "event" ? "event" : p.kind === "attraction" ? "attraction" : "dining";
-    const mustTryDesc = kind === "dining" ? "specific dishes or drinks reviewers repeatedly name" : kind === "event" ? "things reviewers say help when attending an event here (arrival timing, parking, nearby stops)" : "specific things reviewers say not to miss (rides, areas, shows, or signature items)";
 
     const facts = [
       `Name: ${p.name}`,
-      ...(kind === "event" ? ["Context: the user is viewing this venue for an UPCOMING EVENT. Never mention the venue being currently closed or its regular hours; frame the tip and any caution for someone attending the event (arrival, parking, what to know)."] : []),
       `Type: ${p.type || "unknown"}`,
       `Area: ${p.city || "unknown"}`,
       `Rating: ${p.rating || "n/a"} from ${p.reviewCount || 0} reviews`,
@@ -51,26 +48,20 @@ export async function POST(req) {
         "goodFor (array of up to 4 specific occasions or people this genuinely suits, drawn from what reviews describe, e.g. 'solo lunch at the bar' or 'big celebrations'; empty array if unclear), " +
         (hasReviews ? "loves (array of up to 4 specific things reviewers single out, in concrete terms; empty array if unclear), " : "loves (empty array), ") +
         (hasReviews ? "cautions (array of up to 3 honest, specific things that would change someone's decision, e.g. long weekend waits, cash only, loud, slow service, ONLY if reviewers mention them; empty array if none), " : "cautions (empty array), ") +
-        (hasReviews ? "mustTry (a JSON array of up to 3 " + mustTryDesc + ", most praised first; empty array if none clearly stand out), " : "mustTry (empty array), ") +
-        (hasReviews ? "pairing (one short phrase on what goes well together if reviews suggest it, e.g. 'the brisket with a cold cider'; empty string if none), " : "pairing (empty string), ") +
+        (hasReviews ? "mustTry (a JSON array of up to 3 specific dishes or drinks reviewers repeatedly name, most praised first; empty array if none clearly stand out), " : "mustTry (empty array), ") +
         (hasReviews ? "tips (array of up to 4 concrete insider moves a regular would share, like when to arrive, where to sit, what to order, parking, grounded in the reviews; empty array if none), " : "tips (empty array), ") +
         (hasReviews ? "keywords (array of 3 to 5 short lowercase words reviewers most commonly use; empty array if unclear), " : "keywords (empty array), ") +
         "vibe (2 to 4 words that capture the actual atmosphere).";
     } else {
-      maxTokens = 900;
+      maxTokens = 280;
       system =
         voice +
         (hasReviews ? "Base every point on what the real visitor reviews actually say. " : "Using ONLY the facts provided, be specific and concrete. ") +
         guard +
         "Return ONLY valid JSON (no markdown, no code fences) with these keys: " +
-        "verdict (one specific, decision-useful sentence naming the single best reason to go that is particular to THIS place, not generic praise; attribute taste or service claims to reviewers, e.g. reviewers rave about the ceviche, while staying decisive), " +
+        "verdict (one specific, decision-useful sentence naming the single best reason to go that is particular to THIS place, not generic praise), " +
         "oneWord (exactly ONE word capturing the overall sentiment, e.g. 'Lively', 'Cozy', 'Reliable'), " +
         "bestTime (short specific phrase for when to go if reviews indicate it, e.g. 'Weekday evenings, before 7'; empty string if unclear), " +
-        "bestFor (array of up to 4 short audience or occasion labels this genuinely suits, e.g. 'Families', 'Date night', 'Solo work', grounded in what reviews describe; empty array if unclear), " +
-        "goWhen (short phrase for the best time or use case to go, e.g. 'Before 6 PM', 'Weekday lunch'; empty string if unclear), " +
-        (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. 'you want quiet or upscale food', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
-        (hasReviews ? "whyPicked (one concrete sentence of evidence for why this is a solid pick, drawn from what reviewers emphasize, not generic praise; empty string if unclear), " : "whyPicked (empty string), ") +
-        (hasReviews ? "why (one flowing paragraph of 5 to 8 real sentences that truly makes the case: open with what this place IS in one vivid line, then why it earned the pick right now, the specific things reviewers praise by name, the signature move or dish not to miss, who it is best for and when to go, when to skip it, and one honest caveat such as price, wait, park admission or a drive; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend, never bullet fragments, never generic praise; empty string if the evidence is thin), " : "why (empty string), ") +
         (hasReviews ? "caution (ONE specific honest thing to know or common complaint that would change a decision; empty string if none stands out), " : "caution (empty string), ") +
         (hasReviews ? "tip (ONE concrete insider tip a regular would actually give; empty string if none)." : "tip (empty string).");
     }
