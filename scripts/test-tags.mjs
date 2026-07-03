@@ -77,5 +77,12 @@ ok("every category has a valid action", [...Cats.INTENTS, ...Cats.DISCOVER].ever
 ok("home renders exactly six category tiles", Cats.CATEGORY_TILES.length === 6);
 ok("tile ids are the canonical six", ["food","nightlife","attractions","beach","hotels","shopping"].every((id, i) => Cats.CATEGORY_TILES[i] && Cats.CATEGORY_TILES[i].id === id));
 
+let _hot = null;
+for (const w of [{ temp: 99, rain: 5 }, { temp: 101 }]) {
+  if (R.heroReason({ name: "Orange County Museum", types: ["museum"] }, { weather: w, hour: 13 }) === "A cool escape from the heat right now") { _hot = w; break; }
+}
+ok("hot day surfaces the indoor-escape hero line", !!_hot);
+if (_hot) ok("hot day never tells you to get outside", R.heroReason({ name: "Leu Gardens", types: ["park", "botanical_garden"] }, { weather: _hot, hour: 13 }) !== "Great weather to get outside");
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

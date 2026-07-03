@@ -4,6 +4,93 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.19 - the leverage build (install nudge; share billboards verified)
+- Add-to-home-screen nudge: slim dismissible banner on a visitor's SECOND
+  visit, never shown when already installed. Android gets a real one-tap
+  Install (beforeinstallprompt); iOS gets the Share -> Add to Home Screen
+  instruction since Apple exposes no prompt. Impressions, installs, and
+  dismissals log to analytics (a2hs_*), so install conversion is measurable.
+  appleWebApp metadata added so the installed app runs full-screen on iOS.
+- Finding, not a build: the share-link billboard was ALREADY fully built
+  (dynamic OG cards on /p/[id] with name, rating, category, score). Every
+  shared place unfurls branded in iMessage/WhatsApp today. Verify by texting
+  yourself one link.
+- Standing founder moves, no code: Viator affiliate application (commission
+  on tour clicks already flowing), Google billing credit request, Vercel
+  Analytics toggles. And label the featured boost or keep it to entries you
+  personally vouch for; undisclosed placement is the one loophole that
+  costs more than it pays.
+
+## v3.18 - Places query cache (the Google-bill fix)
+- Mental-model correction, stated plainly: nothing persisted before this.
+  Results lived in React state, which dies on reload, so every app open
+  re-billed the full Text Search volley. Only AI insights were cached.
+- New session cache in lib/google.js wrapping all three search chokepoints
+  (searchPlaces, searchNearbyPlaces, findPlace): localStorage, 4-hour TTL,
+  ~2km location grid so GPS jitter cannot defeat it, 80-entry cap with
+  oldest-first eviction, plus an in-flight map so simultaneous identical
+  queries share one request instead of double-billing.
+- Effect: repeat loads within 4 hours cost near zero Text Search; first loads
+  unchanged. Trade-off: "Open now" on cached lists can go stale near an
+  open/close boundary; TTL is one constant if that ever matters.
+- ToS posture: hours-scale session caching, deliberately not days; place IDs
+  are the only content Google permits storing indefinitely.
+- Scope: this fixes cost from YOUR usage. If the billing SKU report shows
+  key theft, the restriction + rotation fixes that, not this. Do both.
+- Verify live: open the site, then reload; in devtools Network, the second
+  load should show zero searchByText traffic. That is the cache working.
+
+## v3.17 - interactivity, identity, and the take system (founder batch)
+- Detail metadata is now interactive with affordances: distance is a directions
+  link (accent + arrow), cuisine is a tappable link opening the ranked
+  same-cuisine sheet (Brazilian -> other churrascarias), Open now carries a
+  rotating caret, reviews count links to the Google listing when anchored.
+- "Why Wayfind picked this" prompt upgraded: 5-8 sentences that open with what
+  the place IS, make the case, name specifics, and close decisively; compact
+  budget raised to 900 tokens. Cached insights upgrade as they refresh.
+- "More details" header removed. "Your note" replaced by "Your take": pick a
+  type (Insider tip, Best dish, Recommendation, Review), write, save; stored
+  per-place on-device, legacy notes migrate as Insider tips, saves log to
+  analytics with type.
+- Mood menu: no orange border, square edges, flush to the block above, title
+  set in logo-style lowercase at logo scale (exact typeface needs the font
+  file; closest system weight until then). New GlowPin (white-dot pin with
+  radar rings) replaces the mood pin and overlays the wordmark's i, anchored
+  proportionally via LOGO_PIN constants (one-line nudge from a screenshot if
+  the dot sits off).
+- Experience pages: Back enlarged (globally, including the detail sheet's
+  floating back 38->44), Save-to-lists is now a big heart icon, and a new
+  map button opens the list in Google Maps as a multi-stop route (top picks
+  as waypoints, capped at 9 by Google; a true "saved list" via URL does not
+  exist, the route is the honest equivalent). Badge chips gain a caret; they
+  were already links to their top-10 pages.
+- Verify live: cuisine sheet stacking over an open detail, and the logo pin
+  alignment.
+
+## v3.16 - owner-curated Insider notes (editorial layer)
+- New WAYFIND_NOTES layer beside the featured-boost system: name-keyed
+  editorial tips rendering on the detail page as an "Insider notes" card with
+  an explicit "Curated by Wayfind" label, so provenance is honest and this
+  never impersonates review-derived data. This is the compliant version of
+  the request to bake advice into place cards, and the honest slice of the
+  reviewer's "Learning/Content" bucket.
+- First entry: SeaWorld Orlando, four durable tips (Sharks Underwater Grill
+  planning, All-Day Dining Deal trade-off, quick-service ranking, heat-timing
+  strategy). Dollar figures deliberately omitted: hardcoded prices go stale
+  and stale prices are lies. Maintenance rule: keep the set small and owner-
+  verified; a wrong tip erodes trust exactly like wrong tags did.
+- Adding places later is one map entry; long-term this field migrates to the
+  scoped Supabase editorial layer keyed by placeId.
+
+## v3.15 - header grouping + sign-in clarity + footer spacing
+- Weather chip moved from the header's left group into the right group, sitting
+  directly beside sign-in. The awkward mid-header gap was structural: with
+  space-between, all leftover width landed between the two groups.
+- Signed-out state is now a labeled pill (person icon + "Sign in"); signed-in
+  keeps the compact initial circle, which explains itself.
+- Footer dead band fixed: the 72px pre-footer spacer (old bottom-nav clearance)
+  was stacking with the footer's own margins; reduced to 24.
+
 ## v3.14 - make the moat visible (Grok review reconciliation)
 - Review triage: "beta tag" was already removed in v3.13 (reviewer graded an
   older deploy). "No differentiation" is wrong about the engine, right about

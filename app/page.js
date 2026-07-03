@@ -10,7 +10,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.13";
+const BUILD_ID = "v3.19";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -54,6 +54,25 @@ const CAT_COLOR = {
 };
 const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
 // A small grab handle at the top of every bottom sheet, so it reads as "pull down to close".
+const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
+function GlowPin({ size = 26 }) {
+  const s = size;
+  return (
+    <span style={{ position: "relative", width: s + 10, height: s + 10, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(249,115,22,.35)" }} />
+      <span style={{ position: "absolute", inset: -7, borderRadius: "50%", border: "1px solid rgba(249,115,22,.18)" }} />
+      <span style={{ position: "absolute", inset: -3, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.4) 0%, transparent 70%)" }} />
+      <svg width={s} height={s} viewBox="0 0 24 24" style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(249,115,22,.5))" }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#fff" /></svg>
+    </span>
+  );
+}
+function mapsRouteUrl(list) {
+  const pts = (list || []).filter((pp) => pp && pp.lat != null && pp.lng != null).slice(0, 9);
+  if (pts.length < 2) return null;
+  const dest = pts[pts.length - 1];
+  const wps = pts.slice(0, -1).map((pp) => pp.lat + "," + pp.lng).join("|");
+  return "https://www.google.com/maps/dir/?api=1&destination=" + dest.lat + "," + dest.lng + "&waypoints=" + encodeURIComponent(wps) + "&travelmode=driving";
+}
 function Grabber() {
   return (
     <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "9px 0 5px" }}>
@@ -469,6 +488,24 @@ const isBestOf = (name) => faveTier(name) === 2;
 // the score. Bounded on purpose: this is a lift, not an absolute pin, so a weak
 // place cannot leapfrog a clearly better one and break trust in the ranking.
 // Raise a number to push harder; add entries to feature more places.
+// Owner-curated editorial notes, keyed by place name (same matcher family as
+// WAYFIND_FEATURED). Rendered on the detail page under an explicit "Curated by
+// Wayfind" label so provenance is honest: this is editorial voice, never
+// presented as review-derived data. Keep tips durable; no prices (they rot).
+const WAYFIND_NOTES = {
+  "seaworld orlando": [
+    "Sharks Underwater Grill is the meal worth planning around: full service beside the shark tank. Reserve in the SeaWorld app the morning you visit; walk-ins rarely clear on busy days.",
+    "Eating two or more meals? The All-Day Dining Deal usually beats paying per meal at the quick-service spots. It does not cover Sharks Underwater Grill, so pair the deal for lunch with Sharks for dinner.",
+    "Quick-service pecking order from regulars: Voyager's Smokehouse first, Seafire Grill second.",
+    "Ride Mako and Manta in the first hour after opening, then move indoors for shows and aquariums during the mid-afternoon heat.",
+  ],
+};
+function wayfindNotes(name) {
+  const n = String(name || "").toLowerCase().trim();
+  if (!n) return null;
+  for (const k in WAYFIND_NOTES) { if (n.startsWith(k) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_NOTES[k]; }
+  return null;
+}
 const WAYFIND_FEATURED = { "t-rex cafe": 18 };
 function featuredBoost(name) {
   const n = wfNorm(name);
@@ -1964,7 +2001,7 @@ function themedHook(key, p) {
 function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare }) {
   if (!h) return null;
   const acc = h.accent || C.accent;
-  const photo = place && place.photo;
+  const photo = place && ((place.photos && place.photos[0]) || place.photo);
   const tiles = (collage || []).filter(Boolean).slice(0, 4);
   return (
     <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 163, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
@@ -2079,6 +2116,16 @@ function PageInner() {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
+  const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  useEffect(() => { try {
+    const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone;
+    if (standalone) return;
+    const n = (parseInt(localStorage.getItem("wf_visits") || "0", 10) || 0) + 1;
+    localStorage.setItem("wf_visits", String(n));
+    if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed")) { setA2hs(true); try { logEvent("a2hs_shown"); } catch (e) {} }
+  } catch (e) {} }, []);
+  useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
@@ -2201,18 +2248,8 @@ function PageInner() {
   const [food10Open, setFood10Open] = useState(false);
   const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
   const noteRef = useRef(null);
-  const [placeNotes, setPlaceNotes] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); } catch { return {}; } });
-  const savePlaceNote = () => {
-    if (!detail) return;
-    const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim();
-    setPlaceNotes((prev) => {
-      const next = { ...prev };
-      if (v) next[detail.id] = v; else delete next[detail.id];
-      try { localStorage.setItem("wf_place_notes", JSON.stringify(next)); } catch (e) {}
-      return next;
-    });
-    showToast(v ? "📝 Note saved" : "Note cleared");
-  };
+  const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Insider tip", text: legacy[k] }; } return c; } catch { return {}; } });
+  const [commentType, setCommentType] = useState("Insider tip");
   const [hookDetail, setHookDetail] = useState(null);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
@@ -3822,10 +3859,15 @@ function PageInner() {
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <img src="/wordmark.png" alt="wayfind" onClick={openSuggested} style={{ height: 34, width: "auto", display: "block", cursor: "pointer" }} />
+            <span onClick={openSuggested} style={{ position: "relative", display: "inline-block", cursor: "pointer" }}>
+              <img src="/wordmark.png" alt="wayfind" style={{ height: 34, width: "auto", display: "block" }} />
+              <span style={{ position: "absolute", left: LOGO_PIN.left, top: LOGO_PIN.top, pointerEvents: "none" }}><GlowPin size={LOGO_PIN.size} /></span>
+            </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && weather.feels != null && (
-              <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ marginLeft: "auto", flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
+              <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
                 <span style={{ fontSize: 18 }}>{weather.icon}</span>
                 <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
                   <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
@@ -3834,12 +3876,10 @@ function PageInner() {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
-              <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.light, cursor: "pointer" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg></button>
+              <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
           </div>
         </div>
@@ -4205,13 +4245,10 @@ function PageInner() {
                   down INSIDE the same box, in the same tile visual language (icon-less pills
                   that match the top row's weight); tapping again collapses. Inline in normal
                   flow, no sticky, no bleed. "In the mood for" folded in as a soft header. */}
-              <div style={{ marginBottom: 10, background: `linear-gradient(158deg, ${C.adim}66 0%, ${C.panel} 60%)`, border: `1.5px solid ${C.accent}`, borderRadius: 18, padding: "12px 12px 14px", boxShadow: `0 8px 24px rgba(0,0,0,.32)` }}>
+              <div style={{ marginTop: -10, marginBottom: 10, background: `linear-gradient(158deg, ${C.adim}66 0%, ${C.panel} 60%)`, border: "none", borderRadius: 0, padding: "14px 12px 14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
-                  <span style={{ position: "relative", width: 24, height: 24, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ position: "absolute", inset: -4, borderRadius: "50%", background: `radial-gradient(circle, ${C.accent}55 0%, transparent 68%)`, pointerEvents: "none" }} />
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill={C.accent} style={{ position: "relative" }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg>
-                  </span>
-                  <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>What are you in the mood for?</div>
+                  <GlowPin size={22} />
+                  <div style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.5px", lineHeight: 1.1, color: C.text }}>what are you in the mood for?</div>
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 2 }}>
                   {Cats.CATEGORY_TILES.map((m) => {
@@ -4232,6 +4269,17 @@ function PageInner() {
                   </div>
                 </div>
               </div>
+              {a2hs && (
+                <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
+                  <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>Put Wayfind on your home screen</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap. Opens like an app." : "Tap Share, then Add to Home Screen."}</div>
+                  </div>
+                  {deferredPrompt && <button onClick={() => { try { deferredPrompt.prompt(); logEvent("a2hs_install"); } catch (e) {} setA2hs(false); }} style={{ flexShrink: 0, padding: "8px 14px", background: C.accent, border: "none", borderRadius: 10, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Install</button>}
+                  <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>✕</button>
+                </div>
+              )}
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
                 <div style={{ marginBottom: 16 }}>
@@ -4435,7 +4483,7 @@ function PageInner() {
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
               <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}`, textAlign: "center" }}>
-              <div style={{ height: 72 }} />
+              <div style={{ height: 24 }} />
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 7 }}>
                   <a href="/privacy" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Privacy</a>
                   <span style={{ color: C.border }}>·</span>
@@ -4528,7 +4576,7 @@ function PageInner() {
           }
           return (
             <div>
-              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "4px 2px 10px" }}>‹ Back</div>
+              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 800, fontSize: 16, cursor: "pointer", padding: "6px 2px 12px" }}>‹ Back</div>
               <div style={{ paddingBottom: 4 }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, lineHeight: 1.45 }}>{sSub}</div>
@@ -4562,7 +4610,7 @@ function PageInner() {
                       {badges.length > 0 && (
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
                           {badges.map((b) => (
-                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label}</button>
+                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label} ›</button>
                           ))}
                         </div>
                       )}
@@ -4637,7 +4685,7 @@ function PageInner() {
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (
             <div>
-              <div onClick={() => { setScreen("explore"); setActiveBadge(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: "4px 2px 10px" }}>‹ Back</div>
+              <div onClick={() => { setScreen("explore"); setActiveBadge(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, color: C.accent, fontWeight: 800, fontSize: 16, cursor: "pointer", padding: "6px 2px 12px" }}>‹ Back</div>
               <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14 }}>
                 <div style={{ fontSize: 34, lineHeight: 1 }}>{exp.icon}</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: C.text, marginTop: 6 }}>{exp.title}</div>
@@ -5090,7 +5138,7 @@ function PageInner() {
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ position: "relative" }}>
-              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
+              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
               {detail.photos && detail.photos.length > 0 ? (
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
@@ -5126,7 +5174,7 @@ function PageInner() {
                 {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.accent, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
                 {detail.rating != null && (<>
                   <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()})</span>}</span>
+                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ color: C.muted, textDecoration: "none" }}><span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()}) ↗</span></a>}</span>
                 </>)}
                 {detail._event ? (() => {
                   const ef = formatEventDate(detail._event.date, detail._event.time);
@@ -5142,10 +5190,10 @@ function PageInner() {
                   </>);
                 })() : (detail.openNow != null && (<>
                   <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open now" : "Closed"}</span>
+                  <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                 </>))}
-                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light }}>{detail.distMi.toFixed(1)} mi</span></>)}
-                {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><span style={{ color: C.light, fontWeight: 700 }}>{cz}</span></>) : null; })()}
+                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.accent, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
+                {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.accent, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (detail.price) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>); return null; })()}
               </div>
               {!detail._event && Tags.requiresParkAdmission(detail.types) && (
@@ -5223,9 +5271,17 @@ function PageInner() {
                   <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>From what reviewers mention most.</div>
                 </div>
               )}
+              {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
+                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
+                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Insider notes</span>
+                    <span style={{ fontSize: 9.5, color: C.muted }}>Curated by Wayfind</span>
+                  </div>
+                  {_wn.map((n, i) => <div key={i} style={{ fontSize: 13, color: C.text, lineHeight: 1.55, marginTop: i ? 8 : 0 }}>{n}</div>)}
+                </div>
+              ); })()}
               {/* 3. Insider tip */}
               <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px" }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>More details</div>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
                 <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
@@ -5239,12 +5295,19 @@ function PageInner() {
 
               {!detail._event && (
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your note</div>
-                  <textarea key={detail.id} ref={noteRef} defaultValue={placeNotes[detail.id] || ""} placeholder="Add your own review or notes. Saved on your device and shown here whenever you open this place." rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
-                  <button onClick={savePlaceNote} style={{ marginTop: 8, padding: "8px 16px", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 10, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save note</button>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 7 }}>Your take</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                    {["Insider tip", "Best dish", "Recommendation", "Review"].map((t) => (
+                      <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.accent : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.accent : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
+                    ))}
+                  </div>
+                  <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + ". Saved on your device and shown here whenever you open this place."} rows={3} style={{ width: "100%", resize: "vertical", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                  <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} showToast(v ? commentType + " saved" : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length }); } catch (e) {} }} style={{ marginTop: 8, padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                  {placeComments[detail.id] && (
+                    <div style={{ marginTop: 8, fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></div>
+                  )}
                 </div>
               )}
-
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
                 {experienceBadges(detail, null, 4).map((b) => (
                   <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
@@ -5712,14 +5775,15 @@ function PageInner() {
             {/* Gradient hero header */}
             <div style={{ background: `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "none", color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: 0 }}>‹ Back</button>
-                <button
-                  onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, borderRadius: 999, padding: "6px 14px", color: isLiked ? acc : C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill={isLiked ? acc : "none"} stroke={isLiked ? acc : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                  {isLiked ? "Saved to lists" : "Save to lists"}
-                </button>
+                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: "none", color: acc, fontSize: 17, fontWeight: 800, cursor: "pointer", padding: "2px 0" }}>‹ Back</button>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {(() => { const u = mapsRouteUrl(themePlaces); return u ? (
+                    <a href={u} target="_blank" rel="noreferrer" aria-label="Open this list in Google Maps" title="Open in Maps" onClick={() => { try { logEvent("maps_list", null, { theme, n: Math.min(themePlaces.length, 9) }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, textDecoration: "none" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></a>
+                  ) : null; })()}
+                  <button onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }} aria-label={isLiked ? "Saved to lists" : "Save to lists"} title={isLiked ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, color: isLiked ? acc : C.muted, cursor: "pointer" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? acc : "none"} stroke={isLiked ? acc : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
+                  </button>
+                </div>
               </div>
               <div style={{ fontSize: 10, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>{hookDetail.emoji} {hookDetail.label}</div>
               <div style={{ fontSize: 24, fontWeight: 800, color: C.text, lineHeight: 1.25, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
@@ -6321,7 +6385,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
-              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label}</button>
+              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label} ›</button>
             ))}
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
