@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.59";
+const BUILD_ID = "v3.67";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -304,19 +304,30 @@ function decodeList(str) {
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
-async function shareLink(title, url, onCopied, text) {
-  try {
-    // Share the bare URL only. iMessage and most apps suppress the link
-    // preview card whenever accompanying text is included, so passing text
-    // here would hide the branded Wayfind card. The card carries the title.
-    if (navigator.share) { await navigator.share({ title, url }); return; }
-  } catch { return; }
-  try {
-    await navigator.clipboard.writeText(url);
+function shareLink(title, url, onCopied, text) {
+  // Share the bare URL only (accompanying text makes iMessage/most apps suppress
+  // the preview card, hiding the branded Wayfind card). Fire synchronously: iOS
+  // rejects the native sheet if it is not called directly inside the tap. If the
+  // sheet fails or is unavailable, fall back to copying the link so the button
+  // never silently does nothing.
+  const copy = () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => { if (onCopied) onCopied(); }, () => { if (onCopied) onCopied(); });
+        return;
+      }
+    } catch (e) {}
+    try { const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); } catch (e) {}
     if (onCopied) onCopied();
-  } catch {
-    if (onCopied) onCopied();
+  };
+  if (typeof navigator !== "undefined" && navigator.share) {
+    try {
+      const pr = navigator.share({ title, url });
+      if (pr && typeof pr.then === "function") pr.then(function () {}, function (e) { if (!(e && e.name === "AbortError")) copy(); });
+      return;
+    } catch (e) { copy(); return; }
   }
+  copy();
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
@@ -494,7 +505,7 @@ function templateBlurb(p) {
   const b = experienceBadges(p, null, 1)[0];
   const key = b ? b.key : null;
   const lines = {
-    localfav: "A local favorite people keep coming back to.",
+    localfav: "A crowd favorite nearby with strong reviews.",
     gem: "A quieter spot that punches above its size.",
     value: "Genuinely good food without the big bill.",
     waterfront: "Worth it for a table near the water.",
@@ -680,7 +691,7 @@ function curatedNote(p) {
 const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
-  localfav:  { icon: "⭐", label: "Local favorite",  title: "Local Favorites",  cat: "food",      lead: "Spots people keep coming back to, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
+  localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
   featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
   bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
@@ -1965,66 +1976,67 @@ function placeKind(p) {
 function pickReason(p, ctx) {
   if (!p) return "";
   ctx = ctx || {};
-  const w = ctx.weather, night = !!ctx.night, rank = ctx.rank || null, next = ctx.next || null, compact = !!ctx.compact;
+  const w = ctx.weather, compact = !!ctx.compact;
   const wet = !!(w && (w.wet || (w.rain != null && w.rain >= 50)));
   const nice = !!(w && !wet && w.temp != null && w.temp >= 60 && w.temp <= 92);
   const kind = placeKind(p);
-  let seed = 0; const s = String(p.id || p.name || "");
-  for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
-  const pick = (arr) => arr[seed % arr.length];
-  const indoor = ["museum", "wildlife", "cafe", "restaurant", "bar", "shopping", "hotel"].includes(kind);
-  const outdoor = ["nature", "beach", "scenic", "waterfront", "entertainment", "landmark"].includes(kind);
-  const bank = {
-    museum: ["a museum worth setting aside an hour or two", "indoor culture you can lose track of time in", "a proper museum, not a quick walk through"],
-    wildlife: ["a solid few hours, especially with kids", "an easy crowd pleaser, rain or shine"],
-    entertainment: ["built for a full day out", "the kind of place that rewards a little energy"],
-    scenic: ["a genuinely photo worthy stop", "worth it for the view alone", "the view here earns the photo"],
-    beach: ["sand and water when the weather plays along", "a proper beach day pick"],
-    nature: ["open air and trails, good for a reset", "green space worth the fresh air", "room to walk it off"],
-    landmark: ["a piece of local history worth the stop", "history you can actually walk through"],
-    waterfront: ["a table with the water in view", "hard to beat on the water near sunset"],
-    bar: ["an easy evening pour", "made for a night out"],
-    cafe: ["an easy coffee and a slow sit", "good for a laptop or a catch up"],
-    restaurant: ["a dependable table with strong marks", "the kind of spot people keep coming back to"],
-    hotel: ["a comfortable base near everything", "an easy place to land"],
-    shopping: ["worth a browse if you have the time", "good for a wander"],
-    generic: ["worth a closer look", "one to keep on the list"],
+  const r = p.rating, n = p.reviews || 0;
+  // Best-for verdict + a real "skip if", per kind. Decision copy, never filler.
+  const V = {
+    museum:        ["a culture stop when you have an hour or two", "you want quick or outdoorsy"],
+    wildlife:      ["a few hours with kids, rain or shine", "you want nightlife or a fast bite"],
+    entertainment: ["groups or a rainy-day activity", "you want food, drinks, or a quiet local spot"],
+    scenic:        ["a view, a photo, or a sunset", "you need a meal or an indoor plan"],
+    beach:         ["a beach day when the weather holds", "you want indoors or a quick stop"],
+    nature:        ["fresh air and a walk", "the weather is bad or you are short on time"],
+    landmark:      ["a bit of history on the way", "you want to sit and eat"],
+    waterfront:    ["a relaxed meal with a water view", "you want quick or budget"],
+    bar:           ["a night out or evening drinks", "you want daytime or food first"],
+    cafe:          ["coffee and a slow sit", "you want a full meal or a night out"],
+    restaurant:    ["a reliable, well-rated meal", "you want quiet or upscale"],
+    hotel:         ["a comfortable base near everything", "you are not staying over"],
+    shopping:      ["a browse when you have time", "you want a quick in and out"],
+    generic:       ["a solid nearby option", "you are after something specific"],
   };
-  let line = pick(bank[kind] || bank.generic);
-  if (!compact) {
-    let clause = "";
-    // Comparative for the top of the list: why this one ranks where it does.
-    if (rank && rank <= 3 && next) {
-      const dr = (p.rating || 0) - (next.rating || 0), dn = (p.reviews || 0) - (next.reviews || 0);
-      if (rank === 1) clause = dn >= 200 ? "and the most reviews behind it on this list" : dr >= 0.1 ? "and the highest rating of the bunch" : "and the strongest overall score here";
-      else clause = dr >= 0.1 ? "rated a notch above the next pick" : dn >= 200 ? "with more reviews behind it than the next" : (p.distMi != null && next.distMi != null && p.distMi < next.distMi ? "and a little closer than the rest" : "");
-    }
-    // Weather and time change the decision, so they take priority over the ranking nuance when present.
-    if (indoor && wet) clause = "a smart call with rain around";
-    else if (outdoor && wet) clause = "though the weather is iffy today";
-    else if (!clause && outdoor && nice) clause = "and the weather is on your side";
-    else if (!clause && kind === "bar" && night) clause = "right on time for the evening";
-    if (clause) line += ", " + clause;
-  }
-  return line.charAt(0).toUpperCase() + line.slice(1);
+  const pair = V[kind] || V.generic; const good = pair[0], skip = pair[1];
+  if (compact) return "Best for " + good + ".";
+  const sig = [];
+  if (r != null && r >= 4.6 && n >= 500) sig.push("big review strength");
+  else if (r != null && r >= 4.5) sig.push("highly rated");
+  else if (r != null) sig.push(r + "★");
+  if (p.openNow === true) sig.push("open now");
+  if (p.distMi != null && p.distMi <= 6) sig.push("close by");
+  if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
+  const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "a safe nearby pick";
+  let line = "Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".";
+  if (wet && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = "Weather is iffy for this today. " + line;
+  else if (nice && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = line.replace("Skip it if", "Good weather to go — skip it if");
+  return line;
 }
 function whyFirst(p, list) {
   if (!p || !Array.isArray(list) || list.length < 2) return "";
   const others = list.filter((x) => x && x.id !== p.id);
   const maxR = Math.max(0, ...others.map((x) => x.rating || 0));
   const maxN = Math.max(0, ...others.map((x) => x.reviews || 0));
-  const lead = [];
-  if (p.rating && p.rating >= maxR) lead.push("highest rated here at " + p.rating + "\u2605");
-  else if (p.rating) lead.push(p.rating + "\u2605 rated");
-  if (p.reviews && p.reviews > 0 && p.reviews >= maxN) lead.push("more reviews than any other pick (" + p.reviews.toLocaleString() + ")");
-  const tail = [];
-  if (p.openNow === true) tail.push("open now");
-  if (p.distMi != null && p.distMi <= 8) tail.push(p.distMi.toFixed(1) + " mi out");
-  if (!lead.length && !tail.length) return "";
-  let out = "Ranked #1";
-  if (lead.length) out += ": " + lead.join(", ");
-  if (tail.length) out += (lead.length ? " \u00b7 " : ": ") + tail.join(", ");
-  return out + ".";
+  const topRated = p.rating && p.rating >= maxR;
+  const topReviewed = p.reviews && p.reviews >= maxN;
+  let lead;
+  if (topRated && topReviewed) lead = "the safest crowd-pleaser here";
+  else if (topReviewed) lead = "the most-proven pick here";
+  else if (topRated) lead = "the highest rated of the bunch";
+  else lead = "the strongest all-round pick here";
+  const sig = [];
+  if ((p.reviews || 0) >= 500) sig.push("big review strength");
+  else if (p.rating != null) sig.push(p.rating + "★");
+  if (p.openNow === true) sig.push("open now");
+  if (p.distMi != null && p.distMi <= 8) sig.push(p.distMi.toFixed(1) + " mi out");
+  let out = "Ranked #1 — " + lead;
+  if (sig.length) out += ": " + sig.slice(0, 3).join(", ");
+  out += ".";
+  const kind = placeKind(p);
+  const caveat = { entertainment: "food, drinks, or a quiet local spot", restaurant: "quiet or upscale", bar: "daytime or food first", cafe: "a full meal or a night out", waterfront: "quick or budget", nature: "an indoor plan", beach: "an indoor plan", scenic: "a meal or indoor plan", museum: "quick or outdoorsy", shopping: "a fast in and out", hotel: "a day-trip spot", wildlife: "nightlife or a fast bite" }[kind];
+  if (caveat) out += " Not the move if you want " + caveat + ".";
+  return out;
 }
 // v6.9: the detail page "decision brief". Returns a one-line judgment verdict (use case)
 // and a supporting body (signals + a real tradeoff), so the page reads like a sharp local
@@ -2093,7 +2105,7 @@ function decisionLine(p, ctx) {
   else if (r != null && r >= 4.5) lead = pick([`A strong ${cat} pick`, `One of the better ${cat} picks near you`]);
   else lead = pick([`A solid ${cat} option nearby`, "Worth a look nearby"]);
   let use = "";
-  if (kind === "restaurant") use = (pr != null && pr >= 3) ? ", better for a proper sit-down" : (pr != null && pr <= 1) ? ", good for an easy bite" : pick([", better for a sit-down than takeout", ", a dependable table"]);
+  if (kind === "restaurant") use = (pr != null && pr >= 3) ? ", better for a proper sit-down" : (pr != null && pr <= 1) ? ", good for an easy bite" : pick([", better for a sit-down than takeout", ", easy for a casual meal"]);
   else if (kind === "cafe") use = pick([", easy for coffee or a catch up", ", good for a slow morning"]);
   else if (kind === "bar") use = ", best after dark";
   else if (kind === "waterfront") use = ", and it shines near sunset";
@@ -2265,9 +2277,11 @@ function PageInner() {
   const [mapFocus, setMapFocus] = useState(null); // drawer row -> fly the map to this pin
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
+  const [isStandalone, setIsStandalone] = useState(false); // home-screen (PWA) mode: Google OAuth redirect cannot return here, so lead with email
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   useEffect(() => { try {
     const standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone;
+    setIsStandalone(!!standalone);
     if (standalone) return;
     const n = (parseInt(localStorage.getItem("wf_visits") || "0", 10) || 0) + 1;
     localStorage.setItem("wf_visits", String(n));
@@ -2398,7 +2412,7 @@ function PageInner() {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).catch(() => [])));
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p);
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name);
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3245,6 +3259,9 @@ function PageInner() {
   useEffect(() => {
     if (keyMissing || !center || searchMode) return;
     let cancelled = false;
+    // Debounce: rapid category/filter switching fires searches that still bill even
+    // when abandoned. Wait 300ms so only the final selection actually searches.
+    const _debTimer = setTimeout(() => {
     (async () => {
       setLoading(true);
       setErr("");
@@ -3254,16 +3271,19 @@ function PageInner() {
         // locally instead of a single 20-result page. Costs one Google call per subcategory; results
         // are deduped here and again by name in the view.
         const ctr = { lat: center.lat, lng: center.lng };
+        // Cost fix: at most TWO Google searches per screen (was 6+). Browsing a whole
+        // category runs the broad search plus ONE context-relevant subfilter (meal by
+        // time of day for food, first subfilter otherwise) and merges. Any specific
+        // subfilter tap is a single search. ~67% fewer searches per load.
+        const _subs = (SUBFILTERS[cat] || []).filter((x) => x && x.id && x.id !== "all");
         let results;
-        const subsList = (SUBFILTERS[cat] || []).filter((s) => s && s.id && s.id !== "all");
-        if (sub === "all" && subsList.length) {
-          const batches = await Promise.all(
-            [searchPlaces(cat, "all", ctr, searchRadius, vibe).catch(() => [])].concat(
-              subsList.map((s) => searchPlaces(cat, s.id, ctr, searchRadius, vibe).catch(() => []))
-            )
-          );
-          const seen = new Set(); results = [];
-          batches.forEach((arr) => (arr || []).forEach((p) => { if (p && p.id && !seen.has(p.id)) { seen.add(p.id); results.push(p); } }));
+        if (sub === "all" && _subs.length) {
+          let _second;
+          if (cat === "food") { const _h = new Date().getHours(); const _w = _h < 11 ? "breakfast" : _h < 15 ? "lunch" : _h < 21 ? "dinner" : "dessert"; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
+          else { _second = _subs[0].id; }
+          const _b = await Promise.all([searchPlaces(cat, "all", ctr, searchRadius, vibe).catch(() => []), searchPlaces(cat, _second, ctr, searchRadius, vibe).catch(() => [])]);
+          const _seen = new Set(); results = [];
+          _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); results.push(pp); } }));
         } else {
           results = await searchPlaces(cat, sub, ctr, searchRadius, vibe);
         }
@@ -3274,7 +3294,8 @@ function PageInner() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    }, 300);
+    return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cat, sub, vibe, center, searchRadius, searchMode]);
 
@@ -3548,6 +3569,9 @@ function PageInner() {
   useEffect(() => {
     const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
     if (src.length < 3) return;
+    const _hr = new Date().getHours(); const _tb = _hr < 11 ? "m" : _hr < 15 ? "a" : _hr < 21 ? "e" : "n";
+    const _hkey = "wf_hooks_v1_" + _tb + "_" + hookSrcSig;
+    try { const raw = localStorage.getItem(_hkey); if (raw) { const o = JSON.parse(raw); if (o && o.t && Date.now() - o.t < 3 * 3600 * 1000 && Array.isArray(o.v) && o.v.length) { setAiHooks(o.v); return; } } } catch (e) {}
     let cancelled = false;
     (async () => {
       try {
@@ -3562,7 +3586,7 @@ function PageInner() {
           }),
         });
         const data = await res.json();
-        if (!cancelled && data.hooks && data.hooks.length > 0) setAiHooks(data.hooks.map(normalizeHook));
+        if (!cancelled && data.hooks && data.hooks.length > 0) { const _nh = data.hooks.map(normalizeHook); setAiHooks(_nh); try { localStorage.setItem(_hkey, JSON.stringify({ t: Date.now(), v: _nh })); } catch (e) {} }
       } catch { /* fall back to static hooks silently */ }
     })();
     return () => { cancelled = true; };
@@ -4528,6 +4552,27 @@ function PageInner() {
                   <div style={{ marginBottom: 16 }}>
                     {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
+                      {(() => { const _w = Hol.worldCup(new Date()); if (!_w) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
+                      <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <style>{"@keyframes wcRing{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.15);opacity:0}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}@keyframes wcSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
+                      <span style={{ position: "absolute", top: -30, right: 22, width: 150, height: 150, borderRadius: "50%", border: "2px solid rgba(232,184,75,.55)", opacity: 0, animation: "wcRing 3.4s ease-out infinite", pointerEvents: "none" }} />
+                      <span style={{ position: "absolute", top: 4, right: 70, width: 96, height: 96, borderRadius: "50%", border: "1.5px solid rgba(232,184,75,.45)", opacity: 0, animation: "wcRing 3.4s ease-out 1.3s infinite", pointerEvents: "none" }} />
+                      <span style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "46%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,.06) 44%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 56%, transparent 100%)", animation: "wcSweep 6.4s ease-in-out infinite", pointerEvents: "none" }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
+                      <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>{_w.emoji}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _wc.text, textTransform: "uppercase" }}>{_wct.tag}</span>
+                      </div>
+                      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_wct.headline(locName)}</div>
+                      <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
+                      <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
+                      <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
+                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
+                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
+                      </div>
+                      </div>
+                      ); })()}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <style>{"@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
@@ -6527,15 +6572,25 @@ function PageInner() {
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
             <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
 
-            <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+            {!isStandalone && (
+              <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <span style={{ fontSize: 16, fontWeight: 800 }}>G</span> Continue with Google
             </button>
+            )}
 
+            {!isStandalone && (
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <div style={{ flex: 1, height: 1, background: C.border }} />
               <div style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>or with email</div>
               <div style={{ flex: 1, height: 1, background: C.border }} />
             </div>
+            )}
+
+            {isStandalone && (
+              <div style={{ fontSize: 12.5, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 14, lineHeight: 1.5 }}>
+                You're in the home-screen app, so sign in with email below. Google sign-in only works in Safari; if you use Google, open Wayfind in Safari to sign in there.
+              </div>
+            )}
 
             <input type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@email.com"
               style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 10, outline: "none" }} />

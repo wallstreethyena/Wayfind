@@ -1,3 +1,70 @@
+## v3.67 - honest naming + decision copy
+- Renamed the localfav experience: page title Local Favorites -> Top Rated Near You,
+  badge Local favorite -> Crowd favorite, subtitle now "Highly rated nearby spots
+  with strong review volume, ranked by fit." Stops overstating what the data proves.
+- Rewrote pickReason and whyFirst into decision copy: best-for verdict + a real
+  "skip it if" per kind, and a judgment lead on the #1 line ("the safest
+  crowd-pleaser here ... Not the move if you want ...") instead of a number dump.
+- Removed filler phrases: one to keep on the list, dependable table, worth a closer
+  look, more reviews behind it, rated a notch above.
+
+## v3.66 - World Cup watch-party hero card
+- New hero card on the home page, live June 11 through the July 19 final (auto
+  clears after). Gold/green championship theme, restrained ring motion mirroring
+  the July 4th card render so it cannot break. "See the watch parties" opens a
+  ranked list that favors sports bars / watch-party venues (soccer-bar fit
+  scoring) with any featured spots boosted; runs on-demand, cached 3 days.
+  Links out to the FIFA schedule/tickets and to watchWC for per-game lookups.
+- Note: list ranking now also honors featuredBoost, so curated venues rank up.
+
+## v3.65 - fix sweepstakes sign-in in the home-screen (PWA) app
+- Google sign-in uses an OAuth redirect that iOS runs in Safari, so in the
+  home-screen/standalone app the session never returns and sign-in appears to do
+  nothing. In standalone the modal now hides the Google button and leads with
+  email/password (no redirect, works in the PWA), with a note that Google needs
+  Safari. Non-standalone (Safari) is unchanged.
+
+## v3.64 - two-search feed + debounce
+- Feed now runs at most TWO Google searches per screen (broad + one context
+  subfilter: meal-by-time for food, first subfilter otherwise), merged. ~67% fewer
+  searches than the old 6-search fan-out, with the variety back. Specific subfilter
+  taps stay a single search.
+- Added a 300ms debounce so rapid category/filter switching no longer fires (and
+  bills) searches you immediately abandon - a real driver of the spike during
+  testing. Only the final selection searches.
+
+## v3.63 - major cost cut: kill the search fan-out
+- The feed fired 6+ Google Text Searches per screen load (one broad + one per
+  subcategory), the dominant cost driver. Now it does ONE search per load.
+  searchPlaces already returns up to 20 places, so the feed stays full; each
+  subfilter still runs its own single search when tapped. ~80% fewer searches
+  per load. Combined with the 3-day search cache and hooks cache, this is the
+  real reduction.
+- Trade-off: the "All" view shows ~20 top places per category instead of ~40
+  blended across subcategories. Sub-filters unchanged.
+
+## v3.62 - fix share button doing nothing
+- shareLink was async and, when the native share sheet failed, returned before
+  the copy fallback, so a failed share did nothing. Rewrote it: fire the native
+  sheet synchronously (iOS requires this inside the tap), and on any failure or
+  when unavailable, fall back to clipboard (with legacy execCommand fallback) so
+  the button always responds. AbortError (user cancels the sheet) is respected.
+
+## v3.61 - hooks cross-session cache
+- The AI hooks (Claude) re-billed on every place-set change with no persistence.
+  Added a localStorage cache keyed on place set + time-of-day, 3h TTL, so returning
+  users and repeat locations reuse hooks instead of re-generating. Keeps context
+  fresh (refreshes across morning/afternoon/evening/night), cuts repeat AI spend.
+
+## v3.60 - dynamic share cards use the pin/road art
+- Place, list, and weather share cards (/api/og) now use the pin+road artwork as
+  a full-bleed background with text on the right, refined type. Background is
+  embedded (no runtime fetch). Robust fallback on any render error is intact.
+  System font used; exact logo typeface deferred until the edge render is
+  confirmed (font embedding failing would break all cards to fallback).
+- Logo: image 1 exported as RGB (no transparency), so kept the transparent logo
+  already in v3.59, which is the same mark. Real-alpha export can swap it.
+
 ## v3.59 - native share card + updated logo
 - Replaced the share/OG card with the native landscape artwork (1200x630, no
   compositing). Replaced wordmark.png with the updated logo, background made
