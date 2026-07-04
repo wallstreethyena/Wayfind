@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.35";
+const BUILD_ID = "v3.40";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -574,6 +574,16 @@ const isBestOf = (name) => faveTier(name) === 2;
 // WAYFIND_FEATURED). Rendered on the detail page under an explicit "Curated by
 // Wayfind" label so provenance is honest: this is editorial voice, never
 // presented as review-derived data. Keep tips durable; no prices (they rot).
+const AMC_DS_NOTE = [
+  "Dine-in theater: reserved recliners, with food and drinks ordered to your seat. On busy nights grab tickets and pick seats ahead. Everglazed Donuts & Cold Brew is a couple doors down for before or after.",
+  "For what's playing, check showtimes in the AMC app or at the kiosk on the way in.",
+];
+const K_BOB_NOTE = [
+  "Corn dogs: the 'Original' is half hot dog, half cheese. If you want the cheese, order the full cheese one, it's the better bite than the hot dog.",
+  "Get the chicken sauced. The strips run a little dry on their own, and the Korean butter sauce is what makes them. Plain is still an option if you'd rather.",
+  "Best drink here is the vanilla tea with tapioca and brown sugar.",
+  "Easy with kids: high chairs, toys, kid backpacks, and kiosk ordering at the door, and the tenders are the kid-friendly pick. It runs pricier than most counter service, with the corn dogs the cheaper option.",
+];
 const WAYFIND_NOTES = {
   // Entries are strings, or { text, url, label } when a tip has a working
   // link. Owner-vouched links only; community Tips stay plain text.
@@ -590,6 +600,19 @@ const WAYFIND_NOTES = {
     "On many summer and holiday nights the park closes with fireworks over the lagoon; stake out the Bayside lakefront about 20 minutes before close.",
     "Visiting twice within a year? The annual pass usually beats two single-day tickets and adds parking and in-park discounts; run that math before buying a day ticket.",
   ],
+  "cityworks": [
+    "One of the busiest tables in Disney Springs, packed while nearby spots sat half empty, so expect a wait at peak hours. Put your name in early or grab a reservation before you head over.",
+  ],
+  "amc disney springs": AMC_DS_NOTE,
+  "amc dine-in disney springs": AMC_DS_NOTE,
+  "kbob": K_BOB_NOTE,
+  "k-bob": K_BOB_NOTE,
+  "k bob": K_BOB_NOTE,
+  "kbop": K_BOB_NOTE,
+  "k-bop": K_BOB_NOTE,
+  "everglazed": [
+    "Over-the-top glazed donuts and cold brew, an easy sweet stop while you walk Disney Springs, and right by the AMC if you're catching a movie.",
+  ],
 };
 function wayfindNotes(name) {
   const n = String(name || "").toLowerCase().trim();
@@ -598,9 +621,18 @@ function wayfindNotes(name) {
   return null;
 }
 const WAYFIND_FEATURED = {
-  "t-rex cafe": 18,
-  "hilton orlando": 14,
-  "seaworld orlando": 14,
+  // Keys MUST be wfNorm-normalized (lowercase, & -> and, no spaces or
+  // punctuation) so featuredBoost's lookup actually matches. Earlier spaced
+  // keys ("hilton orlando" etc.) never fired.
+  "trexcafe": 18,
+  "hiltonorlando": 14,
+  "seaworldorlando": 14,
+  "cityworks": 12,
+  "amcdisneysprings": 10,
+  "amcdineindisneysprings": 10,
+  "everglazed": 8,
+  "kbob": 12,
+  "kbop": 12,
 };
 function featuredBoost(name) {
   const n = wfNorm(name);
@@ -2098,6 +2130,8 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
   const acc = h.accent || C.accent;
   const photo = place && ((place.photos && place.photos[0]) || place.photo);
   const tiles = (collage || []).filter(Boolean).slice(0, 4);
+  const _gseed = String(h.id || h.label || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const _glow = [{ p: { bottom: 0, right: 0 }, at: "bottom right" }, { p: { top: 0, left: 0 }, at: "top left" }, { p: { top: 0, right: 0 }, at: "top right" }, { p: { bottom: 0, left: 0 }, at: "bottom left" }][_gseed % 4];
   return (
     <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 163, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
       {h.brand
@@ -2108,7 +2142,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
         ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
         : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
       <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 12%, ${acc}26 100%), linear-gradient(180deg, rgba(13,17,23,.32) 0%, rgba(13,17,23,.7) 38%, rgba(13,17,23,.93) 66%, #0D1117 100%)` }} />
-      <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
+      <div style={{ position: "absolute", ..._glow.p, width: 140, height: 140, background: `radial-gradient(circle at ${_glow.at}, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.55)", border: `1px solid ${acc}66`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
@@ -2353,7 +2387,9 @@ function PageInner() {
     try {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).catch(() => [])));
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
-      pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+      // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p);
+      pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
       if (!pool.length) { showToast("Nothing found for " + hol.name + " nearby yet"); return; }
@@ -4527,13 +4563,31 @@ function PageInner() {
                           </div>
                         </div>
                       )}
-                      <HookSolo extra={(() => { const _hr = new Date().getHours(); const _eve = _hr >= 14 || _hr < 5; const _items = _eve ? [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife"], ["events", "\uD83C\uDF9F\uFE0F", "Events tonight"]] : [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food"], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences"], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping"]]; return (
-                        <div style={{ display: "flex", alignItems: "center", gap: 18, flexWrap: "wrap" }}>
-                          {_items.map(([k, ic, lb]) => (
-                            <button key={k} onClick={(e) => { e.stopPropagation(); if (k === "events") { setScreen("events"); } else { openCurated(k); } }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, color: "rgba(255,255,255,.95)", fontSize: 12.5, fontWeight: 800, cursor: "pointer", textShadow: "0 1px 6px rgba(0,0,0,.55)" }}><span style={{ fontSize: 14 }}>{ic}</span>{lb} \u203a</button>
-                          ))}
-                        </div>
-                      ); })()} h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
+                      <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />
+                      {(() => {
+                        const _hr = new Date().getHours(); const _eve = _hr >= 14 || _hr < 5;
+                        const _items = _eve
+                          ? [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "Breakfast, lunch, dinner, and a quick bite, ranked.", C.accent], ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife", "Bars and lounges, live music, and late-night eats.", C.pink], ["events", "\uD83C\uDF9F\uFE0F", "Events tonight", "What is actually happening near you tonight.", C.blue]]
+                          : [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "Breakfast, lunch, dinner, and a quick bite, ranked.", C.accent], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences", "Theme parks, top attractions, and bookable tours.", C.purple], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping", "The malls, outlets, and boutiques that rate best.", C.green]];
+                        return (
+                          <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
+                            <div style={{ padding: "14px 15px 10px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Top 10s near you</div>
+                              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick by where you want to go. Each one opens the ranked Top 10 for that category near you, with no ads and no paid placement.</div>
+                            </div>
+                            {_items.map(([k, ic, lb, desc, col]) => (
+                              <button key={k} onClick={(e) => { e.stopPropagation(); if (k === "events") { setScreen("events"); } else { openCurated(k); } }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid " + C.border, padding: "12px 15px", cursor: "pointer" }}>
+                                <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 11, fontSize: 19, background: col + "1F", border: "1px solid " + col + "59" }}>{ic}</span>
+                                <span style={{ flex: 1, minWidth: 0 }}>
+                                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{lb}</span>
+                                  <span style={{ display: "block", fontSize: 12, color: C.muted, lineHeight: 1.35, marginTop: 2 }}>{desc}</span>
+                                </span>
+                                <span style={{ flexShrink: 0, color: col, fontSize: 20, fontWeight: 700 }}>{"\u203A"}</span>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
@@ -6090,8 +6144,8 @@ function PageInner() {
                             <button onClick={(e) => { e.stopPropagation(); try { logEvent("share", p, { kind: "place" }); } catch (er) {} giveawayMark(p.id); shareLink(p.name, (typeof window !== "undefined" ? window.location.origin : "") + "?place=" + encodeURIComponent(p.id), () => showToast("Link copied"), "Check out " + p.name + " on Wayfind"); }} aria-label="Share" title="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.38)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                           </div>
                         ); })()}
-                        {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5 }}>{p.name}</div>}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5 }}>
+                        {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5, paddingRight: isFeatured ? 74 : 0 }}>
                           {p.rating && (
                             <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: showWarn ? C.red : (p.rating >= 4.5 ? C.green : "#3F8F4E"), color: "#0D1117", fontWeight: 800, fontSize: 13, padding: "2px 8px", borderRadius: 7 }}>
                               ★ {p.rating}

@@ -4,6 +4,88 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.40 - name-overlap fix, July 4 fit-ranking, varied card glow
+- Fixed the save/share buttons covering long place names in list rows. The name
+  and buttons shared the same space with nothing reserved; the name now keeps a
+  right gutter so it wraps clean instead of running under the icons. No
+  truncation, so full names like "V Pizza & Tap Room - Lake Buena Vista" stay
+  whole. Same gutter applied to the featured card's top meta row.
+- Holiday cards now rank by base quality + a bounded holiday-fit score +
+  editorial pins, instead of raw wfScore. For July 4 the fit score rewards open
+  water / lakefront / elevated open-sky spots (from name, Google types, and
+  labels) and penalizes indoor/retail, and Lake Eola Park is pinned for the
+  downtown Orlando show. Framework is in holidays.js (fitFor + pinFor); other
+  holidays fall through to base ranking until their signals are added.
+  Limitation on record: Google data can't confirm which park hosts a show, so
+  fit ranks plausibility and pins carry the ground truth. Per-card taglines are
+  still generic conditions copy, not fireworks-specific (separate change).
+- Home-feed hero cards no longer share one identical bottom-right accent glow.
+  Each card's glow corner is now chosen deterministically from its id, so a card
+  is stable across renders but the feed reads as varied and intentional.
+
+## v3.39 - K-Bob (Korean spot near Parc Soleil) insider tips
+- Added K-Bob as owner-curated with an insider tip: corn dogs (get the full
+  cheese, not the half-and-half "Original"), get the chicken sauced (Korean
+  butter is what carries it), the vanilla tea with tapioca and brown sugar, and
+  kid logistics (high chairs, toys, backpacks, kiosk ordering; tenders are the
+  kid pick). No hard prices, per the durable-tip rule.
+- Name is short, so tip is keyed across likely spellings (kbob, k-bob, k bob,
+  kbop, k-bop) to attach regardless of Google's exact rendering. Featured boost
+  added as exact-match keys (kbob, kbop): fires only if the full Google name is
+  the bare "K-Bob"; a suffix like "K-Bob Chicken" will not trigger the boost
+  until the exact name is confirmed and pinned. Name-matched, no coord gate, but
+  "K-Bob" is distinctive so cross-location leak is not a real risk here.
+
+## v3.38 - Disney Springs features + featured-boost key fix
+- Added three Disney Springs spots as owner-curated: Cityworks (busy-table
+  wait tip), AMC Disney Springs (dine-in / reserved-recliner tip, points to
+  the AMC app for showtimes, cross-refs Everglazed), and Everglazed Donuts &
+  Cold Brew. Each gets a featured ranking boost and a "Curated by Wayfind"
+  insider tip. AMC keyed under two name variants ("amc disney springs" and
+  "amc dine-in disney springs") to hedge Google's naming.
+- BUG FIX: WAYFIND_FEATURED keys were written with spaces ("hilton orlando",
+  "t-rex cafe", "seaworld orlando"), but featuredBoost normalizes names by
+  stripping spaces/punctuation, so none of those keys ever matched, i.e. those
+  three were getting no boost. Rekeyed to normalized form (trexcafe,
+  hiltonorlando, seaworldorlando). Their boost now actually applies, which will
+  nudge their ranking up where they appear.
+- Deliberately did NOT hardcode "Supergirl now playing" on AMC. First-run films
+  rotate every few weeks; a named movie in a static note rots fast and there's
+  no live showtime feed wired in. The note points to the AMC app instead.
+- KNOWN LIMITATION: Cityworks and AMC are chains. The name matchers have no
+  coordinate gate, so these tips/boosts also apply to those brands' other-city
+  locations. Low impact during the Orlando/Sarasota launch (users only see
+  places near them), but the clean fix is a coordinate-gated note like Hilton
+  Orlando uses, which needs the exact Google names. Verify on-device that each
+  attaches; if AMC's tip does not show, send the exact place-header name.
+
+## v3.37 - Top 10 categories lifted into their own explainer card
+- The time-aware Top 10 category row (Food / Nightlife / Events from 2pm, Food
+  / Experiences / Shopping before) was crammed as overlay text inside the 163px
+  hero photo card, fighting the image for space, which is why it read weak.
+  Pulled it out into a dedicated card under the hero pick: three tappable rows,
+  each with an icon chip, title, and one-line descriptor, styled to match the
+  curated Top 10 sheets they open. Behavior unchanged: each row still opens that
+  category's ranked Top 10 (Events jumps to the tab).
+- Added the explanation: a lead line telling people to pick by where they want
+  to go, each opening the ranked Top 10 for that category, no ads or paid
+  placement.
+- Holiday gradient kept (carries the card's patriotic identity); the stacked
+  fireworks motion left as-is pending a call on dialing it back.
+- OPEN, not guessed: the general "best move / Top 10 near you" hero pick was
+  left in place. If "no need for the c top 10" meant remove that and lead with
+  the category card, it is a one-line change. And the "icon that goes to the
+  right" note was cut off mid-sentence, so nothing was done there yet.
+
+## v3.36 - provenance record maintained (doc-only, no app change)
+- Appended a dated maintenance entry to PROVENANCE.md confirming the record is
+  current as of the app state, now v3.36. Appended rather than editing the
+  original v3.33 line on purpose: the record's evidentiary value rests on it
+  being a contemporaneous, append-only log, so rewriting past entries would
+  weaken it. The app is byte-identical to v3.35; only the footer/VERSION bump
+  distinguishes the deploy, which lets you confirm the push actually landed on
+  Vercel even though nothing visible changed.
+
 ## v3.35 - one comment room + working edit/delete + fireworks encore
 - Community takes and the composer are now ONE card: an inset "Add yours"
   panel on top (visibly a write zone: darker background, its own border),
