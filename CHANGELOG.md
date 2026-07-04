@@ -1,3 +1,35 @@
+## v3.59 - native share card + updated logo
+- Replaced the share/OG card with the native landscape artwork (1200x630, no
+  compositing). Replaced wordmark.png with the updated logo, background made
+  transparent so it sits clean on any surface. Cache-busters: OG v11, wordmark v2.
+
+## v3.58 - search cache extended to 3 days
+- QCACHE_TTL_MS 4h -> 3 days. Cuts repeat Google search billing across the main
+  feed, the suggested feed (its searches ride the same cache), and named
+  searches. Cache size kept at 80 to avoid phone-storage overflow. Within
+  Google terms (30-day cache allowance); open-now still computed live.
+
+## v3.57 - share card lockup rebuilt from brand assets
+- Wordmark lockup redone using the real brand assets: wayfind from wordmark.png
+  (carries the orange i-dot), LET set in Poppins beside it on one line, IT below,
+  iconic pin.png beside IT, road under. Pin and tagline unchanged. OG v10.
+
+## v3.56 - share card: sharp landscape, fixed crops
+- Rebuilt the landscape card so it stops clipping. Pin cropped at the glow fade
+  (no cut rings), radiating, on the left. Tagline and LET wayfind (orange i-dot
+  intact) on the right. IT on the road across the bottom. OG cache-buster v9.
+
+## v3.55 - share card: whole uncut poster
+- Reverted the recomposition. The card is now the full poster placed uncut on a
+  1200x630 black canvas, so no clipped glow rings, no dropped LET/IT, correct
+  i-dot. Cost is black side bars (portrait source in a landscape slot). OG
+  cache-buster v8. Full-width requires a natively landscape render.
+
+## v3.54 - share card cleanup
+- Rebuilt the 1200x630 share card: pin cropped above the LET line (removes the
+  stray letter-tops artifact) and the road restored beneath the wordmark.
+  Clean band-based crops on pure black, no bleed. OG cache-buster bumped to v7.
+
 ## v3.53 - new social share card
 - Replaced the site share/OG card with a landscape 1200x630 recomposition of the
   new "Not sure what to do? Let wayfind it" poster: pin left, tagline and
