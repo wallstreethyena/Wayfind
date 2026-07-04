@@ -7,7 +7,7 @@ with entries as (
   where action = 'share'
     and user_id is not null
     and coalesce(meta->>'kind','') <> 'app'
-    and created_at >= '2026-07-04' and created_at < '2026-11-01'
+    and created_at >= '2026-07-03' and created_at < '2026-11-01'
   group by user_id
   having count(distinct coalesce(place_id, meta->>'theme', meta->>'title')) >= 3
 )

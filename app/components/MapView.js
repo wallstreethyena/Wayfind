@@ -176,8 +176,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         // Always fit to the actual pins, not the search center.
         // This is what fixes the "only 1 pin visible" issue when places are
         // clustered 15+ miles from the address center.
-        map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
-        if (places.length === 1) map.setZoom(15);
+        // Center on the user at a moderate zoom instead of fitting every pin,
+        // which zoomed out across the whole region and read as overwhelming.
+        // Distant pins sit off-screen until the user zooms out. Zoom is a
+        // starting estimate; tune after seeing it live.
+        if (center) { map.setCenter({ lat: center.lat, lng: center.lng }); map.setZoom(places.length === 1 ? 15 : 12); }
+        else { map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 }); if (places.length === 1) map.setZoom(15); }
       } else if (evList.length > 0) {
         map.fitBounds(bounds, 60);
       } else if (center) {

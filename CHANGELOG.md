@@ -1,8 +1,45 @@
+## v3.45 - hide Your Next Move, compact nav, map cleanup
+- Hid the "Your Next Move" hero card behind a flag (one line to restore) so the
+  Top 10 near you leads. Not deleted.
+- Bottom nav made shorter (less padding, smaller icons/labels) to reclaim
+  height, and every tab tap now scrolls to the top of the page, so Home lands
+  at the top instead of wherever you last were.
+- Map: menu overlay got a solid background (it was unreadable over the map
+  after the v3.44 transparency change), and the Places/Events toggle and the
+  legend were moved below the now-open sub-menu so it stops covering them.
+  Offsets are estimates; confirm after deploy and I will nudge.
+- Map now centers on your location at a moderate zoom instead of fitting all 85
+  pins, which is what made it feel uncentered and overwhelming. Trade-off:
+  distant pins sit off-screen until you zoom out. Zoom level needs your eyes.
+- Not done this build: the Top 10 Events page. Events are not places and cannot
+  reuse the Top 10 card layout, so that is a real build coming next, not a
+  rushed patch.
+
+## v3.44 - menu bubble removed
+- CategoryMenu (home mood menu) no longer sits in a rounded, blurred floating
+  card. Container is now transparent with square edges and flush padding, so it
+  reads as part of the header instead of a bubble. Tile size left as-is: with 6
+  tiles pinned to one line with no scroll, there is no room to enlarge them on a
+  phone without forcing a scroll or a second row, which you said to avoid.
+
 # Wayfind Changelog
 
 Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...).
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
+
+## v3.43 - sweepstakes live now, holiday card 4-week lead
+- Sweepstakes is live now instead of a teaser. Moved the start from July 4 to
+  July 3 and aligned all three places that state the window so they stay
+  consistent: the card's live gate, the Official Rules text, and the draw query
+  (giveaway-draw.sql now counts from 2026-07-03). URGENT caveat unchanged: the
+  draw still cannot pick a winner while share events log user_id = null, so the
+  user_id fix must land before any real promotion of this live promo.
+- Holiday card lead widened from 3 weeks to 4 weeks (28 days). A card now
+  appears 28 days before each holiday and clears at midnight ending the holiday
+  day (so it stays up through the holiday itself). Open question flagged: it
+  currently triggers for all 11 federal holidays; if you want only "major" ones,
+  tell me which and I'll filter.
 
 ## v3.42 - stuck-home bug, one-line menu, food subfilters, sweepstakes teaser
 - Fixed the blank/stuck home screen that needed a refresh. The feed-load effect
