@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.45";
+const BUILD_ID = "v3.49";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2007,6 +2007,24 @@ function pickReason(p, ctx) {
   }
   return line.charAt(0).toUpperCase() + line.slice(1);
 }
+function whyFirst(p, list) {
+  if (!p || !Array.isArray(list) || list.length < 2) return "";
+  const others = list.filter((x) => x && x.id !== p.id);
+  const maxR = Math.max(0, ...others.map((x) => x.rating || 0));
+  const maxN = Math.max(0, ...others.map((x) => x.reviews || 0));
+  const lead = [];
+  if (p.rating && p.rating >= maxR) lead.push("highest rated here at " + p.rating + "\u2605");
+  else if (p.rating) lead.push(p.rating + "\u2605 rated");
+  if (p.reviews && p.reviews > 0 && p.reviews >= maxN) lead.push("more reviews than any other pick (" + p.reviews.toLocaleString() + ")");
+  const tail = [];
+  if (p.openNow === true) tail.push("open now");
+  if (p.distMi != null && p.distMi <= 8) tail.push(p.distMi.toFixed(1) + " mi out");
+  if (!lead.length && !tail.length) return "";
+  let out = "Ranked #1";
+  if (lead.length) out += ": " + lead.join(", ");
+  if (tail.length) out += (lead.length ? " \u00b7 " : ": ") + tail.join(", ");
+  return out + ".";
+}
 // v6.9: the detail page "decision brief". Returns a one-line judgment verdict (use case)
 // and a supporting body (signals + a real tradeoff), so the page reads like a sharp local
 // guide instead of a row of database fields. Deterministic and honest.
@@ -3318,9 +3336,10 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${center.lat}&longitude=${center.lng}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,dew_point_2m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunset,sunrise,uv_index_max&hourly=temperature_2m,apparent_temperature,weather_code,is_day&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=2`);
+        const r = await fetch(`/api/weather?lat=${center.lat}&lng=${center.lng}`);
         const d = await r.json();
-        const cur = d && d.current ? d.current : null;
+        let cur = d && d.current ? d.current : null;
+        if (!cur && d && d.hourly && d.hourly.time && d.hourly.time.length) { const _h = d.hourly; cur = { temperature_2m: _h.temperature_2m && _h.temperature_2m[0], apparent_temperature: _h.apparent_temperature && _h.apparent_temperature[0], weather_code: _h.weather_code && _h.weather_code[0], relative_humidity_2m: null, wind_speed_10m: null, dew_point_2m: null }; }
         const day = d && d.daily ? d.daily : null;
         if (cur && !cancelled) {
           const w = weatherFromCode(cur.weather_code);
@@ -4059,11 +4078,11 @@ function PageInner() {
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            {weather && weather.feels != null && (
+            {weather && (weather.feels != null || weather.temp != null) && (
               <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
                 <span style={{ fontSize: 18 }}>{weather.icon}</span>
                 <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
-                  <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels}°</span>
+                  <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels != null ? weather.feels : weather.temp}°</span>
                   {weather.label ? <span style={{ fontSize: 8.5, fontWeight: 600, color: C.muted }}>{weather.label}</span> : null}
                 </span>
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
@@ -4100,11 +4119,7 @@ function PageInner() {
             </div>
           </div>
         )}
-        {screen === "map" && !mapSearchOpen && (
-          <div style={{ display: "flex", justifyContent: "flex-end", paddingBottom: 2 }}>
-            <button onClick={() => setMapSearchOpen(true)} aria-label="Search" title="Search" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1px solid ${C.border}`, background: "rgba(22,27,34,.9)", color: C.light, fontSize: 17, cursor: "pointer" }}>🔍</button>
-          </div>
-        )}
+        {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
         <div style={{ display: "flex", gap: 0, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
@@ -4151,7 +4166,7 @@ function PageInner() {
       </div>
 
       {/* Category tabs (Explore + Map). Hidden on home, where the app-tile grid replaces it. */}
-      {screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested" && (
+      {screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested" && screen !== "itinerary" && (
         screen === "map" ? null : (
           <div style={{ display: "flex", gap: 7, padding: "10px 14px", background: C.panel, flexShrink: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
             <button key="surprise" onClick={openSurprise} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 22, border: `1.5px solid ${C.purple}`, background: screen === "surprise" ? C.purple : "transparent", color: screen === "surprise" ? "#0D1117" : C.purple, fontSize: 13.5, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>🎁 Surprise Me</button>
@@ -4196,11 +4211,12 @@ function PageInner() {
               const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
               return (
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 54, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
                       <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} />
                     </div>
                   </div>
+                  {!mapSearchOpen && <button onClick={() => setMapSearchOpen(true)} aria-label="Search" title="Search" style={{ position: "absolute", top: 12, right: 10, zIndex: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 42, height: 42, borderRadius: "50%", border: "1px solid " + C.border, background: "rgba(16,20,27,.94)", color: C.light, fontSize: 17, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>🔍</button>}
                   <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     <button onClick={() => setMapMode("places")} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "places" ? C.accent : "transparent", color: mapMode === "places" ? "#fff" : C.light }}>Places</button>
@@ -5558,7 +5574,7 @@ function PageInner() {
                     </div>
                     <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); showToast(v ? (posting ? commentType + " posted" : commentType + " saved on this device") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then(() => { setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); showToast(v ? (posting ? "Saving…" : commentType + " saved on this device") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then((res) => { if (res && res.error) { showToast("Couldn't post to the community, saved on this device only"); try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {} } else { showToast(commentType + " posted"); setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); } }, (err) => { showToast("Couldn't post to the community, saved on this device only"); try { console.error("[wayfind comment]", err); } catch (e2) {} }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
                       {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
                     </div>
                   </div>
@@ -6158,6 +6174,7 @@ function PageInner() {
                             ))}
                           </div>
                         )}
+                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: acc, background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
                         {(() => { const why = pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather) }); return why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>

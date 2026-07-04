@@ -1,3 +1,58 @@
+## v3.49 - honest comment save (reviews persistence)
+- The comment save claimed "posted" instantly, before the server write
+  resolved, and the Supabase upsert had no error branch, so a failed write
+  silently pretended to succeed. That is why a review looked saved but was gone
+  on return. Now it says "Saving..." then confirms only on success; on failure
+  it says it saved on-device only and logs the real Supabase error to the
+  console, so the actual cause is visible.
+- This surfaces the failure honestly but does NOT itself make reviews persist.
+  The real fix is provisioning the comments table: run comments.sql AND
+  schema.sql in the Supabase SQL editor. Until the table exists, server writes
+  fail and reviews only live on the device that wrote them.
+
+## v3.48 - "Why ranked #1" on Top 10 pages
+- The featured (#1) card on every Top 10 / holiday list now shows an explicit,
+  honest "Ranked #1" callout computed against the whole list: rating lead,
+  review-count lead, open-now, and distance. Only facts already in the place
+  data, no invented claims. First concrete piece of the trust/ranking work.
+- Not yet built, pending your call: the full card copy engine (why go / best
+  for / skip if / timing / confidence) and intent-specific labels. Flagged that
+  the reasoning-copy quality hinges on a template-vs-AI decision, and that some
+  requested labels (Official show, Parking nearby, Crowd warning) are not in
+  Google data and would be fabricated -- those need an editorial layer, not a
+  generator.
+
+## v3.47 - itinerary menu cleanup + map search on the map
+- Itinerary showed two menus: the old category pills and the newer tile menu.
+  Hid the old pills on the itinerary (and its trip detail), leaving only the new
+  CategoryMenu.
+- Map search: moved the magnifier out of the header and onto the map as a
+  floating top-right button, and narrowed the map menu to give it a corner to
+  sit in. Reclaims the header row so the map is taller. Placement is an
+  estimate; confirm after deploy and I will nudge if it overlaps the menu.
+- Not done: restyling the itinerary trip detail (image 2) to the Top 10 card
+  style (image 3). Trips are user-ordered lists with manage actions (visited,
+  move, remove, notes) that the Top 10 list does not have, so it is a real
+  redesign, not a swap. Scoped for next, pending one decision below.
+
+## v3.46 - weather moved server-side + resilient chip
+- Root fix attempt for missing weather. The browser called Open-Meteo directly;
+  a network filter or content blocker can silently block that one call while
+  Google and the rest still work, which fits the symptom. Added /api/weather so
+  the server fetches it and the browser only talks to your own domain, removing
+  that failure mode. Matches how events and AI already route.
+- Header weather chip was gated strictly on apparent_temperature (feels-like)
+  and showed only that. It now shows whenever any temperature is present and
+  falls back to the real temp if feels-like is absent, so a partial response no
+  longer hides the chip.
+- Added a fallback that derives current conditions from the first hourly reading
+  if the response lacks a current block.
+- Honest limit: I cannot reach Open-Meteo from my environment to confirm this
+  resolves your specific case. If weather is still blank on v3.46, the cause is
+  outside the app (Open-Meteo down, or blocked upstream), and the definitive
+  check is loading the site on a desktop browser, DevTools > Network, filter
+  open-meteo or /api/weather, and seeing whether it returns 200 or fails.
+
 ## v3.45 - hide Your Next Move, compact nav, map cleanup
 - Hid the "Your Next Move" hero card behind a flag (one line to restore) so the
   Top 10 near you leads. Not deleted.
