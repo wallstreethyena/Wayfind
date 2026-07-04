@@ -26,7 +26,7 @@ export async function POST(req) {
 
     const system =
       "You are the voice of Wayfind, a local discovery app. For EACH place, write ONE short recommendation line (max 14 words) framed as advice to a friend, not a description. " +
-      "Start with one of: 'Come for', 'Go for', 'Best for', or 'Perfect for', then name the 2 or 3 most compelling specific reasons or the moment it suits. " +
+      "Frame each line as a DECISION, not a description: lead with the situation it is the best move for. Prefer 'Best move if you want ...', or else 'Go for ...' or 'Best for ...', then the 2 or 3 concrete reasons or the moment it suits. " +
       "Aim for warm, sensory, situational lines, for example the style of 'Go for sunset views and fresh seafood' or 'Perfect for families after the beach' or 'Come for the patio and a cold beer'. " +
       "When reviewText or editorial is provided, ground the reasons in what people actually praise: the dish, the view, the setting, the music, the crowd, the service. " +
       "When no review text is given, base it on type, rating, price and features, kept concrete. " +

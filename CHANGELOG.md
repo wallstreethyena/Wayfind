@@ -1,3 +1,55 @@
+## v3.53 - new social share card
+- Replaced the site share/OG card with a landscape 1200x630 recomposition of the
+  new "Not sure what to do? Let wayfind it" poster: pin left, tagline and
+  wordmark right, on black, using the original rendered elements (no font
+  substitution, nothing cropped). Bumped the OG cache-buster to v6 so platforms
+  refetch. Portrait original kept for vertical placements.
+- Note: per-place/list shares still use the dynamic /api/og card; unchanged.
+
+## v3.52 - category-aware AI copy + flatter comment section
+- Fixed the food-framed copy on non-food places (e.g. a fireworks viewing area
+  told to "skip this for food"). The insight prompt hardcoded food nouns and a
+  food skip example regardless of category; the kind flag only changed one minor
+  field. Voice, skip example, and the signature reference now follow the
+  category, so attractions read as attractions.
+- Flattened the Community Takes section from three nested bordered boxes to one
+  clean card by removing the outer wrapper card and the inner "Add yours" box.
+
+## v3.51 - loader hang, Featured pill, decision-framed card copy
+- Home "Reading the moment" could hang: openSuggested() nulled the feed on every
+  Home tap, forcing the spinner even with cached data, and the blend is slow on a
+  cache miss. Switched to stale-while-revalidate: the last feed stays visible
+  while it refreshes; spinner only on a true first load.
+- Featured pill: icon was the same star as Local favorite. Changed Featured to a
+  distinct medal icon in both the card badge and the FeaturedTag.
+- Featured tap did nothing because no "featured" experience existed, so the
+  handler no-opped. Added a Featured experience so the tap opens a real list of
+  the highlighted spots near you.
+- AI card copy: sharpened the /api/blurbs prompt to your voice - each line is now
+  framed as a decision ("Best move if you want ...") rather than a description.
+  Detail page already carries the full brief incl. "Skip it if ..." from
+  /api/insight, so the decision lives on the card and completes on detail.
+- Still open: card_impression. It needs a per-card viewport observer in PlaceCard
+  firing to PostHog. Not rushing it into this batch; it is the next focused edit.
+
+## v3.50 - PostHog analytics + decision-funnel events
+- Installed PostHog (posthog-js dep + init in the app), gated on
+  NEXT_PUBLIC_POSTHOG_KEY so it no-ops until you set the key. Autocapture and
+  session replay on. Set NEXT_PUBLIC_POSTHOG_KEY (and optionally
+  NEXT_PUBLIC_POSTHOG_HOST) in Vercel to turn it on.
+- Routed every existing logEvent through PostHog too, so all current events
+  (search, detail_open, share, save, directions, etc.) flow to both Supabase
+  and PostHog. Supabase events kept as-is.
+- Added the missing decision-funnel events: screen_view (on every screen change,
+  which also covers events/favorites/itinerary tab opens and page-drop-off),
+  map_pin_selected, result_count_shown, filter_changed.
+- Not added this build: card_impression. It needs viewport observation per card,
+  and it touches the same card render as the AI Decision Cards, so it is bundled
+  into that next build rather than editing the cards twice.
+- Correction on record: the earlier "giveaway user_id is null" claim was wrong.
+  In-app shares use the component logEvent, which sets user_id when signed in, so
+  the draw works once the events table exists.
+
 ## v3.49 - honest comment save (reviews persistence)
 - The comment save claimed "posted" instantly, before the server write
   resolved, and the Supabase upsert had no error branch, so a failed write

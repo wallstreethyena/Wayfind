@@ -12,6 +12,10 @@ export async function POST(req) {
     const mode = p.mode === "full" ? "full" : "compact";
     const kind = p.kind === "event" ? "event" : p.kind === "attraction" ? "attraction" : "dining";
     const mustTryDesc = kind === "dining" ? "specific dishes or drinks reviewers repeatedly name" : kind === "event" ? "things reviewers say help when attending an event here (arrival timing, parking, nearby stops)" : "specific things reviewers say not to miss (rides, areas, shows, or signature items)";
+    const _dining = kind === "dining";
+    const exNouns = _dining ? "the actual dish, the patio, the bartender, the view, the crowd, the wait" : kind === "event" ? "the act, the stage, the crowd, arrival timing, parking, the wait" : "the view, the setting, the exhibit or show, the walk, the crowd, the wait";
+    const exSkip = _dining ? "you want quiet or upscale food" : "you want something indoors, quiet, or a sit-down meal instead";
+    const exSig = _dining ? "dish" : "thing";
 
     const facts = [
       `Name: ${p.name}`,
@@ -36,7 +40,7 @@ export async function POST(req) {
       "Never invent prices in dollars, wait times, menu item percentages, hours, or comparisons to other named places; if a detail is not supported by the facts, omit it or use an empty value. ";
     const voice =
       "You are a sharp local insider writing for Wayfind. Be specific to THIS place and genuinely useful for deciding whether to go. " +
-      "Every line must say something that could NOT be copied onto just any place: name the actual dish, the patio, the bartender, the view, the crowd, the wait. " +
+      "Every line must say something that could NOT be copied onto just any place, for example " + exNouns + ". " +
       "No generic filler, no marketing adjectives, no restating the star rating. If the facts do not support a specific, useful point, leave that field empty rather than padding it. ";
 
     let system;
@@ -68,9 +72,9 @@ export async function POST(req) {
         "bestTime (short specific phrase for when to go if reviews indicate it, e.g. 'Weekday evenings, before 7'; empty string if unclear), " +
         "bestFor (array of up to 4 short audience or occasion labels this genuinely suits, e.g. 'Families', 'Date night', 'Solo work', grounded in what reviews describe; empty array if unclear), " +
         "goWhen (short phrase for the best time or use case to go, e.g. 'Before 6 PM', 'Weekday lunch'; empty string if unclear), " +
-        (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. 'you want quiet or upscale food', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
+        (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. '" + exSkip + "', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
         (hasReviews ? "whyPicked (one concrete sentence of evidence for why this is a solid pick, drawn from what reviewers emphasize, not generic praise; empty string if unclear), " : "whyPicked (empty string), ") +
-        (hasReviews ? "why (one flowing paragraph of 5 to 8 real sentences that truly makes the case: open with what this place IS in one vivid line, then why it earned the pick right now, the specific things reviewers praise by name, the signature move or dish not to miss, who it is best for and when to go, when to skip it, and one honest caveat such as price, wait, park admission or a drive; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend, never bullet fragments, never generic praise; empty string if the evidence is thin), " : "why (empty string), ") +
+        (hasReviews ? "why (one flowing paragraph of 5 to 8 real sentences that truly makes the case: open with what this place IS in one vivid line, then why it earned the pick right now, the specific things reviewers praise by name, the signature move or " + exSig + " not to miss, who it is best for and when to go, when to skip it, and one honest caveat such as price, wait, park admission or a drive; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend, never bullet fragments, never generic praise; empty string if the evidence is thin), " : "why (empty string), ") +
         (hasReviews ? "caution (ONE specific honest thing to know or common complaint that would change a decision; empty string if none stands out), " : "caution (empty string), ") +
         (hasReviews ? "tip (ONE concrete insider tip a regular would actually give; empty string if none)." : "tip (empty string).");
     }

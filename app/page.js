@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.49";
+const BUILD_ID = "v3.53";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -109,7 +109,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
 }
 function FeaturedTag({ name }) {
   if (!(featuredBoost(name) > 0)) return null;
-  return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>⭐ Featured</span>;
+  return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
 }
 function listShareUrl(key, title, n, loc, hk) {
   const q = ["t=" + encodeURIComponent(String(title || "").slice(0, 60))];
@@ -681,6 +681,7 @@ const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Local favorite",  title: "Local Favorites",  cat: "food",      lead: "Spots people keep coming back to, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
+  featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
   bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
   rooftop:   { icon: "🌆", label: "Rooftop",         title: "Rooftop Spots",    cat: "nightlife", keyword: "rooftop", lead: "Drinks and a view from up top." },
@@ -2737,7 +2738,6 @@ function PageInner() {
   }
 
   function openSuggested() {
-    setSuggested(null);
     setIntent(null);
     setCat("food");
     setSub("all");
@@ -2822,7 +2822,7 @@ function PageInner() {
   useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
   useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
-  function pickSub(id) { setSub(id); setVibe("all"); }
+  function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
 
   // Signal functions — record engagement, drive personalised ranking, trigger sign-up.
   function recordSignal(p, action) {
@@ -2837,7 +2837,17 @@ function PageInner() {
   // shared Supabase "events" table — this is the proprietary signal Google can't
   // give us (what locals actually like, save, and share). Never throws, never
   // blocks the UI, and only writes when a backend is configured.
+  // PostHog: product analytics + session replay. No-ops until NEXT_PUBLIC_POSTHOG_KEY is set.
+  useEffect(() => {
+    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+    if (!key || typeof window === "undefined" || window._phInit) return;
+    window._phInit = true;
+    import("posthog-js").then(({ default: ph }) => { try { ph.init(key, { api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com", capture_pageview: true, capture_pageleave: true, autocapture: true }); window.posthog = ph; } catch (e) {} }).catch(() => {});
+  }, []);
+  // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
+  useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
+    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {})); } catch (e0) {}
     try {
       if (!supabase) return;
       const row = {
@@ -3257,7 +3267,7 @@ function PageInner() {
         } else {
           results = await searchPlaces(cat, sub, ctr, searchRadius, vibe);
         }
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
+        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
       } finally {
@@ -4217,7 +4227,7 @@ function PageInner() {
                     </div>
                   </div>
                   {!mapSearchOpen && <button onClick={() => setMapSearchOpen(true)} aria-label="Search" title="Search" style={{ position: "absolute", top: 12, right: 10, zIndex: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 42, height: 42, borderRadius: "50%", border: "1px solid " + C.border, background: "rgba(16,20,27,.94)", color: C.light, fontSize: 17, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>🔍</button>}
-                  <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+                  <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     <button onClick={() => setMapMode("places")} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "places" ? C.accent : "transparent", color: mapMode === "places" ? "#fff" : C.light }}>Places</button>
                     <button onClick={() => { setMapMode("events"); if (!events) loadEvents(); }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
@@ -4719,7 +4729,7 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {!browseCat && (suggestedLoading || suggested === null) && <Loader label="Reading the moment" pad="8px 2px" />}
+              {!browseCat && suggested === null && <Loader label="Reading the moment" pad="8px 2px" />}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={52} /></div>
@@ -5546,7 +5556,7 @@ function PageInner() {
                 </div>
               ); })()}
               {/* 3. Insider tip */}
-              <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px" }}>
+              <div style={{ marginBottom: 16 }}>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
                 <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
@@ -5564,7 +5574,7 @@ function PageInner() {
                     <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Community takes</span>
                     {placePosts.length > 0 && <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>}
                   </div>
-                  <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 11px", marginBottom: placePosts.length ? 12 : 0 }}>
+                  <div style={{ marginBottom: placePosts.length ? 12 : 0, paddingBottom: placePosts.length ? 12 : 0, borderBottom: placePosts.length ? `1px solid ${C.border}` : "none" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 2 }}>Add yours</div>
                     <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
@@ -6645,7 +6655,7 @@ function SwipeRow({ children, onDelete }) {
   );
 }
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, line, onBadge, selectedBadge, onCuisineTap }) {
-  const badges = [...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "⭐", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  const badges = [...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   const take = line || templateBlurb(p);
