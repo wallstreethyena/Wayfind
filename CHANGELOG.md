@@ -4,6 +4,46 @@ Versioning starts at 1.0. Each shipped build gets the next number (1.1, 1.2, ...
 The running app shows the version in the footer ("Wayfind v1.0") so you can confirm
 which build is live on Vercel. This file is the record so nothing gets lost.
 
+## v3.42 - stuck-home bug, one-line menu, food subfilters, sweepstakes teaser
+- Fixed the blank/stuck home screen that needed a refresh. The feed-load effect
+  bails early when searchMode is on, but searchMode was not in its dependency
+  list, so exiting search never re-fired the load and the feed stayed empty
+  until a hard remount. Added searchMode to the deps; the effect is guarded and
+  idempotent so it only ever re-fetches at most once more. Root cause, not a
+  band-aid.
+- CategoryMenu (the home mood menu) now fits on one line: the six tiles share
+  the width and let two-word labels wrap under the icon instead of horizontal
+  scroll, and the "›" scroll fade is gone. Selecting a category now auto-drops
+  the sub-menu (it used to close it and require a "Filters:" tap); the "Filters:"
+  label and toggle are removed. It just drops down, as asked.
+- Food sub-menu: removed Brunch (it was redundant, breakfast already covers it),
+  added Desserts.
+- Sweepstakes card is now visible before it opens. It was gated behind
+  giveawayLive(), which is false until July 4, which is why nothing showed.
+  Added a 21-day pre-launch window; the card now appears in an "Opens July 4"
+  teaser state and flips to live entry on the 4th automatically.
+
+## v3.41 - code audit + missing Supabase schema
+- Audit (static review; no live smoke test possible from here). Clean: tsc 0
+  errors across all of app/, deploy gate passes, no TODO/dead-code markers.
+- Found and provisioned FIVE Supabase tables the app reads/writes that no SQL
+  ever created: events, likes, offers, saved_places, shared_lists. Only
+  comments existed. Result was silent failure of cloud saves, likes, shared
+  links, offers, and the giveaway's event log. New supabase/schema.sql creates
+  all five with exact column shapes and RLS, idempotent, run once in Supabase.
+- Found a second giveaway bug the table alone does not fix: every share logs
+  the event with user_id = null, and giveawayMark only writes localStorage, so
+  no share is tied to an account in the DB. The Nov 1 draw filters on user_id
+  is not null, so the entrant pool is always empty. Needs a code fix (set
+  user_id on share events); flagged, not yet changed.
+- App code is byte-identical to v3.40; this build adds the DB schema file and
+  the version bump. Required env for a working deploy, for the record:
+  NEXT_PUBLIC_GOOGLE_MAPS_KEY (all place data), ANTHROPIC_API_KEY (AI copy),
+  and the two NEXT_PUBLIC_SUPABASE_* keys (accounts/comments/saves). Minor: the
+  SEATGEEK_CLIENT_SECRET and SIGNUP_WEBHOOK_URL env vars are read in code but
+  missing from .env.local.example; signup/vote API routes log full entries
+  (emails) to server logs.
+
 ## v3.40 - name-overlap fix, July 4 fit-ranking, varied card glow
 - Fixed the save/share buttons covering long place names in list rows. The name
   and buttons shared the same space with nothing reserved; the name now keeps a

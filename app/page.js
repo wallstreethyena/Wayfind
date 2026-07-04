@@ -11,7 +11,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.40";
+const BUILD_ID = "v3.42";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -78,8 +78,6 @@ function iconForPlace(p) {
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
-  const [subsOpen, setSubsOpen] = useState(false);
-  useEffect(() => { setSubsOpen(false); }, [activeCat]);
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
     <div style={{ marginBottom: 10, background: "rgba(22,27,34,.88)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: `1px solid ${C.border}`, borderRadius: 14, padding: heading ? "12px 10px 12px" : "8px 10px 10px" }}>
@@ -90,27 +88,19 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
         </div>
       )}
       <div style={{ position: "relative" }}>
-      <div style={{ display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
+      <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 12px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", flexShrink: 0, minWidth: 62 }}>
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", flex: 1, minWidth: 0 }}>
             <NavIcon name={m.id} color={on ? C.accent : C.muted} size={24} />
-            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, whiteSpace: "nowrap", lineHeight: 1.1 }}>{m.label}</span>
+            <span style={{ fontSize: 10.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
           </button>
         ); })}
       </div>
-        <div style={{ position: "absolute", top: 0, right: 0, bottom: 4, width: 30, background: "linear-gradient(90deg, transparent, rgba(22,27,34,.95))", pointerEvents: "none", display: "flex", alignItems: "center", justifyContent: "flex-end" }}><span style={{ color: C.muted, fontSize: 13 }}>›</span></div>
       </div>
-      {activeCat && subs.length > 1 && (
-        <button onClick={() => setSubsOpen((o) => !o)} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8, padding: "5px 8px", background: "transparent", border: "none", color: C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
-          <span style={{ color: C.light }}>Filters:</span>
-          <span style={{ color: C.accent, fontWeight: 800 }}>{((subs.find((x) => x.id === sub) || subs[0]) || {}).label}</span>
-          <span style={{ fontSize: 9, display: "inline-block", transform: subsOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span>
-        </button>
-      )}
-      <div style={{ overflow: "hidden", maxHeight: (subsOpen && activeCat && subs.length > 1) ? 96 : 0, opacity: (subsOpen && activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
+      <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
         <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
           {subs.map((sf) => { const son = sub === sf.id; return (
-            <button key={sf.id} onClick={() => { onSub(sf.id); setSubsOpen(false); }} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
+            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
           ); })}
         </div>
       </div>
@@ -2248,6 +2238,7 @@ function PageInner() {
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const GIVEAWAY = { start: new Date(2026, 6, 4), end: new Date(2026, 9, 31, 23, 59, 59) };
   const giveawayLive = () => { const n = Date.now(); return n >= GIVEAWAY.start.getTime() && n <= GIVEAWAY.end.getTime(); };
+  const giveawaySoon = () => { const n = Date.now(); return n < GIVEAWAY.start.getTime() && n >= GIVEAWAY.start.getTime() - 21 * 864e5; };
   const [gwCount, setGwCount] = useState(0);
   const [gwOpen, setGwOpen] = useState(false);
   useEffect(() => { try { const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (Array.isArray(g)) setGwCount(g.length); } catch (e) {} }, []);
@@ -3257,7 +3248,7 @@ function PageInner() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -4532,7 +4523,7 @@ function PageInner() {
                           <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _c.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the picks ›</div>
                         </div>
                       ); })()}
-                      {giveawayLive() && (
+                      {(giveawayLive() || giveawaySoon()) && (
                         <div style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                           <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
@@ -4543,7 +4534,9 @@ function PageInner() {
                           <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>Win a 3-night stay at Hilton Orlando</div>
                           <div style={{ fontSize: 12.5, color: "#E8D5A4", marginTop: 5, lineHeight: 1.45 }}>Share any 3 places or lists from Wayfind. One winner, drawn Nov 1. That is the whole entry.</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                            {user ? (
+                            {!giveawayLive() ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>Opens July 4</span>
+                            ) : user ? (
                               <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: gwCount >= 3 ? "#E8B84B" : "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: gwCount >= 3 ? "#1B1405" : "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>{gwCount >= 3 ? "You're entered ✓" : Math.min(gwCount, 3) + " of 3 shared"}</span>
                             ) : (
                               <button onClick={() => setAuthOpen(true)} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
