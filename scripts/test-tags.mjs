@@ -139,5 +139,8 @@ ok("gems: Se7en Bites carries the verified Michelin chip", (Gems.gemFor("Se7en B
 ok("gems: The Hen & Hog resolves with and without the The", (Gems.gemFor("The Hen & Hog") || {}).key === "henandhog" && (Gems.gemFor("Hen & Hog Winter Park") || {}).key === "henandhog");
 ok("gems: Deli Desires resolves", (Gems.gemFor("Deli Desires") || {}).key === "delidesires");
 
+ok("gems: Helena never boosts food rankings", (Gems.gemFor("Helena Modern Riviera") || {}).boost === 0);
+ok("gems: boosts are nudges, never overrides", Gems.GEMS.every((g) => g.boost == null || g.boost <= 2));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

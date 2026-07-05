@@ -8,12 +8,13 @@ import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
+import * as Aff from "../lib/affiliates";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.77";
+const BUILD_ID = "v3.87";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -591,13 +592,37 @@ const K_BOB_NOTE = [
   "Best drink here is the vanilla tea with tapioca and brown sugar.",
   "Easy with kids: high chairs, toys, kid backpacks, and kiosk ordering at the door, and the tenders are the kid-friendly pick. It runs pricier than most counter service, with the corn dogs the cheaper option.",
 ];
+// Owner-shot photos (Gabe's own, licensing clean). Keys are lowercase name
+// fragments matched with includes(); photos prepend to the Google gallery.
+const WAYFIND_PHOTOS = {
+  "parc soleil": ["/wf-parcsoleil-1.jpg", "/wf-parcsoleil-2.jpg", "/wf-parcsoleil-3.jpg"],
+};
 const WAYFIND_NOTES = {
   // Entries are strings, or { text, url, label } when a tip has a working
   // link. Owner-vouched links only; community Tips stay plain text.
+  "magic kingdom park": [
+    { text: "Happily Ever After fireworks light the castle most nights \u2014 start time changes with the season, so check today's official schedule before you plan dinner.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+  ],
+  "epcot": [
+    { text: "Luminous \u2014 The Symphony of Us runs over World Showcase Lagoon most nights. Times shift by season; the official calendar has today's showtime.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+  ],
+  "disney's hollywood studios": [
+    { text: "Fantasmic! runs select nights and fills up \u2014 check today's schedule and line up early or book the dining package.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+  ],
+  "seaworld orlando": [
+    { text: "Ignite fireworks play over the lagoon on summer and select nights \u2014 confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
+  ],
+  "universal studios florida": [
+    { text: "CineSational: A Symphonic Spectacular closes most nights on the lagoon \u2014 showtime varies, check today's hours.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+  ],
+  "universal epic universe": [
+    { text: "Celestial Park hosts the park's nighttime finale \u2014 times vary by night; today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+  ],
   "hilton grand vacations club parc soleil": [
     { text: "The pool chair and cabana reservation instructions in the welcome letter are often broken. The system that actually works is the resort's own Recreation Team page on Eventbrite, run by the rec staff, free to book.", url: "https://www.eventbrite.com/o/parc-soleil-recreation-team-34192772609", label: "Open chair & cabana reservations" },
     "Reservation slots drop on a rolling basis, usually the morning of. If the page shows nothing yet, the day's slots have not been posted; check back early or search Eventbrite for Parc Soleil Recreation Team.",
     "Chairs tend to book out about three days ahead, matching the typical three-night owner stay, so reserve the day before your check-in for the dates you want.",
+    "Owner tip: for the Disney fireworks, ask for Tower 100 rooms 11423, 11424, or 11425 \u2014 they face Disney directly. Northwest-facing high floors in Tower 200 also carry the fireworks line.",
   ],
   "seaworld orlando": [
     "Sharks Underwater Grill is the meal worth planning around: full service beside the shark tank. Reserve in the SeaWorld app the morning you visit; walk-ins rarely clear on busy days.",
@@ -633,8 +658,9 @@ const WAYFIND_FEATURED = {
   // keys ("hilton orlando" etc.) never fired.
   "trexcafe": 18,
   "hiltonorlando": 14,
-  "seaworldorlando": 14,
+  "seaworldorlando": 6,
   "cityworks": 12,
+  "eggsupgrill": 8,
   "amcdisneysprings": 10,
   "amcdineindisneysprings": 10,
   "everglazed": 8,
@@ -646,8 +672,17 @@ function featuredBoost(name) {
   if (!n) return 0;
   if (WAYFIND_FEATURED[n] != null) return WAYFIND_FEATURED[n];
   for (const k in WAYFIND_FEATURED) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_FEATURED[k]; }
-  if (Gems.gemFor(name)) return 6; // curated unique finds rank up when Google returns them
+  const _g = Gems.gemFor(name); if (_g) return (_g.boost != null ? _g.boost : 2); // gems nudge, never override earned rank
   return 0;
+}
+// On-device taste profile: every meaningful interaction with a place bumps its
+// type; the map Top 10 reweights toward what this user actually engages with.
+// Local-only (per user, per device); capped so taste tailors, never hijacks.
+function tasteBump(place) {
+  try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); localStorage.setItem("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
+}
+function tasteBoost(place) {
+  try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
 }
 
 // v1.8: hard category gate for intent-specific meal searches. A breakfast search
@@ -2011,7 +2046,9 @@ function pickReason(p, ctx) {
     shopping:      [["a browse when you have time", "you want a quick in and out"]],
     generic:       [["a solid nearby option", "you are after something specific"], ["an easy add to the plan", "you already know exactly what you want"]],
   };
-  const pair = vary(V[kind] || V.generic); const good = pair[0], skip = pair[1];
+  const _isPark = /theme_park|amusement/.test((((p && p.types) || []).join(" ") + " " + ((p && p.name) || "")).toLowerCase());
+  const PK = [["a full-day park plan with the crew", "you only have a couple of hours"], ["the marquee day out around here", "you want cheap, quick, or quiet"], ["thrill rides and full-scale spectacle", "you want a slow, quiet day"], ["the big-ticket day that anchors a trip", "you are watching the budget"]];
+  const pair = (kind === "entertainment" && _isPark) ? vary(PK) : vary(V[kind] || V.generic); const good = pair[0], skip = pair[1];
   if (compact) return "Best for " + good + ".";
   const sig = [];
   if (r != null && r >= 4.6 && n >= 500) sig.push(vary(["big review strength", n.toLocaleString() + " reviews deep", "review volume most picks here lack"]));
@@ -2021,7 +2058,9 @@ function pickReason(p, ctx) {
   if (p.distMi != null && p.distMi <= 6) sig.push(p.distMi.toFixed(1) + " mi away");
   if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
   const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "a safe nearby pick";
-  let line = "Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".";
+  const _cap = good.charAt(0).toUpperCase() + good.slice(1);
+  const _fmt = (seed + rk * 7) % 3;
+  let line = _fmt === 1 ? (_cap + " is the play here \u2014 " + sigStr + ". Pass if " + skip + ".") : _fmt === 2 ? ("Pick it for " + good + " (" + sigStr + "). Not for you if " + skip + ".") : ("Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".");
   if (wet && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = vary(["Weather is iffy for this today. ", "Rain could get in the way today. ", "Check the sky before this one. "]) + line;
   else if (nice && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = line.replace("Skip it if", "Good weather to go — skip it if");
   return line;
@@ -2041,8 +2080,6 @@ function whyFirst(p, list) {
   const sig = [];
   if ((p.reviews || 0) >= 500) sig.push("the deepest review base on this list");
   else if (p.rating != null) sig.push(p.rating + "★");
-  if (p.openNow === true) sig.push("open now");
-  if (p.distMi != null && p.distMi <= 8) sig.push(p.distMi.toFixed(1) + " mi out");
   let out = "Ranked #1 — " + lead;
   if (sig.length) out += ": " + sig.slice(0, 3).join(", ");
   out += ".";
@@ -2363,6 +2400,50 @@ function PageInner() {
   const [eventDate, setEventDate] = useState("all");
   const [eventCounts, setEventCounts] = useState(null);
   const [mapMode, setMapMode] = useState("places");
+  const [mapBrowse, setMapBrowse] = useState(false); // false = neutral Top 10 map, true = category browse
+  const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
+  const [compassOn, setCompassOn] = useState(false);
+  const compassNeedleRef = useRef(null);
+  const compassHandlerRef = useRef(null);
+  const stopCompass = () => { try { if (compassHandlerRef.current) { window.removeEventListener("deviceorientation", compassHandlerRef.current, true); compassHandlerRef.current = null; } } catch (e) {} setCompassOn(false); };
+  const toggleCompass = async () => {
+    if (compassOn) { stopCompass(); return; }
+    try {
+      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
+        const r = await DeviceOrientationEvent.requestPermission();
+        if (r !== "granted") { showToast("Compass blocked \u2014 allow Motion & Orientation in Safari settings"); return; }
+      }
+      let got = false;
+      const h = (e) => {
+        let deg = null;
+        if (typeof e.webkitCompassHeading === "number" && !isNaN(e.webkitCompassHeading)) deg = e.webkitCompassHeading;
+        else if (e.absolute === true && typeof e.alpha === "number") deg = 360 - e.alpha;
+        if (deg == null) return;
+        got = true;
+        const el = compassNeedleRef.current; if (el) el.style.transform = "rotate(" + (-deg) + "deg)";
+      };
+      compassHandlerRef.current = h;
+      window.addEventListener("deviceorientation", h, true);
+      setCompassOn(true);
+      setTimeout(() => { if (!got && compassHandlerRef.current === h) { stopCompass(); showToast("Compass not supported on this device"); } }, 2500);
+    } catch (e) { showToast("Compass not available"); }
+  };
+  useEffect(() => { if (screen !== "map" && compassHandlerRef.current) stopCompass(); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen]);
+  useEffect(() => {
+    if (screen !== "map" || mapBrowse || !center || keyMissing) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const out = []; const seen = new Set();
+        const results = await Promise.all(CATEGORIES.map((c) => searchPlaces(c.id, "all", { lat: center.lat, lng: center.lng }, searchRadius, "all").catch(() => [])));
+        results.forEach((arr) => (arr || []).forEach((q) => { if (q && q.id && !seen.has(q.id)) { seen.add(q.id); out.push(q); } }));
+        if (!cancelled && out.length) setMapPool(out);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, mapBrowse, center, searchRadius, keyMissing]);
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
   const [mapDrawer, setMapDrawer] = useState(false);
@@ -2435,7 +2516,7 @@ function PageInner() {
   };
   const CURATED = {
     food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The ten meals worth leaving the house for, organized by when you are hungry: three breakfast spots, three for lunch, three for dinner, and one quick bite. Ranked inside each slot by the Wayfind Score. Tap any one for the full case.", slots: [{ label: "Breakfast", n: 3, q: "best breakfast restaurants" }, { label: "Lunch", n: 3, q: "best lunch restaurants" }, { label: "Dinner", n: 3, q: "best dinner restaurants" }, { label: "Quick bite", n: 1, q: "best quick bites fast casual" }] },
-    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The best of the area in one list: the two theme parks worth a full day, one movie theater for the rain hours, and the standout attractions and tours around you. Attraction pages include bookable tours. Live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
+    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now — parks, attractions, and tours — ranked by fit. Attraction pages include bookable tours; live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
     nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Where tonight actually happens: the best bars and lounges, the live music rooms worth the cover, and the late-night eats for after. Ranked inside each slot by the Wayfind Score.", slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }] },
     shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }] },
   };
@@ -2515,6 +2596,23 @@ function PageInner() {
   // Engagement signals — stored in localStorage, used to personalise the feed.
   const [signals, setSignals] = useState(() => { try { if (typeof window === "undefined") return []; return loadSignals(); } catch { return []; } });
   const [liked, setLiked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked") || "{}"); } catch { return {}; } });
+  useEffect(() => {
+    if (!supabase) return;
+    const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+  useEffect(() => {
+    try {
+      if (!detail || detail._wfPhotosAdded || !detail.name) return;
+      const _k = String(detail.name).toLowerCase();
+      let own = null;
+      for (const key in WAYFIND_PHOTOS) { if (_k.includes(key)) { own = WAYFIND_PHOTOS[key]; break; } }
+      if (!own || !own.length) return;
+      setDetail((d) => (d && d.id === detail.id ? { ...d, _wfPhotosAdded: true, photos: [...own, ...((d.photos || []).filter((x) => own.indexOf(x) === -1))], photoAttrs: [...own.map(() => "Wayfind"), ...(d.photoAttrs || [])] } : d));
+    } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail]);
   const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
   const [likedItems, setLikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch { return {}; } });
   const [dislikedItems, setDislikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch { return {}; } });
@@ -2543,6 +2641,7 @@ function PageInner() {
     }).catch(() => {});
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session && session.user ? session.user : null);
+      try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
@@ -2928,6 +3027,7 @@ function PageInner() {
   // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
+    try { if (place && place.type) tasteBump(place); } catch (e) {}
     try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {})); } catch (e0) {}
     try {
       if (!supabase) return;
@@ -4148,6 +4248,12 @@ function PageInner() {
       )}
       {renderWorldCupCard(false)}
       {renderUniqueFinds()}
+      {homeRolling && (
+        <>
+          <style>{"@keyframes wfDiceSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.14)}100%{transform:rotate(360deg) scale(1)}}"}</style>
+          <div style={{ position: "fixed", bottom: "calc(84px + env(safe-area-inset-bottom))", right: 16, zIndex: 60, pointerEvents: "none", width: 62, height: 62, borderRadius: 16, background: "linear-gradient(135deg, #7C3AED, #4C1D95)", boxShadow: "0 10px 30px rgba(124,58,237,.55)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, animation: "wfDiceSpin .7s linear infinite" }}>{homeDiceFace}</div>
+        </>
+      )}
       {restView.slice(3, visibleCount).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
       ))}
@@ -4315,15 +4421,32 @@ function PageInner() {
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 54, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-                      <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} />
+                      {mapBrowse ? <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} /> : (
+                      <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 6px", WebkitOverflowScrolling: "touch" }}>
+                        {CATEGORIES.map((c) => (
+                          <button key={c.id} onClick={() => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: c.label, layer: 1, src: "map" }); } catch (e) {} if (cat !== c.id) { setCat(c.id); setSub("all"); setVibe("all"); } }} style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "8px 13px", borderRadius: 999, border: `1px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{c.icon} {c.label}</button>
+                        ))}
+                      </div>
+                    )}
                     </div>
                   </div>
                   {!mapSearchOpen && <button onClick={() => setMapSearchOpen(true)} aria-label="Search" title="Search" style={{ position: "absolute", top: 12, right: 10, zIndex: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 42, height: 42, borderRadius: "50%", border: "1px solid " + C.border, background: "rgba(16,20,27,.94)", color: C.light, fontSize: 17, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>🔍</button>}
-                  <MapView places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+                  <MapView places={mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
-                    <button onClick={() => setMapMode("places")} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "places" ? C.accent : "transparent", color: mapMode === "places" ? "#fff" : C.light }}>Places</button>
-                    <button onClick={() => { setMapMode("events"); if (!events) loadEvents(); }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
+                    {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.accent : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
+                    <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
                   </div>
+                  {mapMode === "places" && !mapBrowse && (
+                    <div style={{ position: "absolute", top: 252, left: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 12px", fontSize: 11, fontWeight: 700, color: C.light, boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>Top 10 near you · tap a category to browse</div>
+                  )}
+                  {mapMode === "places" && (
+                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 300, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.accent : "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                      <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
+                        <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
+                        <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
+                      </span>
+                    </button>
+                  )}
                   {mapMode === "places" && (
                     <div style={{ position: "absolute", top: 212, right: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 10px", boxShadow: "0 4px 16px rgba(0,0,0,.45)", display: "flex", flexDirection: "column", gap: 5 }}>
                       {[["#FBBF24", "Top pick"], ["#4C8DFF", "Open"], ["#5B6675", "Closed"]].map((row) => (
@@ -4349,7 +4472,7 @@ function PageInner() {
                       {eventsUnavailable && <div style={{ fontSize: 11.5, color: "#fff", textAlign: "center", marginTop: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>Add a Ticketmaster key in Vercel to switch events on.</div>}
                     </div>
                   )}
-                  {mapMode === "places" && mapPreview && (() => {
+                  {mapMode !== "events" && mapPreview && (() => {
                     const mp = mapPreview;
                     const sl = scoreLabel(mp.wfScore);
                     const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
@@ -4970,7 +5093,7 @@ function PageInner() {
                   </div>
                   <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    <button onClick={() => { shareLink(p.name, placeShareUrl(p, locName, blurbs[p.id]), () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); showToast("Link copied"); }, "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (e) {} giveawayMark(p.id); }); }} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "11px 0", cursor: "pointer" }}>{shareCopied ? "Copied ✓" : "↗ Share"}</button>
+                    
                     <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.accent : C.light, border: `1px solid ${isSaved(p.id) ? C.accent : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
                   </div>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
@@ -5584,7 +5707,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>
+                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tu = Aff.ticketsUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tickets_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "9px 0 7px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>Tickets & tours ↗<span style={{ display: "block", fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2 }}>Wayfind may earn a commission</span></a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -6256,7 +6379,7 @@ function PageInner() {
                         {(() => { const _sv = isSaved(p.id); return (
                           <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6, zIndex: 2 }}>
                             <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: _sv ? acc : "rgba(0,0,0,.38)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.28)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                            <button onClick={(e) => { e.stopPropagation(); shareLink(p.name, placeShareUrl(p, locName, blurbs[p.id]), () => showToast("Link copied"), "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (er) {} giveawayMark(p.id); }); }} aria-label="Share" title="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.38)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                            
                           </div>
                         ); })()}
                         {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
@@ -6279,7 +6402,7 @@ function PageInner() {
                             ))}
                           </div>
                         )}
-                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: acc, background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
+                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
                         {(() => { const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather) }); return why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
@@ -6324,7 +6447,7 @@ function PageInner() {
           <img src={lightbox} alt="" onClick={() => setLightbox(null)} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
           <button onClick={() => setLightbox(null)} aria-label="Close" style={{ position: "absolute", top: "max(16px, calc(env(safe-area-inset-top) + 10px))", right: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)", color: "#fff", fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
           <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-            {(() => { const i = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1; const by = i >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[i] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
+            {(() => { const i = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1; const by = i >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[i] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
             <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>Tap anywhere to close</div>
           </div>
         </div>

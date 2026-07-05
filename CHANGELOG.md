@@ -1,3 +1,104 @@
+## v3.87 - Parc Soleil owner photos + specific fireworks rooms
+- New WAYFIND_PHOTOS layer: owner-shot photos prepend to the Google gallery
+  for matched venues, with honest attribution (lightbox says Photo: Wayfind,
+  never falsely credits Google). Seeded with three Parc Soleil shots (garden
+  walk, tennis/pickleball court, basketball court), compressed to ~200-440KB.
+- Fireworks tip upgraded with owner rooms: Tower 100 rooms 11423/11424/11425
+  face Disney directly; Tower 200 NW high floors also carry the line.
+
+## v3.86 - affiliate ticketing layer (dark launch)
+- lib/affiliates.js: Viator/GetYourGuide deep links keyed off env partner IDs
+  (NEXT_PUBLIC_VIATOR_PID / NEXT_PUBLIC_GYG_PID). Returns null without an ID,
+  so nothing renders until approval lands: paste ID in Vercel, redeploy, live.
+- Detail action dock: "Tickets & tours" button beside Directions on ticketable
+  attraction types only (attractions, theme/water parks, aquariums, zoos,
+  museums; never restaurants or green parks), with built-in FTC commission
+  disclosure and tickets_out telemetry.
+
+## v3.85 - auth diagnostics + PWA session hardening
+- Every auth state change (SIGNED_IN/OUT, TOKEN_REFRESHED) now lands in PostHog
+  as auth_event, making the ~30-minute signout cadence measurable data.
+- Foreground re-sync: when the home-screen app wakes from iOS suspension, the
+  session is checked immediately so expired tokens refresh instead of drifting
+  to a signout.
+- Google-in-PWA remains hidden by design (v3.65): iOS strands the OAuth session
+  in Safari. First-party email accounts are the path; delivery fix is Supabase
+  SMTP config (Resend), not code.
+
+## v3.84 - like = minus for you, plus for others (phase 1)
+- Liked places take a -8 demotion in the personalized map Top 10: discovery
+  leads for the user who already experienced them, while the taste profile
+  still boosts the TYPE (more like this, minus this exact one). Demote, never
+  hide: favorites resurface when nothing better is nearby, and explicit
+  category browsing is untouched.
+- Plus-for-others half queued: likes are private by RLS design, so community
+  like-counts need a counts-only SQL view + rank hook; ships with the
+  tracking-verified batch alongside the comments-based member signal.
+
+## v3.83 - Discovery Cove curated note
+- Discovery Cove joins the gems rail with a hand-written note (all-inclusive
+  capped swim day, the opposite of a rides park), fixing its type-driven
+  high-energy miscopy at the source. Dice FAB queued next.
+
+## v3.82 - card variety, white ranked box, dice effect, park fireworks, boost rebalance
+- Ranked-box text is now white on every themed list (single shared renderer =
+  global rule); orange stays as the tint and border only.
+- pickReason rotates three sentence skeletons seeded by place + rank, and the
+  theme-park bank doubled to four verdicts: adjacent cards no longer mirror.
+- SeaWorld featured boost 14 -> 6: the old thumb-on-scale that ranked SeaWorld
+  properties above Disney and Universal in Top experiences.
+- Purple dice special effect: while a roll animates, a spinning purple die
+  floats in the lower corner.
+- Fireworks/nighttime-show notes with official schedule links added for Magic
+  Kingdom, Epcot, Hollywood Studios, SeaWorld, Universal Studios, and Epic
+  Universe: show names stated, times deferred to todays official schedule so
+  nothing goes stale.
+
+## v3.81 - FIFA map chip + Top 10 copy fixes
+- FIFA chip beside Events on the map (only during the tournament, auto-removes
+  after the July 19 final): shows watch-party-fit venues only, ranked by the
+  same worldcup fit + curated boosts the hero card uses, from already-loaded
+  pools (zero new searches). Pin previews now work in FIFA mode.
+- The #1 "Ranked" box no longer repeats open-now/distance from the body line:
+  it carries judgment + review depth only. Intra-card duplication gone.
+- Theme parks (amusement/theme_park types) get their own verdict pairs instead
+  of indoor-entertainment copy: no more "rainy-day activity" on outdoor parks.
+- Top 10 Experiences header no longer claims a fixed composition (two parks,
+  one theater); now honest and dynamic-safe.
+
+## v3.80 - map compass + neutral all-category pool
+- Compass button on the map (below Events): tap requests iOS Motion permission,
+  needle counter-rotates so N stays true as the phone turns; tap off. Heading
+  writes straight to the element (no re-renders, no battery tax). Denied or
+  unsupported devices get a clear toast. Auto-stops when leaving the map.
+- Neutral map now fetches an all-category pool on cold open (6 searches, 3-day
+  cache, per approved trade-off) so the Top 10 mixes every category instead of
+  leaning on whatever Home loaded. Fires only with a location, only in neutral
+  mode, merges progressively.
+
+## v3.79 - map: neutral Top 10 default, collapsed menu, Events toggle, taste profile
+- Map now opens neutral: no category selected, submenu collapsed. Slim category
+  chips (none active) expand into the full shared menu on tap. Home unchanged.
+- Neutral pins show a personalized Top 10 across everything loaded, ranked by
+  Wayfind Score + featured/gem boost + the new on-device taste profile.
+- Taste profile v1: every place interaction routed through logEvent bumps that
+  place type in localStorage (per user, per device); tasteBoost is capped at +3
+  so taste tailors, never hijacks. Applied only to the map Top 10 for now.
+- Places/Events pair replaced by a single Events toggle (tap on, tap off).
+  "Top 10 near you" pill labels the neutral mode.
+- Parc Soleil owner tip added: Tower 200 northwest-facing for the direct Disney
+  fireworks line; ask for a high floor.
+
+## v3.78 - ranking trust fix, share removed from cards, Eggs Up Grill featured
+- Fixed the v3.74 regression Gabe caught: the flat +6 gem boost let Helena (a
+  nightlife gem whose own note says the kitchen is not the star) outrank Kekes
+  in Breakfast. Gem boost is now a +2 nudge with per-gem override; Helena is 0.
+  Two fixtures lock it (68 total).
+- Share button removed from feed cards and map-pin cards per decision; sharing
+  remains on the place detail page (deterministic copy-first) and hero cards.
+- Eggs Up Grill added to WAYFIND_FEATURED (+8): rides near the top of breakfast
+  wherever Google returns it.
+
 ## v3.77 - WC card: juggling player replaces the rolling ball
 - Right side of the World Cup hero now shows a gold pictogram-style player
   (Olympic-pictogram aesthetic, matches the theme) doing keepy-uppies: ball
