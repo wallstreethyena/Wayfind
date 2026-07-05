@@ -1,3 +1,28 @@
+## v3.77 - WC card: juggling player replaces the rolling ball
+- Right side of the World Cup hero now shows a gold pictogram-style player
+  (Olympic-pictogram aesthetic, matches the theme) doing keepy-uppies: ball
+  kicks up fast, falls with gravity easing, body dips on foot contact, loops.
+  Rolling-ball animation removed. Link row gains wrap + right padding so text
+  never underlaps the figure on small screens. Pitch stripes and gold pulse kept.
+
+## v3.76 - session-fresh community posts
+- Comment Save now refreshes the auth session at post time and writes with the
+  fresh identity, eliminating the stale-token/RLS failure class. If the session
+  is truly gone, it opens the sign-in modal with a clear message ("Session
+  expired - sign in and tap Save again") instead of failing cryptically. The
+  local device copy still saves first, so nothing is ever lost.
+- Verified lib/supabase.js already sets persistSession + autoRefreshToken;
+  remaining re-login causes are environmental (private tabs, Safari vs PWA
+  storage split, multi-device refresh-token rotation, dashboard session limits).
+
+## v3.75 - deterministic share (copy-first, sheet as bonus)
+- shareLink no longer depends on navigator.share behaving: every tap copies the
+  link inside the gesture (visible "Copied" confirmation, cannot silently fail)
+  while the native sheet fires in parallel when iOS shows it. Credit fires once;
+  a copied link is a legitimate share regardless of the sheet. Rescue/watchdog
+  removed as obsolete; share_path telemetry kept (copied, native_called/ok/
+  cancel/reject/throw).
+
 ## v3.74 - three verified gems: Se7en Bites, Hen & Hog, Deli Desires
 - Se7en Bites (Milk District): MICHELIN Guide chip (verified on guide.michelin.com),
   Triple D tournament champion note. Invisible before: Thu-Sun only, closes 3pm,

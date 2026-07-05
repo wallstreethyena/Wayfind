@@ -13,7 +13,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.74";
+const BUILD_ID = "v3.77";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -306,46 +306,33 @@ function decodeList(str) {
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
-let _shareRescueUntil = 0;
 function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
-function _shareNote(msg) { try { const d = document.createElement("div"); d.textContent = msg; d.style.cssText = "position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#FFFFFF;color:#111;font:600 13px system-ui;padding:10px 16px;border-radius:999px;z-index:99999;box-shadow:0 4px 18px rgba(0,0,0,.4)"; document.body.appendChild(d); setTimeout(() => { try { document.body.removeChild(d); } catch (e) {} }, 3000); } catch (e) {} }
 function shareLink(title, url, onCopied, text, onShared) {
-  // Share the bare URL only (text suppresses iMessage preview cards). Fire the
-  // native sheet synchronously (iOS requires it inside the tap). onShared fires
-  // ONLY on a completed share or an actual copy — never on cancel. Every branch
-  // reports a share_path event so a silent failure is diagnosable from PostHog.
-  // No auto-fallback timer: from code, a user deciding in an open sheet looks
-  // identical to a hung sheet, and auto-copying would re-create the
-  // cancel-counts bug. Instead, a hung sheet arms a one-shot rescue: the next
-  // tap within 15s copies the link directly.
-  let settled = false;
-  const credit = () => { if (onShared) { try { onShared(); } catch (e) {} } };
-  const copy = (why) => {
-    if (settled) return; settled = true; _sharePath("copy_" + (why || ""));
-    const done = () => { if (onCopied) onCopied(); credit(); };
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(done, done);
-        return;
-      }
-    } catch (e) {}
+  // Deterministic sharing. Three rounds of fixes proved the code paths correct,
+  // yet iOS can still swallow the native sheet with no error and no rejection —
+  // unobservable from code. So the button no longer depends on it: every tap
+  // copies the link immediately inside the gesture (cannot silently fail), and
+  // the native sheet fires in parallel as a bonus when iOS shows it. Credit
+  // (giveaway/analytics) fires exactly once; a copied link is a legitimate
+  // share regardless of what the sheet does afterward.
+  let credited = false;
+  const credit = () => { if (credited) return; credited = true; if (onShared) { try { onShared(); } catch (e) {} } };
+  const legacyCopy = () => {
     try { const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); } catch (e) {}
-    done();
+    if (onCopied) onCopied(); credit();
   };
-  if (Date.now() < _shareRescueUntil) { _shareRescueUntil = 0; copy("rescue"); return; }
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => { if (onCopied) onCopied(); credit(); _sharePath("copied"); }, () => { legacyCopy(); _sharePath("copied_legacy"); });
+    } else { legacyCopy(); _sharePath("copied_legacy"); }
+  } catch (e) { legacyCopy(); _sharePath("copied_legacy"); }
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
-      _sharePath("native_called");
       const pr = navigator.share({ title, url });
-      const wd = setTimeout(() => { if (!settled) { _sharePath("native_pending"); _shareRescueUntil = Date.now() + 15000; _shareNote("Didn't open? Tap share again to copy the link"); } }, 2500);
-      if (pr && typeof pr.then === "function") {
-        pr.then(function () { clearTimeout(wd); _shareRescueUntil = 0; if (!settled) { settled = true; _sharePath("native_ok"); credit(); } },
-                function (e) { clearTimeout(wd); _shareRescueUntil = 0; if (settled) return; if (e && e.name === "AbortError") { settled = true; _sharePath("native_cancel"); } else { copy("reject"); } });
-      }
-      return;
-    } catch (e) { copy("throw"); return; }
-  }
-  copy("nonative");
+      _sharePath("native_called");
+      if (pr && typeof pr.then === "function") pr.then(function () { _sharePath("native_ok"); credit(); }, function (e) { _sharePath(e && e.name === "AbortError" ? "native_cancel" : "native_reject"); });
+    } catch (e) { _sharePath("native_throw"); }
+  } else { _sharePath("nonative"); }
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
@@ -2884,9 +2871,9 @@ function PageInner() {
   // knockout calendar); topSlot=false renders mid-feed on off days.
   const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                      <style>{"@keyframes wcRoll{0%{left:-10%;transform:rotate(0deg)}100%{left:104%;transform:rotate(900deg)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
+                      <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-34px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
-                      <span style={{ position: "absolute", bottom: 6, left: "-10%", fontSize: 15, opacity: .8, animation: "wcRoll 9s linear infinite", pointerEvents: "none" }}>⚽</span>
+                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 8, width: 46, height: 100, pointerEvents: "none", opacity: .95 }}><span style={{ position: "absolute", left: 24, bottom: 38, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><svg width="46" height="68" viewBox="0 0 46 68" style={{ position: "absolute", left: 0, bottom: 0, animation: "wcBob 1.5s infinite" }}><circle cx="17" cy="8" r="5.5" fill="#E8B84B" /><g stroke="#E8B84B" strokeWidth="3.8" strokeLinecap="round" fill="none"><path d="M17 15 L17 36" /><path d="M17 21 L7 30" /><path d="M17 21 L27 26" /><path d="M17 36 L14 62" /><path d="M14 62 L20 63" /><path d="M17 36 L30 44 L38 37" /></g></svg></span>
                       
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
                       <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
@@ -2897,7 +2884,7 @@ function PageInner() {
                       <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_wct.headline(locName)}</div>
                       <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
                       <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
-                      <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
+                      <div style={{ display: "flex", gap: 18, marginTop: 12, flexWrap: "wrap", paddingRight: 56 }}>
                       <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
                       <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
                       </div>
@@ -5690,7 +5677,7 @@ function PageInner() {
                     </div>
                     <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); if (v && supabase && !user) { setAuthOpen(true); } showToast(v ? (posting ? "Saving…" : commentType + " saved on this device — sign in to post to everyone") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { const author = ((user.email || "member").split("@")[0] || "member").slice(0, 24); try { supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: user.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then((res) => { if (res && res.error) { showToast("Couldn't post: " + String((res.error && res.error.message) || "server error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {} } else { showToast(commentType + " posted"); setPlacePosts((pp) => [{ place_id: detail.id, user_id: user.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== user.id)]); } }, (err) => { showToast("Couldn't post: " + String((err && err.message) || "network error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", err); } catch (e2) {} }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); if (v && supabase && !user) { setAuthOpen(true); } showToast(v ? (posting ? "Saving…" : commentType + " saved on this device — sign in to post to everyone") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { try { supabase.auth.getSession().then(({ data: _sd }) => { const _u = _sd && _sd.session && _sd.session.user; if (!_u) { setAuthOpen(true); showToast("Session expired — sign in and tap Save again"); return; } const author = ((_u.email || "member").split("@")[0] || "member").slice(0, 24); supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: _u.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then((res) => { if (res && res.error) { showToast("Couldn't post: " + String((res.error && res.error.message) || "server error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {} } else { showToast(commentType + " posted"); setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]); } }, (err) => { showToast("Couldn't post: " + String((err && err.message) || "network error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", err); } catch (e2) {} }); }, () => { showToast("Couldn't reach the server — saved on this device"); }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
                       {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
                     </div>
                   </div>
