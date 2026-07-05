@@ -25,6 +25,7 @@ export async function GET(req) {
       const mi = (searchParams.get("mi") || "").slice(0, 6);
       const cat = (searchParams.get("cat") || "").slice(0, 30);
       const sc = (searchParams.get("sc") || "").slice(0, 5);
+      const hook = (searchParams.get("hk") || "").slice(0, 110);
       const metaBits = [];
       if (cat) metaBits.push(cat);
       if (loc) metaBits.push(loc);
@@ -38,7 +39,8 @@ export async function GET(req) {
           <div style={col}>
             {wm}
             <div style={{ display: "flex", fontSize: 25, fontWeight: 800, color: O, letterSpacing: 2, marginBottom: 16 }}>FOUND A SPOT FOR YOU</div>
-            <div style={{ display: "flex", fontSize: 74, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.03, letterSpacing: -2, maxWidth: 520 }}>{name}</div>
+            <div style={{ display: "flex", fontSize: hook ? 62 : 74, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.03, letterSpacing: -2, maxWidth: 520 }}>{name}</div>
+            {hook ? <div style={{ display: "flex", fontSize: 26, fontWeight: 600, color: "#FCE3C3", lineHeight: 1.35, marginTop: 14, maxWidth: 520 }}>{"\u201C" + hook + "\u201D"}</div> : <div style={{ display: "flex" }} />}
             {scoreText ? <div style={{ display: "flex", marginTop: 26 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 33, fontWeight: 800, padding: "10px 24px", borderRadius: 999 }}>{scoreText}</div></div> : <div style={{ display: "flex" }} />}
             {(r && sc) ? <div style={{ display: "flex", alignItems: "center", color: "#E2E8F0", fontSize: 29, fontWeight: 700, marginTop: 16 }}>{"\u2605 " + r}{rev ? "  \u00b7  " + rev + " reviews" : ""}</div> : <div style={{ display: "flex" }} />}
             <div style={{ display: "flex", fontSize: 27, fontWeight: 600, color: "#CBD5E1", marginTop: 16 }}>{metaBits.length ? metaBits.join("  \u00b7  ") : "A great nearby spot"}</div>

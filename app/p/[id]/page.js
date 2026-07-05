@@ -15,11 +15,12 @@ export async function generateMetadata({ searchParams }) {
   const mi = s(searchParams.mi);
   const cat = s(searchParams.cat);
   const sc = s(searchParams.sc);
+  const hk = s(searchParams.hk).slice(0, 110);
   const bits = [];
   if (cat) bits.push(cat);
   if (r) bits.push(r + "\u2605");
   if (loc) bits.push("in " + loc);
-  const desc = (bits.length ? bits.join(" \u00b7 ") : "A great nearby spot") + " \u00b7 Tap to open on Wayfind";
+  const desc = (hk ? hk + " \u00b7 " : "") + (bits.length ? bits.join(" \u00b7 ") : "A great nearby spot") + " \u00b7 Tap to open on Wayfind";
   let og = "/api/og?kind=place&t=" + encodeURIComponent(t);
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (r) og += "&r=" + encodeURIComponent(r);
@@ -27,6 +28,7 @@ export async function generateMetadata({ searchParams }) {
   if (mi) og += "&mi=" + encodeURIComponent(mi);
   if (cat) og += "&cat=" + encodeURIComponent(cat);
   if (sc) og += "&sc=" + encodeURIComponent(sc);
+  if (hk) og += "&hk=" + encodeURIComponent(hk);
   return {
     metadataBase: new URL(SITE),
     title: t + " \u00b7 Wayfind",

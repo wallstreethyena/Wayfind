@@ -1,3 +1,65 @@
+## v3.74 - three verified gems: Se7en Bites, Hen & Hog, Deli Desires
+- Se7en Bites (Milk District): MICHELIN Guide chip (verified on guide.michelin.com),
+  Triple D tournament champion note. Invisible before: Thu-Sun only, closes 3pm,
+  radius edge.
+- The Hen & Hog (Winter Park): chef-driven Southern comfort, the mac and cheese
+  note. Invisible: ~170 reviews + distance.
+- Deli Desires (Mills 50): hidden takeout-window Jewish deli, Michelin-trained
+  chef, NYT 36 Hours nod in the note (chip withheld: primary source not fetched).
+- gemFor gains a contains rule (8+ chars) so "The Hen & Hog" and "Hen & Hog"
+  both resolve. 3 new fixtures (65 total).
+
+## v3.73 - unique finds, verified awards, daily digest cron
+- New Unique finds rail (mid-feed): 14 curated gems Google prominence buries
+  (Twenty Pho Hour, Domu, Bayridge Sushi, Ceiba, Museum of Illusions, Mathers,
+  Yalaha Bakery and more), each with a hand-written note and area. Zero passive
+  cost: static render; tapping a gem runs ONE cached findPlace and opens detail.
+- Awards seeded verified-only (Twenty Pho Hour MICHELIN Guide 2026, Domu Bib
+  Gourmand 2025) as gold chips on gem cards; expansion via the quarterly refresh.
+- Curated gems now get a featuredBoost (+6) wherever Google returns them.
+- Sports & Social WC note gains the smoke cannons + Pointe Orlando freebies.
+- /api/cron dispatcher + vercel.json (daily 7am ET): health canaries (homepage,
+  OG, weather), 24h Supabase counts, Nov 1 draw + quarterly awards reminders,
+  digest emailed via Resend to gabrielpereira@me.com when RESEND_API_KEY is set;
+  degrades to JSON logs without keys. CRON_SECRET guards the endpoint.
+- 5 gems fixtures (61 total).
+
+## v3.72 - every place share gets its unique card + hook
+- Feed-card and map-pin shares pointed at the homepage URL, so recipients saw the
+  generic site card instead of the per-place card built in v3.60. All place
+  shares now use the per-place link.
+- New hook line: the place AI decision blurb travels with the share (hk param,
+  capped 110 chars), renders as a quote on the OG card under the name, and leads
+  the link-preview description, so the recipient sees what it is and why to go.
+  Name font steps down when a hook is present so both fit the right column.
+
+## v3.71 - WC card identity + placement, copy de-repetition, park fix
+- World Cup card animation is now soccer-specific: faint pitch stripes and a
+  small ball rolling along the card bottom; the July4-style rings and sweep are
+  gone. Gold pulse kept, motion stays restrained.
+- Placement follows the fixed knockout calendar (dates locked even though teams
+  are not): match days (Jul 4-7, 9-11, 14-15, 18-19) render the card on top;
+  off days (Jul 8, 12-13, 16-17) move it mid-feed after the first three results.
+  Three fixtures lock the calendar (56 total).
+- placeKind bug: venues typed plain "park" matched no nature check (the list only
+  had underscore variants) and fell through to the waterfront NAME match, giving
+  parks restaurant copy ("relaxed meal..."). Plain park type now maps to nature.
+- pickReason de-repetition: verdicts, review-strength phrases, and the weather
+  prefix now come from variant banks seeded by place + rank, so same-kind cards
+  on one list read differently. "close by" replaced with the actual distance.
+  whyFirst no longer shares "big review strength" wording with the body line.
+
+## v3.70 - share diagnostics + rescue
+- Every share attempt now reports its branch to PostHog as a share_path event:
+  native_called, native_ok, native_cancel, native_pending (sheet never settled),
+  copy_reject/throw/nonative/rescue. A silent failure is now diagnosable.
+- If the native sheet hangs without appearing, a small note offers "tap share
+  again to copy" and the next tap within 15s copies directly. Deliberately NO
+  auto-fallback timer: an open sheet and a hung sheet look identical from code,
+  and auto-copying would re-create the cancel-counts-as-entry bug.
+- Feed-card copy fallback now also shows the "Link copied" toast (label flip
+  alone was easy to miss).
+
 ## v3.69 - World Cup card copy: curated + differentiated
 - New lib/wc.js powers the World Cup list. Hand-curated copy and badges for the
   confirmed venues (Sports & Social, Toms Watch Bar, Stadium Club/Caribe Royale,

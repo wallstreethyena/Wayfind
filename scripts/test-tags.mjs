@@ -4,6 +4,7 @@ import * as R from "../lib/ranking.js";
 import * as Hol from "../lib/holidays.js";
 import * as Cats from "../lib/categories.js";
 import * as WC from "../lib/wc.js";
+import * as Gems from "../lib/gems.js";
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; console.log("PASS  " + name); } else { fail++; console.log("FAIL  " + name); } };
 const diagon = ["tourist_attraction", "amusement_park", "point_of_interest"];
@@ -122,6 +123,21 @@ ok("WC: curated Sports & Social evidence copy", /104/.test(WC.wcCopy({ name: "Sp
 ok("WC: upscale steakhouse badge", (WC.wcBadge({ name: "Prime Steakhouse", types: ["restaurant"], price: "$$$$" }, []) || {}).label === "Upscale watch dinner");
 ok("WC: family label badge", (WC.wcBadge({ name: "Garden Bistro", types: ["restaurant"], labels: ["Good for kids"] }, []) || {}).label === "Family-friendly");
 ok("WC: closest strong option is comparative", (WC.wcBadge({ id: "a", name: "Corner Grill", types: ["restaurant"], rating: 4.6, reviews: 200, distMi: 0.8 }, [{ id: "a", rating: 4.6, reviews: 200, distMi: 0.8 }, { id: "b", rating: 4.7, reviews: 500, distMi: 2.4 }]) || {}).label === "Closest strong option");
+
+ok("WC calendar: July 5 is a match day (card on top)", Hol.worldCupMatchToday(new Date(2026, 6, 5, 12)));
+ok("WC calendar: July 8 is an off day (card mid-page)", !Hol.worldCupMatchToday(new Date(2026, 6, 8, 12)));
+ok("WC calendar: July 19 final is a match day", Hol.worldCupMatchToday(new Date(2026, 6, 19, 12)));
+
+ok("gems: Twenty Pho Hour carries verified Michelin award", (Gems.gemFor("Twenty Pho Hour") || {}).award && Gems.gemFor("Twenty Pho Hour").award.label === "MICHELIN Guide");
+ok("gems: prefix match resolves Google-style names", (Gems.gemFor("Domu Orlando") || {}).key === "domu");
+ok("gems: every note is unique", new Set(Gems.GEMS.map((g) => g.note)).size === Gems.GEMS.length);
+ok("gems: notes stay card-sized", Gems.GEMS.every((g) => g.note.length > 40 && g.note.length <= 220));
+ok("gems: unknown venue returns null", Gems.gemFor("Random Diner 123") === null);
+ok("gems: S&S note carries the smoke cannons", /smoke cannons/.test(WC.wcCopy({ name: "Sports & Social" }, [], 0)));
+
+ok("gems: Se7en Bites carries the verified Michelin chip", (Gems.gemFor("Se7en Bites") || {}).award && Gems.gemFor("Se7en Bites").award.label === "MICHELIN Guide");
+ok("gems: The Hen & Hog resolves with and without the The", (Gems.gemFor("The Hen & Hog") || {}).key === "henandhog" && (Gems.gemFor("Hen & Hog Winter Park") || {}).key === "henandhog");
+ok("gems: Deli Desires resolves", (Gems.gemFor("Deli Desires") || {}).key === "delidesires");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

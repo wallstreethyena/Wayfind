@@ -7,12 +7,13 @@ import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as WCC from "../lib/wc";
+import * as Gems from "../lib/gems";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.69";
+const BUILD_ID = "v3.74";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -305,14 +306,22 @@ function decodeList(str) {
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
+let _shareRescueUntil = 0;
+function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
+function _shareNote(msg) { try { const d = document.createElement("div"); d.textContent = msg; d.style.cssText = "position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:#FFFFFF;color:#111;font:600 13px system-ui;padding:10px 16px;border-radius:999px;z-index:99999;box-shadow:0 4px 18px rgba(0,0,0,.4)"; document.body.appendChild(d); setTimeout(() => { try { document.body.removeChild(d); } catch (e) {} }, 3000); } catch (e) {} }
 function shareLink(title, url, onCopied, text, onShared) {
   // Share the bare URL only (text suppresses iMessage preview cards). Fire the
-  // native sheet synchronously (iOS requires it inside the tap); fall back to
-  // copying so the button never silently does nothing. onShared fires ONLY when
-  // the sheet completes or the link is actually copied — never on cancel — so
-  // giveaway entries and share analytics can't be farmed by tap-and-cancel.
+  // native sheet synchronously (iOS requires it inside the tap). onShared fires
+  // ONLY on a completed share or an actual copy — never on cancel. Every branch
+  // reports a share_path event so a silent failure is diagnosable from PostHog.
+  // No auto-fallback timer: from code, a user deciding in an open sheet looks
+  // identical to a hung sheet, and auto-copying would re-create the
+  // cancel-counts bug. Instead, a hung sheet arms a one-shot rescue: the next
+  // tap within 15s copies the link directly.
+  let settled = false;
   const credit = () => { if (onShared) { try { onShared(); } catch (e) {} } };
-  const copy = () => {
+  const copy = (why) => {
+    if (settled) return; settled = true; _sharePath("copy_" + (why || ""));
     const done = () => { if (onCopied) onCopied(); credit(); };
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -323,14 +332,20 @@ function shareLink(title, url, onCopied, text, onShared) {
     try { const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); } catch (e) {}
     done();
   };
+  if (Date.now() < _shareRescueUntil) { _shareRescueUntil = 0; copy("rescue"); return; }
   if (typeof navigator !== "undefined" && navigator.share) {
     try {
+      _sharePath("native_called");
       const pr = navigator.share({ title, url });
-      if (pr && typeof pr.then === "function") pr.then(function () { credit(); }, function (e) { if (!(e && e.name === "AbortError")) copy(); });
+      const wd = setTimeout(() => { if (!settled) { _sharePath("native_pending"); _shareRescueUntil = Date.now() + 15000; _shareNote("Didn't open? Tap share again to copy the link"); } }, 2500);
+      if (pr && typeof pr.then === "function") {
+        pr.then(function () { clearTimeout(wd); _shareRescueUntil = 0; if (!settled) { settled = true; _sharePath("native_ok"); credit(); } },
+                function (e) { clearTimeout(wd); _shareRescueUntil = 0; if (settled) return; if (e && e.name === "AbortError") { settled = true; _sharePath("native_cancel"); } else { copy("reject"); } });
+      }
       return;
-    } catch (e) { copy(); return; }
+    } catch (e) { copy("throw"); return; }
   }
-  copy();
+  copy("nonative");
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
@@ -434,7 +449,7 @@ function dedupePlaces(list, collapseBrand) {
 
 // v5.5: build a share URL whose landing page (/p/[id]) renders a branded Wayfind
 // preview card in iMessage and social, then bounces the visitor into the app.
-function placeShareUrl(p, loc) {
+function placeShareUrl(p, loc, hook) {
   if (!p || !p.id) return originUrl("/");
   const q = [];
   const add = (k, v) => { if (v != null && v !== "") q.push(k + "=" + encodeURIComponent(String(v).slice(0, 80))); };
@@ -443,6 +458,7 @@ function placeShareUrl(p, loc) {
   if (p.rating != null) add("r", p.rating);
   if (p.reviews != null) add("rev", p.reviews);
   if (p.distMi != null) add("mi", p.distMi.toFixed(1));
+  if (hook) add("hk", hook);
   add("cat", primaryCategory(p) || "");
   const sl = scoreLabel(p.wfScore);
   if (sl && sl.s != null) add("sc", sl.s);
@@ -643,6 +659,7 @@ function featuredBoost(name) {
   if (!n) return 0;
   if (WAYFIND_FEATURED[n] != null) return WAYFIND_FEATURED[n];
   for (const k in WAYFIND_FEATURED) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_FEATURED[k]; }
+  if (Gems.gemFor(name)) return 6; // curated unique finds rank up when Google returns them
   return 0;
 }
 
@@ -1963,7 +1980,7 @@ function placeKind(p) {
   if (has(["amusement_park", "theme_park", "water_park", "bowling_alley", "movie_theater"]) || named(["arcade"])) return "entertainment";
   if (named(["skyway", "overlook", "lookout", "lighthouse", "observation"])) return "scenic";
   if (has(["beach"])) return "beach";
-  if (has(["national_park", "state_park", "_park", "natural_feature", "botanical_garden", "campground"]) || named(["preserve", "trailhead"])) return "nature";
+  if (has(["national_park", "state_park", "_park", "natural_feature", "botanical_garden", "campground"]) || (p.types || []).includes("park") || named(["preserve", "trailhead"])) return "nature";
   if (has(["historical_landmark", "historical"]) || named(["memorial", "fort ", "historic "])) return "landmark";
   if (named(["waterfront", "riverfront", "river roo", "bayfront", "marina", "riverwalk", "on the river", "on the bay", " pier", " wharf"])) return "waterfront";
   if (has(["night_club", "bar", "pub", "brewery"])) return "bar";
@@ -1980,39 +1997,45 @@ function pickReason(p, ctx) {
   if (!p) return "";
   ctx = ctx || {};
   const w = ctx.weather, compact = !!ctx.compact;
+  const rk = ctx.rank || 0;
   const wet = !!(w && (w.wet || (w.rain != null && w.rain >= 50)));
   const nice = !!(w && !wet && w.temp != null && w.temp >= 60 && w.temp <= 92);
   const kind = placeKind(p);
   const r = p.rating, n = p.reviews || 0;
-  // Best-for verdict + a real "skip if", per kind. Decision copy, never filler.
+  let seed = 0; const sid = String(p.id || p.name || "");
+  for (let i = 0; i < sid.length; i++) seed = (seed * 31 + sid.charCodeAt(i)) >>> 0;
+  const vary = (arr) => arr[(seed + rk) % arr.length];
+  // Best-for verdict + a real "skip if", per kind. Repeat-prone kinds carry
+  // variants, and the pick is seeded by place + rank, so two same-kind cards
+  // on one list never read identically.
   const V = {
-    museum:        ["a culture stop when you have an hour or two", "you want quick or outdoorsy"],
-    wildlife:      ["a few hours with kids, rain or shine", "you want nightlife or a fast bite"],
-    entertainment: ["groups or a rainy-day activity", "you want food, drinks, or a quiet local spot"],
-    scenic:        ["a view, a photo, or a sunset", "you need a meal or an indoor plan"],
-    beach:         ["a beach day when the weather holds", "you want indoors or a quick stop"],
-    nature:        ["fresh air and a walk", "the weather is bad or you are short on time"],
-    landmark:      ["a bit of history on the way", "you want to sit and eat"],
-    waterfront:    ["a relaxed meal with a water view", "you want quick or budget"],
-    bar:           ["a night out or evening drinks", "you want daytime or food first"],
-    cafe:          ["coffee and a slow sit", "you want a full meal or a night out"],
-    restaurant:    ["a reliable, well-rated meal", "you want quiet or upscale"],
-    hotel:         ["a comfortable base near everything", "you are not staying over"],
-    shopping:      ["a browse when you have time", "you want a quick in and out"],
-    generic:       ["a solid nearby option", "you are after something specific"],
+    museum:        [["a culture stop when you have an hour or two", "you want quick or outdoorsy"]],
+    wildlife:      [["a few hours with kids, rain or shine", "you want nightlife or a fast bite"]],
+    entertainment: [["groups or a rainy-day activity", "you want food, drinks, or a quiet local spot"], ["burning real energy with a crew", "you want low-key or cheap"]],
+    scenic:        [["a view, a photo, or a sunset", "you need a meal or an indoor plan"], ["the photo stop of the day", "you are racing the clock"]],
+    beach:         [["a beach day when the weather holds", "you want indoors or a quick stop"]],
+    nature:        [["fresh air and a walk", "the weather is bad or you are short on time"], ["stretching your legs outdoors", "you need shade or AC today"], ["an easy outdoor reset", "you want food or nightlife instead"]],
+    landmark:      [["a bit of history on the way", "you want to sit and eat"]],
+    waterfront:    [["a relaxed meal with a water view", "you want quick or budget"], ["water-view dining at a slower pace", "you are grabbing and going"]],
+    bar:           [["a night of drinks with some energy", "you want daytime or food first"], ["drinks-first plans", "you are hungry more than thirsty"]],
+    cafe:          [["coffee and a slow sit", "you want a full meal or a night out"]],
+    restaurant:    [["a well-rated sit-down", "you want quiet or upscale"], ["a proper meal worth the stop", "you want fast or cheap"], ["the food-first pick here", "you want a scene more than a kitchen"]],
+    hotel:         [["a comfortable base near everything", "you are not staying over"]],
+    shopping:      [["a browse when you have time", "you want a quick in and out"]],
+    generic:       [["a solid nearby option", "you are after something specific"], ["an easy add to the plan", "you already know exactly what you want"]],
   };
-  const pair = V[kind] || V.generic; const good = pair[0], skip = pair[1];
+  const pair = vary(V[kind] || V.generic); const good = pair[0], skip = pair[1];
   if (compact) return "Best for " + good + ".";
   const sig = [];
-  if (r != null && r >= 4.6 && n >= 500) sig.push("big review strength");
-  else if (r != null && r >= 4.5) sig.push("highly rated");
+  if (r != null && r >= 4.6 && n >= 500) sig.push(vary(["big review strength", n.toLocaleString() + " reviews deep", "review volume most picks here lack"]));
+  else if (r != null && r >= 4.5) sig.push(vary(["highly rated", "strong marks", "rated near the top"]));
   else if (r != null) sig.push(r + "★");
   if (p.openNow === true) sig.push("open now");
-  if (p.distMi != null && p.distMi <= 6) sig.push("close by");
+  if (p.distMi != null && p.distMi <= 6) sig.push(p.distMi.toFixed(1) + " mi away");
   if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
   const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "a safe nearby pick";
   let line = "Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".";
-  if (wet && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = "Weather is iffy for this today. " + line;
+  if (wet && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = vary(["Weather is iffy for this today. ", "Rain could get in the way today. ", "Check the sky before this one. "]) + line;
   else if (nice && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = line.replace("Skip it if", "Good weather to go — skip it if");
   return line;
 }
@@ -2029,7 +2052,7 @@ function whyFirst(p, list) {
   else if (topRated) lead = "the highest rated of the bunch";
   else lead = "the strongest all-round pick here";
   const sig = [];
-  if ((p.reviews || 0) >= 500) sig.push("big review strength");
+  if ((p.reviews || 0) >= 500) sig.push("the deepest review base on this list");
   else if (p.rating != null) sig.push(p.rating + "★");
   if (p.openNow === true) sig.push("open now");
   if (p.distMi != null && p.distMi <= 8) sig.push(p.distMi.toFixed(1) + " mi out");
@@ -2825,6 +2848,61 @@ function PageInner() {
     }
     sheetDragRef.current = {};
   }
+
+  const openGemPlace = async (g) => {
+    try {
+      showToast("Opening " + g.name + "\u2026");
+      const pl = await findPlace(g.name + " " + (g.area || "Orlando") + " FL", center);
+      if (pl && pl.id) openDetail(pl); else showToast("Couldn't find " + g.name + " right now");
+    } catch (e) { showToast("Couldn't open " + g.name + " right now"); }
+  };
+  // Unique finds: curated gems Google's prominence ranking buries. Renders from
+  // static data (zero passive Google calls); tapping a gem runs one cached
+  // findPlace and opens the detail sheet.
+  const renderUniqueFinds = () => (
+    <div style={{ margin: "14px 0 4px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.light }}>Unique finds near you</div>
+        <div style={{ fontSize: 10.5, fontWeight: 700, color: C.muted, letterSpacing: ".5px", textTransform: "uppercase" }}>curated</div>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
+        {Gems.GEMS.map((g) => (
+          <div key={g.key} onClick={() => openGemPlace(g)} role="button" style={{ minWidth: 218, maxWidth: 218, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 13px", cursor: "pointer", flexShrink: 0 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.light, lineHeight: 1.2 }}>{g.name}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+              {g.award ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#E8B84B", border: "1px solid rgba(232,184,75,.5)", borderRadius: 999, padding: "2px 8px", letterSpacing: ".4px" }}>{g.award.label}</span> : null}
+              <span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted }}>{g.area}</span>
+            </div>
+            <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginTop: 7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{g.note}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // World Cup hero card. topSlot=true renders only on match days (fixed
+  // knockout calendar); topSlot=false renders mid-feed on off days.
+  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
+                      <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <style>{"@keyframes wcRoll{0%{left:-10%;transform:rotate(0deg)}100%{left:104%;transform:rotate(900deg)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
+                      <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
+                      <span style={{ position: "absolute", bottom: 6, left: "-10%", fontSize: 15, opacity: .8, animation: "wcRoll 9s linear infinite", pointerEvents: "none" }}>⚽</span>
+                      
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
+                      <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>{_w.emoji}</span>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _wc.text, textTransform: "uppercase" }}>{_wct.tag}</span>
+                      </div>
+                      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_wct.headline(locName)}</div>
+                      <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
+                      <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
+                      <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
+                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
+                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
+                      </div>
+                      </div>
+                      ); };
 
   function shareApp() {
     const url = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://wayfind-xi.vercel.app";
@@ -4081,6 +4159,8 @@ function PageInner() {
       {restView.length > 3 && hookCards.length > 0 && (
         <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
       )}
+      {renderWorldCupCard(false)}
+      {renderUniqueFinds()}
       {restView.slice(3, visibleCount).map((p, i) => (
         <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
       ))}
@@ -4502,7 +4582,7 @@ function PageInner() {
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
+                const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName, blurbs[pl.id]), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
                 const THEME_ORDER = ["bestof", "localfav", "family", "gem", "value", "waterfront", "instagram", "livemusic", "romantic", "breakfast", "coffee"];
@@ -4553,27 +4633,7 @@ function PageInner() {
                   <div style={{ marginBottom: 16 }}>
                     {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
-                      {(() => { const _w = Hol.worldCup(new Date()); if (!_w) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
-                      <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                      <style>{"@keyframes wcRing{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.15);opacity:0}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}@keyframes wcSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
-                      <span style={{ position: "absolute", top: -30, right: 22, width: 150, height: 150, borderRadius: "50%", border: "2px solid rgba(232,184,75,.55)", opacity: 0, animation: "wcRing 3.4s ease-out infinite", pointerEvents: "none" }} />
-                      <span style={{ position: "absolute", top: 4, right: 70, width: 96, height: 96, borderRadius: "50%", border: "1.5px solid rgba(232,184,75,.45)", opacity: 0, animation: "wcRing 3.4s ease-out 1.3s infinite", pointerEvents: "none" }} />
-                      <span style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: "46%", background: "linear-gradient(105deg, transparent 0%, rgba(255,255,255,.06) 44%, rgba(255,255,255,.12) 50%, rgba(255,255,255,.06) 56%, transparent 100%)", animation: "wcSweep 6.4s ease-in-out infinite", pointerEvents: "none" }} />
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
-                      <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 24, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>{_w.emoji}</span>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: _wc.text, textTransform: "uppercase" }}>{_wct.tag}</span>
-                      </div>
-                      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>{_wct.headline(locName)}</div>
-                      <div style={{ fontSize: 12.5, color: _wc.text, marginTop: 5, lineHeight: 1.4 }}>{_wct.sub}</div>
-                      <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _wc.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the watch parties ›</div>
-                      <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
-                      <a href="https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Schedule and tickets ↗</a>
-                      <a href="https://watchwc.com" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{ fontSize: 11.5, fontWeight: 700, color: _wc.text, textDecoration: "underline" }}>Find tonight's game ↗</a>
-                      </div>
-                      </div>
-                      ); })()}
+                      {renderWorldCupCard(true)}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <style>{"@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
@@ -4923,7 +4983,7 @@ function PageInner() {
                   </div>
                   <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    <button onClick={() => { shareLink(p.name, (typeof window !== "undefined" ? window.location.origin : "") + "?place=" + encodeURIComponent(p.id), () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (e) {} giveawayMark(p.id); }); }} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "11px 0", cursor: "pointer" }}>{shareCopied ? "Copied ✓" : "↗ Share"}</button>
+                    <button onClick={() => { shareLink(p.name, placeShareUrl(p, locName, blurbs[p.id]), () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); showToast("Link copied"); }, "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (e) {} giveawayMark(p.id); }); }} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "11px 0", cursor: "pointer" }}>{shareCopied ? "Copied ✓" : "↗ Share"}</button>
                     <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.accent : C.light, border: `1px solid ${isSaved(p.id) ? C.accent : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
                   </div>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
@@ -5547,7 +5607,7 @@ function PageInner() {
                   <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 46, background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                 </>)}
-                <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
               <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
@@ -6209,7 +6269,7 @@ function PageInner() {
                         {(() => { const _sv = isSaved(p.id); return (
                           <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6, zIndex: 2 }}>
                             <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: _sv ? acc : "rgba(0,0,0,.38)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.28)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                            <button onClick={(e) => { e.stopPropagation(); shareLink(p.name, (typeof window !== "undefined" ? window.location.origin : "") + "?place=" + encodeURIComponent(p.id), () => showToast("Link copied"), "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (er) {} giveawayMark(p.id); }); }} aria-label="Share" title="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.38)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                            <button onClick={(e) => { e.stopPropagation(); shareLink(p.name, placeShareUrl(p, locName, blurbs[p.id]), () => showToast("Link copied"), "Check out " + p.name + " on Wayfind", () => { try { logEvent("share", p, { kind: "place" }); } catch (er) {} giveawayMark(p.id); }); }} aria-label="Share" title="Share" style={{ width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.38)", border: "1px solid rgba(255,255,255,.28)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                           </div>
                         ); })()}
                         {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
