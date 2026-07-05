@@ -1,3 +1,14 @@
+## v3.89 - map menu unified with home + player art on WC card
+- Map now shows the same CategoryMenu as home (home untouched), always
+  visible, neutral until a tile is tapped; a Search tile in the row drops the
+  search field down. Floating loupe removed; top card spans full width.
+- FIFA/Events toggle stacked vertically; Top 10 label chip removed (pins
+  still load silently); pin legend moved to the bottom-right corner; compass
+  nudged to 292 to close the gap.
+- World Cup card: illustrated player cutout (white background removed via
+  border flood fill, feathered edges) replaces the stick figure; ball keeps
+  the keepy-uppy loop.
+
 ## v3.88 - CRITICAL: fix boot crash + diagnostic error boundary
 - Fixed app-wide crash on load: the v3.80 mapPool effect referenced keyMissing
   in its dependency array ~625 lines before the const was declared. React

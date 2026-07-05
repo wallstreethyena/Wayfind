@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.88";
+const BUILD_ID = "v3.89";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -80,7 +80,7 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
     <div style={{ marginBottom: 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : "4px 2px 8px" }}>
@@ -98,6 +98,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub }) {
             <span style={{ fontSize: 10.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
           </button>
         ); })}
+        {trailing || null}
       </div>
       </div>
       <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
@@ -2973,7 +2974,7 @@ function PageInner() {
                       <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-34px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
-                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 8, width: 46, height: 100, pointerEvents: "none", opacity: .95 }}><span style={{ position: "absolute", left: 24, bottom: 38, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><svg width="46" height="68" viewBox="0 0 46 68" style={{ position: "absolute", left: 0, bottom: 0, animation: "wcBob 1.5s infinite" }}><circle cx="17" cy="8" r="5.5" fill="#E8B84B" /><g stroke="#E8B84B" strokeWidth="3.8" strokeLinecap="round" fill="none"><path d="M17 15 L17 36" /><path d="M17 21 L7 30" /><path d="M17 21 L27 26" /><path d="M17 36 L14 62" /><path d="M14 62 L20 63" /><path d="M17 36 L30 44 L38 37" /></g></svg></span>
+                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 6, width: 62, height: 112, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 20, bottom: 60, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><img src="/wf-player.png" alt="" draggable={false} style={{ position: "absolute", left: 2, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></span>
                       
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
                       <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
@@ -4420,28 +4421,18 @@ function PageInner() {
               const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
               return (
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 54, zIndex: 30, padding: "8px 10px 0" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-                      {mapBrowse ? <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} /> : (
-                      <div style={{ display: "flex", gap: 8, overflowX: "auto", padding: "2px 2px 6px", WebkitOverflowScrolling: "touch" }}>
-                        {CATEGORIES.map((c) => (
-                          <button key={c.id} onClick={() => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: c.label, layer: 1, src: "map" }); } catch (e) {} if (cat !== c.id) { setCat(c.id); setSub("all"); setVibe("all"); } }} style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 6, padding: "8px 13px", borderRadius: 999, border: `1px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{c.icon} {c.label}</button>
-                        ))}
-                      </div>
-                    )}
+                      <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen(true)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
                     </div>
                   </div>
-                  {!mapSearchOpen && <button onClick={() => setMapSearchOpen(true)} aria-label="Search" title="Search" style={{ position: "absolute", top: 12, right: 10, zIndex: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 42, height: 42, borderRadius: "50%", border: "1px solid " + C.border, background: "rgba(16,20,27,.94)", color: C.light, fontSize: 17, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>🔍</button>}
                   <MapView places={mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                  <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
+                  <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.accent : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
                     <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
                   </div>
-                  {mapMode === "places" && !mapBrowse && (
-                    <div style={{ position: "absolute", top: 252, left: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 12px", fontSize: 11, fontWeight: 700, color: C.light, boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>Top 10 near you · tap a category to browse</div>
-                  )}
                   {mapMode === "places" && (
-                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 300, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.accent : "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 292, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.accent : "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
                       <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
                         <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
                         <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
@@ -4449,7 +4440,7 @@ function PageInner() {
                     </button>
                   )}
                   {mapMode === "places" && (
-                    <div style={{ position: "absolute", top: 212, right: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 10px", boxShadow: "0 4px 16px rgba(0,0,0,.45)", display: "flex", flexDirection: "column", gap: 5 }}>
+                    <div style={{ position: "absolute", bottom: 118, right: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 10px", boxShadow: "0 4px 16px rgba(0,0,0,.45)", display: "flex", flexDirection: "column", gap: 5 }}>
                       {[["#FBBF24", "Top pick"], ["#4C8DFF", "Open"], ["#5B6675", "Closed"]].map((row) => (
                         <div key={row[1]} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                           <span style={{ width: 9, height: 9, borderRadius: "50%", background: row[0], flexShrink: 0, boxShadow: "0 0 0 1px rgba(0,0,0,.3)" }} />
