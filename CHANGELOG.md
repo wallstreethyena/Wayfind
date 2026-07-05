@@ -1,3 +1,32 @@
+## v3.69 - World Cup card copy: curated + differentiated
+- New lib/wc.js powers the World Cup list. Hand-curated copy and badges for the
+  confirmed venues (Sports & Social, Toms Watch Bar, Stadium Club/Caribe Royale,
+  American Social, The Wharf at Sunset Walk, Yard House, Divina Carne, Eskina,
+  Adega Gaucha), each answering "why watch here instead of elsewhere."
+- Everything else gets a signal-driven generator (sports bar / pub / bar /
+  Brazilian / Latin / steakhouse / food-first / cafe archetypes) with guaranteed
+  in-list uniqueness: no two cards share body copy until a bank is exhausted.
+- Evidence rules enforced by 8 new gate fixtures (53 total): the generator never
+  claims "watch party" (curated evidence only), banned generic phrases are dead,
+  brazil venues get Brazil framing, badges are selective (one max: Best for
+  Brazil fans, Big screen energy, Sports bar vibe, Upscale watch dinner,
+  Family-friendly, Best food-first pick, Closest strong option).
+- Fixed a name-normalization bug the new fixtures caught pre-ship: "&" now maps
+  to "and" so curated names like Sports & Social match.
+- Rest of the app (feed, other lists) unchanged; WC list only.
+
+## v3.68 - share integrity + community sign-in flow
+- Giveaway/share credit no longer fires on tap. shareLink gained an onShared
+  callback that fires only when the native sheet completes or the link is
+  actually copied; cancelling counts nothing. All 10 share buttons (app, lists,
+  hooks, holiday + World Cup cards, place cards, detail, map pins) moved their
+  logEvent/giveawayMark/addShared into it. Tap-and-cancel can no longer farm
+  sweepstakes entries.
+- Community takes: Save while signed out now opens the sign-in modal (text kept,
+  private copy still saved) instead of silently saving device-only.
+- Post failures now show the real error reason in the toast instead of a generic
+  message, so RLS/auth/network causes are visible on-device.
+
 ## v3.67 - honest naming + decision copy
 - Renamed the localfav experience: page title Local Favorites -> Top Rated Near You,
   badge Local favorite -> Crowd favorite, subtitle now "Highly rated nearby spots

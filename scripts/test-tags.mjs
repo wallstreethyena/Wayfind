@@ -3,6 +3,7 @@ import * as D from "../lib/dining.js";
 import * as R from "../lib/ranking.js";
 import * as Hol from "../lib/holidays.js";
 import * as Cats from "../lib/categories.js";
+import * as WC from "../lib/wc.js";
 let pass = 0, fail = 0;
 const ok = (name, cond) => { if (cond) { pass++; console.log("PASS  " + name); } else { fail++; console.log("FAIL  " + name); } };
 const diagon = ["tourist_attraction", "amusement_park", "point_of_interest"];
@@ -98,6 +99,29 @@ ok("june 12 is outside the window", !(Hol.activeHoliday(new Date(2026, 5, 12, 12
 ok("member signal silent below 3 authors", R.memberDelta({ authors: 2, warnAuthors: 0 }) === 0 && R.memberDelta(null) === 0);
 ok("member signal positive and capped", R.memberDelta({ authors: 3, warnAuthors: 0 }) === 0.45 && R.memberDelta({ authors: 10, warnAuthors: 0 }) === 0.75);
 ok("warnings pull down within caps", R.memberDelta({ authors: 4, warnAuthors: 2 }) === 0.1 && R.memberDelta({ authors: 3, warnAuthors: 3 }) === -0.3);
+
+
+// --- World Cup copy + badge rules ---
+const wcList = [
+  { id: "sb1", name: "Draft House Grill", types: ["bar", "restaurant"] },
+  { id: "sb2", name: "Winghouse Sports Bar", types: ["bar"] },
+  { id: "sb3", name: "Stadium Taproom", types: ["bar"] },
+  { id: "sb4", name: "Alehouse Game Day", types: ["bar"] },
+  { id: "sb5", name: "Draft Kings Sports Bar", types: ["bar"] },
+  { id: "br1", name: "Sabor do Brasil", types: ["restaurant"] },
+  { id: "st1", name: "Prime Steakhouse", types: ["restaurant"], price: "$$$$" },
+  { id: "re1", name: "Garden Bistro", types: ["restaurant"], rating: 4.7, reviews: 900 },
+];
+const wcCopies = wcList.map((pl, i) => WC.wcCopy(pl, wcList, i));
+ok("WC: no two cards share copy", new Set(wcCopies).size === wcCopies.length);
+ok("WC: brazil venue gets brazil framing", /brazil|sele\u00e7\u00e3o|green and yellow/i.test(WC.wcCopy(wcList[5], wcList, 5)));
+const allVariants = Object.values(WC.BANKS).flat().join(" | ");
+ok("WC: generator never claims watch party", !/watch party/i.test(allVariants));
+ok("WC: banned generic phrases absent", !/reliable, well-rated meal|night out|evening drinks|close by/i.test(allVariants));
+ok("WC: curated Sports & Social evidence copy", /104/.test(WC.wcCopy({ name: "Sports & Social" }, [], 0)));
+ok("WC: upscale steakhouse badge", (WC.wcBadge({ name: "Prime Steakhouse", types: ["restaurant"], price: "$$$$" }, []) || {}).label === "Upscale watch dinner");
+ok("WC: family label badge", (WC.wcBadge({ name: "Garden Bistro", types: ["restaurant"], labels: ["Good for kids"] }, []) || {}).label === "Family-friendly");
+ok("WC: closest strong option is comparative", (WC.wcBadge({ id: "a", name: "Corner Grill", types: ["restaurant"], rating: 4.6, reviews: 200, distMi: 0.8 }, [{ id: "a", rating: 4.6, reviews: 200, distMi: 0.8 }, { id: "b", rating: 4.7, reviews: 500, distMi: 2.4 }]) || {}).label === "Closest strong option");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
