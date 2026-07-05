@@ -1,3 +1,13 @@
+## v3.88 - CRITICAL: fix boot crash + diagnostic error boundary
+- Fixed app-wide crash on load: the v3.80 mapPool effect referenced keyMissing
+  in its dependency array ~625 lines before the const was declared. React
+  evaluates deps in source order on first render, so every boot threw a
+  temporal-dead-zone ReferenceError into the error boundary. The env check is
+  now inlined and the dep removed (env is a build-time constant).
+- Error boundary upgraded: crash screen now shows the build id and the actual
+  error message under the Reload button, and reports app_error (message +
+  top of stack + build) to PostHog. Runtime failures are no longer invisible.
+
 ## v3.87 - Parc Soleil owner photos + specific fireworks rooms
 - New WAYFIND_PHOTOS layer: owner-shot photos prepend to the Google gallery
   for matched venues, with honest attribution (lightbox says Photo: Wayfind,

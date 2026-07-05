@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.87";
+const BUILD_ID = "v3.88";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1507,9 +1507,9 @@ function Critter({ size = 26 }) {
 }
 
 class ErrorBoundary extends Component {
-  constructor(props) { super(props); this.state = { hit: false }; }
-  static getDerivedStateFromError() { return { hit: true }; }
-  componentDidCatch() {}
+  constructor(props) { super(props); this.state = { hit: false, err: "" }; }
+  static getDerivedStateFromError(e) { return { hit: true, err: String((e && e.message) || e || "").slice(0, 160) }; }
+  componentDidCatch(error) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
   render() {
     if (this.state.hit) {
       return (
@@ -1518,6 +1518,7 @@ class ErrorBoundary extends Component {
           <div style={{ fontSize: 16, fontWeight: 800 }}>That took a wrong turn</div>
           <div style={{ fontSize: 13.5, color: C.light, maxWidth: 280, lineHeight: 1.5 }}>Something hiccuped. Tap below to get back on track.</div>
           <button onClick={() => { this.setState({ hit: false }); try { window.location.reload(); } catch (e) {} }} style={{ marginTop: 4, padding: "11px 20px", background: C.accent, border: "none", borderRadius: 12, color: "#fff", fontSize: 15, fontWeight: 800, cursor: "pointer" }}>Reload Wayfind</button>
+          {this.state.err ? <div style={{ fontSize: 10, color: C.muted, maxWidth: 300, lineHeight: 1.45, wordBreak: "break-word" }}>{BUILD_ID} · {this.state.err}</div> : null}
         </div>
       );
     }
@@ -2431,7 +2432,7 @@ function PageInner() {
   useEffect(() => { if (screen !== "map" && compassHandlerRef.current) stopCompass(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
   useEffect(() => {
-    if (screen !== "map" || mapBrowse || !center || keyMissing) return;
+    if (screen !== "map" || mapBrowse || !center || !process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY) return;
     let cancelled = false;
     (async () => {
       try {
@@ -2443,7 +2444,7 @@ function PageInner() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, mapBrowse, center, searchRadius, keyMissing]);
+  }, [screen, mapBrowse, center, searchRadius]);
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
   const [mapDrawer, setMapDrawer] = useState(false);
