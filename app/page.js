@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.07";
+const BUILD_ID = "v4.09";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1742,7 +1742,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
             >
               {/* Background: place photo or rich gradient fallback */}
               {photo
-                ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+                ? <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
                 : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />
               }
               {/* Cinematic dark overlay — lighter at top, very dark at bottom */}
@@ -2241,9 +2241,9 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
       {h.brand
         ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
         : tiles.length >= 2
-        ? <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 1.5 }}>{tiles.map((src, i) => <img key={i} src={src} alt="" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />)}</div>
+        ? <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 1.5 }}>{tiles.map((src, i) => <img key={i} src={src} alt="" loading="lazy" decoding="async" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />)}</div>
         : photo
-        ? <img src={photo} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+        ? <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
         : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
       <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 12%, ${acc}26 100%), linear-gradient(180deg, rgba(13,17,23,.32) 0%, rgba(13,17,23,.7) 38%, rgba(13,17,23,.93) 66%, #0D1117 100%)` }} />
       <div style={{ position: "absolute", ..._glow.p, width: 140, height: 140, background: `radial-gradient(circle at ${_glow.at}, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
@@ -3914,8 +3914,8 @@ function PageInner() {
             "regularOpeningHours", "businessStatus",
           ],
         });
-        const photoUrl = (place.photos || [])[0]?.getURI?.({ maxWidth: 800 }) || null;
-        const allPhotos = (place.photos || []).slice(0, 6).map((ph) => ph.getURI?.({ maxWidth: 800 })).filter(Boolean);
+        const photoUrl = (place.photos || [])[0]?.getURI?.({ maxWidth: 640 }) || null;
+        const allPhotos = (place.photos || []).slice(0, 6).map((ph) => ph.getURI?.({ maxWidth: 640 })).filter(Boolean);
         const PRICE_LEVELS = ["FREE", "INEXPENSIVE", "MODERATE", "EXPENSIVE", "VERY_EXPENSIVE"];
         const priceNum = place.priceLevel != null
           ? (typeof place.priceLevel === "number" ? place.priceLevel : PRICE_LEVELS.indexOf(String(place.priceLevel)))
