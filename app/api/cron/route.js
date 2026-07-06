@@ -37,6 +37,18 @@ async function sbCount(table, sinceIso, key) {
   }
 }
 
+async function userStats(svc) {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base || !svc) return null;
+  try {
+    const r = await fetch(base + "/rest/v1/rpc/user_stats", { method: "POST", headers: { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" }, body: "{}", cache: "no-store" });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) {
+    return null;
+  }
+}
+
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
   if (secret) {
@@ -55,10 +67,11 @@ export async function GET(req) {
   ]);
 
   const svc = process.env.SUPABASE_SERVICE_ROLE_KEY || null;
-  const [comments24, shares24, events24] = await Promise.all([
+  const [comments24, shares24, events24, users] = await Promise.all([
     sbCount("comments", since),
     sbCount("shared_lists", since),
     svc ? sbCount("events", since, svc) : Promise.resolve(null),
+    svc ? userStats(svc) : Promise.resolve(null),
   ]);
 
   const notes = [];
@@ -71,6 +84,7 @@ export async function GET(req) {
     "Wayfind daily digest \u2014 " + dateKey,
     "",
     "Health: " + (failing.length ? "ISSUES \u2014 " + failing.map((c) => c.name + " (" + c.status + ")").join(", ") : "all checks passing (" + checks.map((c) => c.name).join(", ") + ")"),
+    "Signups: " + (users ? users.confirmed + " confirmed of " + users.total + " total (+" + users.new_24h + " in 24h)" : "needs user_stats SQL function + service key"),
     "Last 24h: " + [
       comments24 != null ? comments24 + " community takes" : "takes n/a",
       shares24 != null ? shares24 + " shared lists" : "shared lists n/a",
@@ -95,5 +109,5 @@ export async function GET(req) {
     } catch (e) {}
   }
 
-  return Response.json({ ok: failing.length === 0, emailed, checks, comments24, shares24, events24, notes });
+  return Response.json({ ok: failing.length === 0, emailed, checks, users, comments24, shares24, events24, notes });
 }

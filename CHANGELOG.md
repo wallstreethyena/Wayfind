@@ -1,3 +1,53 @@
+## v4.04 - version and diagnostics on the public footer
+- The build version now shows at the bottom of home next to Privacy/Terms,
+  visible signed out. Five taps on it opens the auth diagnostic (session
+  state, URL params, event log) with the build id in the readout.
+- Account-sheet version line reuses the same shared diagnostic.
+- Lesson encoded: deploy verification must never require being signed in.
+
+## v4.03 - honest duplicate-signup message
+- Signup against an existing email no longer shows the fake "check your
+  email" message. Supabase returns a user with empty identities in that
+  case; the app now detects it, says the email already has an account,
+  and flips the form to sign-in.
+
+## v4.02 - collapsible map menu
+- Chevron under the map menu collapses it to a slim pill showing the active
+  category; tapping the pill expands it back. Session-local (always starts
+  expanded for discoverability). map_menu telemetry tracks usage.
+
+## v4.01 - dice hero card opens the roll
+- The dice hero card routed to the old Surprise flow, so the rolling-die
+  experience never fired from it. It now opens the Pick for me sheet: big
+  die, purple spin, saved roll history. dice_card telemetry added.
+
+## v4.00 - refresh signout fix + on-device auth diagnostics
+- Root mechanism: a burned one-time auth code left in the URL (from the
+  email confirmation opening in Safari) replays on every refresh; the failed
+  exchange tears down the valid stored session. Boot now strips auth params
+  from the URL after they are consumed, killing the class permanently.
+- Auth event ring buffer (last 12, timestamped, on-device) + 5 taps on the
+  version line shows live session state, URL params, and the log.
+
+## v3.99 - Viator env unification + privacy page
+- Legacy AFFIL.viatorPid now reads NEXT_PUBLIC_VIATOR_PID: one Vercel paste
+  lights the Tickets button AND the Find tours & experiences row, tracked.
+- /privacy page: honest data practices + FTC affiliate disclosure + rank
+  independence statement. Linked from the auth modal and account sheet.
+  Affiliate network reviewers check for this; it was a decline risk.
+
+## v3.98 - email typo autofix at sign-in
+- Unambiguous email typos (.con/.cmo/.ocm/.comm, gmial/gamil/gnail,
+  hotmial, iclod/icoud, yahooo) auto-correct on submit with a "fixed a
+  typo, tap again" toast. Five-second-test polish: tourists fat-finger
+  on phone keyboards; the app absorbs it instead of erroring.
+
+## v3.97 - signup counts in the daily digest
+- Digest now leads with signups: confirmed of total (+new in 24h), via a
+  service-role-only user_stats SQL function (auth.users is not reachable
+  through the REST API otherwise). Fail-soft: without the function or key
+  the digest still sends and says what is missing.
+
 ## v3.96 - dual-session signout fix (auth flow)
 - Root theory: signup confirmation links open in Safari and sign in THERE,
   seeding a second live session beside the PWA; refresh-token rotation then

@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.96";
+const BUILD_ID = "v4.04";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -29,7 +29,7 @@ const C = {
 //    tracking param they give you. Until then "Get tickets" links work normally,
 //    just untracked.
 const AFFIL = {
-  viatorPid: "",                 // e.g. "P12345678"
+  viatorPid: (process.env.NEXT_PUBLIC_VIATOR_PID || "").trim(), // one env var lights all Viator surfaces
   viatorCampaign: "wayfind",
   ticketmasterParam: "",         // e.g. "irgwc=1&clickid=..." once approved, else blank
 };
@@ -2656,6 +2656,7 @@ function PageInner() {
   const [signupDone, setSignupDone] = useState(() => { try { return !!localStorage.getItem("wf_signed_up"); } catch { return false; } });
   // Auth state (Supabase). Null user = signed out / no backend configured.
   const [user, setUser] = useState(null);
+  const [mapMenuHidden, setMapMenuHidden] = useState(false); // map top menu collapse
   const [authOpen, setAuthOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authSending, setAuthSending] = useState(false);
@@ -2669,11 +2670,13 @@ function PageInner() {
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (active && data && data.session && data.session.user) setUser(data.session.user);
+      try { if (typeof window !== "undefined" && (window.location.search.indexOf("code=") >= 0 || window.location.search.indexOf("error") >= 0 || window.location.hash.indexOf("access_token") >= 0)) window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
     }).catch(() => {});
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session && session.user ? session.user : null);
       try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
+      try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
@@ -2689,8 +2692,18 @@ function PageInner() {
   }
   // Email + password. Works with no email sending at all if "Confirm email" is
   // turned off in Supabase. Sign in for existing accounts, sign up for new ones.
+  function fixEmailTypos(raw) {
+    let e = String(raw || "").trim().toLowerCase();
+    if (!e || e.indexOf("@") < 0) return null;
+    const before = e;
+    e = e.replace(/\.con$/, ".com").replace(/\.cmo$/, ".com").replace(/\.ocm$/, ".com").replace(/\.comm$/, ".com");
+    e = e.replace(/@gmial\./, "@gmail.").replace(/@gamil\./, "@gmail.").replace(/@gnail\./, "@gmail.").replace(/@hotmial\./, "@hotmail.").replace(/@iclod\./, "@icloud.").replace(/@icoud\./, "@icloud.").replace(/@yahooo\./, "@yahoo.");
+    return e !== before ? e : null;
+  }
   async function passwordAuth() {
     if (!supabase || !authEmail || !authPassword) return;
+    const fixed = fixEmailTypos(authEmail);
+    if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
     setAuthSending(true);
     try {
       const creds = { email: authEmail.trim(), password: authPassword };
@@ -2699,6 +2712,7 @@ function PageInner() {
         : await supabase.auth.signInWithPassword(creds);
       if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
       else if (res.data && res.data.session) { showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+      else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
       else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
     setAuthSending(false);
@@ -2709,6 +2723,14 @@ function PageInner() {
     try { await supabase.auth.signOut(); } catch {}
     setUser(null);
     showToast("Signed out");
+  }
+  async function wfShowDiag() {
+    try {
+      let msg = "URL params: " + (window.location.search || window.location.hash || "clean");
+      try { const { data: _d } = await supabase.auth.getSession(); msg = "Session: " + (_d && _d.session ? "ACTIVE, token until " + new Date(_d.session.expires_at * 1000).toTimeString().slice(0, 8) : "NONE") + "\n" + msg; } catch (e) { msg = "Session: NONE (no client)\n" + msg; }
+      msg += "\n\nAuth log (old\u2192new):\n" + (JSON.parse(localStorage.getItem("wf_authlog") || "[]").map((r) => r.t + "  " + r.e + (r.s ? " \u2713" : " \u2717")).join("\n") || "(empty)");
+      alert("Wayfind " + BUILD_ID + "\n" + msg);
+    } catch (e) {}
   }
 
   // When a user signs in, push local favorites/likes up and pull theirs down,
@@ -4442,7 +4464,17 @@ function PageInner() {
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
+                      {mapMenuHidden ? (
+                        <button onClick={() => { setMapMenuHidden(false); try { logEvent("map_menu", null, { hidden: false }); } catch (e) {} }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "9px 0", borderRadius: 14, border: `1px solid ${C.border}`, background: "rgba(22,27,34,.9)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", color: C.light, fontSize: 12.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.4)" }}>
+                          <span>{(() => { const c = CATEGORIES.find((x) => x.id === cat); return mapBrowse && c ? c.icon + " " + c.label : "Browse categories"; })()}</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                        </button>
+                      ) : (<>
                       <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen(true)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
+                      <button onClick={() => { setMapMenuHidden(true); try { logEvent("map_menu", null, { hidden: true }); } catch (e) {} }} aria-label="Hide menu" style={{ display: "block", margin: "2px auto 0", padding: "3px 30px", background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15l6-6 6 6" /></svg>
+                      </button>
+                      </>)}
                     </div>
                   </div>
                   <MapView places={mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
@@ -4838,7 +4870,7 @@ function PageInner() {
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
-                    <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => openSurprise()} />
+                    <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick" }); } catch (e) {} setMenuSheet("pick"); }} />
                   </div>
                 );
               })()}
@@ -4975,6 +5007,7 @@ function PageInner() {
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
                 <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
+                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind {BUILD_ID}</div>
               </div>
               <div style={{ height: 20 }} />
               </div>
@@ -6482,7 +6515,8 @@ function PageInner() {
             </div>
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
-            <div style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD} · {BUILD_ID}</div>
+            <div style={{ textAlign: "center", marginTop: 12 }}><a href="/privacy" style={{ fontSize: 11.5, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
+            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD} · {BUILD_ID}</div>
             <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 4 }}>© 2026 Wayfind. All rights reserved.</div>
           </div>
         </div>
@@ -6787,6 +6821,7 @@ function PageInner() {
               {authMode === "signup" ? "Already have an account? " : "New here? "}
               <span onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</span>
             </div>
+            <div style={{ textAlign: "center", marginTop: 10 }}><a href="/privacy" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
           </div>
         </div>
       )}
