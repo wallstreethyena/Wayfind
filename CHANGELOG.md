@@ -1,3 +1,16 @@
+## v4.06 - fix crashing Share button on Top 10 list cards
+- PlaceCard share button called addShared() and referenced giveawayMark from
+  a scope where neither existed, throwing ReferenceError on every tap: no
+  copy, no toast, no giveaway credit. This is why sharing did nothing.
+- Share now uses module-level shareLink with a real "Link copied" toast, and
+  giveaway credit + shared-list add are passed in via a new onShareCard prop
+  from the parent scope where those functions live. Fixes giveaway entry.
+
+## v4.05 - collapsed pill label fix
+- CATEGORIES entries carry the emoji inside label with no icon field; the
+  collapsed map pill concatenated the missing field as "undefined". Label
+  renders alone now.
+
 ## v4.04 - version and diagnostics on the public footer
 - The build version now shows at the bottom of home next to Privacy/Terms,
   visible signed out. Five taps on it opens the auth diagnostic (session
