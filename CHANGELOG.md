@@ -1,3 +1,53 @@
+## v3.96 - dual-session signout fix (auth flow)
+- Root theory: signup confirmation links open in Safari and sign in THERE,
+  seeding a second live session beside the PWA; refresh-token rotation then
+  makes the two sessions invalidate each other = random signouts.
+- Standalone-aware signup copy: installed-app users are told the email link
+  opens Safari and to return and sign in with password here.
+- Removed unreachable sendMagicLink (no UI caller; same stranding hazard).
+
+## v3.95 - premium GlowPin app icon
+- New launcher icon from the GlowPin artwork: pin body measured and centered
+  at 62% fill, black full-bleed (iOS rounds corners), subtle saturation and
+  contrast lift. Overwrites icon-192/icon-512 in place (zero wiring changes)
+  plus a proper multi-size app/favicon.ico that Next auto-serves.
+
+## v3.94 - owner-only curation signal
+- communityBoost is now owner-only: places liked by the owner account get
+  +4 globally; community likes carry zero rank weight by design. The
+  place_signals view shrinks to just owner-liked place_ids.
+
+## v3.93 - curator likes rank globally + telemetry identity
+- place_signals view (counts + curator flag, no user data) feeds a
+  communityBoost at four rank sites: curator-liked +4 (below FEATURED tiers),
+  community likes up to +2. Dark until the view is created in Supabase.
+- Your like still demotes in your own map Top 10 for variety while boosting
+  for everyone else.
+- posthog.identify on sign-in so founder testing can be filtered from real
+  user metrics before launch.
+
+## v3.92 - player art returns + Disney family fallback for fireworks notes
+- WC card: illustrated player cutout back (speck-cleaned, single component,
+  feathered edges); ball rests on his head between bounces, geometry computed
+  from the cutout pixels; bounce tightened to a header rhythm (-26px).
+- wayfindNotes family fallback: any name containing disney/universal that
+  lacks its own entry inherits the resort-level schedule note, so every
+  variant, water park, hotel, and Disney Springs answers the fireworks
+  question instead of showing nothing.
+- Animal Kingdom explicit note: the one Disney park with no fireworks.
+
+## v3.91 - resort umbrella pages route to park fireworks
+- Walt Disney World Resort and Universal Orlando Resort pages (the entities
+  tourists actually land on) now carry Insider Notes naming each park
+  nighttime show and linking the official calendar for today's times.
+
+## v3.90 - SeaWorld notes fix + player art removed
+- Fixed duplicate "seaworld orlando" key in WAYFIND_NOTES: the later key was
+  silently overriding the Ignite fireworks entry. Merged into one array, so
+  the fireworks link AND the six insider tips all render.
+- World Cup card reverted to the gold stick-figure juggler per founder call;
+  wf-player.png removed from the bundle. One-line change to bring it back.
+
 ## v3.89 - map menu unified with home + player art on WC card
 - Map now shows the same CategoryMenu as home (home untouched), always
   visible, neutral until a tile is tapped; a Search tile in the row drops the

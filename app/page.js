@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v3.89";
+const BUILD_ID = "v3.96";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -245,7 +245,7 @@ function applyAffinity(places, affinities) {
     boost = Math.max(-20, Math.min(boost, 30));
     // Distance penalty: 1 point per 3 miles, max 15 points — same as searchPlaces
     const distPenalty = Math.min(15, (p.distMi || 0) / 3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -601,6 +601,13 @@ const WAYFIND_PHOTOS = {
 const WAYFIND_NOTES = {
   // Entries are strings, or { text, url, label } when a tip has a working
   // link. Owner-vouched links only; community Tips stay plain text.
+  // Umbrella resort pages (where tourists actually land) route to the parks.
+  "walt disney world": [
+    { text: "Nightly fireworks run inside the individual parks, not resort-wide: Happily Ever After at Magic Kingdom, Luminous at EPCOT, and Fantasmic! at Hollywood Studios on select nights. Open each park's page in Wayfind for its note, and check today's official calendar for exact times \u2014 they change with the season.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park hours & showtimes" },
+  ],
+  "universal orlando resort": [
+    { text: "The nighttime shows live inside each park: CineSational on the Universal Studios lagoon and the Celestial Park finale at Epic Universe. Exact times vary by night \u2014 today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+  ],
   "magic kingdom park": [
     { text: "Happily Ever After fireworks light the castle most nights \u2014 start time changes with the season, so check today's official schedule before you plan dinner.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
   ],
@@ -609,9 +616,6 @@ const WAYFIND_NOTES = {
   ],
   "disney's hollywood studios": [
     { text: "Fantasmic! runs select nights and fills up \u2014 check today's schedule and line up early or book the dining package.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
-  ],
-  "seaworld orlando": [
-    { text: "Ignite fireworks play over the lagoon on summer and select nights \u2014 confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
   ],
   "universal studios florida": [
     { text: "CineSational: A Symphonic Spectacular closes most nights on the lagoon \u2014 showtime varies, check today's hours.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
@@ -625,7 +629,11 @@ const WAYFIND_NOTES = {
     "Chairs tend to book out about three days ahead, matching the typical three-night owner stay, so reserve the day before your check-in for the dates you want.",
     "Owner tip: for the Disney fireworks, ask for Tower 100 rooms 11423, 11424, or 11425 \u2014 they face Disney directly. Northwest-facing high floors in Tower 200 also carry the fireworks line.",
   ],
+  "disney's animal kingdom": [
+    { text: "The one Disney park with no fireworks \u2014 the animals come first. Evening entertainment and hours change often, so check today's official calendar before you plan the night.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+  ],
   "seaworld orlando": [
+    { text: "Ignite fireworks play over the lagoon on summer and select nights \u2014 confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
     "Sharks Underwater Grill is the meal worth planning around: full service beside the shark tank. Reserve in the SeaWorld app the morning you visit; walk-ins rarely clear on busy days.",
     "Eating two or more meals? The All-Day Dining Deal usually beats paying per meal at the quick-service spots. It does not cover Sharks Underwater Grill, so pair the deal for lunch with Sharks for dinner.",
     "Quick-service pecking order from regulars: Voyager's Smokehouse first, Seafire Grill second.",
@@ -651,6 +659,11 @@ function wayfindNotes(name) {
   const n = String(name || "").toLowerCase().trim();
   if (!n) return null;
   for (const k in WAYFIND_NOTES) { if (n.startsWith(k) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_NOTES[k]; }
+  // Family fallback: any Disney/Universal-branded entity (name variants,
+  // water parks, Disney Springs, hotels) inherits the resort-level schedule
+  // note, so the fireworks answer is never a needle hunt across variants.
+  if (n.indexOf("disney") >= 0) return WAYFIND_NOTES["walt disney world"];
+  if (n.indexOf("universal") >= 0) return WAYFIND_NOTES["universal orlando resort"];
   return null;
 }
 const WAYFIND_FEATURED = {
@@ -668,6 +681,15 @@ const WAYFIND_FEATURED = {
   "kbob": 12,
   "kbop": 12,
 };
+// Owner-curation signals from the Supabase place_signals view: just the
+// place_ids the owner account has liked. Owner likes boost globally (+4,
+// below WAYFIND_FEATURED tiers so deliberate curation still outranks a tap).
+// Community likes carry zero rank weight by design. Money never touches rank.
+const SIGNALS = { map: {}, loaded: false };
+function communityBoost(p) {
+  if (!p || !p.id) return 0;
+  return SIGNALS.map[p.id] ? 4 : 0;
+}
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -2615,6 +2637,13 @@ function PageInner() {
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail]);
+  useEffect(() => {
+    if (!supabase || SIGNALS.loaded) return;
+    supabase.from("place_signals").select("place_id").then(({ data }) => {
+      SIGNALS.loaded = true;
+      if (data) data.forEach((r) => { if (r && r.place_id) SIGNALS.map[r.place_id] = true; });
+    }, () => { SIGNALS.loaded = true; });
+  }, []);
   const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
   const [likedItems, setLikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch { return {}; } });
   const [dislikedItems, setDislikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch { return {}; } });
@@ -2644,21 +2673,11 @@ function PageInner() {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session && session.user ? session.user : null);
       try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
+      try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
 
-  // Send a magic-link sign-in email.
-  async function sendMagicLink() {
-    if (!supabase || !authEmail) return;
-    setAuthSending(true);
-    try {
-      const { error } = await supabase.auth.signInWithOtp({ email: authEmail.trim(), options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined } });
-      if (error) { showToast(error.message ? `Sign-in error: ${error.message}` : "Could not send link"); }
-      else { showToast("Check your email for a sign-in link"); setAuthOpen(false); setAuthEmail(""); }
-    } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not send link"); }
-    setAuthSending(false);
-  }
   // One-tap social sign-in. No email, no rate limits. Needs the provider enabled
   // in Supabase. Redirects out to Google/Apple and back to the app.
   async function signInWithProvider(provider) {
@@ -2680,7 +2699,7 @@ function PageInner() {
         : await supabase.auth.signInWithPassword(creds);
       if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
       else if (res.data && res.data.session) { showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
-      else { showToast("Account created. Check your email to confirm, then sign in."); }
+      else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
     setAuthSending(false);
   }
@@ -2972,9 +2991,9 @@ function PageInner() {
   // knockout calendar); topSlot=false renders mid-feed on off days.
   const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                      <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-34px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
+                      <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
-                      <span aria-hidden="true" style={{ position: "absolute", right: 10, bottom: 6, width: 62, height: 112, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 20, bottom: 60, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><img src="/wf-player.png" alt="" draggable={false} style={{ position: "absolute", left: 2, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></span>
+                      <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><img src="/wf-player.png" alt="" draggable={false} style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></span>
                       
                       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: _wc.stripe, animation: "wcGlow 2.8s ease-in-out infinite" }} />
                       <button onClick={(e) => { e.stopPropagation(); const _t = _wct.headline(locName); shareLink(_t, listShareUrl("hol-worldcup", _t, 0, locName, "worldcup"), () => showToast("Link copied"), "Where to watch the World Cup on Wayfind: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: "hol-worldcup" }); } catch (er) {} }); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
@@ -4153,7 +4172,7 @@ function PageInner() {
   const _mealPool = cat === "food" ? mealGate(places, sub) : places;
   const viewBase = sortBy === "near"
     ? [..._mealPool].filter((p) => sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi).sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
-    : Ranking.rankByConditions([..._mealPool], _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name));
+    : Ranking.rankByConditions([..._mealPool], _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p));
   const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
@@ -4426,7 +4445,7 @@ function PageInner() {
                       <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen(true)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
                     </div>
                   </div>
-                  <MapView places={mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+                  <MapView places={mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.accent : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
                     <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
@@ -4830,7 +4849,7 @@ function PageInner() {
                 const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
                 const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
                 const cityN = locName ? locName.split(",")[0] : "you";
-                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name);
+                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p);
                 const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).slice(0, 10);
                 const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
                 const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).slice(0, 10);
