@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.06";
+const BUILD_ID = "v4.07";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -310,31 +310,40 @@ function decodeList(str) {
 // rich preview card instead of showing the raw link as plain text.
 function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
 function shareLink(title, url, onCopied, text, onShared) {
-  // Deterministic sharing. Three rounds of fixes proved the code paths correct,
-  // yet iOS can still swallow the native sheet with no error and no rejection —
-  // unobservable from code. So the button no longer depends on it: every tap
-  // copies the link immediately inside the gesture (cannot silently fail), and
-  // the native sheet fires in parallel as a bonus when iOS shows it. Credit
-  // (giveaway/analytics) fires exactly once; a copied link is a legitimate
-  // share regardless of what the sheet does afterward.
+  // v4.07: the native sheet must be the FIRST activation-consuming API in the tap.
+  // v4.06 copied to the clipboard first; on iOS the clipboard write consumes the
+  // tap's transient user activation, so navigator.share() that followed was
+  // rejected (NotAllowedError) on every tap: toast showed, sheet never opened.
+  // Order inverted: touch devices get the sheet immediately, copy is the
+  // fallback only when the sheet is unsupported or fails (not on user cancel).
+  // Desktop keeps the old instant-copy behavior.
   let credited = false;
   const credit = () => { if (credited) return; credited = true; if (onShared) { try { onShared(); } catch (e) {} } };
   const legacyCopy = () => {
     try { const ta = document.createElement("textarea"); ta.value = url; ta.setAttribute("readonly", ""); ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); } catch (e) {}
     if (onCopied) onCopied(); credit();
   };
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(() => { if (onCopied) onCopied(); credit(); _sharePath("copied"); }, () => { legacyCopy(); _sharePath("copied_legacy"); });
-    } else { legacyCopy(); _sharePath("copied_legacy"); }
-  } catch (e) { legacyCopy(); _sharePath("copied_legacy"); }
-  if (typeof navigator !== "undefined" && navigator.share) {
+  const doCopy = () => {
     try {
-      const pr = navigator.share({ title, url });
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => { if (onCopied) onCopied(); credit(); _sharePath("copied"); }, () => { legacyCopy(); _sharePath("copied_legacy"); });
+      } else { legacyCopy(); _sharePath("copied_legacy"); }
+    } catch (e) { legacyCopy(); _sharePath("copied_legacy"); }
+  };
+  const touchDevice = (() => { try { return (typeof window !== "undefined") && (("ontouchstart" in window) || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)); } catch (e) { return false; } })();
+  if (touchDevice && typeof navigator !== "undefined" && navigator.share) {
+    try {
+      const payload = text ? { title, text, url } : { title, url };
+      const pr = navigator.share(payload);
       _sharePath("native_called");
-      if (pr && typeof pr.then === "function") pr.then(function () { _sharePath("native_ok"); credit(); }, function (e) { _sharePath(e && e.name === "AbortError" ? "native_cancel" : "native_reject"); });
-    } catch (e) { _sharePath("native_throw"); }
-  } else { _sharePath("nonative"); }
+      if (pr && typeof pr.then === "function") {
+        pr.then(function () { _sharePath("native_ok"); credit(); }, function (e) {
+          if (e && e.name === "AbortError") { _sharePath("native_cancel"); return; }
+          _sharePath("native_reject"); doCopy();
+        });
+      }
+    } catch (e) { _sharePath("native_throw"); doCopy(); }
+  } else { _sharePath(touchDevice ? "nonative" : "desktop_copy"); doCopy(); }
 }
 // Short random code for shareable list links (no ambiguous chars).
 function randCode() {
