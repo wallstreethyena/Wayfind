@@ -22,7 +22,12 @@ const FIELD_MASK = [
 const mem = globalThis.__wfPlacesMem || (globalThis.__wfPlacesMem = new Map());
 
 function sb() {
-  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // v4.13: normalize the env value. If it was saved as http:// the Supabase
+  // gateway 301s to https, and the fetch spec converts POST to GET on a 301,
+  // which turned every cache write into a silent no-op read. The client lib
+  // (lib/supabase.js) was already hardened this way; server consumers were not.
+  const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+  const url = raw ? (/^http:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : (/^https:\/\//i.test(raw) ? raw : "https://" + raw)) : "";
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
   return { url, key };

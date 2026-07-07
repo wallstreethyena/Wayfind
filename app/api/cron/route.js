@@ -22,7 +22,7 @@ async function check(name, url) {
 }
 
 async function sbCount(table, sinceIso, key) {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const base = String(process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^http:\/\//i, "https://").replace(/\/+$/, ""); // v4.13: http-> https, see places route note
   const apikey = key || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!base || !apikey) return null;
   try {
@@ -38,7 +38,7 @@ async function sbCount(table, sinceIso, key) {
 }
 
 async function userStats(svc) {
-  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const base = String(process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^http:\/\//i, "https://").replace(/\/+$/, ""); // v4.13: http-> https, see places route note
   if (!base || !svc) return null;
   try {
     const r = await fetch(base + "/rest/v1/rpc/user_stats", { method: "POST", headers: { apikey: svc, Authorization: "Bearer " + svc, "Content-Type": "application/json" }, body: "{}", cache: "no-store" });
