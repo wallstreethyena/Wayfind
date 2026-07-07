@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const CACHE_HOURS = 240; // 10 days shared TTL; Google ToS caps caching at 30 days
+const CACHE_HOURS = 192; // 8 days shared TTL; Google ToS caps caching at 30 days
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
