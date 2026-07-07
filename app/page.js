@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.23";
+const BUILD_ID = "v4.24";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -244,11 +244,10 @@ function applyAffinity(places, affinities) {
       boost += ((badgeW[b] || 0) / maxB) * 9;
     }
     boost = Math.max(-20, Math.min(boost, 30));
-    // v4.22: proximity matters more. First 5 miles free, then ~1 pt per mile,
-    // capped at 24 — nearby quality now beats distant quality unless the gap
-    // is huge, while sparse areas can still surface farther picks.
+    // v4.24: proximity dominates. First 4 miles free, then ~1.3 pts per mile,
+    // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
-    const distPenalty = _d <= 5 ? 0 : Math.min(24, (_d - 5) * 0.9);
+    const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
     return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) };
   }).sort((a, b) => b._ps - a._ps);
 }
@@ -1910,7 +1909,9 @@ function CultureCard({ metro, onFind }) {
     </div>
   );
   const Item = ({ name, story, query, viatorUrl }) => {
-    const book = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : (query ? Aff.experienceGoUrl(query, c.title) : null);
+    // v4.24: credibility rule — Book renders ONLY for hand-verified product
+    // links. Unverified items keep the in-app name tap; no promise we can't keep.
+    const book = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : null;
     return (
       <div style={{ marginBottom: 9 }}>
         <div style={{ fontSize: 13.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -1923,11 +1924,11 @@ function CultureCard({ metro, onFind }) {
   };
   return (
     <div onClick={() => setOpen(!open)} style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #06231E 0%, #0B3A31 60%, #06231E 100%)", border: "1px solid rgba(46,204,163,.35)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingRight: 74 }}>
         <span style={{ fontSize: 22 }}>{"\uD83C\uDF3A"}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase" }}>Know before you go · {c.tag}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Know before you go · {c.tag}</span>
       </div>
-      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>What {c.title} is known for</div>
+      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px", paddingRight: 74 }}>What {c.title} is known for</div>
       <div style={{ fontSize: 12.5, color: "#B9D6CE", marginTop: 5, lineHeight: 1.4 }}>{open ? "The local food, experiences, sights, and sayings that make this place itself." : "The dishes to try, the experiences not to miss, and how the locals talk. Tap to open."}</div>
       {open && (
         <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
@@ -1962,7 +1963,7 @@ function CultureCard({ metro, onFind }) {
           <div style={{ fontSize: 10, color: "#7FA79C", marginTop: 12 }}>Wayfind may earn a commission from partner links</div>
         </div>
       )}
-      <div style={{ position: "absolute", top: 14, right: 14, fontSize: 12, color: "#8ED6C4", fontWeight: 800 }}>{open ? "Close" : "Open"}</div>
+      <div style={{ position: "absolute", top: 12, right: 12, fontSize: 11.5, fontWeight: 800, color: "#0D1117", background: "#2EC9A6", padding: "5px 13px", borderRadius: 999, boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>{open ? "Close" : "Open"}</div>
     </div>
   );
 }
@@ -4787,7 +4788,11 @@ function PageInner() {
             heroWhy.push("strong " + whyPick + " pick");
           }
           const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
-          const feedListS = sortBy === "rated" ? feedList0.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0;
+          // v4.24 near-first rule: with 5+ options inside 12 miles, nothing past
+          // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
+          const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
+          const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
+          const feedListS = sortBy === "rated" ? feedList0P.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
           const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
           const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
