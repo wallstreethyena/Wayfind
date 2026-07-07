@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const CACHE_HOURS = 24; // shared TTL; Google ToS-safe session-scale caching
+const CACHE_HOURS = 240; // 10 days shared TTL; Google ToS caps caching at 30 days
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
@@ -59,21 +59,24 @@ async function cacheSet(k, v) {
   } catch {}
 }
 
-export async function POST(req) {
+// Edge cache: 1 day fresh + 9 days stale-while-revalidate. Repeat queries are
+// served from Vercel's CDN without invoking this function at all. Layered with
+// the browser cache (10d) and Supabase (10d), most traffic never reaches Google.
+const EDGE_HEADERS = { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" };
+
+async function handleSearch(params) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
-  let body;
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "bad request" }, { status: 400 }); }
-  const q = String(body.q || "").slice(0, 120).trim();
-  const lat = Number(body.lat), lng = Number(body.lng);
-  const radius = Math.min(Math.max(Number(body.radius) || 24000, 500), 50000);
-  const n = Math.min(Math.max(Number(body.n) || 20, 1), 20);
+  const q = String(params.q || "").slice(0, 120).trim();
+  const lat = Number(params.lat), lng = Number(params.lng);
+  const radius = Math.min(Math.max(Number(params.radius) || 24000, 500), 50000);
+  const n = Math.min(Math.max(Number(params.n) || 20, 1), 20);
   if (!q || !isFinite(lat) || !isFinite(lng)) return NextResponse.json({ error: "bad request" }, { status: 400 });
 
   // Round the bias point to ~1km so nearby users share cache entries.
   const k = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
   const hit = await cacheGet(k);
-  if (hit) return NextResponse.json({ places: hit, cached: true });
+  if (hit) return NextResponse.json({ places: hit, cached: true }, { headers: EDGE_HEADERS });
 
   try {
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -85,8 +88,19 @@ export async function POST(req) {
     const data = await r.json();
     const places = data.places || [];
     if (places.length) await cacheSet(k, places);
-    return NextResponse.json({ places, cached: false });
+    return NextResponse.json({ places, cached: false }, { headers: EDGE_HEADERS });
   } catch {
     return NextResponse.json({ error: "upstream failure" }, { status: 502 });
   }
+}
+
+export async function GET(req) {
+  const u = new URL(req.url);
+  return handleSearch(Object.fromEntries(u.searchParams));
+}
+
+export async function POST(req) {
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "bad request" }, { status: 400 }); }
+  return handleSearch(body);
 }
