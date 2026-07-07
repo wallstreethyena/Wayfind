@@ -14,7 +14,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.13";
+const BUILD_ID = "v4.14";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5760,7 +5760,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tu = Aff.ticketsUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tickets_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "9px 0 7px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>Tickets & tours ↗<span style={{ display: "block", fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2 }}>Wayfind may earn a commission</span></a> : null; })()}</>
+                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tk = Aff.ticketsUrl(detail); const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "9px 0 7px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}<span style={{ display: "block", fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2 }}>Wayfind may earn a commission</span></a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
