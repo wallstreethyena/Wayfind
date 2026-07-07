@@ -43,8 +43,16 @@ export default function GuidePage({ params }) {
   const g = GUIDES[params.slug];
   if (!g) return <main style={S.page}><h1 style={S.h1}>Guide not found</h1><p style={S.p}><a href="/" style={S.footerLink}>Back to Wayfind</a></p></main>;
   const appUrl = (name) => "/?q=" + encodeURIComponent(name);
+  // v4.18: FAQ structured data — makes these guides eligible for expanded
+  // FAQ rich results in search, which lifts click-through beyond position.
+  const faqLd = g.faq && g.faq.length ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: g.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+  } : null;
   return (
     <main style={S.page}>
+      {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       <div style={S.kicker}>Wayfind Guides · {g.region || "Orlando"}</div>
       <h1 style={S.h1}>{g.title}</h1>
       <div style={S.meta}>Updated {g.updated} · By the Wayfind editorial team</div>
