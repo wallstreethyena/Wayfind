@@ -8,9 +8,10 @@
     "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/page.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\"",
     "check:dupes": "node scripts/check-dupes.mjs",
     "check:env": "node scripts/check-env.mjs",
-    "prebuild": "npm run check:jsx && npm run check:dupes && npm run check:env && node scripts/test-tags.mjs",
+    "prebuild": "npm run check:version && npm run check:jsx && npm run check:dupes && npm run check:env && node scripts/test-tags.mjs",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "check:version": "node scripts/check-version.mjs"
   },
   "devDependencies": {
     "typescript": "5.4.5"

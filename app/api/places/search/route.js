@@ -10,7 +10,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const CACHE_HOURS = 192; // 8 days shared TTL; Google ToS caps caching at 30 days
+const CACHE_HOURS = 240; // 10 days shared TTL; Google ToS caps caching at 30 days
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",
   "places.userRatingCount", "places.priceLevel", "places.priceRange",
@@ -45,18 +45,23 @@ async function cacheGet(k) {
   } catch { return null; }
 }
 
+let _lastWrite = null; // v4.12 debug: last Supabase write outcome
 async function cacheSet(k, v) {
   const exp = Date.now() + CACHE_HOURS * 3600000;
   mem.set(k, { v, exp });
   const s = sb();
-  if (!s) return;
+  if (!s) { _lastWrite = { at: Date.now(), ok: false, why: "no supabase env" }; return; }
   try {
-    await fetch(`${s.url}/rest/v1/wf_places_cache`, {
+    const r = await fetch(`${s.url}/rest/v1/wf_places_cache`, {
       method: "POST",
       headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" },
       body: JSON.stringify({ k, v, exp: new Date(exp).toISOString() }),
     });
-  } catch {}
+    const txt = await r.text();
+    _lastWrite = { at: Date.now(), ok: r.ok, status: r.status, detail: r.ok ? undefined : txt.slice(0, 300) };
+  } catch (e) {
+    _lastWrite = { at: Date.now(), ok: false, why: String(e && e.message || e).slice(0, 300) };
+  }
 }
 
 // Edge cache: 1 day fresh + 9 days stale-while-revalidate. Repeat queries are
@@ -75,8 +80,10 @@ async function handleSearch(params) {
 
   // Round the bias point to ~1km so nearby users share cache entries.
   const k = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
+  const wantDebug = String(params.debug || "") === "1";
+  const dbg = () => wantDebug ? { lastWrite: _lastWrite, memSize: mem.size, supabaseConfigured: !!sb() } : undefined;
   const hit = await cacheGet(k);
-  if (hit) return NextResponse.json({ places: hit, cached: true }, { headers: EDGE_HEADERS });
+  if (hit) return NextResponse.json({ places: hit, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
 
   try {
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
@@ -88,7 +95,7 @@ async function handleSearch(params) {
     const data = await r.json();
     const places = data.places || [];
     if (places.length) await cacheSet(k, places);
-    return NextResponse.json({ places, cached: false }, { headers: EDGE_HEADERS });
+    return NextResponse.json({ places, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
     return NextResponse.json({ error: "upstream failure" }, { status: 502 });
   }
