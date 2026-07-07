@@ -21,6 +21,7 @@ const tryCall = (fn, ...args) => { if (typeof fn === "function") { fn(...args); 
 tryCall(aff.experienceSearchUrl, "airboat tour", "Orlando");
 tryCall(aff.hotelSearchUrl, "Contemporary Resort Orlando");
 tryCall(aff.viatorDirectUrl, "https://www.viator.com/tours/Orlando/x/d663-1");
+tryCall(aff.experienceGoUrl, "airboat tour", "Orlando");
 tryCall(aff.hotelUrl, { name: "Test Hotel", types: ["lodging"], address: "Orlando" });
 
 // walk every culture + guide item through the same link builders prerender uses

@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.22";
+const BUILD_ID = "v4.23";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1910,7 +1910,7 @@ function CultureCard({ metro, onFind }) {
     </div>
   );
   const Item = ({ name, story, query, viatorUrl }) => {
-    const book = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : null;
+    const book = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : (query ? Aff.experienceGoUrl(query, c.title) : null);
     return (
       <div style={{ marginBottom: 9 }}>
         <div style={{ fontSize: 13.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

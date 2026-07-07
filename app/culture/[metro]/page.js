@@ -4,7 +4,7 @@
 // and pass authority to the guides and the app through internal links.
 import { CULTURE } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
-import { experienceSearchUrl, viatorDirectUrl } from "../../../lib/affiliates";
+import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 
 export function generateStaticParams() {
   return Object.keys(CULTURE).map((metro) => ({ metro }));
@@ -47,7 +47,7 @@ export default function CulturePage({ params }) {
       {c.eat.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Don&apos;t leave without</h2>
       {c.do.map((x, i) => {
-        const url = x.viatorUrl ? viatorDirectUrl(x.viatorUrl) : (x.query ? experienceSearchUrl(x.query, c.title) : null);
+        const url = x.viatorUrl ? viatorDirectUrl(x.viatorUrl) : (x.query ? experienceGoUrl(x.query, c.title) : null);
         return (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>Book this experience ↗</a> : null}</div>);
       })}
       <h2 style={S.h2}>Worth your eyes</h2>

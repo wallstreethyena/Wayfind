@@ -5,7 +5,7 @@
 // the guide index for the middleman internal-link structure.
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
-import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl } from "../../../lib/affiliates";
+import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 
 export function generateStaticParams() {
   return Object.keys(GUIDES).map((slug) => ({ slug }));
@@ -59,7 +59,7 @@ export default function GuidePage({ params }) {
       <p style={S.p}>{g.intro}</p>
       <div style={S.disclosure}>Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
       {g.picks.map((pick, i) => {
-        const book = pick.viatorUrl ? viatorDirectUrl(pick.viatorUrl) : (pick.bookQuery ? experienceSearchUrl(pick.bookQuery, g.region || "Orlando") : null);
+        const book = pick.viatorUrl ? viatorDirectUrl(pick.viatorUrl) : (pick.bookQuery ? experienceGoUrl(pick.bookQuery, g.region || "Orlando") : null);
         const rates = pick.hotel ? hotelSearchUrl(pick.name + " " + (g.region || "Orlando")) : null;
         return (
           <section key={i}>
