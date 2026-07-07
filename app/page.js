@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.18";
+const BUILD_ID = "v4.19";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1897,72 +1897,72 @@ function similarPlaces(pool, seed, n, badgesOf) {
 // from lib/culture.js; "do" items link out through the affiliate experience
 // search when a partner PID exists. Collapsed by default, expands in place.
 function CultureCard({ metro }) {
-  const [openSec, setOpenSec] = useState(null); // v4.18: chip-driven "decoded" card
+  const [open, setOpen] = useState(false);
   const c = Culture.CULTURE[metro];
   if (!c) return null;
-  const T = { bg: "linear-gradient(135deg, #06231E 0%, #0B3A31 60%, #06231E 100%)", border: "1px solid rgba(46,204,163,.35)", accent: "#2EC9A6", dim: "#8ED6C4", text: "#B9D6CE", white: "#FFFFFF" };
-  const SECTIONS = [
-    { id: "eat", chip: "\uD83C\uDF7D Eat the icon", title: "Eat like a local", items: c.eat },
-    { id: "do", chip: "\uD83C\uDFAF Don't miss", title: "Don't leave without", items: c.do },
-    { id: "see", chip: "\uD83D\uDC40 See the legend", title: "Worth your eyes", items: c.see },
-    { id: "say", chip: "\uD83D\uDCAC Talk local", title: "Talk like a local", items: null },
-    { id: "oops", chip: "\u26A0\uFE0F Rookie mistakes", title: "Rookie mistakes", items: null },
-  ];
-  const Item = ({ name, story, query }) => {
-    const url = query ? Aff.experienceSearchUrl(query, c.title) : null;
+  const Sec = ({ title, children }) => (
+    <div style={{ marginTop: 13 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", marginBottom: 6 }}>{title}</div>
+      {children}
+    </div>
+  );
+  const Item = ({ name, story, query, viatorUrl }) => {
+    const url = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : (query ? Aff.experienceSearchUrl(query, c.title) : null);
     return (
-      <div style={{ marginBottom: 10 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: T.white, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      <div style={{ marginBottom: 9 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           {name}
-          {url ? <a href={url} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEvent("culture_book", null, { metro, q: query }); } catch (er) {} }} style={{ fontSize: 10.5, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: T.accent, color: "#0D1117", textDecoration: "none" }}>Book \u2197</a> : null}
+          {url ? <a href={url} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEvent("culture_book", null, { metro, q: query }); } catch (er) {} }} style={{ fontSize: 10.5, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
         </div>
-        <div style={{ fontSize: 12, color: T.text, lineHeight: 1.45, marginTop: 2 }}>{story}</div>
+        <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.45, marginTop: 2 }}>{story}</div>
       </div>
     );
   };
   return (
-    <div style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: T.bg, border: T.border, position: "relative", overflow: "hidden" }}>
+    <div onClick={() => setOpen(!open)} style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #06231E 0%, #0B3A31 60%, #06231E 100%)", border: "1px solid rgba(46,204,163,.35)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <span style={{ fontSize: 22 }}>{"\uD83C\uDF3A"}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: T.dim, textTransform: "uppercase" }}>Know before you go \u00B7 {c.tag}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase" }}>Know before you go · {c.tag}</span>
       </div>
-      <div style={{ fontSize: 21, fontWeight: 800, color: T.white, lineHeight: 1.15, letterSpacing: "-0.3px" }}>{c.title}, decoded</div>
-      <div style={{ fontSize: 12.5, color: T.text, marginTop: 5, lineHeight: 1.4 }}>The dishes, the moves, the words, and the mistakes that separate visitors from locals.</div>
-      <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 12 }}>
-        {SECTIONS.map((sec) => (
-          <button key={sec.id} onClick={() => { setOpenSec(openSec === sec.id ? null : sec.id); try { logEvent("culture_chip", null, { metro, sec: sec.id }); } catch (er) {} }} style={{ padding: "7px 13px", borderRadius: 999, fontSize: 12, fontWeight: 800, cursor: "pointer", background: openSec === sec.id ? T.accent : "rgba(46,201,166,.12)", color: openSec === sec.id ? "#0D1117" : T.dim, border: `1px solid ${openSec === sec.id ? T.accent : "rgba(46,201,166,.35)"}` }}>{sec.chip}</button>
-        ))}
-      </div>
-      {openSec && (() => {
-        const sec = SECTIONS.find((x) => x.id === openSec);
-        return (
-          <div style={{ marginTop: 14 }}>
-            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: T.dim, textTransform: "uppercase", marginBottom: 8 }}>{sec.title}</div>
-            {sec.id === "say" ? c.say.map((x, i) => (
-              <div key={i} style={{ marginBottom: 7 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: T.white }}>{x.phrase}</span>
-                <span style={{ fontSize: 12, color: T.text }}> \u2014 {x.meaning}</span>
-              </div>
-            )) : sec.id === "oops" ? (c.mistakes || []).map((m, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                <span style={{ color: "#F2C14E", fontSize: 13 }}>{"\u26A0\uFE0F"}</span>
-                <span style={{ fontSize: 12.5, color: T.text, lineHeight: 1.45 }}>{m}</span>
-              </div>
-            )) : sec.items.map((x, i) => <Item key={i} {...x} />)}
-            {sec.id === "oops" && c.move ? (
-              <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 12, background: "rgba(46,201,166,.1)", border: "1px solid rgba(46,201,166,.3)" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: T.dim, textTransform: "uppercase", marginBottom: 4 }}>The local move</div>
-                <div style={{ fontSize: 12.5, color: T.text, lineHeight: 1.5 }}>{c.move}</div>
-              </div>
-            ) : null}
-            {(sec.id === "do") ? <div style={{ fontSize: 10, color: "#7FA79C", marginTop: 8 }}>Wayfind may earn a commission from partner links</div> : null}
-          </div>
-        );
-      })()}
+      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>What {c.title} is known for</div>
+      <div style={{ fontSize: 12.5, color: "#B9D6CE", marginTop: 5, lineHeight: 1.4 }}>{open ? "The local food, experiences, sights, and sayings that make this place itself." : "The dishes to try, the experiences not to miss, and how the locals talk. Tap to open."}</div>
+      {open && (
+        <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
+          <Sec title="Eat like a local">{c.eat.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Don't leave without">{c.do.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Worth your eyes">{c.see.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Talk like a local">{c.say.map((x, i) => (
+            <div key={i} style={{ marginBottom: 7 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#FFFFFF" }}>{x.phrase}</span>
+              <span style={{ fontSize: 12, color: "#B9D6CE" }}> — {x.meaning}</span>
+            </div>
+          ))}</Sec>
+          <Sec title="Good to know">
+            <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.5 }}>{c.know}</div>
+          </Sec>
+          {c.mistakes && c.mistakes.length ? (
+            <Sec title="Rookie mistakes">
+              {c.mistakes.map((m, i) => (
+                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7 }}>
+                  <span style={{ color: "#F2C14E", fontSize: 12.5 }}>{"\u26A0\uFE0F"}</span>
+                  <span style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.45 }}>{m}</span>
+                </div>
+              ))}
+              {c.move ? (
+                <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: 12, background: "rgba(46,201,166,.1)", border: "1px solid rgba(46,201,166,.3)" }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", marginBottom: 4 }}>The local move</div>
+                  <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.5 }}>{c.move}</div>
+                </div>
+              ) : null}
+            </Sec>
+          ) : null}
+          <div style={{ fontSize: 10, color: "#7FA79C", marginTop: 12 }}>Wayfind may earn a commission from partner links</div>
+        </div>
+      )}
+      <div style={{ position: "absolute", top: 14, right: 14, fontSize: 12, color: "#8ED6C4", fontWeight: 800 }}>{open ? "Close" : "Open"}</div>
     </div>
   );
 }
-
 function relatedPicks(allSrc, subject, n) {
   if (!subject) return [];
   const subCat = primaryCategory(subject) || "";
