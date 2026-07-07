@@ -6,6 +6,7 @@ import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
+import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
@@ -14,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.14";
+const BUILD_ID = "v4.15";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1866,9 +1867,15 @@ function similarPlaces(pool, seed, n, badgesOf) {
   const sPrice = seed.priceNum;
   let sLean = null; try { sLean = Ranking.venueLean(seed); } catch (e) {}
   const scored = [];
+  // v4.15: tours, parks, and spas never cross-match. primaryCategory buckets
+  // all of "Activities" together, which is how a park ended up as "more like"
+  // a tiki cruise. Identity is the finer, trustworthy signal.
+  const sId = Tags.resolveIdentity(seed.types || []);
   for (const c of (pool || [])) {
     if (!c || c.id === seed.id) continue;
     if (primaryCategory(c) !== sCat) continue;
+    const cId = Tags.resolveIdentity(c.types || []);
+    if (sId !== cId && (sId === "tour" || cId === "tour" || sId === "park" || cId === "park" || sId === "spa" || cId === "spa")) continue;
     const cBadges = badgesOf ? badgesOf(c) : new Set();
     let shared = 0; sBadges.forEach((k) => { if (cBadges.has(k)) shared++; });
     const cCuisine = Dining.cuisineLabel(c);
@@ -1884,6 +1891,61 @@ function similarPlaces(pool, seed, n, badgesOf) {
   }
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, n).map((x) => x.p);
+}
+
+// v4.15 — Culture card: what this destination is known for. Editorial content
+// from lib/culture.js; "do" items link out through the affiliate experience
+// search when a partner PID exists. Collapsed by default, expands in place.
+function CultureCard({ metro }) {
+  const [open, setOpen] = useState(false);
+  const c = Culture.CULTURE[metro];
+  if (!c) return null;
+  const Sec = ({ title, children }) => (
+    <div style={{ marginTop: 13 }}>
+      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", marginBottom: 6 }}>{title}</div>
+      {children}
+    </div>
+  );
+  const Item = ({ name, story, query }) => {
+    const url = query ? Aff.experienceSearchUrl(query, c.title) : null;
+    return (
+      <div style={{ marginBottom: 9 }}>
+        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          {name}
+          {url ? <a href={url} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEvent("culture_book", null, { metro, q: query }); } catch (er) {} }} style={{ fontSize: 10.5, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
+        </div>
+        <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.45, marginTop: 2 }}>{story}</div>
+      </div>
+    );
+  };
+  return (
+    <div onClick={() => setOpen(!open)} style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #06231E 0%, #0B3A31 60%, #06231E 100%)", border: "1px solid rgba(46,204,163,.35)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+        <span style={{ fontSize: 22 }}>{"\uD83C\uDF3A"}</span>
+        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase" }}>Know before you go · {c.tag}</span>
+      </div>
+      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>What {c.title} is known for</div>
+      <div style={{ fontSize: 12.5, color: "#B9D6CE", marginTop: 5, lineHeight: 1.4 }}>{open ? "The local food, experiences, sights, and sayings that make this place itself." : "The dishes to try, the experiences not to miss, and how the locals talk. Tap to open."}</div>
+      {open && (
+        <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
+          <Sec title="Eat like a local">{c.eat.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Don't leave without">{c.do.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Worth your eyes">{c.see.map((x, i) => <Item key={i} {...x} />)}</Sec>
+          <Sec title="Talk like a local">{c.say.map((x, i) => (
+            <div key={i} style={{ marginBottom: 7 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: "#FFFFFF" }}>{x.phrase}</span>
+              <span style={{ fontSize: 12, color: "#B9D6CE" }}> — {x.meaning}</span>
+            </div>
+          ))}</Sec>
+          <Sec title="Good to know">
+            <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.5 }}>{c.know}</div>
+          </Sec>
+          <div style={{ fontSize: 10, color: "#7FA79C", marginTop: 12 }}>Wayfind may earn a commission from partner links</div>
+        </div>
+      )}
+      <div style={{ position: "absolute", top: 14, right: 14, fontSize: 12, color: "#8ED6C4", fontWeight: 800 }}>{open ? "Close" : "Open"}</div>
+    </div>
+  );
 }
 
 function relatedPicks(allSrc, subject, n) {
@@ -4817,6 +4879,7 @@ function PageInner() {
                           <div style={{ display: "inline-flex", alignItems: "center", marginTop: 12, padding: "8px 16px", borderRadius: 999, background: _c.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800 }}>See the picks ›</div>
                         </div>
                       ); })()}
+                      {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <CultureCard metro={_cm} /> : null; })()}
                       {(giveawayLive() || giveawaySoon()) && (
                         <div style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
@@ -5760,7 +5823,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tk = Aff.ticketsUrl(detail); const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "9px 0 7px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}<span style={{ display: "block", fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2 }}>Wayfind may earn a commission</span></a> : null; })()}</>
+                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tk = Aff.ticketsUrl(detail); const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -5772,6 +5835,7 @@ function PageInner() {
                 </>)}
                 <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
+              {(Aff.ticketsUrl(detail) || Aff.hotelUrl(detail)) ? <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission from partner links</div> : null}
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
               <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
