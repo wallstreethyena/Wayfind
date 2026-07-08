@@ -11,7 +11,7 @@ for (const f of ["affiliates", "culture", "guides", "site", "tags"]) {
   copyFileSync(`lib/${f}.js`, join(tmp, `${f}.mjs`));
 }
 const aff = await import(join(tmp, "affiliates.mjs"));
-const { CULTURE, CAT_NOTES } = await import(join(tmp, "culture.mjs"));
+const { CULTURE, CAT_NOTES, TOWN_NOTES } = await import(join(tmp, "culture.mjs"));
 const { GUIDES } = await import(join(tmp, "guides.mjs"));
 await import(join(tmp, "site.mjs"));
 await import(join(tmp, "tags.mjs"));
@@ -36,6 +36,12 @@ for (const [m, cats] of Object.entries(CAT_NOTES || {})) {
   for (const [k, n] of Object.entries(cats)) {
     if (!n.line) throw new Error(`catNotes ${m}.${k} missing line`);
     for (const x of n.items || []) { if (x.viatorUrl) tryCall(aff.viatorDirectUrl, x.viatorUrl); if (x.query) tryCall(aff.experienceSearchUrl, x.query, m); }
+  }
+}
+for (const [t, cats] of Object.entries(TOWN_NOTES || {})) {
+  for (const [k, n] of Object.entries(cats)) {
+    if (!n.line) throw new Error(`townNotes ${t}.${k} missing line`);
+    for (const x of n.items || []) { if (x.viatorUrl) tryCall(aff.viatorDirectUrl, x.viatorUrl); if (x.query) tryCall(aff.experienceSearchUrl, x.query, t); }
   }
 }
 for (const [slug, g] of Object.entries(GUIDES)) {

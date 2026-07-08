@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.29";
+const BUILD_ID = "v4.30";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -993,17 +993,20 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 // mistake for that context. Replaces the standalone culture card.
 function AreaInsight({ metro, cat, town, onFind }) {
   const [openIt, setOpenIt] = useState(false);
-  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo" };
+  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo", events: "events" };
   const key = map[cat];
-  const notes = metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null;
+  // v4.30: a town with its own researched notes outranks the metro story.
+  const tn = town && Culture.TOWN_NOTES && Culture.TOWN_NOTES[String(town).toLowerCase()];
+  const notes = (tn && key && tn[key]) || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
   const c = metro ? Culture.CULTURE[metro] : null;
   if (!notes || !c) return null;
+  const isTown = !!(tn && key && tn[key]);
   return (
     <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
       <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
         <span style={{ fontSize: 15, lineHeight: "19px" }}>{"\uD83C\uDF3A"}</span>
         <span style={{ flex: 1, fontSize: 12.5, color: "#B9D6CE", lineHeight: 1.45 }}>
-          <span style={{ fontWeight: 800, color: "#FFFFFF" }}>Around {town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title}: </span>
+          <span style={{ fontWeight: 800, color: "#FFFFFF" }}>{isTown ? town : "Around " + (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title)}: </span>
           {notes.line}
         </span>
         <span style={{ fontSize: 10, color: "#8ED6C4", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s", marginTop: 3 }}>{"\u25BC"}</span>
@@ -5698,6 +5701,7 @@ function PageInner() {
             <div>
               <div style={{ paddingTop: 4, marginBottom: 12 }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
+                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Concerts, sports, and shows worth building a night around</div>
               </div>
               {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
