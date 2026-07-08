@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.47";
+const BUILD_ID = "v4.49";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -908,6 +908,27 @@ const EXPERIENCES = {
   shows:     { icon: "🎭", label: "Shows & tickets", title: "Shows & Live Events", cat: "attractions", keyword: "shows theater dinner show live", lead: "Dinner shows, theater, and live entertainment worth booking." },
   budget:    { icon: "🪙", label: "On a budget",     title: "Great on a Budget", cat: "attractions", keyword: "free cheap affordable things to do", lead: "Big fun that goes easy on the wallet." },
 };
+
+// ── PROTECTED: revenue hero cards (locked by scripts/check-cards.mjs) ──────
+// Rules that must never regress:
+//  (1) Copy is location-neutral: the city is passed in, never hardcoded.
+//  (2) All five cards open the themed Best-of style sheet, never the legacy
+//      experience screen.
+//  (3) Their lists fetch their own wide-radius results (attractions/hotels an
+//      hour out must appear), independent of the food-heavy local pool.
+let CITY_NOW = "you";
+function cityFixM(s) { return String(s || "").replace(/Best of Sarasota/g, "Best of " + CITY_NOW); }
+const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"];
+function revenueExpMeta(key, city) {
+  const M = {
+    family:        { accent: C.green,  hook: "The days out the kids will not stop talking about.", hl: "kids", sub: "Best family picks near " + city, cta: "See family picks \u2192" },
+    entertainment: { accent: C.purple, hook: "The can't-miss stops that make the trip.", hl: "can't-miss", sub: "Attractions and things to do near " + city, cta: "See attractions \u2192" },
+    stays:         { accent: C.blue,   hook: "Where to stay near everything you came for.", hl: "stay", sub: "Compare rates near " + city + ", book in a tap", cta: "Find a stay \u2192" },
+    shows:         { accent: C.pink,   hook: "Live shows worth planning the night around.", hl: "shows", sub: "Live entertainment near " + city, cta: "See shows \u2192" },
+    budget:        { accent: C.gold,   hook: "Big fun that goes easy on the wallet.", hl: "wallet", sub: "Free and cheap favorites near " + city, cta: "See budget picks \u2192" },
+  };
+  return M[key] || null;
+}
 
 // Run a place through the FULL badge engine, not just the badge a user tapped.
 // Every qualifying badge is found from real Google data (rating, review volume,
@@ -2640,6 +2661,10 @@ function PageInner() {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
+  // PROTECTED (check-cards.mjs): every card label follows the user's location.
+  const cityNow = locName ? locName.split(",")[0] : "you";
+  CITY_NOW = cityNow;
+  const cityFix = cityFixM;
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [places, setPlaces] = useState([]);
@@ -2843,6 +2868,12 @@ function PageInner() {
     return () => { live = false; };
   }, [detail && detail.id]);
   const [hookDetail, setHookDetail] = useState(null);
+  // Sheet-local filter: the browse-style SortControl inside every themed list.
+  const [hkSort, setHkSort] = useState("best");
+  const [hkMi, setHkMi] = useState(60);
+  const [hkDeals, setHkDeals] = useState(false);
+  const [hkFilterOpen, setHkFilterOpen] = useState(false);
+  useEffect(() => { setHkSort("best"); setHkMi(60); setHkDeals(false); setHkFilterOpen(false); }, [hookDetail && hookDetail.id]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
     // AI hooks take priority — they use real place data for truly provocative copy.
@@ -3145,8 +3176,17 @@ function PageInner() {
     }, 900);
   }
 
+  // PROTECTED (check-cards.mjs): revenue keys open the themed Best-of style
+  // sheet — never the legacy experience screen.
+  function openExpSheet(key) {
+    const e = EXPERIENCES[key]; if (!e) return;
+    const m = revenueExpMeta(key, cityNow) || {};
+    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, places: null });
+    try { window.scrollTo(0, 0); } catch {}
+  }
   function openExperience(key) {
     if (!EXPERIENCES[key]) return;
+    if (REVENUE_EXP_KEYS.includes(key)) { openExpSheet(key); return; }
     setActiveBadge(key);
     setExpPlaces(null);
     setExpOpenOnly(false);
@@ -3831,6 +3871,34 @@ function PageInner() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
+
+  // PROTECTED (check-cards.mjs): themed-sheet lists for revenue cards fetch
+  // their own wide-radius results and never depend on the local food pool.
+  useEffect(() => {
+    const hd = hookDetail;
+    if (!hd || !hd.fetchKey || hd.places || !center) return;
+    const exp = EXPERIENCES[hd.fetchKey];
+    if (!exp) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, 110000, "all", exp.keyword || "");
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
+        let results;
+        if (exp.filter) {
+          const passed = raw.filter(exp.filter);
+          if (passed.length >= 5) results = sortFit(passed);
+          else { const ids = new Set(passed.map((p) => p.id)); results = [...sortFit(passed), ...sortFit(raw.filter((p) => !ids.has(p.id)))]; }
+        } else results = sortFit(raw);
+        results = results.slice(0, 20);
+        if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: results } : cur); loadBlurbs(results); }
+      } catch (e) {
+        if (!cancelled) setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: [] } : cur);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center]);
 
   // Surprise Me: an honest curator. Picks one standout for right now using the
   // signals we actually have: time of day, open status, distance, review quality.
@@ -4537,7 +4605,7 @@ function PageInner() {
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingTop: 10, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
             {HOME_CHIPS.map((k) => { const e = EXPERIENCES[k]; if (!e) return null; return (
               <button key={k} onClick={() => openExperience(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                <span>{e.icon}</span><span>{e.label}</span>
+                <span>{e.icon}</span><span>{cityFix(e.label)}</span>
               </button>
             ); })}
           </div>
@@ -5092,24 +5160,17 @@ function PageInner() {
                 const themeEng = {};
                 try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
                 restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
-                const EXP_HERO_COPY = {
-                  family: { hook: "Theme parks, gator ziplines, and splash pads the kids will not stop talking about.", hl: "kids", sub: "LEGOLAND, Gatorland and more, about an hour away", cta: "See family picks →" },
-                  entertainment: { hook: "Airboats, dinosaurs, and the can't-miss stops that make the trip.", hl: "can't-miss", sub: "Tours and attractions worth the drive", cta: "See attractions →" },
-                  stays: { hook: "Where to stay near the fun, from resorts to easy overnights.", hl: "stay", sub: "Compare rates, book in a tap", cta: "Find a stay →" },
-                  shows: { hook: "Pirate battles, Blue Man Group, and dinner shows worth the night out.", hl: "shows", sub: "Live entertainment near Orlando", cta: "See shows →" },
-                  budget: { hook: "Big fun that goes easy on the wallet.", hl: "wallet", sub: "Free and cheap things people actually love", cta: "See budget picks →" },
-                };
                 const mkHook = (a) => {
                   if (!a.place) {
-                    const c = EXP_HERO_COPY[a.key] || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore →" };
-                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: a.e.label, expKey: a.key, highlightWord: c.hl, hook: c.hook, subtitle: c.sub, cta: c.cta, metaLine: null };
+                    const m = revenueExpMeta(a.key, cityHero) || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore \u2192" };
+                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: m.hl, hook: m.hook, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
                   }
                   const t = themedHook(a.key, a.place);
                   const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
                   const cnt = members.length;
                   const avg = Dining.avgCostForTwo(members);
                   const meta = [cnt > 1 ? cnt + " spots" : null, avg ? avg.text : null].filter(Boolean).join("  ·  ");
-                  return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: a.e.label, theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: t.hook, subtitle: t.sub, cta: cnt > 1 ? ("See all " + cnt + " →") : t.cta, metaLine: meta || null, themeTitle: a.e.title, themeBody: a.e.lead };
+                  return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, placeId: a.place.id, highlightWord: t.hl, hook: cityFix(t.hook), subtitle: cityFix(t.sub), cta: cnt > 1 ? ("See all " + cnt + " →") : cityFix(t.cta), metaLine: meta || null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead };
                 };
                 const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
                 return (
@@ -5207,7 +5268,7 @@ function PageInner() {
                       })()}
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
-                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.expKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero" }); } catch (e) {} openExperience(h.expKey); } else openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
+                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.fetchKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero" }); } catch (e) {} } openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
 
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick" }); } catch (e) {} setMenuSheet("pick"); }} />
                   </div>
@@ -5467,7 +5528,7 @@ function PageInner() {
                       {badges.length > 0 && (
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
                           {badges.map((b) => (
-                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label} ›</button>
+                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
                           ))}
                         </div>
                       )}
@@ -5545,16 +5606,16 @@ function PageInner() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button onClick={() => { shareLink(exp.title, listShareUrl(activeBadge, exp.title, list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + exp.title, () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                  <button onClick={() => { shareLink(cityFix(exp.title), listShareUrl(activeBadge, cityFix(exp.title), list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + cityFix(exp.title), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                   {(() => { const u = mapsRouteUrl(list); return u ? (<a href={u} target="_blank" rel="noreferrer" aria-label="Open this list in Google Maps" title="Open in Maps" onClick={() => { try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 9) }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, textDecoration: "none" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></a>) : null; })()}
-                  {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: exp.title, label: exp.title }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
+                  {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFix(exp.title), label: cityFix(exp.title) }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                 <span style={{ fontSize: 16 }}>{exp.icon}</span>
                 <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", color: C.accent, textTransform: "uppercase" }}>Wayfind picks</span>
               </div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{exp.title}</div>
+              <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
               <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
@@ -6665,6 +6726,12 @@ function PageInner() {
         }
         // Safety net: no theme should ever render the same place twice.
         themePlaces = themePlaces.filter((p, i, a) => p && p.id && a.findIndex((x) => x && x.id === p.id) === i);
+        if (hkSort === "near") themePlaces = themePlaces.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
+        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+        else if (hkSort === "price") themePlaces = themePlaces.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
+        if (hkMi < 60) themePlaces = themePlaces.filter((p) => p.distMi == null || p.distMi <= hkMi);
+        if (hkDeals) themePlaces = themePlaces.filter((p) => offers[p.id]);
+        const sheetLoading = !!(hookDetail.fetchKey && !hookDetail.places);
 
         const MEDALS = { 0: "🥇", 1: "🥈", 2: "🥉" };
         const rankColours = { 0: "#FBBF24", 1: "#CBD5E1", 2: "#CD7F32" };
@@ -6695,13 +6762,22 @@ function PageInner() {
                 <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.6, marginBottom: 8 }}>{hookDetail.themeBody}</div>
               )}
               <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
-                {themePlaces.length} {theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks"} · Tap any to see full details
+                {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <button onClick={() => setHkFilterOpen((v) => !v)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${hkFilterOpen ? acc : C.border}`, background: hkFilterOpen ? acc + "18" : "transparent", color: hkFilterOpen ? acc : C.muted, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>⚙ Filters {hkFilterOpen ? "▴" : "▾"}</button>
+                {hkFilterOpen && (
+                  <div style={{ marginTop: 10 }}>
+                    <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Scrollable editorial list */}
             <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px calc(24px + env(safe-area-inset-bottom))", width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
-              {themePlaces.length === 0 && (
+              {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
+              {!sheetLoading && themePlaces.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={48} /></div>
                   <div style={{ fontSize: 14, color: C.light }}>Not enough data for this filter right now</div>
@@ -6783,7 +6859,7 @@ function PageInner() {
                         {badges.length > 0 && (
                           <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
                             {badges.map((b) => (
-                              <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {b.label}</span>
+                              <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {cityFixM(b.label)}</span>
                             ))}
                           </div>
                         )}
@@ -7311,7 +7387,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
-              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {b.label} ›</button>
+              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>

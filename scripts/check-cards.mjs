@@ -1,0 +1,40 @@
+// Guardrail: the revenue hero cards' contract. Locks the behaviors Gabe has
+// had to re-fix repeatedly. Any change that breaks these fails the build.
+import { readFileSync } from "fs";
+const s = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const fail = (m) => { console.error("check-cards: FAIL — " + m); process.exit(1); };
+
+// 1. The five revenue cards exist as a single protected list.
+if (!s.includes('const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"]')) fail("REVENUE_EXP_KEYS missing or changed");
+if (!s.includes("function revenueExpMeta(key, city)")) fail("revenueExpMeta (single source of card copy) missing");
+
+// 2. Card copy must be location-neutral — city is a parameter, never hardcoded.
+const metaStart = s.indexOf("function revenueExpMeta");
+const metaBlock = s.slice(metaStart, s.indexOf("return M[key]", metaStart));
+if (/Orlando|Sarasota|Parrish|Tampa|LEGOLAND|Gatorland|Blue Man/i.test(metaBlock)) fail("revenue card copy hardcodes a market — must stay location-neutral");
+
+// 3. Revenue keys open the themed Best-of style sheet, never the legacy screen.
+if (!/REVENUE_EXP_KEYS\.includes\(key\)\) \{ openExpSheet\(key\); return; \}/.test(s)) fail("openExperience no longer routes revenue keys to the themed sheet");
+if (!s.includes("function openExpSheet(key)")) fail("openExpSheet missing");
+
+// 4. The sheet keeps its places override and the wide-radius fetch.
+if (!s.includes("hookDetail.places || placesForHook(hookDetail, allSrc)")) fail("sheet places override removed");
+if (!/hd\.fetchKey/.test(s) || !s.includes("110000")) fail("wide-radius sheet fetch missing");
+
+// 5. The v4.46 null-place crash guard stays.
+if (!s.includes("avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id)")) fail("null-place guard on restExp removed (v4.46 crash)");
+if (!s.includes("if (!a.place) {")) fail("mkHook place-less early return removed");
+
+// 6. The five cards are guaranteed on the home feed.
+if (!s.includes('const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"]')) fail("GUARANTEED home cards list changed");
+
+// 7. Labels follow the user's location everywhere (module-safe helper).
+if (!s.includes("function cityFixM(s)")) fail("cityFixM helper missing");
+if (!s.includes("CITY_NOW = cityNow;")) fail("city mirror into module scope missing");
+if (!s.includes("cityFix(a.e.label)")) fail("cityFix not applied to hero labels");
+if (s.includes("{b.icon} {b.label}")) fail("raw badge label render reappeared — must use cityFixM");
+
+// 8. The browse filter lives inside the themed sheet, expandable.
+if (!s.includes("SortControl sortBy={hkSort}")) fail("sheet filter (SortControl) missing");
+if (!s.includes("setHkFilterOpen")) fail("sheet filter toggle missing");
+console.log("check-cards: OK — revenue cards protected (location copy, sheet style, wide fetch, crash guards, filter)");
