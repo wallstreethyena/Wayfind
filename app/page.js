@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.50";
+const BUILD_ID = "v4.51";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2868,6 +2868,7 @@ function PageInner() {
     return () => { live = false; };
   }, [detail && detail.id]);
   const [hookDetail, setHookDetail] = useState(null);
+  const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
   const [hkSort, setHkSort] = useState("best");
   const [hkMi, setHkMi] = useState(60);
@@ -3442,6 +3443,26 @@ function PageInner() {
     if (h && (h.placeId || h.themeBody)) { setHookDetail(h); }
     else handleHookAction(h);
   }
+
+  // v4.51: real Viator tour listings on attraction detail pages. Uses the
+  // place's own city (from its address) so an Orlando attraction viewed from
+  // Parrish still searches "Gatorland Orlando".
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event) return;
+    const kinds = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+    if (!kinds.includes(placeKind(detail))) return;
+    if (viaTours[detail.id]) return;
+    const placeCity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })() || (locName ? locName.split(",")[0] : "");
+    const q = detail.name + (placeCity ? " " + placeCity : "");
+    let cancelled = false;
+    setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=3")
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
+      .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
 
   // Load community votes for a place when its detail opens (drive widget)
   useEffect(() => {
@@ -6219,8 +6240,35 @@ function PageInner() {
               ); })()}
               {/* 3. Insider tip */}
               <div style={{ marginBottom: 16 }}>
-              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && !(() => { const _n = wayfindNotes(detail.name); return _n && _n.some((x) => x && typeof x === "object" && x.url); })() && (
-                <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
+                const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
+                const _vt = viaTours[detail.id];
+                const _items = (_vt && _vt.items) || [];
+                if (_items.length > 0) {
+                  return (
+                    <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
+                        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+                      </div>
+                      {_items.map((t, i) => (
+                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (e) {} }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                          {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>
+                              {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
+                            </div>
+                          </div>
+                          <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
+                        </a>
+                      ))}
+                    </div>
+                  );
+                }
+                if (_hasNoteUrl) return null;
+                return (
+                  <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
@@ -6228,7 +6276,8 @@ function PageInner() {
                   </div>
                   <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
                 </a>
-              )}
+                );
+              })()}
 
               {!detail._event && (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
