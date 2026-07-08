@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.31";
+const BUILD_ID = "v4.37";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -152,6 +152,28 @@ function mapsRouteUrl(list) {
   const dest = pts[pts.length - 1];
   const wps = pts.slice(0, -1).map((pp) => pp.lat + "," + pp.lng).join("|");
   return "https://www.google.com/maps/dir/?api=1&destination=" + dest.lat + "," + dest.lng + "&waypoints=" + encodeURIComponent(wps) + "&travelmode=driving";
+}
+
+// v4.32 — Robust single-destination directions link. detail.mapsUrl is keyed by
+// query_place_id, which only resolves for genuine Google Place IDs. Places from
+// town notes, events, staples, and culture cards carry synthetic ids, so their
+// place_id URL opens a broken Google Maps search. This picks the resolvable form:
+// a real Google Place ID uses the place_id search; otherwise route by name and,
+// when present, coordinates, which Google always resolves. Coordinates alone are
+// the final fallback.
+function directionsUrl(p) {
+  if (!p) return null;
+  const looksLikePlaceId = typeof p.id === "string" && /^ChIJ|^GhIJ|^Eh|^0x/.test(p.id) && p.id.length >= 20;
+  if (looksLikePlaceId) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name || "")}&query_place_id=${encodeURIComponent(p.id)}`;
+  const hasCoords = p.lat != null && p.lng != null;
+  if (p.name) {
+    const q = encodeURIComponent(p.name + (p.address ? " " + p.address : ""));
+    return hasCoords
+      ? `https://www.google.com/maps/search/?api=1&query=${q}&center=${p.lat},${p.lng}`
+      : `https://www.google.com/maps/search/?api=1&query=${q}`;
+  }
+  if (hasCoords) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+  return p.mapsUrl || null;
 }
 function Grabber() {
   return (
@@ -614,6 +636,71 @@ const WAYFIND_PHOTOS = {
   "parc soleil": ["/wf-parcsoleil-1.jpg", "/wf-parcsoleil-2.jpg", "/wf-parcsoleil-3.jpg"],
 };
 const WAYFIND_NOTES = {
+  "boggy creek airboat": [
+    { text: "Family-run airboat tours through native Florida wildlife in Kissimmee, gators, eagles, turtles, herons, the real Everglades-headwaters landscape most tourists never see. It's the honest, unglitzy version of the airboat experience: just good family fun on the water. On-site they also have a gem mine, a butterfly garden, a restaurant, and a gator pond, so it's an easy half-day.", url: "https://www.bcairboats.com", label: "Book a tour" },
+    { text: "Reservations recommended. About an hour to 75 minutes from Parrish toward Kissimmee. Their printed materials run a 10% off code; grab one before you go.", },
+  ],
+  "boggy creek airboat adventures": [
+    { text: "Same as Boggy Creek Airboat Adventures in Kissimmee, native-wildlife airboat tours plus a gem mine, butterfly garden, and restaurant on site. Family fun, reservations recommended, about an hour from Parrish.", url: "https://www.bcairboats.com", label: "Book a tour" },
+  ],
+  "dezerland park": [
+    { text: "The best rainy-day or too-hot-day card in Orlando: 12-plus indoor attractions under one roof on International Drive, anchored by the Orlando Auto Museum (one of the largest private car collections anywhere), plus a huge arcade, go-karts, pinball palace, axe throwing, and escape rooms. One stop, endless options, and it's all indoors and air-conditioned.", url: "https://www.dezerlandpark.com/orlando/", label: "Plan your visit" },
+  ],
+  "chocolate kingdom": [
+    { text: "A bean-to-bar chocolate factory tour in Orlando that TripAdvisor voted the #1 food tour in the city, follow the story of chocolate from the cocoa pod through the River of Chocolate to the micro-batch factory, with samples throughout and a customize-your-own chocolate bar at the end. They also do chocolate-and-wine pairings and handmade Dubai bars. Advance purchase recommended; it's a small-group experience.", url: "https://www.chocolatekingdom.com", label: "Book the tour" },
+  ],
+  "legoland florida": [
+    { text: "The one Central Florida theme park built specifically for kids, in Winter Haven about 45 minutes from Parrish, and that focus is the whole point: if your crew skews 2 to 12, this beats the mega-parks on fit and on crowds. Bricktastic rides across LEGO NINJAGO, LEGO Movie, and more immersive lands, plus the all-new indoor Galacticoaster where kids customize a LEGO spacecraft and blast off to save the galaxy.", url: "https://www.legoland.com/florida/", label: "Plan your trip" },
+    { text: "It's really a resort, not just a park: the separate LEGOLAND Water Park (14 slides, a wave pool, the Build-A-Raft lazy river), three fully-themed on-site hotels just 130 kid-steps from the gate with daily hot breakfast and nightly kids' entertainment, and year-round events, LEGO NINJAGO Celebration in spring, LEGO Festival and Red White & BOOM fireworks in summer, Brick-or-Treat in fall, and Holidays at LEGOLAND in winter.", },
+    { text: "Two neighbors share the campus and pair naturally: SEA LIFE Florida (the aquarium, included with a LEGOLAND theme-park ticket) and the world's first Peppa Pig Theme Park right next door, which is the ideal add for toddlers. Grab Granny's Apple Fries, they're the LEGOLAND signature treat.", },
+  ],
+  "legoland": [
+    { text: "LEGOLAND Florida in Winter Haven, the Central Florida theme park built for kids, about 45 minutes from Parrish. Rides, shows, and immersive LEGO lands plus the new indoor Galacticoaster, a separate water park, on-site themed hotels, and year-round events. SEA LIFE aquarium is included with a park ticket, and the world's first Peppa Pig Theme Park is right next door.", url: "https://www.legoland.com/florida/", label: "Plan your trip" },
+  ],
+  "peppa pig theme park": [
+    { text: "The world's first Peppa Pig Theme Park, purpose-built for the toddler-and-preschool set and right beside LEGOLAND Florida in Winter Haven, so it pairs perfectly with a LEGOLAND day. A full day of gentle rides and play: Daddy Pig's Roller Coaster as a first coaster, Peppa Pig's Balloon Ride, Grampy Rabbit's Dinosaur Adventure, the Muddy Puddles splash pad, and free fun-fair games. If your kids are little, this is the pick over the big parks.", url: "https://www.peppapigthemepark.com/florida/", label: "Plan your visit" },
+  ],
+  "sea life": [
+    { text: "SEA LIFE Florida, the aquarium at LEGOLAND Florida Resort in Winter Haven, walk through the underwater tunnel of Coral Kingdom, meet rays and sharks, and touch the interactive rockpool exhibits. Best value note: admission is included with a LEGOLAND Florida theme-park ticket, so don't pay for it twice.", url: "https://www.visitsealife.com/florida/", label: "Plan your visit" },
+  ],
+  "gatorland": [
+    { text: "The original Florida roadside attraction, family-owned since 1949 and crowned Alligator Capital of the World, 125-plus acres on Orange Blossom Trail with more gators than anywhere else, plus rare white alligators and crocodiles from around the world. It's won Orlando Weekly's Best of Orlando, and locals will tell you it's more authentic old-Florida fun than the mega-parks. Open daily; parking is always free.", url: "https://www.gatorland.com", label: "Visit Gatorland" },
+    { text: "The thrill add-ons are the reason to go beyond general admission: the Screamin' Gator Zipline soars 70 feet over live gators across seven towers (voted one of the best ziplines in the U.S.), the Stompin' Gator monster-truck-style off-road adventure, and Croc Rock's rock wall, chain bridge, and zip. Buy ride tickets at Gator Joe's Adventure Outpost inside.", },
+    { text: "Great with kids and cheaper than a theme-park day: petting zoo, a splash pad, live shows, the Gator Jumparoo, and a train. About 45 minutes to an hour from Parrish up toward Orlando.", },
+  ],
+  "dinosaur world": [
+    { text: "Florida's largest attraction devoted to dinosaurs, hundreds of life-sized dinosaurs built to scale from the latest paleontological data, towering over you along a wooded outdoor trail in Plant City, right off I-4 at Exit 17 between Tampa and Orlando. Genuinely close to Parrish and an easy half-day; it's exciting, educational, and built for families.", url: "https://www.dinosaurworld.com", label: "Visit Dinosaur World" },
+    { text: "Don't miss the animatronics and the hands-on parts kids love: the fossil dig, the Exploration Cave, and the boneyard. Open every day except Thanksgiving and Christmas, 10am to 5pm. Their printed flyer runs a save-$2-per-adult coupon good for up to 4 people; grab one before you go.", },
+  ],
+  "wild bill's airboat tours": [
+    { text: "The airboat ride locals send their out-of-town family on, and it's been earning great reviews since 1980, about 50 minutes north of Orlando in Inverness. You skim the Withlacoochee River past lily-pad channels and cypress forest, gators basking on the banks, herons and turtles and deer along the way. Kids can handle a baby alligator under expert guidance. Reservations preferred, walk-ins welcome, open 7 days year-round.", url: "https://www.wbairboats.com", label: "Book your tour" },
+    { text: "Ask about the private tour: a 6-passenger boat for a 1 or 2 hour ride, which is the move for a family or small group who want the guide to themselves. Coast Guard approved, and the operation has been featured on National Geographic, Discovery, and America's Got Talent.", },
+  ],
+  "wild bills airboat tours": [
+    { text: "Same as Wild Bill's Airboat Tours in Inverness \u2014 world-famous airboat rides on the Withlacoochee, great reviews since 1980, about 50 minutes north of Orlando. Gators, herons, cypress, and a baby-gator handling moment for the kids. Reservations preferred.", url: "https://www.wbairboats.com", label: "Book your tour" },
+  ],
+  "pirates dinner adventure": [
+    { text: "The big Orlando dinner show that actually earns the hype: an interactive pirate spectacular on a full-size ship with acrobatics, sword fights, and a story you get pulled into, just off International Drive at 6400 Carrier Drive. Admission includes the meal (the Port of Call Feast, with vegetarian, vegan, and kids' options) and the live show. Fully enclosed and air-conditioned, ADA accessible, casual dress. Reserve ahead, especially in peak season.", url: "https://www.piratesdinneradventure.com", label: "Reservations & showtimes" },
+  ],
+  "blue man group": [
+    { text: "Comedy, theater, and rock concert rolled into one, now at ICON Park on International Drive. No spoken language, so it lands for every age and every visitor, three bald blue men, drums, paint, and surprises the whole way through. As Orlando locals put it: if you haven't seen Blue Man Group, you haven't seen Orlando. Groups of 10 or more get a dedicated sales contact.", url: "https://www.blueman.com", label: "Buy tickets" },
+  ],
+  "wonderworks": [
+    { text: "The upside-down building on International Drive is Professor Wonder's lab: over 100 hands-on exhibits across multiple floors, from an astronaut trainer to a hurricane simulator, genuine family fun for all ages. Don't miss the Outta Control Magic Comedy Dinner Show while you're there. Their printed flyer runs a $2-off-tickets coupon valid for up to 6 people; grab one before you go.", url: "https://www.wonderworksonline.com/orlando/", label: "Visit WonderWorks" },
+  ],
+  "safari wilderness": [
+    { text: "This is the one almost no visitor knows about, and locals guard it: a 260-acre private ranch near Lakeland where you ride out among free-roaming herds \u2014 zebra, cheetah, water buffalo, giant tortoise \u2014 with no crowds and no lines. Fodor's named it a Top 10 safari in the entire U.S. Reserve ahead; tours are deliberately kept small and sell out, which is exactly why the experience stays this good.", url: "https://www.safariwilderness.com", label: "Reserve online (required in advance)" },
+    { text: "Pick your ride and it changes the whole day: the custom covered truck for close feeding encounters, a camel-back expedition (the only one outside Africa), kayak safari past lemur island where you hand-feed ring-tailed lemurs, or ATV across the ranch. Each tour runs about 1 to 1.5 hours.", },
+    { text: "Worth the drive from Parrish, roughly an hour north. Add the Premium Cheetah Encounter if you want a 30-minute hands-on session; it books by special request only.", },
+  ],
+  "giraffe ranch": [
+    { text: "Feed a giraffe from eye level on a family-run wildlife preserve in Dade City, about 800 animals across 80 species roaming the second-largest wilderness area in Florida after the Everglades. TripAdvisor has given it a Certificate of Excellence every year since 2012, and Fodor's calls it a Top 10 in Tampa Bay. One reviewer's line says it best: Florida's best kept secret.", url: "https://www.girafferanch.com", label: "Book now (advance online only)" },
+    { text: "The founder personally guided 30 African safaris, and it shows in how the tours run. Choose custom vehicle, camelback, drive-thru, Segway, or the electric Cybertruck safari; the starred options include giraffe feedings, so pick those if feeding the giraffes is the point.", },
+    { text: "Stack on encounters only offered with a full safari: sloth, otter feeding, red river hog, pygmy hippo, monkey. Reserve in advance, it's required, and it's about an hour from Parrish toward Dade City.", },
+  ],
+  "safari wilderness ranch": [
+    { text: "Same place as Safari Wilderness \u2014 the 260-acre exotic-game ranch near Lakeland, Fodor's Top 10 safari in the U.S. Ride among the herds by truck, camel, kayak, or ATV. Small groups, advance reservations required.", url: "https://www.safariwilderness.com", label: "Reserve online" },
+  ],
   // Entries are strings, or { text, url, label } when a tip has a working
   // link. Owner-vouched links only; community Tips stay plain text.
   // Umbrella resort pages (where tourists actually land) route to the parks.
@@ -695,6 +782,23 @@ const WAYFIND_FEATURED = {
   "everglazed": 8,
   "kbob": 12,
   "kbop": 12,
+  "safariwilderness": 16,
+  "safariwildernessranch": 16,
+  "girafferanch": 16,
+  "wildbillsairboattours": 15,
+  "wildbillsairboat": 15,
+  "piratesdinneradventure": 8,
+  "wonderworks": 8,
+  "gatorland": 12,
+  "dinosaurworld": 14,
+  "legolandflorida": 10,
+  "legoland": 10,
+  "peppapigthemepark": 12,
+  "sealife": 8,
+  "boggycreekairboat": 13,
+  "boggycreekairboatadventures": 13,
+  "dezerlandpark": 12,
+  "chocolatekingdom": 12,
 };
 // Owner-curation signals from the Supabase place_signals view: just the
 // place_ids the owner account has liked. Owner likes boost globally (+4,
@@ -5907,7 +6011,7 @@ function PageInner() {
                   <span style={{ color: C.border }}>·</span>
                   <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                 </>))}
-                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.accent, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
+                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.accent, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
                 {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.accent, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (detail.price) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>); return null; })()}
               </div>
@@ -5938,10 +6042,10 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tk = Aff.ticketsUrl(detail); const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _tk = Aff.ticketsUrl(detail); const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
-                  <a href={detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
+                  <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
                 )}
                 {!detail._event && (<>
                   <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
