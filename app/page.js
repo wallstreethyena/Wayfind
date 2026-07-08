@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.39";
+const BUILD_ID = "v4.40";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2269,7 +2269,7 @@ function pickReason(p, ctx) {
   const rk = ctx.rank || 0;
   const wet = !!(w && (w.wet || (w.rain != null && w.rain >= 50)));
   const nice = !!(w && !wet && w.temp != null && w.temp >= 60 && w.temp <= 92);
-  const kind = placeKind(p);
+  let kind = placeKind(p);
   const r = p.rating, n = p.reviews || 0;
   let seed = 0; const sid = String(p.id || p.name || "");
   for (let i = 0; i < sid.length; i++) seed = (seed * 31 + sid.charCodeAt(i)) >>> 0;
@@ -2293,6 +2293,11 @@ function pickReason(p, ctx) {
     shopping:      [["a browse when you have time", "you want a quick in and out"]],
     generic:       [["a solid nearby option", "you are after something specific"], ["an easy add to the plan", "you already know exactly what you want"]],
   };
+  // v4.40: a place shown inside a food list (breakfast/lunch/dinner) must never be
+  // described with bar/nightlife copy just because Google also tags it "bar".
+  // Restaurants with full bars (PIER 22, Sofra) were getting "a night of drinks"
+  // on a lunch card, which reads as broken. In a food context, bar -> restaurant.
+  if (ctx.foodContext && kind === "bar") kind = "restaurant";
   const _isPark = /theme_park|amusement/.test((((p && p.types) || []).join(" ") + " " + ((p && p.name) || "")).toLowerCase());
   const PK = [["a full-day park plan with the crew", "you only have a couple of hours"], ["the marquee day out around here", "you want cheap, quick, or quiet"], ["thrill rides and full-scale spectacle", "you want a slow, quiet day"], ["the big-ticket day that anchors a trip", "you are watching the budget"]];
   const pair = (kind === "entertainment" && _isPark) ? vary(PK) : vary(V[kind] || V.generic); const good = pair[0], skip = pair[1];
@@ -6742,7 +6747,7 @@ function PageInner() {
                           </div>
                         )}
                         {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather) }); return why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
+                        {(() => { const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) }); return why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
                         )}
