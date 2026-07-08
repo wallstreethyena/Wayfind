@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.42";
+const BUILD_ID = "v4.45";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5189,6 +5189,36 @@ function PageInner() {
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
                     {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
+                    {(() => {
+                      // v4.45: guaranteed revenue + discovery cards. These always render
+                      // (not gated on the local food pool) and open a wider-radius search
+                      // so Orlando attractions, hotels, shows, and family picks appear —
+                      // the surfaces that earn Viator / Stay22 / GetYourGuide commission.
+                      const shownKeys = new Set(restExp.map((a) => a.key));
+                      const REVENUE_CARDS = [
+                        { key: "family", accent: C.green, icon: "👨‍👩‍👧", label: "Best for families", title: "Best for Families", sub: "Theme parks, animal encounters, splash pads", cta: "Explore family picks →" },
+                        { key: "entertainment", accent: C.purple, icon: "🎢", label: "Attractions & things to do", title: "Attractions & Things to Do", sub: "Tours, airboats, the can't-miss stops", cta: "See attractions →" },
+                        { key: "stays", accent: C.blue, icon: "🏨", label: "Hotels & stays", title: "Hotels & Stays", sub: "Where to stay, book in-app", cta: "Find a place to stay →" },
+                        { key: "shows", accent: C.pink, icon: "🎭", label: "Shows & live events", title: "Shows & Live Events", sub: "Dinner shows and live entertainment", cta: "See shows →" },
+                        { key: "budget", accent: C.gold, icon: "🪙", label: "On a budget", title: "Great on a Budget", sub: "Big fun that costs little", cta: "See budget picks →" },
+                      ].filter((c) => !shownKeys.has(c.key) && EXPERIENCES[c.key]);
+                      if (!REVENUE_CARDS.length) return null;
+                      return (
+                        <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+                          {REVENUE_CARDS.map((c) => (
+                            <button key={c.key} onClick={() => { try { logEvent("intent_chip", null, { intent: c.label, src: "home_revenue_card" }); } catch (e) {} openExperience(c.key); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", cursor: "pointer", background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${c.accent}`, borderRadius: 12, padding: "13px 14px" }}>
+                              <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5, textTransform: "uppercase", color: c.accent }}>{c.label}</div>
+                                <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginTop: 2 }}>{c.title}</div>
+                                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{c.sub}</div>
+                              </div>
+                              <span style={{ color: c.accent, fontSize: 16, fontWeight: 800, flexShrink: 0 }}>→</span>
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })()}
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick" }); } catch (e) {} setMenuSheet("pick"); }} />
                   </div>
                 );
@@ -6138,7 +6168,7 @@ function PageInner() {
               ); })()}
               {/* 3. Insider tip */}
               <div style={{ marginBottom: 16 }}>
-              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (
+              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && !(() => { const _n = wayfindNotes(detail.name); return _n && _n.some((x) => x && typeof x === "object" && x.url); })() && (
                 <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
