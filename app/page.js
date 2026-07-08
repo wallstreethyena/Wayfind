@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.45";
+const BUILD_ID = "v4.46";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5049,8 +5049,8 @@ function PageInner() {
                 const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName, blurbs[pl.id]), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "bestof", "instagram", "outdoor", "waterfront"];
-                const THEME_COLOR = { gem: C.teal, family: C.green, entertainment: C.purple, stays: C.blue, shows: C.pink, value: C.green, budget: C.gold, bestof: C.gold, instagram: C.pink, outdoor: C.green, waterfront: C.blue };
+                const THEME_ORDER = ["gem", "family", "bestof", "entertainment", "stays", "shows", "budget"];
+                const THEME_COLOR = { gem: C.teal, family: C.green, bestof: C.gold, entertainment: C.purple, stays: C.blue, shows: C.pink, budget: C.gold };
                 const expPool = [];
                 const seenPool = new Set();
                 for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
@@ -5060,6 +5060,14 @@ function PageInner() {
                 const avail = [];
                 const usedHeroIds = new Set();
                 for (const key of THEME_ORDER) { const e = EXPERIENCES[key]; if (!e) continue; const match = expPool.filter((p) => p && p.photo && matchesExp(p, key) && !usedHeroIds.has(p.id)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0))[0]; if (match) { avail.push({ key, place: match, e }); usedHeroIds.add(match.id); } }
+                // v4.46: the revenue themes always render as hero cards. When the local
+                // pool has no matching place (it is food-heavy), a place-less hero card
+                // still shows — HookSolo falls back to the accent gradient — and tapping
+                // it opens the wide-radius experience search (Orlando attractions,
+                // hotels, shows). These are the surfaces that carry affiliate links.
+                const GUARANTEED = ["family", "entertainment", "stays", "shows", "budget"];
+                for (const key of GUARANTEED) { if (!avail.some((a) => a.key === key) && EXPERIENCES[key]) avail.push({ key, place: null, e: EXPERIENCES[key] }); }
+                { const _ord = new Map(THEME_ORDER.map((k, i) => [k, i])); avail.sort((a, b) => (_ord.get(a.key) ?? 99) - (_ord.get(b.key) ?? 99)); }
                 // v6.25: the hero is now the single best move for right now, ranked by
                 // quality + distance + today's weather + the time of day (see lib/ranking.js),
                 // so a stormy afternoon stops opening on an outdoor pick. The themed
@@ -5084,7 +5092,18 @@ function PageInner() {
                 const themeEng = {};
                 try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
                 restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
+                const EXP_HERO_COPY = {
+                  family: { hook: "Theme parks, gator ziplines, and splash pads the kids will not stop talking about.", hl: "kids", sub: "LEGOLAND, Gatorland and more, about an hour away", cta: "See family picks →" },
+                  entertainment: { hook: "Airboats, dinosaurs, and the can't-miss stops that make the trip.", hl: "can't-miss", sub: "Tours and attractions worth the drive", cta: "See attractions →" },
+                  stays: { hook: "Where to stay near the fun, from resorts to easy overnights.", hl: "stay", sub: "Compare rates, book in a tap", cta: "Find a stay →" },
+                  shows: { hook: "Pirate battles, Blue Man Group, and dinner shows worth the night out.", hl: "shows", sub: "Live entertainment near Orlando", cta: "See shows →" },
+                  budget: { hook: "Big fun that goes easy on the wallet.", hl: "wallet", sub: "Free and cheap things people actually love", cta: "See budget picks →" },
+                };
                 const mkHook = (a) => {
+                  if (!a.place) {
+                    const c = EXP_HERO_COPY[a.key] || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore →" };
+                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || C.accent, emoji: a.e.icon, label: a.e.label, expKey: a.key, highlightWord: c.hl, hook: c.hook, subtitle: c.sub, cta: c.cta, metaLine: null };
+                  }
                   const t = themedHook(a.key, a.place);
                   const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
                   const cnt = members.length;
@@ -5188,37 +5207,8 @@ function PageInner() {
                       })()}
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
-                    {restExp.map((a) => <HookSolo key={a.key} h={mkHook(a)} place={a.place} hideLike onOpen={openHook} onShare={() => shareHook(mkHook(a), a.place)} />)}
-                    {(() => {
-                      // v4.45: guaranteed revenue + discovery cards. These always render
-                      // (not gated on the local food pool) and open a wider-radius search
-                      // so Orlando attractions, hotels, shows, and family picks appear —
-                      // the surfaces that earn Viator / Stay22 / GetYourGuide commission.
-                      const shownKeys = new Set(restExp.map((a) => a.key));
-                      const REVENUE_CARDS = [
-                        { key: "family", accent: C.green, icon: "👨‍👩‍👧", label: "Best for families", title: "Best for Families", sub: "Theme parks, animal encounters, splash pads", cta: "Explore family picks →" },
-                        { key: "entertainment", accent: C.purple, icon: "🎢", label: "Attractions & things to do", title: "Attractions & Things to Do", sub: "Tours, airboats, the can't-miss stops", cta: "See attractions →" },
-                        { key: "stays", accent: C.blue, icon: "🏨", label: "Hotels & stays", title: "Hotels & Stays", sub: "Where to stay, book in-app", cta: "Find a place to stay →" },
-                        { key: "shows", accent: C.pink, icon: "🎭", label: "Shows & live events", title: "Shows & Live Events", sub: "Dinner shows and live entertainment", cta: "See shows →" },
-                        { key: "budget", accent: C.gold, icon: "🪙", label: "On a budget", title: "Great on a Budget", sub: "Big fun that costs little", cta: "See budget picks →" },
-                      ].filter((c) => !shownKeys.has(c.key) && EXPERIENCES[c.key]);
-                      if (!REVENUE_CARDS.length) return null;
-                      return (
-                        <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
-                          {REVENUE_CARDS.map((c) => (
-                            <button key={c.key} onClick={() => { try { logEvent("intent_chip", null, { intent: c.label, src: "home_revenue_card" }); } catch (e) {} openExperience(c.key); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", cursor: "pointer", background: C.card, border: `1px solid ${C.border}`, borderLeft: `3px solid ${c.accent}`, borderRadius: 12, padding: "13px 14px" }}>
-                              <span style={{ fontSize: 22, flexShrink: 0 }}>{c.icon}</span>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5, textTransform: "uppercase", color: c.accent }}>{c.label}</div>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginTop: 2 }}>{c.title}</div>
-                                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2 }}>{c.sub}</div>
-                              </div>
-                              <span style={{ color: c.accent, fontSize: 16, fontWeight: 800, flexShrink: 0 }}>→</span>
-                            </button>
-                          ))}
-                        </div>
-                      );
-                    })()}
+                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.expKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero" }); } catch (e) {} openExperience(h.expKey); } else openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
+
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick" }); } catch (e) {} setMenuSheet("pick"); }} />
                   </div>
                 );
@@ -5553,7 +5543,7 @@ function PageInner() {
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div onClick={() => { setScreen("home"); setActiveBadge(null); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                <div onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <button onClick={() => { shareLink(exp.title, listShareUrl(activeBadge, exp.title, list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + exp.title, () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                   {(() => { const u = mapsRouteUrl(list); return u ? (<a href={u} target="_blank" rel="noreferrer" aria-label="Open this list in Google Maps" title="Open in Maps" onClick={() => { try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 9) }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, textDecoration: "none" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></a>) : null; })()}
