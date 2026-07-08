@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.40";
+const BUILD_ID = "v4.42";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3797,9 +3797,30 @@ function PageInner() {
     (async () => {
       setExpLoading(true);
       try {
-        let results = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, 48000, "all", exp.keyword || "");
-        if (exp.filter) results = results.filter(exp.filter);
-        results = results.slice().sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0)).slice(0, 30);
+        // v4.41: attraction/stay/show experiences pull from a wider radius so the
+        // Orlando-area gems (an hour north of the launch market) actually appear,
+        // instead of an empty or two-item list. Food stays local.
+        const ATTRACTION_KEYS = ["family", "entertainment", "stays", "shows", "budget", "instagram", "nature", "museum"];
+        const radius = ATTRACTION_KEYS.includes(activeBadge) ? 110000 : 48000;
+        let raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
+        let results;
+        if (exp.filter) {
+          const passed = raw.filter(exp.filter);
+          // Never show an embarrassingly thin curated list. If a hard filter leaves
+          // fewer than 5, backfill with the best unfiltered nearby picks so the
+          // page always feels full, filtered picks still ranked first.
+          if (passed.length >= 5) {
+            results = sortFit(passed);
+          } else {
+            const passedIds = new Set(passed.map((p) => p.id));
+            const backfill = sortFit(raw.filter((p) => !passedIds.has(p.id)));
+            results = [...sortFit(passed), ...backfill];
+          }
+        } else {
+          results = sortFit(raw);
+        }
+        results = results.slice(0, 30);
         if (!cancelled) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
       } catch {
         if (!cancelled) setExpPlaces([]);

@@ -1,3 +1,5 @@
+import Script from "next/script";
+
 export const metadata = {
   metadataBase: new URL("https://wayfind-xi.vercel.app"),
   title: "Wayfind",
@@ -56,6 +58,12 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://places.googleapis.com" />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
+        <link rel="preconnect" href="https://scripts.stay22.com" />
+        {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
+            commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
+            GetYourGuide, TripAdvisor). lmaID is the account's live script id.
+            afterInteractive so it never blocks first paint. */}
+        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(s,t,a,y,twenty,two){s.Stay22=s.Stay22||{};s.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};twenty=t.createElement(a);two=t.getElementsByTagName(a)[0];twenty.async=1;twenty.src=y;two.parentNode.insertBefore(twenty,two);})(window,document,'script','https://scripts.stay22.com/letmeallez.js');` }} />
         {children}
       </body>
     </html>
