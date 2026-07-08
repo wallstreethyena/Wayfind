@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.24";
+const BUILD_ID = "v4.25";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -964,15 +964,62 @@ function CleanTile({ onClick, color, icon, label, sub, labelColor }) {
 // v4.0: shared sheet header so every app-tile sheet opens with the same hero treatment —
 // a colored icon badge that matches its tile, a large title, and a muted subtitle.
 function RadiusSlider({ mi, onChange, where, max = 30 }) {
+  const pct = Math.round(((mi - 1) / (max - 1)) * 100);
   return (
-    <div style={{ padding: "9px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-      <style>{".wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:24px;background:transparent;outline:none;margin:2px 0;cursor:pointer}.wf-radius::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer;margin-top:-11px}.wf-radius::-moz-range-track{height:6px;border-radius:999px;background:#2D3748}.wf-radius::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff7a7a,#dc2626);border:2px solid #ffffff;box-shadow:0 2px 8px rgba(0,0,0,.55);cursor:pointer}"}</style>
+    <div style={{ padding: "11px 14px 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+      <style>{`.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
+.wf-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
+.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
+.wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
+.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`}</style>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent }}>{mi} mi</span></div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
       </div>
-      <input type="range" min={1} max={max} step={1} value={mi} onChange={(e) => onChange(Number(e.target.value))} className="wf-radius" aria-label="Search distance in miles" />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: C.muted, fontWeight: 700 }}><span>1 mi</span><span>{max} mi</span></div>
+      <input type="range" min={1} max={max} step={1} value={mi} onChange={(e) => onChange(Number(e.target.value))} className="wf-radius" style={{ "--wfp": pct + "%" }} aria-label="Search distance in miles" />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: C.muted, fontWeight: 700 }}>
+        {[1, Math.round(max / 4), Math.round(max / 2), Math.round((3 * max) / 4), max].map((t, i) => <span key={i}>{t} mi</span>)}
+      </div>
+    </div>
+  );
+}
+// v4.25 — Sort & distance dropdown. Lives next to Back in every category
+// browse and on the explore list. One control, discoverable, premium.
+function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
+  const [openMenu, setOpenMenu] = useState(false);
+  const OPTIONS = [["best", "Best experiences"], ["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]];
+  const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
+  return (
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+        <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
+        <span style={{ fontSize: 9, color: C.muted, transform: openMenu ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"\u25BC"}</span>
+      </div>
+      {openMenu && (
+        <>
+          <div onClick={() => setOpenMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 39 }} />
+          <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 40, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Sort by</div>
+            {OPTIONS.map(([k, lb]) => (
+              <div key={k} onClick={() => { onSort(k); }} role="button" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer", background: sortBy === k ? "rgba(249,115,22,.12)" : "transparent" }}>
+                <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${sortBy === k ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sortBy === k ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
+                <span style={{ fontSize: 13.5, fontWeight: sortBy === k ? 800 : 600, color: sortBy === k ? C.text : C.light }}>{lb}</span>
+              </div>
+            ))}
+            {dealsAvailable ? (
+              <div onClick={() => onDeals && onDeals(!dealsOnly)} role="button" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer" }}>
+                <span style={{ width: 17, height: 17, borderRadius: 5, border: `2px solid ${dealsOnly ? C.accent : C.border}`, background: dealsOnly ? C.accent : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#0D1117", fontSize: 11, fontWeight: 900 }}>{dealsOnly ? "\u2713" : ""}</span>
+                <span style={{ fontSize: 13.5, fontWeight: 600, color: C.light }}>Deals only</span>
+              </div>
+            ) : null}
+            <div style={{ height: 1, background: C.border, margin: "8px 2px 10px" }} />
+            <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "0 8px 7px" }}>Search distance</div>
+            <RadiusSlider mi={mi} max={60} onChange={onMi} where={where} />
+            <div style={{ fontSize: 10.5, color: C.muted, padding: "7px 8px 2px", lineHeight: 1.4 }}>Widening past your current area pulls in fresh results automatically.</div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -4282,9 +4329,22 @@ function PageInner() {
   const HOME_CHIPS = ["bestof", "localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "outdoor", "breakfast", "coffee"].filter((k) => EXPERIENCES[k]);
   const _viewCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
   const _mealPool = cat === "food" ? mealGate(places, sub) : places;
-  const viewBase = sortBy === "near"
-    ? [..._mealPool].filter((p) => sliderMi >= 30 || p.distMi == null || p.distMi <= sliderMi).sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12))
-    : Ranking.rankByConditions([..._mealPool], _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p));
+  // v4.25: every sort mode is real on the browse feed, the distance limit
+  // applies to all of them, and the near-first rule survives ranking.
+  const _distFiltered = [..._mealPool].filter((p) => sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi);
+  let viewBase;
+  if (sortBy === "near") {
+    viewBase = _distFiltered.sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
+  } else if (sortBy === "rated") {
+    viewBase = _distFiltered.sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+  } else if (sortBy === "price") {
+    viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
+  } else {
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p));
+    // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
+    const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
+    if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
+  }
   const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode);
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
@@ -4315,21 +4375,9 @@ function PageInner() {
       </div>
       {!loading && (
         <div style={{ padding: "0 2px 10px" }}>
-          {/* v4.21: iOS-style quiet sort bar — text segments, hairline active underline, radius inline. Global across categories. */}
-          <div style={{ display: "flex", alignItems: "center", gap: 2, borderBottom: `1px solid ${C.border}` }}>
-            {[["best", "Best"], ["near", "Closest"], ["rated", "Top rated"], ["price", "Price"]].map(([k, lb]) => (
-              <button key={k} onClick={() => { if (k === "near") { if (sortBy !== "near") { setSortBy("near"); setSliderMi(Math.min(60, Math.max(1, Math.round(searchRadius / 1609.34)))); setRadiusOpen(true); } else { setRadiusOpen((o) => !o); } } else { setSortBy(k); setRadiusOpen(false); } }} style={{ padding: "9px 11px 10px", border: "none", background: "transparent", color: sortBy === k ? C.accent : C.muted, fontSize: 13, fontWeight: sortBy === k ? 800 : 600, cursor: "pointer", position: "relative" }}>
-                {lb}
-                {sortBy === k && <span style={{ position: "absolute", left: 10, right: 10, bottom: -1, height: 2, borderRadius: 2, background: C.accent }} />}
-              </button>
-            ))}
-            <span style={{ flex: 1 }} />
-            <button onClick={() => setRadiusOpen((o) => !o)} style={{ padding: "9px 4px 10px", border: "none", background: "transparent", color: C.muted, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>{Math.round((searchRadius || 48280) / 1609.34)} mi {"\u25BE"}</button>
-            {Object.keys(offers).length > 0 && <button onClick={() => setDealsOnly((d) => !d)} style={{ padding: "9px 4px 10px 10px", border: "none", background: "transparent", color: dealsOnly ? C.accent : C.muted, fontSize: 12.5, fontWeight: dealsOnly ? 800 : 600, cursor: "pointer" }}>Deals</button>}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
+            <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
           </div>
-          {radiusOpen && (
-            <div style={{ marginTop: 10 }}><RadiusSlider mi={sliderMi} max={60} onChange={(mi) => { setSliderMi(mi); const m = Math.round(mi * 1609.34); if (m > (searchRadius || 0)) setSearchRadius(m); }} where={locName ? locName.split(",")[0] : "you"} /></div>
-          )}
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingTop: 10, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
             {HOME_CHIPS.map((k) => { const e = EXPERIENCES[k]; if (!e) return null; return (
               <button key={k} onClick={() => openExperience(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -4822,7 +4870,10 @@ function PageInner() {
               {/* v6.22: when a category is being browsed from the mood menu, the feed under the weather becomes that category's ranked places. No navigation, the same PlaceCard used everywhere else. */}
               {browseCat && (
                 <div style={{ marginBottom: 16 }}>
-                  <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 12 }}>‹ Back</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
+                  </div>
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
