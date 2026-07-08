@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.25";
+const BUILD_ID = "v4.28";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -94,9 +94,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
       <div style={{ position: "relative" }}>
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: on ? C.adim : "transparent", border: `1px solid ${on ? C.accent : "transparent"}`, cursor: "pointer", flex: 1, minWidth: 0 }}>
-            <NavIcon name={m.id} color={on ? C.accent : C.muted} size={24} />
-            <span style={{ fontSize: 10.5, fontWeight: on ? 800 : 600, color: on ? C.accent : C.muted, textAlign: "center", lineHeight: 1.12 }}>{m.label}</span>
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
+            <NavIcon name={m.id} color={on ? C.accent : "#A9B4C7"} size={26} />
+            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#A9B4C7", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -105,7 +105,10 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
       <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
         <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
           {subs.map((sf) => { const son = sub === sf.id; return (
-            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "9px 12px", borderRadius: 12, border: `1px solid ${son ? C.accent : "transparent"}`, background: son ? C.adim : "transparent", color: son ? C.accent : C.muted, fontSize: 11, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap" }}>{sf.label}</button>
+            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.accent : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
+              {sf.label}
+              {son ? <span style={{ position: "absolute", left: 11, right: 11, bottom: 4, height: 2.5, borderRadius: 2, background: C.accent }} /> : null}
+            </button>
           ); })}
         </div>
       </div>
@@ -985,6 +988,48 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 }
 // v4.25 — Sort & distance dropdown. Lives next to Back in every category
 // browse and on the explore list. One control, discoverable, premium.
+// v4.27 — Culture, distributed. A one-line area insight at the top of each
+// category browse, expanding to the facts, a local phrase, and the rookie
+// mistake for that context. Replaces the standalone culture card.
+function AreaInsight({ metro, cat, town, onFind }) {
+  const [openIt, setOpenIt] = useState(false);
+  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo" };
+  const key = map[cat];
+  const notes = metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null;
+  const c = metro ? Culture.CULTURE[metro] : null;
+  if (!notes || !c) return null;
+  return (
+    <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
+        <span style={{ fontSize: 15, lineHeight: "19px" }}>{"\uD83C\uDF3A"}</span>
+        <span style={{ flex: 1, fontSize: 12.5, color: "#B9D6CE", lineHeight: 1.45 }}>
+          <span style={{ fontWeight: 800, color: "#FFFFFF" }}>Around {town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title}: </span>
+          {notes.line}
+        </span>
+        <span style={{ fontSize: 10, color: "#8ED6C4", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s", marginTop: 3 }}>{"\u25BC"}</span>
+      </div>
+      {openIt && (
+        <div style={{ padding: "0 13px 13px 37px" }}>
+          {(notes.items || []).map((x, i) => {
+            const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
+            return (
+              <div key={i} style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
+                  {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
+                </div>
+                <div style={{ fontSize: 11.5, color: "#B9D6CE", lineHeight: 1.45, marginTop: 1 }}>{x.story}</div>
+              </div>
+            );
+          })}
+          {notes.say ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 9 }}><span style={{ fontWeight: 800, color: "#8ED6C4" }}>Talk local: </span><span style={{ fontWeight: 800, color: "#FFFFFF" }}>{"\u201C"}{notes.say.phrase}{"\u201D"}</span> {"\u2014"} {notes.say.meaning}</div> : null}
+          {notes.mistake ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>Rookie mistake: </span>{notes.mistake}</div> : null}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
   const [openMenu, setOpenMenu] = useState(false);
   const OPTIONS = [["best", "Best experiences"], ["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]];
@@ -1945,75 +1990,6 @@ function similarPlaces(pool, seed, n, badgesOf) {
 // v4.15 — Culture card: what this destination is known for. Editorial content
 // from lib/culture.js; "do" items link out through the affiliate experience
 // search when a partner PID exists. Collapsed by default, expands in place.
-function CultureCard({ metro, onFind }) {
-  const [open, setOpen] = useState(false);
-  const c = Culture.CULTURE[metro];
-  if (!c) return null;
-  const Sec = ({ title, children }) => (
-    <div style={{ marginTop: 13 }}>
-      <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", marginBottom: 6 }}>{title}</div>
-      {children}
-    </div>
-  );
-  const Item = ({ name, story, query, viatorUrl }) => {
-    // v4.24: credibility rule — Book renders ONLY for hand-verified product
-    // links. Unverified items keep the in-app name tap; no promise we can't keep.
-    const book = viatorUrl ? Aff.viatorDirectUrl(viatorUrl) : null;
-    return (
-      <div style={{ marginBottom: 9 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span onClick={(e) => { e.stopPropagation(); try { logEvent("culture_find", null, { metro, q: name }); } catch (er) {} onFind && onFind(query || name); }} role="button" style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.45)", textUnderlineOffset: 3 }}>{name}</span>
-          {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEvent("culture_book", null, { metro, q: query || name }); } catch (er) {} }} style={{ fontSize: 10.5, fontWeight: 800, padding: "3px 10px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
-        </div>
-        <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.45, marginTop: 2 }}>{story}</div>
-      </div>
-    );
-  };
-  return (
-    <div onClick={() => setOpen(!open)} style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #06231E 0%, #0B3A31 60%, #06231E 100%)", border: "1px solid rgba(46,204,163,.35)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingRight: 74 }}>
-        <span style={{ fontSize: 22 }}>{"\uD83C\uDF3A"}</span>
-        <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Know before you go · {c.tag}</span>
-      </div>
-      <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px", paddingRight: 74 }}>What {c.title} is known for</div>
-      <div style={{ fontSize: 12.5, color: "#B9D6CE", marginTop: 5, lineHeight: 1.4 }}>{open ? "The local food, experiences, sights, and sayings that make this place itself." : "The dishes to try, the experiences not to miss, and how the locals talk. Tap to open."}</div>
-      {open && (
-        <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
-          <Sec title="Eat like a local">{c.eat.map((x, i) => <Item key={i} {...x} />)}</Sec>
-          <Sec title="Don't leave without">{c.do.map((x, i) => <Item key={i} {...x} />)}</Sec>
-          <Sec title="Worth your eyes">{c.see.map((x, i) => <Item key={i} {...x} />)}</Sec>
-          <Sec title="Talk like a local">{c.say.map((x, i) => (
-            <div key={i} style={{ marginBottom: 7 }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: "#FFFFFF" }}>{x.phrase}</span>
-              <span style={{ fontSize: 12, color: "#B9D6CE" }}> — {x.meaning}</span>
-            </div>
-          ))}</Sec>
-          <Sec title="Good to know">
-            <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.5 }}>{c.know}</div>
-          </Sec>
-          {c.mistakes && c.mistakes.length ? (
-            <Sec title="Rookie mistakes">
-              {c.mistakes.map((m, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 7 }}>
-                  <span style={{ color: "#F2C14E", fontSize: 12.5 }}>{"\u26A0\uFE0F"}</span>
-                  <span style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.45 }}>{m}</span>
-                </div>
-              ))}
-              {c.move ? (
-                <div style={{ marginTop: 9, padding: "10px 12px", borderRadius: 12, background: "rgba(46,201,166,.1)", border: "1px solid rgba(46,201,166,.3)" }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#8ED6C4", textTransform: "uppercase", marginBottom: 4 }}>The local move</div>
-                  <div style={{ fontSize: 12, color: "#B9D6CE", lineHeight: 1.5 }}>{c.move}</div>
-                </div>
-              ) : null}
-            </Sec>
-          ) : null}
-          <div style={{ fontSize: 10, color: "#7FA79C", marginTop: 12 }}>Wayfind may earn a commission from partner links</div>
-        </div>
-      )}
-      <div style={{ position: "absolute", top: 12, right: 12, fontSize: 11.5, fontWeight: 800, color: "#0D1117", background: "#2EC9A6", padding: "5px 13px", borderRadius: 999, boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>{open ? "Close" : "Open"}</div>
-    </div>
-  );
-}
 function relatedPicks(allSrc, subject, n) {
   if (!subject) return [];
   const subCat = primaryCategory(subject) || "";
@@ -2479,12 +2455,32 @@ function PageInner() {
   const [cat, setCat] = useState("food");
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
+  const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
+  useEffect(() => {
+    try {
+      if (!(giveawayLive() || giveawaySoon())) return;
+      const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}");
+      const now = Date.now();
+      if (st.entered) return;                                  // entered: never again
+      if (st.dismissedAt && now - st.dismissedAt < 3 * 864e5) return; // dismissed: 3-day snooze
+      if (st.shownAt && now - st.shownAt < 864e5) return;      // at most once a day
+      const t = setTimeout(() => {
+        setGwPop(true);
+        try { localStorage.setItem("wf_gw_pop", JSON.stringify({ ...st, shownAt: Date.now() })); logEvent("giveaway_pop"); } catch (e) {}
+      }, 30000);
+      return () => clearTimeout(t);
+    } catch (e) {}
+  }, []);
+  const gwPopClose = (why) => {
+    setGwPop(false);
+    try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); if (why === "entered") st.entered = true; else st.dismissedAt = Date.now(); localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (e) {}
+  };
   const giveawayLive = () => { const n = Date.now(); return n >= GIVEAWAY.start.getTime() && n <= GIVEAWAY.end.getTime(); };
   const giveawaySoon = () => { const n = Date.now(); return n < GIVEAWAY.start.getTime() && n >= GIVEAWAY.start.getTime() - 21 * 864e5; };
   const [gwCount, setGwCount] = useState(0);
   const [gwOpen, setGwOpen] = useState(false);
   useEffect(() => { try { const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (Array.isArray(g)) setGwCount(g.length); } catch (e) {} }, []);
-  const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); localStorage.setItem("wf_gw26", JSON.stringify(g)); setGwCount(g.length); } } catch (e) {} };
+  const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); localStorage.setItem("wf_gw26", JSON.stringify(g)); setGwCount(g.length); if (g.length >= 3) { try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); st.entered = true; localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (er) {} } } } catch (e) {} };
   const [mapFocus, setMapFocus] = useState(null); // drawer row -> fly the map to this pin
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
@@ -2687,8 +2683,9 @@ function PageInner() {
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).catch(() => [])));
       const used = new Set(); const out = []; const sections = [];
+      const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
       c.slots.forEach((sl, ix) => {
-        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id));
+        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")));
         pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
         const take = pool.slice(0, sl.n);
         take.forEach((pp) => used.add(pp.id));
@@ -3148,7 +3145,7 @@ function PageInner() {
 
   // World Cup hero card. topSlot=true renders only on match days (fixed
   // knockout calendar); topSlot=false renders mid-feed on off days.
-  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
+  const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
                       <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
@@ -4874,6 +4871,7 @@ function PageInner() {
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
                   </div>
+                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
@@ -4940,25 +4938,32 @@ function PageInner() {
                   <div style={{ marginBottom: 16 }}>
                     {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
-                      {(giveawayLive() || giveawaySoon()) && (
-                        <div style={{ borderRadius: 18, padding: "16px 16px 15px", marginBottom: 12, background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
-                          <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
-                          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                            <span style={{ fontSize: 22, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>🏆</span>
-                            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#F2D48A", textTransform: "uppercase" }}>Wayfind giveaway · Annual</span>
-                          </div>
-                          <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>Win a 3-night stay at Hilton Orlando</div>
-                          <div style={{ fontSize: 12.5, color: "#E8D5A4", marginTop: 5, lineHeight: 1.45 }}>Share any 3 places or lists from Wayfind. One winner, drawn Nov 1. That is the whole entry.</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
-                            {!giveawayLive() ? (
-                              <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>Opens July 4</span>
-                            ) : user ? (
-                              <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: gwCount >= 3 ? "#E8B84B" : "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: gwCount >= 3 ? "#1B1405" : "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>{gwCount >= 3 ? "You're entered ✓" : Math.min(gwCount, 3) + " of 3 shared"}</span>
-                            ) : (
-                              <button onClick={() => setAuthOpen(true)} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
-                            )}
-                            <button onClick={() => setGwOpen(true)} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>How it works ›</button>
+                                            {gwPop && (giveawayLive() || giveawaySoon()) && (
+                        <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
+                          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
+                            <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
+                            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
+                            <button onClick={() => gwPopClose("x")} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.4)", border: "1px solid rgba(232,184,75,.4)", color: "#F2D48A", fontSize: 15, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>×</button>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, paddingRight: 34 }}>
+                              <span style={{ fontSize: 22, filter: "drop-shadow(0 0 8px rgba(232,184,75,.6))" }}>🏆</span>
+                              <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: "#F2D48A", textTransform: "uppercase" }}>Wayfind giveaway · Annual</span>
+                            </div>
+                            <div style={{ fontSize: 21, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.15, letterSpacing: "-0.3px" }}>Win a 3-night stay at Hilton Orlando</div>
+                            <div style={{ fontSize: 12.5, color: "#E8D5A4", marginTop: 6, lineHeight: 1.5 }}>Share any 3 places or lists from Wayfind. One winner, drawn Nov 1. That is the whole entry.</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 13, flexWrap: "wrap" }}>
+                              {!giveawayLive() ? (
+                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>Opens July 4</span>
+                              ) : user ? (
+                                <span style={{ display: "inline-flex", alignItems: "center", padding: "8px 14px", borderRadius: 999, background: gwCount >= 3 ? "#E8B84B" : "rgba(232,184,75,.14)", border: "1px solid rgba(232,184,75,.55)", color: gwCount >= 3 ? "#1B1405" : "#F2D48A", fontSize: 12.5, fontWeight: 800 }}>{gwCount >= 3 ? "You're entered ✓" : Math.min(gwCount, 3) + " of 3 shared"}</span>
+                              ) : (
+                                <button onClick={() => { gwPopClose("cta"); setAuthOpen(true); }} style={{ padding: "8px 14px", borderRadius: 999, background: "#E8B84B", border: "none", color: "#1B1405", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter"}</button>
+                              )}
+                              <button onClick={() => { gwPopClose("browse"); pickBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} }} style={{ padding: "8px 14px", borderRadius: 999, background: "transparent", border: "1px solid rgba(232,184,75,.45)", color: "#F2D48A", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Find a place to share ›</button>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 12 }}>
+                              <button onClick={() => setGwOpen(true)} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>How it works</button>
+                              <button onClick={() => gwPopClose("later")} style={{ padding: 0, background: "transparent", border: "none", color: "#B99B4E", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>Keep exploring</button>
+                            </div>
                           </div>
                         </div>
                       )}
@@ -4973,7 +4978,6 @@ function PageInner() {
                           </div>
                         </div>
                       )}
-                      {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <CultureCard metro={_cm} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                       {renderWorldCupCard(true)}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
                         <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
