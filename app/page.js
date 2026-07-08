@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.46";
+const BUILD_ID = "v4.47";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5088,7 +5088,7 @@ function PageInner() {
                   themeTitle: "Wayfind Picks · Top 10 near " + cityHero,
                   themeBody: "The ten best spots near you for right now, ranked by quality, distance, today's weather, and the time of day. Rain pushes indoor picks up, clear skies favor the outdoors, and anything closed drops down. No ads, no paid placement.",
                 } : null;
-                const restExp = avail.filter((a) => !heroPlace || a.place.id !== heroPlace.id);
+                const restExp = avail.filter((a) => !heroPlace || !a.place || a.place.id !== heroPlace.id);
                 const themeEng = {};
                 try { hookLikes.forEach((id) => { if (typeof id === "string" && id.indexOf("exp-") === 0) { const t = id.slice(4); themeEng[t] = (themeEng[t] || 0) + 1; } }); } catch (e) {}
                 restExp.sort((a, b) => ((themeEng[b.key] || 0) - (themeEng[a.key] || 0)) || (THEME_ORDER.indexOf(a.key) - THEME_ORDER.indexOf(b.key)));
