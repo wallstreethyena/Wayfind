@@ -200,6 +200,94 @@ async function fromBandsintown(lat, lng, radius) {
   } catch { return { configured: true, events: [] }; }
 }
 
+
+// v4.31 — Eventbrite, organizer-scoped. Eventbrite retired public event search
+// in 2020, so the only sanctioned path is naming organizations you follow.
+// EVENTBRITE_PRIVATE_TOKEN + EVENTBRITE_ORG_IDS (comma-separated organization
+// ids) light this up; local orgs (museums, markets, chambers) are the win.
+async function fromEventbriteOrgs(lat, lng, radius) {
+  const token = (process.env["EVENTBRITE_PRIVATE_TOKEN"] || "").trim();
+  const orgIds = (process.env["EVENTBRITE_ORG_IDS"] || "").split(",").map((x) => x.trim()).filter(Boolean);
+  if (!token || !orgIds.length) return { configured: false, events: [] };
+  try {
+    const lists = await Promise.all(orgIds.slice(0, 10).map(async (org) => {
+      try {
+        const r = await fetch(`https://www.eventbriteapi.com/v3/organizations/${encodeURIComponent(org)}/events/?status=live&order_by=start_asc&expand=venue&page_size=50`, { headers: { Authorization: `Bearer ${token}` } });
+        if (!r.ok) return [];
+        const data = await r.json();
+        return Array.isArray(data.events) ? data.events : [];
+      } catch { return []; }
+    }));
+    const horizon = Date.now() + 60 * 86400000;
+    const events = lists.flat().map((e) => {
+      const startLocal = e.start && e.start.local ? e.start.local : "";
+      const [date, time] = startLocal.split("T");
+      const v = e.venue || null;
+      const evLat = v && v.latitude != null ? Number(v.latitude) : null;
+      const evLng = v && v.longitude != null ? Number(v.longitude) : null;
+      return {
+        id: "eb_" + e.id,
+        name: e.name && e.name.text ? e.name.text : "",
+        date: date || "", time: (time || "").slice(0, 8),
+        venue: v && v.name ? v.name : "",
+        city: v && v.address && v.address.city ? v.address.city : "",
+        lat: evLat, lng: evLng,
+        segment: "Community", genre: "",
+        image: e.logo && e.logo.url ? e.logo.url : null,
+        price: e.is_free ? "Free" : null,
+        url: e.url || "",
+        ticketed: !e.is_free,
+        source: "Eventbrite",
+      };
+    }).filter((e) => {
+      if (!e.name || !e.date) return false;
+      const t = new Date(e.date + "T12:00:00").getTime();
+      if (!(t >= Date.now() - 86400000 && t <= horizon)) return false;
+      if (e.lat != null && e.lng != null && lat != null && lng != null) {
+        return haversineMi(lat, lng, e.lat, e.lng) <= Math.max(Number(radius) || 60, 60);
+      }
+      return true;
+    });
+    return { configured: true, events };
+  } catch { return { configured: true, events: [] }; }
+}
+
+// v4.31 — Curated local staples. Keyless and alive immediately: the reliable
+// recurring events small towns actually run on, computed against the calendar
+// and geo-fenced to the Parrish / Manatee region. Facts sourced from the
+// venues' own materials; no invented times.
+function fromLocalStaples(lat, lng) {
+  if (lat == null || lng == null) return { configured: false, events: [] };
+  const near = (clat, clng, mi) => haversineMi(lat, lng, clat, clng) <= mi;
+  const inParrishRegion = near(27.5859, -82.4254, 30);
+  if (!inParrishRegion) return { configured: true, events: [] };
+  const out = [];
+  const d = new Date();
+  const pushOn = (target, ev) => {
+    const date = target.toISOString().slice(0, 10);
+    out.push({ ...ev, id: ev.id + "_" + date, date, time: "", price: ev.price || null, ticketed: !!ev.ticketed, civic: true, source: "Local staples" });
+  };
+  const nextDow = (dow, weeks) => {
+    for (let w = 0; w < weeks; w++) {
+      const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + ((dow - d.getDay() + 7) % 7) + w * 7);
+      if (t.getTime() >= new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) yieldDates.push(t);
+    }
+  };
+  const yieldDates = [];
+  nextDow(0, 3); // next 3 Sundays
+  for (const t of yieldDates) {
+    pushOn(t, { id: "ls_waterside_market", name: "The Market at Waterside Place", venue: "Waterside Place, Lakewood Ranch", city: "Lakewood Ranch", lat: 27.3934, lng: -82.4415, segment: "Community", genre: "Farmers market", image: null, url: "https://mywatersideplace.com", ticketed: false });
+    pushOn(t, { id: "ls_frm_sun", name: "Florida Railroad Museum scenic train ride", venue: "Florida Railroad Museum", city: "Parrish", lat: 27.5837, lng: -82.4273, segment: "Family", genre: "Heritage railroad", image: null, url: "https://frrm.org", ticketed: true });
+  }
+  const sats = [];
+  const nd = (dow, weeks, arr) => { for (let w = 0; w < weeks; w++) { const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + ((dow - d.getDay() + 7) % 7) + w * 7); arr.push(t); } };
+  nd(6, 3, sats); // next 3 Saturdays
+  for (const t of sats) {
+    pushOn(t, { id: "ls_frm_sat", name: "Florida Railroad Museum scenic train ride", venue: "Florida Railroad Museum", city: "Parrish", lat: 27.5837, lng: -82.4273, segment: "Family", genre: "Heritage railroad", image: null, url: "https://frrm.org", ticketed: true });
+  }
+  return { configured: true, events: out };
+}
+
 function dedupe(all) {
   const norm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
   const rank = { Ticketmaster: 5, SeatGeek: 4, Bandsintown: 3, PredictHQ: 2, Google: 1 };
@@ -449,6 +537,8 @@ export async function POST(req) {
       fromSerpEvents(lat, lng, keyword, city),
       fromOpenWebNinja(lat, lng, keyword, city),
       fromLibCal(lat, lng),
+      fromEventbriteOrgs(lat, lng, radius),
+      Promise.resolve(fromLocalStaples(lat, lng)),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
