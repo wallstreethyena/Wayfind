@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.49";
+const BUILD_ID = "v4.50";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -6506,7 +6506,8 @@ function PageInner() {
               )}
 
               {detail && offers[detail.id] && (() => {
-                const o = offers[detail.id];
+                const o0 = offers[detail.id];
+                const o = { ...o0, offer_title: o0.offer_title || o0.title, offer_description: o0.offer_description || o0.description, affiliate_url: o0.affiliate_url || o0.url, expiration_date: o0.expiration_date || (o0.expires_at ? String(o0.expires_at).slice(0, 10) : null) };
                 return (
                   <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
