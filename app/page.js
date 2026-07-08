@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.37";
+const BUILD_ID = "v4.39";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -885,7 +885,7 @@ const EXPERIENCES = {
   outdoor:   { icon: "🌳", label: "Outdoor",         title: "Outdoor Dining",   cat: "food",      keyword: "outdoor seating patio", lead: "Patios, courtyards, and tables in the open air." },
   groups:    { icon: "🎉", label: "Great for groups", title: "Great for Groups", cat: "food",     lead: "Room for the whole crew without the side-eye.", filter: (p) => (p.labels || []).includes("Good for groups") },
   dog:       { icon: "🐶", label: "Dog friendly",    title: "Dog Friendly",     cat: "food",      lead: "Bring the dog. Everyone is welcome here.", filter: (p) => (p.labels || []).includes("Dog friendly") },
-  family:    { icon: "👨‍👩‍👧", label: "Family friendly", title: "Family Favorites", cat: "attractions", keyword: "family friendly things to do", lead: "Easy with kids and actually good for the grownups too." },
+  family:    { icon: "👨‍👩‍👧", label: "Best for families", title: "Best for Families", cat: "attractions", keyword: "family theme park attractions things to do kids", lead: "Theme parks, animal encounters, and the fun stuff, easy with kids and good for the grownups too." },
   instagram: { icon: "📸", label: "Instagrammable",   title: "Most Photogenic",   cat: "attractions", keyword: "scenic photo spots views", lead: "The spots worth stopping for the picture." },
   cocktails: { icon: "🍸", label: "Cocktails",       title: "Cocktail Bars",    cat: "nightlife", keyword: "cocktails", lead: "Proper drinks, made with care." },
   wine:      { icon: "🍷", label: "Wine",            title: "Wine Spots",       cat: "nightlife", keyword: "wine bar", lead: "A good list and a quiet pour." },
@@ -903,7 +903,10 @@ const EXPERIENCES = {
   dessert:   { icon: "🍰", label: "Bakery & sweets", title: "Bakery & Sweets",  cat: "food",      keyword: "bakery dessert", lead: "Warm bread, pastries, cakes, and the good stuff." },
   museum:    { icon: "🏛️", label: "Museum",          title: "Museums & Galleries", cat: "attractions", keyword: "museum gallery", lead: "Indoor culture worth setting time aside for." },
   nature:    { icon: "🌿", label: "Nature & trails",  title: "Nature & Trails",  cat: "attractions", keyword: "nature preserve park trails", lead: "Open air, trails, and room to breathe." },
-  entertainment: { icon: "🎢", label: "Entertainment", title: "Entertainment",  cat: "attractions", keyword: "things to do fun", lead: "Built for a fun day out." },
+  entertainment: { icon: "🎢", label: "Attractions & fun", title: "Attractions & Things to Do",  cat: "attractions", keyword: "attractions things to do", lead: "The theme parks, tours, and can't-miss stops for a full day out." },
+  stays:     { icon: "🏨", label: "Hotels & stays",  title: "Hotels & Stays",   cat: "attractions", keyword: "hotels resorts lodging", lead: "Places to stay, from resorts to easy overnight picks." },
+  shows:     { icon: "🎭", label: "Shows & tickets", title: "Shows & Live Events", cat: "attractions", keyword: "shows theater dinner show live", lead: "Dinner shows, theater, and live entertainment worth booking." },
+  budget:    { icon: "🪙", label: "On a budget",     title: "Great on a Budget", cat: "attractions", keyword: "free cheap affordable things to do", lead: "Big fun that goes easy on the wallet." },
 };
 
 // Run a place through the FULL badge engine, not just the badge a user tapped.
@@ -4453,7 +4456,7 @@ function PageInner() {
   // A short, curated row of the most useful experiences. Every other badge stays
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
-  const HOME_CHIPS = ["bestof", "localfav", "gem", "value", "instagram", "waterfront", "livemusic", "family", "romantic", "outdoor", "breakfast", "coffee"].filter((k) => EXPERIENCES[k]);
+  const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
   const _viewCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
   const _mealPool = cat === "food" ? mealGate(places, sub) : places;
   // v4.25: every sort mode is real on the browse feed, the distance limit
@@ -5020,8 +5023,8 @@ function PageInner() {
                 const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName, blurbs[pl.id]), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Roll the Dice", hook: "Cannot decide where to go?", highlightWord: "decide", subtitle: "One strong spot near you, picked instantly", cta: "🎲 Roll for me →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
-                const THEME_ORDER = ["bestof", "localfav", "family", "gem", "value", "waterfront", "instagram", "livemusic", "romantic", "breakfast", "coffee"];
-                const THEME_COLOR = { bestof: C.gold, localfav: C.gold, gem: C.teal, value: C.green, instagram: C.pink, waterfront: C.blue, livemusic: C.purple, family: C.green, romantic: C.pink, breakfast: C.accent, coffee: C.accent };
+                const THEME_ORDER = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "bestof", "instagram", "outdoor", "waterfront"];
+                const THEME_COLOR = { gem: C.teal, family: C.green, entertainment: C.purple, stays: C.blue, shows: C.pink, value: C.green, budget: C.gold, bestof: C.gold, instagram: C.pink, outdoor: C.green, waterfront: C.blue };
                 const expPool = [];
                 const seenPool = new Set();
                 for (const p of [...(displayList || []), ...(suggested || []), ...(places || [])]) { if (p && p.id && !seenPool.has(p.id)) { seenPool.add(p.id); expPool.push(p); } }
