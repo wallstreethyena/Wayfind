@@ -5,8 +5,11 @@
 // search URL, so this can never be worse than the old behavior.
 export const runtime = "nodejs";
 
-const KEY = (process.env.VIATOR_API_KEY || "").trim();
-const PID = (process.env.NEXT_PUBLIC_VIATOR_PID || "").trim();
+// v4.29: bracket-notation env reads inside call time. Next inlines dot-access
+// process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
+// lookup, so a value present in the runtime can never be baked out as "".
+const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
+const getPid = () => ((process.env["NEXT_PUBLIC_VIATOR_PID"] || "").trim());
 
 // Warm-instance memory cache: query -> { url, exp }
 const mem = new Map();
@@ -14,6 +17,7 @@ const TTL = 24 * 3600 * 1000;
 
 function searchFallback(q) {
   const t = encodeURIComponent(q);
+  const PID = getPid();
   return PID
     ? `https://www.viator.com/searchResults/all?text=${t}&pid=${encodeURIComponent(PID)}&mcid=42383&medium=link`
     : `https://www.viator.com/searchResults/all?text=${t}`;
@@ -22,6 +26,7 @@ function searchFallback(q) {
 async function resolveProduct(q) {
   const hit = mem.get(q);
   if (hit && hit.exp > Date.now()) return hit.url;
+  const KEY = getKey();
   if (!KEY) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 4500);
@@ -58,6 +63,18 @@ async function resolveProduct(q) {
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
+  // Diagnostic probe: booleans + upstream status only. Never echoes values.
+  if (searchParams.get("probe") === "1") {
+    const KEY = getKey();
+    let upstream = null;
+    if (KEY) {
+      try {
+        const r = await fetch("https://api.viator.com/partner/search/freetext", { method: "POST", headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" }, body: JSON.stringify({ searchTerm: "orlando tour", currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 1 } }] }) });
+        upstream = r.status;
+      } catch (e) { upstream = "network_error"; }
+    }
+    return Response.json({ hasKey: !!KEY, keyLooksValid: KEY.length >= 20, hasPid: !!getPid(), upstreamStatus: upstream });
+  }
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
   const city = (searchParams.get("city") || "").trim().slice(0, 60);
   if (!q) return Response.redirect("https://www.viator.com", 302);

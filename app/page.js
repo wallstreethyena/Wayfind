@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.28";
+const BUILD_ID = "v4.29";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3583,9 +3583,29 @@ function PageInner() {
 
   useEffect(() => {
     if (keyMissing) return;
+    let gotGPS = false;
+    // IP fallback (works on desktop with no GPS). Applied only if GPS hasn't
+    // already set a location, and never overrides a manual search.
+    const ipFallback = async () => {
+      try {
+        const r = await fetch("/api/geo", { cache: "no-store" });
+        const d = await r.json();
+        if (d && d.ok && !gotGPS && !manualRef.current) {
+          const c = { lat: d.lat, lng: d.lng };
+          setDeviceLoc((prev) => prev || c);
+          setCenter((prev) => prev || c);
+          if (d.name) setLocName((prev) => prev || d.name);
+        }
+      } catch (e) {}
+    };
+    // Give GPS a head start; if it hasn't answered in 2.5s, use IP so the page
+    // isn't stuck empty. GPS, if it later resolves, still wins via the handler.
+    const ipTimer = setTimeout(ipFallback, 2500);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
+          gotGPS = true;
+          clearTimeout(ipTimer);
           const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setDeviceLoc(c);
           if (manualRef.current) return;
@@ -3593,10 +3613,13 @@ function PageInner() {
           setCenter(c);
           setLocName(name);
         },
-        () => {},
+        () => { ipFallback(); },
         { timeout: 8000 }
       );
+    } else {
+      ipFallback();
     }
+    return () => clearTimeout(ipTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
