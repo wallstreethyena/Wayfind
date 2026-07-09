@@ -4,6 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, 
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
+import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
@@ -18,7 +19,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.72";
+const BUILD_ID = "v4.74";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -7217,7 +7218,7 @@ function PageInner() {
                           </div>
                         )}
                         {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) }); return why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
+                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.accent : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
                         {isFeatured && (
                           <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
                         )}
@@ -7601,10 +7602,9 @@ function PageInner() {
         </div>
       )}
       {introOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 14, overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "94vh", overflowY: "auto", borderRadius: 26, padding: "18px 20px 20px", background: "#0B0E17", border: "1px solid rgba(255,138,61,.4)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 60px rgba(249,115,22,.14)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}><IntroIcon k="pin" size={22} /><span style={{ fontSize: 19, fontWeight: 800, color: "#FF8A3D", letterSpacing: 0.2 }}>Wayfind</span></div>
+        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "84vh", overflowY: "auto", borderRadius: 26, padding: "14px 20px 20px", background: "#0B0E17", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
             <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
@@ -7612,7 +7612,7 @@ function PageInner() {
             <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.5, margin: "10px auto 16px", maxWidth: 360 }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
             <div style={{ display: "flex", justifyContent: "center", margin: "2px 0 13px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
-                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for? Let us Wayfind it.</span>
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What would interest you today?</span>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
@@ -7622,7 +7622,7 @@ function PageInner() {
                 </button>
               ); })}
             </div>
-            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 8px 26px rgba(255,138,61,.4)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Design my curated list</button>
+            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Let's Wayfind it</button>
             <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>

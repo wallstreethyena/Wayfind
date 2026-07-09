@@ -17,10 +17,10 @@ if (!page.includes("Wayfind \u00b7 {BUILD_ID}</div>")) fail("visible version lab
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
-if (!/let us wayfind it/i.test(page)) fail("mood kicker missing");
+if (!/what would interest you today/i.test(page)) fail("mood kicker missing");
 if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
-if (!/design my curated list/i.test(page)) fail("intro CTA missing");
+if (!/wayfind it<\/button>/i.test(page)) fail("intro CTA missing");
 if (!page.includes("Find my vibe")) fail("re-entry pill missing");
 if (!page.includes("hd.radiusOverride || 110000")) fail("moment radius modifier missing");
 if (!page.includes('slots: [{ label: "Top 10", n: 10')) fail("Top 10 Food must be a flat top 10");
