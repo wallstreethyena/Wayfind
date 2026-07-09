@@ -18,7 +18,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.71";
+const BUILD_ID = "v4.72";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5535,6 +5535,7 @@ function PageInner() {
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
                             <div style={{ padding: "14px 15px 10px" }}>
                               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Top 10s near you</div>
+                              <div onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "curated" }); } catch (e) {} }} role="button" style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", marginBottom: 7 }}>✨ Or tell us your mood and we'll design your list →</div>
                               <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick by where you want to go. Each one opens the ranked Top 10 for that category near you, with no ads and no paid placement.</div>
                             </div>
                             {_items.map(([k, ic, lb, desc, col]) => (
@@ -7604,12 +7605,16 @@ function PageInner() {
           <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "94vh", overflowY: "auto", borderRadius: 26, padding: "18px 20px 20px", background: "#0B0E17", border: "1px solid rgba(255,138,61,.4)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 60px rgba(249,115,22,.14)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 7 }}><IntroIcon k="pin" size={22} /><span style={{ fontSize: 19, fontWeight: 800, color: "#FF8A3D", letterSpacing: 0.2 }}>Wayfind</span></div>
-              <IntroIcon k="spark" size={30} color="#FFC28A" />
               <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
             <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
+            <div style={{ textAlign: "center", marginTop: 9 }}><IntroIcon k="spark" size={26} color="#FFC28A" /></div>
             <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.5, margin: "10px auto 16px", maxWidth: 360 }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}><IntroIcon k="spark" size={17} /><span style={{ fontSize: 14, fontWeight: 800, color: "#F4F6FC" }}>Tell us what kind of day you want</span></div>
+            <div style={{ display: "flex", justifyContent: "center", margin: "2px 0 13px" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for? Let us Wayfind it.</span>
+              </div>
+            </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
               {MOMENT_CHIPS.map((ch) => { const on = introSel.includes(ch.id); return (
                 <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
@@ -7618,27 +7623,6 @@ function PageInner() {
               ); })}
             </div>
             <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 8px 26px rgba(255,138,61,.4)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Design my curated list</button>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0 10px" }}>
-              <div style={{ flex: 1, height: 1, background: "#232838" }} />
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#AEB4C8", whiteSpace: "nowrap" }}>See what's possible right now</div>
-              <div style={{ flex: 1, height: 1, background: "#232838" }} />
-            </div>
-            {introTeasers.length >= 2 ? (
-              <div style={{ display: "grid", gridTemplateColumns: introTeasers.length >= 4 ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
-                {introTeasers.map((tz) => (
-                  <div key={tz.p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(tz.p); }} style={{ background: "#121524", border: "1px solid #262B3F", borderRadius: 13, overflow: "hidden", cursor: "pointer" }}>
-                    {tz.p.photo ? <img src={tz.p.photo} alt="" onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (e2) {} }} style={{ width: "100%", height: 58, objectFit: "cover", display: "block" }} /> : null}
-                    <div style={{ padding: "7px 8px 8px" }}>
-                      <div style={{ fontSize: 11.5, fontWeight: 800, color: "#F4F6FC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.p.name}</div>
-                      <div style={{ fontSize: 10, color: "#AEB4C8", margin: "2px 0 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.line}</div>
-                      <div style={{ fontSize: 10, color: "#8B90A5" }}>{tz.p.distMi != null ? tz.p.distMi.toFixed(1) + " mi away" : (tz.p.openNow === true ? "Open now" : "Nearby")}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{ textAlign: "center", fontSize: 11.5, color: "#8B90A5", padding: "4px 0 2px" }}>Finding what's around you{"\u2026"}</div>
-            )}
             <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>
