@@ -2,6 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import * as Meals from "../lib/meals";
+import * as Radius from "../lib/radius";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
@@ -16,7 +17,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.63";
+const BUILD_ID = "v4.64";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2887,7 +2888,20 @@ function PageInner() {
         out.push(...take);
       });
       if (!out.length) { showToast("Nothing found nearby for that yet"); return; }
-      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: out, sections: sections.length > 1 ? sections : null, presetMi: c.presetMi });
+      // v4.64: honest small-market handling. If fewer than 10 strong picks
+      // sit within 10 miles, this is a "best near {town}" list — group it by
+      // real driving distance instead of pretending town limits filled it.
+      const town = locName ? locName.split(",")[0].trim() : "";
+      const thin = Radius.strongWithin(out, 10) < 10;
+      let title2 = c.title, body2 = c.lead, places2 = out, sections2 = sections.length > 1 ? sections : null;
+      if (thin && kind !== "experiences") {
+        const bk = Radius.bucketize(out, town);
+        places2 = bk.places;
+        sections2 = bk.sections.length > 1 ? bk.sections : sections2;
+        title2 = c.title.replace(" near you", town ? " near " + town : " near you");
+        body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance \u2014 every pick is labeled by how far it really is. " : "") + c.lead;
+      }
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? 60 : c.presetMi });
     } catch (e) { showToast("Could not load that list"); }
   };
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
