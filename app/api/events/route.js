@@ -14,19 +14,43 @@ function today() {
   return new Date().toISOString().slice(0, 10);
 }
 
+// v4.87 — full Discovery API breadth. A single date-sorted query skews to
+// whatever is soonest (usually sports); fanning out per segment (Music,
+// Sports, Arts & Theatre, Family, Film, Miscellaneous) plus one unfiltered
+// pass guarantees every classification is represented. Seven parallel calls
+// per unique geo, so results are memory-cached 10 minutes to protect the
+// Discovery API daily quota.
+const TM_SEGMENTS = ["Music", "Sports", "Arts & Theatre", "Family", "Film", "Miscellaneous"];
+const _tmMem = new Map();
+const TM_TTL = 10 * 60 * 1000;
 async function fromTicketmaster(lat, lng, radius, keyword) {
   const key = process.env.TICKETMASTER_API_KEY;
   if (!key) return { configured: false, events: [] };
   try {
-    const p = new URLSearchParams({
-      apikey: key, latlong: `${lat},${lng}`, radius: String(radius || 60),
-      unit: "miles", sort: "date,asc", size: "100", startDateTime: isoNowZ(),
-    });
-    if (keyword) p.set("keyword", keyword);
-    const r = await fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${p.toString()}`);
-    if (!r.ok) return { configured: true, events: [] };
-    const data = await r.json();
-    const raw = (data._embedded && data._embedded.events) || [];
+    const ck = [Number(lat).toFixed(2), Number(lng).toFixed(2), radius || "", keyword || ""].join("|");
+    const hit = _tmMem.get(ck);
+    if (hit && hit.exp > Date.now()) return { configured: true, events: hit.events };
+    const baseParams = (extra) => {
+      const p = new URLSearchParams({
+        apikey: key, latlong: `${lat},${lng}`, radius: String(radius || 60),
+        unit: "miles", sort: "date,asc", size: extra ? "100" : "200", startDateTime: isoNowZ(),
+      });
+      if (keyword) p.set("keyword", keyword);
+      if (extra) p.set("classificationName", extra);
+      return p;
+    };
+    const calls = [null, ...(keyword ? [] : TM_SEGMENTS)].map((seg) =>
+      fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${baseParams(seg).toString()}`)
+        .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+    );
+    const pages = await Promise.all(calls);
+    const seen = new Set();
+    const raw = [];
+    for (const data of pages) {
+      for (const e of (data && data._embedded && data._embedded.events) || []) {
+        if (e && e.id && !seen.has(e.id)) { seen.add(e.id); raw.push(e); }
+      }
+    }
     const events = raw.map((e) => {
       const dates = e.dates && e.dates.start ? e.dates.start : {};
       const venue = e._embedded && e._embedded.venues && e._embedded.venues[0] ? e._embedded.venues[0] : null;
@@ -53,6 +77,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         segment: seg, genre, image: img, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
       };
     });
+    _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
     return { configured: true, events };
   } catch { return { configured: true, events: [] }; }
 }
@@ -74,7 +99,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
   try {
     const p = new URLSearchParams({
       client_id: id, lat: String(lat), lon: String(lng), range: `${radius || 60}mi`,
-      per_page: "40", sort: "datetime_asc",
+      per_page: "100", sort: "datetime_asc", // v4.87: maximize the feed
     });
     p.set("datetime_utc.gte", new Date().toISOString().slice(0, 19));
     if (keyword) p.set("q", keyword);
@@ -474,7 +499,7 @@ async function fromLibCal(lat, lng) {
     const text = await r.text();
     const raw = parseLibCalICS(text);
     const now = new Date();
-    const horizon = new Date(now.getTime() + 21 * 86400000);
+    const horizon = new Date(now.getTime() + 60 * 86400000); // v4.87: generous window
     const parsed = raw
       .map((e) => ({ e, ds: e.start ? parseICSDate(e.start) : null }))
       .filter((x) => x.ds && x.ds.dt);
@@ -506,7 +531,7 @@ async function fromLibCal(lat, lng) {
         civic: true,
         source: "Manatee County Library",
       });
-      if (out.length >= 12) break;
+      if (out.length >= 40) break; // v4.87: raised from 12
     }
     return { configured: true, events: out };
   } catch { return { configured: true, events: [] }; }
@@ -556,9 +581,9 @@ export async function POST(req) {
       const es = stateOf(e.city);
       return userState && es ? es === userState : false;
     });
-    merged = merged.filter((e) => e.date).sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""))).slice(0, 90);
+    merged = merged.filter((e) => e.date).sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""))).slice(0, 250); // v4.87: raised from 90 — show LOTS of options
 
-    const labels = ["Ticketmaster", "SeatGeek", "PredictHQ", "Bandsintown", "Google", "Google", "Manatee County Library"];
+    const labels = ["Ticketmaster", "SeatGeek", "PredictHQ", "Bandsintown", "Google", "Google", "Manatee County Library", "Eventbrite", "Local staples"]; // v4.87: complete per-source counts
     const sources = [...new Set(labels.filter((_, i) => results[i] && results[i].configured))];
     const counts = {};
     labels.forEach((lab, i) => { if (results[i] && results[i].configured) counts[lab] = (counts[lab] || 0) + ((results[i].events && results[i].events.length) || 0); });
