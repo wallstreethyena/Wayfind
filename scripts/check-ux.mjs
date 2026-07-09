@@ -13,7 +13,7 @@ if (!page.includes("function addReservation(")) fail("reservation capture missin
 if ((page.match(/addReservation\(/g) || []).length < 3) fail("reservation capture not wired to all outbound booking taps");
 if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation persistence missing");
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
-if (page.includes("Wayfind {BUILD_ID}</div>") || page.includes("{BUILD} \u00b7 {BUILD_ID}")) fail("visible version label reappeared in public UI");
+if (!page.includes("Wayfind \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
@@ -30,4 +30,9 @@ if (!/presetMi: 15,[^\n]*Top 10/.test(page) && !page.includes('presetMi: 15')) f
 if (!page.includes("(hookDetail && hookDetail.presetMi) || 60")) fail("sheet not honoring presetMi");
 if (!page.includes('id: "search-" + Date.now()')) fail("multi-result search must open the modern sheet");
 if (page.includes('setSearchLabel(`${nearby.length} results for')) fail("legacy explore search routing resurfaced");
+if (!page.includes("const lo = liveOpen(p);")) fail("feed open-status must be hours-computed, not cached");
+if (/if \(im === "sunny" \|\| im === "partly"\) return moonPhase[\s\S]{0,80}\\uD83C\\uDF19/.test(page)) fail("overcast nights still showing a bare moon");
+if (!page.includes("expCollage(a.key)")) fail("revenue hero cards missing photo collages");
+if (!page.includes("EXP_COLLAGE_RX")) fail("per-theme collage matching missing");
+if (!page.includes("I want to take a chance")) fail("chance card copy missing");
 console.log("check-ux: OK — Things to do + 🎡, hotel/calendar icons, reservations captured on 3 booking paths");
