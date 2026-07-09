@@ -23,7 +23,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.89";
+const BUILD_ID = "v4.90";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3829,7 +3829,7 @@ function PageInner() {
     // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
     // when one exists (reviews, hours, photos come along); otherwise it
     // renders honestly from the Foursquare data it arrived with.
-    if (p && typeof p.id === "string" && p.id.startsWith("fsq:")) {
+    if (p && typeof p.id === "string" && /^(fsq|osm|ridb):/.test(p.id)) {
       try {
         const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
         if (up && up.id && up.lat != null) {
@@ -4275,7 +4275,7 @@ function PageInner() {
         // v4.89: photo fix for the vibe rows — resolve real photos for the
         // top photoless multi-source entries (cached lookups), then repaint.
         try {
-          const _missing = results.filter((p) => p && !p.photo && String(p.id || "").startsWith("fsq:")).slice(0, 10);
+          const _missing = results.filter((p) => p && !p.photo && /^(fsq|osm|ridb|nps):/.test(String(p.id || ""))).slice(0, 10);
           if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } } } catch (e) {} })).then(() => { if (!cancelled) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
         } catch (e) {}
       } catch {
@@ -8085,7 +8085,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // attach the real photo. The logo is now the last resort, not the norm.
   const [, _photoBump] = useState(0);
   useEffect(() => {
-    if (!p || p.photo || !String(p.id || "").startsWith("fsq:") || p._noPhoto) return;
+    if (!p || p.photo || !/^(fsq|osm|ridb|nps):/.test(String(p.id || "")) || p._noPhoto) return;
     let c = false;
     findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
       const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
