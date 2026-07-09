@@ -8,6 +8,13 @@
 // full NPS park list is fetched once and cached 24h — the NPS API has no
 // radius search, so we pull the whole ~470-unit list and distance-filter,
 // which is one upstream call a day instead of one per user).
+//
+// OSM REALITY CHECK (v4.93): public Overpass servers aggressively throttle
+// cloud-provider IPs; from Vercel they frequently time out even with the
+// policy-required User-Agent and a mirror fallback. OSM is therefore
+// best-effort here — it contributes when the servers respond and self-heals
+// (10-min retry) when they don't. TODO if OSM coverage becomes load-bearing:
+// a dedicated Overpass instance or a commercial OSM provider.
 export const runtime = "nodejs";
 
 const getNps = () => ((process.env["NPS_API_KEY"] || "").trim());
@@ -170,6 +177,8 @@ export async function GET(req) {
   const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length } };
   // v4.91: a transient OSM outage must not be sticky — cache failures briefly
   // (10 min) so the next user retries, successes for the full 6h.
+  // v4.93: and never let the CDN cache a failed response for an hour either.
   mem.set(ck, { body, exp: Date.now() + (osm.ok === false ? 10 * 60 * 1000 : TTL) });
-  return Response.json(body, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+  const cc = osm.ok === false ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400";
+  return Response.json(body, { headers: { "Cache-Control": cc } });
 }
