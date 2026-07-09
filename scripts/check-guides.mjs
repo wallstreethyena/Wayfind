@@ -13,4 +13,8 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
 }
 if (!g.includes("More Wayfind guides")) fail("guides missing related-guides section");
 if (!c.includes("More cities:")) fail("culture missing related-cities links");
+const gl = readFileSync(new URL("../lib/guides.js", import.meta.url), "utf8");
+if ((gl.match(/appQuery:/g) || []).length < 7) fail("heading-style picks missing appQuery place mappings");
+if (!g.includes("pick.appQuery || pick.name")) fail("guide template not using appQuery for app links");
+if (!g.includes("pick.appQuery !== null")) fail("non-place picks must hide the app button");
 console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates");

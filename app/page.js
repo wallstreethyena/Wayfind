@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import * as Meals from "../lib/meals";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
@@ -15,7 +16,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.60";
+const BUILD_ID = "v4.62";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -933,20 +934,23 @@ const MOMENT_CHIPS = [
   { id: "locals", icon: "\u{1F48E}", label: "I want something locals know" },
   { id: "drive", icon: "\u{1F697}", label: "I'm willing to drive" },
   { id: "fifty", icon: "\u{1F4B5}", label: "I have $50" },
+  { id: "visitors", icon: "\u{1F9F3}", label: "I'm showing visitors around" },
+  { id: "rainy", icon: "\u{1F327}\uFE0F", label: "It's raining (or too hot)" },
   { id: "surprise", icon: "\u{1F3B2}", label: "Surprise me" },
 ];
 function composeMoment(sel, city) {
   const has = (k) => sel.includes(k);
   if (has("surprise")) return { surprise: true };
-  const base = has("family") ? "family" : has("date") ? "romantic" : has("locals") ? "gem" : has("outside") ? "nature" : has("fifty") ? "budget" : "entertainment";
+  const base = has("family") ? "family" : has("date") ? "romantic" : has("visitors") ? "bestof" : has("locals") ? "gem" : has("outside") ? "nature" : has("fifty") ? "budget" : "entertainment";
   const spec = { base };
   if (has("twohrs")) { spec.radiusOverride = 24000; spec.openNowOnly = true; }
   if (has("drive")) spec.radiusOverride = 110000;
   if (has("fifty")) spec.priceMax = 2;
   if (has("outside") && base !== "nature") spec.extraKeyword = "outdoor";
-  const names = { family: "Family day", romantic: "Date night", gem: "Local gems", nature: "Time outside", budget: "Big fun, small budget", entertainment: "Things to do" };
-  spec.title = names[base] + " near " + city;
-  spec.body = [has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null].filter(Boolean).join(" \u00b7 ");
+  if (has("rainy")) { spec.indoorOnly = true; if (base === "entertainment") spec.extraKeyword = ((spec.extraKeyword || "") + " indoor").trim(); }
+  const names = { family: "Family day", romantic: "Date night", bestof: "Best of", gem: "Local gems", nature: "Time outside", budget: "Big fun, small budget", entertainment: "Things to do" };
+  spec.title = base === "bestof" ? ("Best of " + city) : (names[base] + " near " + city);
+  spec.body = ["Your adventure is ready \u2014 ranked for right now", has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null, has("rainy") ? "indoor picks" : null].filter(Boolean).join(" \u00b7 ");
   return spec;
 }
 const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"];
@@ -2866,10 +2870,18 @@ function PageInner() {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).catch(() => [])));
       const used = new Set(); const out = []; const sections = [];
       const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
+      // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every
+      // candidate must pass meal-period eligibility (hours-proven when hours
+      // exist), and short slots backfill from the union of eligible places.
+      const unionAll = dedupePlaces([].concat(...results.map((r) => r || [])), true);
       c.slots.forEach((sl, ix) => {
-        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")));
+        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && Meals.mealEligible(sl.label, pp));
         pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-        const take = pool.slice(0, sl.n);
+        let take = pool.slice(0, sl.n);
+        if (take.length < sl.n) {
+          const extra = unionAll.filter((pp) => pp && pp.id && !used.has(pp.id) && !take.some((x) => x.id === pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && Meals.mealEligible(sl.label, pp)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+          take = [...take, ...extra.slice(0, sl.n - take.length)];
+        }
         take.forEach((pp) => used.add(pp.id));
         if (take.length) sections.push({ label: sl.label, count: take.length });
         out.push(...take);
@@ -2989,6 +3001,10 @@ function PageInner() {
   // partners never send booking data back, so this is the honest capture.
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
+  const pendingQRef = useRef(null);
+  useEffect(() => { try { const qq = new URLSearchParams(window.location.search).get("q"); if (qq && qq.trim()) pendingQRef.current = qq.trim(); } catch (e) {} }, []);
+  useEffect(() => { if (!pendingQRef.current || !center) return; const qq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(qq); // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center]);
   const [introOpen, setIntroOpen] = useState(false);
   const [introSel, setIntroSel] = useState([]);
   const [locBannerGone, setLocBannerGone] = useState(false);
@@ -4000,11 +4016,27 @@ function PageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
 
+  // v4.62: real nearby teasers under the intro CTA — proof before the ask.
+  const introTeasers = useMemo(() => {
+    if (!introOpen) return [];
+    try {
+      const pool = dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true).filter((p) => p && p.id && p.name);
+      if (!pool.length) return [];
+      const out = []; const used = new Set();
+      const add = (p, line) => { if (p && !used.has(p.id)) { used.add(p.id); out.push({ p, line }); } };
+      add(pool.filter((p) => (p.rating || 0) >= 4.6 && (p.reviews || 0) >= 40 && (p.reviews || 0) <= 600).sort((a, b) => (b.rating || 0) - (a.rating || 0))[0], "Locals keep this one quiet");
+      add(pool.filter((p) => (p.reviews || 0) >= 200).sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0))[0], "The safest great call near you");
+      add(pool.filter((p) => p.openNow === true).sort((a, b) => (a.distMi ?? 1e9) - (b.distMi ?? 1e9))[0], "Open right now, minutes away");
+      add(pool.filter((p) => (p.reviews || 0) >= 60).sort((a, b) => (a.distMi ?? 1e9) - (b.distMi ?? 1e9))[0], "Worth knowing this close");
+      return out.slice(0, 4);
+    } catch (e) { return []; }
+  }, [introOpen, suggested, places, homeTodo]);
+
   // v4.60: first visit gets the moment builder — one screen that explains
   // Wayfind and gets the user to a win without typing. Skippable, remembered.
   useEffect(() => {
     try {
-      if (!localStorage.getItem("wf_intro_seen")) {
+      if (new URLSearchParams(window.location.search).get("q")) { /* deep link owns this visit */ } else if (!localStorage.getItem("wf_intro_seen")) {
         const t = setTimeout(() => setIntroOpen(true), 800);
         return () => clearTimeout(t);
       }
@@ -4050,6 +4082,7 @@ function PageInner() {
         } else results = sortFit(raw);
         if (hd.priceMax != null) results = results.filter((p) => { const pl = p.price_level ?? p.priceLevel; return pl == null || pl <= hd.priceMax; });
         if (hd.openNowOnly) results = results.filter((p) => p.openNow !== false);
+        if (hd.indoorOnly) results = results.filter((p) => { try { return Ranking.venueLean(p).lean === "indoor"; } catch (e) { return true; } });
         results = results.slice(0, 20);
         if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: results } : cur); loadBlurbs(results); }
       } catch (e) {
@@ -4544,7 +4577,23 @@ function PageInner() {
         }
       }
       // Fall back to area / city geocode search.
-      const c = await geocodeCity(q);
+      // v4.62: "best of {city}" opens the Best-of sheet for that city, and
+      // repeated-letter typos ("paaarrish") collapse before we give up. A
+      // user asking for a city must never hit a dead end over a prefix or a
+      // held-down key.
+      const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
+      const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
+      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
+      if (bo) {
+        const g = await geoTry(bo[1].trim());
+        if (g) {
+          setCenter(g); const nm = g.name.split(",").slice(0, 2).join(",").trim(); setLocName(nm);
+          setSearchMode(false); setSearchLabel(""); setQuery(""); setLoading(false);
+          setTimeout(() => { try { openExpSheet("bestof"); } catch (e) {} }, 60);
+          return;
+        }
+      }
+      const c = (await geocodeCity(q)) || (await geoTry(q));
       if (c) {
         setCenter(c);
         setLocName(c.name.split(",").slice(0, 2).join(",").trim());
@@ -5468,6 +5517,7 @@ function PageInner() {
                         {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
                         {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
                         {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
+                      {(p.price_level ?? p.priceLevel) != null && <span style={{ color: C.muted }}>{"$".repeat(Math.max(1, Math.min(4, (p.price_level ?? p.priceLevel) || 1)))}</span>}
                       </div>
                     </div>
                     <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
@@ -6990,6 +7040,7 @@ function PageInner() {
               <div style={{ marginTop: 10 }}>
                 <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
               </div>
+              <div style={{ fontSize: 10, color: C.muted, marginTop: 8 }}>Rankings are merit-based. Affiliate links never change placement.</div>
             </div>
 
             {/* Scrollable editorial list */}
@@ -7481,8 +7532,27 @@ function PageInner() {
                 </button>
               ); })}
             </div>
-            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 14, padding: 14, borderRadius: 13, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5 }}>🪄 Build my adventure</button>
+            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 14, padding: 14, borderRadius: 13, border: "none", background: `linear-gradient(90deg, ${C.accent}, ${C.purple})`, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5 }}>🪄 Build My Adventure</button>
+            {introTeasers.length >= 2 && (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 9px" }}>
+                  <div style={{ flex: 1, height: 1, background: C.border }} />
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: C.light, whiteSpace: "nowrap" }}>See what's possible right now</div>
+                  <div style={{ flex: 1, height: 1, background: C.border }} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {introTeasers.map((tz) => (
+                    <div key={tz.p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(tz.p); }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 10px", cursor: "pointer" }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.p.name}</div>
+                      <div style={{ fontSize: 11, color: C.light, margin: "2px 0 4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.line}</div>
+                      <div style={{ fontSize: 10.5, color: C.muted }}>{tz.p.distMi != null ? tz.p.distMi.toFixed(1) + " mi away" : (tz.p.openNow === true ? "Open now" : "Nearby")}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12, color: C.muted, marginTop: 10, cursor: "pointer" }}>Just let me look around</div>
+            <div style={{ textAlign: "center", fontSize: 10, color: C.muted, marginTop: 9, lineHeight: 1.45 }}>Rankings are merit-based. Affiliate links never change placement.</div>
             {(() => { const teasers = (suggested || []).filter((p) => p && p.photo && p.name).slice(0, 3); if (!teasers.length) return null; return (
               <div style={{ marginTop: 15, paddingTop: 13, borderTop: `1px solid ${C.border}` }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 9, textAlign: "center" }}>What's near you right now</div>

@@ -17,10 +17,10 @@ if (page.includes("Wayfind {BUILD_ID}</div>") || page.includes("{BUILD} \u00b7 {
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
-if (!page.includes("Find the right place. ")) fail("intro headline missing");
+if (!/what kind of day/i.test(page)) fail("intro headline missing");
 if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
-if (!page.includes("Build my adventure")) fail("intro CTA missing");
+if (!/build my adventure/i.test(page)) fail("intro CTA missing");
 if (!page.includes("Find my vibe")) fail("re-entry pill missing");
 if (!page.includes("hd.radiusOverride || 110000")) fail("moment radius modifier missing");
 console.log("check-ux: OK — Things to do + 🎡, hotel/calendar icons, reservations captured on 3 booking paths");

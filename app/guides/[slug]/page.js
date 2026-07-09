@@ -70,7 +70,7 @@ export default function GuidePage({ params }) {
             {pick.tip ? <p style={S.tip}>Insider tip: {pick.tip}</p> : null}
             {book ? <a href={book} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check tours &amp; tickets ↗</a> : null}
             {rates ? <a href={rates} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check rates ↗</a> : null}
-            <a href={appUrl(pick.name)} style={S.btnGhost}>Open in Wayfind</a>
+            {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={S.btnGhost}>Open in Wayfind</a> : null}
           </section>
         );
       })}
