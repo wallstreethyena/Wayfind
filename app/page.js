@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.80";
+const BUILD_ID = "v4.81";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1329,7 +1329,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
               <div key={i} style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 12.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
-                  {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(book); }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
+                  {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
                 </div>
                 <div style={{ fontSize: 11.5, color: "#B9D6CE", lineHeight: 1.45, marginTop: 1 }}>{x.story}</div>
               </div>
@@ -4144,7 +4144,27 @@ function PageInner() {
         } else {
           raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
         }
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
+        // v4.81: guaranteed curated presence. Google's text search centered on a
+        // small town (Parrish) routinely skips first-party picks 15–25 mi out,
+        // so tagged curated places are resolved by name (findPlace is cached)
+        // and injected when the search missed them — kept only if they resolve,
+        // are OPERATIONAL, and sit inside this vibe's radius of the user.
+        try {
+          const _tagged = CURATED.filter((c) => Array.isArray(c.intents) && c.intents.includes(activeBadge));
+          if (_tagged.length) {
+            const _have = new Set(raw.map((p) => _wfNorm(p.name)));
+            const _missing = _tagged.filter((c) => !_have.has(_wfNorm(c.name))).slice(0, 14);
+            if (_missing.length) {
+              const _res = await Promise.all(_missing.map((c) => findPlace(c.name + " " + (c.area || ""), { lat: center.lat, lng: center.lng }).catch(() => null)));
+              const _radMi = radius / 1609.34;
+              const _inject = _res.filter(Boolean).filter((p) => (!p.status || p.status === "OPERATIONAL") && (p.distMi == null || p.distMi <= _radMi) && !_have.has(_wfNorm(p.name)));
+              if (_inject.length) raw = dedupePlaces([...raw, ..._inject], true);
+            }
+          }
+        } catch (e) {}
+        // v4.81: curated picks get the same +15 lift here that applyAffinity
+        // gives them, so they rank near the top instead of mid-list.
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter((p) => {
@@ -4165,7 +4185,7 @@ function PageInner() {
         } else {
           results = sortFit(raw);
         }
-        results = results.slice(0, 30);
+        results = results.slice(0, 40); // v4.81: more options per vibe
         if (!cancelled) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
       } catch {
         if (!cancelled) setExpPlaces([]);
@@ -6065,7 +6085,7 @@ function PageInner() {
                   <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px", marginBottom: 8 }}>Top-rated experiences</div>
                   <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
                     {expTours.map((t) => (
-                      <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); try { logEvent("tickets_out", null, { kind: "vibe_tour", theme: activeBadge, code: t.code }); } catch (er) {} openExternal(t.url); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+                      <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme: activeBadge, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
                         {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
                         <div style={{ padding: "8px 10px" }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
@@ -6635,7 +6655,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _tu); } catch (er) {} openExternal(_tu); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -6714,7 +6734,7 @@ function PageInner() {
                         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
                       </div>
                       {_items.map((t, i) => (
-                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {} try { addReservation("tour", detail, "Viator", t.url); } catch (er) {} openExternal(t.url); }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {} try { addReservation("tour", detail, "Viator", _live); } catch (er) {} openExternal(_live); }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
                           {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
@@ -6730,7 +6750,7 @@ function PageInner() {
                 }
                 if (_hasNoteUrl) return null;
                 return (
-                  <a onClick={(e) => { e.preventDefault(); try { logEvent("tour", detail); } catch (er) {} openExternal(Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")); }} href={Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                  <a onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : ""); try { logEvent("tour", detail); } catch (er) {} openExternal(_live); }} href={Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
