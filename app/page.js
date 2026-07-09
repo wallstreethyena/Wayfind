@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.56";
+const BUILD_ID = "v4.57";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -47,7 +47,7 @@ function ticketUrl(url) {
   if (!url || !AFFIL.ticketmasterParam) return url;
   try { return url + (url.indexOf("?") >= 0 ? "&" : "?") + AFFIL.ticketmasterParam; } catch { return url; }
 }
-const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎯", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
+const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
 // Each category gets its own accent color, used on the selected category tab.
 const CAT_COLOR = {
   food: { c: "#F97316", dim: "rgba(249,115,22,.15)" },
@@ -1232,14 +1232,14 @@ function NavIcon({ name, color, size }) {
   const sz = size || 23;
   const p = { width: sz, height: sz, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
   if (name === "home") return (<svg {...p}><path d="M4 12 L12 4.5 L20 12" /><path d="M6 10.5 V19.5 H18 V10.5" /><path d="M10 19.5 V14 H14 V19.5" /></svg>);
-  if (name === "events") return (<svg {...p}><rect x="3" y="7" width="18" height="10" rx="2.5" /><path d="M14 7 V17" strokeDasharray="1.6 2.2" /></svg>);
+  if (name === "events") return (<svg {...p}><rect x="4" y="5.4" width="16" height="15" rx="2.4" /><path d="M8 3.4v3.4" /><path d="M16 3.4v3.4" /><path d="M4 10.4h16" /><circle cx="12" cy="15" r="1.7" /></svg>);
   if (name === "map") return (<svg {...p}><path d="M9 4.5 L3 7 V19.5 L9 17 L15 19.5 L21 17 V4.5 L15 7 L9 4.5 Z" /><path d="M9 4.5 V17" /><path d="M15 7 V19.5" /></svg>);
   if (name === "saved") return (<svg {...p}><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>);
   if (name === "food") return (<svg {...p}><path d="M7 3v6" /><path d="M5 3v4" /><path d="M9 3v4" /><path d="M7 9v12" /><path d="M16.5 3c-1.6 1-2.3 3-2.3 5.2 0 1.7 1 2.5 2.3 2.7V21" /></svg>);
   if (name === "nightlife") return (<svg {...p}><path d="M5 5h14l-7 8-7-8Z" /><path d="M12 13v6" /><path d="M8.5 19.5h7" /></svg>);
-  if (name === "attractions") return (<svg {...p}><path d="M12 4l2.3 4.7 5.2.8-3.8 3.7.9 5.2-4.6-2.5-4.6 2.5.9-5.2-3.8-3.7 5.2-.8Z" /></svg>);
+  if (name === "attractions") return (<svg {...p}><circle cx="12" cy="9.5" r="5.8" /><circle cx="12" cy="9.5" r="1.2" /><path d="M12 4.9v3.4" /><path d="M12 10.7v3.4" /><path d="M7.4 9.5h3.4" /><path d="M13.2 9.5h3.4" /><path d="M8.8 6.3l2.3 2.3" /><path d="M12.9 10.4l2.3 2.3" /><path d="M15.2 6.3l-2.3 2.3" /><path d="M11.1 10.4l-2.3 2.3" /><path d="M12 15.3 8.6 21" /><path d="M12 15.3 15.4 21" /><path d="M6.8 21h10.4" /></svg>);
   if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
-  if (name === "hotels") return (<svg {...p}><path d="M3 18v-6h18v6" /><path d="M6 12V9h5v3" /><path d="M3 19.5V17" /><path d="M21 19.5V17" /></svg>);
+  if (name === "hotels") return (<svg {...p}><rect x="5" y="3.8" width="14" height="17.2" rx="1.6" /><path d="M10.2 21v-4.2h3.6V21" /><path d="M8.4 7.4h1.7" /><path d="M13.9 7.4h1.7" /><path d="M8.4 11.4h1.7" /><path d="M13.9 11.4h1.7" /></svg>);
   if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
   if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
   return null;
@@ -2958,6 +2958,20 @@ function PageInner() {
   const [authSending, setAuthSending] = useState(false);
   const [authPassword, setAuthPassword] = useState("");
   const [authMode, setAuthMode] = useState("signin"); // signin | signup
+  // v4.57: Reservations folder. Outbound booking taps auto-log a stub the
+  // user can complete with a confirmation number when they return. Affiliate
+  // partners never send booking data back, so this is the honest capture.
+  const [reservations, setReservations] = useState([]);
+  useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
+  function persistRes(next) { setReservations(next); try { localStorage.setItem("wf_reservations", JSON.stringify(next)); } catch (e) {} }
+  function addReservation(kind, place, partner, url) {
+    try {
+      const entry = { id: "r" + Date.now() + Math.floor(Math.random() * 999), name: (place && place.name) || "Booking", placeId: place && place.id, kind, partner, at: new Date().toISOString(), url: url || "", conf: "" };
+      persistRes([entry, ...reservations].slice(0, 50));
+    } catch (e) {}
+  }
+  function saveResConf(id, conf) { persistRes(reservations.map((r) => r.id === id ? { ...r, conf: String(conf || "").slice(0, 60) } : r)); }
+  function removeRes(id) { persistRes(reservations.filter((r) => r.id !== id)); }
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
@@ -5873,6 +5887,30 @@ function PageInner() {
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
               </div>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
+              {reservations.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🧾 Reservations</div>
+                    <span style={{ fontSize: 12, color: C.muted }}>{reservations.length}</span>
+                  </div>
+                  {reservations.map((r) => (
+                    <div key={r.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "11px 13px", marginBottom: 9 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                        <span style={{ fontSize: 18 }}>{r.kind === "hotel" ? "🏨" : "🎟️"}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
+                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Booked via {r.partner} · {new Date(r.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
+                        </div>
+                        {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none", flexShrink: 0 }}>View ↗</a> : null}
+                        <button onClick={() => removeRes(r.id)} aria-label="Remove reservation" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 15, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}>✕</button>
+                      </div>
+                      <input defaultValue={r.conf} onBlur={(e) => saveResConf(r.id, e.target.value)} placeholder="Add confirmation # or note"
+                        style={{ width: "100%", boxSizing: "border-box", marginTop: 9, padding: "8px 11px", borderRadius: 10, border: `1px dashed ${r.conf ? C.border : C.accent + "66"}`, background: "transparent", color: C.text, fontSize: 12.5, outline: "none" }} />
+                    </div>
+                  ))}
+                  <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind logs when you head out to book. Your confirmation details stay on this device.</div>
+                </div>
+              )}
               {list.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>No trips yet. Save any place from Home or the Map and a city trip is created for you automatically.</div>
               ) : (
@@ -6236,7 +6274,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (e) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _tu); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -6315,7 +6353,7 @@ function PageInner() {
                         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
                       </div>
                       {_items.map((t, i) => (
-                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (e) {} }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (e) {} try { addReservation("tour", detail, "Viator", t.url); } catch (e) {} }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
                           {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
