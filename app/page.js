@@ -5017,7 +5017,7 @@ function PageInner() {
             <input
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitSearch()}
+              onKeyDown={(e) => { if (e.key === "Enter") { if (suggestions.length > 0) pickSuggestion(suggestions[0]); else submitSearch(); } }}
               onBlur={() => { setTimeout(() => setSuggestions([]), 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
               placeholder="Search a place or city"
               style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 15, outline: "none" }}
