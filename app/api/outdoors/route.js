@@ -104,11 +104,20 @@ async function fromOSM(lat, lng, radiusM) {
       nwr["man_made"="pier"]["name"](around:${R},${lat},${lng});
       nwr["leisure"="marina"]["name"](around:${R},${lat},${lng});
     );out center 80;`;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 14000);
-    const r = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
-    clearTimeout(timer);
-    if (!r.ok) return { configured: true, places: [] };
+    // v4.91: overpass-api.de is frequently overloaded — try the primary, then
+    // the Kumi Systems mirror before giving up. ok:false marks a transient
+    // failure so the caller won't cache the miss for 6 hours.
+    const tryHost = async (host) => {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      try {
+        const r = await fetch(host, { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+        clearTimeout(timer);
+        return r.ok ? r : null;
+      } catch (e) { clearTimeout(timer); return null; }
+    };
+    const r = (await tryHost("https://overpass-api.de/api/interpreter")) || (await tryHost("https://overpass.kumi.systems/api/interpreter"));
+    if (!r) return { configured: true, ok: false, places: [] };
     const d = await r.json();
     const kindOf = (t) => t.natural === "beach" ? "Beach" : t.tourism === "viewpoint" ? "Scenic viewpoint" : t.man_made === "pier" ? "Pier" : t.leisure === "marina" ? "Marina" : t.leisure === "nature_reserve" ? "Nature preserve" : "Park";
     const seen = new Set();
@@ -135,8 +144,8 @@ async function fromOSM(lat, lng, radiusM) {
         };
       })
       .filter(Boolean);
-    return { configured: true, places };
-  } catch (e) { return { configured: true, places: [] }; }
+    return { configured: true, ok: true, places };
+  } catch (e) { return { configured: true, ok: false, places: [] }; }
 }
 
 export async function GET(req) {
@@ -156,7 +165,9 @@ export async function GET(req) {
   const radiusMi = toMi(radius);
   const [nps, ridb, osm] = await Promise.all([fromNPS(lat, lng, radiusMi), fromRIDB(lat, lng, radiusMi), fromOSM(lat, lng, radius)]);
   const places = [...nps.places, ...ridb.places, ...osm.places];
-  const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.places.length } };
-  mem.set(ck, { body, exp: Date.now() + TTL });
+  const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length } };
+  // v4.91: a transient OSM outage must not be sticky — cache failures briefly
+  // (10 min) so the next user retries, successes for the full 6h.
+  mem.set(ck, { body, exp: Date.now() + (osm.ok === false ? 10 * 60 * 1000 : TTL) });
   return Response.json(body, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
 }
