@@ -23,7 +23,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.88";
+const BUILD_ID = "v4.89";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2974,6 +2974,7 @@ function PageInner() {
   const [browseTours, setBrowseTours] = useState(null); // v4.84: Viator products on the Things to do browse
   const [expOpenOnly, setExpOpenOnly] = useState(false);
   const [expSort, setExpSort] = useState("near");
+  const [expMi, setExpMi] = useState(60); // v4.89: experience distance cap (60 = no cap); the new SortControl drives it
   const [rolling, setRolling] = useState(false);
   const [diceFace, setDiceFace] = useState("🎲");
   const [diceChoose, setDiceChoose] = useState(false);
@@ -3508,6 +3509,7 @@ function PageInner() {
     setExpPlaces(null);
     setExpOpenOnly(false);
     setExpSort("near");
+    setExpMi(60);
     setScreen("experience");
     try { window.scrollTo(0, 0); } catch {}
   }
@@ -4270,6 +4272,12 @@ function PageInner() {
         }
         results = results.slice(0, 40); // v4.81: more options per vibe
         if (!cancelled) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
+        // v4.89: photo fix for the vibe rows — resolve real photos for the
+        // top photoless multi-source entries (cached lookups), then repaint.
+        try {
+          const _missing = results.filter((p) => p && !p.photo && String(p.id || "").startsWith("fsq:")).slice(0, 10);
+          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } } } catch (e) {} })).then(() => { if (!cancelled) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
+        } catch (e) {}
       } catch {
         if (!cancelled) setExpPlaces([]);
       } finally {
@@ -6175,7 +6183,10 @@ function PageInner() {
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expOpenOnly) list = list.filter((p) => p.openNow !== false);
+          if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
+          else if (expSort === "rated") list = [...list].sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+          else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (
             <div>
@@ -6197,12 +6208,15 @@ function PageInner() {
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
+              {/* v4.89: the legacy Best/Closest chip bar is gone — experience
+                  views use the same SortControl as every other list (Closest
+                  first / Top rated / Price + distance). Open now and the dice
+                  stay. No overflow scroll: the dropdown must not be clipped. */}
               {!expLoading && (expPlaces || []).length > 0 && (
-                <div style={{ display: "flex", gap: 7, marginBottom: 12, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-                  <button onClick={() => setExpOpenOnly((o) => !o)} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "6px 12px", borderRadius: 999, border: `1.5px solid ${expOpenOnly ? C.green : C.border}`, background: expOpenOnly ? "rgba(34,197,94,.15)" : "transparent", color: expOpenOnly ? C.green : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{expOpenOnly ? "✓ Open now" : "Open now"}</button>
-                  <button onClick={() => setExpSort("best")} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "6px 12px", borderRadius: 999, border: `1.5px solid ${expSort === "best" ? C.accent : C.border}`, background: expSort === "best" ? C.adim : "transparent", color: expSort === "best" ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Best</button>
-                  <button onClick={() => setExpSort("near")} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "6px 12px", borderRadius: 999, border: `1.5px solid ${expSort === "near" ? C.accent : C.border}`, background: expSort === "near" ? C.adim : "transparent", color: expSort === "near" ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Closest</button>
-                  <button onClick={rollDice} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "6px 12px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
+                <div style={{ display: "flex", gap: 7, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
+                  <SortControl sortBy={expSort} onSort={setExpSort} mi={expMi} onMi={setExpMi} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={false} dealsOnly={false} onDeals={null} />
+                  <button onClick={() => setExpOpenOnly((o) => !o)} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "8px 13px", borderRadius: 999, border: `1.5px solid ${expOpenOnly ? C.green : C.border}`, background: expOpenOnly ? "rgba(34,197,94,.15)" : "transparent", color: expOpenOnly ? C.green : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{expOpenOnly ? "✓ Open now" : "Open now"}</button>
+                  <button onClick={rollDice} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "8px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
                 </div>
               )}
               {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
@@ -8065,6 +8079,23 @@ function ViatorRail({ title, items, theme }) {
 }
 
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
+  // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
+  // photo reference, so cards fell back to the logo. When a card renders
+  // photoless, resolve its Google twin once (findPlace is cached ~8 days) and
+  // attach the real photo. The logo is now the last resort, not the norm.
+  const [, _photoBump] = useState(0);
+  useEffect(() => {
+    if (!p || p.photo || !String(p.id || "").startsWith("fsq:") || p._noPhoto) return;
+    let c = false;
+    findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
+      const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
+      if (c) return;
+      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } _photoBump((x) => x + 1); }
+      else p._noPhoto = true; // remember the miss so we never refetch
+    }).catch(() => {});
+    return () => { c = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p && p.id]);
   const badges = [...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
