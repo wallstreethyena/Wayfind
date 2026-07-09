@@ -17,6 +17,7 @@ import * as Aff from "../lib/affiliates";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
+import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
 const BUILD_ID = "v4.76";
@@ -271,7 +272,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (curatedFor(p) ? 15 : 0) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -812,6 +813,9 @@ function communityBoost(p) {
   if (!p || !p.id) return 0;
   return SIGNALS.map[p.id] ? 4 : 0;
 }
+const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
+const curatedFor = (p) => CURATED_BY_NAME.get(_wfNorm(p && p.name));
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -876,6 +880,11 @@ function curatedNote(p) {
 }
 
 const EXPERIENCES = {
+  outside: { icon: "🌤️", label: "Outside", title: "Best Outside Right Now", lead: "Beaches, parks, trails, gardens and waterfront near you.", radius: 72000, queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }, { cat: "attractions", keyword: "outdoor" }], filter: (p) => { const v = Ranking.venueLean(p); return v.water || v.lean === "outdoor"; } },
+  inside: { icon: "🏛️", label: "Inside", title: "Best Indoor Spots Right Now", lead: "Museums, aquariums, galleries and indoor fun for tougher weather.", radius: 72000, queries: [{ cat: "attractions", keyword: "museum" }, { cat: "attractions", keyword: "aquarium" }, { cat: "attractions", keyword: "art gallery" }, { cat: "attractions", keyword: "indoor entertainment bowling arcade" }, { cat: "attractions", keyword: "escape room" }, { cat: "attractions", keyword: "spa day" }], filter: (p) => { const v = Ranking.venueLean(p); return v.lean === "indoor"; } },
+  localsgood: { icon: "📍", label: "Locals love it", title: "What Locals Know Is Good", lead: "The proven, independent places locals actually name.", radius: 60000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }, { cat: "nightlife", keyword: "" }], filter: (p) => p.rating >= 4.5 && p.reviews >= 150 },
+  hiddengems: { icon: "💎", label: "Hidden gems", title: "Hidden Gems Near You", lead: "Quietly excellent spots most people walk right past.", radius: 60000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }, { cat: "nightlife", keyword: "" }], filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 800 },
+  worthdrive: { icon: "🚗", label: "Worth the drive", title: "Worth The Drive", lead: "Exceptional places a bit further out, worth the trip.", radius: 130000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }], filter: (p) => p.rating >= 4.6 && (p.distMi == null || p.distMi >= 20) },
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
@@ -4040,12 +4049,22 @@ function PageInner() {
         // Orlando-area gems (an hour north of the launch market) actually appear,
         // instead of an empty or two-item list. Food stays local.
         const ATTRACTION_KEYS = ["family", "entertainment", "stays", "shows", "budget", "instagram", "nature", "museum"];
-        const radius = ATTRACTION_KEYS.includes(activeBadge) ? 110000 : 48000;
-        let raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+        const radius = exp.radius || (ATTRACTION_KEYS.includes(activeBadge) ? 110000 : 48000);
+        let raw;
+        if (exp.queries && exp.queries.length) {
+          const _b = await Promise.all(exp.queries.map((qd) => searchPlaces(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
+          raw = dedupePlaces(_b.flat().filter(Boolean), true);
+        } else {
+          raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+        }
         const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
         let results;
         if (exp.filter) {
-          const passed = raw.filter(exp.filter);
+          const passed = raw.filter((p) => {
+            const c = curatedFor(p);
+            if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true;
+            return exp.filter ? exp.filter(p) : true;
+          });
           // Never show an embarrassingly thin curated list. If a hard filter leaves
           // fewer than 5, backfill with the best unfiltered nearby picks so the
           // page always feels full, filtered picks still ranked first.
@@ -7790,6 +7809,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
+            {curatedFor(p) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
             {(() => {
               const cz = Dining.cuisineLabel(p);
               const isFood = pcat === "Food" || pcat === "Nightlife";
