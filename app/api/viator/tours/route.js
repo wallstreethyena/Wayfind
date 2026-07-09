@@ -15,7 +15,9 @@ const TTL = 6 * 3600 * 1000;
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
-  const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), 6);
+  // v4.84: cap raised 6 -> 20 so the vibe rails can rank top-rated and
+  // hidden-gem products client-side from a real pool, not a 6-item sliver.
+  const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), 20);
   if (!q) return Response.json({ items: [] });
 
   const ck = q.toLowerCase() + "|" + count;
