@@ -577,6 +577,10 @@ export async function POST(req) {
     const userState = stateOf(city);
     const maxMi = Math.min(Math.max(Number(radius) || 30, 5), 100); // enforce the user's search radius, no wide floor
     merged = merged.filter((e) => {
+      // v4.88: civic sources (library, local staples) are already geo-fenced
+      // to the user's region upstream; the state-string guard was silently
+      // dropping the library's coordinate-less events. Trust the fence.
+      if (e.civic) return true;
       if (e.lat != null && e.lng != null) return haversineMi(lat, lng, e.lat, e.lng) <= maxMi;
       const es = stateOf(e.city);
       return userState && es ? es === userState : false;
