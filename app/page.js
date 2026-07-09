@@ -23,7 +23,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.86";
+const BUILD_ID = "v4.87";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3920,7 +3920,7 @@ function PageInner() {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.round((searchRadius || DEFAULT_RADIUS_M) / 1609.34) }),
+        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.max(Math.round((searchRadius || DEFAULT_RADIUS_M) / 1609.34), 60) }), // v4.87: events get a generous 60-mi floor — people drive for events; a manual wider radius still wins
       });
       const data = await res.json();
       setEventsUnavailable(!!data.unavailable);
