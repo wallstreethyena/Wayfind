@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.81";
+const BUILD_ID = "v4.82";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1294,13 +1294,17 @@ async function verifyCulturePlaces(items, center) {
 function AreaInsight({ metro, cat, town, center, onFind }) {
   const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
-  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo", events: "events" };
+  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo", events: "events", shop: "shop" };
   const key = map[cat];
   // v4.30: a town with its own researched notes outranks the metro story.
-  const tn = town && Culture.TOWN_NOTES && Culture.TOWN_NOTES[String(town).toLowerCase()];
-  const notes = (tn && key && tn[key]) || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
+  // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
+  // "Holmes Beach" lands on Anna Maria Island). Beach browses prefer the
+  // town's real beach note over its things-to-do note.
+  const tn = town && Culture.townNotesFor ? Culture.townNotesFor(town) : null;
+  const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
+  const notes = townNote || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
   const c = metro ? Culture.CULTURE[metro] : null;
-  const isTown = !!(tn && key && tn[key]);
+  const isTown = !!townNote;
   const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
   const namedKey = named.map((x) => x.place).join("|");
   useEffect(() => {
@@ -1337,6 +1341,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
           })}
           {notes.say ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 9 }}><span style={{ fontWeight: 800, color: "#8ED6C4" }}>Talk local: </span><span style={{ fontWeight: 800, color: "#FFFFFF" }}>{"\u201C"}{notes.say.phrase}{"\u201D"}</span> {"\u2014"} {notes.say.meaning}</div> : null}
           {notes.mistake ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>Rookie mistake: </span>{notes.mistake}</div> : null}
+          {isTown && tn && tn.one ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>⭐ The one thing: </span>{tn.one}</div> : null}
         </div>
       )}
     </div>

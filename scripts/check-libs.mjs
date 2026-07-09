@@ -40,6 +40,7 @@ for (const [m, cats] of Object.entries(CAT_NOTES || {})) {
 }
 for (const [t, cats] of Object.entries(TOWN_NOTES || {})) {
   for (const [k, n] of Object.entries(cats)) {
+    if (k === "tag" || k === "one") { if (typeof n !== "string" || !n) throw new Error(`townNotes ${t}.${k} must be a non-empty string`); continue; } // v4.82: town-level metadata, not category notes
     if (!n.line) throw new Error(`townNotes ${t}.${k} missing line`);
     for (const x of n.items || []) { if (x.viatorUrl) tryCall(aff.viatorDirectUrl, x.viatorUrl); if (x.query) tryCall(aff.experienceSearchUrl, x.query, t); }
   }
