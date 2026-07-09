@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.78";
+const BUILD_ID = "v4.79";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -953,9 +953,12 @@ const MOMENT_CHIPS = [
 ];
 
 // v4.75: chips render in priority groups so the eye knows where to start.
+// v4.79: "Time & budget" removed from the intro by product direction — the
+// popup must not fill a phone screen. The twohrs/fifty/drive chips stay in
+// MOMENT_CHIPS: composeMoment and feelingToMoment still use them ("I have
+// $50", "I only have 2 hours" typed as searches keep working).
 const MOMENT_GROUPS = [
   { label: "Who's going", ids: ["family", "date", "visitors"] },
-  { label: "Time & budget", ids: ["twohrs", "fifty", "drive"] },
   { label: "The vibe", ids: ["outside", "locals", "rainy", "surprise"] },
 ];
 const INTRO_PATHS = {
@@ -7729,7 +7732,9 @@ function PageInner() {
       )}
       {introOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "84vh", overflowY: "auto", borderRadius: 26, padding: "14px 20px 20px", background: "#0B0E17", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)" }}>
+          {/* v4.79: the glow around the window breathes instead of sitting static. */}
+          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 16px rgba(255,138,61,.32),0 0 50px rgba(249,115,22,.16)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 30px rgba(255,138,61,.62),0 0 95px rgba(249,115,22,.4)}}@media (prefers-reduced-motion: reduce){.wf-intro-pop{animation:none !important}}"}</style>
+          <div onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ width: "100%", maxWidth: 470, maxHeight: "84vh", overflowY: "auto", borderRadius: 26, padding: "14px 20px 20px", background: "#0B0E17", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroGlow 3.2s ease-in-out infinite" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
