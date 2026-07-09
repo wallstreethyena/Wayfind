@@ -1,6 +1,6 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.82";
+const BUILD_ID = "v4.83";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -827,6 +827,10 @@ function communityBoost(p) {
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
 const curatedFor = (p) => CURATED_BY_NAME.get(_wfNorm(p && p.name));
+// v4.83: curated picks stay injectable out to 45 mi even though lists open at
+// the 17-mi default — the owner's promise is that tagged picks always compete,
+// and every card labels its distance so nothing is hidden.
+const CURATED_REACH_MI = 45;
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -899,15 +903,15 @@ const EXPERIENCES = {
   // in parallel (multi-query loader below), merges + dedupes, then ranks with
   // the standard engine. Curated places tagged with a vibe always pass its
   // filter (curated-aware filter in the experience-loading effect).
-  outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", radius: 72000, queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
-  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", radius: 60000, queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
-  bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
-  familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", radius: 72000, queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
+  outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
+  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
+  bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000 /* worth-the-drive class: intentionally wider than the 17-mi default */, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
+  familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
   // v4.80 — Fun with Friends. queries is a FUNCTION so the mix follows the
   // time of day: daytime leans beach and active group fun, evenings lean
   // bars, clubs, karaoke and live music. cat/keyword are the single-query
   // fallback used by the moment-builder sheet path.
-  friends: { icon: "🎉", label: "Fun with Friends", title: "Fun With Friends", lead: "The group's night (or day) out: beaches, bars, karaoke, clubs, live music and big fun activities.", radius: 60000, cat: "attractions", keyword: "fun things to do", viator: true, queries: () => { const h = new Date().getHours(); const night = h >= 17 || h < 4; return night
+  friends: { icon: "🎉", label: "Fun with Friends", title: "Fun With Friends", lead: "The group's night (or day) out: beaches, bars, karaoke, clubs, live music and big fun activities.", cat: "attractions", keyword: "fun things to do", viator: true, queries: () => { const h = new Date().getHours(); const night = h >= 17 || h < 4; return night
     ? [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "karaoke" }, { cat: "nightlife", keyword: "night club dance" }, { cat: "attractions", keyword: "live music concert venue" }, { cat: "nightlife", keyword: "comedy club" }, { cat: "attractions", keyword: "bowling arcade games group fun" }, { cat: "food", keyword: "brewery beer garden" }]
     : [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "fun group activities adventure" }, { cat: "attractions", keyword: "mini golf go-kart bowling arcade" }, { cat: "food", keyword: "food truck park brewery beer garden" }, { cat: "nightlife", keyword: "karaoke bar" }, { cat: "attractions", keyword: "live music venue" }]; },
     filter: (p) => (p.rating || 0) >= 4.2 },
@@ -1350,7 +1354,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
 
 function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnly, onDeals }) {
   const [openMenu, setOpenMenu] = useState(false);
-  const OPTIONS = [["best", "Best experiences"], ["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]];
+  const OPTIONS = [["near", "Closest first"], ["rated", "Top rated"], ["price", "Price: low to high"]]; // v4.83: "Best experiences" removed — it duplicated Top rated in practice; "near" is the default everywhere
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -2830,12 +2834,12 @@ function PageInner() {
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("near");
-  const [searchRadius, setSearchRadius] = useState(48280); // meters, ~30 miles default
+  const [searchRadius, setSearchRadius] = useState(DEFAULT_RADIUS_M); // meters — v4.83: 17-mile app-wide default
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
   const [pendingRadius, setPendingRadius] = useState(24140);
   const [radiusOpen, setRadiusOpen] = useState(false);
-  const [sliderMi, setSliderMi] = useState(30);
+  const [sliderMi, setSliderMi] = useState(DEFAULT_RADIUS_MI); // v4.83: the "Within X mi" control opens at 17
   const [showRadiusWheel, setShowRadiusWheel] = useState(false);
   const [showNearbyExp, setShowNearbyExp] = useState(false); // v3.7 Phase 2: ✨ Nearby experiences dropdown in the sort row
   const [sortOpen, setSortOpen] = useState(false);
@@ -3080,9 +3084,9 @@ function PageInner() {
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
   const [hkSort, setHkSort] = useState("near");
-  const [hkMi, setHkMi] = useState(60);
+  const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
-  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "near"); setHkMi((hookDetail && hookDetail.presetMi) || 60); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "near"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
     // AI hooks take priority — they use real place data for truly provocative copy.
@@ -3861,7 +3865,7 @@ function PageInner() {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.round((searchRadius || 24140) / 1609.34) }),
+        body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName, radius: Math.round((searchRadius || DEFAULT_RADIUS_M) / 1609.34) }),
       });
       const data = await res.json();
       setEventsUnavailable(!!data.unavailable);
@@ -4139,8 +4143,10 @@ function PageInner() {
         // v4.41: attraction/stay/show experiences pull from a wider radius so the
         // Orlando-area gems (an hour north of the launch market) actually appear,
         // instead of an empty or two-item list. Food stays local.
-        const ATTRACTION_KEYS = ["family", "entertainment", "stays", "shows", "budget", "instagram", "nature", "museum"];
-        const radius = exp.radius || (ATTRACTION_KEYS.includes(activeBadge) ? 110000 : 48000);
+        // v4.83: every experience opens at the 17-mile app default. Only a
+        // purpose-built wide vibe (exp.radius — the Worth-the-drive class,
+        // e.g. Bucket List) searches farther by design.
+        const radius = exp.radius || DEFAULT_RADIUS_M;
         let raw;
         const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
         if (_qs && _qs.length) {
@@ -4161,7 +4167,7 @@ function PageInner() {
             const _missing = _tagged.filter((c) => !_have.has(_wfNorm(c.name))).slice(0, 14);
             if (_missing.length) {
               const _res = await Promise.all(_missing.map((c) => findPlace(c.name + " " + (c.area || ""), { lat: center.lat, lng: center.lng }).catch(() => null)));
-              const _radMi = radius / 1609.34;
+              const _radMi = Math.max(radius / 1609.34, CURATED_REACH_MI); // first-party picks keep their reach past the 17-mi default; cards show distance honestly
               const _inject = _res.filter(Boolean).filter((p) => (!p.status || p.status === "OPERATIONAL") && (p.distMi == null || p.distMi <= _radMi) && !_have.has(_wfNorm(p.name)));
               if (_inject.length) raw = dedupePlaces([...raw, ..._inject], true);
             }
@@ -4322,7 +4328,7 @@ function PageInner() {
       else if (h >= 21) scat = "nightlife";
       else if (h >= 17) skeyword = "dinner";
       try {
-        const results = await searchPlaces(scat, "all", { lat: center.lat, lng: center.lng }, 48000, "all", skeyword);
+        const results = await searchPlaces(scat, "all", { lat: center.lat, lng: center.lng }, DEFAULT_RADIUS_M, "all", skeyword);
         if (!cancelled) {
           setSurprisePool(results);
           setSurprisePick(pickSurprise(results));

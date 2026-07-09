@@ -27,7 +27,7 @@ if (!page.includes('slots: [{ label: "Top 10", n: 10')) fail("Top 10 Food must b
 if (!page.includes("worth your next bite")) fail("food positioning copy missing");
 if (!page.includes("waste the evening")) fail("nightlife positioning copy missing");
 if (!/presetMi: 15,[^\n]*Top 10/.test(page) && !page.includes('presetMi: 15')) fail("15-mile default missing on curated lists");
-if (!page.includes("(hookDetail && hookDetail.presetMi) || 60")) fail("sheet not honoring presetMi");
+if (!page.includes("(hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI")) fail("sheet not honoring presetMi"); // v4.83: default fell from 60 to the 17-mi app-wide default
 if (!page.includes('id: "search-" + Date.now()')) fail("multi-result search must open the modern sheet");
 if (page.includes('setSearchLabel(`${nearby.length} results for')) fail("legacy explore search routing resurfaced");
 if (!page.includes("const lo = liveOpen(p);")) fail("feed open-status must be hours-computed, not cached");
