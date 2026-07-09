@@ -16,7 +16,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.62";
+const BUILD_ID = "v4.63";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2858,9 +2858,9 @@ function PageInner() {
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
   };
   const CURATED = {
-    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The ten meals worth leaving the house for, organized by when you are hungry: three breakfast spots, three for lunch, three for dinner, and one quick bite. Ranked inside each slot by the Wayfind Score. Tap any one for the full case.", slots: [{ label: "Breakfast", n: 3, q: "best breakfast restaurants" }, { label: "Lunch", n: 3, q: "best lunch restaurants" }, { label: "Dinner", n: 3, q: "best dinner restaurants" }, { label: "Quick bite", n: 1, q: "best quick bites fast casual" }] },
+    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }] },
     experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now — parks, attractions, and tours — ranked by fit. Attraction pages include bookable tours; live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
-    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Where tonight actually happens: the best bars and lounges, the live music rooms worth the cover, and the late-night eats for after. Ranked inside each slot by the Wayfind Score.", slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }] },
+    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }] },
     shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }] },
   };
   const openCurated = async (kind) => {
@@ -2887,7 +2887,7 @@ function PageInner() {
         out.push(...take);
       });
       if (!out.length) { showToast("Nothing found nearby for that yet"); return; }
-      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: out, sections });
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: out, sections: sections.length > 1 ? sections : null, presetMi: c.presetMi });
     } catch (e) { showToast("Could not load that list"); }
   };
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
@@ -2927,7 +2927,7 @@ function PageInner() {
   const [hkSort, setHkSort] = useState("near");
   const [hkMi, setHkMi] = useState(60);
   const [hkDeals, setHkDeals] = useState(false);
-  useEffect(() => { setHkSort("near"); setHkMi(60); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "near"); setHkMi((hookDetail && hookDetail.presetMi) || 60); setHkDeals(false); }, [hookDetail && hookDetail.id]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
     // AI hooks take priority — they use real place data for truly provocative copy.
@@ -4559,19 +4559,18 @@ function PageInner() {
         const nearby = await searchNearbyPlaces(q, searchCenter, (opts && opts.miles) || 20);
         if (nearby && nearby.length > 0) {
           setQuery("");
-          setSearchMode(true);
           if (nearby.length === 1) {
             // Single match — open detail directly
+            setSearchMode(true);
             setLoading(false);
             openDetail(nearby[0]);
           } else {
-            // Multiple locations (chain, etc.) — show sorted list closest first
-            setPlaces(nearby);
-            setSearchLabel(`${nearby.length} results for "${q}"`);
-            setSortBy("near");
-            setScreen("explore");
+            // v4.63: multiple matches open in the modern themed sheet — the
+            // legacy explore screen is retired as a search destination.
+            const sorted = nearby.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
             setLoading(false);
-            loadBlurbs(nearby.slice(0, 6));
+            setHookDetail({ id: "search-" + Date.now(), theme: "search", title: `Results for "${q}"`, themeTitle: `Results for "${q}"`, label: q, themeBody: "The closest matches near " + (locName ? locName.split(",")[0] : "you") + ", ranked for right now.", emoji: "\uD83D\uDD0E", accent: C.accent, places: sorted, sections: null });
+            try { window.scrollTo(0, 0); } catch (e) {}
           }
           return;
         }
