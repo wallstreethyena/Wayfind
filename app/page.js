@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.55";
+const BUILD_ID = "v4.56";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2958,6 +2958,11 @@ function PageInner() {
   const [authSending, setAuthSending] = useState(false);
   const [authPassword, setAuthPassword] = useState("");
   const [authMode, setAuthMode] = useState("signin"); // signin | signup
+  const [recoveryOpen, setRecoveryOpen] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [newPw2, setNewPw2] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [resetSending, setResetSending] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false); // account menu popover
 
   // Restore session on load and listen for sign-in / sign-out.
@@ -2969,6 +2974,9 @@ function PageInner() {
       try { if (typeof window !== "undefined" && (window.location.search.indexOf("code=") >= 0 || window.location.search.indexOf("error") >= 0 || window.location.hash.indexOf("access_token") >= 0)) window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
     }).catch(() => {});
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      // v4.56 PROTECTED (check-auth.mjs): a reset-password email link lands the
+      // user here with a recovery session. Open the set-new-password sheet.
+      if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false); } catch (e) {} }
       setUser(session && session.user ? session.user : null);
       try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
@@ -3012,6 +3020,33 @@ function PageInner() {
       else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
     setAuthSending(false);
+  }
+
+  // v4.56 PROTECTED (check-auth.mjs): "Forgot password" sends the Supabase
+  // recovery email pointed at the canonical domain.
+  async function sendPasswordReset() {
+    if (!supabase) return;
+    const em = (authEmail || "").trim();
+    if (!em || em.indexOf("@") < 0) { showToast("Type your email above first, then tap Forgot password."); return; }
+    setResetSending(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(em, { redirectTo: CANON_ORIGIN });
+      if (error) showToast("Could not send reset email: " + error.message);
+      else showToast("Reset email sent to " + em + ". Open the link, then set a new password here.");
+    } catch (e) { showToast("Could not send reset email"); }
+    setResetSending(false);
+  }
+  async function saveNewPassword() {
+    if (!supabase || !newPw) return;
+    if (newPw.length < 8) { showToast("Use at least 8 characters."); return; }
+    if (newPw !== newPw2) { showToast("Passwords do not match."); return; }
+    setPwSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPw });
+      if (error) showToast("Could not update password: " + error.message);
+      else { showToast("Password updated. You are signed in."); setRecoveryOpen(false); setNewPw(""); setNewPw2(""); }
+    } catch (e) { showToast("Could not update password"); }
+    setPwSaving(false);
   }
 
   async function signOutUser() {
@@ -7311,7 +7346,25 @@ function PageInner() {
               {authMode === "signup" ? "Already have an account? " : "New here? "}
               <span onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</span>
             </div>
+            {authMode === "signin" && (
+              <div style={{ textAlign: "center", marginTop: 8 }}>
+                <span onClick={resetSending ? undefined : sendPasswordReset} style={{ fontSize: 12.5, color: C.muted, textDecoration: "underline", cursor: "pointer", opacity: resetSending ? 0.6 : 1 }}>{resetSending ? "Sending…" : "Forgot password?"}</span>
+              </div>
+            )}
             <div style={{ textAlign: "center", marginTop: 10 }}><a href="/privacy" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
+          </div>
+        </div>
+      )}
+      {recoveryOpen && (
+        <div style={sheetBg} onClick={() => setRecoveryOpen(false)}>
+          <div style={{ ...sheet, padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>Set a new password</div>
+            <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>You opened a password reset link. Choose a new password for your account.</div>
+            <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (8+ characters)"
+              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 10, outline: "none" }} />
+            <input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} placeholder="Repeat new password"
+              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 12, outline: "none" }} />
+            <button onClick={saveNewPassword} disabled={pwSaving || !newPw || !newPw2} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: pwSaving || !newPw || !newPw2 ? "default" : "pointer", opacity: pwSaving || !newPw || !newPw2 ? 0.6 : 1 }}>{pwSaving ? "…" : "Save new password"}</button>
           </div>
         </div>
       )}
