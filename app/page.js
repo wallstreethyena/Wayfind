@@ -19,7 +19,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.74";
+const BUILD_ID = "v4.76";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -929,11 +929,18 @@ const MOMENT_CHIPS = [
   { id: "twohrs", icon: "\u23F1\uFE0F", label: "I only have 2 hours" },
   { id: "outside", icon: "\u2600\uFE0F", label: "I want to be outside" },
   { id: "locals", icon: "\u{1F48E}", label: "I want something locals know" },
-  { id: "drive", icon: "\u{1F697}", label: "I'm willing to drive" },
-  { id: "fifty", icon: "\u{1F4B5}", label: "I have $50" },
+  { id: "drive", icon: "\u{1F697}", label: "Up to 1 hour away" },
+  { id: "fifty", icon: "\u{1F4B5}", label: "Under $50" },
   { id: "visitors", icon: "\u{1F9F3}", label: "I'm showing visitors around" },
   { id: "rainy", icon: "\u{1F327}\uFE0F", label: "It's raining (or too hot)" },
   { id: "surprise", icon: "\u{1F3B2}", label: "Surprise me" },
+];
+
+// v4.75: chips render in priority groups so the eye knows where to start.
+const MOMENT_GROUPS = [
+  { label: "Who's going", ids: ["family", "date", "visitors"] },
+  { label: "Time & budget", ids: ["twohrs", "fifty", "drive"] },
+  { label: "The vibe", ids: ["outside", "locals", "rainy", "surprise"] },
 ];
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
@@ -7609,19 +7616,38 @@ function PageInner() {
             </div>
             <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
             <div style={{ textAlign: "center", marginTop: 9 }}><IntroIcon k="spark" size={26} color="#FFC28A" /></div>
-            <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.5, margin: "10px auto 16px", maxWidth: 360 }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
+            <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.55, margin: "10px auto 16px", maxWidth: 380 }}>{(() => { try {
+              const h = new Date().getHours();
+              const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
+              const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
+              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "");
+              const town = locName ? locName.split(",")[0] : "your area";
+              let w = "";
+              if (weather && typeof weather.temp === "number") {
+                const rainy = /rain|storm|shower/i.test(weather.label || "");
+                w = rainy ? " Rain out there \u2014 indoor picks are the move." : weather.temp >= 90 ? " It's a hot one \u2014 shade and A/C are winning today." : weather.temp >= 60 ? " Perfect weather to be out in " + town + "." : " Crisp day in " + town + ".";
+              }
+              const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
+              const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
+              return g + "." + w + alive;
+            } catch (e) { return "Wayfind turns how you feel into the best places near you."; } })()}</div>
             <div style={{ display: "flex", justifyContent: "center", margin: "2px 0 13px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
                 <span style={{ fontSize: 13.5, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What would interest you today?</span>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
-              {MOMENT_CHIPS.map((ch) => { const on = introSel.includes(ch.id); return (
-                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
-                  <IntroIcon k={ch.id} /><span>{ch.label}</span>
-                </button>
-              ); })}
-            </div>
+            {MOMENT_GROUPS.map((grp) => (
+              <div key={grp.label} style={{ marginBottom: 11 }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#8B90A5", margin: "0 0 6px 2px" }}>{grp.label}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+                  {grp.ids.map((id) => { const ch = MOMENT_CHIPS.find((x) => x.id === id); if (!ch) return null; const on = introSel.includes(ch.id); return (
+                    <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "12px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
+                      <IntroIcon k={ch.id} /><span>{ch.label}</span>
+                    </button>
+                  ); })}
+                </div>
+              </div>
+            ))}
             <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Let's Wayfind it</button>
             <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>

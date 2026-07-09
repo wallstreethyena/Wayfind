@@ -29,4 +29,10 @@ if (!s.includes("F97316 0%, #FF8A3D")) fail("brand gradient CTA missing");
 if (!s.includes("function feelingToMoment")) fail("feelings-to-moment translation missing");
 if (!s.includes("feelingToMoment(ql)")) fail("search not routing feelings into the moment engine");
 for (const sub of ["bored", "relax|unwind", "rain(y|ing)", "on a date"]) { if (!s.includes(sub)) fail("feeling pattern missing: " + sub); }
+if (!s.includes("MOMENT_GROUPS")) fail("chip priority groups missing");
+if (!s.includes("Who's going".replace("'", String.fromCharCode(39)))) fail("who group missing");
+if (!s.includes("Under $50")) fail("budget chip must read as a filter");
+if (!s.includes("Up to 1 hour away")) fail("drive chip must be time-based");
+if (!s.includes("Good afternoon")) fail("live intelligence greeting missing");
+if (s.includes("I have $50")) fail("conversational budget label resurfaced");
 console.log("check-moment: OK — 10 chips, bestof/indoor routing, trust copy x2, skip path, price on picks");
