@@ -34,7 +34,14 @@ if (!s.includes("CITY_NOW = cityNow;")) fail("city mirror into module scope miss
 if (!s.includes("cityFix(a.e.label)")) fail("cityFix not applied to hero labels");
 if (s.includes("{b.icon} {b.label}")) fail("raw badge label render reappeared — must use cityFixM");
 
-// 8. The browse filter lives inside the themed sheet, expandable.
+// 8. The sort control is ALWAYS visible inside the themed sheet (no hidden
+// toggle), and closest-first is the default everywhere the dropdown exists.
 if (!s.includes("SortControl sortBy={hkSort}")) fail("sheet filter (SortControl) missing");
-if (!s.includes("setHkFilterOpen")) fail("sheet filter toggle missing");
+if (s.includes("hkFilterOpen")) fail("hidden Filters toggle reappeared — sort control must be always visible");
+if (!s.includes('const [hkSort, setHkSort] = useState("near")')) fail("sheet sort must default to closest-first");
+if (!s.includes('const [sortBy, setSortBy] = useState("near")')) fail("browse sort must default to closest-first");
+
+// 9. AI insight meta-commentary can never reach the user.
+if (!s.includes("function insightSane(")) fail("insightSane guard missing");
+if (!s.includes("const S = (v) => insightSane(v)")) fail("insight render not routed through insightSane");
 console.log("check-cards: OK — revenue cards protected (location copy, sheet style, wide fetch, crash guards, filter)");

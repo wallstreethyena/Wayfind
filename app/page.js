@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.51";
+const BUILD_ID = "v4.53";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1011,6 +1011,17 @@ function experienceBadges(p, selectedKey, max, audit) {
   return keys.slice(0, lim).map((k) => ({ key: k, icon: EXPERIENCES[k].icon, label: EXPERIENCES[k].label }));
 }
 
+// v4.52: AI insight text guard. The insight model occasionally returns meta
+// commentary about categorization ("this is a performing arts theater, not a
+// food establishment...") instead of a real verdict. That must never reach a
+// user. Applied at render time so poisoned cache entries are neutralized too.
+function insightSane(t) {
+  const x = String(t || "").trim();
+  if (!x) return "";
+  if (/not a (food|restaurant|dining)|food establishment|does not belong|browsing category|miscategor|wrong category|as an ai|i cannot|i can't|unable to (assess|evaluate)/i.test(x)) return "";
+  return x;
+}
+
 // The main Wayfind section a place belongs to, read from its Google types.
 function catOfType(x) {
   x = (x || "").toLowerCase();
@@ -1018,7 +1029,7 @@ function catOfType(x) {
   if (any(["lodging", "hotel", "motel", "resort", "guest_house", "bed_and_breakfast", "campground"])) return "Hotels";
   if (any(["restaurant", "food", "cafe", "coffee", "bakery", "meal_", "ice_cream", "deli"])) return "Food";
   if (any(["night_club", "bar", "pub", "brewery", "liquor"])) return "Nightlife";
-  if (any(["tourist", "museum", "park", "art_gallery", "amusement", "aquarium", "zoo", "stadium", "landmark", "historical", "beach", "marina", "natural_feature"])) return "Activities";
+  if (any(["tourist", "museum", "park", "art_gallery", "amusement", "aquarium", "zoo", "stadium", "landmark", "historical", "beach", "marina", "natural_feature", "theater", "theatre", "performing_arts", "movie", "cinema", "concert", "bowling", "casino", "attraction"])) return "Activities";
   if (any(["store", "shopping", "mall", "market", "shop", "boutique"])) return "Shopping";
   return null;
 }
@@ -2312,7 +2323,7 @@ function pickReason(p, ctx) {
     restaurant:    [["a well-rated sit-down", "you want quiet or upscale"], ["a proper meal worth the stop", "you want fast or cheap"], ["the food-first pick here", "you want a scene more than a kitchen"]],
     hotel:         [["a comfortable base near everything", "you are not staying over"]],
     shopping:      [["a browse when you have time", "you want a quick in and out"]],
-    generic:       [["a solid nearby option", "you are after something specific"], ["an easy add to the plan", "you already know exactly what you want"]],
+    generic:       [["a dependable stop close by", "you came out for something specific"], ["a quick nearby stop locals rate well", "you already have your heart set elsewhere"]],
   };
   // v4.40: a place shown inside a food list (breakfast/lunch/dinner) must never be
   // described with bar/nightlife copy just because Google also tags it "bar".
@@ -2324,16 +2335,16 @@ function pickReason(p, ctx) {
   const pair = (kind === "entertainment" && _isPark) ? vary(PK) : vary(V[kind] || V.generic); const good = pair[0], skip = pair[1];
   if (compact) return "Best for " + good + ".";
   const sig = [];
-  if (r != null && r >= 4.6 && n >= 500) sig.push(vary(["big review strength", n.toLocaleString() + " reviews deep", "review volume most picks here lack"]));
-  else if (r != null && r >= 4.5) sig.push(vary(["highly rated", "strong marks", "rated near the top"]));
+  if (r != null && r >= 4.6 && n >= 500) sig.push(vary([r + "★ across " + n.toLocaleString() + " reviews", n.toLocaleString() + " reviews deep", r + "★ and " + n.toLocaleString() + " people agree"]));
+  else if (r != null && r >= 4.5) sig.push(vary([r + "★ rated", "locals rate it " + r + "★", r + "★ and consistent"]));
   else if (r != null) sig.push(r + "★");
   if (p.openNow === true) sig.push("open now");
   if (p.distMi != null && p.distMi <= 6) sig.push(p.distMi.toFixed(1) + " mi away");
   if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
-  const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "a safe nearby pick";
+  const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "close by and worth a look";
   const _cap = good.charAt(0).toUpperCase() + good.slice(1);
   const _fmt = (seed + rk * 7) % 3;
-  let line = _fmt === 1 ? (_cap + " is the play here \u2014 " + sigStr + ". Pass if " + skip + ".") : _fmt === 2 ? ("Pick it for " + good + " (" + sigStr + "). Not for you if " + skip + ".") : ("Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".");
+  let line = _fmt === 1 ? (_cap + " — " + sigStr + ". Pass if " + skip + ".") : _fmt === 2 ? ("Go for " + good + " (" + sigStr + "). Skip it if " + skip + ".") : ("Best for " + good + ": " + sigStr + ". Skip it if " + skip + ".");
   if (wet && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = vary(["Weather is iffy for this today. ", "Rain could get in the way today. ", "Check the sky before this one. "]) + line;
   else if (nice && ["nature", "beach", "scenic", "waterfront"].includes(kind)) line = line.replace("Skip it if", "Good weather to go — skip it if");
   return line;
@@ -2642,7 +2653,7 @@ function PageInner() {
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
-  const [sortBy, setSortBy] = useState("best");
+  const [sortBy, setSortBy] = useState("near");
   const [searchRadius, setSearchRadius] = useState(48280); // meters, ~30 miles default
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
@@ -2764,7 +2775,7 @@ function PageInner() {
   const [expPlaces, setExpPlaces] = useState(null);
   const [expLoading, setExpLoading] = useState(false);
   const [expOpenOnly, setExpOpenOnly] = useState(false);
-  const [expSort, setExpSort] = useState("best");
+  const [expSort, setExpSort] = useState("near");
   const [rolling, setRolling] = useState(false);
   const [diceFace, setDiceFace] = useState("🎲");
   const [diceChoose, setDiceChoose] = useState(false);
@@ -2870,11 +2881,10 @@ function PageInner() {
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
-  const [hkSort, setHkSort] = useState("best");
+  const [hkSort, setHkSort] = useState("near");
   const [hkMi, setHkMi] = useState(60);
   const [hkDeals, setHkDeals] = useState(false);
-  const [hkFilterOpen, setHkFilterOpen] = useState(false);
-  useEffect(() => { setHkSort("best"); setHkMi(60); setHkDeals(false); setHkFilterOpen(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { setHkSort("near"); setHkMi(60); setHkDeals(false); }, [hookDetail && hookDetail.id]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
     // AI hooks take priority — they use real place data for truly provocative copy.
@@ -3191,7 +3201,7 @@ function PageInner() {
     setActiveBadge(key);
     setExpPlaces(null);
     setExpOpenOnly(false);
-    setExpSort("best");
+    setExpSort("near");
     setScreen("experience");
     try { window.scrollTo(0, 0); } catch {}
   }
@@ -4612,7 +4622,7 @@ function PageInner() {
                 </span>
               </div>
               {searchLabel && (
-                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("best"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
               )}
             </div>
           </>
@@ -6197,7 +6207,7 @@ function PageInner() {
                 )}
                 {!insightLoading && (() => {
                   const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                  const S = (v) => (v && String(v).trim()) ? String(v).trim() : "";
+                  const S = (v) => insightSane(v);
                   const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
                   let why = ins ? S(ins.why) : "";
                   if (!why && ins) {
@@ -6815,12 +6825,7 @@ function PageInner() {
                 {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
               </div>
               <div style={{ marginTop: 10 }}>
-                <button onClick={() => setHkFilterOpen((v) => !v)} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${hkFilterOpen ? acc : C.border}`, background: hkFilterOpen ? acc + "18" : "transparent", color: hkFilterOpen ? acc : C.muted, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>⚙ Filters {hkFilterOpen ? "▴" : "▾"}</button>
-                {hkFilterOpen && (
-                  <div style={{ marginTop: 10 }}>
-                    <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
-                  </div>
-                )}
+                <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
               </div>
             </div>
 
