@@ -111,7 +111,9 @@ async function fromOSM(lat, lng, radiusM) {
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), 12000);
       try {
-        const r = await fetch(host, { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(q) });
+        // OSM usage policy requires an identifying User-Agent; without one the
+        // Apache front-end answers 406 Not Acceptable (verified live).
+        const r = await fetch(host, { method: "POST", signal: ctrl.signal, headers: { "content-type": "application/x-www-form-urlencoded", "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com; hello@gowayfind.com)" }, body: "data=" + encodeURIComponent(q) });
         clearTimeout(timer);
         return r.ok ? r : null;
       } catch (e) { clearTimeout(timer); return null; }
