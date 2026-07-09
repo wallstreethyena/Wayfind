@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.77";
+const BUILD_ID = "v4.78";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -879,12 +879,19 @@ function curatedNote(p) {
   return note;
 }
 
+// v4.78 — Hidden Gems must be discoveries, never chains. Name-based because
+// Google types can't tell an indie diner from a franchise.
+const GEM_CHAIN_RX = /mcdonald|burger king|taco bell|wendy'?s|kfc\b|subway\b|dunkin|starbucks|chick.?fil.?a|chipotle|panera|five guys|domino'?s|pizza hut|papa john|little caesar|olive garden|applebee|chili'?s|outback|ihop\b|denny'?s|cracker barrel|red lobster|texas roadhouse|buffalo wild wings|hooters|dairy queen|sonic drive|arby'?s|popeyes|jersey mike|jimmy john|firehouse subs|panda express|walmart|target\b|publix|costco/i;
+
 const EXPERIENCES = {
-  outside: { icon: "🌤️", label: "Outside", title: "Best Outside Right Now", lead: "Beaches, parks, trails, gardens and waterfront near you.", radius: 72000, queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }, { cat: "attractions", keyword: "outdoor" }], filter: (p) => { const v = Ranking.venueLean(p); return v.water || v.lean === "outdoor"; } },
-  inside: { icon: "🏛️", label: "Inside", title: "Best Indoor Spots Right Now", lead: "Museums, aquariums, galleries and indoor fun for tougher weather.", radius: 72000, queries: [{ cat: "attractions", keyword: "museum" }, { cat: "attractions", keyword: "aquarium" }, { cat: "attractions", keyword: "art gallery" }, { cat: "attractions", keyword: "indoor entertainment bowling arcade" }, { cat: "attractions", keyword: "escape room" }, { cat: "attractions", keyword: "spa day" }], filter: (p) => { const v = Ranking.venueLean(p); return v.lean === "indoor"; } },
-  localsgood: { icon: "📍", label: "Locals love it", title: "What Locals Know Is Good", lead: "The proven, independent places locals actually name.", radius: 60000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }, { cat: "nightlife", keyword: "" }], filter: (p) => p.rating >= 4.5 && p.reviews >= 150 },
-  hiddengems: { icon: "💎", label: "Hidden gems", title: "Hidden Gems Near You", lead: "Quietly excellent spots most people walk right past.", radius: 60000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }, { cat: "nightlife", keyword: "" }], filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 800 },
-  worthdrive: { icon: "🚗", label: "Worth the drive", title: "Worth The Drive", lead: "Exceptional places a bit further out, worth the trip.", radius: 130000, queries: [{ cat: "food", keyword: "" }, { cat: "attractions", keyword: "" }], filter: (p) => p.rating >= 4.6 && (p.distMi == null || p.distMi >= 20) },
+  // v4.78 — the four intent vibes. Each fires several location-based searches
+  // in parallel (multi-query loader below), merges + dedupes, then ranks with
+  // the standard engine. Curated places tagged with a vibe always pass its
+  // filter (curated-aware filter in the experience-loading effect).
+  outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", radius: 72000, queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
+  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", radius: 60000, queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
+  bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
+  familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", radius: 72000, queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
@@ -1216,16 +1223,67 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 // v4.27 — Culture, distributed. A one-line area insight at the top of each
 // category browse, expanding to the facts, a local phrase, and the rookie
 // mistake for that context. Replaces the standalone culture card.
-function AreaInsight({ metro, cat, town, onFind }) {
+// v4.78 — grounding for town-note named businesses (the Rack City Ribz fix).
+// A researched note once presented a closed food truck 15 miles away in
+// another town as a local staple. Any TOWN_NOTES item carrying `place` is now
+// resolved against live Google data before it renders: it must be found, the
+// name must match, it must be OPERATIONAL, and it must sit within ~10 miles
+// (~25 with farOk, for items whose story frames the drive honestly).
+// Fail-closed: an unverified named business is hidden, never shown as fact.
+// Verdicts cache on-device for 7 days so this costs one findPlace per name.
+const CULT_STOP = /^(the|and|for|its|it's)$/i;
+function cultNameMatch(placeQuery, resultName) {
+  const rn = _wfNorm(resultName);
+  if (!rn) return false;
+  const words = String(placeQuery || "").toLowerCase().split(/[^a-z0-9']+/).filter((w) => w.length >= 3 && !CULT_STOP.test(w));
+  const hit = words.filter((w) => rn.includes(_wfNorm(w))).length;
+  return hit >= Math.min(2, words.length);
+}
+async function verifyCulturePlaces(items, center) {
+  const CK = "wf_cultground_v1";
+  let cache = {};
+  try { cache = JSON.parse(localStorage.getItem(CK) || "{}"); } catch (e) {}
+  const now = Date.now();
+  const out = {};
+  let dirty = false;
+  for (const it of items) {
+    const k = it.place;
+    const hit = cache[k];
+    if (hit && hit.exp > now) { out[k] = !!hit.ok; continue; }
+    let good = false;
+    try {
+      const pl = await findPlace(it.place, center);
+      good = !!(pl && cultNameMatch(it.place, pl.name)
+        && (!pl.status || pl.status === "OPERATIONAL")
+        && (pl.distMi == null || pl.distMi <= (it.farOk ? 25 : 10)));
+    } catch (e) {}
+    out[k] = good;
+    cache[k] = { ok: good, exp: now + 7 * 864e5 };
+    dirty = true;
+  }
+  if (dirty) { try { localStorage.setItem(CK, JSON.stringify(cache)); } catch (e) {} }
+  return out;
+}
+function AreaInsight({ metro, cat, town, center, onFind }) {
   const [openIt, setOpenIt] = useState(false);
+  const [grounded, setGrounded] = useState({});
   const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo", events: "events" };
   const key = map[cat];
   // v4.30: a town with its own researched notes outranks the metro story.
   const tn = town && Culture.TOWN_NOTES && Culture.TOWN_NOTES[String(town).toLowerCase()];
   const notes = (tn && key && tn[key]) || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
   const c = metro ? Culture.CULTURE[metro] : null;
-  if (!notes || !c) return null;
   const isTown = !!(tn && key && tn[key]);
+  const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
+  const namedKey = named.map((x) => x.place).join("|");
+  useEffect(() => {
+    if (!namedKey || !center) return;
+    let cancelled = false;
+    verifyCulturePlaces(named, center).then((v) => { if (!cancelled) setGrounded(v); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [namedKey, center && center.lat, center && center.lng]);
+  if (!notes || !c) return null;
   return (
     <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
       <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
@@ -1238,7 +1296,7 @@ function AreaInsight({ metro, cat, town, onFind }) {
       </div>
       {openIt && (
         <div style={{ padding: "0 13px 13px 37px" }}>
-          {(notes.items || []).map((x, i) => {
+          {(notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]).map((x, i) => {
             const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
             return (
               <div key={i} style={{ marginBottom: 8 }}>
@@ -2860,6 +2918,7 @@ function PageInner() {
   const [activeBadge, setActiveBadge] = useState(null);
   const [expPlaces, setExpPlaces] = useState(null);
   const [expLoading, setExpLoading] = useState(false);
+  const [expTours, setExpTours] = useState(null); // v4.78: top-rated Viator experiences for the Bucket List vibe
   const [expOpenOnly, setExpOpenOnly] = useState(false);
   const [expSort, setExpSort] = useState("near");
   const [rolling, setRolling] = useState(false);
@@ -4089,6 +4148,31 @@ function PageInner() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
+
+  // v4.78 Bucket List: top-rated bookable experiences for the user's area via
+  // the existing Viator freetext endpoint (/api/viator/tours). Basic-access
+  // Viator has no "top-rated in destination" sort, but each product returns
+  // rating + review count, so we fetch by area name and rank client-side.
+  useEffect(() => {
+    if (screen !== "experience" || activeBadge !== "bucketlist") { setExpTours(null); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const _m = Culture.resolveMetro(locName);
+        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        if (!cityQ) return;
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=6");
+        const d = await r.json();
+        const items = (d && Array.isArray(d.items) ? d.items : [])
+          .filter((t) => t.rating != null && t.rating >= 4.5)
+          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
+          .slice(0, 4);
+        if (!cancelled) setExpTours(items);
+      } catch (e) { if (!cancelled) setExpTours(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, activeBadge, locName]);
 
   // v4.62: real nearby teasers under the intro CTA — proof before the ask.
   const introTeasers = useMemo(() => {
@@ -5386,7 +5470,7 @@ function PageInner() {
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
                   </div>
-                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
+                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
@@ -5948,6 +6032,22 @@ function PageInner() {
               </div>
               <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
               <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
+              {activeBadge === "bucketlist" && Array.isArray(expTours) && expTours.length > 0 && (
+                <div style={{ margin: "4px 0 14px" }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px", marginBottom: 8 }}>Top-rated experiences</div>
+                  <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+                    {expTours.map((t) => (
+                      <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("tickets_out", null, { kind: "bucketlist_tour", code: t.code }); } catch (e) {} }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+                        {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
+                        <div style={{ padding: "8px 10px" }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                          <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
@@ -6270,7 +6370,7 @@ function PageInner() {
             <div>
               <div style={{ paddingTop: 4, marginBottom: 12 }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
-                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
+                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Concerts, sports, and shows worth building a night around</div>
               </div>
               {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
