@@ -21,4 +21,9 @@ if (!s.includes("See what's possible right now")) fail("live teaser strip missin
 if (!s.includes("introTeasers")) fail("teasers must come from real nearby data");
 if (!s.includes('pendingQRef')) fail("?q= deep link handling missing");
 if (!s.includes('best\\s+of\\s+')) fail("best-of city rescue missing");
+if (!s.includes("INTRO_PATHS")) fail("line-icon set missing (mock look)");
+if (!s.includes('sp0.get("intro") === "1"')) fail("?intro=1 preview switch missing");
+if (!s.includes("setIntroOpen(true), 120")) fail("intro must show immediately on entry");
+if (!s.includes("WebkitBackgroundClip")) fail("gradient headline missing");
+if (!s.includes("6D5DF6")) fail("mock gradient CTA missing");
 console.log("check-moment: OK — 10 chips, bestof/indoor routing, trust copy x2, skip path, price on picks");

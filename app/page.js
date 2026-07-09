@@ -3,6 +3,7 @@ import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react
 import { CATEGORIES, SUBFILTERS, VIBES, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
+import { isTrueLodging } from "../lib/lodging";
 import { supabase } from "../lib/supabase";
 import MapView from "./components/MapView";
 import * as Trips from "../lib/trips";
@@ -17,7 +18,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.64";
+const BUILD_ID = "v4.66";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -939,6 +940,26 @@ const MOMENT_CHIPS = [
   { id: "rainy", icon: "\u{1F327}\uFE0F", label: "It's raining (or too hot)" },
   { id: "surprise", icon: "\u{1F3B2}", label: "Surprise me" },
 ];
+const INTRO_PATHS = {
+  family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
+  date: "M12 20s-7-4.4-9.2-8.6C1.2 8.3 3.2 5 6.4 5c2 0 3.4 1.1 4.1 2.4l1.5 2.4 1.5-2.4C14.2 6.1 15.6 5 17.6 5c3.2 0 5.2 3.3 3.6 6.4C19 15.6 12 20 12 20Z",
+  twohrs: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v5l3.2 2",
+  outside: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4",
+  locals: "M6 3h12l3 5-9 13L3 8l3-5Zm-3 5h18M9.5 3 8 8l4 13m2.5-18L16 8l-4 13",
+  drive: "M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M5 12h14M5 12a2 2 0 0 0-2 2v3.5h2M19 12a2 2 0 0 1 2 2v3.5h-2m-14 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m8 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m-11 0h8M7.5 14.8h.01m9 0h.01",
+  fifty: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm2.6-11.6c-.4-.9-1.4-1.5-2.6-1.5-1.6 0-2.8.9-2.8 2.1s1 1.7 2.8 2c1.9.3 3 .9 3 2.2 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.7-2.9-1.7M12 6.5v11",
+  surprise: "M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Zm6.5 9 .9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9.9-2.3ZM5 14.5l.7 1.9 1.9.7-1.9.7L5 19.7l-.7-1.9-1.9-.7 1.9-.7.7-1.9Z",
+  visitors: "M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7m-9.5 0h11A1.5 1.5 0 0 1 19 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-9A1.5 1.5 0 0 1 6.5 7ZM9 11v4m6-4v4",
+  rainy: "M7 15a4.5 4.5 0 0 1-.9-8.9A5.5 5.5 0 0 1 16.7 7 4 4 0 0 1 17 15H7Zm1.5 3-.8 2.2m4.3-2.2-.8 2.2m4.3-2.2-.8 2.2",
+  wand: "M6 21 17.5 9.5M15 4l.8 2.2L18 7l-2.2.8L15 10l-.8-2.2L12 7l2.2-.8L15 4Zm5.5 5 .5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5.5-1.4ZM8 3.5l.5 1.3 1.3.5-1.3.5L8 7.1l-.5-1.3-1.3-.5 1.3-.5.5-1.3Z",
+  pin: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
+  spark: "M12 2l2 5.5L19.5 9 14 11l-2 5.5L10 11 4.5 9 10 7.5 12 2Zm7 11 .9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4Z",
+  shield: "M12 3l7 2.8v5.4c0 4.5-3 8.1-7 9.8-4-1.7-7-5.3-7-9.8V5.8L12 3Zm-2.5 8.6 1.8 1.9 3.4-3.7",
+};
+function IntroIcon({ k, size = 22, color = "#A78BFA" }) {
+  const d = INTRO_PATHS[k]; if (!d) return null;
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d={d} /></svg>;
+}
 function composeMoment(sel, city) {
   const has = (k) => sel.includes(k);
   if (has("surprise")) return { surprise: true };
@@ -1062,7 +1083,8 @@ function insightSane(t) {
 function catOfType(x) {
   x = (x || "").toLowerCase();
   const any = (arr) => arr.some((k) => x.includes(k));
-  if (any(["lodging", "hotel", "motel", "resort", "guest_house", "bed_and_breakfast", "campground"])) return "Hotels";
+  if (any(["campground", "rv_park"])) return "Activities";
+  if (any(["lodging", "hotel", "motel", "resort", "guest_house", "bed_and_breakfast"])) return "Hotels";
   if (any(["restaurant", "food", "cafe", "coffee", "bakery", "meal_", "ice_cream", "deli"])) return "Food";
   if (any(["night_club", "bar", "pub", "brewery", "liquor"])) return "Nightlife";
   if (any(["tourist", "museum", "park", "art_gallery", "amusement", "aquarium", "zoo", "stadium", "landmark", "historical", "beach", "marina", "natural_feature", "theater", "theatre", "performing_arts", "movie", "cinema", "concert", "bowling", "casino", "attraction"])) return "Activities";
@@ -4050,8 +4072,10 @@ function PageInner() {
   // Wayfind and gets the user to a win without typing. Skippable, remembered.
   useEffect(() => {
     try {
-      if (new URLSearchParams(window.location.search).get("q")) { /* deep link owns this visit */ } else if (!localStorage.getItem("wf_intro_seen")) {
-        const t = setTimeout(() => setIntroOpen(true), 800);
+      const sp0 = new URLSearchParams(window.location.search);
+      if (sp0.get("intro") === "1") { setIntroOpen(true); return; }
+      if (sp0.get("q")) { /* deep link owns this visit */ } else if (!localStorage.getItem("wf_intro_seen")) {
+        const t = setTimeout(() => setIntroOpen(true), 120);
         return () => clearTimeout(t);
       }
     } catch (e) {}
@@ -4097,6 +4121,7 @@ function PageInner() {
         if (hd.priceMax != null) results = results.filter((p) => { const pl = p.price_level ?? p.priceLevel; return pl == null || pl <= hd.priceMax; });
         if (hd.openNowOnly) results = results.filter((p) => p.openNow !== false);
         if (hd.indoorOnly) results = results.filter((p) => { try { return Ranking.venueLean(p).lean === "indoor"; } catch (e) { return true; } });
+        if ((hd.fetchKey || hd.theme) === "stays") results = results.filter(isTrueLodging);
         results = results.slice(0, 20);
         if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: results } : cur); loadBlurbs(results); }
       } catch (e) {
@@ -7530,57 +7555,47 @@ function PageInner() {
         </div>
       )}
       {introOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.7)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 430, maxHeight: "92vh", overflowY: "auto", borderRadius: 22, padding: "20px 18px 18px", background: C.panel, border: `1px solid ${C.border}`, boxShadow: "0 24px 70px rgba(0,0,0,.55)" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-              <div style={{ fontSize: 23, fontWeight: 800, color: C.text, lineHeight: 1.22 }}>Find the right place. <span style={{ color: C.accent }}>For the right moment.</span></div>
-              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 19, cursor: "pointer", padding: 2, flexShrink: 0 }}>✕</button>
+        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 14, overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "94vh", overflowY: "auto", borderRadius: 26, padding: "18px 20px 20px", background: "#0B0E17", border: "1px solid rgba(139,92,246,.35)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 60px rgba(139,92,246,.12)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}><IntroIcon k="pin" size={22} /><span style={{ fontSize: 19, fontWeight: 800, color: "#A78BFA", letterSpacing: 0.2 }}>Wayfind</span></div>
+              <IntroIcon k="spark" size={30} color="#C4A9FA" />
+              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 36, height: 36, borderRadius: 999, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", color: "#DDE1EE", fontSize: 16, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
-            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, margin: "8px 0 14px" }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
-            <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>✨ Tell us what kind of day you want</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #A78BFA, #E86FF0)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
+            <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.5, margin: "10px auto 16px", maxWidth: 360 }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}><IntroIcon k="spark" size={17} /><span style={{ fontSize: 14, fontWeight: 800, color: "#F4F6FC" }}>Tell us what kind of day you want</span></div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
               {MOMENT_CHIPS.map((ch) => { const on = introSel.includes(ch.id); return (
-                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 8, textAlign: "left", padding: "11px 11px", borderRadius: 13, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                  <span style={{ fontSize: 16 }}>{ch.icon}</span><span>{ch.label}</span>
+                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#A78BFA" : "#262B3F"}`, background: on ? "rgba(139,92,246,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
+                  <IntroIcon k={ch.id} /><span>{ch.label}</span>
                 </button>
               ); })}
             </div>
-            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 14, padding: 14, borderRadius: 13, border: "none", background: `linear-gradient(90deg, ${C.accent}, ${C.purple})`, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5 }}>🪄 Build My Adventure</button>
-            {introTeasers.length >= 2 && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "0 0 9px" }}>
-                  <div style={{ flex: 1, height: 1, background: C.border }} />
-                  <div style={{ fontSize: 11.5, fontWeight: 700, color: C.light, whiteSpace: "nowrap" }}>See what's possible right now</div>
-                  <div style={{ flex: 1, height: 1, background: C.border }} />
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {introTeasers.map((tz) => (
-                    <div key={tz.p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(tz.p); }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 10px", cursor: "pointer" }}>
-                      <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.p.name}</div>
-                      <div style={{ fontSize: 11, color: C.light, margin: "2px 0 4px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.line}</div>
-                      <div style={{ fontSize: 10.5, color: C.muted }}>{tz.p.distMi != null ? tz.p.distMi.toFixed(1) + " mi away" : (tz.p.openNow === true ? "Open now" : "Nearby")}</div>
+            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #6D5DF6 0%, #A855F7 55%, #EC6FF1 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 8px 26px rgba(139,92,246,.35)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Build My Adventure</button>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0 10px" }}>
+              <div style={{ flex: 1, height: 1, background: "#232838" }} />
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#AEB4C8", whiteSpace: "nowrap" }}>See what's possible right now</div>
+              <div style={{ flex: 1, height: 1, background: "#232838" }} />
+            </div>
+            {introTeasers.length >= 2 ? (
+              <div style={{ display: "grid", gridTemplateColumns: introTeasers.length >= 4 ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
+                {introTeasers.map((tz) => (
+                  <div key={tz.p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(tz.p); }} style={{ background: "#121524", border: "1px solid #262B3F", borderRadius: 13, overflow: "hidden", cursor: "pointer" }}>
+                    {tz.p.photo ? <img src={tz.p.photo} alt="" style={{ width: "100%", height: 58, objectFit: "cover", display: "block" }} /> : null}
+                    <div style={{ padding: "7px 8px 8px" }}>
+                      <div style={{ fontSize: 11.5, fontWeight: 800, color: "#F4F6FC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.p.name}</div>
+                      <div style={{ fontSize: 10, color: "#AEB4C8", margin: "2px 0 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.line}</div>
+                      <div style={{ fontSize: 10, color: "#8B90A5" }}>{tz.p.distMi != null ? tz.p.distMi.toFixed(1) + " mi away" : (tz.p.openNow === true ? "Open now" : "Nearby")}</div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div style={{ textAlign: "center", fontSize: 11.5, color: "#8B90A5", padding: "4px 0 2px" }}>Finding what's around you{"\u2026"}</div>
             )}
-            <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12, color: C.muted, marginTop: 10, cursor: "pointer" }}>Just let me look around</div>
-            <div style={{ textAlign: "center", fontSize: 10, color: C.muted, marginTop: 9, lineHeight: 1.45 }}>Rankings are merit-based. Affiliate links never change placement.</div>
-            {(() => { const teasers = (suggested || []).filter((p) => p && p.photo && p.name).slice(0, 3); if (!teasers.length) return null; return (
-              <div style={{ marginTop: 15, paddingTop: 13, borderTop: `1px solid ${C.border}` }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 9, textAlign: "center" }}>What's near you right now</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                  {teasers.map((p) => (
-                    <div key={p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(p); }} style={{ cursor: "pointer" }}>
-                      <img src={p.photo} alt="" style={{ width: "100%", height: 64, objectFit: "cover", borderRadius: 10, display: "block" }} />
-                      <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</div>
-                      {p.distMi != null && <div style={{ fontSize: 9.5, color: C.muted, marginTop: 1 }}>{p.distMi.toFixed(1)} mi away</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ); })()}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 13, fontSize: 10.5, color: C.muted }}>🛡️ Merit based rankings. Honest results.</div>
+            <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>
         </div>
       )}
