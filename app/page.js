@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.58";
+const BUILD_ID = "v4.60";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -923,6 +923,32 @@ const EXPERIENCES = {
 //      hour out must appear), independent of the food-heavy local pool.
 let CITY_NOW = "you";
 function cityFixM(s) { return String(s || "").replace(/Best of Sarasota/g, "Best of " + CITY_NOW); }
+// v4.60 PROTECTED (check-ux.mjs): the first-time "moment builder". Each chip
+// maps to a REAL engine capability — no promise the ranking cannot keep.
+const MOMENT_CHIPS = [
+  { id: "family", icon: "\u{1F46A}", label: "I'm with my family" },
+  { id: "date", icon: "\u{1F495}", label: "I'm on a date" },
+  { id: "twohrs", icon: "\u23F1\uFE0F", label: "I only have 2 hours" },
+  { id: "outside", icon: "\u2600\uFE0F", label: "I want to be outside" },
+  { id: "locals", icon: "\u{1F48E}", label: "I want something locals know" },
+  { id: "drive", icon: "\u{1F697}", label: "I'm willing to drive" },
+  { id: "fifty", icon: "\u{1F4B5}", label: "I have $50" },
+  { id: "surprise", icon: "\u{1F3B2}", label: "Surprise me" },
+];
+function composeMoment(sel, city) {
+  const has = (k) => sel.includes(k);
+  if (has("surprise")) return { surprise: true };
+  const base = has("family") ? "family" : has("date") ? "romantic" : has("locals") ? "gem" : has("outside") ? "nature" : has("fifty") ? "budget" : "entertainment";
+  const spec = { base };
+  if (has("twohrs")) { spec.radiusOverride = 24000; spec.openNowOnly = true; }
+  if (has("drive")) spec.radiusOverride = 110000;
+  if (has("fifty")) spec.priceMax = 2;
+  if (has("outside") && base !== "nature") spec.extraKeyword = "outdoor";
+  const names = { family: "Family day", romantic: "Date night", gem: "Local gems", nature: "Time outside", budget: "Big fun, small budget", entertainment: "Things to do" };
+  spec.title = names[base] + " near " + city;
+  spec.body = [has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null].filter(Boolean).join(" \u00b7 ");
+  return spec;
+}
 const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"];
 function revenueExpMeta(key, city) {
   const M = {
@@ -2963,6 +2989,8 @@ function PageInner() {
   // partners never send booking data back, so this is the honest capture.
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
+  const [introOpen, setIntroOpen] = useState(false);
+  const [introSel, setIntroSel] = useState([]);
   const [locBannerGone, setLocBannerGone] = useState(false);
   const [reservations, setReservations] = useState([]);
   useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
@@ -3251,6 +3279,16 @@ function PageInner() {
     const m = revenueExpMeta(key, cityNow) || {};
     setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, places: null });
     try { window.scrollTo(0, 0); } catch {}
+  }
+  function openMoment(sel) {
+    try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
+    setIntroOpen(false);
+    try { logEvent("intro_build", null, { chips: sel.join(",") }); } catch (e) {}
+    const spec = composeMoment(sel, cityNow);
+    if (spec.surprise) { setMenuSheet("pick"); return; }
+    const e = EXPERIENCES[spec.base] || EXPERIENCES.entertainment;
+    setHookDetail({ id: "moment-" + Date.now(), theme: spec.base, fetchKey: spec.base, radiusOverride: spec.radiusOverride, priceMax: spec.priceMax, openNowOnly: spec.openNowOnly, extraKeyword: spec.extraKeyword, accent: C.accent, emoji: e.icon, label: spec.title, highlightWord: "", hook: spec.title, subtitle: spec.body || "", cta: "", themeTitle: spec.title, themeBody: spec.body || e.lead, places: null });
+    try { window.scrollTo(0, 0); } catch (e2) {}
   }
   function openExperience(key) {
     if (!EXPERIENCES[key]) return;
@@ -3962,6 +4000,17 @@ function PageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
 
+  // v4.60: first visit gets the moment builder — one screen that explains
+  // Wayfind and gets the user to a win without typing. Skippable, remembered.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("wf_intro_seen")) {
+        const t = setTimeout(() => setIntroOpen(true), 800);
+        return () => clearTimeout(t);
+      }
+    } catch (e) {}
+  }, []);
+
   // v4.58: build number leaves the visible UI (launch polish) but stays
   // machine-readable for deploy verification and diagnostics.
   useEffect(() => { try { window.__WF_BUILD = BUILD_ID; document.documentElement.setAttribute("data-wf-build", BUILD_ID); } catch (e) {} }, []);
@@ -3989,7 +4038,9 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
-        let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, 110000, "all", exp.keyword || "");
+        const _rad = hd.radiusOverride || 110000;
+        const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
+        let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
         const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
         let results;
         if (exp.filter) {
@@ -3997,6 +4048,8 @@ function PageInner() {
           if (passed.length >= 5) results = sortFit(passed);
           else { const ids = new Set(passed.map((p) => p.id)); results = [...sortFit(passed), ...sortFit(raw.filter((p) => !ids.has(p.id)))]; }
         } else results = sortFit(raw);
+        if (hd.priceMax != null) results = results.filter((p) => { const pl = p.price_level ?? p.priceLevel; return pl == null || pl <= hd.priceMax; });
+        if (hd.openNowOnly) results = results.filter((p) => p.openNow !== false);
         results = results.slice(0, 20);
         if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: results } : cur); loadBlurbs(results); }
       } catch (e) {
@@ -5282,6 +5335,9 @@ function PageInner() {
                 const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
                 return (
                   <div style={{ marginBottom: 16 }}>
+                    {!introOpen && (
+                      <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, {}); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 12.5, fontWeight: 800, cursor: "pointer", marginBottom: 12 }}>✨ Find my vibe</button>
+                    )}
                     {locApprox && !locBannerGone && (
                       <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", marginBottom: 12 }}>
                         <span style={{ fontSize: 15 }}>📍</span>
@@ -7406,6 +7462,42 @@ function PageInner() {
               </div>
             )}
             <div style={{ textAlign: "center", marginTop: 10 }}><a href="/privacy" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
+          </div>
+        </div>
+      )}
+      {introOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.7)", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 430, maxHeight: "92vh", overflowY: "auto", borderRadius: 22, padding: "20px 18px 18px", background: C.panel, border: `1px solid ${C.border}`, boxShadow: "0 24px 70px rgba(0,0,0,.55)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+              <div style={{ fontSize: 23, fontWeight: 800, color: C.text, lineHeight: 1.22 }}>Find the right place. <span style={{ color: C.accent }}>For the right moment.</span></div>
+              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 19, cursor: "pointer", padding: 2, flexShrink: 0 }}>✕</button>
+            </div>
+            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, margin: "8px 0 14px" }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>✨ Tell us what kind of day you want</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {MOMENT_CHIPS.map((ch) => { const on = introSel.includes(ch.id); return (
+                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 8, textAlign: "left", padding: "11px 11px", borderRadius: 13, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
+                  <span style={{ fontSize: 16 }}>{ch.icon}</span><span>{ch.label}</span>
+                </button>
+              ); })}
+            </div>
+            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 14, padding: 14, borderRadius: 13, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5 }}>🪄 Build my adventure</button>
+            <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12, color: C.muted, marginTop: 10, cursor: "pointer" }}>Just let me look around</div>
+            {(() => { const teasers = (suggested || []).filter((p) => p && p.photo && p.name).slice(0, 3); if (!teasers.length) return null; return (
+              <div style={{ marginTop: 15, paddingTop: 13, borderTop: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 9, textAlign: "center" }}>What's near you right now</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                  {teasers.map((p) => (
+                    <div key={p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(p); }} style={{ cursor: "pointer" }}>
+                      <img src={p.photo} alt="" style={{ width: "100%", height: 64, objectFit: "cover", borderRadius: 10, display: "block" }} />
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</div>
+                      {p.distMi != null && <div style={{ fontSize: 9.5, color: C.muted, marginTop: 1 }}>{p.distMi.toFixed(1)} mi away</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ); })()}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 13, fontSize: 10.5, color: C.muted }}>🛡️ Merit based rankings. Honest results.</div>
           </div>
         </div>
       )}
