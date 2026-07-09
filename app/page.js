@@ -1,6 +1,9 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+// v4.86: every place search flows through the multi-source aggregator
+// (Google + Foursquare, merged + deduped) — same signature, bigger pool.
+import { searchPlaces } from "../lib/sources";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -20,7 +23,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.84";
+const BUILD_ID = "v4.86";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -831,6 +834,14 @@ const curatedFor = (p) => CURATED_BY_NAME.get(_wfNorm(p && p.name));
 // the 17-mi default — the owner's promise is that tagged picks always compete,
 // and every card labels its distance so nothing is hidden.
 const CURATED_REACH_MI = 45;
+// v4.85 — adaptive radius. A fixed 17-mile ring starves sparse markets like
+// Parrish, where the good places sit 18-24 miles out: lists went empty and
+// sheets showed "Not enough data" while real places existed a few miles past
+// the ring. Every surface still STARTS at 17, but auto-widens 30 → 45 → 60
+// until at least ADAPT_MIN usable places exist, then stops. Distance is
+// always labeled per card; manual radius choices always win over auto.
+const RADIUS_LADDER_M = [27359, 48280, 72420, 96560]; // 17 → 30 → 45 → 60 mi
+const ADAPT_MIN = 8;
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -2839,6 +2850,7 @@ function PageInner() {
   const [vibe, setVibe] = useState("all");
   const [sortBy, setSortBy] = useState("near");
   const [searchRadius, setSearchRadius] = useState(DEFAULT_RADIUS_M); // meters — v4.83: 17-mile app-wide default
+  const autoRadiusRef = useRef(true); // v4.85: true while the radius is app-chosen; a manual slider touch flips it off and auto-widen stands down
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
   const [radiusSheet, setRadiusSheet] = useState(false);
   const [pendingRadius, setPendingRadius] = useState(24140);
@@ -3051,7 +3063,10 @@ function PageInner() {
         title2 = c.title.replace(" near you", town ? " near " + town : " near you");
         body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance \u2014 every pick is labeled by how far it really is. " : "") + c.lead;
       }
-      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? 60 : c.presetMi });
+      // v4.85: a thin market opens at the SMALLEST radius that actually shows the
+      // list (17 → 30 → 45 → 60) instead of jumping straight to 60.
+      const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi });
     } catch (e) { showToast("Could not load that list"); }
   };
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
@@ -3092,6 +3107,22 @@ function PageInner() {
   const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
   useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "near"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  // v4.85: never show "Not enough data" at 17 mi when the sheet's wide fetch
+  // already found real places a few miles farther — bump the sheet radius up
+  // the ladder until enough places are visible. Manual slider changes win
+  // (this only reacts when the sheet's places arrive, not on user input).
+  useEffect(() => {
+    const pl = hookDetail && hookDetail.places;
+    if (!pl || !pl.length) return;
+    const _within = (mi) => pl.filter((p) => p.distMi == null || p.distMi <= mi).length;
+    setHkMi((cur) => {
+      const _t = Math.min(ADAPT_MIN, pl.length);
+      if (cur >= 60 || _within(cur) >= _t) return cur;
+      for (const mi of [30, 45, 60]) { if (mi > cur && _within(mi) >= _t) return mi; }
+      return 60;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.places && hookDetail.places.length]);
   // Hook cards — computed from real data, refreshes when the place list changes.
   const hookCards = useMemo(() => {
     // AI hooks take priority — they use real place data for truly provocative copy.
@@ -3563,7 +3594,13 @@ function PageInner() {
   // Unique finds: curated gems Google's prominence ranking buries. Renders from
   // static data (zero passive Google calls); tapping a gem runs one cached
   // findPlace and opens the detail sheet.
-  const renderUniqueFinds = () => (
+  // v4.85 — VIATOR LOCATION FIX: every entry in Gems.GEMS is an Orlando-market
+  // venue. This rail used to render for EVERY user, so a Parrish user could
+  // tap into an Orlando detail sheet whose Viator links were Orlando products
+  // ("Explore Orlando"). It now renders only inside the Orlando metro.
+  const renderUniqueFinds = () => {
+    if (Culture.resolveMetro(locName) !== "orlando") return null;
+    return (
     <div style={{ margin: "14px 0 4px" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.light }}>Unique finds near you</div>
@@ -3582,7 +3619,8 @@ function PageInner() {
         ))}
       </div>
     </div>
-  );
+    );
+  };
 
   // World Cup hero card. topSlot=true renders only on match days (fixed
   // knockout calendar); topSlot=false renders mid-feed on off days.
@@ -3786,6 +3824,18 @@ function PageInner() {
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
   async function openDetail(p, context) {
+    // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
+    // when one exists (reviews, hours, photos come along); otherwise it
+    // renders honestly from the Foursquare data it arrived with.
+    if (p && typeof p.id === "string" && p.id.startsWith("fsq:")) {
+      try {
+        const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
+        if (up && up.id && up.lat != null) {
+          const dLat = up.lat - p.lat, dLng = up.lng - p.lng;
+          if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= 0.25) p = { ...up, distMi: p.distMi != null ? p.distMi : up.distMi, sources: p.sources };
+        }
+      } catch (e) {}
+    }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     setDetail(p);
     setDetailContext(context || null);
@@ -4106,17 +4156,33 @@ function PageInner() {
         // time of day for food, first subfilter otherwise) and merges. Any specific
         // subfilter tap is a single search. ~67% fewer searches per load.
         const _subs = (SUBFILTERS[cat] || []).filter((x) => x && x.id && x.id !== "all");
-        let results;
-        if (sub === "all" && _subs.length) {
-          let _second;
-          if (cat === "food") { const _h = new Date().getHours(); const _w = _h < 11 ? "breakfast" : _h < 15 ? "lunch" : _h < 21 ? "dinner" : "dessert"; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
-          else { _second = _subs[0].id; }
-          const _b = await Promise.all([searchPlaces(cat, "all", ctr, searchRadius, vibe).catch(() => []), searchPlaces(cat, _second, ctr, searchRadius, vibe).catch(() => [])]);
-          const _seen = new Set(); results = [];
-          _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); results.push(pp); } }));
-        } else {
-          results = await searchPlaces(cat, sub, ctr, searchRadius, vibe);
+        const _fetchAt = async (m) => {
+          if (sub === "all" && _subs.length) {
+            let _second;
+            if (cat === "food") { const _h = new Date().getHours(); const _w = _h < 11 ? "breakfast" : _h < 15 ? "lunch" : _h < 21 ? "dinner" : "dessert"; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
+            else { _second = _subs[0].id; }
+            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => []), searchPlaces(cat, _second, ctr, m, vibe).catch(() => [])]);
+            const _seen = new Set(); const _out = [];
+            _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
+            return _out;
+          }
+          return await searchPlaces(cat, sub, ctr, m, vibe);
+        };
+        // v4.85 adaptive radius: start at the current radius (17-mi default)
+        // and auto-widen 30 → 45 → 60 while the category has fewer than 8
+        // places. Auto-widen only moves the STARTING point — once the user
+        // touches the slider, their choice is law.
+        const _startM = searchRadius || DEFAULT_RADIUS_M;
+        let results = await _fetchAt(_startM);
+        let _usedM = _startM;
+        if (autoRadiusRef.current || _startM <= DEFAULT_RADIUS_M) {
+          for (const _m of RADIUS_LADDER_M) {
+            if ((results || []).length >= ADAPT_MIN) break;
+            if (_m <= _usedM) continue;
+            results = await _fetchAt(_m); _usedM = _m;
+          }
         }
+        if (!cancelled && _usedM > _startM) { autoRadiusRef.current = true; setSliderMi(Math.round(_usedM / 1609.34)); setSearchRadius(_usedM); }
         if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
@@ -4145,20 +4211,25 @@ function PageInner() {
     (async () => {
       setExpLoading(true);
       try {
-        // v4.41: attraction/stay/show experiences pull from a wider radius so the
-        // Orlando-area gems (an hour north of the launch market) actually appear,
-        // instead of an empty or two-item list. Food stays local.
-        // v4.83: every experience opens at the 17-mile app default. Only a
-        // purpose-built wide vibe (exp.radius — the Worth-the-drive class,
-        // e.g. Bucket List) searches farther by design.
-        const radius = exp.radius || DEFAULT_RADIUS_M;
-        let raw;
-        const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
-        if (_qs && _qs.length) {
-          const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
-          raw = dedupePlaces(_b.flat().filter(Boolean), true);
-        } else {
-          raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+        // v4.85 adaptive: every vibe STARTS at the 17-mile default (or its
+        // purpose-built wider radius, e.g. Bucket List) and auto-widens
+        // 30 → 45 → 60 while fewer than 8 places pass the vibe's filter.
+        // Sparse markets like Parrish fill honestly instead of showing
+        // "0 curated picks" — every card labels its true distance.
+        const _vibePass = (p) => { const c = curatedFor(p); if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true; return exp.filter ? exp.filter(p) : true; };
+        const _startM = exp.radius || DEFAULT_RADIUS_M;
+        let radius = _startM;
+        let raw = [];
+        for (const _m of [_startM, ...RADIUS_LADDER_M.filter((x) => x > _startM)]) {
+          radius = _m;
+          const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
+          if (_qs && _qs.length) {
+            const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
+            raw = dedupePlaces(_b.flat().filter(Boolean), true);
+          } else {
+            raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+          }
+          if (raw.filter(_vibePass).length >= ADAPT_MIN) break;
         }
         // v4.81: guaranteed curated presence. Google's text search centered on a
         // small town (Parrish) routinely skips first-party picks 15–25 mi out,
@@ -4183,11 +4254,7 @@ function PageInner() {
         const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
         let results;
         if (exp.filter) {
-          const passed = raw.filter((p) => {
-            const c = curatedFor(p);
-            if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true;
-            return exp.filter ? exp.filter(p) : true;
-          });
+          const passed = raw.filter(_vibePass);
           // Never show an embarrassingly thin curated list. If a hard filter leaves
           // fewer than 5, backfill with the best unfiltered nearby picks so the
           // page always feels full, filtered picks still ranked first.
@@ -5064,7 +5131,7 @@ function PageInner() {
       {!loading && (
         <div style={{ padding: "0 2px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
-            <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
+            <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
           </div>
           <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingTop: 10, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
             {HOME_CHIPS.map((k) => { const e = EXPERIENCES[k]; if (!e) return null; return (
@@ -5561,7 +5628,7 @@ function PageInner() {
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
-                    <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
+                    <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {browseCat === "attractions" && <ViatorRail title="Bookable tours & activities" items={browseTours} theme="attractions-browse" />}
