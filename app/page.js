@@ -20,7 +20,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.83";
+const BUILD_ID = "v4.84";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -904,7 +904,7 @@ const EXPERIENCES = {
   // the standard engine. Curated places tagged with a vibe always pass its
   // filter (curated-aware filter in the experience-loading effect).
   outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
-  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
+  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", viator: true, viatorMode: "gems", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
   bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000 /* worth-the-drive class: intentionally wider than the 17-mi default */, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
   familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
   // v4.80 — Fun with Friends. queries is a FUNCTION so the mix follows the
@@ -1298,7 +1298,11 @@ async function verifyCulturePlaces(items, center) {
 function AreaInsight({ metro, cat, town, center, onFind }) {
   const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
-  const map = { food: "food", night: "night", todo: "todo", stays: "stays", beach: "todo", events: "events", shop: "shop" };
+  // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
+  // only showing on Food and Beach day: the category menu passes Google
+  // category ids (nightlife, attractions, hotels, shopping) but this map only
+  // knew the legacy short keys, so four categories never matched a note.
+  const map = { food: "food", nightlife: "night", night: "night", attractions: "todo", todo: "todo", hotels: "stays", stays: "stays", beach: "todo", shopping: "shop", shop: "shop", events: "events" };
   const key = map[cat];
   // v4.30: a town with its own researched notes outranks the metro story.
   // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
@@ -2954,7 +2958,8 @@ function PageInner() {
   const [activeBadge, setActiveBadge] = useState(null);
   const [expPlaces, setExpPlaces] = useState(null);
   const [expLoading, setExpLoading] = useState(false);
-  const [expTours, setExpTours] = useState(null); // v4.78: top-rated Viator experiences for the Bucket List vibe
+  const [expTours, setExpTours] = useState(null); // v4.84: Viator products for viator-flagged vibes (top-rated or hidden gems)
+  const [browseTours, setBrowseTours] = useState(null); // v4.84: Viator products on the Things to do browse
   const [expOpenOnly, setExpOpenOnly] = useState(false);
   const [expSort, setExpSort] = useState("near");
   const [rolling, setRolling] = useState(false);
@@ -4208,10 +4213,13 @@ function PageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
 
-  // v4.78 Bucket List: top-rated bookable experiences for the user's area via
-  // the existing Viator freetext endpoint (/api/viator/tours). Basic-access
-  // Viator has no "top-rated in destination" sort, but each product returns
-  // rating + review count, so we fetch by area name and rank client-side.
+  // v4.84 Viator as a real activity source. The freetext endpoint is queried
+  // with the resolved METRO name (small towns like Parrish are not Viator
+  // destinations — freetext on them returns keyword noise from other cities),
+  // pulling a 20-product pool that gets ranked client-side per vibe:
+  //   top  — most popular, rating desc with review-count tiebreak (Bucket List)
+  //   gems — high rating (4.7+) but LOW review count (≤300): under-the-radar
+  //          experiences locals book but tourists miss (Hidden Gems)
   useEffect(() => {
     if (screen !== "experience" || !(EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator)) { setExpTours(null); return; }
     let cancelled = false;
@@ -4220,18 +4228,44 @@ function PageInner() {
         const _m = Culture.resolveMetro(locName);
         const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=6");
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
         const d = await r.json();
-        const items = (d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.5)
+        const mode = EXPERIENCES[activeBadge].viatorMode || "top";
+        const pool = (d && Array.isArray(d.items) ? d.items : []);
+        const items = (mode === "gems"
+          ? pool.filter((t) => t.rating != null && t.rating >= 4.7 && (t.reviews || 0) > 0 && (t.reviews || 0) <= 300)
+          : pool.filter((t) => t.rating != null && t.rating >= 4.5))
           .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
-          .slice(0, 4);
+          .slice(0, 8);
         if (!cancelled) setExpTours(items);
       } catch (e) { if (!cancelled) setExpTours(null); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, locName]);
+
+  // v4.84: bookable activities on the Things to do browse too — Viator is a
+  // source, not just a booking-link decorator.
+  useEffect(() => {
+    if (browseCat !== "attractions" || !center) { setBrowseTours(null); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const _m = Culture.resolveMetro(locName);
+        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        if (!cityQ) return;
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
+        const d = await r.json();
+        const items = (d && Array.isArray(d.items) ? d.items : [])
+          .filter((t) => t.rating != null && t.rating >= 4.5)
+          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
+          .slice(0, 8);
+        if (!cancelled) setBrowseTours(items);
+      } catch (e) { if (!cancelled) setBrowseTours(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [browseCat, locName, center && center.lat]);
 
   // v4.62: real nearby teasers under the intro CTA — proof before the ask.
   const introTeasers = useMemo(() => {
@@ -5530,6 +5564,7 @@ function PageInner() {
                     <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
+                  {browseCat === "attractions" && <ViatorRail title="Bookable tours & activities" items={browseTours} theme="attractions-browse" />}
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
@@ -6091,22 +6126,7 @@ function PageInner() {
               </div>
               <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
               <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && Array.isArray(expTours) && expTours.length > 0 && (
-                <div style={{ margin: "4px 0 14px" }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px", marginBottom: 8 }}>Top-rated experiences</div>
-                  <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-                    {expTours.map((t) => (
-                      <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme: activeBadge, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-                        {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
-                        <div style={{ padding: "8px 10px" }}>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                          <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
@@ -7817,19 +7837,19 @@ function PageInner() {
                 <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What would interest you today?</span>
               </div>
             </div>
-            {MOMENT_GROUPS.map((grp) => (
-              <div key={grp.label} style={{ marginBottom: 9 }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#8B90A5", margin: "0 0 5px 2px" }}>{grp.label}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  {grp.ids.map((id) => { const ch = MOMENT_CHIPS.find((x) => x.id === id); if (!ch) return null; const on = introSel.includes(ch.id); return (
-                    <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", padding: "10px 11px", borderRadius: 14, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 13.5, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
-                      <IntroIcon k={ch.id} /><span>{ch.label}</span>
-                    </button>
-                  ); })}
-                </div>
-              </div>
-            ))}
-            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
+            {/* v4.84: the four Wayfind vibes ARE the moment picker, locked in by
+                product direction (replaces the who/when chip groups). Chips read
+                icon + label straight from EXPERIENCES so they never drift. The
+                moment engine (MOMENT_CHIPS / composeMoment / feelingToMoment)
+                still powers typed feelings and search deep links. */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 9 }}>
+              {["outdoors", "hiddengems", "bucketlist", "familyfun"].map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
+                <button key={k} onClick={() => setIntroSel(on ? [] : [k])} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", padding: "13px 11px", borderRadius: 14, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
+                  <span style={{ fontSize: 19 }}>{ex.icon}</span><span>{ex.label}</span>
+                </button>
+              ); })}
+            </div>
+            <button onClick={() => { if (!introSel.length) return; try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
             <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>
@@ -7951,6 +7971,32 @@ function SwipeRow({ children, onDelete }) {
     </div>
   );
 }
+// v4.84 — the shared bookable-activities rail (Viator products). Used on the
+// viator-flagged vibes and the Things to do browse. Links carry partner
+// attribution from the API; taps go through openExternal (PWA-safe).
+function ViatorRail({ title, items, theme }) {
+  if (!Array.isArray(items) || !items.length) return null;
+  return (
+    <div style={{ margin: "4px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+        {items.map((t) => (
+          <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+            {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+              <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
   const badges = [...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
