@@ -1,6 +1,5 @@
-// Terms of Service — standard template for a location-discovery app. Review before
-// launch and set CONTACT_EMAIL to a real inbox you monitor.
-const CONTACT_EMAIL = "your-email@example.com"; // TODO: set your real contact email
+// Terms of Service for Wayfind, operated by WAYFIND LLC (Florida).
+const CONTACT_EMAIL = "hello@gowayfind.com";
 const EFFECTIVE = "June 30, 2026";
 
 export const metadata = {
@@ -22,7 +21,7 @@ export default function Terms() {
         <h1 style={{ ...h1, marginTop: 18 }}>Terms of Service</h1>
         <div style={muted}>Effective {EFFECTIVE}</div>
 
-        <p style={{ marginTop: 18 }}>These terms govern your use of Wayfind ("Wayfind", "we", "us"). By using the app, you agree to them. If you do not agree, please do not use Wayfind.</p>
+        <p style={{ marginTop: 18 }}>These terms govern your use of Wayfind, operated by WAYFIND LLC, a Florida limited liability company ("Wayfind", "we", "us"). By using the app, you agree to them. If you do not agree, please do not use Wayfind.</p>
 
         <h2 style={h2}>The service</h2>
         <p>Wayfind helps you discover places and events nearby and surfaces ratings, distances, hours, and suggestions to help you decide where to go. Much of this information, including place details, hours, prices, and event listings, comes from third party sources. We work to present it accurately, but we cannot guarantee it is always current or correct. Always confirm critical details, such as hours, prices, availability, and reservations, directly with the venue or provider before you rely on them.</p>
@@ -45,7 +44,6 @@ export default function Terms() {
         <h2 style={h2}>Contact</h2>
         <p>Questions about these terms? Reach us at <a href={"mailto:" + CONTACT_EMAIL} style={a}>{CONTACT_EMAIL}</a>.</p>
 
-        <div style={{ ...muted, marginTop: 36, paddingTop: 16, borderTop: "1px solid #2D3748" }}>This document is a general template and not legal advice. Consider having a professional review it for your jurisdiction before launch.</div>
       </div>
     </div>
   );

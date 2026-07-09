@@ -3,6 +3,9 @@
 import { readFileSync } from "fs";
 const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
 const cfg = readFileSync(new URL("../next.config.js", import.meta.url), "utf8");
+const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+if (lay.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain in layout.js metadata");
+if (!lay.includes("metadataBase: new URL(SITE_URL)")) fail("metadataBase not pinned to SITE_URL");
 const fail = (m) => { console.error("check-canon: FAIL — " + m); process.exit(1); };
 if (!page.includes('const CANON_ORIGIN = "https://www.gowayfind.com"')) fail("CANON_ORIGIN missing");
 if (page.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain literal reappeared");
