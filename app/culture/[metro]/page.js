@@ -2,7 +2,7 @@
 // cards render, served as real HTML so search engines can read it. These are
 // the trust-and-authority pages in the middleman structure: they earn links
 // and pass authority to the guides and the app through internal links.
-import { CULTURE } from "../../../lib/culture";
+import { CULTURE, TOWN_PROFILES } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 
@@ -58,6 +58,33 @@ export default function CulturePage({ params }) {
       {c.say.map((x, i) => (<p key={i} style={S.item}><span style={S.phrase}>{x.phrase}</span><span style={S.meaning}> — {x.meaning}</span></p>))}
       <h2 style={S.h2}>Good to know</h2>
       <p style={S.story}>{c.know}</p>
+      {(() => {
+        // v4.82 — town profiles as crawlable HTML. Zero-API-cost editorial
+        // content per town; the metro's namesake city is excluded from its
+        // own page (anchor: true) since the page above already covers it.
+        const towns = Object.entries(TOWN_PROFILES).filter(([, t]) => t.metro === params.metro && !t.anchor);
+        if (!towns.length) return null;
+        const CATS = [["food", "Food"], ["night", "Night out"], ["todo", "Things to do"], ["beach", "Beaches & outdoors"], ["stays", "Stays"], ["shop", "Shopping"]];
+        return (
+          <>
+            <h2 style={S.h2}>The towns around {c.title}</h2>
+            <p style={S.story}>Honest, local profiles of the towns nearby — what each one actually is, and the one thing worth knowing.</p>
+            {towns.map(([k, t]) => (
+              <div key={k} style={{ margin: "18px 0 0", padding: "14px 16px", background: "#161B22", borderRadius: 12 }}>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFFFFF", margin: 0 }}>{t.title}</h3>
+                <p style={{ fontSize: 13.5, color: "#8B949E", margin: "2px 0 8px" }}>{t.tag}</p>
+                <p style={{ fontSize: 14, color: "#E6EDF3", margin: "0 0 10px" }}><b style={{ color: "#F2C14E" }}>⭐ The one thing:</b> {t.one}</p>
+                {CATS.map(([ck, cl]) => t[ck] && t[ck].line ? (
+                  <p key={ck} style={{ fontSize: 13.5, color: "#C9D1D9", margin: "0 0 7px" }}>
+                    <b style={{ color: "#FFFFFF" }}>{cl}:</b> {t[ck].line}
+                    {Array.isArray(t[ck].items) && t[ck].items.length ? <span style={{ color: "#8B949E" }}> Don&apos;t miss: {t[ck].items.map((x) => x.name).join(" · ")}.</span> : null}
+                  </p>
+                ) : null)}
+              </div>
+            ))}
+          </>
+        );
+      })()}
       <div style={S.disclosure}>Wayfind may earn a commission from partner links on this page.</div>
       <p style={{ fontSize: 14, color: "#C9D1D9", marginTop: 22 }}>
         More cities: {Object.keys(CULTURE).filter((k) => k !== params.metro).map((k, i, arr) => (<span key={k}><a href={"/culture/" + k} style={S.footerLink}>{CULTURE[k].title}</a>{i < arr.length - 1 ? " · " : ""}</span>))}
