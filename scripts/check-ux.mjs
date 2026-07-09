@@ -20,7 +20,7 @@ if (!page.includes("setFeedRetry")) fail("feed error retry missing");
 if (!/what kind of day/i.test(page)) fail("intro headline missing");
 if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
-if (!/build my adventure/i.test(page)) fail("intro CTA missing");
+if (!/design my curated list/i.test(page)) fail("intro CTA missing");
 if (!page.includes("Find my vibe")) fail("re-entry pill missing");
 if (!page.includes("hd.radiusOverride || 110000")) fail("moment radius modifier missing");
 if (!page.includes('slots: [{ label: "Top 10", n: 10')) fail("Top 10 Food must be a flat top 10");
@@ -35,4 +35,9 @@ if (/if \(im === "sunny" \|\| im === "partly"\) return moonPhase[\s\S]{0,80}\\uD
 if (!page.includes("expCollage(a.key)")) fail("revenue hero cards missing photo collages");
 if (!page.includes("EXP_COLLAGE_RX")) fail("per-theme collage matching missing");
 if (!page.includes("I want to take a chance")) fail("chance card copy missing");
+if (!page.includes("gradient beats a lie")) fail("collage cross-theme fallback resurfaced");
+if (!page.includes('title="Find my vibe"')) fail("header vibe button missing");
+if (page.includes(">\u2728 Find my vibe</button>")) fail("feed vibe chip should be gone");
+if (page.includes("Nothing to suggest just yet")) fail("empty-feed dead end resurfaced");
+if (!page.includes("Start with one of these")) fail("discovery grid missing from empty feed");
 console.log("check-ux: OK — Things to do + 🎡, hotel/calendar icons, reservations captured on 3 booking paths");

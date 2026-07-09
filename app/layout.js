@@ -6,7 +6,7 @@ import { CULTURE } from "../lib/culture";
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: "/" },
-  title: "Wayfind",
+  title: "Wayfind — Find the Best Things to Do Near You, Right Now",
   description: "Wayfind ranks the best restaurants, attractions, events, and hidden gems near you, right now. One confident answer for what to do next in Florida and beyond.",
   manifest: "/manifest.webmanifest",
   icons: {

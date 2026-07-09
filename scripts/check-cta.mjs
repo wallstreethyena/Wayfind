@@ -8,4 +8,6 @@ if (!s.includes("_hasTours && Aff.ticketsUrl(detail)")) fail("tickets CTA no lon
 if (!s.includes('"/api/viator/go?q="')) fail("tickets CTA not routed through exact-product resolver");
 const ungated = /const _tk = Aff\.ticketsUrl\(detail\);/.test(s);
 if (ungated) fail("ungated ticketsUrl CTA reappeared");
+if (s.includes("viatorSearchUrl(")) fail("raw Viator search link resurfaced in the app shell");
+if (!s.includes('Aff.experienceGoUrl(detail.name')) fail("detail tour CTA must route through the exact-product resolver");
 console.log("check-cta: OK — Book/Tickets CTAs only when genuinely bookable, via resolver");

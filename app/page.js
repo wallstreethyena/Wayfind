@@ -18,11 +18,11 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.69";
+const BUILD_ID = "v4.71";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
-  red: "#EF4444", purple: "#A78BFA", pink: "#F472B6", gold: "#FBBF24",
+  red: "#EF4444", purple: "#FF8A3D", pink: "#F472B6", gold: "#FBBF24",
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };
 // ─── Affiliate config ────────────────────────────────────────────────────────
@@ -38,12 +38,6 @@ const AFFIL = {
   ticketmasterParam: "",         // e.g. "irgwc=1&clickid=..." once approved, else blank
 };
 // Build a Viator search link for a place or area, tracked when a Partner ID is set.
-function viatorSearchUrl(query) {
-  const q = encodeURIComponent((query || "").trim());
-  let u = `https://www.viator.com/searchResults/all?text=${q}`;
-  if (AFFIL.viatorPid) u += `&pid=${encodeURIComponent(AFFIL.viatorPid)}&mcid=42383&medium=link&campaign=${encodeURIComponent(AFFIL.viatorCampaign || "wayfind")}`;
-  return u;
-}
 // Pass a ticket/event URL through here so it gains affiliate tracking the moment a
 // Ticketmaster param is set. Fails soft: returns the plain URL when not configured.
 function ticketUrl(url) {
@@ -55,7 +49,7 @@ const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎡", bea
 const CAT_COLOR = {
   food: { c: "#F97316", dim: "rgba(249,115,22,.15)" },
   nightlife: { c: "#F472B6", dim: "rgba(244,114,182,.15)" },
-  attractions: { c: "#A78BFA", dim: "rgba(167,139,250,.15)" },
+  attractions: { c: "#FF8A3D", dim: "rgba(167,139,250,.15)" },
   beach: { c: "#2DD4BF", dim: "rgba(45,212,191,.15)" },
   hotels: { c: "#38BDF8", dim: "rgba(56,189,248,.15)" },
   shopping: { c: "#22C55E", dim: "rgba(34,197,94,.15)" },
@@ -217,7 +211,7 @@ function dynamicSubline(weather) {
   if (h < 15) return "Lunch and midday picks near you";
   return "Today's top picks near you";
 }
-const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#A78BFA", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
+const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#FF8A3D", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
 
 // Lowercased description + review text per place id, filled in when we prefetch
 // the top results. Lets the badge engine read evidence like "on the waterfront
@@ -956,14 +950,31 @@ const INTRO_PATHS = {
   spark: "M12 2l2 5.5L19.5 9 14 11l-2 5.5L10 11 4.5 9 10 7.5 12 2Zm7 11 .9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4Z",
   shield: "M12 3l7 2.8v5.4c0 4.5-3 8.1-7 9.8-4-1.7-7-5.3-7-9.8V5.8L12 3Zm-2.5 8.6 1.8 1.9 3.4-3.7",
 };
-function IntroIcon({ k, size = 22, color = "#A78BFA" }) {
+function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
   const d = INTRO_PATHS[k]; if (!d) return null;
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d={d} /></svg>;
+}
+// v4.70 — feelings are queries. "I'm bored" and "somewhere relaxing" must
+// work as searches; each maps to Moment chips so the whole filter engine
+// (radius, price, open-now, indoor) does the heavy lifting.
+function feelingToMoment(q) {
+  const x = " " + String(q || "").toLowerCase().trim() + " ";
+  if (/(^|\s)(i'?m\s+)?bored|nothing to do/.test(x)) return ["surprise"];
+  if (/relax|unwind|chill(?!i)|need a break|peaceful|quiet time/.test(x)) return ["outside"];
+  if (/kids? .*(crazy|driving me)|with (my |the )?kids|family (day|time|fun)/.test(x)) return ["family"];
+  if (/on a date|date night|romantic (spot|dinner|place|night)/.test(x)) return ["date"];
+  if (/i('| ha)?ve?( got)? \$\d{1,3}\b|i('| ha)?ve?( got)? \d{1,3} (bucks|dollars)\b|\$\d{1,3} (budget|to spend)|cheap (date|night|fun)/.test(x)) return ["fifty"];
+  if (/i('| ha)?ve?( got| only have)? (\d+ ?(min|minutes|hours?|hrs?)|an hour)|(90|60|120) min/.test(x)) return ["twohrs"];
+  if (/rain(y|ing)?|too hot|indoor (day|stuff|ideas)/.test(x)) return ["rainy"];
+  if (/unforgettable|blow (my|our) mind|something (amazing|special|memorable)/.test(x)) return ["surprise"];
+  if (/never heard of|somewhere new|locals (know|go|only)/.test(x)) return ["locals"];
+  if (/showing (someone|visitors|friends) around|visitors? in town|tourist for a day/.test(x)) return ["visitors"];
+  return null;
 }
 function composeMoment(sel, city) {
   const has = (k) => sel.includes(k);
   if (has("surprise")) return { surprise: true };
-  const base = has("family") ? "family" : has("date") ? "romantic" : has("visitors") ? "bestof" : has("locals") ? "gem" : has("outside") ? "nature" : has("fifty") ? "budget" : "entertainment";
+  const base = has("family") ? "family" : has("date") ? "romantic" : has("visitors") ? "entertainment" : has("locals") ? "gem" : has("outside") ? "nature" : has("fifty") ? "budget" : "entertainment";
   const spec = { base };
   if (has("twohrs")) { spec.radiusOverride = 24000; spec.openNowOnly = true; }
   if (has("drive")) spec.radiusOverride = 110000;
@@ -971,8 +982,8 @@ function composeMoment(sel, city) {
   if (has("outside") && base !== "nature") spec.extraKeyword = "outdoor";
   if (has("rainy")) { spec.indoorOnly = true; if (base === "entertainment") spec.extraKeyword = ((spec.extraKeyword || "") + " indoor").trim(); }
   const names = { family: "Family day", romantic: "Date night", bestof: "Best of", gem: "Local gems", nature: "Time outside", budget: "Big fun, small budget", entertainment: "Things to do" };
-  spec.title = base === "bestof" ? ("Best of " + city) : (names[base] + " near " + city);
-  spec.body = ["Your adventure is ready \u2014 ranked for right now", has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null, has("rainy") ? "indoor picks" : null].filter(Boolean).join(" \u00b7 ");
+  spec.title = (has("visitors") || base === "bestof") ? ("Best of " + city) : (names[base] + " near " + city);
+  spec.body = ["Your curated list is ready \u2014 ranked for right now", has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null, has("rainy") ? "indoor picks" : null].filter(Boolean).join(" \u00b7 ");
   return spec;
 }
 const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"];
@@ -1422,7 +1433,7 @@ function eventSegmentMeta(seg, genre) {
   if (g.includes("comedy")) return { icon: "😂", short: "Comedy", color: "#FBBF24" };
   if (s.includes("music")) return { icon: "🎵", short: "Concert", color: "#F472B6" };
   if (s.includes("sport")) return { icon: "⚾", short: "Sports", color: "#38BDF8" };
-  if (s.includes("arts") || s.includes("theatre") || s.includes("theater")) return { icon: "🎭", short: "Theater", color: "#A78BFA" };
+  if (s.includes("arts") || s.includes("theatre") || s.includes("theater")) return { icon: "🎭", short: "Theater", color: "#FF8A3D" };
   if (s.includes("film")) return { icon: "🎬", short: "Film", color: "#FBBF24" };
   if (s.includes("family")) return { icon: "👨‍👩‍👧", short: "Family", color: "#22C55E" };
   if (!s || s.includes("misc") || s.includes("undefined") || s.includes("other")) return { icon: "🎪", short: "Other", color: "#94A3B8" };
@@ -1695,7 +1706,7 @@ function eventCategory(e) {
   if (has(/\b(trail|park|hike|outdoor|cleanup|clean-up|workday|garden|nature|beach|kayak|paddle|fishing)\b/)) return { icon: "🌳", short: "Outdoors", color: "#22C55E" };
   if (has(/\b(market|farmers|craft|vendor|flea|bazaar|artisan|swap)\b/)) return { icon: "🛒", short: "Market", color: "#2DD4BF" };
   if (has(/\b(kids|family|children|child|story ?time|teen)\b/)) return { icon: "👪", short: "Family", color: "#22C55E" };
-  if (has(/\b(art|gallery|exhibit|paint|sculpt|museum|pottery)\b/)) return { icon: "🎨", short: "Arts", color: "#A78BFA" };
+  if (has(/\b(art|gallery|exhibit|paint|sculpt|museum|pottery)\b/)) return { icon: "🎨", short: "Arts", color: "#FF8A3D" };
   if (has(/\b(music|concert|live|band|jazz|acoustic|symphony|karaoke|open mic)\b/)) return { icon: "🎵", short: "Live", color: "#F472B6" };
   if (has(/\b(run|race|5k|10k|marathon|sport|tournament|yoga|fitness|cycling|golf)\b/)) return { icon: "🏃", short: "Active", color: "#38BDF8" };
   return seg;
@@ -1883,7 +1894,7 @@ function generateHooks(places, locName) {
   const gems = local.filter((p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews < 350)
     .sort((a, b) => (b.rating || 0) - (a.rating || 0));
   if (gems[0]) hooks.push({
-    id: "gem", accent: "#A78BFA", emoji: "💎", label: "Hidden gem", highlightWord: "haven't found",
+    id: "gem", accent: "#FF8A3D", emoji: "💎", label: "Hidden gem", highlightWord: "haven't found",
     hook: `The best ${mealLabel} spot in ${city} most people haven't found`,
     detail: `${gems[0].name} · ★${gems[0].rating} · only ${gems[0].reviews} reviews`,
     cta: "Show me →", action: { type: "detail", place: gems[0] },
@@ -1964,7 +1975,7 @@ function generateHooks(places, locName) {
   if (h >= 21 || h < 3) {
     const late = places.filter((p) => p.openNow === true).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
     if (late[0]) hooks.push({
-      id: "latenight", accent: "#A78BFA", emoji: "🌙", label: "Still open",
+      id: "latenight", accent: "#FF8A3D", emoji: "🌙", label: "Still open",
       hook: `Still open and still worth it tonight`,
       detail: `${late[0].name} · ★${late[0].rating}`,
       cta: "Head there →", action: { type: "detail", place: late[0] },
@@ -4577,6 +4588,8 @@ function PageInner() {
     setSuggestions([]);
     // Check if it's a Wayfind experience keyword first (burgers, rooftop, live music…).
     const ql = q.toLowerCase();
+    const feel = feelingToMoment(ql);
+    if (feel) { setQuery(""); try { logEvent("feeling_search", null, { q: ql.slice(0, 40) }); } catch (e) {} openMoment(feel); return; }
     if (ql.length >= 3) {
       const expHit = Object.keys(EXPERIENCES).find((k) => {
         const e = EXPERIENCES[k];
@@ -4956,6 +4969,7 @@ function PageInner() {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
+            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 33, height: 33, borderRadius: 999, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}>✨</button>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
@@ -5432,15 +5446,12 @@ function PageInner() {
                     if (key === "stays") pool2 = pool2.filter((p) => isTrueLodging(p));
                     else if (rx) pool2 = pool2.filter((p) => rx.test(((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase()));
                     let out2 = pool2.sort(byScore).slice(0, 4).map((p) => p.photo);
-                    if (out2.length < 2) out2 = expPool.filter((p) => p && p.photo).sort(byScore).slice(0, 4).map((p) => p.photo);
+                    if (out2.length < 2) return []; // no themed photos nearby: gradient beats a lie
                     return out2;
                   } catch (e) { return []; }
                 };
                 return (
                   <div style={{ marginBottom: 16 }}>
-                    {!introOpen && (
-                      <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, {}); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 14px", borderRadius: 999, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 12.5, fontWeight: 800, cursor: "pointer", marginBottom: 12 }}>✨ Find my vibe</button>
-                    )}
                     {locApprox && !locBannerGone && (
                       <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", marginBottom: 12 }}>
                         <span style={{ fontSize: 15 }}>📍</span>
@@ -5664,10 +5675,28 @@ function PageInner() {
               })()}
               {!browseCat && suggested === null && <Loader label="Reading the moment" pad="8px 2px" />}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={52} /></div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing to suggest just yet</strong>
-                  <span style={{ fontSize: 13 }}>Try again in a moment or pick a category.</span>
+                <div style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
+                  <div style={{ textAlign: "center", marginBottom: 12 }}>
+                    <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 8 }}><Critter size={44} /></div>
+                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>Start with one of these</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>Wayfind is reading what's around you \u2014 these always work.</div>
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+                    {[
+                      ["\u2728", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openExpSheet("bestof")],
+                      ["\uD83D\uDC8E", "Hidden gems", () => openExpSheet("gem")],
+                      ["\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Family favorites", () => openExpSheet("family")],
+                      ["\uD83D\uDC95", "Date night ideas", () => openExpSheet("romantic")],
+                      ["\uD83C\uDF9F\uFE0F", "Perfect for tonight", () => setScreen("events")],
+                      ["\uD83D\uDE97", "Worth the drive", () => openExpSheet("entertainment")],
+                      ["\uD83D\uDCB5", "Big fun, small budget", () => openExpSheet("budget")],
+                      ["\uD83C\uDFB2", "Surprise me", () => setMenuSheet("pick")],
+                    ].map(([ic, lbl, go]) => (
+                      <button key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
+                        <span style={{ fontSize: 18 }}>{ic}</span><span>{lbl}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
@@ -6545,7 +6574,7 @@ function PageInner() {
                 }
                 if (_hasNoteUrl) return null;
                 return (
-                  <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={viatorSearchUrl(detail.name + " " + (locName ? locName.split(",")[0] : ""))} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                  <a onClick={() => { try { logEvent("tour", detail); } catch (e) {} }} href={Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <span style={{ fontSize: 18 }}>🎟️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
@@ -7572,23 +7601,23 @@ function PageInner() {
       )}
       {introOpen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 14, overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "94vh", overflowY: "auto", borderRadius: 26, padding: "18px 20px 20px", background: "#0B0E17", border: "1px solid rgba(139,92,246,.35)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 60px rgba(139,92,246,.12)" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 470, maxHeight: "94vh", overflowY: "auto", borderRadius: 26, padding: "18px 20px 20px", background: "#0B0E17", border: "1px solid rgba(255,138,61,.4)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 60px rgba(249,115,22,.14)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}><IntroIcon k="pin" size={22} /><span style={{ fontSize: 19, fontWeight: 800, color: "#A78BFA", letterSpacing: 0.2 }}>Wayfind</span></div>
-              <IntroIcon k="spark" size={30} color="#C4A9FA" />
-              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 36, height: 36, borderRadius: 999, background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", color: "#DDE1EE", fontSize: 16, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}><IntroIcon k="pin" size={22} /><span style={{ fontSize: 19, fontWeight: 800, color: "#FF8A3D", letterSpacing: 0.2 }}>Wayfind</span></div>
+              <IntroIcon k="spark" size={30} color="#FFC28A" />
+              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
-            <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #A78BFA, #E86FF0)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
+            <div style={{ textAlign: "center", fontSize: 29, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 14 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
             <div style={{ textAlign: "center", fontSize: 14.5, color: "#B6BCD0", lineHeight: 1.5, margin: "10px auto 16px", maxWidth: 360 }}>Wayfind turns how you feel and what you're in the mood for into the best places near you.</div>
             <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 10 }}><IntroIcon k="spark" size={17} /><span style={{ fontSize: 14, fontWeight: 800, color: "#F4F6FC" }}>Tell us what kind of day you want</span></div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
               {MOMENT_CHIPS.map((ch) => { const on = introSel.includes(ch.id); return (
-                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#A78BFA" : "#262B3F"}`, background: on ? "rgba(139,92,246,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
+                <button key={ch.id} onClick={() => setIntroSel((cur) => on ? cur.filter((x) => x !== ch.id) : [...cur, ch.id])} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 15, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 14, fontWeight: 600, cursor: "pointer", lineHeight: 1.25 }}>
                   <IntroIcon k={ch.id} /><span>{ch.label}</span>
                 </button>
               ); })}
             </div>
-            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #6D5DF6 0%, #A855F7 55%, #EC6FF1 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 8px 26px rgba(139,92,246,.35)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Build My Adventure</button>
+            <button onClick={() => introSel.length && openMoment(introSel)} disabled={!introSel.length} style={{ width: "100%", marginTop: 15, padding: "15px 10px", borderRadius: 16, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 16.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 8px 26px rgba(255,138,61,.4)" }}><IntroIcon k="wand" size={20} color="#FFFFFF" />Design my curated list</button>
             <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "16px 0 10px" }}>
               <div style={{ flex: 1, height: 1, background: "#232838" }} />
               <div style={{ fontSize: 13, fontWeight: 600, color: "#AEB4C8", whiteSpace: "nowrap" }}>See what's possible right now</div>
@@ -7598,7 +7627,7 @@ function PageInner() {
               <div style={{ display: "grid", gridTemplateColumns: introTeasers.length >= 4 ? "1fr 1fr 1fr 1fr" : "1fr 1fr", gap: 8 }}>
                 {introTeasers.map((tz) => (
                   <div key={tz.p.id} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openDetail(tz.p); }} style={{ background: "#121524", border: "1px solid #262B3F", borderRadius: 13, overflow: "hidden", cursor: "pointer" }}>
-                    {tz.p.photo ? <img src={tz.p.photo} alt="" style={{ width: "100%", height: 58, objectFit: "cover", display: "block" }} /> : null}
+                    {tz.p.photo ? <img src={tz.p.photo} alt="" onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (e2) {} }} style={{ width: "100%", height: 58, objectFit: "cover", display: "block" }} /> : null}
                     <div style={{ padding: "7px 8px 8px" }}>
                       <div style={{ fontSize: 11.5, fontWeight: 800, color: "#F4F6FC", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.p.name}</div>
                       <div style={{ fontSize: 10, color: "#AEB4C8", margin: "2px 0 3px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tz.line}</div>

@@ -22,4 +22,6 @@ if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
 const ev = readFileSync(new URL("../app/events/page.js", import.meta.url), "utf8");
 const mp = readFileSync(new URL("../app/map/page.js", import.meta.url), "utf8");
 if (!ev.includes("/guides") || !mp.includes("/guides")) fail("events/map fallback content missing internal links");
+if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search intent, not just the brand");
+if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missing");
 console.log("check-seo: OK — SSR H1/links, canonical, JSON-LD, routes + indexing rules, nav anchors");
