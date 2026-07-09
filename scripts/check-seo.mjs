@@ -16,4 +16,10 @@ if (!page.includes('href={{ home: "/", events: "/events", map: "/map", saved: "/
 if (!page.includes('get("go")')) fail("go-param handoff missing");
 const sm = readFileSync(new URL("../app/sitemap.js", import.meta.url), "utf8");
 if (!sm.includes('"/events"') || !sm.includes('"/map"')) fail("sitemap missing public routes");
+if (!lay.includes("People use Wayfind to")) fail("use-case links missing from server footer");
+if (!lay.includes("affiliate links")) fail("affiliate disclosure missing from server footer");
+if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
+const ev = readFileSync(new URL("../app/events/page.js", import.meta.url), "utf8");
+const mp = readFileSync(new URL("../app/map/page.js", import.meta.url), "utf8");
+if (!ev.includes("/guides") || !mp.includes("/guides")) fail("events/map fallback content missing internal links");
 console.log("check-seo: OK — SSR H1/links, canonical, JSON-LD, routes + indexing rules, nav anchors");

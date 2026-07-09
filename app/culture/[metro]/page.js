@@ -37,7 +37,9 @@ const S = {
 
 export default function CulturePage({ params }) {
   const c = CULTURE[params.metro];
-  if (!c) return <main style={S.page}><h1 style={S.h1}>Not found</h1><p><a href="/" style={S.footerLink}>Back to Wayfind</a></p></main>;
+  if (!c) return <main style={S.page}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} /><h1 style={S.h1}>Not found</h1><p><a href="/" style={S.footerLink}>Back to Wayfind</a></p></main>;
   return (
     <main style={S.page}>
       <div style={S.kicker}>Know before you go · {c.tag}</div>
@@ -57,6 +59,9 @@ export default function CulturePage({ params }) {
       <h2 style={S.h2}>Good to know</h2>
       <p style={S.story}>{c.know}</p>
       <div style={S.disclosure}>Wayfind may earn a commission from partner links on this page.</div>
+      <p style={{ fontSize: 14, color: "#C9D1D9", marginTop: 22 }}>
+        More cities: {Object.keys(CULTURE).filter((k) => k !== params.metro).map((k, i, arr) => (<span key={k}><a href={"/culture/" + k} style={S.footerLink}>{CULTURE[k].title}</a>{i < arr.length - 1 ? " · " : ""}</span>))}
+      </p>
       <p style={{ fontSize: 15, color: "#C9D1D9", marginTop: 26 }}>
         Visiting {c.title}? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{params.metro === "orlando" ? <>, and our <a href="/guides/things-to-do-orlando-not-theme-parks" style={S.footerLink}>non-theme-park Orlando guide</a> covers the days between parks</> : null}.
       </p>

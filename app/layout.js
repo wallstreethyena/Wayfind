@@ -59,6 +59,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>
+        <link rel="preconnect" href="https://maps.googleapis.com" />
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
@@ -92,6 +94,13 @@ export default function RootLayout({ children }) {
                 ))}
               </div>
               <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>People use Wayfind to</div>
+                <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
+                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>
+                <a href="/?go=map" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>See the best places on a map</a>
+                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Skip the tourist traps</a>
+              </div>
+              <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Explore</div>
                 <a href="/events" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Events near you</a>
                 <a href="/map" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Map view</a>
@@ -99,6 +108,7 @@ export default function RootLayout({ children }) {
                 <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
               </div>
             </nav>
+            <p style={{ fontSize: 11, color: "#475569", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
           </div>
         </footer>
       </body>

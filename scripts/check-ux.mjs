@@ -13,4 +13,8 @@ if (!page.includes("function addReservation(")) fail("reservation capture missin
 if ((page.match(/addReservation\(/g) || []).length < 3) fail("reservation capture not wired to all outbound booking taps");
 if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation persistence missing");
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
+if (page.includes("Wayfind {BUILD_ID}</div>") || page.includes("{BUILD} \u00b7 {BUILD_ID}")) fail("visible version label reappeared in public UI");
+if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
+if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
+if (!page.includes("setFeedRetry")) fail("feed error retry missing");
 console.log("check-ux: OK — Things to do + 🎡, hotel/calendar icons, reservations captured on 3 booking paths");

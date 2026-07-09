@@ -53,6 +53,8 @@ export default function GuidePage({ params }) {
   return (
     <main style={S.page}>
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <div style={S.kicker}>Wayfind Guides · {g.region || "Orlando"}</div>
       <h1 style={S.h1}>{g.title}</h1>
       <div style={S.meta}>Updated {g.updated} · By the Wayfind editorial team</div>
@@ -78,6 +80,12 @@ export default function GuidePage({ params }) {
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
       ) : null}
+      <section>
+        <h2 style={S.h2}>More Wayfind guides</h2>
+        {Object.keys(GUIDES).filter((k) => k !== params.slug).slice(0, 4).map((k) => (
+          <p key={k} style={{ margin: "6px 0" }}><a href={"/guides/" + k} style={S.footerLink}>{GUIDES[k].title}</a></p>
+        ))}
+      </section>
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>

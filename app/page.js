@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.57";
+const BUILD_ID = "v4.58";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2961,6 +2961,9 @@ function PageInner() {
   // v4.57: Reservations folder. Outbound booking taps auto-log a stub the
   // user can complete with a confirmation number when they return. Affiliate
   // partners never send booking data back, so this is the honest capture.
+  const [locApprox, setLocApprox] = useState(false);
+  const [feedRetry, setFeedRetry] = useState(0);
+  const [locBannerGone, setLocBannerGone] = useState(false);
   const [reservations, setReservations] = useState([]);
   useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
   function persistRes(next) { setReservations(next); try { localStorage.setItem("wf_reservations", JSON.stringify(next)); } catch (e) {} }
@@ -3827,6 +3830,7 @@ function PageInner() {
     // IP fallback (works on desktop with no GPS). Applied only if GPS hasn't
     // already set a location, and never overrides a manual search.
     const ipFallback = async () => {
+      try { if (!gotGPS) setLocApprox(true); } catch (e) {}
       try {
         const r = await fetch("/api/geo", { cache: "no-store" });
         const d = await r.json();
@@ -3846,6 +3850,7 @@ function PageInner() {
         async (pos) => {
           gotGPS = true;
           clearTimeout(ipTimer);
+          try { setLocApprox(false); } catch (e) {}
           const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setDeviceLoc(c);
           if (manualRef.current) return;
@@ -3904,7 +3909,7 @@ function PageInner() {
     }, 300);
     return () => { cancelled = true; clearTimeout(_debTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, sub, vibe, center, searchRadius, searchMode]);
+  }, [cat, sub, vibe, center, searchRadius, searchMode, feedRetry]);
 
   // Load events when on the Events screen or when the location changes.
   useEffect(() => {
@@ -3956,6 +3961,10 @@ function PageInner() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
+
+  // v4.58: build number leaves the visible UI (launch polish) but stays
+  // machine-readable for deploy verification and diagnostics.
+  useEffect(() => { try { window.__WF_BUILD = BUILD_ID; document.documentElement.setAttribute("data-wf-build", BUILD_ID); } catch (e) {} }, []);
 
   // v4.55: /events, /map, /favorites, /itinerary routes hand off here.
   useEffect(() => {
@@ -4743,7 +4752,7 @@ function PageInner() {
           </div>
         );
       })()}
-      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err}</div>}
+      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>{CAT_ICONS[cat]}</div>
@@ -5273,6 +5282,13 @@ function PageInner() {
                 const dicePhotos = expPool.filter((p) => p && p.photo).slice(0, 4).map((p) => p.photo);
                 return (
                   <div style={{ marginBottom: 16 }}>
+                    {locApprox && !locBannerGone && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", marginBottom: 12 }}>
+                        <span style={{ fontSize: 15 }}>📍</span>
+                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
+                        <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
+                      </div>
+                    )}
                     {heroPlace && (<>
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
                                             {gwPop && (giveawayLive() || giveawaySoon()) && (
@@ -5505,7 +5521,7 @@ function PageInner() {
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
                 <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
-                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind {BUILD_ID}</div>
+                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind</div>
               </div>
               <div style={{ height: 20 }} />
               </div>
@@ -7079,7 +7095,7 @@ function PageInner() {
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
             <div style={{ textAlign: "center", marginTop: 12 }}><a href="/privacy" style={{ fontSize: 11.5, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
-            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind {BUILD} · {BUILD_ID}</div>
+            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind</div>
             <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 4 }}>© 2026 Wayfind. All rights reserved.</div>
           </div>
         </div>
