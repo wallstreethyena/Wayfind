@@ -1,6 +1,9 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, searchPlaces, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+// v4.86: every place search flows through the multi-source aggregator
+// (Google + Foursquare, merged + deduped) — same signature, bigger pool.
+import { searchPlaces } from "../lib/sources";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -20,7 +23,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.85";
+const BUILD_ID = "v4.86";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3821,6 +3824,18 @@ function PageInner() {
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
   async function openDetail(p, context) {
+    // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
+    // when one exists (reviews, hours, photos come along); otherwise it
+    // renders honestly from the Foursquare data it arrived with.
+    if (p && typeof p.id === "string" && p.id.startsWith("fsq:")) {
+      try {
+        const up = await findPlace(p.name, { lat: p.lat, lng: p.lng });
+        if (up && up.id && up.lat != null) {
+          const dLat = up.lat - p.lat, dLng = up.lng - p.lng;
+          if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= 0.25) p = { ...up, distMi: p.distMi != null ? p.distMi : up.distMi, sources: p.sources };
+        }
+      } catch (e) {}
+    }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
     setDetail(p);
     setDetailContext(context || null);
