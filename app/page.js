@@ -15,7 +15,7 @@ import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.53";
+const BUILD_ID = "v4.54";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -277,9 +277,14 @@ function applyAffinity(places, affinities) {
   }).sort((a, b) => b._ps - a._ps);
 }
 
-// Build an absolute share URL on the current origin.
+// v4.54 PROTECTED (check-canon.mjs): the one true domain. Every share link
+// is minted on the canonical domain no matter which host the app is running
+// on, so stale *.vercel.app deployment URLs can never propagate through
+// shares again.
+const CANON_ORIGIN = "https://www.gowayfind.com";
 function originUrl(path) {
   if (typeof window === "undefined") return path;
+  try { const h = window.location.hostname || ""; if (/\.vercel\.app$/i.test(h) || h === "gowayfind.com" || h === "www.gowayfind.com") return CANON_ORIGIN + path; } catch (e) {}
   return window.location.origin + path;
 }
 
@@ -2977,7 +2982,7 @@ function PageInner() {
   async function signInWithProvider(provider) {
     if (!supabase) return;
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: typeof window !== "undefined" ? window.location.origin : undefined } });
+      const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: typeof window !== "undefined" ? (/\.vercel\.app$/i.test(window.location.hostname || "") ? CANON_ORIGIN : window.location.origin) : undefined } });
       if (error) showToast(`Sign-in error: ${error.message}`);
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
   }
@@ -3334,7 +3339,7 @@ function PageInner() {
                       ); };
 
   function shareApp() {
-    const url = (typeof window !== "undefined" && window.location && window.location.origin) ? window.location.origin : "https://wayfind-xi.vercel.app";
+    const url = CANON_ORIGIN;
     shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind", () => { try { logEvent("share", null, { kind: "app" }); } catch (e) {} });
   }
   function pickCat(id) { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
