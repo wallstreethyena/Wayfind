@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.98";
+const BUILD_ID = "v4.99";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -4206,22 +4206,30 @@ function PageInner() {
   }, [screen, center]);
 
   // Build a curated experience: wider 30 mile search, real filter, ranked by score.
+  const _expRunRef = useRef(null);
   useEffect(() => {
     if (screen !== "experience" || !activeBadge || !center) return;
     const exp = EXPERIENCES[activeBadge];
     if (!exp) return;
-    let cancelled = false;
     // v4.98: an endless "Curating the best spots" is banned, as a rule.
-    // Three guarantees: (1) the FIRST round that returns anything paints
+    // Four guarantees: (1) the FIRST round that returns anything paints
     // immediately and kills the spinner — wider rounds refine the list in
     // place instead of holding the whole page hostage; (2) a 12s watchdog
     // force-clears the spinner no matter what a source does — the honest
     // empty state is allowed, an infinite spinner is not; (3) a short
-    // debounce coalesces the startup location flip (IP city fix → GPS fix)
-    // so the full fan-out doesn't run twice back to back.
+    // debounce coalesces rapid re-triggers; (4) when the startup location
+    // merely REFINES (IP city fix → GPS fix in the same neighborhood,
+    // < 3 km apart) the in-flight run is ADOPTED, not thrown away — the
+    // cancel-and-refetch on that flip is what doubled every vibe load.
+    const _prev = _expRunRef.current;
+    if (_prev && !_prev.done && _prev.badge === activeBadge && _prev.center && distMeters(_prev.center, center) < 3000) { _prev.tok.dead = false; return; }
+    const _tok = { dead: false };
+    const _rec = { badge: activeBadge, center: { lat: center.lat, lng: center.lng }, tok: _tok, done: false };
+    _expRunRef.current = _rec;
     setExpLoading(true);
-    const _watch = setTimeout(() => { if (!cancelled) setExpLoading(false); }, 12000);
+    const _watch = setTimeout(() => { if (!_tok.dead) setExpLoading(false); }, 12000);
     const _deb = setTimeout(() => {
+    if (_tok.dead) { _rec.done = true; return; }
     (async () => {
       try {
         // v4.85 adaptive: every vibe STARTS at the 17-mile default (or its
@@ -4233,7 +4241,7 @@ function PageInner() {
         // v4.81: curated picks get the same +15 lift here that applyAffinity
         // gives them, so they rank near the top instead of mid-list.
         const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
-        const _paint = (pool) => { if (cancelled || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
+        const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
         let raw = [];
@@ -4286,22 +4294,25 @@ function PageInner() {
           results = sortFit(raw);
         }
         results = results.slice(0, 40); // v4.81: more options per vibe
-        if (!cancelled) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
+        if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
         // v4.89: photo fix for the vibe rows — resolve real photos for the
         // top photoless multi-source entries (cached lookups), then repaint.
         try {
           const _missing = results.filter((p) => p && !p.photo && /^(fsq|osm|ridb|nps):/.test(String(p.id || ""))).slice(0, 10);
-          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } } } catch (e) {} })).then(() => { if (!cancelled) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
+          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } } } catch (e) {} })).then(() => { if (!_tok.dead) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
         } catch (e) {}
       } catch {
-        if (!cancelled) setExpPlaces([]);
+        if (!_tok.dead) setExpPlaces([]);
       } finally {
+        _rec.done = true;
         clearTimeout(_watch);
-        if (!cancelled) setExpLoading(false);
+        if (!_tok.dead) setExpLoading(false);
       }
     })();
     }, 250);
-    return () => { cancelled = true; clearTimeout(_deb); clearTimeout(_watch); };
+    // Cleanup only marks the token dead — timers stay armed so a follow-up
+    // adoption (location refined < 3 km) can revive the very same run.
+    return () => { _tok.dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
 

@@ -46,6 +46,7 @@ if (!page.includes("Start with one of these")) fail("discovery grid missing from
 // loader must never be able to spin forever.
 if (page.includes("expOpenOnly")) fail('the "Open now" chip state resurfaced on experience views — lists carry only the SortControl');
 if (/SortControl sortBy=\{expSort\}[^\n]*\n[^\n]*rollDice/.test(page)) fail("dice chip reappeared next to the experience SortControl");
-if (!page.includes("const _watch = setTimeout(() => { if (!cancelled) setExpLoading(false); }, 12000)")) fail("experience spinner watchdog missing — an infinite 'Curating' spinner is banned");
+if (!page.includes("const _watch = setTimeout(() => { if (!_tok.dead) setExpLoading(false); }, 12000)")) fail("experience spinner watchdog missing — an infinite 'Curating' spinner is banned");
+if (!page.includes("_prev.tok.dead = false; return;")) fail("in-flight run adoption missing — the IP→GPS location flip must not restart the vibe fan-out");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
