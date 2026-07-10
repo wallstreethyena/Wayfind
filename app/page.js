@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.04";
+const BUILD_ID = "v5.05";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -133,17 +133,28 @@ function listShareUrl(key, title, n, loc, hk) {
 async function fetchMemberSignals(sb, list) {
   try {
     const ids = (list || []).map((p) => p && p.id).filter(Boolean).slice(0, 50);
-    if (!sb || !ids.length) return null;
-    const { data } = await sb.from("comments").select("place_id,user_id,type").in("place_id", ids);
-    if (!Array.isArray(data) || !data.length) return null;
-    const m = {};
-    for (const r of data) {
-      const k = r.place_id; if (!m[k]) m[k] = { seen: {}, warnSeen: {} };
-      m[k].seen[r.user_id] = 1; if (r.type === "Warning") m[k].warnSeen[r.user_id] = 1;
-    }
+    if (!ids.length) return null;
+    // v5.05: two community signals in one pass — member takes (comments) and
+    // the like aggregate. Likes are counted server-side (/api/signals/likes,
+    // service key) because RLS correctly hides other users' like rows from
+    // the browser. The COUNT is never rendered anywhere; it only feeds the
+    // ranking nudge in Ranking.memberDelta, per product direction.
+    const [cRes, lRes] = await Promise.all([
+      sb ? sb.from("comments").select("place_id,user_id,type").in("place_id", ids).then((r) => r.data, () => null) : Promise.resolve(null),
+      fetch("/api/signals/likes?ids=" + encodeURIComponent(ids.join(","))).then((r) => (r.ok ? r.json() : null), () => null),
+    ]);
     const out = {};
-    for (const k in m) out[k] = { authors: Object.keys(m[k].seen).length, warnAuthors: Object.keys(m[k].warnSeen).length };
-    return out;
+    if (Array.isArray(cRes) && cRes.length) {
+      const m = {};
+      for (const r of cRes) {
+        const k = r.place_id; if (!m[k]) m[k] = { seen: {}, warnSeen: {} };
+        m[k].seen[r.user_id] = 1; if (r.type === "Warning") m[k].warnSeen[r.user_id] = 1;
+      }
+      for (const k in m) out[k] = { authors: Object.keys(m[k].seen).length, warnAuthors: Object.keys(m[k].warnSeen).length };
+    }
+    const lc = lRes && lRes.counts ? lRes.counts : null;
+    if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; }
+    return Object.keys(out).length ? out : null;
   } catch (e) { return null; }
 }
 function withMemberSignal(list, sig) {
@@ -3297,9 +3308,38 @@ function PageInner() {
     setAuthSending(true);
     try {
       const creds = { email: authEmail.trim(), password: authPassword };
-      const res = authMode === "signup"
+      // v5.05: signup goes through OUR server route (admin-created, email
+      // pre-confirmed) \u2014 live testing caught Supabase's mailer 500ing on
+      // "Error sending confirmation email", which silently blocked ALL
+      // signups. Server-side creation removes the email dependency entirely;
+      // the user is signed in with their password immediately after. If the
+      // route is unavailable (501), fall back to the classic email flow.
+      if (authMode === "signup") {
+        let viaRoute = false;
+        try {
+          const r = await fetch("/api/auth/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(creds) });
+          if (r.status === 409) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); setAuthSending(false); return; }
+          if (r.ok) viaRoute = true;
+          else if (r.status !== 501) { const d = await r.json().catch(() => ({})); showToast("Could not create account" + (d && d.error ? ": " + d.error : "")); setAuthSending(false); return; }
+        } catch (e) {}
+        if (viaRoute) {
+          const res = await supabase.auth.signInWithPassword(creds);
+          if (res.error) showToast("Account created \u2014 now sign in: " + res.error.message);
+          else { showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+          setAuthSending(false); return;
+        }
+      }
+      let res = authMode === "signup"
         ? await supabase.auth.signUp(creds)
         : await supabase.auth.signInWithPassword(creds);
+      // v5.05: accounts created while the confirmation mailer was broken sit
+      // unconfirmed forever — confirm them server-side and retry once.
+      if (res.error && /not confirmed/i.test(res.error.message || "") && authMode !== "signup") {
+        try {
+          const cr = await fetch("/api/auth/confirm", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: creds.email }) });
+          if (cr.ok) res = await supabase.auth.signInWithPassword(creds);
+        } catch (e) {}
+      }
       if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
       else if (res.data && res.data.session) { showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
       else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
