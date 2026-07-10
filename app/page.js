@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.00";
+const BUILD_ID = "v5.01";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -355,7 +355,11 @@ function _sharePath(nm) { try { if (typeof window !== "undefined" && window.post
 function openExternal(url) {
   if (!url) return;
   try { const w = window.open(url, "_blank", "noopener"); if (w) return; } catch (e) {}
-  try { window.location.href = url; } catch (e) {}
+  // v5.01 GLOBAL RULE (user direction): partner/affiliate pages NEVER replace
+  // Wayfind. If the popup was blocked, synthesize an anchor click in the same
+  // gesture — new tab, tracking intact. Same-tab navigation is banned here:
+  // it swapped the app for the partner page, which is exactly the bug fixed.
+  try { const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
 }
 function shareLink(title, url, onCopied, text, onShared) {
   // v4.07: the native sheet must be the FIRST activation-consuming API in the tap.
@@ -1608,6 +1612,29 @@ function isNightNow(w) {
   if (!w) return false;
   const now = Date.now();
   return !!((w.sunsetMs && now > w.sunsetMs) || (w.sunriseMs && now < w.sunriseMs));
+}
+// v5.01 — severe-weather class for Florida reality: hurricane-force wind gets
+// the cyclone, storm conditions with tropical-storm-force wind get the
+// tornado/funnel warning icon. Derived from the live numbers, not guesses.
+function severeIcon(w) {
+  if (!w || w.wind == null) return null;
+  if (w.wind >= 74) return "🌀";
+  if (w.wind >= 58 && (w.img === "storm" || (w.rain != null && w.rain >= 60))) return "🌪️";
+  return null;
+}
+// v5.01 — THE one truth rule for the CURRENT weather icon, every surface:
+// the icon must match the sky right now. Severe wind overrides everything;
+// night + clear/partly shows the real moon phase (never a sun after sunset);
+// otherwise the condition icon. Header, hourly "Now" tile, and any future
+// surface must call this — rendering weather.icon raw is a bug.
+function wxIconNow(w) {
+  try {
+    if (!w) return "🌡️";
+    const sev = severeIcon(w);
+    if (sev) return sev;
+    if (isNightNow(w)) { const im = w.img || ""; if (im === "sunny" || im === "partly") return moonPhase(new Date()).emoji; }
+    return w.icon;
+  } catch (e) { return (w && w.icon) || "🌡️"; }
 }
 function weatherAdvisory(w) {
   if (!w) return null;
@@ -5284,7 +5311,7 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
               <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
-                <span style={{ fontSize: 18 }}>{(() => { try { if (isNightNow(weather)) { const im = weather.img || ""; if (im === "sunny" || im === "partly") return moonPhase(new Date()).emoji; } } catch (e) {} return weather.icon; })()}</span>
+                <span style={{ fontSize: 18 }}>{wxIconNow(weather)}</span>
                 <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
                   <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels != null ? weather.feels : weather.temp}°</span>
                   {weather.label ? <span style={{ fontSize: 8.5, fontWeight: 600, color: C.muted }}>{weather.label}</span> : null}
@@ -5309,7 +5336,10 @@ function PageInner() {
             </div>
             <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
               {weather.hourly.map((h, idx) => {
-                const hi = hourIcon(h.code, h.day, h.ms);
+                // v5.01: the "Now" tile must reflect the sky RIGHT NOW — the
+                // hourly block's is_day flag describes when the block STARTED
+                // (a sun was showing at 9:45pm because the block began at 8pm).
+                const hi = idx === 0 ? { icon: wxIconNow({ ...weather, icon: weatherFromCode(h.code).icon, img: weatherFromCode(h.code).img }), label: weatherFromCode(h.code).label } : hourIcon(h.code, h.day, h.ms);
                 const dt = new Date(h.ms);
                 const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
                 return (
@@ -6041,29 +6071,18 @@ function PageInner() {
               </div>
               {isDesktop && (
                 <div style={{ width: 340, flexShrink: 0, position: "sticky", top: 12 }}>
-                  <div style={{ border: `1px solid ${C.accent}`, borderRadius: 16, padding: 16, marginBottom: 14, background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.adim} 55%)` }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: weather ? 10 : 6 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 10, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>You are exploring</div>
-                        {locName ? <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName}</div> : null}
-                      </div>
-                      {weather && <div style={{ flexShrink: 0 }}><span style={{ fontSize: 22, fontWeight: 800, color: C.text }}>{weather.icon} {weather.temp}°</span></div>}
-                    </div>
-                    {weather && (
-                      <div style={{ display: "flex", gap: 5, marginBottom: 11, flexWrap: "wrap" }}>
-                        {weather.label && <span style={wstat}>{weather.label}</span>}
-                        {weather.feels != null && <span style={wstat}>Feels {weather.feels}°</span>}
-                        {weather.wind != null && <span style={wstat}>💨 {weather.wind} mph</span>}
-                        {weather.sunset && <span style={wstat}>🌅 Sunset {weather.sunset}</span>}
-                      </div>
-                    )}
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{intentDef ? intentDef.icon + " " + intentDef.label + " near you" : "✨ " + moment + " picks"}</div>
-                    {list.length > 0 && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5, fontWeight: 600 }}>⭐ {list.length} spots, ranked best first</div>}
-                    <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-                      <button onClick={rollDice} style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
-                      <button onClick={() => setScreen("explore")} style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: "transparent", color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Browse all ↗</button>
-                    </div>
+                  {/* v5.01 (user direction): the orange weather card is gone from
+                      the desktop sidebar — weather lives in the header, period.
+                      In its place: the in-app map, pinned with what's on screen
+                      around the current location. Tap a pin → place detail;
+                      Full map → the map tab. */}
+                  {(() => { const _pins = (list || []).filter((p) => p && p.lat != null).slice(0, 20); return (
+                  <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, position: "relative", height: 320, background: C.card }}>
+                    <MapView places={_pins} center={center} deviceLoc={deviceLoc} fit={_pins.length > 0} onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
+                    <button onClick={() => { setMapListOverride(null); setScreen("map"); }} style={{ position: "absolute", right: 10, bottom: 10, zIndex: 5, padding: "7px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.4)" }}>Full map ↗</button>
+                    {locName ? <div style={{ position: "absolute", left: 10, top: 10, zIndex: 5, padding: "6px 11px", borderRadius: 999, background: "rgba(13,17,23,.82)", backdropFilter: "blur(6px)", color: C.text, fontSize: 12, fontWeight: 700, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName.split(",")[0]}{_pins.length ? ` · ${_pins.length} spots` : ""}</div> : null}
                   </div>
+                  ); })()}
                   {foryouEvents && foryouEvents.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
@@ -6809,7 +6828,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })()) + "&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); const t = [locName ? locName.split(",")[0] : "", _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); return t; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(_vt.items[0].url) || _vt.items[0].url) : null; /* v5.01: the button opens the TOP real product for this place directly (tracked) — never the /go resolver, whose search-page fallback broke trust */ const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -7967,8 +7986,8 @@ function PageInner() {
                 still powers typed feelings and search deep links. */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 9 }}>
               {["outdoors", "hiddengems", "bucketlist", "familyfun"].map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                <button key={k} onClick={() => setIntroSel(on ? [] : [k])} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", padding: "13px 11px", borderRadius: 14, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                  <span style={{ fontSize: 19 }}>{ex.icon}</span><span>{ex.label}</span>
+                <button key={k} onClick={() => setIntroSel(on ? [] : [k])} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "15px 10px", borderRadius: 14, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
+                  <span style={{ fontSize: 24 }}>{ex.icon}</span><span>{ex.label}</span>
                 </button>
               ); })}
             </div>
