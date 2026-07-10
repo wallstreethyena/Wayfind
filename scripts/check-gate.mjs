@@ -69,6 +69,13 @@ const MUST_BLOCK = [
   ["attractions", "outdoors", "Sunscape Pools & Screen Enclosures", []],
   ["attractions", "outdoors", "Total Outdoor Care", []],
   ["attractions", "outdoors", "Ecopro Outdoor Solutions", []],
+  // v5.06 — the scoring-system audit's find: a 4.9-star PARKING LOT named
+  // after its beach ranked #4 under Beach day. Parking is never a destination.
+  ["beach", "all", "Coquina Beach Parking", ["parking"]],
+  ["beach", "all", "Coquina Beach Parking", []],
+  ["beach", "beaches", "Coquina Beach Parking", []],
+  ["attractions", "all", "Siesta Key Public Beach Parking", []],
+  ["attractions", "all", "Manatee Park & Ride", []],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -109,6 +116,11 @@ const MUST_PASS = [
   ["attractions", "outdoors", "Emerson Point Preserve", ["park", "tourist_attraction"]],
   ["attractions", "outdoors", "Riverwalk", ["park", "tourist_attraction"]],
   ["attractions", "outdoors", "Robinson Preserve", ["park"]],
+  // v5.06 — the parking veto must not clip real parks and beaches whose names
+  // merely CONTAIN "park", and the actual Coquina Beach stays in.
+  ["beach", "all", "Coquina Beach", ["beach"]],
+  ["attractions", "outdoors", "Nathan Benderson Park", ["park"]],
+  ["beach", "all", "Fort De Soto Park", ["park", "beach"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
