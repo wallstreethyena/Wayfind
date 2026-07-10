@@ -17,7 +17,7 @@ if (!page.includes("Wayfind \u00b7 {BUILD_ID}</div>")) fail("visible version lab
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
-if (!/what would interest you today/i.test(page)) fail("mood kicker missing");
+if (!/what are you in the mood for/i.test(page)) fail("mood kicker missing");
 if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
 if (!/wayfind it<\/button>/i.test(page)) fail("intro CTA missing");
@@ -116,14 +116,24 @@ if (!page.includes('capture("hero_tap"')) fail("hero tap analytics missing");
 // server-cached (quota), always credited and linked out in a new tab.
 if (!page.includes('"/api/ta/place?q="')) fail("Tripadvisor enrichment fetch missing from the detail sheet");
 if (!page.includes("on Tripadvisor ↗")) fail("Tripadvisor attribution strip missing");
-// v5.22 — Right place, right moment (mood buttons + LLM layers):
-// (a) the adaptive mood row exists and actually adapts (Outside↔Cozy Indoor);
-if (!page.includes("Right place, right moment")) fail("mood row missing from home");
+// v5.22/v5.25 — Right place, right moment lives ONLY in the welcome pop-up
+// (product direction): six adaptive tiles, no inline home-screen row.
+if (page.includes("const moodRow")) fail("inline mood row is back on the main screen — tiles belong ONLY in the welcome pop-up");
 if (!page.includes('_bad ? "cozyindoor" : "outdoors"')) fail("weather-adaptive Outside/Cozy Indoor swap missing");
 // v5.24 — "too hot" means the heat index, not the thermometer: the swap must
 // judge feels-like when available (91° air / 104° feels-like = Cozy Indoor).
-if (!page.includes("weather.feels != null ? weather.feels : weather.temp")) fail("mood-row heat check must prefer feels-like temp");
+if (!page.includes("weather.feels != null ? weather.feels : weather.temp")) fail("mood heat check must prefer feels-like temp");
 if (!page.includes('_wkndMorn ? "brunch" : "eatnow"')) fail("weekend-morning Brunch swap missing");
+if (!page.includes('_eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"]')) fail("six-tile adaptive order missing from the welcome pop-up");
+if (!page.includes('sessionStorage.getItem("wf_intro_seen")')) fail("welcome pop-up session guard missing (must show once per session, not once ever)");
+if (!page.includes("setIntroOpen(true), 3200")) fail("welcome pop-up auto-show delay missing (~3.2s so the greeting arrives personal)");
+if (!page.includes("wfIntroIn")) fail("welcome pop-up entrance animation missing");
+if ((page.match(/mood: true/g) || []).length < 8) fail("all six pop-up intents must be mood:true so every tile fires the moment engine");
+// v5.25 — the Outside beach fix: 30-mi start radius, a public-beach query, and
+// a water-venue boost so beaches actually appear (and lead in good weather).
+if (!/outdoors: \{[^\n]*radius: 48280/.test(page)) fail("Outside lost its 30-mi radius — Gulf beaches die at the 17-mi edge");
+if (!page.includes('{ cat: "beach", keyword: "public beach" }')) fail("Outside lost its public-beach query");
+if (!page.includes("_ctxBoost")) fail("vibe context boost (beaches-first-in-good-weather) missing from the experience loader");
 // (b) the LLM never enters the critical path: picks fetch is additive with a
 //     hard timeout + silent catch, and the key stays server-side.
 if (!page.includes('fetch("/api/moment/picks"')) fail("Perfect-right-now picks fetch missing");

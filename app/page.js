@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.24";
+const BUILD_ID = "v5.25";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -963,10 +963,15 @@ const EXPERIENCES = {
   // in parallel (multi-query loader below), merges + dedupes, then ranks with
   // the standard engine. Curated places tagged with a vibe always pass its
   // filter (curated-aware filter in the experience-loading effect).
-  outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
-  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", viator: true, viatorMode: "gems", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
+  // v5.25 — Outside is a mood tile and MUST include real beaches: 30-mi start
+  // radius (the Gulf beaches sit 15-25 mi from inland towns like Parrish and
+  // were dying at the 17-mi edge), a dedicated public-beach query, and a
+  // water-venue boost so beaches rank at the top when the weather is genuinely
+  // beach weather (and still stay present when it isn't).
+  outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", mood: true, radius: 48280, lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "beach", keyword: "public beach" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], boost: (p, w) => { const v = Ranking.venueLean(p); if (!v.water) return 0; const felt = w ? (w.feels != null ? w.feels : w.temp) : null; const good = w && !w.wet && !(w.rain != null && w.rain >= 55) && !/storm|rain|shower/i.test(w.label || "") && felt != null && felt >= 62 && felt <= 98; return good ? 22 : 8; }, filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
+  hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", mood: true, lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", viator: true, viatorMode: "gems", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
   bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000 /* worth-the-drive class: intentionally wider than the 17-mi default */, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
-  familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
+  familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", mood: true, lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
   // v4.80 — Fun with Friends. queries is a FUNCTION so the mix follows the
   // time of day: daytime leans beach and active group fun, evenings lean
   // bars, clubs, karaoke and live music. cat/keyword are the single-query
@@ -3638,7 +3643,7 @@ function PageInner() {
     try { window.scrollTo(0, 0); } catch {}
   }
   function openMoment(sel) {
-    try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
+    try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
     setIntroOpen(false);
     try { logEvent("intro_build", null, { chips: sel.join(",") }); } catch (e) {}
     const spec = composeMoment(sel, cityNow);
@@ -4444,7 +4449,10 @@ function PageInner() {
         const _vibePass = (p) => { const c = curatedFor(p); if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true; return exp.filter ? exp.filter(p) : true; };
         // v4.81: curated picks get the same +15 lift here that applyAffinity
         // gives them, so they rank near the top instead of mid-list.
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
+        // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
+        // Outside lifts real water venues, hardest when it's beach weather.
+        const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a)));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -4608,12 +4616,15 @@ function PageInner() {
 
   // v4.60: first visit gets the moment builder — one screen that explains
   // Wayfind and gets the user to a win without typing. Skippable, remembered.
+  // v5.25: once per SESSION (sessionStorage), not once ever — the concierge
+  // greets each visit but never nags within one. The ~3.2s delay lets weather,
+  // location and the open-now count load so the greeting arrives personal.
   useEffect(() => {
     try {
       const sp0 = new URLSearchParams(window.location.search);
       if (sp0.get("intro") === "1") { setIntroOpen(true); return; }
-      if (sp0.get("q")) { /* deep link owns this visit */ } else if (!localStorage.getItem("wf_intro_seen")) {
-        const t = setTimeout(() => setIntroOpen(true), 120);
+      if (sp0.get("q")) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
+        const t = setTimeout(() => setIntroOpen(true), 3200);
         return () => clearTimeout(t);
       }
     } catch (e) {}
@@ -5363,36 +5374,6 @@ function PageInner() {
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
 
-  // v5.22 — "Right place, right moment" mood row (rendered on Home AND the
-  // explore header). Adaptive, never static: Outside swaps to Cozy Indoor in
-  // rain/extremes, evenings lead with Date Night + Night Out, weekend
-  // mornings surface Brunch. Tiles use the one modern menu style.
-  const moodRow = (() => {
-            const _h = new Date().getHours(); const _d = new Date().getDay();
-            const _eve = _h >= 16 || _h < 4;
-            const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
-            // "Too hot" is what it FEELS like, not the thermometer: a Florida
-            // 91° with a 104° heat index is not an Outside afternoon.
-            const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;
-            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (_felt != null && (_felt >= 99 || _felt <= 40))));
-            const outsideKey = _bad ? "cozyindoor" : "outdoors";
-            const eatKey = _wkndMorn ? "brunch" : "eatnow";
-            const MOOD_LBL = { outdoors: ["☀️", "Outside"], cozyindoor: ["🌧️", "Cozy Indoor"], datenight: ["🌹", "Date Night"], nightout: ["🍸", "Night Out"], eatnow: ["🍽️", "Where to Eat"], brunch: ["🥞", "Brunch"], hiddengems: ["💎", "Hidden Gems"], familyfun: ["👨‍👩‍👧", "Family Fun"] };
-            const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
-            return (
-              <div style={{ paddingTop: 10 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: C.accent, marginBottom: 6 }}>✨ Right place, right moment</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, paddingBottom: 2 }}>
-                  {order.map((k) => EXPERIENCES[k] ? (
-                    <button key={k} onClick={() => { try { logEvent("mood_tile", null, { mood: k, adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} openExperience(k); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "11px 4px 9px", borderRadius: 13, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer" }}>
-                      <span style={{ fontSize: 21 }}>{(MOOD_LBL[k] || [EXPERIENCES[k].icon])[0]}</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: C.light, textAlign: "center", lineHeight: 1.15 }}>{(MOOD_LBL[k] || [null, EXPERIENCES[k].label])[1]}</span>
-                    </button>
-                  ) : null)}
-                </div>
-              </div>
-            );
-  })();
 
   const exploreList = (
     <>
@@ -5420,7 +5401,6 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
             <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
           </div>
-          {moodRow}
         </div>
       )}
       {exHero && (
@@ -5777,7 +5757,6 @@ function PageInner() {
             })()}
           </>
 
-        {screen === "suggested" && <div style={{ margin: "2px 0 4px" }}>{moodRow}</div>}
         {screen === "suggested" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
@@ -8258,50 +8237,77 @@ function PageInner() {
         </div>
       )}
       {introOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
           {/* v4.80: livelier breathing — wider swing between soft and bright, and
-              the border warms with the glow so the whole frame feels lit. */}
-          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@media (prefers-reduced-motion: reduce){.wf-intro-pop{animation:none !important}}"}</style>
-          <div onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "#0B0E17", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroGlow 2.8s ease-in-out infinite" }}>
+              the border warms with the glow so the whole frame feels lit.
+              v5.25 premium concierge: soft radial halo behind a frosted-glass
+              card, a scale-and-fade entrance instead of a hard cut, and the six
+              adaptive mood tiles (the ONLY home of the mood picker — the inline
+              home-screen row is gone by design). */}
+          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
+          <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
+          <div onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both, wfIntroGlow 2.8s ease-in-out .5s infinite" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-              <button onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
+              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
             <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 8 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
             <div style={{ textAlign: "center", marginTop: 7 }}><IntroIcon k="spark" size={21} color="#FFC28A" /></div>
-            <div style={{ textAlign: "center", fontSize: 13.5, color: "#B6BCD0", lineHeight: 1.5, margin: "8px auto 12px", maxWidth: 350 }}>{(() => { try {
+            {/* v5.25 concierge greeting — personalization (name/time/weather),
+                real abundance (live open-now count, never invented), and an
+                easy out. Every claim in it is computed from live data. */}
+            <div style={{ textAlign: "center", fontSize: 13.5, color: "#B6BCD0", lineHeight: 1.55, margin: "8px auto 12px", maxWidth: 360 }}>{(() => { try {
               const h = new Date().getHours();
               const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
               const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
-              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "");
+              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + " \ud83d\udc4b";
               const town = locName ? locName.split(",")[0] : "your area";
               let w = "";
               if (weather && typeof weather.temp === "number") {
-                const rainy = /rain|storm|shower/i.test(weather.label || "");
-                w = rainy ? " Rain out there \u2014 indoor picks are the move." : weather.temp >= 90 ? " It's a hot one \u2014 shade and A/C are winning today." : weather.temp >= 60 ? " Perfect weather to be out in " + town + "." : " Crisp day in " + town + ".";
+                const felt = weather.feels != null ? weather.feels : weather.temp;
+                const rainy = weather.wet || /rain|storm|shower/i.test(weather.label || "");
+                w = rainy ? " Rain out there — the perfect excuse for a cozy find in " + town + "."
+                  : felt >= 99 ? " It's " + weather.temp + "° and steamy — cool, easy picks are winning today."
+                  : weather.temp >= 60 ? " It's a gorgeous " + weather.temp + "° — a great moment to be out in " + town + "."
+                  : " A crisp " + weather.temp + "° in " + town + " — perfect for finding somewhere warm and good.";
               }
               const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
               const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
-              return g + "." + w + alive;
+              return g + w + alive;
             } catch (e) { return "Wayfind turns how you feel into the best places near you."; } })()}</div>
             <div style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What would interest you today?</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for?</span>
               </div>
             </div>
-            {/* v4.84: the four Wayfind vibes ARE the moment picker, locked in by
-                product direction (replaces the who/when chip groups). Chips read
-                icon + label straight from EXPERIENCES so they never drift. The
-                moment engine (MOMENT_CHIPS / composeMoment / feelingToMoment)
-                still powers typed feelings and search deep links. */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 9 }}>
-              {["outdoors", "hiddengems", "bucketlist", "familyfun"].map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                <button key={k} onClick={() => setIntroSel(on ? [] : [k])} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "15px 10px", borderRadius: 14, border: `1.5px solid ${on ? "#FF8A3D" : "#262B3F"}`, background: on ? "rgba(255,138,61,.14)" : "#121524", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                  <span style={{ fontSize: 24 }}>{ex.icon}</span><span>{ex.label}</span>
-                </button>
-              ); })}
-            </div>
-            <button onClick={() => { if (!introSel.length) return; try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
-            <div onClick={() => { try { localStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
+            {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
+                adaptive rules the home row used: evenings lead with Date Night
+                and Night Out, bad weather swaps Outside for Cozy Indoor, weekend
+                mornings swap Where to Eat for Brunch. Every tile fires the full
+                moment engine (structured ranking + cached LLM why-lines). */}
+            {(() => { try {
+              const _h = new Date().getHours(); const _d = new Date().getDay();
+              const _eve = _h >= 16 || _h < 4;
+              const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
+              // "Too hot" is what it FEELS like, not the thermometer: a Florida
+              // 91° with a 104° heat index is not an Outside afternoon.
+              const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;
+              const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (_felt != null && (_felt >= 99 || _felt <= 40))));
+              const outsideKey = _bad ? "cozyindoor" : "outdoors";
+              const eatKey = _wkndMorn ? "brunch" : "eatnow";
+              const MOOD_LBL = { outdoors: ["\u2600\ufe0f", "Outside"], cozyindoor: ["\ud83c\udf27\ufe0f", "Cozy Indoor"], datenight: ["\ud83c\udf39", "Date Night"], nightout: ["\ud83c\udf78", "Night Out"], eatnow: ["\ud83c\udf7d\ufe0f", "Where to Eat"], brunch: ["\ud83e\udd5e", "Brunch"], hiddengems: ["\ud83d\udc8e", "Hidden Gems"], familyfun: ["\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", "Family Fun"] };
+              const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
+              return (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
+                  {order.map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
+                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "16px 10px 13px", borderRadius: 16, border: `1.5px solid ${on ? "#FF8A3D" : "rgba(255,255,255,.13)"}`, background: on ? "linear-gradient(150deg, rgba(255,138,61,.24) 0%, rgba(255,138,61,.10) 100%)" : "linear-gradient(150deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.015) 100%)", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
+                      <span style={{ fontSize: 25 }}>{(MOOD_LBL[k] || [ex.icon])[0]}</span><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
+                    </button>
+                  ); })}
+                </div>
+              );
+            } catch (e) { return null; } })()}
+            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
+            <div onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>
         </div>
