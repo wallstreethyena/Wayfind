@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.96";
+const BUILD_ID = "v4.97";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2850,7 +2850,7 @@ function PageInner() {
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
   const [sub, setSub] = useState("all");
   const [vibe, setVibe] = useState("all");
-  const [sortBy, setSortBy] = useState("near");
+  const [sortBy, setSortBy] = useState("rated"); // v4.97: quality-first default — a 0-review shop at 1.5 mi must never outrank a 4.8★ preserve
   const [searchRadius, setSearchRadius] = useState(DEFAULT_RADIUS_M); // meters — v4.83: 17-mile app-wide default
   const autoRadiusRef = useRef(true); // v4.85: true while the radius is app-chosen; a manual slider touch flips it off and auto-widen stands down
   const [visibleCount, setVisibleCount] = useState(5); // explore list shows 5, then "Wayfind 5 more spots"
@@ -2976,7 +2976,7 @@ function PageInner() {
   const [expTours, setExpTours] = useState(null); // v4.84: Viator products for viator-flagged vibes (top-rated or hidden gems)
   const [browseTours, setBrowseTours] = useState(null); // v4.84: Viator products on the Things to do browse
   const [expOpenOnly, setExpOpenOnly] = useState(false);
-  const [expSort, setExpSort] = useState("near");
+  const [expSort, setExpSort] = useState("rated");
   const [expMi, setExpMi] = useState(DEFAULT_RADIUS_MI); // v4.94: opens at the 17-mi app default like every other list; the adaptive effect below bumps it honestly when the vibe pulled from farther
   const [rolling, setRolling] = useState(false);
   const [diceFace, setDiceFace] = useState("🎲");
@@ -3107,10 +3107,10 @@ function PageInner() {
   const [hookDetail, setHookDetail] = useState(null);
   const [viaTours, setViaTours] = useState({});
   // Sheet-local filter: the browse-style SortControl inside every themed list.
-  const [hkSort, setHkSort] = useState("near");
+  const [hkSort, setHkSort] = useState("rated");
   const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
-  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "near"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
   // v4.85: never show "Not enough data" at 17 mi when the sheet's wide fetch
   // already found real places a few miles farther — bump the sheet radius up
   // the ladder until enough places are visible. Manual slider changes win
@@ -3511,7 +3511,7 @@ function PageInner() {
     setActiveBadge(key);
     setExpPlaces(null);
     setExpOpenOnly(false);
-    setExpSort("near");
+    setExpSort("rated");
     setExpMi(DEFAULT_RADIUS_MI);
     setScreen("experience");
     try { window.scrollTo(0, 0); } catch {}
@@ -4225,7 +4225,9 @@ function PageInner() {
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
         let raw = [];
-        for (const _m of [_startM, ...RADIUS_LADDER_M.filter((x) => x > _startM)]) {
+        // v4.97 speed: a multi-query vibe refetching 30→45→60 was up to four
+        // sequential rounds (~9s spinners). One jump: default, then max.
+        for (const _m of [_startM, ...(_startM < 96560 ? [96560] : [])]) {
           radius = _m;
           const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
           if (_qs && _qs.length) {
@@ -5118,7 +5120,7 @@ function PageInner() {
   if (sortBy === "near") {
     viewBase = _distFiltered.sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
   } else if (sortBy === "rated") {
-    viewBase = _distFiltered.sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+    viewBase = _distFiltered.sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0))); // v4.97 "Top rated" = Bayesian quality − distance + open-now, never raw stars
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
@@ -5623,7 +5625,7 @@ function PageInner() {
           // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
           const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
           const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
-          const feedListS = sortBy === "rated" ? feedList0P.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
+          const feedListS = sortBy === "rated" ? feedList0P.slice().sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
           const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
           const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
@@ -6204,7 +6206,7 @@ function PageInner() {
           if (expOpenOnly) list = list.filter((p) => p.openNow !== false);
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-          else if (expSort === "rated") list = [...list].sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+          else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
           else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (
@@ -7390,7 +7392,7 @@ function PageInner() {
         // Safety net: no theme should ever render the same place twice.
         themePlaces = themePlaces.filter((p, i, a) => p && p.id && a.findIndex((x) => x && x.id === p.id) === i);
         if (hkSort === "near") themePlaces = themePlaces.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
         else if (hkSort === "price") themePlaces = themePlaces.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
         if (hkMi < 60) themePlaces = themePlaces.filter((p) => p.distMi == null || p.distMi <= hkMi);
         if (hkDeals) themePlaces = themePlaces.filter((p) => offers[p.id]);

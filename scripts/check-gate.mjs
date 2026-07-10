@@ -61,6 +61,14 @@ const MUST_BLOCK = [
   ["food", "all", "Jimmy Dean Bed and Breakfast", ["lodging"]],
   ["food", "breakfast", "Jimmy Dean Bed and Breakfast", []],
   ["shopping", "all", "Best Metal Recycling", ["recycling_center"]],
+  // v4.97 — the live audit's Things to do → Outdoors junk class.
+  ["attractions", "outdoors", "2A Lawn & Nursery", ["plant_nursery", "store"]],
+  ["attractions", "outdoors", "Outdoor Kitchen Cabinets", ["furniture_store"]],
+  ["attractions", "outdoors", "National Outdoor Furniture", ["furniture_store", "store"]],
+  ["attractions", "outdoors", "SiteWorx Pools", ["general_contractor"]],
+  ["attractions", "outdoors", "Sunscape Pools & Screen Enclosures", []],
+  ["attractions", "outdoors", "Total Outdoor Care", []],
+  ["attractions", "outdoors", "Ecopro Outdoor Solutions", []],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -98,6 +106,9 @@ const MUST_PASS = [
   ["food", "all", "First Watch", ["restaurant", "breakfast_restaurant"]],
   ["nightlife", "all", "The Office Pub", ["bar", "pub"]],
   ["food", "all", "Buttermilk Handcrafted Food", ["restaurant"]],
+  ["attractions", "outdoors", "Emerson Point Preserve", ["park", "tourist_attraction"]],
+  ["attractions", "outdoors", "Riverwalk", ["park", "tourist_attraction"]],
+  ["attractions", "outdoors", "Robinson Preserve", ["park"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
