@@ -68,4 +68,13 @@ if (!guide.includes("Gabriel Pereira")) fail("guides lost their named attributio
 if (!guide.includes("How we rank")) fail("guides lost the ranking-methodology link");
 if (guide.includes("By the Wayfind editorial team")) fail("anonymous 'editorial team' byline resurfaced");
 
+// 7. destination hubs exist and the Sarasota culture page links to them
+//    instead of carrying every full town profile inline.
+const cultureLib = readFileSync(join(root, "lib", "culture.js"), "utf8");
+if (!cultureLib.includes("export const TOWN_HUBS")) fail("TOWN_HUBS missing from lib/culture.js");
+if (!existsSync(join(root, "app", "florida", "[town]", "page.js"))) fail("/florida/[town] destination hubs missing");
+if (!culture.includes('href={"/florida/" + TOWN_HUBS[k]}')) fail("culture pages no longer link town hubs — the oversized inline profiles are banned for hub towns");
+const smHubs = readFileSync(join(root, "app", "sitemap.js"), "utf8");
+if (!smHubs.includes("TOWN_HUBS")) fail("sitemap missing the /florida destination hubs");
+
 console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, sitemap clean");

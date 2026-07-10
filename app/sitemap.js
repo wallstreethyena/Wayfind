@@ -1,5 +1,6 @@
 // v4.16 — sitemap for the indexable SEO layer.
 import { GUIDES } from "../lib/guides";
+import { TOWN_HUBS } from "../lib/culture";
 import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
 import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
@@ -12,5 +13,7 @@ export default function sitemap() {
   const culture = Object.keys(CULTURE).map((m) => ({ url: `${SITE_URL}/culture/${m}`, lastModified: now }));
   // v5.02 — the SSR ranked landing pages: one per category per town.
   const landing = Object.keys(LANDING_CATS).flatMap((cat) => Object.keys(LANDING_CITIES).map((city) => ({ url: `${SITE_URL}/${cat}/${city}`, lastModified: now })));
-  return [...core, ...guides, ...culture, ...landing];
+  // v5.30 — Florida destination hubs.
+  const hubs = Object.values(TOWN_HUBS).map((slug) => ({ url: `${SITE_URL}/florida/${slug}`, lastModified: now }));
+  return [...core, ...guides, ...culture, ...landing, ...hubs];
 }

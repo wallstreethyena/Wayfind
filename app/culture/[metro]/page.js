@@ -2,7 +2,7 @@
 // cards render, served as real HTML so search engines can read it. These are
 // the trust-and-authority pages in the middleman structure: they earn links
 // and pass authority to the guides and the app through internal links.
-import { CULTURE, TOWN_PROFILES } from "../../../lib/culture";
+import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
@@ -80,7 +80,16 @@ export default async function CulturePage({ params }) {
           <>
             <h2 style={S.h2}>The towns around {c.title}</h2>
             <p style={S.story}>Honest, local profiles of the towns nearby — what each one actually is, and the one thing worth knowing.</p>
-            {towns.map(([k, t]) => (
+            {towns.map(([k, t]) => TOWN_HUBS[k] ? (
+              /* v5.30 — towns with a dedicated /florida hub get a short card
+                 here; the full profile lives on its own indexable page. */
+              <div key={k} style={{ margin: "14px 0 0", padding: "13px 16px", background: "#161B22", borderRadius: 12 }}>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", margin: 0 }}><a href={"/florida/" + TOWN_HUBS[k]} style={{ color: "#FFFFFF", textDecoration: "none" }}>{t.title}</a></h3>
+                <p style={{ fontSize: 13.5, color: "#8B949E", margin: "2px 0 6px" }}>{t.tag}</p>
+                <p style={{ fontSize: 14, color: "#E6EDF3", margin: "0 0 8px" }}><b style={{ color: "#F2C14E" }}>⭐ The one thing:</b> {t.one}</p>
+                <a href={"/florida/" + TOWN_HUBS[k]} style={{ fontSize: 13, fontWeight: 800, color: "#F97316", textDecoration: "none" }}>Full {t.title} guide ›</a>
+              </div>
+            ) : (
               <div key={k} style={{ margin: "18px 0 0", padding: "14px 16px", background: "#161B22", borderRadius: 12 }}>
                 <h3 style={{ fontSize: 18, fontWeight: 800, color: "#FFFFFF", margin: 0 }}>{t.title}</h3>
                 <p style={{ fontSize: 13.5, color: "#8B949E", margin: "2px 0 8px" }}>{t.tag}</p>
