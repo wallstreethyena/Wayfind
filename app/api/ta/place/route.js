@@ -60,7 +60,7 @@ const nameOf = (r) => { const l = unwrap(r); if (typeof l.name === "string") ret
 const idOf = (r) => { const l = unwrap(r); return (l.id ?? l.location_id) ?? null; };
 const coordsOf = (r) => { const c = unwrap(r).coordinates; if (!c) return null; const la = c.latitude ?? c.lat, lo = c.longitude ?? c.lng; return (la != null && lo != null) ? { lat: Number(la), lng: Number(lo) } : null; };
 const overallOf = (r) => { const l = unwrap(r); return l.overall_rating || l.overallRating || null; };
-const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_url; if (!u) return null; if (typeof u === "string") return u; if (Array.isArray(u)) { const f = u.find((x) => typeof x === "string" && x.startsWith("http")) || u.find((x) => x && typeof x.value === "string" && x.value.startsWith("http")); return typeof f === "string" ? f : (f && f.value) || null; } return u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; };
+const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_url; if (!u) return null; if (typeof u === "string") return u; if (Array.isArray(u)) { const f = u.find((x) => typeof x === "string" && x.startsWith("http")) || u.find((x) => x && typeof x.value === "string" && x.value.startsWith("http")); return typeof f === "string" ? f : (f && f.value) || null; } const v = u.main || u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; return typeof v === "string" ? v : null; };
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -71,7 +71,7 @@ export async function GET(req) {
   const lat = parseFloat(searchParams.get("lat")), lng = parseFloat(searchParams.get("lng"));
   const debug = searchParams.get("debug") === "1";
   if (!KEY || !q) return Response.json({});
-  const ck = "ta2|" + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
+  const ck = "ta3|" /* v5.16: ta2 entries hold pre-extractor-fix "none" results */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
   if (!debug) {
     const hit = await cacheGet(ck);
     if (hit) return Response.json(hit, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
