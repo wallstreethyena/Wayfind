@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.97";
+const BUILD_ID = "v4.98";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2975,7 +2975,6 @@ function PageInner() {
   const [expLoading, setExpLoading] = useState(false);
   const [expTours, setExpTours] = useState(null); // v4.84: Viator products for viator-flagged vibes (top-rated or hidden gems)
   const [browseTours, setBrowseTours] = useState(null); // v4.84: Viator products on the Things to do browse
-  const [expOpenOnly, setExpOpenOnly] = useState(false);
   const [expSort, setExpSort] = useState("rated");
   const [expMi, setExpMi] = useState(DEFAULT_RADIUS_MI); // v4.94: opens at the 17-mi app default like every other list; the adaptive effect below bumps it honestly when the vibe pulled from farther
   const [rolling, setRolling] = useState(false);
@@ -3510,7 +3509,6 @@ function PageInner() {
     if (REVENUE_EXP_KEYS.includes(key)) { openExpSheet(key); return; }
     setActiveBadge(key);
     setExpPlaces(null);
-    setExpOpenOnly(false);
     setExpSort("rated");
     setExpMi(DEFAULT_RADIUS_MI);
     setScreen("experience");
@@ -4213,15 +4211,29 @@ function PageInner() {
     const exp = EXPERIENCES[activeBadge];
     if (!exp) return;
     let cancelled = false;
+    // v4.98: an endless "Curating the best spots" is banned, as a rule.
+    // Three guarantees: (1) the FIRST round that returns anything paints
+    // immediately and kills the spinner — wider rounds refine the list in
+    // place instead of holding the whole page hostage; (2) a 12s watchdog
+    // force-clears the spinner no matter what a source does — the honest
+    // empty state is allowed, an infinite spinner is not; (3) a short
+    // debounce coalesces the startup location flip (IP city fix → GPS fix)
+    // so the full fan-out doesn't run twice back to back.
+    setExpLoading(true);
+    const _watch = setTimeout(() => { if (!cancelled) setExpLoading(false); }, 12000);
+    const _deb = setTimeout(() => {
     (async () => {
-      setExpLoading(true);
       try {
         // v4.85 adaptive: every vibe STARTS at the 17-mile default (or its
         // purpose-built wider radius, e.g. Bucket List) and auto-widens
-        // 30 → 45 → 60 while fewer than 8 places pass the vibe's filter.
-        // Sparse markets like Parrish fill honestly instead of showing
-        // "0 curated picks" — every card labels its true distance.
+        // while fewer than 8 places pass the vibe's filter. Sparse markets
+        // like Parrish fill honestly instead of showing "0 curated picks" —
+        // every card labels its true distance.
         const _vibePass = (p) => { const c = curatedFor(p); if (c && Array.isArray(c.intents) && c.intents.includes(activeBadge)) return true; return exp.filter ? exp.filter(p) : true; };
+        // v4.81: curated picks get the same +15 lift here that applyAffinity
+        // gives them, so they rank near the top instead of mid-list.
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
+        const _paint = (pool) => { if (cancelled || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
         let raw = [];
@@ -4236,6 +4248,7 @@ function PageInner() {
           } else {
             raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
           }
+          _paint(raw);
           if (raw.filter(_vibePass).length >= ADAPT_MIN) break;
         }
         // v4.81: guaranteed curated presence. Google's text search centered on a
@@ -4256,9 +4269,6 @@ function PageInner() {
             }
           }
         } catch (e) {}
-        // v4.81: curated picks get the same +15 lift here that applyAffinity
-        // gives them, so they rank near the top instead of mid-list.
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(_vibePass);
@@ -4286,10 +4296,12 @@ function PageInner() {
       } catch {
         if (!cancelled) setExpPlaces([]);
       } finally {
+        clearTimeout(_watch);
         if (!cancelled) setExpLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    }, 250);
+    return () => { cancelled = true; clearTimeout(_deb); clearTimeout(_watch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, center]);
 
@@ -6203,7 +6215,6 @@ function PageInner() {
         {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && (() => {
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
-          if (expOpenOnly) list = list.filter((p) => p.openNow !== false);
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
           else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
@@ -6229,15 +6240,14 @@ function PageInner() {
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
-              {/* v4.89: the legacy Best/Closest chip bar is gone — experience
-                  views use the same SortControl as every other list (Closest
-                  first / Top rated / Price + distance). Open now and the dice
-                  stay. No overflow scroll: the dropdown must not be clipped. */}
+              {/* v4.98 GLOBAL RULE (user direction): every list — browse,
+                  sheets, experiences — shows ONE control: the standard
+                  SortControl (Top rated default, 17-mi default radius). No
+                  extra chip bars, no "Open now" toggle, no dice chip on
+                  list views, here or anywhere else. */}
               {!expLoading && (expPlaces || []).length > 0 && (
                 <div style={{ display: "flex", gap: 7, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
                   <SortControl sortBy={expSort} onSort={setExpSort} mi={expMi} onMi={setExpMi} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={false} dealsOnly={false} onDeals={null} />
-                  <button onClick={() => setExpOpenOnly((o) => !o)} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "8px 13px", borderRadius: 999, border: `1.5px solid ${expOpenOnly ? C.green : C.border}`, background: expOpenOnly ? "rgba(34,197,94,.15)" : "transparent", color: expOpenOnly ? C.green : C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{expOpenOnly ? "✓ Open now" : "Open now"}</button>
-                  <button onClick={rollDice} style={{ flexShrink: 0, whiteSpace: "nowrap", padding: "8px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
                 </div>
               )}
               {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
@@ -6265,7 +6275,7 @@ function PageInner() {
               {!expLoading && list.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>{exp.icon}</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing matched within 30 miles</strong>
+                  <strong style={{ display: "block", color: C.light }}>Nothing matched within 60 miles</strong>
                   <span style={{ fontSize: 13 }}>Try a different experience or area.</span>
                 </div>
               )}
