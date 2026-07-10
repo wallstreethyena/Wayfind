@@ -42,6 +42,14 @@ const MUST_BLOCK = [
   ["attractions", "all", "Precision Auto Repair", ["car_repair"]],
   ["attractions", "museums", "Ellenton Premium Outlets", ["shopping_mall"]], // right category, wrong sub
   [null, null, "Sunshine Hair Studio & Barber", []],           // blocklist applies even with no category
+  // v4.95 — the exact live offender from the user's screenshot: "Eye Glasses"
+  // as TWO words slipped the one-word "eyeglass" pattern and ranked #1 in Food.
+  ["food", "all", "America's Best Contacts & Eye Glasses", ["store", "health"]],
+  ["food", "all", "America's Best Contacts & Eye Glasses", []],
+  ["food", "all", "Parrish Tire & Auto Repair", []],
+  ["nightlife", "all", "SecureSpace Self Storage", []],
+  ["hotels", "all", "Coastal Vision Center", []],
+  ["shopping", "all", "Elite Movers of Bradenton", []],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -64,6 +72,14 @@ const MUST_PASS = [
   ["food", "all", "Star Fish Company", ["restaurant", "seafood"]],
   ["nightlife", "all", "The Gator Club", ["night_club", "bar"]],
   [null, null, "Detwiler's Farm Market", ["grocery_store"]],
+  // v4.95 — category allowlists must not kill the real stuff.
+  ["food", "all", "Good Liquid Brewing - Parrish Creekside Commons", ["bar", "brewery"]],
+  ["food", "all", "Toasted Mango Cafe", ["cafe", "restaurant"]],
+  ["food", "breakfast", "La Croisette", ["restaurant", "breakfast_restaurant"]],
+  ["nightlife", "all", "Pangea Alchemy Lab", ["bar", "lounge"]],
+  ["hotels", "all", "The Westin Sarasota", ["lodging", "hotel"]],
+  ["shopping", "all", "Ellenton Premium Outlets", ["shopping_mall"]],
+  ["shopping", "all", "Detwiler's Farm Market", ["grocery_store", "market"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
