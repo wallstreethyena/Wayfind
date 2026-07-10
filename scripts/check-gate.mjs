@@ -50,6 +50,17 @@ const MUST_BLOCK = [
   ["nightlife", "all", "SecureSpace Self Storage", []],
   ["hotels", "all", "Coastal Vision Center", []],
   ["shopping", "all", "Elite Movers of Bradenton", []],
+  // v4.96 — the "names lie" class from the live audit: "best …" queries
+  // keyword-match businesses NAMED Best, and "best breakfast" matches
+  // Bed & Breakfast LODGINGS. Types veto; names can't qualify.
+  ["food", "all", "Best Metal Recycling", []],
+  ["food", "all", "Best Aunt Ever Office", ["point_of_interest"]],
+  ["attractions", "all", "Best Aunt Ever Office", []],
+  ["food", "breakfast", "Southern Comfort Bed and Breakfast", ["lodging", "bed_and_breakfast"]],
+  ["food", "all", "Southern Comfort Bed and Breakfast", ["lodging", "bed_and_breakfast"]],
+  ["food", "all", "Jimmy Dean Bed and Breakfast", ["lodging"]],
+  ["food", "breakfast", "Jimmy Dean Bed and Breakfast", []],
+  ["shopping", "all", "Best Metal Recycling", ["recycling_center"]],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -80,6 +91,13 @@ const MUST_PASS = [
   ["hotels", "all", "The Westin Sarasota", ["lodging", "hotel"]],
   ["shopping", "all", "Ellenton Premium Outlets", ["shopping_mall"]],
   ["shopping", "all", "Detwiler's Farm Market", ["grocery_store", "market"]],
+  // v4.96 — the flip side: the same B&B IS a legit Stay, and real breakfast
+  // restaurants must keep passing the food gate under types-first judgment.
+  ["hotels", "all", "Southern Comfort Bed and Breakfast", ["lodging", "bed_and_breakfast"]],
+  ["food", "breakfast", "The Breakfast House", ["restaurant", "breakfast_restaurant"]],
+  ["food", "all", "First Watch", ["restaurant", "breakfast_restaurant"]],
+  ["nightlife", "all", "The Office Pub", ["bar", "pub"]],
+  ["food", "all", "Buttermilk Handcrafted Food", ["restaurant"]],
 ];
 for (const [cat, sub, name, types] of MUST_PASS) {
   if (!placeAllowed(cat, sub, { name, types })) fail(`legit place wrongly killed: [${cat}:${sub}] ${name}`);
