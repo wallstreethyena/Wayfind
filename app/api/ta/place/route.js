@@ -71,11 +71,11 @@ export async function GET(req) {
     const s2 = sb();
     if (!s2) return Response.json({ error: "no cache backend" });
     const H2 = { apikey: s2.key, Authorization: `Bearer ${s2.key}`, Prefer: "count=exact", Range: "0-0" };
-    const cnt = async (extra) => { try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta5%7C*${extra}&select=k`, { headers: H2, cache: "no-store" }); const cr = r.headers.get("content-range") || ""; return cr.includes("/") ? parseInt(cr.split("/")[1], 10) : null; } catch { return null; } };
+    const cnt = async (extra) => { try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta6%7C*${extra}&select=k`, { headers: H2, cache: "no-store" }); const cr = r.headers.get("content-range") || ""; return cr.includes("/") ? parseInt(cr.split("/")[1], 10) : null; } catch { return null; } };
     const total = await cnt("");
     const withRating = await cnt("&v-%3E%3Erating=not.is.null");
     let sample = [];
-    try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta5%7C*&v-%3E%3Erating=not.is.null&select=v&limit=15`, { headers: { apikey: s2.key, Authorization: `Bearer ${s2.key}` }, cache: "no-store" }); if (r.ok) sample = (await r.json()).map((x) => x.v && { name: x.v.name, rating: x.v.rating, reviews: x.v.reviews }).filter(Boolean); } catch (e) {}
+    try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta6%7C*&v-%3E%3Erating=not.is.null&select=v&limit=15`, { headers: { apikey: s2.key, Authorization: `Bearer ${s2.key}` }, cache: "no-store" }); if (r.ok) sample = (await r.json()).map((x) => x.v && { name: x.v.name, rating: x.v.rating, reviews: x.v.reviews }).filter(Boolean); } catch (e) {}
     return Response.json({ lookedUp: total, enriched: withRating, unmatched: total != null && withRating != null ? total - withRating : null, sample });
   }
   const KEY = getKey();
@@ -84,19 +84,24 @@ export async function GET(req) {
   const lat = parseFloat(searchParams.get("lat")), lng = parseFloat(searchParams.get("lng"));
   const debug = searchParams.get("debug") === "1";
   if (!KEY || !q) return Response.json({});
-  const ck = "ta5|" /* v5.19: ta4 predates tiered matching */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
+  const ck = "ta6|" /* v5.21: ta5 predates the short-name retry */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
   if (!debug) {
     const hit = await cacheGet(ck);
     if (hit) return Response.json(hit, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
   }
   const H = { Accept: "application/json", "X-API-KEY": KEY };
   try {
-    const sp = new URLSearchParams({ query: q, size: "20" });
-    if (city) sp.set("geo_name", city);
-    const sr = await fetch(`${BASE}/catalog/locations/search?` + sp.toString(), { headers: H });
-    if (!sr.ok) { const t = await sr.text().catch(() => ""); return Response.json(debug ? { step: "search", upstream: sr.status, detail: t.slice(0, 300) } : {}); }
-    const sd = await sr.json();
-    const list = (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []);
+    const doSearch = async (query) => {
+      const sp = new URLSearchParams({ query, size: "20" });
+      if (city) sp.set("geo_name", city);
+      const sr = await fetch(`${BASE}/catalog/locations/search?` + sp.toString(), { headers: H });
+      if (!sr.ok) return { err: sr };
+      const sd = await sr.json();
+      return { list: (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []) };
+    };
+    let res = await doSearch(q);
+    if (res.err) { const t = await res.err.text().catch(() => ""); return Response.json(debug ? { step: "search", upstream: res.err.status, detail: t.slice(0, 300) } : {}); }
+    let list = res.list;
     const qn = _nn(q);
     // Match tiers: exact name, then containment, then all-tokens-present.
     // Tier ALWAYS outranks distance — "Siesta Beach" must resolve to the
@@ -105,6 +110,17 @@ export async function GET(req) {
     const qTokens = q.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
     const tierOf = (r) => { const rn = _nn(nameOf(r)); if (!rn) return 9; if (rn === qn) return 0; if ((qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))) return 1; if (qTokens.length >= 2 && qTokens.every((t) => rn.includes(t))) return 2; return 9; };
     let scored = list.map((r) => ({ r, tier: tierOf(r), c: coordsOf(r) })).filter((x) => x.tier < 9);
+    // Google names are often longer than Tripadvisor's ("WOODY'S RIVER ROO
+    // PUB, GRILL & TIKI BAR" vs "Woody's River Roo Pub & Grill") and TA's
+    // search can whiff on the long form. One retry with the first three
+    // meaningful tokens; the same tier matching still guards the result.
+    if (!scored.length) {
+      const short = q.toLowerCase().split(/[^a-z0-9']+/).filter((t) => t.length >= 2).slice(0, 3).join(" ");
+      if (short && _nn(short) !== qn) {
+        const r2 = await doSearch(short);
+        if (!r2.err && r2.list.length) { list = r2.list; scored = list.map((r) => ({ r, tier: tierOf(r), c: coordsOf(r) })).filter((x) => x.tier < 9); }
+      }
+    }
     if (isFinite(lat) && isFinite(lng)) scored = scored.filter((x) => !x.c || distKm(lat, lng, x.c.lat, x.c.lng) <= 80);
     scored.sort((a, b) => (a.tier - b.tier) || ((a.c && isFinite(lat) ? distKm(lat, lng, a.c.lat, a.c.lng) : 999) - (b.c && isFinite(lat) ? distKm(lat, lng, b.c.lat, b.c.lng) : 999)));
     const best = scored.length ? scored[0].r : null;
