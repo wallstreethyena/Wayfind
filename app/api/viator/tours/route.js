@@ -15,12 +15,17 @@ const TTL = 6 * 3600 * 1000;
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
+  // v4.94: optional region tokens — when a place's tour list is fetched, only
+  // products whose title/URL mention the user's city or metro survive, so a
+  // Florida place can never show Los Angeles tours. The vibe rails query by
+  // metro name and pass no region (the query itself is the region).
+  const regionTokens = String(searchParams.get("region") || "").toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
   // v4.84: cap raised 6 -> 20 so the vibe rails can rank top-rated and
   // hidden-gem products client-side from a real pool, not a 6-item sliver.
   const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), 20);
   if (!q) return Response.json({ items: [] });
 
-  const ck = q.toLowerCase() + "|" + count;
+  const ck = q.toLowerCase() + "|" + count + "|" + regionTokens.join("+");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) {
     return Response.json({ items: hit.items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
@@ -52,6 +57,7 @@ export async function GET(req) {
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
     const items = results
       .filter((r) => r && r.productUrl && r.title)
+      .filter((r) => { if (!regionTokens.length) return true; const hay = (r.title + " " + r.productUrl).toLowerCase().replace(/[-_]/g, " "); return regionTokens.some((t) => hay.includes(t)); })
       .map((r) => ({
         code: r.productCode || "",
         title: String(r.title).slice(0, 140),

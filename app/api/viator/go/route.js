@@ -23,8 +23,22 @@ function searchFallback(q) {
     : `https://www.viator.com/searchResults/all?text=${t}`;
 }
 
-async function resolveProduct(q) {
-  const hit = mem.get(q);
+// v4.94 — GEOGRAPHIC VALIDATION (the "Explore Los Angeles" fix). Freetext
+// search is keyword-based: a Florida fossil attraction resolved to an LA tour
+// literally named "The Fast & The Fossilized". A resolved product now must
+// match the user's region tokens (city + metro words, e.g. "ruskin,tampa
+// bay") in its title or destination URL; no match → the tracked SEARCH page,
+// which shows honest options instead of teleporting the user to LA.
+function regionOk(r, tokens) {
+  if (!tokens.length) return true;
+  const hay = ((r.title || "") + " " + (r.productUrl || "")).toLowerCase().replace(/[-_]/g, " ");
+  return tokens.some((t) => hay.includes(t));
+}
+function regionTokens(region) {
+  return String(region || "").toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
+}
+async function resolveProduct(q, tokens) {
+  const hit = mem.get(q + "|" + tokens.join("+"));
   if (hit && hit.exp > Date.now()) return hit.url;
   const KEY = getKey();
   if (!KEY) return null;
@@ -49,10 +63,10 @@ async function resolveProduct(q) {
     if (!res.ok) return null;
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
-    const best = results.find((r) => r && r.productUrl);
+    const best = results.find((r) => r && r.productUrl && regionOk(r, tokens));
     if (!best) return null;
     // productUrl from the affiliate API carries partner attribution already.
-    mem.set(q, { url: best.productUrl, exp: Date.now() + TTL });
+    mem.set(q + "|" + tokens.join("+"), { url: best.productUrl, exp: Date.now() + TTL });
     return best.productUrl;
   } catch (e) {
     return null;
@@ -79,7 +93,8 @@ export async function GET(req) {
   const city = (searchParams.get("city") || "").trim().slice(0, 60);
   if (!q) return Response.redirect("https://www.viator.com", 302);
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
-  const url = (await resolveProduct(term)) || searchFallback(term);
+  const tokens = regionTokens(searchParams.get("region") || city);
+  const url = (await resolveProduct(term, tokens)) || searchFallback(term);
   return new Response(null, {
     status: 302,
     headers: {
