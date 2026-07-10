@@ -68,6 +68,12 @@ if (!guide.includes("Gabriel Pereira")) fail("guides lost their named attributio
 if (!guide.includes("How we rank")) fail("guides lost the ranking-methodology link");
 if (guide.includes("By the Wayfind editorial team")) fail("anonymous 'editorial team' byline resurfaced");
 
+// 6b. the landing search is cache-first with stale-if-error — a Google
+//     quota blip must never prerender the landing pages without their lists.
+const landingLib = readFileSync(join(root, "lib", "landing.js"), "utf8");
+if (!landingLib.includes("wf_places_cache")) fail("landing search lost its durable cache — builds would burn Google quota and 429s would empty every landing list");
+if (!landingLib.includes("serve stale")) fail("landing search lost stale-if-error");
+
 // 7. destination hubs exist and the Sarasota culture page links to them
 //    instead of carrying every full town profile inline.
 const cultureLib = readFileSync(join(root, "lib", "culture.js"), "utf8");
