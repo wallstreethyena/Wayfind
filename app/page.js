@@ -1,6 +1,6 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -25,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.99";
+const BUILD_ID = "v5.00";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
