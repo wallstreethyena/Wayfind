@@ -2,7 +2,7 @@
 // products have been confirmed by the Viator fetch, and must route through
 // the exact-product resolver, never a bare search page.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-cta: FAIL — " + m); process.exit(1); };
 if (!s.includes("_hasTours && Aff.ticketsUrl(detail)")) fail("tickets CTA no longer gated on confirmed products");
 if (!s.includes('"/api/viator/go?q="')) fail("tickets CTA not routed through exact-product resolver");

@@ -18,7 +18,7 @@ if (bk2.places.length !== 2) fail("unknown-distance place was dropped");
 if (strongWithin([P(5), P(5, 4.0), P(5, 4.8, 20), P(15)], 10) !== 1) fail("quality floor wrong");
 
 // Wiring: composites must use the honest path.
-const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!page.includes("Radius.strongWithin(out, 10) < 10")) fail("thin-market detection missing from composites");
 if (!page.includes("Radius.bucketize(out, town)")) fail("radius sections missing from composites");
 if (!page.includes("smaller market")) fail("honest small-market copy missing");

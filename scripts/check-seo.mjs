@@ -45,7 +45,7 @@ if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search in
 if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missing");
 
 // 3. app shell: nav anchors + go-param handoff survive.
-const page = readFileSync(join(root, "app", "page.js"), "utf8");
+const page = readFileSync(join(root, "app", "home.js"), "utf8");
 if (!page.includes('href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id]')) fail("bottom nav anchors missing hrefs");
 if (!page.includes('get("go")')) fail("go-param handoff missing");
 
@@ -82,5 +82,16 @@ if (!existsSync(join(root, "app", "florida", "[town]", "page.js"))) fail("/flori
 if (!culture.includes('href={"/florida/" + TOWN_HUBS[k]}')) fail("culture pages no longer link town hubs — the oversized inline profiles are banned for hub towns");
 const smHubs = readFileSync(join(root, "app", "sitemap.js"), "utf8");
 if (!smHubs.includes("TOWN_HUBS")) fail("sitemap missing the /florida destination hubs");
+
+// 8. homepage decision proof (audit #2): the route is a server wrapper that
+//    renders real ranked recommendations into the initial HTML, and the
+//    loading state explains its inputs instead of "Reading the moment".
+const homeRoute = readFileSync(join(root, "app", "page.js"), "utf8");
+if (!homeRoute.includes("HomeProof") || !homeRoute.includes("rankedFor(")) fail("homepage lost its server-rendered recommendation proof");
+if (!page.startsWith('"use client"')) fail("app/home.js must stay the client app shell");
+if (page.includes("Reading the moment")) fail('"Reading the moment" resurfaced — loading copy must state the moment and the factors');
+if (!page.includes("Finding the best options for")) fail("contextual loading copy missing");
+if (!page.includes("ranked by real reviews, not ads")) fail("loading factors sub-line missing");
+if (!lay.includes("decides what\u2019s actually worth your time") && !lay.includes("decides what's actually worth your time")) fail("decision-language value proposition missing from layout");
 
 console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, sitemap clean");
