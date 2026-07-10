@@ -8,8 +8,6 @@ import { searchPlaces } from "../lib/sources";
 import { placeAllowed } from "../lib/placeFilter";
 import { COUPONS } from "../lib/coupons";
 import { HOOK_BANK, pickHook } from "../lib/hooks";
-// v5.27: the Wayfind Compass — the blended cross-platform score identity.
-import { compassScore, COMPASS_TIERS } from "../lib/compass";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -29,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.27";
+const BUILD_ID = "v5.28";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2979,7 +2977,6 @@ function PageInner() {
   const [dealsOnly, setDealsOnly] = useState(false);
   const [lightbox, setLightbox] = useState(null);
   const [reviewsOpen, setReviewsOpen] = useState(false);
-  const [compassOpen, setCompassOpen] = useState(false); // v5.27: Compass receipts sheet
   const [hoursOpen, setHoursOpen] = useState(false);
   const [venueEvents, setVenueEvents] = useState(null);
   const [venueEventsLoading, setVenueEventsLoading] = useState(false);
@@ -7054,13 +7051,7 @@ function PageInner() {
               )}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
-                {(() => { const cs = compassScore(detail, taInfo[detail.id]); if (!cs) return null; const tr = cs.tier ? COMPASS_TIERS[cs.tier] : null; return (
-                  <span onClick={() => { setCompassOpen(true); try { logEvent("compass_receipts", detail, { tier: cs.tier || "none", s: cs.s10 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: tr ? tr.color : C.accent, fontWeight: 800, background: tr ? tr.bg : "transparent", border: tr ? `1px solid ${tr.color}55` : "none", borderRadius: 999, padding: tr ? "3px 10px" : 0 }}>
-                    <CompassIcon size={14} color={tr ? tr.color : C.accent} />{cs.s10.toFixed(1)}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}>/ 10</span>
-                    {cs.tier === "truenorth" && <span style={{ fontSize: 9, fontWeight: 900, letterSpacing: ".6px" }}>TRUE NORTH</span>}
-                    <span style={{ fontSize: 8.5, opacity: .75 }}>▼</span>
-                  </span>
-                ); })()}
+                {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.accent, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
                 {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
                 {detail.rating != null && (<>
                   <span style={{ color: C.border }}>·</span>
@@ -8325,34 +8316,6 @@ function PageInner() {
           </div>
         </div>
       )}
-      {/* v5.27 — Compass receipts: the only score in the game that shows its
-          math. Every platform's native rating as plain text, no links leaking
-          the user out; attribution lives small at the bottom of the sheet. */}
-      {compassOpen && detail && (
-        <div style={{ ...sheetBg, zIndex: 960 }} onClick={() => setCompassOpen(false)}>
-          <div style={{ ...sheet, padding: "22px 20px calc(28px + env(safe-area-inset-bottom))" }} onClick={(e) => e.stopPropagation()}>
-            {(() => { const cs = compassScore(detail, taInfo[detail.id]); if (!cs) return null; const tr = cs.tier ? COMPASS_TIERS[cs.tier] : null; return (<>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
-                <CompassIcon size={34} color={tr ? tr.color : C.accent} />
-                <div>
-                  <div style={{ fontSize: 26, fontWeight: 800, color: tr ? tr.color : C.text, lineHeight: 1 }}>{cs.s10.toFixed(1)}<span style={{ fontSize: 13, color: C.muted, fontWeight: 700 }}> / 10</span></div>
-                  <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: ".6px", textTransform: "uppercase", color: tr ? tr.color : C.muted, marginTop: 3 }}>{tr ? tr.name : "Wayfind Compass"}</div>
-                </div>
-              </div>
-              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.55, margin: "10px 0 14px" }}>
-                The Wayfind Compass blends the platforms below, weighted by how many people actually rated — small samples get pulled toward the average, so a handful of perfect reviews can't fake a great score.{cs.tier === "truenorth" ? " True North is Wayfind's highest certification: 9.3+, 500+ reviews, and at least two platforms agreeing." : ""}
-              </div>
-              {cs.sources.map((src) => (
-                <div key={src.key} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "11px 2px", borderTop: `1px solid ${C.border}` }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{src.label}</span>
-                  <span style={{ fontSize: 13.5, fontWeight: 800, color: C.light }}>{src.native}{src.reviews ? <span style={{ color: C.muted, fontWeight: 600 }}> · {src.reviews.toLocaleString()} ratings</span> : null}</span>
-                </div>
-              ))}
-              <div style={{ fontSize: 10.5, color: C.muted, marginTop: 14, lineHeight: 1.5 }}>Ratings are shown as reported by their respective platforms. No ads, no paid placement — the Compass can't be bought.</div>
-            </>); })()}
-          </div>
-        </div>
-      )}
       {recoveryOpen && (
         <div style={sheetBg} onClick={() => setRecoveryOpen(false)}>
           <div style={{ ...sheet, padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
@@ -8495,18 +8458,6 @@ function ViatorRail({ title, items, theme }) {
   );
 }
 
-// v5.27 — the compass rose IS the score identity: the icon's color announces
-// the verdict (gold True North / emerald Standout / slate Solid) before
-// anyone reads the number.
-function CompassIcon({ size = 14, color = "#A8B3C5" }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ flexShrink: 0, display: "block" }}>
-      <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.8" />
-      <path d="M12 3.2 L14.1 9.9 L20.8 12 L14.1 14.1 L12 20.8 L9.9 14.1 L3.2 12 L9.9 9.9 Z" fill={color} />
-    </svg>
-  );
-}
-
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -8554,12 +8505,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               const canTap = !!(showCuisine && onCuisineTap);
               return <span onClick={canTap ? (e) => { e.stopPropagation(); onCuisineTap(cz, p); } : undefined} style={{ fontSize: 12, fontWeight: 800, color: canTap ? C.accent : (CAT_LABEL_COLOR[pcat] || C.light), cursor: canTap ? "pointer" : "inherit", textDecoration: canTap ? "underline" : "none", textUnderlineOffset: 3, textDecorationThickness: canTap ? "1.5px" : undefined }}>{primary}{canTap ? " ›" : ""}</span>;
             })()}
-            {(() => { const cs = compassScore(p); if (!cs) return null; const tr = cs.tier ? COMPASS_TIERS[cs.tier] : null; return (
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: tr ? tr.bg : "transparent", color: tr ? tr.color : C.light, fontWeight: 800, fontSize: 13.5, padding: "2px 9px", borderRadius: 999, border: `1px solid ${tr ? tr.color + "55" : C.border}` }}>
-                <CompassIcon size={13} color={tr ? tr.color : C.light} />{cs.s10.toFixed(1)}
-                {cs.tier === "truenorth" && <span style={{ fontSize: 8.5, fontWeight: 900, letterSpacing: ".55px" }}>TRUE NORTH</span>}
-              </span>
-            ); })()}
+            {p.rating && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: p.rating >= 4.5 ? C.green : p.rating >= 4.0 ? "#3F8F4E" : C.card, color: p.rating >= 4.0 ? "#0D1117" : C.light, fontWeight: 800, fontSize: 14, padding: "2px 8px", borderRadius: 8 }}>★ {p.rating}</span>}
             {p.reviews > 0 && (() => { const cf = confidenceOf(p.reviews); return (
               <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 12, color: C.muted }}>
                 {cf && <span style={{ width: 7, height: 7, borderRadius: "50%", background: cf.color, flexShrink: 0 }} />}
