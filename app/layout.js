@@ -75,7 +75,7 @@ export default function RootLayout({ children }) {
         <Script id="wf-jsonld" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Find great things to do near you, right now." }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png" }] }) }} />
         <footer style={{ background: "#0D1117", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
-            <h1 style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</h1>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
             <p style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind ranks the best restaurants, bars, beaches, attractions, family activities, live events, and hidden gems around your location, with real reviews, deals, and bookable tours. Built in Florida, works anywhere.</p>
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
@@ -104,6 +104,9 @@ export default function RootLayout({ children }) {
                 <a href="/map" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Map view</a>
                 <a href="/terms" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Terms</a>
                 <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
+                <a href="/about" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>About</a>
+                <a href="/editorial-policy" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Editorial policy</a>
+                <a href="/how-wayfind-ranks" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>How we rank</a>
               </div>
             </nav>
             <p style={{ fontSize: 11, color: "#475569", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>

@@ -18,6 +18,7 @@ export async function generateMetadata({ params, searchParams }) {
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (hk) og += "&hk=" + encodeURIComponent(hk);
   return {
+    robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE),
     title: t + " \u2014 Wayfind",
     description: desc,

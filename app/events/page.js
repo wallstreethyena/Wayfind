@@ -1,5 +1,7 @@
 import GoScreen from "../components/GoScreen";
-export const metadata = { title: "Events near you · Wayfind", description: "Live events, concerts, games, and things happening near you tonight and this weekend, ranked by Wayfind." };
+// Noindexed until this page carries real crawlable inventory (SEO audit
+// July 2026): a heading plus claims with no listings is a thin page.
+export const metadata = { title: "Events near you · Wayfind", description: "Live events, concerts, games, and things happening near you tonight and this weekend, ranked by Wayfind.", robots: { index: false, follow: true }, alternates: { canonical: "https://www.gowayfind.com/events" } };
 export default function Page() {
   return (
     <div style={{ background: "#0D1117", minHeight: "60vh", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "48px 24px", textAlign: "center" }}>

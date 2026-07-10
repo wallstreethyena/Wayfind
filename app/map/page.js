@@ -1,5 +1,7 @@
 import GoScreen from "../components/GoScreen";
-export const metadata = { title: "Map · Wayfind", description: "Every top-rated place near you on one map: food, attractions, beaches, nightlife, and events." };
+// Noindexed until this page carries real crawlable inventory (SEO audit
+// July 2026): a heading plus claims with no listings is a thin page.
+export const metadata = { title: "Map · Wayfind", description: "Every top-rated place near you on one map: food, attractions, beaches, nightlife, and events.", robots: { index: false, follow: true }, alternates: { canonical: "https://www.gowayfind.com/map" } };
 export default function Page() {
   return (
     <div style={{ background: "#0D1117", minHeight: "60vh", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "48px 24px", textAlign: "center" }}>

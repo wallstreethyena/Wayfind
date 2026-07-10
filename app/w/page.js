@@ -20,6 +20,7 @@ export async function generateMetadata({ searchParams }) {
   if (cond) og += "&cond=" + encodeURIComponent(cond);
   if (take) og += "&take=" + encodeURIComponent(take);
   return {
+    robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE),
     title: title + " \u00b7 Wayfind",
     description: desc,

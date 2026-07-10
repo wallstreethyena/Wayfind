@@ -1,4 +1,4 @@
-export const metadata = { title: "Privacy & Disclosures - Wayfind" };
+export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures - Wayfind" };
 
 const S = {
   page: { background: "#0D1117", color: "#E6EDF3", minHeight: "100vh", padding: "40px 20px 80px", fontFamily: "system-ui, -apple-system, sans-serif" },
