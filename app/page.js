@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.21";
+const BUILD_ID = "v5.22";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -975,6 +975,22 @@ const EXPERIENCES = {
     ? [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "karaoke" }, { cat: "nightlife", keyword: "night club dance" }, { cat: "attractions", keyword: "live music concert venue" }, { cat: "nightlife", keyword: "comedy club" }, { cat: "attractions", keyword: "bowling arcade games group fun" }, { cat: "food", keyword: "brewery beer garden" }]
     : [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "fun group activities adventure" }, { cat: "attractions", keyword: "mini golf go-kart bowling arcade" }, { cat: "food", keyword: "food truck park brewery beer garden" }, { cat: "nightlife", keyword: "karaoke bar" }, { cat: "attractions", keyword: "live music venue" }]; },
     filter: (p) => (p.rating || 0) >= 4.2 },
+  // v5.22 — "Right place, right moment" mood vibes. mood:true marks them for
+  // the Perfect-right-now LLM reasoning layer; filtering stays 100% in the
+  // structured engine (junk gate, quality floor, open-now, distance).
+  datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: true, queries: () => { const h = new Date().getHours(); const eve = h >= 15 || h < 4; return eve
+    ? [{ cat: "food", keyword: "romantic dinner intimate" }, { cat: "nightlife", keyword: "wine bar cocktail lounge" }, { cat: "food", keyword: "waterfront dinner sunset views" }, { cat: "food", keyword: "date night restaurant" }, { cat: "attractions", keyword: "scenic sunset spot" }]
+    : [{ cat: "food", keyword: "romantic cafe brunch" }, { cat: "attractions", keyword: "botanical garden scenic walk" }, { cat: "food", keyword: "wine tasting winery" }, { cat: "food", keyword: "romantic restaurant" }]; },
+    filter: (p) => (p.rating || 0) >= 4.3 && !/fast_food|meal_takeaway|chicken_wings/.test(((p.types || []).join(" "))) },
+  nightout: { icon: "🍸", label: "Night Out", title: "Night Out", mood: true, lead: "Bars, live music, dance floors and late kitchens — where tonight actually happens.", queries: [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "live music" }, { cat: "nightlife", keyword: "craft cocktail bar" }, { cat: "nightlife", keyword: "dance club" }, { cat: "food", keyword: "late night eats" }], filter: (p) => (p.rating || 0) >= 4.2 },
+  eatnow: { icon: "🍽️", label: "Where to Eat", title: "Where to Eat Right Now", mood: true, lead: "The best food for this exact hour, ranked honestly — no ads, no paid placement.", queries: () => { const h = new Date().getHours(); const wknd = [0, 6].includes(new Date().getDay());
+    if (h < 11) return wknd ? [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }] : [{ cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }, { cat: "food", keyword: "brunch" }];
+    if (h < 15) return [{ cat: "food", keyword: "lunch" }, { cat: "food", keyword: "" }, { cat: "food", keyword: "quick casual eats" }];
+    if (h < 21) return [{ cat: "food", keyword: "dinner" }, { cat: "food", keyword: "" }, { cat: "food", keyword: "seafood steak" }];
+    return [{ cat: "food", keyword: "late night food" }, { cat: "nightlife", keyword: "kitchen open late bar food" }, { cat: "food", keyword: "" }]; },
+    filter: (p) => (p.rating || 0) >= 4.2 },
+  cozyindoor: { icon: "🌧️", label: "Cozy Indoor", title: "Cozy Indoor Day", mood: true, lead: "Rain-proof plans: museums, cafés, aquariums, arcades and indoor fun.", queries: [{ cat: "attractions", keyword: "museum" }, { cat: "food", keyword: "cozy cafe coffee" }, { cat: "attractions", keyword: "aquarium" }, { cat: "attractions", keyword: "bowling arcade indoor fun" }, { cat: "attractions", keyword: "art gallery" }, { cat: "shopping", keyword: "indoor shopping mall" }], filter: (p) => { const t = (p.types || []).join(" "); if (/beach|natural_feature|trail|marina|pier|campground/.test(t) && !/museum|aquarium|gallery|bowling|arcade|mall|cafe|movie/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
+  brunch: { icon: "🥞", label: "Brunch", title: "Weekend Brunch", mood: true, lead: "Weekend-morning worthy: brunch plates, pastries and patio coffee.", queries: [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery pastries coffee" }], filter: (p) => (p.rating || 0) >= 4.3 },
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
@@ -3897,6 +3913,22 @@ function PageInner() {
     else handleHookAction(h);
   }
 
+  // v5.22 — Insider intel per place: cache-first server content (generated
+  // once per place per month). Fetched only when a detail sheet opens; any
+  // failure and the card simply doesn't render.
+  const [insider, setInsider] = useState({});
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event || insider[detail.id]) return;
+    let cancelled = false;
+    const _c = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
+    fetch("/api/insider?id=" + encodeURIComponent(detail.id) + "&name=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent(_c) + "&type=" + encodeURIComponent(detail.type || "") + (detail.rating != null ? "&rating=" + detail.rating : "") + "&reviews=" + (detail.reviews || 0) + (detail.price ? "&price=" + encodeURIComponent(detail.price) : ""))
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: d && (d.tip || d.special) ? d : { none: true } })); })
+      .catch(() => { if (!cancelled) setInsider((m) => ({ ...m, [detail.id]: { none: true } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+
   // v5.10: Tripadvisor enrichment — a second independent trust signal on the
   // detail sheet (rating + review count + link out). Server route caches 10
   // days per place, so repeat opens cost no API quota. Fail-soft: no key or
@@ -3914,6 +3946,32 @@ function PageInner() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail && detail.id]);
+
+  // v5.22 — "Perfect right now": for mood vibes only, once the structured
+  // engine has produced the gated, ranked, open-now candidates, ask the
+  // server route (cache-first Haiku) to pick 3-5 for THIS moment with one
+  // grounded why-line each. Strictly additive and fail-soft: any error or
+  // slowness and the normal list stands alone — the page never waits.
+  const [momentPicks, setMomentPicks] = useState(null);
+  useEffect(() => {
+    const exp = EXPERIENCES[activeBadge];
+    if (screen !== "experience" || !exp || !exp.mood || !Array.isArray(expPlaces) || expPlaces.length < 3) { setMomentPicks(null); return; }
+    let cancelled = false;
+    const _h = new Date().getHours(); const _d = new Date().getDay();
+    const tb = ["sun","mon","tue","wed","thu","fri","sat"][_d] + "-" + (_h < 6 ? "latenight" : _h < 11 ? "morning" : _h < 15 ? "midday" : _h < 18 ? "afternoon" : _h < 22 ? "evening" : "night");
+    const wx = weather ? ((weather.img || "na") + "-" + (weather.temp != null ? Math.round(weather.temp / 5) * 5 : "na")) : "na";
+    const cands = expPlaces.filter((p) => p && p.openNow !== false).slice(0, 12).map((p) => ({ id: p.id, name: p.name, type: p.type || "", rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow !== false, price: p.price || "" }));
+    if (cands.length < 3) { setMomentPicks(null); return; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 7000);
+    fetch("/api/moment/picks", { method: "POST", signal: ctrl.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ intent: activeBadge, tb, wx, city: locName ? locName.split(",")[0] : "", candidates: cands }) })
+      .then((r) => (r.ok ? r.json() : { picks: [] }))
+      .then((d) => { if (!cancelled) setMomentPicks(Array.isArray(d.picks) && d.picks.length ? { badge: activeBadge, picks: d.picks } : null); })
+      .catch(() => { if (!cancelled) setMomentPicks(null); })
+      .finally(() => clearTimeout(timer));
+    return () => { cancelled = true; clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, activeBadge, expPlaces]);
 
   // v4.51: real Viator tour listings on attraction detail pages. Uses the
   // place's own city (from its address) so an Orlando attraction viewed from
@@ -5331,13 +5389,33 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
             <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
           </div>
-          <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingTop: 10, paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-            {HOME_CHIPS.map((k) => { const e = EXPERIENCES[k]; if (!e) return null; return (
-              <button key={k} onClick={() => openExperience(k)} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 13px", borderRadius: 999, border: `1.5px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                <span>{e.icon}</span><span>{cityFix(e.label)}</span>
-              </button>
-            ); })}
-          </div>
+          {/* v5.22 — "Right place, right moment" mood row. Adaptive, never
+              static: Outside swaps to Cozy Indoor in rain/extremes, evenings
+              lead with Date Night + Night Out, weekend mornings surface
+              Brunch. Tiles use the one modern menu style (icon on top). */}
+          {(() => {
+            const _h = new Date().getHours(); const _d = new Date().getDay();
+            const _eve = _h >= 16 || _h < 4;
+            const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
+            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (weather.temp != null && (weather.temp >= 99 || weather.temp <= 40))));
+            const outsideKey = _bad ? "cozyindoor" : "outdoors";
+            const eatKey = _wkndMorn ? "brunch" : "eatnow";
+            const MOOD_LBL = { outdoors: ["☀️", "Outside"], cozyindoor: ["🌧️", "Cozy Indoor"], datenight: ["🌹", "Date Night"], nightout: ["🍸", "Night Out"], eatnow: ["🍽️", "Where to Eat"], brunch: ["🥞", "Brunch"], hiddengems: ["💎", "Hidden Gems"], familyfun: ["👨‍👩‍👧", "Family Fun"] };
+            const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
+            return (
+              <div style={{ paddingTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: C.accent, marginBottom: 6 }}>✨ Right place, right moment</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, paddingBottom: 2 }}>
+                  {order.map((k) => EXPERIENCES[k] ? (
+                    <button key={k} onClick={() => { try { logEvent("mood_tile", null, { mood: k, adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} openExperience(k); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "11px 4px 9px", borderRadius: 13, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer" }}>
+                      <span style={{ fontSize: 21 }}>{(MOOD_LBL[k] || [EXPERIENCES[k].icon])[0]}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: C.light, textAlign: "center", lineHeight: 1.15 }}>{(MOOD_LBL[k] || [null, EXPERIENCES[k].label])[1]}</span>
+                    </button>
+                  ) : null)}
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
       {exHero && (
@@ -6394,6 +6472,25 @@ function PageInner() {
               <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
               <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
               {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
+              {!expLoading && momentPicks && momentPicks.badge === activeBadge && (() => {
+                const byId = new Map((expPlaces || []).map((p) => [p.id, p]));
+                const rows = momentPicks.picks.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
+                if (!rows.length) return null;
+                return (
+                  <div style={{ background: C.card, border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>✨ Perfect right now</div>
+                    {rows.map((x, i) => (
+                      <div key={x.id} onClick={() => openDetail(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}{x.p.rating ? <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 700 }}> ★ {x.p.rating}</span> : null}</div>
+                          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
               {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
@@ -7088,6 +7185,18 @@ function PageInner() {
                 </div>
               ); })()}
               {/* 3. Insider tip */}
+              {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
+                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>🔑 Insider intel</div>
+                  {_ins.special ? <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, marginBottom: 8, lineHeight: 1.4 }}>{_ins.special}</div> : null}
+                  {rows.map(([ic, lb, tx], i) => (
+                    <div key={lb} style={{ display: "flex", gap: 9, padding: "6px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
+                      <span style={{ flexShrink: 0, fontSize: 14 }}>{ic}</span>
+                      <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><b style={{ color: C.text }}>{lb}:</b> {tx}</div>
+                    </div>
+                  ))}
+                </div>
+              ); })()}
               <div style={{ marginBottom: 16 }}>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();

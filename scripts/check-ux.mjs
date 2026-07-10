@@ -116,5 +116,18 @@ if (!page.includes('capture("hero_tap"')) fail("hero tap analytics missing");
 // server-cached (quota), always credited and linked out in a new tab.
 if (!page.includes('"/api/ta/place?q="')) fail("Tripadvisor enrichment fetch missing from the detail sheet");
 if (!page.includes("on Tripadvisor ↗")) fail("Tripadvisor attribution strip missing");
+// v5.22 — Right place, right moment (mood buttons + LLM layers):
+// (a) the adaptive mood row exists and actually adapts (Outside↔Cozy Indoor);
+if (!page.includes("Right place, right moment")) fail("mood row missing from home");
+if (!page.includes('_bad ? "cozyindoor" : "outdoors"')) fail("weather-adaptive Outside/Cozy Indoor swap missing");
+if (!page.includes('_wkndMorn ? "brunch" : "eatnow"')) fail("weekend-morning Brunch swap missing");
+// (b) the LLM never enters the critical path: picks fetch is additive with a
+//     hard timeout + silent catch, and the key stays server-side.
+if (!page.includes('fetch("/api/moment/picks"')) fail("Perfect-right-now picks fetch missing");
+if (!page.includes('fetch("/api/insider?id="')) fail("insider intel fetch missing");
+if (/ANTHROPIC_API_KEY|LLM_API_KEY/.test(page)) fail("LLM key referenced in client code — must stay server-side");
+const insiderLib = readFileSync(new URL("../lib/insiderServer.js", import.meta.url), "utf8");
+if (!/cacheGet\(ck\)/.test(insiderLib)) fail("insider engine lost its cache-first read");
+if (!insiderLib.includes("NEVER invent named dishes")) fail("insider engine lost its honesty contract");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
