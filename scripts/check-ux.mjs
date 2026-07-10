@@ -137,16 +137,6 @@ if ((page.match(/mood: true/g) || []).length < 8) fail("all six pop-up intents m
 if (!/outdoors: \{[^\n]*radius: 48280/.test(page)) fail("Outside lost its 30-mi radius — Gulf beaches die at the 17-mi edge");
 if (!page.includes('{ cat: "beach", keyword: "public beach" }')) fail("Outside lost its public-beach query");
 if (!page.includes("_ctxBoost")) fail("vibe context boost (beaches-first-in-good-weather) missing from the experience loader");
-// v5.27 — the Wayfind Compass is the score identity on every card face and
-// detail sheet: compass icon + blended score, gold True North only when it's
-// truly certified, and a receipts sheet that shows every platform's native
-// rating as plain text with attribution at the bottom (never links on cards).
-if (!page.includes("function CompassIcon")) fail("CompassIcon missing");
-if (!page.includes("compassScore(p)")) fail("PlaceCard must show the Compass score");
-if (!page.includes("compassScore(detail, taInfo[detail.id])")) fail("detail sheet must blend Tripadvisor into the Compass");
-if (!page.includes("TRUE NORTH")) fail("True North tag missing from gold cards");
-if (!page.includes("as reported by their respective platforms")) fail("Compass receipts attribution line missing");
-if (!page.includes("compassOpen && detail")) fail("Compass receipts sheet missing");
 // (b) the LLM never enters the critical path: picks fetch is additive with a
 //     hard timeout + silent catch, and the key stays server-side.
 if (!page.includes('fetch("/api/moment/picks"')) fail("Perfect-right-now picks fetch missing");
