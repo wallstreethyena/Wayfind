@@ -65,6 +65,19 @@ const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_u
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get("probe") === "1") return Response.json({ hasKey: !!getKey(), api: "terra" });
+  // probe=2 — contribution census: how many places Tripadvisor has enriched
+  // (cached ta5 rows carrying a rating) vs looked-up-but-unmatched.
+  if (searchParams.get("probe") === "2") {
+    const s2 = sb();
+    if (!s2) return Response.json({ error: "no cache backend" });
+    const H2 = { apikey: s2.key, Authorization: `Bearer ${s2.key}`, Prefer: "count=exact", Range: "0-0" };
+    const cnt = async (extra) => { try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta5%7C*${extra}&select=k`, { headers: H2, cache: "no-store" }); const cr = r.headers.get("content-range") || ""; return cr.includes("/") ? parseInt(cr.split("/")[1], 10) : null; } catch { return null; } };
+    const total = await cnt("");
+    const withRating = await cnt("&v-%3E%3Erating=not.is.null");
+    let sample = [];
+    try { const r = await fetch(`${s2.url}/rest/v1/wf_places_cache?k=like.ta5%7C*&v-%3E%3Erating=not.is.null&select=v&limit=15`, { headers: { apikey: s2.key, Authorization: `Bearer ${s2.key}` }, cache: "no-store" }); if (r.ok) sample = (await r.json()).map((x) => x.v && { name: x.v.name, rating: x.v.rating, reviews: x.v.reviews }).filter(Boolean); } catch (e) {}
+    return Response.json({ lookedUp: total, enriched: withRating, unmatched: total != null && withRating != null ? total - withRating : null, sample });
+  }
   const KEY = getKey();
   const q = String(searchParams.get("q") || "").slice(0, 120).trim();
   const city = String(searchParams.get("city") || "").slice(0, 60).trim();
