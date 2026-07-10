@@ -71,7 +71,7 @@ export async function GET(req) {
   const lat = parseFloat(searchParams.get("lat")), lng = parseFloat(searchParams.get("lng"));
   const debug = searchParams.get("debug") === "1";
   if (!KEY || !q) return Response.json({});
-  const ck = "ta4|" /* v5.18: ta3 entries were written before the url + token-match fixes */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
+  const ck = "ta5|" /* v5.19: ta4 predates tiered matching */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
   if (!debug) {
     const hit = await cacheGet(ck);
     if (hit) return Response.json(hit, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
@@ -85,16 +85,16 @@ export async function GET(req) {
     const sd = await sr.json();
     const list = (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []);
     const qn = _nn(q);
+    // Match tiers: exact name, then containment, then all-tokens-present.
+    // Tier ALWAYS outranks distance — "Siesta Beach" must resolve to the
+    // beach (exact) before "Siesta Key Beach Pavilion" (token match), even
+    // if the pavilion is closer. Coordinates still veto anything ~80 km out.
     const qTokens = q.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
-    let candidates = list.filter((r) => { const rn = _nn(nameOf(r)); if (!rn) return false; if (rn === qn || (qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))) return true; return qTokens.length >= 2 && qTokens.every((t) => rn.includes(t)); });
-    // Coordinate verification: with a caller location, a candidate more than
-    // ~80 km away is a same-named place somewhere else — never it.
-    if (isFinite(lat) && isFinite(lng)) {
-      const near = candidates.map((r) => ({ r, c: coordsOf(r) })).filter((x) => !x.c || distKm(lat, lng, x.c.lat, x.c.lng) <= 80);
-      near.sort((a, b) => (a.c ? distKm(lat, lng, a.c.lat, a.c.lng) : 999) - (b.c ? distKm(lat, lng, b.c.lat, b.c.lng) : 999));
-      candidates = near.map((x) => x.r);
-    }
-    const best = candidates[0];
+    const tierOf = (r) => { const rn = _nn(nameOf(r)); if (!rn) return 9; if (rn === qn) return 0; if ((qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))) return 1; if (qTokens.length >= 2 && qTokens.every((t) => rn.includes(t))) return 2; return 9; };
+    let scored = list.map((r) => ({ r, tier: tierOf(r), c: coordsOf(r) })).filter((x) => x.tier < 9);
+    if (isFinite(lat) && isFinite(lng)) scored = scored.filter((x) => !x.c || distKm(lat, lng, x.c.lat, x.c.lng) <= 80);
+    scored.sort((a, b) => (a.tier - b.tier) || ((a.c && isFinite(lat) ? distKm(lat, lng, a.c.lat, a.c.lng) : 999) - (b.c && isFinite(lat) ? distKm(lat, lng, b.c.lat, b.c.lng) : 999)));
+    const best = scored.length ? scored[0].r : null;
     if (!best || idOf(best) == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "match", sample: list.slice(0, 3).map((r) => ({ name: nameOf(r), id: idOf(r) })), raw: JSON.parse(JSON.stringify(list[0] || null)) } : empty); }
     // The search projection may already carry the rating; the catalog GET is
     // the authoritative, allowlist-free source for rating + urls.
