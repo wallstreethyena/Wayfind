@@ -7,6 +7,7 @@ import { searchPlaces } from "../lib/sources";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
 import { COUPONS } from "../lib/coupons";
+import { HOOK_BANK, pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -26,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.08";
+const BUILD_ID = "v5.09";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -357,6 +358,20 @@ function decodeList(str) {
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
+// v5.09 — hero-card A/B instrumentation. Impressions fire once per card per
+// page load (render is re-entrant; the Set makes this idempotent), taps fire
+// from the open handler. Both carry the exact hook variant so PostHog can
+// promote winning copy and retire losers.
+const _heroSeen = new Set();
+function heroImpression(card, variant, text) {
+  const k = card + ":" + variant;
+  if (_heroSeen.has(k)) return;
+  _heroSeen.add(k);
+  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_impression", { card, variant, text }); } catch (e) {}
+}
+function heroTap(card, variant) {
+  try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("hero_tap", { card, variant }); } catch (e) {}
+}
 function _sharePath(nm) { try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("share_path", { path: nm }); } catch (e) {} }
 // v4.80 — reliable external open for partner links (Viator, Stay22). From an
 // installed home-screen PWA, plain target="_blank" + rel="noreferrer" anchors
@@ -364,6 +379,22 @@ function _sharePath(nm) { try { if (typeof window !== "undefined" && window.post
 // bug): the browser appears but the product page doesn't. window.open is the
 // dependable path there; when it's blocked/nulled we fall back to a direct
 // navigation so the tap ALWAYS lands on the destination.
+// v5.09 — THE coupon redeemability rule, born from a real trust failure: a
+// user drove to Dinosaur World on a Wayfind "Save $2" card and the till had
+// nothing to honor. The offers table held transcriptions of PRINTED tourist
+// flyers ("coupon must be presented at admission") whose URL was just the
+// venue homepage — the app literally could not deliver the discount it
+// advertised. Rule: a deal may only show if the app can DELIVER redemption —
+// a code to present, or a URL that is itself the claimable deal. A
+// flyer-transcribed offer with no code is not redeemable in-app and never
+// renders, on the Coupons tab or on place cards.
+function offerRedeemable(o) {
+  if (!o) return false;
+  if (o.code) return true;
+  const txt = String((o.description || "") + " " + (o.details || ""));
+  const flyer = /print|flyer|present (the )?coupon|must present|presented at/i.test(txt);
+  return !!o.url && !flyer;
+}
 function openExternal(url) {
   if (!url) return;
   try { const w = window.open(url, "_blank", "noopener"); if (w) return; } catch (e) {}
@@ -3230,7 +3261,7 @@ function PageInner() {
     _cpnLoadedRef.current = true;
     supabase.from("offers").select("*").then(({ data }) => {
       if (!Array.isArray(data)) return;
-      const rows = data.map((o) => { try { if (!o) return null; const title = o.title || o.deal || o.description; if (!title) return null; return { id: "offer:" + (o.id || o.google_place_id || title), business: o.business_name || o.name || "", title: String(title), details: o.title ? (o.description || "") : "", code: o.code || null, url: o.url || null, cta: o.cta || null, expires: o.expires_at || o.expires || null, area: o.area || null }; } catch (e) { return null; } }).filter(Boolean);
+      const rows = data.filter(offerRedeemable).map((o) => { try { if (!o) return null; const title = o.title || o.deal || o.description; if (!title) return null; return { id: "offer:" + (o.id || o.google_place_id || title), business: o.business_name || o.name || "", title: String(title), details: o.title ? (o.description || "") : "", code: o.code || null, url: o.url || null, cta: o.cta || null, expires: o.expires_at || o.expires || null, area: o.area || null }; } catch (e) { return null; } }).filter(Boolean);
       setCpnOffers(rows);
     }, () => {});
   }, [screen]);
@@ -4039,7 +4070,8 @@ function PageInner() {
   async function loadOffers(list) {
     try {
       if (!supabase || !Array.isArray(list) || !list.length) return;
-      const { data } = await supabase.from("offers").select("*");
+      const { data: _rawOffers } = await supabase.from("offers").select("*");
+      const data = (_rawOffers || []).filter(offerRedeemable); // v5.09: undeliverable deals never reach a card
       if (!data || !data.length) return;
       const norm = (x) => (x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       const map = {};
@@ -5834,7 +5866,12 @@ function PageInner() {
                 const mkHook = (a) => {
                   if (!a.place) {
                     const m = revenueExpMeta(a.key, cityHero) || { hook: a.e.lead || a.e.title, hl: "", sub: a.e.lead || "", cta: "Explore \u2192" };
-                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: m.hl, hook: m.hook, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
+                    // v5.09 persuasion engine: rotate the hook bank (random,
+                    // never the same line twice in a row) with live tokens;
+                    // fall back to the static meta hook when no bank exists.
+                    const bk = pickHook(a.key, { temp: weather && weather.temp, time: (() => { const h = new Date().getHours(); return h < 12 ? "morning" : h < 17 ? "afternoon" : h < 21 ? "golden hour" : "late"; })() });
+                    if (bk) heroImpression(a.key, bk.variant, bk.text);
+                    return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
                   }
                   const t = themedHook(a.key, a.place);
                   const members = placesForHook({ theme: a.key, placeId: a.place.id }, expPool);
@@ -5963,7 +6000,7 @@ function PageInner() {
                       })()}
                     </>)}
                     {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
-                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} collage={!a.place ? expCollage(a.key) : undefined} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.fetchKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero" }); } catch (e) {} } openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
+                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} collage={!a.place ? expCollage(a.key) : undefined} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.fetchKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero", hookVar: h._hookVar }); } catch (e) {} try { heroTap(h.theme, h._hookVar); } catch (e) {} } openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
 
                     <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick" }); } catch (e) {} setMenuSheet("pick"); }} />
                   </div>
