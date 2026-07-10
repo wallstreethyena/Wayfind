@@ -91,7 +91,7 @@ export async function GET(req) {
       candidates = near.map((x) => x.r);
     }
     const best = candidates[0];
-    if (!best || idOf(best) == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "match", sample: list.slice(0, 3).map((r) => ({ name: nameOf(r), id: idOf(r) })) } : empty); }
+    if (!best || idOf(best) == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "match", sample: list.slice(0, 3).map((r) => ({ name: nameOf(r), id: idOf(r) })), raw: JSON.parse(JSON.stringify(list[0] || null)) } : empty); }
     // The search projection may already carry the rating; the catalog GET is
     // the authoritative, allowlist-free source for rating + urls.
     let d = best;
