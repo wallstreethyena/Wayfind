@@ -18,6 +18,9 @@ if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
 if (!/what are you in the mood for/i.test(page)) fail("mood kicker missing");
+// v5.26 — the welcome greeting speaks in feels-like temperature, saying so
+// explicitly when the heat index diverges from the thermometer.
+if (!page.includes('but feels like " + felt')) fail("welcome greeting must speak in feels-like temperature");
 if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
 if (!/wayfind it<\/button>/i.test(page)) fail("intro CTA missing");
