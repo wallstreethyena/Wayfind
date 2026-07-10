@@ -104,19 +104,20 @@ async function fromRIDB(lat, lng, radiusMi) {
 async function fromOSM(lat, lng, radiusM) {
   try {
     const R = Math.min(Math.round(radiusM), 60000);
-    const q = `[out:json][timeout:12];(
+    const q = `[out:json][timeout:4];(
       nwr["leisure"~"^(park|nature_reserve)$"]["name"](around:${R},${lat},${lng});
       nwr["natural"="beach"]["name"](around:${R},${lat},${lng});
       nwr["tourism"="viewpoint"]["name"](around:${R},${lat},${lng});
       nwr["man_made"="pier"]["name"](around:${R},${lat},${lng});
       nwr["leisure"="marina"]["name"](around:${R},${lat},${lng});
     );out center 80;`;
-    // v4.91: overpass-api.de is frequently overloaded — try the primary, then
-    // the Kumi Systems mirror before giving up. ok:false marks a transient
-    // failure so the caller won't cache the miss for 6 hours.
+    // v5.01 fail-fast (launch prompt 3): the sequential 12s+12s mirror walk
+    // was the page-speed killer. Both Overpass hosts are raced IN PARALLEL
+    // with a hard 4s abort each — OSM either contributes quickly or this
+    // round proceeds without it (10-min retry, never CDN-cached as a miss).
     const tryHost = async (host) => {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const timer = setTimeout(() => ctrl.abort(), 4000);
       try {
         // OSM usage policy requires an identifying User-Agent; without one the
         // Apache front-end answers 406 Not Acceptable (verified live).
@@ -125,7 +126,10 @@ async function fromOSM(lat, lng, radiusM) {
         return r.ok ? r : null;
       } catch (e) { clearTimeout(timer); return null; }
     };
-    const r = (await tryHost("https://overpass-api.de/api/interpreter")) || (await tryHost("https://overpass.kumi.systems/api/interpreter"));
+    const r = await Promise.any(
+      ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]
+        .map((h) => tryHost(h).then((x) => { if (!x) throw new Error("miss"); return x; }))
+    ).catch(() => null);
     if (!r) return { configured: true, ok: false, places: [] };
     const d = await r.json();
     const kindOf = (t) => t.natural === "beach" ? "Beach" : t.tourism === "viewpoint" ? "Scenic viewpoint" : t.man_made === "pier" ? "Pier" : t.leisure === "marina" ? "Marina" : t.leisure === "nature_reserve" ? "Nature preserve" : "Park";
@@ -172,7 +176,15 @@ export async function GET(req) {
   if (hit && hit.exp > Date.now()) return Response.json(hit.body, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
 
   const radiusMi = toMi(radius);
-  const [nps, ridb, osm] = await Promise.all([fromNPS(lat, lng, radiusMi), fromRIDB(lat, lng, radiusMi), fromOSM(lat, lng, radius)]);
+  // v5.01 fail-fast (launch prompt 3): every source races a hard 4.5s wall via
+  // allSettled — a slow or dead upstream can never hold the route (or the
+  // Beach day / Things to do tabs) hostage. Whatever answered in time ships.
+  const wall = (p) => Promise.race([p, new Promise((res) => setTimeout(() => res(null), 4500))]);
+  const [npsR, ridbR, osmR] = await Promise.allSettled([wall(fromNPS(lat, lng, radiusMi)), wall(fromRIDB(lat, lng, radiusMi)), wall(fromOSM(lat, lng, radius))]);
+  const pick = (r, fb) => (r.status === "fulfilled" && r.value) ? r.value : fb;
+  const nps = pick(npsR, { configured: !!getNps(), places: [] });
+  const ridb = pick(ridbR, { configured: !!getRidb(), places: [] });
+  const osm = pick(osmR, { configured: true, ok: false, places: [] });
   const places = [...nps.places, ...ridb.places, ...osm.places];
   const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length } };
   // v4.91: a transient OSM outage must not be sticky — cache failures briefly

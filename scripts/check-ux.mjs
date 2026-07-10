@@ -49,5 +49,26 @@ if (/SortControl sortBy=\{expSort\}[^\n]*\n[^\n]*rollDice/.test(page)) fail("dic
 if (!page.includes("const _watch = setTimeout(() => { if (!_tok.dead) setExpLoading(false); }, 12000)")) fail("experience spinner watchdog missing — an infinite 'Curating' spinner is banned");
 if (!page.includes("_prev.tok.dead = false; return;")) fail("in-flight run adoption missing — the IP→GPS location flip must not restart the vibe fan-out");
 if (page.includes("distMeters(") && !/import \{[^}]*\bdistMeters\b[^}]*\} from "\.\.\/lib\/google"/.test(page)) fail("page.js calls distMeters without importing it — this crashed vibes at runtime on v4.99");
+// v5.01 GLOBAL RULES (user direction):
+// (a) Partner/affiliate pages NEVER replace Wayfind — openExternal must fall
+//     back to a synthesized _blank anchor click, never window.location.
+const _oe = page.slice(page.indexOf("function openExternal"), page.indexOf("function openExternal") + 900);
+if (_oe.includes("window.location.href")) fail("openExternal navigates the app away when a popup is blocked — affiliate pages must NEVER replace Wayfind");
+if (!_oe.includes('a.target = "_blank"')) fail("openExternal anchor-click fallback missing — affiliate links must open a new tab with tracking intact");
+// (b) The detail Tickets button opens the TOP real product directly — the
+//     /go resolver's search-page fallback put users on a broad Viator search.
+if (page.includes('"/api/viator/go?q=" + encodeURIComponent(detail.name')) fail("detail Tickets button routes through /api/viator/go again — it must open the top resolved product directly");
+if (!page.includes("Aff.viatorDirectUrl(_vt.items[0].url)")) fail("detail Tickets button no longer opens the top Viator product with tracking");
+// (c) Weather icons tell the truth: every current-conditions surface renders
+//     wxIconNow (moon phases at night, severe icons on hurricane/tornado wind)
+//     — a raw weather.icon render regresses the sun-at-night bug.
+if (!page.includes("function wxIconNow(")) fail("wxIconNow helper missing — weather icon truth rule gone");
+if (!page.includes("function severeIcon(")) fail("severe weather (hurricane/tornado) icon logic missing");
+if (/\{weather\.icon\}/.test(page)) fail("raw {weather.icon} render found — all current-weather surfaces must use wxIconNow");
+if (!page.includes("<span style={{ fontSize: 18 }}>{wxIconNow(weather)}</span>")) fail("header weather icon not routed through wxIconNow");
+// (d) The desktop sidebar shows the mini map (current pins + user location),
+//     not the retired orange weather card.
+if (page.includes(">You are exploring</div>")) fail("the desktop 'You are exploring' weather card resurfaced — the sidebar shows the mini map instead");
+if (!/isDesktop && \([\s\S]{0,900}<MapView places=\{_pins\}/.test(page)) fail("desktop sidebar mini map missing");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
