@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.09";
+const BUILD_ID = "v5.10";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3897,6 +3897,23 @@ function PageInner() {
     else handleHookAction(h);
   }
 
+  // v5.10: Tripadvisor enrichment — a second independent trust signal on the
+  // detail sheet (rating + review count + link out). Server route caches 10
+  // days per place, so repeat opens cost no API quota. Fail-soft: no key or
+  // no match and the strip simply doesn't render.
+  const [taInfo, setTaInfo] = useState({});
+  useEffect(() => {
+    if (!detail || !detail.id || detail._event || taInfo[detail.id]) return;
+    let cancelled = false;
+    const _ll = detail.lat != null ? "&lat=" + detail.lat.toFixed(4) + "&lng=" + detail.lng.toFixed(4) : "";
+    fetch("/api/ta/place?q=" + encodeURIComponent(detail.name || "") + _ll)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: d && d.rating != null ? d : { none: true } })); })
+      .catch(() => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: { none: true } })); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id]);
+
   // v4.51: real Viator tour listings on attraction detail pages. Uses the
   // place's own city (from its address) so an Orlando attraction viewed from
   // Parrish still searches "Gatorland Orlando".
@@ -6939,7 +6956,7 @@ function PageInner() {
                 {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
                 {detail.rating != null && (<>
                   <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ color: C.muted, textDecoration: "none" }}><span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()}) ↗</span></a>}</span>
+                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ color: C.muted, textDecoration: "none" }}><span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()}) ↗</span></a>}</span>{(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<a href={_ta.url || "https://www.tripadvisor.com"} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href); try { logEvent("ta_out", detail); } catch (er) {} openExternal(_live); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor ↗</a>); })()}
                 </>)}
                 {detail._event ? (() => {
                   const ef = formatEventDate(detail._event.date, detail._event.time);

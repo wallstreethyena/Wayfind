@@ -112,5 +112,9 @@ if (!hooks.includes("must be TRUE")) fail("hook bank lost its truthfulness contr
 if (!page.includes("pickHook(a.key")) fail("hero cards no longer rotate the hook bank");
 if (!page.includes('capture("hero_impression"')) fail("hero impression analytics missing");
 if (!page.includes('capture("hero_tap"')) fail("hero tap analytics missing");
+// v5.10 — Tripadvisor enrichment: second trust signal on the detail sheet,
+// server-cached (quota), always credited and linked out in a new tab.
+if (!page.includes('"/api/ta/place?q="')) fail("Tripadvisor enrichment fetch missing from the detail sheet");
+if (!page.includes("on Tripadvisor ↗")) fail("Tripadvisor attribution strip missing");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
