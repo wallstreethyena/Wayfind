@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.13";
+const BUILD_ID = "v5.14";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3906,7 +3906,8 @@ function PageInner() {
     if (!detail || !detail.id || detail._event || taInfo[detail.id]) return;
     let cancelled = false;
     const _ll = detail.lat != null ? "&lat=" + detail.lat.toFixed(4) + "&lng=" + detail.lng.toFixed(4) : "";
-    fetch("/api/ta/place?q=" + encodeURIComponent(detail.name || "") + _ll)
+    const _city = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })();
+    fetch("/api/ta/place?q=" + encodeURIComponent(detail.name || "") + _ll + (_city ? "&city=" + encodeURIComponent(_city) : ""))
       .then((r) => (r.ok ? r.json() : {}))
       .then((d) => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: d && d.rating != null ? d : { none: true } })); })
       .catch(() => { if (!cancelled) setTaInfo((m) => ({ ...m, [detail.id]: { none: true } })); });

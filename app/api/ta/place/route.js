@@ -1,24 +1,24 @@
-// v5.13 — Tripadvisor TERRA API enrichment (server-only key). The founder's
-// key is a Terra key (terra.tripadvisor.com, x-api-key header) — NOT the
-// legacy Content API, which we called first and which answered 403 for
-// non-whitelisted IPs. Terra has no IP restriction. The detail sheet shows a
-// second, independent trust signal — the place's Tripadvisor rating and
-// review count with a link out.
+// v5.14 — Tripadvisor TERRA API enrichment, built to the real spec
+// (docs.terra.tripadvisor.com): base https://terra.tripadvisor.com/api,
+// X-API-KEY header. The CATALOG endpoints are used deliberately — they are
+// "not limited by a partner's allowlist or geofencing" and still carry the
+// overall traveler rating, review count, coordinates, and Tripadvisor URLs:
+//   GET /catalog/locations/search?query=&geo_name=&size=   (name resolution)
+//   GET /catalog/locations/{id}                            (rating + urls)
+// Catalog search has no lat/long parameter, so the caller passes the place's
+// CITY (geo_name) and this route verifies candidates by coordinates when the
+// caller supplies them — a Sarasota bar can never resolve to a same-named
+// place in another state.
 //
-// QUOTA CARE: each uncached place costs up to two calls (search → details).
-// Aggressively cached: warm-instance memory + the shared Supabase cache for
-// 10 days per place + CDN s-maxage — repeat opens cost zero calls. Fail-soft
-// everywhere: no key, no match, or upstream trouble returns {} and the sheet
-// simply doesn't show the strip. Terra's path layout is confirmed at runtime:
-// the first successful path variant is remembered per warm instance, and
-// ?debug=1 exposes upstream status/body for live diagnosis.
+// Cached 10 days per place (memory + shared Supabase + CDN) so repeat opens
+// cost zero quota. Fail-soft everywhere; ?debug=1 exposes upstream detail.
 export const runtime = "nodejs";
 
 const getKey = () => ((process.env["TRIPADVISOR_API_KEY"] || process.env["TA_API_KEY"] || process.env["TRIPADVISOR_KEY"] || "").trim());
 
+const BASE = "https://terra.tripadvisor.com/api";
 const mem = new Map();
 const TTL = 10 * 24 * 3600 * 1000;
-let _base = null; // remembered working base path
 
 function sb() {
   const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
@@ -50,69 +50,64 @@ async function cacheSet(k, v) {
 }
 
 const _nn = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+const distKm = (a, b, c, d) => { const R = 6371, t = Math.PI / 180; const h = Math.sin((c - a) * t / 2) ** 2 + Math.cos(a * t) * Math.cos(c * t) * Math.sin((d - b) * t / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
 
-// Terra path variants — the working one is discovered on first call and
-// remembered for the life of the warm instance.
-const BASES = [
-  "https://terra.tripadvisor.com/api/v1",
-  "https://terra.tripadvisor.com/v1",
-  "https://terra.tripadvisor.com/content/v1",
-];
-
-async function terraGet(path, params, KEY) {
-  const bases = _base ? [_base] : BASES;
-  let lastStatus = 0, lastBody = "";
-  for (const b of bases) {
-    try {
-      const r = await fetch(b + path + "?" + params.toString(), { headers: { Accept: "application/json", "x-api-key": KEY } });
-      if (r.ok) { _base = b; return { ok: true, json: await r.json() }; }
-      lastStatus = r.status; lastBody = await r.text().catch(() => "");
-      if (r.status !== 404) { _base = _base || b; break; } // real error (auth/quota) — don't path-hunt
-    } catch (e) { lastStatus = 0; lastBody = String(e && e.message || e); }
-  }
-  return { ok: false, status: lastStatus, body: lastBody };
-}
-
-// Tolerant extractors — Terra responses may use content-API names or newer ones.
-const listOf = (d) => (d && (d.data || d.results || d.locations)) || [];
-const ratingOf = (d) => { const v = d && (d.rating ?? (d.aggregateRating && d.aggregateRating.ratingValue) ?? (d.review_summary && d.review_summary.rating)); return v != null ? Number(v) : null; };
-const reviewsOf = (d) => { const v = d && (d.num_reviews ?? d.numReviews ?? (d.aggregateRating && d.aggregateRating.reviewCount) ?? (d.review_summary && d.review_summary.count)); return v != null ? Number(v) : null; };
-const urlOf = (d) => (d && (d.web_url || d.webUrl || d.url)) || null;
-const idOf = (r) => (r && (r.location_id || r.locationId || r.id)) || null;
+// Tolerant field extraction across catalog projections.
+const nameOf = (r) => { if (!r) return ""; if (typeof r.name === "string") return r.name; const n = r.names; if (!n) return ""; if (typeof n === "string") return n; return n.name || n.display_name || n.default || (Array.isArray(n) ? n[0] : "") || ""; };
+const idOf = (r) => (r && (r.id ?? r.location_id ?? r.locationId)) ?? null;
+const coordsOf = (r) => { const c = r && (r.coordinates || r.coordinate || r.latlng || r.geo); if (!c) return null; const la = c.latitude ?? c.lat, lo = c.longitude ?? c.lng ?? c.lon; return (la != null && lo != null) ? { lat: Number(la), lng: Number(lo) } : null; };
+const overallOf = (d) => (d && (d.overall_rating || d.overallRating || d.rating_summary)) || null;
+const urlOf = (d) => { const u = d && (d.urls || d.url || d.web_url); if (!u) return null; if (typeof u === "string") return u; return u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; };
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get("probe") === "1") return Response.json({ hasKey: !!getKey(), api: "terra" });
   const KEY = getKey();
   const q = String(searchParams.get("q") || "").slice(0, 120).trim();
+  const city = String(searchParams.get("city") || "").slice(0, 60).trim();
   const lat = parseFloat(searchParams.get("lat")), lng = parseFloat(searchParams.get("lng"));
   const debug = searchParams.get("debug") === "1";
   if (!KEY || !q) return Response.json({});
-  const ck = "ta|" + _nn(q) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
+  const ck = "ta2|" + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
   if (!debug) {
     const hit = await cacheGet(ck);
     if (hit) return Response.json(hit, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
   }
+  const H = { Accept: "application/json", "X-API-KEY": KEY };
   try {
-    const sp = new URLSearchParams({ searchQuery: q, language: "en" });
-    if (isFinite(lat) && isFinite(lng)) { sp.set("latLong", lat + "," + lng); sp.set("radius", "15"); sp.set("radiusUnit", "mi"); }
-    const sr = await terraGet("/location/search", sp, KEY);
-    if (!sr.ok) return Response.json(debug ? { step: "search", upstream: sr.status, detail: String(sr.body).slice(0, 300), triedBase: _base || "all" } : {});
-    const results = listOf(sr.json);
+    const sp = new URLSearchParams({ query: q, size: "20" });
+    if (city) sp.set("geo_name", city);
+    const sr = await fetch(`${BASE}/catalog/locations/search?` + sp.toString(), { headers: H });
+    if (!sr.ok) { const t = await sr.text().catch(() => ""); return Response.json(debug ? { step: "search", upstream: sr.status, detail: t.slice(0, 300) } : {}); }
+    const sd = await sr.json();
+    const list = (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []);
     const qn = _nn(q);
-    const best = results.find((r) => { const rn = _nn(r.name); return rn === qn || (qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn)); }) || null;
-    if (!best || !idOf(best)) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "match", found: results.slice(0, 3).map((r) => r.name) } : empty); }
-    const dr = await terraGet(`/location/${idOf(best)}/details`, new URLSearchParams({ language: "en", currency: "USD" }), KEY);
-    if (!dr.ok) return Response.json(debug ? { step: "details", upstream: dr.status, detail: String(dr.body).slice(0, 300) } : {});
-    const d = dr.json;
+    let candidates = list.filter((r) => { const rn = _nn(nameOf(r)); return rn && (rn === qn || (qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))); });
+    // Coordinate verification: with a caller location, a candidate more than
+    // ~80 km away is a same-named place somewhere else — never it.
+    if (isFinite(lat) && isFinite(lng)) {
+      const near = candidates.map((r) => ({ r, c: coordsOf(r) })).filter((x) => !x.c || distKm(lat, lng, x.c.lat, x.c.lng) <= 80);
+      near.sort((a, b) => (a.c ? distKm(lat, lng, a.c.lat, a.c.lng) : 999) - (b.c ? distKm(lat, lng, b.c.lat, b.c.lng) : 999));
+      candidates = near.map((x) => x.r);
+    }
+    const best = candidates[0];
+    if (!best || idOf(best) == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "match", sample: list.slice(0, 3).map((r) => ({ name: nameOf(r), id: idOf(r) })) } : empty); }
+    // The search projection may already carry the rating; the catalog GET is
+    // the authoritative, allowlist-free source for rating + urls.
+    let d = best;
+    let ov = overallOf(best);
+    if (!ov || !urlOf(best)) {
+      const dr = await fetch(`${BASE}/catalog/locations/${idOf(best)}`, { headers: H });
+      if (dr.ok) { d = await dr.json(); ov = overallOf(d) || ov; }
+      else if (debug) { const t = await dr.text().catch(() => ""); return Response.json({ step: "details", upstream: dr.status, detail: t.slice(0, 300) }); }
+    }
     const out = {
-      name: (d && d.name) || best.name,
-      rating: ratingOf(d) ?? ratingOf(best),
-      reviews: reviewsOf(d) ?? reviewsOf(best),
-      ranking: (d && d.ranking_data && d.ranking_data.ranking_string) || null,
+      name: nameOf(d) || nameOf(best),
+      rating: ov && ov.rating != null ? Number(ov.rating) : null,
+      reviews: ov ? Number(ov.count ?? ov.review_count ?? ov.num_reviews ?? 0) || null : null,
       url: urlOf(d) || urlOf(best),
     };
-    if (out.rating == null && out.reviews == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "empty", detailKeys: Object.keys(d || {}).slice(0, 20) } : empty); }
+    if (out.rating == null && out.reviews == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "empty", keys: Object.keys(d || {}).slice(0, 25) } : empty); }
     await cacheSet(ck, out);
     return Response.json(out, { headers: debug ? {} : { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
   } catch (e) { return Response.json(debug ? { step: "throw", detail: String(e && e.message || e).slice(0, 200) } : {}); }
