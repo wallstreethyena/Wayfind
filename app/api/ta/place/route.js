@@ -60,8 +60,8 @@ export async function GET(req) {
   try {
     const sp = new URLSearchParams({ key: KEY, searchQuery: q, language: "en" });
     if (isFinite(lat) && isFinite(lng)) { sp.set("latLong", lat + "," + lng); sp.set("radius", "15"); sp.set("radiusUnit", "mi"); }
-    const sr = await fetch("https://api.content.tripadvisor.com/api/v1/location/search?" + sp.toString(), { headers: { Accept: "application/json" } });
-    if (!sr.ok) return Response.json({});
+    const sr = await fetch("https://api.content.tripadvisor.com/api/v1/location/search?" + sp.toString(), { headers: { Accept: "application/json", Referer: "https://www.gowayfind.com" } });
+    if (!sr.ok) { const _t = await sr.text().catch(() => ""); return Response.json(searchParams.get("debug") === "1" ? { upstream: sr.status, detail: _t.slice(0, 300) } : {}); }
     const sd = await sr.json();
     const results = (sd && sd.data) || [];
     const qn = _nn(q);
