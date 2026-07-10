@@ -2,7 +2,7 @@
 const CONTACT_EMAIL = "hello@gowayfind.com";
 const EFFECTIVE = "June 30, 2026";
 
-export const metadata = {
+export const metadata = { alternates: { canonical: "https://www.gowayfind.com/terms" },
   title: "Terms of Service · Wayfind",
   description: "The terms for using Wayfind.",
 };

@@ -6,7 +6,8 @@ import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
 
 export default function sitemap() {
   const now = new Date();
-  const core = ["", "/guides", "/events", "/map", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p, lastModified: now }));
+  // /events and /map are noindexed until they carry real crawlable inventory
+  const core = ["", "/guides", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p, lastModified: now }));
   const guides = Object.keys(GUIDES).map((slug) => ({ url: `${SITE_URL}/guides/${slug}`, lastModified: new Date(GUIDES[slug].updated || now) }));
   const culture = Object.keys(CULTURE).map((m) => ({ url: `${SITE_URL}/culture/${m}`, lastModified: now }));
   // v5.02 — the SSR ranked landing pages: one per category per town.

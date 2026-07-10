@@ -61,7 +61,7 @@ export default async function CulturePage({ params }) {
         const direct = await resolveViatorProduct(x.query + " " + c.title, c.title).catch(() => null);
         return [x, direct || experienceGoUrl(x.query, c.title)];
       }))).map(([x, url], i) => (
-        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>Book this experience ↗</a> : null}</div>
+        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>See related tours &amp; tickets ↗</a> : null}</div>
       ))}
       <h2 style={S.h2}>Worth your eyes</h2>
       {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}

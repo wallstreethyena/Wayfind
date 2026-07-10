@@ -36,6 +36,7 @@ export async function generateMetadata({ searchParams }) {
   let og = "/api/og?t=" + encodeURIComponent(t) + "&loc=" + encodeURIComponent(loc) + "&n=" + encodeURIComponent(n);
   if (sub) og += "&sub=" + encodeURIComponent(sub);
   return {
+    robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE),
     title: `${t} · Wayfind`,
     description: desc,
