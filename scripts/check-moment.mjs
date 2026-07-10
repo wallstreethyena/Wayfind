@@ -13,7 +13,7 @@ if (!s.includes("spec.indoorOnly = true")) fail("rainy chip missing indoor spec"
 if (!s.includes("if (hd.indoorOnly) results = results.filter")) fail("sheet fetch ignores indoorOnly");
 if (!s.includes("Your curated list is ready")) fail("curated-ready copy missing");
 if ((s.match(/Rankings are merit-based\. Affiliate links never change placement\./g) || []).length < 2) fail("trust copy must appear in overlay AND sheet");
-if (!s.includes("What would interest you today?")) fail("mood kicker copy missing");
+if (!s.includes("What are you in the mood for?")) fail("mood kicker copy missing");
 if (!s.includes("Just let me look around")) fail("skip path missing — exploration must not be gated");
 if (!s.includes('wf_intro_seen')) fail("first-visit persistence missing");
 if (!s.includes('"$".repeat(Math.max(1, Math.min(4,')) fail("price missing from sheet pick rows");
@@ -23,7 +23,11 @@ if (!s.includes('pendingQRef')) fail("?q= deep link handling missing");
 if (!s.includes('best\\s+of\\s+')) fail("best-of city rescue missing");
 if (!s.includes("INTRO_PATHS")) fail("line-icon set missing (mock look)");
 if (!s.includes('sp0.get("intro") === "1"')) fail("?intro=1 preview switch missing");
-if (!s.includes("setIntroOpen(true), 120")) fail("intro must show immediately on entry");
+// v5.25 product direction: the welcome concierge arrives ~3.2s after landing
+// (so weather + the open-now count are loaded and the greeting is personal),
+// once per session — not instantly, not once-ever.
+if (!s.includes("setIntroOpen(true), 3200")) fail("intro must auto-show ~3.2s after landing");
+if (!s.includes('sessionStorage.getItem("wf_intro_seen")')) fail("intro session guard missing");
 if (!s.includes("WebkitBackgroundClip")) fail("gradient headline missing");
 if (!s.includes("F97316 0%, #FF8A3D")) fail("brand gradient CTA missing");
 if (!s.includes("function feelingToMoment")) fail("feelings-to-moment translation missing");
