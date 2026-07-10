@@ -112,6 +112,7 @@ export async function GET(req) {
     };
     if (out.rating == null && out.reviews == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "empty", keys: Object.keys(d || {}).slice(0, 25) } : empty); }
     await cacheSet(ck, out);
-    return Response.json(out, { headers: debug ? {} : { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
+    if (debug) return Response.json({ ...out, _keys: Object.keys(unwrap(d) || {}), _urlsRaw: JSON.parse(JSON.stringify((unwrap(d) || {}).urls ?? (unwrap(d) || {}).url ?? null)) });
+    return Response.json(out, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
   } catch (e) { return Response.json(debug ? { step: "throw", detail: String(e && e.message || e).slice(0, 200) } : {}); }
 }
