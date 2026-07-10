@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.22";
+const BUILD_ID = "v5.23";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5363,6 +5363,34 @@ function PageInner() {
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
 
+  // v5.22 — "Right place, right moment" mood row (rendered on Home AND the
+  // explore header). Adaptive, never static: Outside swaps to Cozy Indoor in
+  // rain/extremes, evenings lead with Date Night + Night Out, weekend
+  // mornings surface Brunch. Tiles use the one modern menu style.
+  const moodRow = (() => {
+            const _h = new Date().getHours(); const _d = new Date().getDay();
+            const _eve = _h >= 16 || _h < 4;
+            const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
+            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (weather.temp != null && (weather.temp >= 99 || weather.temp <= 40))));
+            const outsideKey = _bad ? "cozyindoor" : "outdoors";
+            const eatKey = _wkndMorn ? "brunch" : "eatnow";
+            const MOOD_LBL = { outdoors: ["☀️", "Outside"], cozyindoor: ["🌧️", "Cozy Indoor"], datenight: ["🌹", "Date Night"], nightout: ["🍸", "Night Out"], eatnow: ["🍽️", "Where to Eat"], brunch: ["🥞", "Brunch"], hiddengems: ["💎", "Hidden Gems"], familyfun: ["👨‍👩‍👧", "Family Fun"] };
+            const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
+            return (
+              <div style={{ paddingTop: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: C.accent, marginBottom: 6 }}>✨ Right place, right moment</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, paddingBottom: 2 }}>
+                  {order.map((k) => EXPERIENCES[k] ? (
+                    <button key={k} onClick={() => { try { logEvent("mood_tile", null, { mood: k, adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} openExperience(k); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "11px 4px 9px", borderRadius: 13, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer" }}>
+                      <span style={{ fontSize: 21 }}>{(MOOD_LBL[k] || [EXPERIENCES[k].icon])[0]}</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: C.light, textAlign: "center", lineHeight: 1.15 }}>{(MOOD_LBL[k] || [null, EXPERIENCES[k].label])[1]}</span>
+                    </button>
+                  ) : null)}
+                </div>
+              </div>
+            );
+  })();
+
   const exploreList = (
     <>
       {/* v3.7 Phase 2: "Good evening" header (greeting, weather, Pick for me, Experiences button, experience pills) hidden per request. The ranked list below is computed from the same place data, unaffected. Experiences moved to the ✨ Nearby control in the sort row. */}
@@ -5389,33 +5417,7 @@ function PageInner() {
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
             <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
           </div>
-          {/* v5.22 — "Right place, right moment" mood row. Adaptive, never
-              static: Outside swaps to Cozy Indoor in rain/extremes, evenings
-              lead with Date Night + Night Out, weekend mornings surface
-              Brunch. Tiles use the one modern menu style (icon on top). */}
-          {(() => {
-            const _h = new Date().getHours(); const _d = new Date().getDay();
-            const _eve = _h >= 16 || _h < 4;
-            const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
-            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (weather.temp != null && (weather.temp >= 99 || weather.temp <= 40))));
-            const outsideKey = _bad ? "cozyindoor" : "outdoors";
-            const eatKey = _wkndMorn ? "brunch" : "eatnow";
-            const MOOD_LBL = { outdoors: ["☀️", "Outside"], cozyindoor: ["🌧️", "Cozy Indoor"], datenight: ["🌹", "Date Night"], nightout: ["🍸", "Night Out"], eatnow: ["🍽️", "Where to Eat"], brunch: ["🥞", "Brunch"], hiddengems: ["💎", "Hidden Gems"], familyfun: ["👨‍👩‍👧", "Family Fun"] };
-            const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
-            return (
-              <div style={{ paddingTop: 10 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: C.accent, marginBottom: 6 }}>✨ Right place, right moment</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6, paddingBottom: 2 }}>
-                  {order.map((k) => EXPERIENCES[k] ? (
-                    <button key={k} onClick={() => { try { logEvent("mood_tile", null, { mood: k, adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} openExperience(k); }} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "11px 4px 9px", borderRadius: 13, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer" }}>
-                      <span style={{ fontSize: 21 }}>{(MOOD_LBL[k] || [EXPERIENCES[k].icon])[0]}</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: C.light, textAlign: "center", lineHeight: 1.15 }}>{(MOOD_LBL[k] || [null, EXPERIENCES[k].label])[1]}</span>
-                    </button>
-                  ) : null)}
-                </div>
-              </div>
-            );
-          })()}
+          {moodRow}
         </div>
       )}
       {exHero && (
@@ -5772,6 +5774,7 @@ function PageInner() {
             })()}
           </>
 
+        {screen === "suggested" && <div style={{ margin: "2px 0 4px" }}>{moodRow}</div>}
         {screen === "suggested" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
