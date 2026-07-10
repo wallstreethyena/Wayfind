@@ -5,6 +5,10 @@
 import { CULTURE, TOWN_PROFILES } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
+import { resolveViatorProduct } from "../../../lib/viatorServer";
+
+// v5.04: ISR so the render-time Viator product resolution below stays fresh.
+export const revalidate = 86400;
 
 export function generateStaticParams() {
   return Object.keys(CULTURE).map((metro) => ({ metro }));
@@ -35,7 +39,7 @@ const S = {
   footerLink: { color: "#2EC9A6", textDecoration: "none", fontWeight: 700 },
 };
 
-export default function CulturePage({ params }) {
+export default async function CulturePage({ params }) {
   const c = CULTURE[params.metro];
   if (!c) return <main style={S.page}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
@@ -48,10 +52,17 @@ export default function CulturePage({ params }) {
       <h2 style={S.h2}>Eat like a local</h2>
       {c.eat.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Don&apos;t leave without</h2>
-      {c.do.map((x, i) => {
-        const url = x.viatorUrl ? viatorDirectUrl(x.viatorUrl) : (x.query ? experienceGoUrl(x.query, c.title) : null);
-        return (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>Book this experience ↗</a> : null}</div>);
-      })}
+      {/* v5.04: query-only items resolve their EXACT Viator product at render
+          time (region-validated, affiliate-attributed) so the baked link
+          lands on the product page. /go stays only as the last resort. */}
+      {(await Promise.all(c.do.map(async (x) => {
+        if (x.viatorUrl) return [x, viatorDirectUrl(x.viatorUrl)];
+        if (!x.query) return [x, null];
+        const direct = await resolveViatorProduct(x.query + " " + c.title, c.title).catch(() => null);
+        return [x, direct || experienceGoUrl(x.query, c.title)];
+      }))).map(([x, url], i) => (
+        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>Book this experience ↗</a> : null}</div>
+      ))}
       <h2 style={S.h2}>Worth your eyes</h2>
       {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Talk like a local</h2>

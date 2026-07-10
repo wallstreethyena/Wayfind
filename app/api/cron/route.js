@@ -9,8 +9,10 @@
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60; // v5.04: the OSM warm below fans out over 16 markets
 
 const SITE = "https://wayfind-xi.vercel.app";
+const CANON = "https://www.gowayfind.com";
 
 async function check(name, url) {
   try {
@@ -74,6 +76,31 @@ export async function GET(req) {
     svc ? userStats(svc) : Promise.resolve(null),
   ]);
 
+  // v5.04 — daily OSM warm for the home markets. Overpass throttles cloud
+  // IPs, so live requests miss most of the time; one polite early-morning
+  // sweep per market refreshes the 7-day durable cache in /api/outdoors
+  // (which persists every live success to Supabase). Batches of 4 keep the
+  // burst small; each call is already wall-capped at ~4.5s inside the route.
+  let osmWarm = null;
+  try {
+    const { LANDING_CITIES } = await import("../../../lib/landing");
+    const cities = Object.values(LANDING_CITIES);
+    let live = 0, cached = 0, missed = 0;
+    for (let i = 0; i < cities.length; i += 4) {
+      const batch = await Promise.all(cities.slice(i, i + 4).map(async (c) => {
+        try {
+          const r = await fetch(`${CANON}/api/outdoors?lat=${c.lat.toFixed(4)}&lng=${c.lng.toFixed(4)}&radius=27359`, { cache: "no-store" });
+          if (!r.ok) return "miss";
+          const d = await r.json();
+          if (d.counts && d.counts.osm !== "unavailable") return d.counts.osmFrom === "cached" ? "cached" : "live";
+          return "miss";
+        } catch { return "miss"; }
+      }));
+      for (const b of batch) { if (b === "live") live++; else if (b === "cached") cached++; else missed++; }
+    }
+    osmWarm = { live, cached, missed, total: cities.length };
+  } catch (e) { osmWarm = null; }
+
   const notes = [];
   const md = dateKey.slice(5);
   if (md === "11-01") notes.push("Giveaway draw day: run supabase/giveaway-draw.sql and announce the winner.");
@@ -91,6 +118,7 @@ export async function GET(req) {
       events24 != null ? events24 + " events (shares/saves)" : "events count needs SUPABASE_SERVICE_ROLE_KEY",
     ].join(" \u00b7 "),
     "Traffic: PostHog dashboard \u2014 https://us.posthog.com (subscription email covers visitor counts)",
+    ...(osmWarm ? ["OSM warm: " + osmWarm.live + " live / " + osmWarm.cached + " cached / " + osmWarm.missed + " missed of " + osmWarm.total + " markets"] : []),
   ];
   if (notes.length) lines.push("", "Today: " + notes.join(" | "));
   const body = lines.join("\n");
@@ -109,5 +137,5 @@ export async function GET(req) {
     } catch (e) {}
   }
 
-  return Response.json({ ok: failing.length === 0, emailed, checks, users, comments24, shares24, events24, notes });
+  return Response.json({ ok: failing.length === 0, emailed, checks, users, comments24, shares24, events24, notes, osmWarm });
 }
