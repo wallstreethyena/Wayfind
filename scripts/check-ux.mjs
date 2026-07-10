@@ -89,5 +89,16 @@ if (!page.includes('screen === "coupons"')) fail("Coupons screen missing");
 if (!page.includes("function toggleSaveCoupon(")) fail("coupon save path missing");
 if (!page.includes('svFolderUpsert("Coupons"')) fail("saved coupons no longer sync to the cloud folder");
 if (!/name === "coupons"\) return \(<svg/.test(page)) fail("coupons NavIcon missing");
+// v5.08 GLOBAL RULES (user direction):
+// (a) the old chip-bubble category strip is dead forever — CategoryMenu tiles
+//     are the one category surface everywhere.
+if (/borderRadius: 22, border: `1\.5px solid/.test(page)) fail("the old chip-bubble category strip resurfaced — CategoryMenu is the only category menu");
+if (!/screen === "explore" && \([\s\S]{0,400}<CategoryMenu activeCat=\{cat\}/.test(page)) fail("explore no longer uses CategoryMenu tiles");
+// (b) the map menu never fully collapses (primary tiles always visible).
+if (page.includes("mapMenuHidden")) fail("the map menu full-collapse came back — primary tiles must always be visible");
+// (c) the map search loupe TOGGLES (second tap closes).
+if (page.includes("setMapSearchOpen(true)} aria-label=\"Search\"")) fail("map search loupe no longer toggles closed");
+// (d) saved coupons stack like a wallet.
+if (!page.includes("Tap to open your wallet")) fail("wallet stack for saved coupons missing");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");

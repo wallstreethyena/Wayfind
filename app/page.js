@@ -26,7 +26,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.07";
+const BUILD_ID = "v5.08";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3222,6 +3222,7 @@ function PageInner() {
   // in, in the cloud "Coupons" folder (saved_places) so they survive devices.
   // Dashboard-loaded offers rows merge with the code-shipped COUPONS list.
   const [savedCoupons, setSavedCoupons] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_coupons") || "{}"); } catch { return {}; } });
+  const [walletOpen, setWalletOpen] = useState(false); // v5.08: saved coupons stack like Apple Wallet — collapsed pile, tap to fan out
   const [cpnOffers, setCpnOffers] = useState([]);
   const _cpnLoadedRef = useRef(false);
   useEffect(() => {
@@ -3255,7 +3256,6 @@ function PageInner() {
   const [signupDone, setSignupDone] = useState(() => { try { return !!localStorage.getItem("wf_signed_up"); } catch { return false; } });
   // Auth state (Supabase). Null user = signed out / no backend configured.
   const [user, setUser] = useState(null);
-  const [mapMenuHidden, setMapMenuHidden] = useState(false); // map top menu collapse
   const [authOpen, setAuthOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authSending, setAuthSending] = useState(false);
@@ -5469,28 +5469,20 @@ function PageInner() {
         )}
       </div>
 
-      {/* Category tabs (Explore + Map). Hidden on home, where the app-tile grid replaces it. */}
-      {screen !== "saved" && screen !== "shared" && screen !== "events" && screen !== "experience" && screen !== "surprise" && screen !== "suggested" && screen !== "itinerary" && (
-        screen === "map" ? null : (
-          <div style={{ display: "flex", gap: 7, padding: "10px 14px", background: C.panel, flexShrink: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-            <button key="surprise" onClick={openSurprise} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 22, border: `1.5px solid ${C.purple}`, background: screen === "surprise" ? C.purple : "transparent", color: screen === "surprise" ? "#0D1117" : C.purple, fontSize: 13.5, fontWeight: 800, cursor: "pointer", whiteSpace: "nowrap" }}>🎁 Surprise Me</button>
-            {CATEGORIES.map((c) => {
-              const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
-              const on = cat === c.id && screen !== "surprise" && screen !== "suggested";
-              return (
-                <button key={c.id} onClick={() => { pickCat(c.id); }} style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 22, border: `1.5px solid ${on ? cc.c : C.border}`, background: on ? cc.dim : "transparent", color: on ? cc.c : C.light, fontSize: 13.5, fontWeight: on ? 700 : 600, cursor: "pointer", whiteSpace: "nowrap" }}>{c.label}</button>
-              );
-            })}
-          </div>
-        )
-      )}
-
-      {/* Sub-filter row. v3.8: Explore shows it as 4-across tiles; on the Map it is moved onto the map as a bottom overlay (see map render below). */}
-      {screen === "explore" && subs.length > 0 && (
-        <div style={{ display: "flex", gap: 7, padding: "2px 14px 10px", background: C.panel, flexShrink: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-          {subs.map((s) => (
-            <button key={s.id} onClick={() => pickSub(s.id)} style={{ flexShrink: 0, padding: "8px 16px", borderRadius: 999, border: `1.5px solid ${sub === s.id ? C.accent : C.border}`, background: sub === s.id ? C.accent : C.card, color: sub === s.id ? "#fff" : C.light, fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{s.label}</button>
-          ))}
+      {/* v5.08 GLOBAL RULE (user direction): the old chip-bubble category
+          strip is gone FOREVER, everywhere. Every category surface uses the
+          one modern menu — CategoryMenu (icon-on-top tiles, iOS style), with
+          the sub-row sliding down only after a primary category is chosen.
+          Surprise Me rides as a trailing tile. Coupons is its own tab and
+          carries no category menu at all. */}
+      {screen === "explore" && (
+        <div style={{ padding: "2px 12px 0", background: C.panel, flexShrink: 0 }}>
+          <CategoryMenu activeCat={cat} sub={sub} onCat={(id) => { pickCat(id); }} onSub={(v) => pickSub(v)} trailing={
+            <button onClick={openSurprise} aria-label="Surprise Me" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0 }}>
+              <span style={{ fontSize: 24, lineHeight: "26px" }}>🎁</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: C.purple, textAlign: "center", lineHeight: 1.15 }}>Surprise</span>
+            </button>
+          } />
         </div>
       )}
 
@@ -5517,16 +5509,11 @@ function PageInner() {
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-                      {mapMenuHidden ? (
-                        <button onClick={() => { setMapMenuHidden(false); try { logEvent("map_menu", null, { hidden: false }); } catch (e) {} }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "9px 0", borderRadius: 14, border: `1px solid ${C.border}`, background: "rgba(22,27,34,.9)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", color: C.light, fontSize: 12.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,.4)" }}>
-                          <span>{(() => { const c = CATEGORIES.find((x) => x.id === cat); return mapBrowse && c ? c.label : "Browse categories"; })()}</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-                        </button>
-                      ) : (<>
-                      <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen(true)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
-                      <button onClick={() => { setMapMenuHidden(true); try { logEvent("map_menu", null, { hidden: true }); } catch (e) {} }} aria-label="Hide menu" style={{ display: "block", margin: "2px auto 0", padding: "3px 30px", background: "transparent", border: "none", color: C.muted, cursor: "pointer" }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 15l6-6 6 6" /></svg>
-                      </button>
+                      {/* v5.08 (user direction): the map menu never fully
+                          collapses — the primary tile row stays; only the
+                          sub-row expands down after a category is chosen. */}
+                      {(<>
+                      <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen((v) => !v)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
                       </>)}
                     </div>
                   </div>
@@ -6419,8 +6406,24 @@ function PageInner() {
               <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Real deals at great local places, hand-picked by Wayfind — no junk offers. Tap ♡ to keep one; saved coupons stay on this device and in your account when you're signed in.</div>
               {savedList.length > 0 && (
                 <>
-                  <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginBottom: 8 }}>Saved</div>
-                  {savedList.map(Cpn)}
+                  {/* v5.08 (user direction): saved coupons behave like cards in
+                      Apple Wallet — a collapsed stack showing each card's top
+                      band, tap to fan out, tap the header to restack. */}
+                  <div onClick={() => setWalletOpen((v) => !v)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase" }}>Your wallet · {savedList.length}</div>
+                    <span style={{ fontSize: 11.5, fontWeight: 800, color: C.accent }}>{walletOpen ? "Stack ▴" : "Fan out ▾"}</span>
+                  </div>
+                  {walletOpen || savedList.length === 1 ? savedList.map(Cpn) : (
+                    <div onClick={() => setWalletOpen(true)} style={{ cursor: "pointer", marginBottom: 16 }}>
+                      {[...savedList.slice(0, 6)].reverse().map((c, i, arr) => (
+                        <div key={c.id} style={{ position: "relative", marginTop: i === 0 ? 0 : -58, zIndex: i + 1, background: "#1A2030", border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: i === arr.length - 1 ? "13px 16px 15px" : "13px 16px 74px", boxShadow: "0 -8px 20px rgba(0,0,0,.5)" }}>
+                          {c.business ? <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}</div> : null}
+                          <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>🏷️ {c.title}</div>
+                        </div>
+                      ))}
+                      <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 8 }}>{savedList.length > 6 ? `+${savedList.length - 6} more · ` : ""}Tap to open your wallet</div>
+                    </div>
+                  )}
                   {fresh.length > 0 && <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", margin: "14px 0 8px" }}>More deals</div>}
                 </>
               )}
