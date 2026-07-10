@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.25";
+const BUILD_ID = "v5.26";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -8263,12 +8263,16 @@ function PageInner() {
               const town = locName ? locName.split(",")[0] : "your area";
               let w = "";
               if (weather && typeof weather.temp === "number") {
+                // v5.26: the greeting speaks in what it FEELS like — a Florida
+                // 92° with a 103° heat index greets as 103°. When feels-like
+                // meaningfully differs from the thermometer, say so explicitly.
                 const felt = weather.feels != null ? weather.feels : weather.temp;
+                const diff = weather.feels != null && Math.abs(weather.feels - weather.temp) >= 3;
                 const rainy = weather.wet || /rain|storm|shower/i.test(weather.label || "");
                 w = rainy ? " Rain out there — the perfect excuse for a cozy find in " + town + "."
-                  : felt >= 99 ? " It's " + weather.temp + "° and steamy — cool, easy picks are winning today."
-                  : weather.temp >= 60 ? " It's a gorgeous " + weather.temp + "° — a great moment to be out in " + town + "."
-                  : " A crisp " + weather.temp + "° in " + town + " — perfect for finding somewhere warm and good.";
+                  : felt >= 99 ? (diff ? " It's " + weather.temp + "° but feels like " + felt + "° — cool, easy picks are winning today." : " It's a steamy " + felt + "° — cool, easy picks are winning today.")
+                  : felt >= 60 ? (diff ? " It feels like a gorgeous " + felt + "° out — a great moment to be out in " + town + "." : " It's a gorgeous " + felt + "° — a great moment to be out in " + town + ".")
+                  : (diff ? " It feels like a crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good." : " A crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good.");
               }
               const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
               const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
