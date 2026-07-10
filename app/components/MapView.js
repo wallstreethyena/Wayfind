@@ -35,7 +35,7 @@ function placePinSVG(fill, num, numColor) {
     "</svg>";
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -78,7 +78,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   useEffect(() => {
     draw();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [places, center, category, deviceLoc, events]);
+  }, [places, center, category, deviceLoc, events, fit]);
 
   function draw() {
     const map = mapRef.current;
@@ -172,7 +172,13 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
     if (stateChanged) {
       lastCenterRef.current = stateKey;
-      if (places && places.length > 0) {
+      if (fit && places && places.length > 0) {
+        // v4.95 list-map mode: the user's location AND every listed place
+        // must be visible at once so it's obvious which is closest.
+        if (deviceLoc) bounds.extend(deviceLoc); else if (center) bounds.extend(center);
+        map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
+        if (places.length === 1) map.setZoom(14);
+      } else if (places && places.length > 0) {
         // Always fit to the actual pins, not the search center.
         // This is what fixes the "only 1 pin visible" issue when places are
         // clustered 15+ miles from the address center.
