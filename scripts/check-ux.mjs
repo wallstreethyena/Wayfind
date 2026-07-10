@@ -81,5 +81,13 @@ if (!page.includes('"/api/signals/likes?ids="')) fail("community like aggregate 
 const ranking = readFileSync(new URL("../lib/ranking.js", import.meta.url), "utf8");
 if (!ranking.includes("sig.likes")) fail("Ranking.memberDelta lost the like nudge");
 if (/\{[^}\n]*_members\.likes[^}\n]*\}/.test(page) || /\{[^}\n]*sig\.likes[^}\n]*\}/.test(page)) fail("like COUNT is being rendered — product direction: likes impact the card, the number stays private");
+// v5.07 — the Coupons tab: bottom-nav entry, screen, save path, and the
+// no-fake-deals contract (the shipped COUPONS list starts empty; only real
+// offers Gabe loads may appear).
+if (!page.includes('{ id: "coupons", icon: "coupons", label: "Coupons" }')) fail("Coupons tab missing from the bottom nav");
+if (!page.includes('screen === "coupons"')) fail("Coupons screen missing");
+if (!page.includes("function toggleSaveCoupon(")) fail("coupon save path missing");
+if (!page.includes('svFolderUpsert("Coupons"')) fail("saved coupons no longer sync to the cloud folder");
+if (!/name === "coupons"\) return \(<svg/.test(page)) fail("coupons NavIcon missing");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");

@@ -6,6 +6,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, dis
 import { searchPlaces } from "../lib/sources";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
+import { COUPONS } from "../lib/coupons";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -25,7 +26,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.06";
+const BUILD_ID = "v5.07";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -1448,6 +1449,7 @@ function NavIcon({ name, color, size }) {
   if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
   if (name === "hotels") return (<svg {...p}><rect x="5" y="3.8" width="14" height="17.2" rx="1.6" /><path d="M10.2 21v-4.2h3.6V21" /><path d="M8.4 7.4h1.7" /><path d="M13.9 7.4h1.7" /><path d="M8.4 11.4h1.7" /><path d="M13.9 11.4h1.7" /></svg>);
   if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
+  if (name === "coupons") return (<svg {...p}><path d="M20.6 12.6 L13.4 19.8 a2.1 2.1 0 0 1-3 0 L4.2 13.6 a2.1 2.1 0 0 1-.6-1.5 V5.7 a2.1 2.1 0 0 1 2.1-2.1 h6.4 a2.1 2.1 0 0 1 1.5.6 l7 7 a2.1 2.1 0 0 1 0 3 Z" /><circle cx="8.6" cy="8.6" r="1.5" /></svg>);
   if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
   return null;
 }
@@ -3216,6 +3218,33 @@ function PageInner() {
   }, []);
   const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
   const [likedItems, setLikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch { return {}; } });
+  // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
+  // in, in the cloud "Coupons" folder (saved_places) so they survive devices.
+  // Dashboard-loaded offers rows merge with the code-shipped COUPONS list.
+  const [savedCoupons, setSavedCoupons] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_coupons") || "{}"); } catch { return {}; } });
+  const [cpnOffers, setCpnOffers] = useState([]);
+  const _cpnLoadedRef = useRef(false);
+  useEffect(() => {
+    if (screen !== "coupons" || !supabase || _cpnLoadedRef.current) return;
+    _cpnLoadedRef.current = true;
+    supabase.from("offers").select("*").then(({ data }) => {
+      if (!Array.isArray(data)) return;
+      const rows = data.map((o) => { try { if (!o) return null; const title = o.title || o.deal || o.description; if (!title) return null; return { id: "offer:" + (o.id || o.google_place_id || title), business: o.business_name || o.name || "", title: String(title), details: o.title ? (o.description || "") : "", code: o.code || null, url: o.url || null, cta: o.cta || null, expires: o.expires_at || o.expires || null, area: o.area || null }; } catch (e) { return null; } }).filter(Boolean);
+      setCpnOffers(rows);
+    }, () => {});
+  }, [screen]);
+  function toggleSaveCoupon(c) {
+    if (!c || !c.id) return;
+    const next = { ...savedCoupons };
+    if (next[c.id]) { delete next[c.id]; svFolderDelete("Coupons", "coupon:" + c.id); }
+    else { next[c.id] = { c, ts: Date.now() }; svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c }); try { logEvent("coupon_save", null, { id: c.id }); } catch (e) {} }
+    setSavedCoupons(next);
+    try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+  }
+  function copyCouponCode(code) {
+    const done = () => showToast("Code copied — show it at checkout");
+    try { navigator.clipboard.writeText(code).then(done, () => { try { const ta = document.createElement("textarea"); ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); } catch (e) {} }); } catch (e) {}
+  }
   const [dislikedItems, setDislikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch { return {}; } });
   const [sharedItems, setSharedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_shared_items") || "{}"); } catch { return {}; } });
   const [sysFolder, setSysFolder] = useState(null);
@@ -4491,7 +4520,7 @@ function PageInner() {
     try {
       const go = new URLSearchParams(window.location.search).get("go");
       if (!go) return;
-      const valid = { events: "events", map: "map", saved: "saved", itinerary: "itinerary" };
+      const valid = { events: "events", map: "map", saved: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (valid[go]) setScreen(valid[go]);
       const u = new URL(window.location.href); u.searchParams.delete("go");
       window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
@@ -6356,6 +6385,57 @@ function PageInner() {
           );
         })()}
 
+        {screen === "coupons" && (() => {
+          const _today = new Date().toISOString().slice(0, 10);
+          const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
+          const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
+          const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
+          const savedIds = new Set(savedList.map((c) => c.id));
+          const fresh = live.filter((c) => !savedIds.has(c.id));
+          const Cpn = (c) => {
+            const isSaved = !!savedCoupons[c.id];
+            return (
+              <div key={c.id} style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.accent : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ minWidth: 0 }}>
+                    {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
+                    <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.3 }}>🏷️ {c.title}</div>
+                    {c.details ? <div style={{ fontSize: 13, color: C.light, marginTop: 4, lineHeight: 1.45 }}>{c.details}</div> : null}
+                    {c.expires ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5 }}>Ends {String(c.expires).slice(0, 10)}</div> : null}
+                  </div>
+                  <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.accent : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.accent : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
+                  {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
+                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
+                  {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
+                </div>
+              </div>
+            );
+          };
+          return (
+            <div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "4px 0 4px" }}>🏷️ Coupons</div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Real deals at great local places, hand-picked by Wayfind — no junk offers. Tap ♡ to keep one; saved coupons stay on this device and in your account when you're signed in.</div>
+              {savedList.length > 0 && (
+                <>
+                  <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginBottom: 8 }}>Saved</div>
+                  {savedList.map(Cpn)}
+                  {fresh.length > 0 && <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", margin: "14px 0 8px" }}>More deals</div>}
+                </>
+              )}
+              {fresh.map(Cpn)}
+              {live.length === 0 && savedList.length === 0 && (
+                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+                  <div style={{ fontSize: 42, marginBottom: 12 }}>🏷️</div>
+                  <strong style={{ display: "block", color: C.light, marginBottom: 6 }}>New local deals land here</strong>
+                  <span style={{ fontSize: 13, lineHeight: 1.5, display: "block" }}>Wayfind is signing up local spots now. Every coupon here will be real — no junk offers, ever. Check back soon.</span>
+                </div>
+              )}
+              {live.length > 0 && <div style={{ fontSize: 11, color: C.muted, marginTop: 10, textAlign: "center" }}>Some deals may be affiliate offers. Wayfind may earn a commission at no cost to you.</div>}
+            </div>
+          );
+        })()}
         {screen === "saved" && !activeList && !sysFolder && (
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingTop: 4 }}>
@@ -6765,10 +6845,10 @@ function PageInner() {
 
       {/* Bottom nav */}
       <div style={{ background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", flexShrink: 0, paddingBottom: "env(safe-area-inset-bottom)" }}>
-        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
+        {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "coupons", icon: "coupons", label: "Coupons" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
-          <a key={s.id} href={{ home: "/", events: "/events", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "7px 6px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, background: "transparent", border: "none", cursor: "pointer", textDecoration: "none" }}>
+          <a key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "7px 6px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, background: "transparent", border: "none", cursor: "pointer", textDecoration: "none" }}>
             <NavIcon name={s.icon} color={active ? C.accent : C.muted} size={22} />
             <span style={{ fontSize: 10.5, fontWeight: active ? 700 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </a>
