@@ -100,5 +100,17 @@ if (page.includes("mapMenuHidden")) fail("the map menu full-collapse came back �
 if (page.includes("setMapSearchOpen(true)} aria-label=\"Search\"")) fail("map search loupe no longer toggles closed");
 // (d) saved coupons stack like a wallet.
 if (!page.includes("Tap to open your wallet")) fail("wallet stack for saved coupons missing");
+// v5.09 — coupon redeemability + hero persuasion engine:
+// (a) a deal may only show if the app can DELIVER it (code or claimable URL);
+//     flyer transcriptions never render (the Dinosaur World lesson).
+if (!page.includes("function offerRedeemable(")) fail("coupon redeemability rule missing — undeliverable flyer deals would render again");
+if ((page.match(/offerRedeemable/g) || []).length < 3) fail("offerRedeemable not applied to every offer surface (place cards + coupons tab)");
+// (b) hero cards rotate the hook bank with variant-level analytics; the bank
+//     module documents the truth rule.
+const hooks = readFileSync(new URL("../lib/hooks.js", import.meta.url), "utf8");
+if (!hooks.includes("must be TRUE")) fail("hook bank lost its truthfulness contract");
+if (!page.includes("pickHook(a.key")) fail("hero cards no longer rotate the hook bank");
+if (!page.includes('capture("hero_impression"')) fail("hero impression analytics missing");
+if (!page.includes('capture("hero_tap"')) fail("hero tap analytics missing");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
