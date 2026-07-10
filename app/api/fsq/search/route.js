@@ -68,7 +68,7 @@ function normalize(p) {
     photoAttrs: [],
     photoAttr: "",
     labels: [],
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.name || ""),
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + lat + "%2C" + lng, // coordinates always resolve; a name Google doesn't know dead-ends
     src: "fsq",
   };
 }

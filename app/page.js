@@ -4,6 +4,8 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, get
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
+// v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
+import { placeAllowed } from "../lib/placeFilter";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
@@ -23,7 +25,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v4.93";
+const BUILD_ID = "v4.94";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -168,6 +170,10 @@ function directionsUrl(p) {
   const looksLikePlaceId = typeof p.id === "string" && /^ChIJ|^GhIJ|^Eh|^0x/.test(p.id) && p.id.length >= 20;
   if (looksLikePlaceId) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name || "")}&query_place_id=${encodeURIComponent(p.id)}`;
   const hasCoords = p.lat != null && p.lng != null;
+  // v4.94: secondary-source places (fsq/osm/ridb) may not exist under that
+  // name on Google Maps — a name search dead-ends on a blank map. Their
+  // coordinates always resolve, so directions open the exact pin instead.
+  if (hasCoords && typeof p.id === "string" && /^(fsq|osm|ridb|nps):/.test(p.id)) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
   if (p.name) {
     const q = encodeURIComponent(p.name + (p.address ? " " + p.address : ""));
     return hasCoords
@@ -2974,7 +2980,7 @@ function PageInner() {
   const [browseTours, setBrowseTours] = useState(null); // v4.84: Viator products on the Things to do browse
   const [expOpenOnly, setExpOpenOnly] = useState(false);
   const [expSort, setExpSort] = useState("near");
-  const [expMi, setExpMi] = useState(60); // v4.89: experience distance cap (60 = no cap); the new SortControl drives it
+  const [expMi, setExpMi] = useState(DEFAULT_RADIUS_MI); // v4.94: opens at the 17-mi app default like every other list; the adaptive effect below bumps it honestly when the vibe pulled from farther
   const [rolling, setRolling] = useState(false);
   const [diceFace, setDiceFace] = useState("🎲");
   const [diceChoose, setDiceChoose] = useState(false);
@@ -3010,7 +3016,7 @@ function PageInner() {
     const theme = Hol.themeFor(hol.key);
     try { logEvent("holiday_open", null, { key: hol.key }); } catch (e) {}
     try {
-      const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).catch(() => [])));
+      const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
       const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name);
@@ -3031,7 +3037,7 @@ function PageInner() {
     const c = CURATED[kind]; if (!c) return;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
     try {
-      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).catch(() => [])));
+      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
       const used = new Set(); const out = []; const sections = [];
       const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
       // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every
@@ -3509,7 +3515,7 @@ function PageInner() {
     setExpPlaces(null);
     setExpOpenOnly(false);
     setExpSort("near");
-    setExpMi(60);
+    setExpMi(DEFAULT_RADIUS_MI);
     setScreen("experience");
     try { window.scrollTo(0, 0); } catch {}
   }
@@ -3781,7 +3787,7 @@ function PageInner() {
     const q = detail.name + (placeCity ? " " + placeCity : "");
     let cancelled = false;
     setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=3")
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
       .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
@@ -4318,6 +4324,22 @@ function PageInner() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, activeBadge, locName]);
+
+  // v4.94: the experience "Within X mi" pill mirrors the sheets — if the vibe
+  // pulled from farther than the 17-mi default (adaptive radius), bump the
+  // visible cap up the ladder so results aren't hidden behind a stale label.
+  useEffect(() => {
+    const pl = expPlaces;
+    if (!pl || !pl.length) return;
+    const _within = (mi) => pl.filter((p) => p.distMi == null || p.distMi <= mi).length;
+    setExpMi((cur) => {
+      const _t = Math.min(ADAPT_MIN, pl.length);
+      if (cur >= 60 || _within(cur) >= _t) return cur;
+      for (const mi of [30, 45, 60]) { if (mi > cur && _within(mi) >= _t) return mi; }
+      return 60;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBadge, expPlaces && expPlaces.length]);
 
   // v4.84: bookable activities on the Things to do browse too — Viator is a
   // source, not just a booking-link decorator.
@@ -6767,7 +6789,7 @@ function PageInner() {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? ("/api/viator/go?q=" + encodeURIComponent(detail.name || "") + "&city=" + encodeURIComponent((() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : ""; } catch { return ""; } })()) + "&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); const t = [locName ? locName.split(",")[0] : "", _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); return t; } catch { return ""; } })())) : null; const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>

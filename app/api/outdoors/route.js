@@ -58,7 +58,7 @@ async function fromNPS(lat, lng, radiusMi) {
           type: p.designation || "National Park Site",
           types: ["tourist_attraction", "park", (p.designation || "").toLowerCase().replace(/ /g, "_")].filter(Boolean),
           photo: img, photos: img ? [img] : [], photoAttrs: [], photoAttr: "NPS",
-          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(p.fullName),
+          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + plat + "%2C" + plng,
           src: "nps",
         };
       })
@@ -91,7 +91,7 @@ async function fromRIDB(lat, lng, radiusMi) {
           openNow: null, nextOpen: null, oh: null, utcOffset: null,
           type: kind, types: ["park", "recreation", kind.toLowerCase().replace(/ /g, "_")].filter(Boolean),
           photo: media ? media.URL : null, photos: media ? [media.URL] : [], photoAttrs: [], photoAttr: media ? "Recreation.gov" : "",
-          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(f.FacilityName),
+          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + plat + "%2C" + plng,
           src: "ridb",
         };
       })
@@ -148,7 +148,7 @@ async function fromOSM(lat, lng, radiusM) {
           openNow: null, nextOpen: null, oh: null, utcOffset: null,
           type: kind, types: ["park", kind.toLowerCase().replace(/ /g, "_")],
           photo: null, photos: [], photoAttrs: [], photoAttr: "",
-          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(name),
+          labels: [], mapsUrl: "https://www.google.com/maps/search/?api=1&query=" + plat + "%2C" + plng,
           src: "osm",
         };
       })
