@@ -71,7 +71,7 @@ export async function GET(req) {
   const lat = parseFloat(searchParams.get("lat")), lng = parseFloat(searchParams.get("lng"));
   const debug = searchParams.get("debug") === "1";
   if (!KEY || !q) return Response.json({});
-  const ck = "ta3|" /* v5.16: ta2 entries hold pre-extractor-fix "none" results */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
+  const ck = "ta4|" /* v5.18: ta3 entries were written before the url + token-match fixes */ + _nn(q) + "|" + _nn(city) + "|" + (isFinite(lat) ? lat.toFixed(2) + "," + lng.toFixed(2) : "");
   if (!debug) {
     const hit = await cacheGet(ck);
     if (hit) return Response.json(hit, { headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" } });
