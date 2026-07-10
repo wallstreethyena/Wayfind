@@ -36,7 +36,7 @@ const sp = hoursSpan(P("x", [], [per(17, 0, 2, 0, 2)]));
 if (!sp || sp.lc <= 1440) fail("overnight close not treated as 24h+");
 
 // 8. The composite loop is actually wired through the engine.
-const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!page.includes("Meals.mealEligible(sl.label, pp)")) fail("openCurated not filtering through mealEligible");
 if ((page.match(/Meals\.mealEligible\(sl\.label, pp\)/g) || []).length < 2) fail("backfill path missing eligibility check");
 console.log("check-meals: OK — 8 fixture suites pass; slot labels are hours-verified promises");

@@ -9,7 +9,7 @@ if (!isTrueLodging({ name: "Hampton Inn Ellenton", types: ["lodging"] })) fail("
 if (!isTrueLodging({ name: "Zota Beach Resort", types: ["lodging", "resort_hotel"] })) fail("resort failed");
 if (isTrueLodging({ name: "Happy Trails RV Park", types: ["rv_park", "lodging"] })) fail("RV park passed");
 if (!isTrueLodging({ name: "The Resort at Longboat Key Club", types: ["lodging"] })) fail("resort-named lodging failed");
-const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!page.includes('=== "stays") results = results.filter(isTrueLodging)')) fail("stays sheet not filtered");
 if (!page.includes('any(["campground", "rv_park"])) return "Activities"')) fail("campground still classifies as Hotels");
 const aff = readFileSync(new URL("../lib/affiliates.js", import.meta.url), "utf8");

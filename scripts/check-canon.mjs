@@ -1,7 +1,7 @@
 // Guardrail: the canonical-domain contract. Stale *.vercel.app deployment
 // URLs must never be reachable or propagated. Locks the v4.54 fix.
 import { readFileSync } from "fs";
-const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const cfg = readFileSync(new URL("../next.config.js", import.meta.url), "utf8");
 const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
 if (lay.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain in layout.js metadata");

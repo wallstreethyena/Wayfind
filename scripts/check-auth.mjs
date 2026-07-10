@@ -1,7 +1,7 @@
 // Guardrail: the account-recovery contract. Users must always have a path
 // back into their account.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-auth: FAIL — " + m); process.exit(1); };
 if (!s.includes('_event === "PASSWORD_RECOVERY"')) fail("PASSWORD_RECOVERY handler missing");
 if (!s.includes("resetPasswordForEmail")) fail("forgot-password sender missing");

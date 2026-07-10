@@ -7,7 +7,7 @@ export const metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: "/" },
   title: "Wayfind — Find the Best Things to Do Near You, Right Now",
-  description: "Wayfind ranks the best restaurants, attractions, events, and hidden gems near you, right now. One confident answer for what to do next in Florida and beyond.",
+  description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -25,7 +25,7 @@ export const metadata = {
   },
   openGraph: {
     title: "Wayfind",
-    description: "Wayfind ranks the best restaurants, attractions, events, and hidden gems near you, right now. One confident answer for what to do next in Florida and beyond.",
+    description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
     url: SITE_URL,
     siteName: "Wayfind",
     type: "website",
@@ -41,7 +41,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Wayfind",
-    description: "Wayfind ranks the best restaurants, attractions, events, and hidden gems near you, right now. One confident answer for what to do next in Florida and beyond.",
+    description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
     images: ["/share-card.png?v=11"],
   },
 };
@@ -76,7 +76,7 @@ export default function RootLayout({ children }) {
         <footer style={{ background: "#0D1117", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
-            <p style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind ranks the best restaurants, bars, beaches, attractions, family activities, live events, and hidden gems around your location, with real reviews, deals, and bookable tours. Built in Florida, works anywhere.</p>
+            <p style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>

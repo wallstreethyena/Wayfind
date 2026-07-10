@@ -1,7 +1,7 @@
 // Guardrail: the revenue hero cards' contract. Locks the behaviors Gabe has
 // had to re-fix repeatedly. Any change that breaks these fails the build.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-cards: FAIL — " + m); process.exit(1); };
 
 // 1. The five revenue cards exist as a single protected list.

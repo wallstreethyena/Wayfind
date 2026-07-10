@@ -2,7 +2,7 @@
 // generator once shipped phrases like "easy add to the plan" and "review
 // strength"; this gate makes that class of copy a build failure forever.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const BANNED = [
   "easy add to the plan",
   "rated near the top",

@@ -18,10 +18,10 @@ if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib
 
 // Wiring: every result path routes through the shared module.
 const sources = readFileSync(new URL("../lib/sources.js", import.meta.url), "utf8");
-const page = readFileSync(new URL("../app/page.js", import.meta.url), "utf8");
+const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 if (!sources.includes('from "./placeFilter"')) fail("lib/sources.js no longer imports lib/placeFilter — aggregator bypasses the shared filter");
 if (!/junkGate\(categoryId, p, subId\)/.test(sources)) fail("aggregator does not pass subId to the gate — sub-filter contracts (Museums, Tours) unenforced");
-if (!page.includes('from "../lib/placeFilter"')) fail("app/page.js no longer imports the shared filter");
+if (!page.includes('from "../lib/placeFilter"')) fail("app/home.js no longer imports the shared filter");
 if (!/import \{ searchPlaces \} from "\.\.\/lib\/sources"/.test(page)) fail("page.js no longer imports searchPlaces from lib/sources — views bypass the shared filter");
 if (/import \{[^}]*\bsearchPlaces\b[^}]*\} from "\.\.\/lib\/google"/.test(page)) fail("page.js imports searchPlaces directly from lib/google — filter bypassed");
 if ((page.match(/searchNearbyPlaces\(([^)]*)\)\.then\(\(l\) => \(l \|\| \[\]\)\.filter\(\(p\) => placeAllowed\(null, null, p\)\)\)/g) || []).length < 2) fail("composite/Top-10 pools no longer route searchNearbyPlaces through placeAllowed");
