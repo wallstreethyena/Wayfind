@@ -70,5 +70,16 @@ if (!page.includes("<span style={{ fontSize: 18 }}>{wxIconNow(weather)}</span>")
 //     not the retired orange weather card.
 if (page.includes(">You are exploring</div>")) fail("the desktop 'You are exploring' weather card resurfaced — the sidebar shows the mini map instead");
 if (!/isDesktop && \([\s\S]{0,900}<MapView places=\{_pins\}/.test(page)) fail("desktop sidebar mini map missing");
+// v5.05 — account + community-signal contracts (live testing caught Supabase's
+// mailer 500ing, which blocked ALL signups):
+// (a) signup goes through the server route (admin-created, pre-confirmed);
+if (!page.includes('fetch("/api/auth/signup"')) fail("signup no longer routes through /api/auth/signup — the Supabase mailer outage would block all signups again");
+if (!page.includes('fetch("/api/auth/confirm"')) fail("unconfirmed-account rescue path missing from sign-in");
+// (b) likes are aggregated server-side and fold into the ranking nudge, but
+//     the raw count is never rendered.
+if (!page.includes('"/api/signals/likes?ids="')) fail("community like aggregate no longer fetched — likes must impact card ranking");
+const ranking = readFileSync(new URL("../lib/ranking.js", import.meta.url), "utf8");
+if (!ranking.includes("sig.likes")) fail("Ranking.memberDelta lost the like nudge");
+if (/\{[^}\n]*_members\.likes[^}\n]*\}/.test(page) || /\{[^}\n]*sig\.likes[^}\n]*\}/.test(page)) fail("like COUNT is being rendered — product direction: likes impact the card, the number stays private");
 if (!page.includes("_paint(raw)")) fail("experience first-round paint missing — results must show as soon as the first round returns");
 console.log("check-ux: OK — Things to do + 🎡, one filter control on lists, spinner watchdog, reservations captured on 3 booking paths");
