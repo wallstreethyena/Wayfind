@@ -52,12 +52,15 @@ async function cacheSet(k, v) {
 const _nn = (x) => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const distKm = (a, b, c, d) => { const R = 6371, t = Math.PI / 180; const h = Math.sin((c - a) * t / 2) ** 2 + Math.cos(a * t) * Math.cos(c * t) * Math.sin((d - b) * t / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); };
 
-// Tolerant field extraction across catalog projections.
-const nameOf = (r) => { if (!r) return ""; if (typeof r.name === "string") return r.name; const n = r.names; if (!n) return ""; if (typeof n === "string") return n; return n.name || n.display_name || n.default || (Array.isArray(n) ? n[0] : "") || ""; };
-const idOf = (r) => (r && (r.id ?? r.location_id ?? r.locationId)) ?? null;
-const coordsOf = (r) => { const c = r && (r.coordinates || r.coordinate || r.latlng || r.geo); if (!c) return null; const la = c.latitude ?? c.lat, lo = c.longitude ?? c.lng ?? c.lon; return (la != null && lo != null) ? { lat: Number(la), lng: Number(lo) } : null; };
-const overallOf = (d) => (d && (d.overall_rating || d.overallRating || d.rating_summary)) || null;
-const urlOf = (d) => { const u = d && (d.urls || d.url || d.web_url); if (!u) return null; if (typeof u === "string") return u; return u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; };
+// Field extraction for the confirmed Terra catalog shape: each search item
+// wraps the payload in .location; names/addresses are language-tagged arrays
+// ({ language, value, primary }); overall_rating rides on the projection.
+const unwrap = (r) => (r && r.location) || r || {};
+const nameOf = (r) => { const l = unwrap(r); if (typeof l.name === "string") return l.name; const n = l.names; if (!Array.isArray(n) || !n.length) return ""; const p = n.find((x) => x && x.primary) || n.find((x) => x && x.language === "en") || n[0]; return (p && (p.value || p.name)) || ""; };
+const idOf = (r) => { const l = unwrap(r); return (l.id ?? l.location_id) ?? null; };
+const coordsOf = (r) => { const c = unwrap(r).coordinates; if (!c) return null; const la = c.latitude ?? c.lat, lo = c.longitude ?? c.lng; return (la != null && lo != null) ? { lat: Number(la), lng: Number(lo) } : null; };
+const overallOf = (r) => { const l = unwrap(r); return l.overall_rating || l.overallRating || null; };
+const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_url; if (!u) return null; if (typeof u === "string") return u; if (Array.isArray(u)) { const f = u.find((x) => typeof x === "string" && x.startsWith("http")) || u.find((x) => x && typeof x.value === "string" && x.value.startsWith("http")); return typeof f === "string" ? f : (f && f.value) || null; } return u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; };
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -104,7 +107,7 @@ export async function GET(req) {
     const out = {
       name: nameOf(d) || nameOf(best),
       rating: ov && ov.rating != null ? Number(ov.rating) : null,
-      reviews: ov ? Number(ov.count ?? ov.review_count ?? ov.num_reviews ?? 0) || null : null,
+      reviews: ov ? Number(ov.count ?? ov.review_count ?? ov.num_reviews ?? ov.total ?? ov.reviews ?? 0) || null : null,
       url: urlOf(d) || urlOf(best),
     };
     if (out.rating == null && out.reviews == null) { const empty = { none: true }; await cacheSet(ck, empty); return Response.json(debug ? { step: "empty", keys: Object.keys(d || {}).slice(0, 25) } : empty); }
