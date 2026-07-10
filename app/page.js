@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.11";
+const BUILD_ID = "v5.12";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5891,7 +5891,18 @@ function PageInner() {
                     // v5.09 persuasion engine: rotate the hook bank (random,
                     // never the same line twice in a row) with live tokens;
                     // fall back to the static meta hook when no bank exists.
-                    const bk = pickHook(a.key, { temp: weather && weather.temp, time: (() => { const h = new Date().getHours(); return h < 12 ? "morning" : h < 17 ? "afternoon" : h < 21 ? "golden hour" : "late"; })() });
+                    // Live context for data-gated lines: a "4.9★" claim needs a
+                    // real 4.9★ place in the pool; "[mins] minutes away" uses the
+                    // actual nearest top-rated spot (~2 min/mile local driving).
+                    const _hh = new Date().getHours();
+                    const _nearTop = expPool.filter((p) => p && p.rating >= 4.5 && (p.reviews || 0) >= 100 && p.distMi != null).sort((x, y) => x.distMi - y.distMi)[0];
+                    const bk = pickHook(a.key, {
+                      temp: weather && weather.temp,
+                      time: _hh < 12 ? "morning" : _hh < 17 ? "afternoon" : _hh < 21 ? "golden hour" : "late",
+                      night: _hh >= 16 || _hh < 4, day: _hh >= 8 && _hh < 16,
+                      top49: expPool.some((p) => p && p.rating >= 4.9 && (p.reviews || 0) >= 15),
+                      mins: _nearTop && _nearTop.distMi <= 15 ? Math.max(4, Math.round(_nearTop.distMi * 2)) : null,
+                    });
                     if (bk) heroImpression(a.key, bk.variant, bk.text);
                     return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
                   }
