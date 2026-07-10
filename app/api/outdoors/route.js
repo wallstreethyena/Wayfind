@@ -24,6 +24,41 @@ const mem = new Map();
 const TTL = 6 * 3600 * 1000;
 let _npsAll = null; // { parks, exp }
 
+// v5.04 — durable OSM layer. Overpass throttles cloud IPs, so a live miss is
+// the NORM from Vercel, not the exception. Every live success is persisted to
+// Supabase (7 days) and a live miss falls back to the last good result for
+// that geo — once any request (or the daily cron warm) gets through, the area
+// keeps its OSM parks/beaches/piers even while Overpass throttles us.
+const OSM_KEEP_MS = 7 * 24 * 3600 * 1000;
+function sb() {
+  const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
+  const url = raw ? (/^http:\/\//i.test(raw) ? raw.replace(/^http:\/\//i, "https://") : (/^https:\/\//i.test(raw) ? raw : "https://" + raw)) : "";
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return url && key ? { url, key } : null;
+}
+async function osmCacheGet(k) {
+  const s = sb();
+  if (!s) return null;
+  try {
+    const r = await fetch(`${s.url}/rest/v1/wf_places_cache?k=eq.${encodeURIComponent(k)}&select=v,exp`, { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    if (!r.ok) return null;
+    const row = (await r.json())[0];
+    if (!row || new Date(row.exp).getTime() < Date.now()) return null;
+    return row.v;
+  } catch { return null; }
+}
+async function osmCacheSet(k, v) {
+  const s = sb();
+  if (!s) return;
+  try {
+    await fetch(`${s.url}/rest/v1/wf_places_cache`, {
+      method: "POST",
+      headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" },
+      body: JSON.stringify({ k, v, exp: new Date(Date.now() + OSM_KEEP_MS).toISOString() }),
+    });
+  } catch (e) {}
+}
+
 const toMi = (m) => m / 1609.34;
 function distMi(aLat, aLng, bLat, bLng) {
   const R = 3958.8, toR = (d) => (d * Math.PI) / 180;
@@ -184,9 +219,19 @@ export async function GET(req) {
   const pick = (r, fb) => (r.status === "fulfilled" && r.value) ? r.value : fb;
   const nps = pick(npsR, { configured: !!getNps(), places: [] });
   const ridb = pick(ridbR, { configured: !!getRidb(), places: [] });
-  const osm = pick(osmR, { configured: true, ok: false, places: [] });
+  let osm = pick(osmR, { configured: true, ok: false, places: [] });
+  // v5.04 durable OSM: persist live successes; fall back to the last good
+  // result for this geo when Overpass throttles us (counts.osm stays a real
+  // number, marked "cached" for honesty).
+  const osmKey = "wf-osm|" + ck;
+  let osmFrom = "live";
+  if (osm.ok && osm.places.length) { osmCacheSet(osmKey, osm.places); }
+  else if (!osm.ok) {
+    const kept = await osmCacheGet(osmKey);
+    if (Array.isArray(kept) && kept.length) { osm = { configured: true, ok: true, places: kept }; osmFrom = "cached"; }
+  }
   const places = [...nps.places, ...ridb.places, ...osm.places];
-  const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length } };
+  const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length, ...(osmFrom === "cached" ? { osmFrom } : {}) } };
   // v4.91: a transient OSM outage must not be sticky — cache failures briefly
   // (10 min) so the next user retries, successes for the full 6h.
   // v4.93: and never let the CDN cache a failed response for an hour either.
