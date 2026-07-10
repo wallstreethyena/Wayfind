@@ -60,7 +60,7 @@ const nameOf = (r) => { const l = unwrap(r); if (typeof l.name === "string") ret
 const idOf = (r) => { const l = unwrap(r); return (l.id ?? l.location_id) ?? null; };
 const coordsOf = (r) => { const c = unwrap(r).coordinates; if (!c) return null; const la = c.latitude ?? c.lat, lo = c.longitude ?? c.lng; return (la != null && lo != null) ? { lat: Number(la), lng: Number(lo) } : null; };
 const overallOf = (r) => { const l = unwrap(r); return l.overall_rating || l.overallRating || null; };
-const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_url; if (!u) return null; if (typeof u === "string") return u; if (Array.isArray(u)) { const f = u.find((x) => typeof x === "string" && x.startsWith("http")) || u.find((x) => x && typeof x.value === "string" && x.value.startsWith("http")); return typeof f === "string" ? f : (f && f.value) || null; } const v = u.main || u.web_url || u.tripadvisor || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; return typeof v === "string" ? v : null; };
+const urlOf = (r) => { const l = unwrap(r); const u = l.urls || l.url || l.web_url; if (!u) return null; if (typeof u === "string") return u; if (Array.isArray(u)) { const f = u.find((x) => typeof x === "string" && x.startsWith("http")) || u.find((x) => x && typeof x.value === "string" && x.value.startsWith("http")); return typeof f === "string" ? f : (f && f.value) || null; } const v = (u.tripadvisor && u.tripadvisor.main) || u.main || u.web_url || u.web || u.desktop || u.canonical || Object.values(u).find((x) => typeof x === "string" && x.startsWith("http")) || null; return typeof v === "string" ? v : null; };
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
@@ -85,7 +85,8 @@ export async function GET(req) {
     const sd = await sr.json();
     const list = (sd && (sd.data || sd.content || sd.results || sd.items)) || (Array.isArray(sd) ? sd : []);
     const qn = _nn(q);
-    let candidates = list.filter((r) => { const rn = _nn(nameOf(r)); return rn && (rn === qn || (qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))); });
+    const qTokens = q.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3);
+    let candidates = list.filter((r) => { const rn = _nn(nameOf(r)); if (!rn) return false; if (rn === qn || (qn.length >= 6 && rn.includes(qn)) || (rn.length >= 6 && qn.includes(rn))) return true; return qTokens.length >= 2 && qTokens.every((t) => rn.includes(t)); });
     // Coordinate verification: with a caller location, a candidate more than
     // ~80 km away is a same-named place somewhere else — never it.
     if (isFinite(lat) && isFinite(lng)) {
