@@ -120,6 +120,9 @@ if (!page.includes("on Tripadvisor ↗")) fail("Tripadvisor attribution strip mi
 // (a) the adaptive mood row exists and actually adapts (Outside↔Cozy Indoor);
 if (!page.includes("Right place, right moment")) fail("mood row missing from home");
 if (!page.includes('_bad ? "cozyindoor" : "outdoors"')) fail("weather-adaptive Outside/Cozy Indoor swap missing");
+// v5.24 — "too hot" means the heat index, not the thermometer: the swap must
+// judge feels-like when available (91° air / 104° feels-like = Cozy Indoor).
+if (!page.includes("weather.feels != null ? weather.feels : weather.temp")) fail("mood-row heat check must prefer feels-like temp");
 if (!page.includes('_wkndMorn ? "brunch" : "eatnow"')) fail("weekend-morning Brunch swap missing");
 // (b) the LLM never enters the critical path: picks fetch is additive with a
 //     hard timeout + silent catch, and the key stays server-side.

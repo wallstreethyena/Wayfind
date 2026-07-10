@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.23";
+const BUILD_ID = "v5.24";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -5371,7 +5371,10 @@ function PageInner() {
             const _h = new Date().getHours(); const _d = new Date().getDay();
             const _eve = _h >= 16 || _h < 4;
             const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
-            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (weather.temp != null && (weather.temp >= 99 || weather.temp <= 40))));
+            // "Too hot" is what it FEELS like, not the thermometer: a Florida
+            // 91° with a 104° heat index is not an Outside afternoon.
+            const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;
+            const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (_felt != null && (_felt >= 99 || _felt <= 40))));
             const outsideKey = _bad ? "cozyindoor" : "outdoors";
             const eatKey = _wkndMorn ? "brunch" : "eatnow";
             const MOOD_LBL = { outdoors: ["☀️", "Outside"], cozyindoor: ["🌧️", "Cozy Indoor"], datenight: ["🌹", "Date Night"], nightout: ["🍸", "Night Out"], eatnow: ["🍽️", "Where to Eat"], brunch: ["🥞", "Brunch"], hiddengems: ["💎", "Hidden Gems"], familyfun: ["👨‍👩‍👧", "Family Fun"] };
