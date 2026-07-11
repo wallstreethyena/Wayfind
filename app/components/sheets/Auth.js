@@ -1,12 +1,21 @@
 "use client";
-// Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
+// Extracted from app/home.js (G2, July 2026 decomposition). Render-only,
+// except this component owns its own focus-trap (G4 fix) — useDialogFocus
+// needs the ref populated the moment its effect runs; since this whole
+// component is the next/dynamic({ssr:false}) boundary, calling the hook
+// here keeps the ref and the effect mounting together.
 // Two independent sibling blocks: the sign-in/sign-up sheet (authOpen) and the
 // password-reset-link landing sheet (recoveryOpen) — home.js renders
 // introOpen between them; that stays put, unrelated to auth.
-import { C, sheetBg, sheet, SHEET_EASE, Grabber } from "../kit";
+import { useRef } from "react";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber, useDialogFocus } from "../kit";
 
 export default function AuthSheet({ ctx }) {
-  const { authOpen, setAuthOpen, authDlgRef, sheetDragStart, sheetDragMove, sheetDragEnd, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, recoveryDlgRef, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword } = ctx;
+  const { authOpen, setAuthOpen, sheetDragStart, sheetDragMove, sheetDragEnd, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword } = ctx;
+  const authDlgRef = useRef(null);
+  const recoveryDlgRef = useRef(null);
+  useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
+  useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
   return (
     <>
       {authOpen && (

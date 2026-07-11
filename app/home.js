@@ -37,19 +37,29 @@ const loadAuth = () => import("./components/sheets/Auth");
 // G3: the place-detail sheet — `detail` starts null, so this is the same
 // user-triggered-only, never-SSR'd pattern as every other extraction here.
 const loadDetail = () => import("./components/sheets/Detail");
-const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, ...SHEET_LOADERS];
+// G4: `screen` always initializes to the literal "suggested" (never read
+// from the URL synchronously — deep links flip it in a useEffect), and
+// `introOpen` starts false, so map/experience/intro get the same safe
+// ssr:false treatment as everything above.
+const loadMap = () => import("./components/screens/Map");
+const loadExperience = () => import("./components/screens/Experience");
+const loadIntro = () => import("./components/sheets/Intro");
+const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro];
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const ItineraryScreen = nextDynamic(loadItinerary, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SharedScreen = nextDynamic(loadShared, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const EventsScreen = nextDynamic(loadEventsScreen, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const MapScreen = nextDynamic(loadMap, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const ExperienceScreen = nextDynamic(loadExperience, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const HookDetailSheet = nextDynamic(loadHookDetail, { ssr: false, loading: () => null });
 const AccountSheet = nextDynamic(loadAccount, { ssr: false, loading: () => null });
 const MenuSheet = nextDynamic(loadMenu, { ssr: false, loading: () => null });
 const AuthSheet = nextDynamic(loadAuth, { ssr: false, loading: () => null });
 const DetailSheet = nextDynamic(loadDetail, { ssr: false, loading: () => null });
+const IntroSheet = nextDynamic(loadIntro, { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
@@ -66,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.47";
+const BUILD_ID = "v5.48";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -822,9 +832,6 @@ function featuredBoost(name) {
 function tasteBump(place) {
   try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); localStorage.setItem("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
 }
-function tasteBoost(place) {
-  try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
-}
 
 // v1.8: hard category gate for intent-specific meal searches. A breakfast search
 // must not surface generic "Food" places with no breakfast evidence. Evidence is
@@ -983,27 +990,6 @@ const MOMENT_GROUPS = [
   { label: "Who's going", ids: ["family", "date", "friends", "visitors"] },
   { label: "The vibe", ids: ["outside", "locals", "rainy", "surprise"] },
 ];
-const INTRO_PATHS = {
-  family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
-  date: "M12 20s-7-4.4-9.2-8.6C1.2 8.3 3.2 5 6.4 5c2 0 3.4 1.1 4.1 2.4l1.5 2.4 1.5-2.4C14.2 6.1 15.6 5 17.6 5c3.2 0 5.2 3.3 3.6 6.4C19 15.6 12 20 12 20Z",
-  friends: "M8.5 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2.5 19.5c0-2.7 2.7-4.5 6-4.5 1.7 0 3.2.5 4.2 1.3M15 15.1c3.1.1 5.5 1.9 5.5 4.4",
-  twohrs: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v5l3.2 2",
-  outside: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4",
-  locals: "M6 3h12l3 5-9 13L3 8l3-5Zm-3 5h18M9.5 3 8 8l4 13m2.5-18L16 8l-4 13",
-  drive: "M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M5 12h14M5 12a2 2 0 0 0-2 2v3.5h2M19 12a2 2 0 0 1 2 2v3.5h-2m-14 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m8 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m-11 0h8M7.5 14.8h.01m9 0h.01",
-  fifty: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm2.6-11.6c-.4-.9-1.4-1.5-2.6-1.5-1.6 0-2.8.9-2.8 2.1s1 1.7 2.8 2c1.9.3 3 .9 3 2.2 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.7-2.9-1.7M12 6.5v11",
-  surprise: "M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Zm6.5 9 .9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9.9-2.3ZM5 14.5l.7 1.9 1.9.7-1.9.7L5 19.7l-.7-1.9-1.9-.7 1.9-.7.7-1.9Z",
-  visitors: "M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7m-9.5 0h11A1.5 1.5 0 0 1 19 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-9A1.5 1.5 0 0 1 6.5 7ZM9 11v4m6-4v4",
-  rainy: "M7 15a4.5 4.5 0 0 1-.9-8.9A5.5 5.5 0 0 1 16.7 7 4 4 0 0 1 17 15H7Zm1.5 3-.8 2.2m4.3-2.2-.8 2.2m4.3-2.2-.8 2.2",
-  wand: "M6 21 17.5 9.5M15 4l.8 2.2L18 7l-2.2.8L15 10l-.8-2.2L12 7l2.2-.8L15 4Zm5.5 5 .5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5.5-1.4ZM8 3.5l.5 1.3 1.3.5-1.3.5L8 7.1l-.5-1.3-1.3-.5 1.3-.5.5-1.3Z",
-  pin: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
-  spark: "M12 2l2 5.5L19.5 9 14 11l-2 5.5L10 11 4.5 9 10 7.5 12 2Zm7 11 .9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4Z",
-  shield: "M12 3l7 2.8v5.4c0 4.5-3 8.1-7 9.8-4-1.7-7-5.3-7-9.8V5.8L12 3Zm-2.5 8.6 1.8 1.9 3.4-3.7",
-};
-function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
-  const d = INTRO_PATHS[k]; if (!d) return null;
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d={d} /></svg>;
-}
 // v4.70 — feelings are queries. "I'm bored" and "somewhere relaxing" must
 // work as searches; each maps to Moment chips so the whole filter engine
 // (radius, price, open-now, indoor) does the heavy lifting.
@@ -4486,13 +4472,13 @@ function PageInner() {
     dialogOpenRef.current = !!(introOpen || gwPop || gwOpen || authOpen || accountOpen || recoveryOpen);
   }, [introOpen, gwPop, gwOpen, authOpen, accountOpen, recoveryOpen]);
   // v5.37 dialog semantics: focus management for every modal overlay.
-  const introDlgRef = useRef(null);
+  // G4 fix: introOpen/accountOpen/authOpen/recoveryOpen's dialogs now live in
+  // next/dynamic({ssr:false}) sheet components — useDialogFocus's ref would be
+  // null on the tick this effect first ran (the chunk hadn't mounted its DOM
+  // yet), so those four now own useDialogFocus internally instead. Only the
+  // still-inline giveaway dialogs keep their refs/hook calls here.
   const gwPopDlgRef = useRef(null);
   const gwRulesDlgRef = useRef(null);
-  const authDlgRef = useRef(null);
-  const accountDlgRef = useRef(null);
-  const recoveryDlgRef = useRef(null);
-  const closeIntro = () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); };
   // v5.37: Escape closes the topmost user-invoked sheet too (the six main
   // dialogs above trap their own Escape; this chain covers the rest, in
   // z-order: lightbox 1000 > cuisine 95 > the zIndex-900 sheet family).
@@ -4515,12 +4501,8 @@ function PageInner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox, cuisineSheet, allExpOpen, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
-  useDialogFocus(introOpen, introDlgRef, closeIntro);
   useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
   useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
-  useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
-  useDialogFocus(accountOpen, accountDlgRef, () => setAccountOpen(false));
-  useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
   // v5.37: "value seen" — results actually rendered for this visitor. The
   // giveaway waits for this signal (see the coordinator by gwPop above).
   useEffect(() => {
@@ -5405,13 +5387,19 @@ function PageInner() {
     // hookDetail sheet
     hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl,
     // account sheet
-    accountOpen, setAccountOpen, accountDlgRef, wfShowDiag, BUILD_ID,
+    accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
     menuSheet, setMenuSheet, pickCat, openSurprise, SheetHero, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
     // auth + password-recovery sheets
-    authOpen, authDlgRef, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, recoveryDlgRef, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword,
+    authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword,
     // detail sheet (G3)
     detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach,
+    // map screen (G4)
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
+    // experience badge screen (G4)
+    activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail,
+    // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
+    introOpen, setIntroOpen, introSel, setIntroSel,
   };
 
   return (
@@ -5542,158 +5530,7 @@ function PageInner() {
       <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(48px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
-            {screen === "map" && (() => {
-              const dateChips = [];
-              const now = new Date();
-              for (let i = 0; i < 14; i++) {
-                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-                const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                dateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
-              }
-              let mapEvents = [];
-              if (mapMode === "events") {
-                const src = (events || []).filter((e) => e.lat != null && e.lng != null && (mapDate === "all" || e.date === mapDate));
-                const seen = new Set();
-                for (const e of src) { const k = `${e.lat.toFixed(3)},${e.lng.toFixed(3)}`; if (!seen.has(k)) { seen.add(k); mapEvents.push(e); } }
-              }
-              const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
-              return (
-                <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
-                    <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-                      {/* v5.08 (user direction): the map menu never fully
-                          collapses — the primary tile row stays; only the
-                          sub-row expands down after a category is chosen. */}
-                      {(<>
-                      <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen((v) => !v)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
-                      </>)}
-                    </div>
-                  </div>
-                  <MapView fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                  <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
-                    {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.accent : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
-                    <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
-                  </div>
-                  {mapMode === "places" && (
-                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 292, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.accent : "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
-                        <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
-                        <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
-                      </span>
-                    </button>
-                  )}
-                  {mapMode === "places" && (
-                    <div style={{ position: "absolute", bottom: 118, right: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 10px", boxShadow: "0 4px 16px rgba(0,0,0,.45)", display: "flex", flexDirection: "column", gap: 5 }}>
-                      {[["#FBBF24", "Top pick"], ["#4C8DFF", "Open"], ["#5B6675", "Closed"]].map((row) => (
-                        <div key={row[1]} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <span style={{ width: 9, height: 9, borderRadius: "50%", background: row[0], flexShrink: 0, boxShadow: "0 0 0 1px rgba(0,0,0,.3)" }} />
-                          <span style={{ fontSize: 10.5, fontWeight: 700, color: C.light, whiteSpace: "nowrap" }}>{row[1]}</span>
-                        </div>
-                      ))}
-                      <div style={{ marginTop: 3, paddingTop: 5, borderTop: `1px solid ${C.border}`, fontSize: 9.5, fontWeight: 700, color: C.muted, whiteSpace: "nowrap" }}>Numbered by rank</div>
-                    </div>
-                  )}
-                  {mapMode === "events" && (
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 64, zIndex: 5, padding: "0 12px" }}>
-                      {!eventsLoading && !eventsUnavailable && (
-                        <div style={{ fontSize: 11.5, color: "#fff", fontWeight: 700, textAlign: "center", marginBottom: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>{mapEvents.length} venue{mapEvents.length === 1 ? "" : "s"}{mapDate === "all" ? " coming up" : " that day"}</div>
-                      )}
-                      <div style={{ display: "flex", gap: 6, overflowX: "auto", background: "rgba(13,17,23,.9)", border: `1px solid ${C.border}`, borderRadius: 14, padding: 8, WebkitOverflowScrolling: "touch" }}>
-                        <button onClick={() => setMapDate("all")} style={tchip(mapDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 13 }}>All</div></button>
-                        {dateChips.map((d) => (
-                          <button key={d.value} onClick={() => setMapDate(d.value)} style={tchip(mapDate === d.value)}><div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div><div style={{ fontSize: 13 }}>{d.day}</div></button>
-                        ))}
-                      </div>
-                      {eventsUnavailable && <div style={{ fontSize: 11.5, color: "#fff", textAlign: "center", marginTop: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>Add a Ticketmaster key in Vercel to switch events on.</div>}
-                    </div>
-                  )}
-                  {mapMode !== "events" && mapPreview && (() => {
-                    const mp = mapPreview;
-                    const sl = scoreLabel(mp.wfScore);
-                    const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
-                    const openList = (view || []).filter((x) => x && x.openNow === true && x.distMi != null);
-                    const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
-                    let tag = null;
-                    if (closestOpen && closestOpen.id === mp.id) tag = { t: "Closest open spot", c: C.green };
-                    else if (mp.distMi != null && mp.distMi >= 25 && (mp.rating || 0) >= 4.5) tag = { t: "Worth the drive", c: C.gold };
-                    return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
-                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openDetail(mp)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={mp.photo} icon="📍" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{mp.name}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
-                                {sl && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{sl.word}</span>}
-                                {mp.rating && <span style={{ color: "#F59E0B", fontSize: 12 }}>★ {mp.rating}</span>}
-                                {liveOpen(mp) === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
-                                {liveOpen(mp) === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>· ≈ {Math.max(4, Math.round((mp.distMi * 1.3 / 28) * 60) + 3)} min drive</span>}
-                              </div>
-                              {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: tag ? 4 : 5 }}>See details →</div>
-                            </div>
-                          </div>
-                          <button onClick={(ev) => { ev.stopPropagation(); setMapPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {mapMode === "events" && eventPreview && (() => {
-                    const ev = eventPreview;
-                    const dl = ev.date ? (() => { try { return new Date(ev.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); } catch { return ev.date; } })() : "";
-                    return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
-                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openVenue(ev)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={ev.image} icon="🎫" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{ev.name}</div>
-                              {(dl || ev.time) && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 4 }}>{dl}{ev.time ? " · " + ev.time : ""}</div>}
-                              {ev.venue && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {ev.venue}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 5 }}>View venue →</div>
-                            </div>
-                          </div>
-                          <button onClick={(ev2) => { ev2.stopPropagation(); setEventPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {mapMode === "places" && !mapPreview && view.length > 0 && (
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 7, background: C.panel, borderTop: `1px solid ${C.border}`, borderRadius: "16px 16px 0 0", boxShadow: "0 -8px 30px rgba(0,0,0,.5)", maxHeight: mapDrawer ? "60%" : 48, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                      <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "7px auto 5px" }} />
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, paddingBottom: 8 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{view.length} place{view.length === 1 ? "" : "s"} {sortBy === "near" ? "nearest first" : "ranked by fit"}</span>
-                          <span style={{ fontSize: 12, color: C.accent, fontWeight: 800 }}>{mapDrawer ? "▾" : "▴"}</span>
-                        </div>
-                      </button>
-                      {mapDrawer && (
-                        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px" }}>
-                          {view.map((p, i) => (
-                            <div key={p.id} onClick={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < view.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                              <div style={{ flexShrink: 0, width: 24, textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent }}>{i + 1}</div>
-                              <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
-                                  {p.rating && <span style={{ color: "#F59E0B", fontSize: 11.5 }}>★ {p.rating}</span>}
-                                  {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open</span>}
-                                  {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
-                                  {p.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                                </div>
-                              </div>
-                              <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
         {screen === "suggested" && (() => {
@@ -6245,98 +6082,7 @@ function PageInner() {
 
         {screen === "surprise" && <SurpriseScreen ctx={ctx} />}
 
-        {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && (() => {
-          const exp = EXPERIENCES[activeBadge];
-          let list = expPlaces || [];
-          if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
-          if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-          else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
-          else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
-          else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button onClick={() => { shareLink(cityFix(exp.title), listShareUrl(activeBadge, cityFix(exp.title), list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + cityFix(exp.title), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                  {list.some((pp) => pp && pp.lat != null) ? (<button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(list.filter((pp) => pp && pp.lat != null).slice(0, 20)); setScreen("map"); try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>) : null}
-                  {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFix(exp.title), label: cityFix(exp.title) }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <span style={{ fontSize: 16 }}>{exp.icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", color: C.accent, textTransform: "uppercase" }}>Wayfind picks</span>
-              </div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
-              <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
-              {!expLoading && momentPicks && momentPicks.badge === activeBadge && (() => {
-                const byId = new Map((expPlaces || []).map((p) => [p.id, p]));
-                const rows = momentPicks.picks.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
-                if (!rows.length) return null;
-                return (
-                  <div style={{ background: C.card, border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>✨ Perfect right now</div>
-                    {rows.map((x, i) => (
-                      <div key={x.id} onClick={() => openDetail(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}{x.p.rating ? <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 700 }}> ★ {x.p.rating}</span> : null}</div>
-                          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
-              {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
-              {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
-              {/* v4.98 GLOBAL RULE (user direction): every list — browse,
-                  sheets, experiences — shows ONE control: the standard
-                  SortControl (Top rated default, 17-mi default radius). No
-                  extra chip bars, no "Open now" toggle, no dice chip on
-                  list views, here or anywhere else. */}
-              {!expLoading && (expPlaces || []).length > 0 && (
-                <div style={{ display: "flex", gap: 7, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
-                  <SortControl sortBy={expSort} onSort={setExpSort} mi={expMi} onMi={setExpMi} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={false} dealsOnly={false} onDeals={null} />
-                </div>
-              )}
-              {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
-                const h = new Date().getHours();
-                let light;
-                if (h < 8) light = "Early light is soft and golden. Keep the sun to one side of your subject and shoot toward the open sky, not into the sun.";
-                else if (h < 11) light = "Morning sun sits in the east. Stand with the sun behind you or to your left so faces are evenly lit and shadows stay short.";
-                else if (h < 15) light = "Midday sun is high and harsh. Find open shade or a covered spot, keep the sun behind you, and avoid overhead noon shadows on faces.";
-                else if (h < 18) light = "Afternoon sun moves to the west and softens. Side light works well; angle your subject so light skims across them.";
-                else if (h < 20) light = "Golden hour. Put the sun behind your subject for a warm rim glow, then tap to focus and raise exposure so faces do not go dark.";
-                else light = "After sunset, light is low. Use railings or a ledge to steady the shot, and frame against city lights or the sky.";
-                return (
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.pink, marginBottom: 8 }}>📸 Photo tips for right now</div>
-                    <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5, marginBottom: 8 }}>{light}</div>
-                    <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.55 }}>
-                      <div style={{ marginBottom: 4 }}>🎯 Framing: put the subject on a third, not dead center, and use a doorway, archway, or branches in front as a natural frame.</div>
-                      <div style={{ marginBottom: 4 }}>🧍 Poses: shoot a candid walking or looking-away shot rather than a straight-on stare, turn shoulders slightly off camera, and keep hands busy.</div>
-                      <div>📐 Lines: line up paths, railings, or shorelines so they lead toward the subject, and get low for a taller, more dramatic look.</div>
-                    </div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>General photography guidance based on the current time, not specific to each spot.</div>
-                  </div>
-                );
-              })()}
-              {!expLoading && list.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>{exp.icon}</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing matched within 60 miles</strong>
-                  <span style={{ fontSize: 13 }}>Try a different experience or area.</span>
-                </div>
-              )}
-              {!expLoading && list.map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} selectedBadge={activeBadge} />
-              ))}
-            </div>
-          );
-        })()}
+        {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && <ExperienceScreen ctx={ctx} />}
 
         {screen === "coupons" && <CouponsScreen ctx={ctx} />}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
@@ -6509,86 +6255,7 @@ function PageInner() {
 
       {/* Save-to-list sheet */}
       {authOpen && <AuthSheet ctx={ctx} />}
-      {introOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          {/* v4.80: livelier breathing — wider swing between soft and bright, and
-              the border warms with the glow so the whole frame feels lit.
-              v5.25 premium concierge: soft radial halo behind a frosted-glass
-              card, a scale-and-fade entrance instead of a hard cut, and the six
-              adaptive mood tiles (the ONLY home of the mood picker — the inline
-              home-screen row is gone by design). */}
-          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
-          <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 38px rgba(255,138,61,.6), 0 0 90px rgba(249,115,22,.3)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
-            </div>
-            <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 8 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
-            <div style={{ textAlign: "center", marginTop: 7 }}><IntroIcon k="spark" size={21} color="#FFC28A" /></div>
-            {/* v5.25 concierge greeting — personalization (name/time/weather),
-                real abundance (live open-now count, never invented), and an
-                easy out. Every claim in it is computed from live data. */}
-            <div style={{ textAlign: "center", fontSize: 13.5, color: "#B6BCD0", lineHeight: 1.55, margin: "8px auto 12px", maxWidth: 360 }}>{(() => { try {
-              const h = new Date().getHours();
-              const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
-              const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
-              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + " \ud83d\udc4b";
-              const town = locName ? locName.split(",")[0] : "your area";
-              let w = "";
-              if (weather && typeof weather.temp === "number") {
-                // v5.26: the greeting speaks in what it FEELS like — a Florida
-                // 92° with a 103° heat index greets as 103°. When feels-like
-                // meaningfully differs from the thermometer, say so explicitly.
-                const felt = weather.feels != null ? weather.feels : weather.temp;
-                const diff = weather.feels != null && Math.abs(weather.feels - weather.temp) >= 3;
-                const rainy = weather.wet || /rain|storm|shower/i.test(weather.label || "");
-                w = rainy ? " Rain out there — the perfect excuse for a cozy find in " + town + "."
-                  : felt >= 99 ? (diff ? " It's " + weather.temp + "° but feels like " + felt + "° — cool, easy picks are winning today." : " It's a steamy " + felt + "° — cool, easy picks are winning today.")
-                  : felt >= 60 ? (diff ? " It feels like a gorgeous " + felt + "° out — a great moment to be out in " + town + "." : " It's a gorgeous " + felt + "° — a great moment to be out in " + town + ".")
-                  : (diff ? " It feels like a crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good." : " A crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good.");
-              }
-              const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
-              const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
-              return g + w + alive;
-            } catch (e) { return "Wayfind turns how you feel into the best places near you."; } })()}</div>
-            <div style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for?</span>
-              </div>
-            </div>
-            {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
-                adaptive rules the home row used: evenings lead with Date Night
-                and Night Out, bad weather swaps Outside for Cozy Indoor, weekend
-                mornings swap Where to Eat for Brunch. Every tile fires the full
-                moment engine (structured ranking + cached LLM why-lines). */}
-            {(() => { try {
-              const _h = new Date().getHours(); const _d = new Date().getDay();
-              const _eve = _h >= 16 || _h < 4;
-              const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
-              // "Too hot" is what it FEELS like, not the thermometer: a Florida
-              // 91° with a 104° heat index is not an Outside afternoon.
-              const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;
-              const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (_felt != null && (_felt >= 99 || _felt <= 40))));
-              const outsideKey = _bad ? "cozyindoor" : "outdoors";
-              const eatKey = _wkndMorn ? "brunch" : "eatnow";
-              const MOOD_LBL = { outdoors: ["\u2600\ufe0f", "Outside"], cozyindoor: ["\ud83c\udf27\ufe0f", "Cozy Indoor"], datenight: ["\ud83c\udf39", "Date Night"], nightout: ["\ud83c\udf78", "Night Out"], eatnow: ["\ud83c\udf7d\ufe0f", "Where to Eat"], brunch: ["\ud83e\udd5e", "Brunch"], hiddengems: ["\ud83d\udc8e", "Hidden Gems"], familyfun: ["\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", "Family Fun"] };
-              const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
-              return (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
-                  {order.map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "16px 10px 13px", borderRadius: 16, border: `1.5px solid ${on ? "#FF8A3D" : "rgba(255,255,255,.13)"}`, background: on ? "linear-gradient(150deg, rgba(255,138,61,.24) 0%, rgba(255,138,61,.10) 100%)" : "linear-gradient(150deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.015) 100%)", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                      <span style={{ fontSize: 25 }}>{(MOOD_LBL[k] || [ex.icon])[0]}</span><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
-                    </button>
-                  ); })}
-                </div>
-              );
-            } catch (e) { return null; } })()}
-            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
-            <div onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
-          </div>
-        </div>
-      )}
+      {introOpen && <IntroSheet ctx={ctx} />}
       {recoveryOpen && <AuthSheet ctx={ctx} />}
       {saveTarget && (
         <div style={sheetBg} onClick={() => setSaveTarget(null)}>

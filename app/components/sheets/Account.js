@@ -1,9 +1,16 @@
 "use client";
-// Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
-import { C, sheetBg, sheet, SHEET_EASE, Grabber } from "../kit";
+// Extracted from app/home.js (G2, July 2026 decomposition). Render-only,
+// except this component owns its own focus-trap (G4 fix) — useDialogFocus
+// needs the ref populated the moment its effect runs; since this whole
+// component is the next/dynamic({ssr:false}) boundary, calling the hook
+// here keeps the ref and the effect mounting together.
+import { useRef } from "react";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber, useDialogFocus } from "../kit";
 
 export default function AccountSheet({ ctx }) {
-  const { accountOpen, setAccountOpen, user, accountDlgRef, setScreen, signOutUser, wfShowDiag, BUILD_ID, sheetDragStart, sheetDragMove, sheetDragEnd } = ctx;
+  const { accountOpen, setAccountOpen, user, setScreen, signOutUser, wfShowDiag, BUILD_ID, sheetDragStart, sheetDragMove, sheetDragEnd } = ctx;
+  const accountDlgRef = useRef(null);
+  useDialogFocus(accountOpen, accountDlgRef, () => setAccountOpen(false));
   return (
         <div style={sheetBg} onClick={() => setAccountOpen(false)}>
           <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>

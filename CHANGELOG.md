@@ -1,3 +1,28 @@
+## v5.48 - map, experience picks, and the welcome intro leave the monolith (G4, decomposition complete)
+- The map shell (screen === "map"), the experience-badge picks screen
+  (screen === "experience"), and the welcome intro overlay (introOpen)
+  now live in app/components/screens/Map.js, Experience.js, and
+  app/components/sheets/Intro.js, loading as their own chunks via
+  next/dynamic({ ssr:false }). `screen` always initializes to the literal
+  "suggested" (deep links flip it in a useEffect, never synchronously),
+  and `introOpen` starts false, so this is the same safe pattern as every
+  earlier phase.
+- Two more exclusive helpers moved with their screens: `tasteBoost`
+  (map's default ranking blend) and `IntroIcon` + its `INTRO_PATHS` icon
+  data table (the intro overlay's only consumer).
+- Every boundary was independently re-verified against the file (not just
+  taken from the inventory agent's report) before any code moved, given
+  the off-by-one lesson from G3 — zero syntax errors on the first
+  check:jsx run this time.
+- This closes the home.js decomposition (G0-G4): home.js started this
+  project at 8,559 lines and one 1,133-line render function; it now sits
+  at roughly 6,400 lines with 15 focused screen/sheet components extracted
+  behind lazy, idle-prefetched dynamic imports and a single ctx prop
+  carrying state/callbacks down from PageInner. All content guardrails
+  (cards/copy/cta/ux/moment/auth/meals/lodging/radius/canon) keep passing
+  unmodified throughout, because G0 pointed them at the concatenated shell
+  instead of home.js alone.
+
 ## v5.47 - the detail sheet leaves the monolith (G3)
 - The place-detail bottom sheet — Wayfind's core, most-used UI surface,
   ~630 lines — now lives in app/components/sheets/Detail.js and loads as
