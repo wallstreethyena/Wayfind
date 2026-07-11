@@ -1,3 +1,25 @@
+## v5.58 - premium redesign, Phases 4-6 (calm onboarding, a11y polish, crawlable homepage)
+- Onboarding de-arcaded (Intro.js): the pulsing halo + layered orange glow
+  bloom are gone -> a quiet elevated dialog with a single subtle scale-in;
+  the emoji mood grid is now line-icon tiles; the CTA is solid accent with
+  dark text; the greeting wave emoji is gone. Skip is a real 44px button.
+- Focus: global :focus-visible ring, and tabindex="-1" dialog containers
+  no longer show a ring around the whole panel (interactive children keep
+  theirs). Dialog semantics + one-interruption coordinator verified, not
+  re-forked (prior G4/audit work); a11y/screens/modals e2e all pass.
+- Search submit de-glowed (gradient+shadow -> solid accent, dark glyph) and
+  relabeled aria-label "Search"; header icon buttons 36/34 -> 40 toward the
+  44px target; intro controls 40/44/48.
+- Phase 6: the shared footer now carries crawlable category-landing links
+  (/restaurants/sarasota, /things-to-do/orlando, /beaches/sarasota,
+  /nightlife/tampa — all verified 200), closing the one gap in the
+  server-rendered homepage's no-JS crawlable contract (single descriptive
+  H1, explanatory copy, 9 guides, 7 cities, map CTA, canonical, OG, JSON-LD
+  all already present). No indexed URL changed. check-seo still passes.
+- Full wrap-up (before/afters, emoji->icon inventory, image-test results,
+  width/zoom matrix, owner-review flags incl. the orange/champagne accent
+  pairing) in REDESIGN.md.
+
 ## v5.57 - premium redesign, Phase 3 (images that always work)
 - The image fallback chain (skeleton -> image -> branded artwork) as PURE
   logic in lib/imageState.js, unit-tested exhaustively by
