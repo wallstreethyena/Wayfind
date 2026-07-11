@@ -1,3 +1,18 @@
+## v5.34 - security headers: A-grade set enforced, CSP in report-only
+- next.config.js now sends X-Content-Type-Options: nosniff, X-Frame-Options:
+  SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, and a
+  Permissions-Policy locking camera/microphone/payment (geolocation stays
+  self — core feature) on every route; X-Powered-By is gone.
+- Content-Security-Policy ships as Report-Only first. Allowlist built from
+  the code's real browser-side origins: Maps/Places JS + tiles + Roboto
+  fonts, Places photos (googleusercontent/ggpht), PostHog + asset host,
+  Supabase (https + wss), open-meteo weather, Stay22 LinkSwap. Includes
+  frame-ancestors 'self'. TODO(csp-enforce) marks the flip to enforcing
+  after a clean report-only period in production.
+- Deliberately NO HSTS includeSubDomains — subdomain HTTPS audit is an
+  owner task first. The PROTECTED vercel.app→gowayfind.com redirect is
+  untouched (check-canon still green).
+
 ## v5.33 - hydration is deterministic: storage-backed state loads after mount
 - Root cause of the live React errors 418/423/425 (July 2026 audit, Phase 1):
   thirteen useState initializers in app/home.js read localStorage (and
