@@ -60,15 +60,33 @@ async function resolveProduct(q, tokens) {
         searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 3 } }],
       }),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q, tokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
+      return null;
+    }
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
     const best = results.find((r) => r && r.productUrl && regionOk(r, tokens));
+    // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): this picks the FIRST
+    // region-token match with zero geo/entity/specificity scoring — logging
+    // every candidate + the one chosen so we can see how often "best" is
+    // actually a generic area product rather than the named place.
+    try {
+      console.log(JSON.stringify({
+        tag: "booking_integrity_diag",
+        route: "go", q, tokens,
+        rawCount: results.length,
+        candidateTitles: results.filter((r) => r && r.productUrl).map((r) => r.title),
+        chosenTitle: best ? best.title : null,
+        decision: best ? "redirect_to_product" : "search_fallback",
+      }));
+    } catch (e) {}
     if (!best) return null;
     // productUrl from the affiliate API carries partner attribution already.
     mem.set(q + "|" + tokens.join("+"), { url: best.productUrl, exp: Date.now() + TTL });
     return best.productUrl;
   } catch (e) {
+    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q, tokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
     return null;
   } finally {
     clearTimeout(timer);

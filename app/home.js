@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.50";
+const BUILD_ID = "v5.51";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
