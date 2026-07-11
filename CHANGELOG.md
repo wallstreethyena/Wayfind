@@ -1,3 +1,47 @@
+## v5.49 - sign-in is required before any favorite/save/like can persist
+- Site-wide behavior change: a signed-out tap on any favorite/save/like/
+  dislike/bookmark/list/trip control no longer writes anything — not to
+  React state, not to localStorage, not to Supabase. It opens the sign-in
+  sheet instead. Previously these actions succeeded locally for everyone
+  and only the cloud (Supabase) mirror was sign-in-gated; local-only
+  favoriting for anonymous visitors is now gone entirely.
+- One new gate, `requireAuth()` in PageInner (app/home.js), is the single
+  source of truth — every write path calls it first, before any state
+  mutation: quickSaveFavorite, toggleLike, toggleDislike, toggleHookLike,
+  saveHookList, onHookHeart, addShared, toggleSaveCoupon, createList,
+  saveToList, deleteList, renameList, plus the itinerary/trip mutations
+  (note/move/reorder/mark-visited/remove) and the "+ New list" trigger,
+  both wired through `ctx.requireAuth` into the extracted Itinerary.js and
+  Saved.js components. Reuses the existing `user`/`setAuthOpen` convention
+  already used by the community-comment flow — no second auth mechanism.
+- Race-condition fix included: session restore is async, so a new
+  `authReady` flag (true once the initial `getSession()` check resolves,
+  success or failure) means a returning signed-in user's very first tap
+  can't be wrongly told to sign in before their session has loaded.
+- Server-side layer: there is no Next.js API route for these writes (they
+  go straight from the client to Supabase), so Postgres RLS is the real
+  server boundary — and it was already correctly configured in both
+  supabase/schema.sql and the older supabase-schema.sql (`auth.uid() =
+  user_id` on every insert/update/delete for saved_places and likes, in
+  both schema variants). No SQL changes were needed; this is now enforced
+  by scripts/check-favorites-auth.mjs instead of just asserted.
+- New scripts/check-favorites-auth.mjs (in prebuild): a static contract
+  check asserting requireAuth() gates all 12 core write paths, the
+  itinerary/list ctx wiring, and the RLS policies — fails the build if
+  the gate is ever stripped from any of them. Verified against a live
+  negative control (temporarily removed one gate, confirmed the check
+  caught it) before shipping.
+- New tests/e2e/favorites-auth.spec.js: the one favoriting surface
+  reachable without live place/coupon data in this suite (custom-list
+  creation via "+ New list") is exercised end-to-end signed-out — auth
+  modal opens, create-list sheet never appears, no localStorage write,
+  state survives a refresh unchanged. Full cross-surface coverage is the
+  static check's job (see its own header comment for why).
+- Custom lists (createList/saveToList/deleteList/renameList) and trips
+  have no Supabase table at all — always local-only regardless of sign-in
+  — so for those, the client-side gate is the sole protection; there is no
+  server round-trip to add a check to.
+
 ## v5.48 - map, experience picks, and the welcome intro leave the monolith (G4, decomposition complete)
 - The map shell (screen === "map"), the experience-badge picks screen
   (screen === "experience"), and the welcome intro overlay (introOpen)

@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.48";
+const BUILD_ID = "v5.49";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -3071,6 +3071,7 @@ function PageInner() {
     }, () => {});
   }, [screen]);
   function toggleSaveCoupon(c) {
+    if (!requireAuth("Sign in to save coupons")) return;
     if (!c || !c.id) return;
     const next = { ...savedCoupons };
     if (next[c.id]) { delete next[c.id]; svFolderDelete("Coupons", "coupon:" + c.id); }
@@ -3092,6 +3093,12 @@ function PageInner() {
   const [signupDone, setSignupDone] = useState(false);
   // Auth state (Supabase). Null user = signed out / no backend configured.
   const [user, setUser] = useState(null);
+  // v5.49: true once the initial session check has resolved one way or the
+  // other. Session restore is async (a Promise even when a cached session
+  // exists), so a returning signed-in user's very first tap on a favorite
+  // control could otherwise land in the window before `user` is populated
+  // and get wrongly told to sign in. requireAuth() below waits on this.
+  const [authReady, setAuthReady] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authEmail, setAuthEmail] = useState("");
   const [authSending, setAuthSending] = useState(false);
@@ -3132,12 +3139,13 @@ function PageInner() {
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) { setAuthReady(true); return; }
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
       if (active && data && data.session && data.session.user) setUser(data.session.user);
+      if (active) setAuthReady(true);
       try { if (typeof window !== "undefined" && (window.location.search.indexOf("code=") >= 0 || window.location.search.indexOf("error") >= 0 || window.location.hash.indexOf("access_token") >= 0)) window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
-    }).catch(() => {});
+    }).catch(() => { if (active) setAuthReady(true); });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       // v4.56 PROTECTED (check-auth.mjs): a reset-password email link lands the
       // user here with a recovery session. Open the set-new-password sheet.
@@ -3149,6 +3157,25 @@ function PageInner() {
     });
     return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
+
+  // v5.49: the single sign-in gate for every favorite-like persistence action
+  // (save, like, dislike, hook-save, share-to-list, coupon-save, custom
+  // lists, itinerary/trip membership). Every write function that can create
+  // local, localStorage, or Supabase favorite state calls this FIRST and
+  // bails out (before any state mutation) if it returns false — this is the
+  // one source of truth for "must be signed in", reusing the existing
+  // user/setAuthOpen convention already used by the community-comment flow
+  // rather than a second auth mechanism. While the initial session check is
+  // still in flight (authReady false), we neither block nor allow — a
+  // returning signed-in user's very first tap must not be wrongly told to
+  // sign in just because the session hasn't resolved yet.
+  function requireAuth(msg) {
+    if (user) return true;
+    if (!authReady) return false;
+    setAuthOpen(true);
+    showToast(msg || "Sign in to save");
+    return false;
+  }
 
   // One-tap social sign-in. No email, no rate limits. Needs the provider enabled
   // in Supabase. Redirects out to Google/Apple and back to the app.
@@ -3688,6 +3715,7 @@ function PageInner() {
     if (supabase && user && id) supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", id).eq("list_name", listName).then(() => {}, () => {});
   }
   function addShared(p) {
+    if (!requireAuth("Sign in to save shared places")) return;
     if (!p || !p.id) return;
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
@@ -3696,6 +3724,7 @@ function PageInner() {
   }
   function toggleLike(e, p) {
     e.stopPropagation();
+    if (!requireAuth("Sign in to like places")) return;
     const wasLiked = !!liked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -3720,6 +3749,7 @@ function PageInner() {
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
+    if (!requireAuth("Sign in to save your preferences")) return;
     const wasDis = !!disliked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -3736,6 +3766,7 @@ function PageInner() {
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
   }
   function toggleHookLike(hookId) {
+    if (!requireAuth("Sign in to save")) return;
     const next = new Set(hookLikes);
     if (next.has(hookId)) next.delete(hookId);
     else next.add(hookId);
@@ -5077,6 +5108,7 @@ function PageInner() {
   }
 
   function saveToList(listId) {
+    if (!requireAuth("Sign in to save")) return;
     if (!saveTarget) return;
     const target = saveTarget;
     const existing = lists[listId];
@@ -5092,6 +5124,7 @@ function PageInner() {
   }
   // One-tap save straight to Favorites from a card heart.
   function quickSaveFavorite(p) {
+    if (!requireAuth("Sign in to save favorites")) return;
     if (!p) return;
     const fav = lists.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
     const has = fav.places.some((x) => x.id === p.id);
@@ -5115,6 +5148,7 @@ function PageInner() {
   }
   // Save a whole curated hook list as its own list under Favorites.
   function saveHookList(hook, places) {
+    if (!requireAuth("Sign in to save lists")) return;
     if (!hook || !places || !places.length) return;
     const key = "hook_" + hook.id;
     const existed = !!lists[key];
@@ -5126,6 +5160,7 @@ function PageInner() {
   }
   // Heart on a recommendation card: like it AND save the full list to Favorites.
   function onHookHeart(hookId) {
+    if (!requireAuth("Sign in to save")) return;
     toggleHookLike(hookId);
     const h = (hookCards || []).find((x) => x.id === hookId);
     if (!h) return;
@@ -5136,6 +5171,7 @@ function PageInner() {
   const isSaved = (id) => Object.values(lists).some((l) => l.places.some((p) => p.id === id));
 
   function createList() {
+    if (!requireAuth("Sign in to create lists")) return;
     const name = newName.trim();
     if (!name) return;
     const id = "list_" + Date.now();
@@ -5143,11 +5179,13 @@ function PageInner() {
     setNewName(""); setNewEmoji("⭐"); setNewListOpen(false);
   }
   function deleteList(id) {
+    if (!requireAuth("Sign in to manage lists")) return;
     if (id === "favorites") return;
     setLists((prev) => { const next = { ...prev }; delete next[id]; return next; });
     setActiveList(null);
   }
   function renameList() {
+    if (!requireAuth("Sign in to manage lists")) return;
     const name = newName.trim();
     if (!name || !renamingList) return;
     setLists((prev) => prev[renamingList] ? { ...prev, [renamingList]: { ...prev[renamingList], name } } : prev);
@@ -5367,7 +5405,7 @@ function PageInner() {
   // helpers from here. Add members as later phases extract more surfaces.
   const ctx = {
     // shared navigation + card actions
-    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, logEvent,
+    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, logEvent, requireAuth,
     // module-scope components + helpers the screens render with
     PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
     // surprise
@@ -6289,7 +6327,7 @@ function PageInner() {
               <span style={{ fontSize: 22 }}>{lists[listMenu].emoji}</span>
               <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{lists[listMenu].name}</span>
             </div>
-            {[{ label: "Open", run: () => { const id = listMenu; setListMenu(null); setActiveList(id); } }, { label: "Share", run: () => { const l = lists[listMenu]; setListMenu(null); shareList(l.places, l.name); } }, { label: "Rename", run: () => openRename(listMenu) }].map((a) => (
+            {[{ label: "Open", run: () => { const id = listMenu; setListMenu(null); setActiveList(id); } }, { label: "Share", run: () => { const l = lists[listMenu]; setListMenu(null); shareList(l.places, l.name); } }, { label: "Rename", run: () => { if (!requireAuth("Sign in to manage lists")) return; openRename(listMenu); } }].map((a) => (
               <button key={a.label} onClick={a.run} style={{ width: "100%", textAlign: "left", padding: "14px 14px", marginBottom: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>{a.label}</button>
             ))}
             {listMenu !== "favorites" && (
