@@ -54,11 +54,12 @@ async function userStats(svc) {
 }
 
 export async function GET(req) {
+  // v5.43 (RLS review M4): fail CLOSED. The old guard only ran when
+  // CRON_SECRET was set — an unset env var made this route public, leaking
+  // signup stats and letting anyone trigger the fan-out work on demand.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization") || "";
-    if (auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
-  }
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
 
   const now = new Date();
   const since = new Date(now.getTime() - 24 * 3600 * 1000).toISOString();

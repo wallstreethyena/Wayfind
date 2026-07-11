@@ -21,6 +21,11 @@ function pageList() {
 }
 
 export async function GET(req) {
+  // v5.43 (RLS review L1): same fail-closed guard as /api/cron — this route
+  // had none, so anyone could burn the PageSpeed API quota on demand.
+  const secret = process.env.CRON_SECRET;
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
   const KEY = (process.env["PAGESPEED_API_KEY"] || "").trim();
   if (!KEY) return Response.json({ idle: true, reason: "no PAGESPEED_API_KEY" });
 

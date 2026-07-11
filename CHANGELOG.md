@@ -1,3 +1,22 @@
+## v5.43 - fail-closed crons + RLS hardening draft (static security review)
+- /api/cron ran fully PUBLIC whenever CRON_SECRET was unset (the guard was
+  inside `if (secret)`), leaking signup stats and letting anyone trigger
+  the fan-out work; /api/cron/cwv had no guard at all (PageSpeed quota
+  burn). Both now fail closed. OWNER ACTION: set CRON_SECRET in Vercel or
+  Vercel's own cron pings will 401.
+- supabase/DRAFT-rls-fixes.sql (OWNER REVIEW + dashboard apply): findings
+  from the static review - (H1) the older root supabase-schema.sql makes
+  saved_places/likes world-readable via the anon key while the newer
+  supabase/schema.sql is owner-only; verification queries included to see
+  which is live. (H2) events inserts never bind user_id to the caller, so
+  giveaway entries (counted from action='share' rows) are forgeable and
+  attributable to other users - draft policies bind anon inserts to NULL
+  user_id and authed inserts to auth.uid(). (M2/M3/L2) size/content
+  constraints for events, comments, shared_lists. The giveaway draw
+  should long-term not trust a client-writable table at all.
+- Guide picks 7-10 (Sarasota) and 7-12 (Orlando) are owner-approved as of
+  2026-07-11; DRAFT markers replaced accordingly.
+
 ## v5.42 - the CSP flip is measurable, and HSTS covers subdomains
 - New /api/csp-report endpoint: browsers POST report-only CSP violations
   (both legacy report-uri and Reporting-API shapes); each becomes one
