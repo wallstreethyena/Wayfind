@@ -151,3 +151,84 @@ I resume at Phase 0's measurement step with real data before touching
 Phase 1's schema — building the resolver's confidence thresholds against
 zero real examples of what Viator actually returns for Wayfind's place
 set would be guessing, which is the same mistake as the current code.
+
+## Phase 1-4 implementation (this branch, after re-confirming the key is
+## still broken)
+
+Re-checked `?probe=1` before starting this work: still `upstreamStatus:
+401`, unchanged from Phase 0. Waiting indefinitely for owner action on a
+partner-console issue I can't fix myself isn't a good use of the time
+either, and the architecture the spec asks for (a scored resolver, a hard
+invariant, a single render contract, CI enforcement) doesn't actually
+require live Viator data to build or verify correctly — it requires
+**fixture** data, which the spec's own Phase 5 acceptance criteria are
+written as (Riverwalk → no button, a genuine venue-specific product →
+button, a delisted product → suppressed, a generic high-fan-out product →
+never primary). So Phases 1-4 are implemented and unit-tested against
+those fixtures now; the one thing that's still genuinely blocked is
+**calibrating the confidence threshold against a real distribution of
+Viator responses**, which can only happen once the key works. What's live:
+
+- **Phase 1 — `lib/verifiedOffers.js`**: the hard invariant
+  (`isLiveEligible`) and the one constructor (`buildVerifiedOffer`) that
+  can produce a VerifiedOffer. `commissionable && bookableNow && confidence
+  >= CONFIDENCE_THRESHOLD (0.72) && evidence.entityMatch >= ENTITY_FLOOR
+  (0.4)`. The entity floor is what makes "no proof → no button" a hard
+  gate rather than a soft weight: a product can't buy its way to "live"
+  with category/specificity/geo signal alone if it has zero place-specific
+  name evidence. `supabase/verified-offers.sql` persists these
+  (service-role write only, public read of `status='live'` rows only).
+  **0.72/0.4 are reasoned starting points, not calibrated against real
+  data** — flagged for revisiting once the key works and the
+  `booking_integrity_diag` logs have real traffic behind them.
+- **Phase 2 — `lib/bookingResolver.js`**: four signals — entity match
+  (does the product title contain the place's name tokens, MINUS the
+  region tokens, so a product that only repeats the city gets zero
+  credit — this is the literal Bradenton Riverwalk fix), category match
+  (place-kind vocabulary in the title, neutral for unknown kinds),
+  specificity (1/fan-out, sourced from `verified_offers`' own history —
+  the more distinct places a product has already "won," the more it looks
+  like a generic bundle tour), and geo (**not scored** — Viator's freetext
+  response, as this codebase actually parses it — title, productUrl,
+  productCode, images, reviews, pricing, duration — carries no
+  coordinates; guessing an unconfirmed field would be worse than being
+  explicit that this is a gap. Contributes a neutral 0.5 so its absence
+  can't structurally cap what's achievable. Wire in a real check once a
+  geocoded field is confirmed against Viator's docs/support).
+- **Phase 3 — `app/components/BookingCTA.js`**: the single component
+  every booking-CTA surface (Detail sheet's primary action button,
+  commission disclosure, "Book tours & experiences" card list) renders
+  through — extracted verbatim from the previous inline JSX, so this is a
+  refactor, not a redesign; the visible UI is unchanged. `/api/viator/tours`
+  and `/api/viator/go` now call `resolveVerifiedMany`/`resolveVerified`
+  instead of the old `regionOk`-only substring filter, so unverified
+  candidates never even reach the client. `scripts/check-booking-cta.mjs`
+  (wired into `prebuild`) enforces both halves: nothing outside
+  BookingCTA.js may construct a booking href from raw Viator data, and the
+  confidence threshold may not be duplicated anywhere else. Verified with a
+  negative-control test (broke the contract on purpose, confirmed the
+  check fails, restored). Supersedes the pre-existing `scripts/check-cta.mjs`
+  (stale, `shellSrc()`-only scope, never wired into `prebuild` — owner's
+  call whether to retire it).
+- **Phase 4 — `app/api/cron/verify-offers/route.js`**: previously-live
+  offers expire after 7 days (`REVERIFY_TTL_MS`) and get re-checked against
+  a fresh Viator search; if the same product no longer appears or no longer
+  clears the bar, it's suppressed proactively instead of waiting for a
+  visitor to revisit that exact place. CRON_SECRET-gated, fail-closed, same
+  pattern as the existing daily digest cron. **This is a third Vercel cron
+  job** (alongside the existing daily digest and hourly CWV crons) — please
+  confirm your Vercel plan's cron limits before this deploys; Hobby plans
+  have historically capped both count and schedule granularity.
+- **Phase 5 — observability + golden tests**: the Phase 0 instrumentation
+  (`booking_integrity_diag` log lines) is now live everywhere a match
+  decision is made, including the new cron, carrying `confidence` and
+  `evidence` instead of just a boolean. `scripts/test-booking-resolver.mjs`
+  (wired into `prebuild`) is the golden-test harness: the exact Riverwalk
+  false-positive, a genuine specific-product match, a delisted-offer
+  suppression, and a controlled fan-out A/B showing the same product/place
+  pair flip from live to suppressed purely on fan-out — all pass.
+
+**Still genuinely blocked on the owner:** the Viator key (unchanged since
+Phase 0), and — now that the architecture exists — recalibrating
+`CONFIDENCE_THRESHOLD`/`ENTITY_FLOOR` against real `booking_integrity_diag`
+traffic once that key works, since 0.72/0.4 are reasoned, not measured.

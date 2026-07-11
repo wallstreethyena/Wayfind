@@ -1,3 +1,46 @@
+## v5.52 - booking-CTA integrity, Phases 1-5 (default-deny resolver + persisted offers + single render contract + self-healing cron + golden tests)
+- Re-checked the Viator key before starting (`?probe=1`): still 401,
+  unchanged since Phase 0. Rather than block indefinitely on owner action,
+  built and unit-tested the whole architecture against fixtures -- the
+  spec's own Phase 5 acceptance criteria are written as fixtures anyway
+  (Riverwalk -> no button, a genuine venue-specific product -> button, a
+  delisted product -> suppressed, a generic high-fan-out product -> never
+  primary). The one thing still genuinely blocked is calibrating the
+  confidence threshold against real Viator response data.
+- lib/verifiedOffers.js: the hard invariant (isLiveEligible) and the one
+  constructor (buildVerifiedOffer) that can produce a VerifiedOffer --
+  commissionable && bookableNow && confidence >= 0.72 && entityMatch >=
+  0.4. supabase/verified-offers.sql persists these (service-role write
+  only, public read of status='live' rows only).
+- lib/bookingResolver.js: scores every candidate on entity match (place
+  name tokens minus region tokens -- a product that only repeats the city
+  gets zero credit, the literal Bradenton Riverwalk fix), category match,
+  specificity (1/fan-out, sourced from verified_offers' own history), and
+  geo (not scored -- Viator's freetext response doesn't carry
+  coordinates in the fields this codebase parses; neutral 0.5 rather than
+  a guessed field name).
+- app/components/BookingCTA.js: the one component every booking-CTA
+  surface renders through (Detail sheet's primary button, commission
+  disclosure, tours card list) -- extracted verbatim from the previous
+  inline JSX, UI unchanged. /api/viator/tours and /api/viator/go now call
+  the scored resolver instead of a city-substring filter.
+  scripts/check-booking-cta.mjs (wired into prebuild, verified with a
+  negative-control test) enforces nothing else may construct a booking
+  href from raw Viator data or duplicate the confidence threshold.
+  Supersedes the pre-existing, never-wired-in scripts/check-cta.mjs.
+- app/api/cron/verify-offers/route.js: previously-live offers expire
+  after 7 days and get re-checked; no-longer-valid ones are suppressed
+  proactively instead of waiting for a visitor to revisit that exact
+  place. CRON_SECRET-gated, fail-closed. This is a THIRD Vercel cron job
+  -- confirm your plan's cron limits before this deploys.
+- scripts/test-booking-resolver.mjs (wired into prebuild): golden tests
+  for all four acceptance fixtures above, including a controlled fan-out
+  A/B where the identical product/place pair flips from live to
+  suppressed purely on fan-out count.
+- Full writeup: BOOKING_INTEGRITY_DIAGNOSIS.md, "Phase 1-4 implementation"
+  section. Still blocked on the owner: the Viator key, and (new) threshold
+  recalibration against real traffic once it works.
+
 ## v5.51 - booking-CTA integrity, Phase 0 (diagnosis only, no render change)
 - No product/UI logic changed. This is the diagnose-before-building phase
   of a default-deny rework for the "Tickets & tours" booking CTA (today's

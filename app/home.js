@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.51";
+const BUILD_ID = "v5.52";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -3847,7 +3847,7 @@ function PageInner() {
     const q = detail.name + (placeCity ? " " + placeCity : "");
     let cancelled = false;
     setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE[_m] ? Culture.CULTURE[_m].title : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
       .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });

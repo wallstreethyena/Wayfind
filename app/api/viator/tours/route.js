@@ -4,7 +4,19 @@
 // same Basic-access freetext search as the exact-product resolver; productUrl
 // from the affiliate API carries partner attribution already. Falls back to
 // an empty list on any failure, so the page never breaks on this module.
+//
+// v5.52 (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 1-3): the old gate here was a
+// bare city-name substring match, which let any Viator product that merely
+// mentioned the region render as a definitive, place-specific booking CTA
+// (the "Bradenton Riverwalk -> generic tour" failure). Every candidate is
+// now scored by lib/bookingResolver.js and must individually clear the hard
+// invariant in lib/verifiedOffers.js -- no proof, no card. Default-deny:
+// this route can return FEWER (or zero) items than before for the same
+// query; it will never again return a loosely-related one.
 export const runtime = "nodejs";
+
+import { resolveVerifiedMany } from "../../../../lib/bookingResolver.js";
+import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 
 const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
 
@@ -15,17 +27,26 @@ const TTL = 6 * 3600 * 1000;
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
+  // v5.52: the place's own name, separate from the city-appended search
+  // query above -- the resolver needs this to know which tokens are
+  // "distinctive to the place" vs. just the region. Falls back to q for
+  // any caller that hasn't been updated yet, so this ships without a
+  // required client change.
+  const name = (searchParams.get("name") || q).trim().slice(0, 120);
+  const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
+  const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || ("q:" + name.toLowerCase());
   // v4.94: optional region tokens — when a place's tour list is fetched, only
   // products whose title/URL mention the user's city or metro survive, so a
   // Florida place can never show Los Angeles tours. The vibe rails query by
   // metro name and pass no region (the query itself is the region).
-  const regionTokens = String(searchParams.get("region") || "").toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
+  const region = (searchParams.get("region") || "").trim();
+  const regionTokens = region.toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
   // v4.84: cap raised 6 -> 20 so the vibe rails can rank top-rated and
   // hidden-gem products client-side from a real pool, not a 6-item sliver.
   const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), 20);
   if (!q) return Response.json({ items: [] });
 
-  const ck = q.toLowerCase() + "|" + count + "|" + regionTokens.join("+");
+  const ck = q.toLowerCase() + "|" + name.toLowerCase() + "|" + (kind || "") + "|" + count + "|" + regionTokens.join("+");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) {
     return Response.json({ items: hit.items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
@@ -53,50 +74,63 @@ export async function GET(req) {
       }),
     });
     if (!res.ok) {
-      // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): log upstream failures
-      // too — a 401/429/5xx here silently degrades to "no tours" today, which
-      // looks identical to "genuinely no product exists" from the outside.
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, regionTokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, name, regionTokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
       return Response.json({ items: [] });
     }
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
-    const regionFiltered = results.filter((r) => r && r.productUrl && r.title);
-    const rejectedByRegion = regionTokens.length ? regionFiltered.filter((r) => { const hay = (r.title + " " + r.productUrl).toLowerCase().replace(/[-_]/g, " "); return !regionTokens.some((t) => hay.includes(t)); }) : [];
-    const items = regionFiltered
-      .filter((r) => { if (!regionTokens.length) return true; const hay = (r.title + " " + r.productUrl).toLowerCase().replace(/[-_]/g, " "); return regionTokens.some((t) => hay.includes(t)); })
-      .map((r) => ({
-        code: r.productCode || "",
-        title: String(r.title).slice(0, 140),
-        url: r.productUrl,
+    const candidates = results.filter((r) => r && r.productUrl && r.title);
+
+    // Per-candidate fan-out: how many OTHER distinct places has each product
+    // already matched? A generic bundled tour that wins for many queries
+    // must not borrow eligibility from a place-specific product sitting
+    // next to it in the same result set (see lib/bookingResolver.js).
+    const fanoutByCode = {};
+    await Promise.all(candidates.map(async (r) => {
+      const key = r.productCode || r.productUrl;
+      fanoutByCode[key] = await getFanoutCount("viator", r.productCode || r.productUrl);
+    }));
+
+    const verified = resolveVerifiedMany({ id: placeId, name }, candidates, { region, kind, fanoutByCode, placeId });
+    const byCode = {};
+    for (const r of candidates) byCode[r.productCode || r.productUrl] = r;
+
+    const items = verified.slice(0, count).map((offer) => {
+      const r = byCode[offer.productCode || offer.productUrl] || {};
+      return {
+        code: offer.productCode || "",
+        title: String(r.title || "").slice(0, 140),
+        url: offer.productUrl,
         image: (() => { try { const v = r.images && r.images[0] && r.images[0].variants; if (!Array.isArray(v) || !v.length) return null; const pick = v.find((x) => x && x.width >= 300 && x.width <= 600) || v[Math.min(2, v.length - 1)]; return pick && pick.url ? pick.url : null; } catch { return null; } })(),
         rating: r.reviews && typeof r.reviews.combinedAverageRating === "number" ? Math.round(r.reviews.combinedAverageRating * 10) / 10 : null,
         reviews: r.reviews && typeof r.reviews.totalReviews === "number" ? r.reviews.totalReviews : null,
         fromPrice: (() => { try { const p = r.pricing && r.pricing.summary && r.pricing.summary.fromPrice; return typeof p === "number" ? Math.round(p) : null; } catch { return null; } })(),
         duration: (() => { try { const d = r.duration && (r.duration.fixedDurationInMinutes || r.duration.variableDurationToMinutes); if (!d) return null; return d >= 60 ? Math.round(d / 60) + "h" : d + "m"; } catch { return null; } })(),
-      }));
-    // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): one structured line per
-    // query so we can measure, from real Vercel function logs, how often a
-    // "kept" product is actually specific to the place vs. just a
-    // region-name substring match (the Bradenton Riverwalk failure mode) and
-    // how often the same product wins for many different queries (fan-out /
-    // genericness). No per-item confidence score exists yet — that's exactly
-    // the gap this diagnosis is measuring. Remove once Phase 1+ lands.
+        confidence: offer.confidence,
+      };
+    });
+
+    // Persist every verified (live) offer -- feeds fan-out scoring for
+    // future queries and gives Phase 5 a durable record of what actually
+    // rendered. Best-effort: persistOffer no-ops without a service key.
+    await Promise.all(verified.map((offer) => persistOffer(offer)));
+
     try {
       console.log(JSON.stringify({
         tag: "booking_integrity_diag",
-        q, regionTokens,
+        q, name, regionTokens,
         rawCount: results.length,
+        candidateTitles: candidates.map((x) => x.title),
         keptTitles: items.map((x) => x.title),
         keptCodes: items.map((x) => x.code),
-        rejectedByRegionTitles: rejectedByRegion.map((x) => x.title),
+        confidences: verified.map((o) => o.confidence),
         decision: items.length > 0 ? "cta_would_render" : "no_cta",
       }));
     } catch (e) {}
     mem.set(ck, { items, exp: Date.now() + TTL });
     return Response.json({ items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
   } catch (e) {
-    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, regionTokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
+    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, name, regionTokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
     return Response.json({ items: [] });
   } finally {
     clearTimeout(timer);

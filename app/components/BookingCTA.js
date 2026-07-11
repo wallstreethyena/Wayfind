@@ -1,0 +1,119 @@
+"use client";
+// Booking-CTA integrity, Phase 3 (BOOKING_INTEGRITY_DIAGNOSIS.md). This is
+// the ONLY component in the app allowed to turn a Viator tours/products
+// payload into a clickable booking href. Every surface that shows a
+// "Tickets & tours"-style CTA (the Detail sheet's primary action button,
+// its commission disclosure line, its "Book tours & experiences" card list)
+// renders through one of this component's variants — never inline. The
+// hard invariant already lives server-side (lib/verifiedOffers.js,
+// lib/bookingResolver.js): by the time `items` reaches this component,
+// every entry has already cleared the default-deny gate. This component's
+// job is just to refuse to render anything if that data is missing or
+// empty — it must never construct a booking URL from raw/unverified input.
+// scripts/check-booking-cta.mjs enforces both halves of this contract.
+import { C } from "./kit";
+import * as Aff from "../../lib/affiliates";
+
+function hasVerifiedTours(viaTours, placeId) {
+  const vt = viaTours && viaTours[placeId];
+  return !!(vt && !vt.loading && Array.isArray(vt.items) && vt.items.length > 0);
+}
+
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback }) {
+  if (!detail) return null;
+  const placeId = detail.id;
+  const hasTours = hasVerifiedTours(viaTours, placeId);
+  const topItem = hasTours ? viaTours[placeId].items[0] : null;
+
+  if (variant === "primary") {
+    const tk = (hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+    const tu = tk || Aff.hotelUrl(detail);
+    if (!tu) return null;
+    return (
+      <a
+        href={tu}
+        target="_blank"
+        rel="noreferrer"
+        onClick={(e) => {
+          e.preventDefault();
+          const live = (e.currentTarget && e.currentTarget.href) || tu; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
+          try { logEvent(tk ? "tickets_out" : "hotel_out", detail); } catch (er) {}
+          try { addReservation(tk ? "tickets" : "hotel", detail, tk ? "Viator" : "Stay22", live); } catch (er) {}
+          openExternal(live);
+        }}
+        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}
+      >
+        {tk ? "Tickets & tours ↗" : "Check rates ↗"}
+      </a>
+    );
+  }
+
+  if (variant === "disclosure") {
+    const show = (hasTours && Aff.ticketsUrl(detail)) || Aff.hotelUrl(detail);
+    if (!show) return null;
+    return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission from partner links</div>;
+  }
+
+  if (variant === "list") {
+    if (hasTours) {
+      const items = viaTours[placeId].items;
+      return (
+        <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+          </div>
+          {items.map((t, i) => (
+            <a
+              key={t.code || i}
+              href={t.url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                const live = (e.currentTarget && e.currentTarget.href) || t.url;
+                try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {}
+                try { addReservation("tour", detail, "Viator", live); } catch (er) {}
+                openExternal(live);
+              }}
+              style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}
+            >
+              {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>
+                  {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
+                </div>
+              </div>
+              <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
+            </a>
+          ))}
+        </div>
+      );
+    }
+    if (suppressFallback) return null;
+    // No verified product for this place -- the honest fallback is a
+    // tracked SEARCH page, never a guessed product. See lib/affiliates.js
+    // experienceGoUrl and its server-side resolver (never fabricates a
+    // "found a match" when nothing cleared the confidence bar).
+    const fallbackHref = Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "", kind, placeId);
+    return (
+      <a
+        onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || fallbackHref; try { logEvent("tour", detail); } catch (er) {} openExternal(live); }}
+        href={fallbackHref}
+        target="_blank"
+        rel="noreferrer"
+        style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}
+      >
+        <span style={{ fontSize: 18 }}>🎟️</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
+          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
+        </div>
+        <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+      </a>
+    );
+  }
+
+  return null;
+}
