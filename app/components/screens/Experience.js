@@ -5,7 +5,7 @@
 import { C } from "../kit";
 
 export default function ExperienceScreen({ ctx }) {
-  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM } = ctx;
+  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel } = ctx;
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
@@ -50,7 +50,10 @@ export default function ExperienceScreen({ ctx }) {
                 );
               })()}
               <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
-              {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
+              {/* Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 3): never instruct
+                  "Tap any" at zero — the count line only shows when there's
+                  something to tap. */}
+              {!expLoading && list.length > 0 && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
               {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
               {/* v4.98 GLOBAL RULE (user direction): every list — browse,
                   sheets, experiences — shows ONE control: the standard
@@ -84,11 +87,22 @@ export default function ExperienceScreen({ ctx }) {
                   </div>
                 );
               })()}
+              {/* Moment fix (Phase 3): the empty state states the scope that was
+                  ACTUALLY searched (expMi + intent + place), never a fixed
+                  "60 miles" the view didn't search, and offers one useful
+                  action: widen the radius. It only renders after the fetch
+                  finished (expLoading false), so there's no flash of false
+                  "nothing" during loading. */}
               {!expLoading && list.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>{exp.icon}</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing matched within 60 miles</strong>
-                  <span style={{ fontSize: 13 }}>Try a different experience or area.</span>
+                  <strong style={{ display: "block", color: C.light }}>No {intentScopeLabel ? intentScopeLabel(activeBadge) : "spots"} within {expMi} miles of {locName ? locName.split(",")[0] : "you"} yet</strong>
+                  <span style={{ fontSize: 13 }}>We searched {expMi} miles. {expMi < 60 ? "Widen the range to look farther." : "Try another moment or change your area."}</span>
+                  {expMi < 60 && (
+                    <div style={{ marginTop: 14 }}>
+                      <button onClick={() => setExpMi(60)} style={{ padding: "9px 16px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>Search within 60 miles</button>
+                    </div>
+                  )}
                 </div>
               )}
               {!expLoading && list.map((p, i) => (

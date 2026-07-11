@@ -1,6 +1,7 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -76,7 +77,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.59";
+const BUILD_ID = "v5.60";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -3478,7 +3479,12 @@ function PageInner() {
     setActiveBadge(key);
     setExpPlaces(null);
     setExpSort("rated");
-    setExpMi(DEFAULT_RADIUS_MI);
+    // Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 1): open a moment view at
+    // the INTENT's real scope, not the app-wide 17mi default that hid the
+    // museums/cafés a mood day is made of. The effect still fetches wide; this
+    // is the visible-list radius, so the same intent shows the same places
+    // whether it's opened from a chip, the mood modal, or a deep link.
+    setExpMi(intentRadiusMi(key));
     setScreen("experience");
     try { window.scrollTo(0, 0); } catch {}
   }
@@ -3809,7 +3815,14 @@ function PageInner() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 7000);
     fetch("/api/moment/picks", { method: "POST", signal: ctrl.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ intent: activeBadge, tb, wx, city: locName ? locName.split(",")[0] : "", candidates: cands }) })
-      .then((r) => (r.ok ? r.json() : { picks: [] }))
+      .then((r) => {
+        // Moment fix (Phase 2): a 400 is a CONTRACT error (id drift / malformed
+        // request), not "no results" — log it so the bug is visible, and hide
+        // the additive card without dressing an error as an empty. A real
+        // no-match comes back 200 with a reason envelope.
+        if (r.status === 400) { r.json().then((e) => { try { logEvent("moment_picks_contract_error", null, { intent: activeBadge, error: e && e.error }); } catch (er) {} }).catch(() => {}); return { picks: [], _contractError: true }; }
+        return r.ok ? r.json() : { picks: [] };
+      })
       .then((d) => { if (!cancelled) setMomentPicks(Array.isArray(d.picks) && d.picks.length ? { badge: activeBadge, picks: d.picks } : null); })
       .catch(() => { if (!cancelled) setMomentPicks(null); })
       .finally(() => clearTimeout(timer));
@@ -4353,6 +4366,11 @@ function PageInner() {
           results = sortFit(raw);
         }
         results = results.slice(0, 40); // v4.81: more options per vibe
+        // TEMP (MOMENT_PICKS_DIAGNOSIS.md, Phase 0): one inert telemetry line
+        // per experience open so the exact divergence is measurable on the
+        // owner's device — fetched vs kept, the radius actually searched, and
+        // the client clamp (expMi) that hides fetched-but-distant results.
+        try { logEvent("moment_open_diag", null, { intent: activeBadge, fetched: raw.length, kept: results.length, radiusMi: Math.round(radius / 1609.34), clampMi: expMi, within17: results.filter((p) => p.distMi != null && p.distMi <= 17).length }); } catch (e) {}
         if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
         // v4.89: photo fix for the vibe rows — resolve real photos for the
         // top photoless multi-source entries (cached lookups), then repaint.
@@ -5485,7 +5503,7 @@ function PageInner() {
     // map screen (G4)
     mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
     // experience badge screen (G4)
-    activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail,
+    activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
     introOpen, setIntroOpen, introSel, setIntroSel,
   };

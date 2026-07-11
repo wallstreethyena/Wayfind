@@ -1,3 +1,43 @@
+## v5.60 - moment/experience picks integrity, Phases 0-5 (same intent = same results)
+- THE FIX for "chip shows nothing within 60 miles, mood modal shows 21":
+  moment/experience views fetched to 60mi but clamped the visible list to
+  the app's 17mi default while the empty copy hardcoded "60 miles". New
+  lib/momentIntents.js declares each intent's real radius in ONE place
+  (imported by client + server); openExperience now opens at the intent's
+  scope (cozyindoor/gems/family 45mi, nightout/date/outdoors 30mi, food
+  20mi) so the fetched-wide museums/cafes actually show. No more 17mi clamp.
+- Loud API (/api/moment/picks): malformed/unknown-intent input returns 400
+  with a machine-readable error (validated against the shared intent-id
+  module, so cozy-indoor-day vs cozyindoor drift is caught) instead of
+  200 {picks:[]}. Genuine no-match returns a 200 reason envelope; every
+  zero-pick logs moment_picks_zero; client treats 400 as error, not empty.
+- Honest empty/loading: the empty state states the scope ACTUALLY searched
+  ("No indoor spots within 45 miles of Parrish yet"), never a fixed 60; the
+  "Tap any" line is gone at zero; a "Search within 60 miles" action offered.
+- Tests: scripts/test-moment-contract.mjs (prebuild) + tests/e2e/moment.spec.js
+  (audit:regression). MOMENT_PICKS_DIAGNOSIS.md has the entry-path matrix +
+  fix writeup. Follow-ups noted (per-view shareable URL). Secondary items
+  (city-as-venue toast, price, CSP) filed to the audit prompt per scope.
+- MOMENT_PICKS_DIAGNOSIS.md: entry-path matrix + root cause of the
+  "chip shows nothing, modal shows 21" divergence. Corrected the assumed
+  model: chips AND the mood modal both call openExperience into the SAME
+  Experience screen (not two paths). Systematic bug: the screen fetches to
+  60mi into expPlaces but Experience.js clamps the visible list to expMi
+  (17mi default) while the empty copy hardcodes "Nothing matched within 60
+  miles" -- so an indoor intent at Parrish fetches museums 25-35mi out,
+  clamps them all away, and prints a false scope. "0 curated picks · Tap
+  any" instructs tapping at zero. HookDetail has the identical 17mi clamp.
+- Confirmed live: /api/moment/picks has no input validation -- POST {} and
+  POST a wrong intent id both return 200 {picks:[]}, indistinguishable from
+  a real no-match. The 21-vs-0 split is a stale/adopted-expPlaces timing
+  artifact on top of the clamp+copy bug.
+- Added one inert telemetry line (moment_open_diag: fetched/kept/radiusMi/
+  clampMi/within17) so the exact trigger is measurable on the owner's
+  device. Triaged: dinner-near-small-town = same root cause (fixed by
+  Phase 1/3); city-as-venue toast + price + CSP = audit prompt's scope,
+  filed not fixed. Also filed (separate track, from #67/#68): event-detail
+  "Open in Wayfind", Get-tickets→Expedia, Market-at-Waterside broken page.
+
 ## v5.59 - event-detail regression fixes (owner-reported, from #67/#68)
 - "Open in Wayfind ›" on the event detail page (which only went back to
   /events and confused the owner) is now "‹ Back to all events" -> /events.

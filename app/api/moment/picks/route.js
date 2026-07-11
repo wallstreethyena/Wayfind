@@ -9,6 +9,7 @@
 // on the model.
 export const runtime = "nodejs";
 import { claudeJson, logLlmCall } from "../../../../lib/insiderServer";
+import { isKnownIntent } from "../../../../lib/momentIntents";
 
 const mem = new Map();
 const TTL = 3 * 3600 * 1000;
@@ -44,17 +45,39 @@ async function cacheSet(k, v) {
 
 const _nn = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
+// Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 2): the contract is LOUD.
+// Malformed input (bad JSON, unknown intent id, misshaped candidates) returns
+// 400 with a machine-readable error — never 200 {picks:[]}, which is
+// indistinguishable from a real no-match and is exactly how id drift
+// (cozy-indoor-day vs cozyindoor) degraded silently. A genuine no-match
+// returns 200 with a reason envelope. Every zero-pick outcome is logged with
+// the intent + candidate count so a real coverage gap is visible.
+function badRequest(error, detail) {
+  try { console.log(JSON.stringify({ tag: "moment_picks_400", error, detail })); } catch (e) {}
+  return Response.json({ error, detail: detail || null }, { status: 400 });
+}
+
 export async function POST(req) {
+  let body;
+  try { body = await req.json(); } catch (e) { return badRequest("invalid_json"); }
+  if (!body || typeof body !== "object") return badRequest("invalid_body");
+  const intent = String(body.intent || "").slice(0, 30);
+  if (!intent) return badRequest("missing_intent");
+  if (!isKnownIntent(intent)) return badRequest("unknown_intent", intent);
+  if (!Array.isArray(body.candidates)) return badRequest("candidates_not_array");
   try {
-    const body = await req.json();
-    const intent = String(body.intent || "").slice(0, 30);
     const wx = String(body.wx || "").slice(0, 40);      // e.g. "clear-92"
     const tb = String(body.tb || "").slice(0, 20);       // e.g. "sat-evening"
     const city = String(body.city || "").slice(0, 60);
-    const cands = (Array.isArray(body.candidates) ? body.candidates : []).slice(0, 12)
-      .map((p) => ({ id: String(p.id || "").slice(0, 80), name: String(p.name || "").slice(0, 90), type: String(p.type || "").slice(0, 40), rating: p.rating ?? null, reviews: p.reviews ?? 0, distMi: p.distMi != null ? Math.round(p.distMi * 10) / 10 : null, openNow: p.openNow !== false, price: String(p.price || "").slice(0, 8) }))
+    const cands = body.candidates.slice(0, 12)
+      .map((p) => ({ id: String((p && p.id) || "").slice(0, 80), name: String((p && p.name) || "").slice(0, 90), type: String((p && p.type) || "").slice(0, 40), rating: (p && p.rating) ?? null, reviews: (p && p.reviews) ?? 0, distMi: (p && p.distMi) != null ? Math.round(p.distMi * 10) / 10 : null, openNow: !(p && p.openNow === false), price: String((p && p.price) || "").slice(0, 8) }))
       .filter((p) => p.id && p.name);
-    if (!intent || cands.length < 3) return Response.json({ picks: [] });
+    // A genuine "not enough candidates to reason over" is a 200 no-match with
+    // a reason envelope, distinct from the 400s above.
+    if (cands.length < 3) {
+      try { console.log(JSON.stringify({ tag: "moment_picks_zero", intent, candidatesReceived: cands.length, reason: "too_few_candidates" })); } catch (e) {}
+      return Response.json({ picks: [], reason: "too_few_candidates", candidatesReceived: cands.length });
+    }
     const ck = "mp1|" + intent + "|" + tb + "|" + wx + "|" + _nn(cands.map((c) => c.id).join("")).slice(0, 40);
     const hit = await cacheGet(ck);
     if (hit) return Response.json({ picks: hit, cached: true });
@@ -66,6 +89,12 @@ export async function POST(req) {
     await logLlmCall("moment");
     const valid = out && Array.isArray(out.picks) ? out.picks.filter((x) => x && x.id && typeof x.why === "string" && cands.some((c) => c.id === x.id && c.openNow)).slice(0, 5).map((x) => ({ id: x.id, why: x.why.trim().slice(0, 140) })) : [];
     if (valid.length >= 3) { await cacheSet(ck, valid); return Response.json({ picks: valid }); }
-    return Response.json({ picks: [] });
-  } catch (e) { return Response.json({ picks: [] }); }
+    try { console.log(JSON.stringify({ tag: "moment_picks_zero", intent, candidatesReceived: cands.length, reason: "model_no_pick" })); } catch (e) {}
+    return Response.json({ picks: [], reason: "no_match", candidatesReceived: cands.length });
+  } catch (e) {
+    // A model/upstream failure is a 200 no-match (the client still shows the
+    // structured list) -- but distinguished by reason so telemetry sees it.
+    try { console.log(JSON.stringify({ tag: "moment_picks_zero", intent, reason: "exception", error: String((e && e.message) || e).slice(0, 120) })); } catch (e2) {}
+    return Response.json({ picks: [], reason: "error" });
+  }
 }
