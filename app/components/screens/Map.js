@@ -8,7 +8,7 @@ function tasteBoost(place) {
 }
 
 export default function MapScreen({ ctx }) {
-  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, Hol } = ctx;
+  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol } = ctx;
               const dateChips = [];
               const now = new Date();
               for (let i = 0; i < 14; i++) {
@@ -112,15 +112,23 @@ export default function MapScreen({ ctx }) {
                     return (
                       <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
                         <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openVenue(ev)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={ev.image} icon="🎫" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{ev.name}</div>
-                              {(dl || ev.time) && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 4 }}>{dl}{ev.time ? " · " + ev.time : ""}</div>}
-                              {ev.venue && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {ev.venue}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 5 }}>View venue →</div>
-                            </div>
-                          </div>
+                          {/* Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the preview body is ONE
+                              semantic link to the event's resolved destination; the venue
+                              lookup and dismiss are separate sibling controls. */}
+                          {ev.dest ? (
+                            <a href={ev.destKind === "internal" ? ev.dest : ticketUrl(ev.dest)} {...(ev.destKind === "internal" ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: ev.id, kind: ev.destKind, src: "map_preview" }); } catch (e2) {} }} style={{ display: "flex", minWidth: 0, textDecoration: "none" }}>
+                              <FallbackImg src={ev.image} icon="🎫" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                              <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
+                                <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{ev.name}</div>
+                                {(dl || ev.time) && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 4 }}>{dl}{ev.time ? " · " + ev.time : ""}</div>}
+                                {ev.venue && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {ev.venue}</div>}
+                                <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 5 }}>View event →</div>
+                              </div>
+                            </a>
+                          ) : null}
+                          {ev.venue && (
+                            <button onClick={() => openVenue(ev)} style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: `1px solid ${C.border}`, padding: "8px 12px", fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>📍 View venue on Wayfind ›</button>
+                          )}
                           <button onClick={(ev2) => { ev2.stopPropagation(); setEventPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
                         </div>
                       </div>

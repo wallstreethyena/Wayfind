@@ -21,40 +21,60 @@ function EventArt({ e, seg, height, ctx }) {
     </div>
   );
 }
+// Events pipeline integrity, Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the
+// title, image, and body are ONE semantic link to the event's resolved
+// primary destination (e.dest, computed server-side -- internal detail
+// page preferred, validated external URL otherwise). The venue lookup and
+// the external tickets link are separate controls OUTSIDE that link; no
+// interactive element nests inside another. An event without a resolved
+// destination never renders (the API already excludes it; the guard here
+// is belt-and-braces for stale client state).
 function EventCard({ e, onVenue, ctx }) {
-  const { formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, eventCTA, ticketUrl } = ctx;
+  const { formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, ticketUrl, logEvent } = ctx;
+  if (!e || !e.dest) return null;
   const f = formatEventDate(e.date, e.time);
   const seg = eventCategory(e);
   const rec = recurrenceLabel(e);
   const venue = cleanVenueName(e.venue);
-  const cta = eventCTA(e);
+  const internal = e.destKind === "internal";
+  const href = internal ? e.dest : ticketUrl(e.dest);
+  const externalTickets = internal && e.url ? ticketUrl(e.url) : null;
   return (
     <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-      <div style={{ position: "relative" }}>
-        <EventArt ctx={ctx} e={e} seg={seg} height={120} />
-        <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
+      <a
+        href={href}
+        {...(internal ? {} : { target: "_blank", rel: "noreferrer" })}
+        onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "events_grid" }); } catch (er) {} }}
+        style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: "inherit" }}
+      >
+        <div style={{ position: "relative" }}>
+          <EventArt ctx={ctx} e={e} seg={seg} height={120} />
+          <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
+            <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
+          </div>
+          {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)" }}>{seg.icon} {seg.short}</div>}
         </div>
-        {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)" }}>{seg.icon} {seg.short}</div>}
-      </div>
-      <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+        <div style={{ padding: "9px 10px 0", minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
+            {rec
+              ? <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
+              : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
+            {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
+          </div>
+          {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
+        </div>
+      </a>
+      <div style={{ padding: "0 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         {venue && (
           <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
         )}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
-          {rec
-            ? <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
-            : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
-          {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
-        </div>
-        {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
         <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-          {cta.show
-            ? <a href={ticketUrl(e.url)} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{cta.label}</a>
+          {externalTickets
+            ? <a href={externalTickets} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { id: e.id, src: "events_grid" }); } catch (er) {} }} style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{e.ticketed ? "Get tickets ↗" : "Official site ↗"}</a>
             : <span />}
-          {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, opacity: 0.75 }}>{e.source}</span>}
+          {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{e.source}</span>}
         </div>
       </div>
     </div>
@@ -66,8 +86,16 @@ export default function EventsScreen({ ctx }) {
           const all = events || [];
           const segs = [];
           all.forEach((e) => { const m = eventSegmentMeta(e.segment, e.genre); if ((e.segment || e.genre) && !segs.find((s) => s.short === m.short)) segs.push(m); });
-          let shown = all;
-          if (eventCat !== "all") shown = shown.filter((e) => eventSegmentMeta(e.segment, e.genre).short === eventCat);
+          // Phase 2 count integrity (EVENTS_PIPELINE_DIAGNOSIS.md): every
+          // number a chip shows is computed on the SAME collapsed list the
+          // grid renders for that selection -- the old code counted the
+          // pre-collapse list, so the chip number never had to match the
+          // cards. catBase applies the active category filter first so the
+          // date counts stay honest while a category is selected too.
+          const catBase = eventCat === "all" ? all : all.filter((e) => eventSegmentMeta(e.segment, e.genre).short === eventCat);
+          const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
+          const allCount = dedupeEvents(catBase, true).length;
+          let shown = catBase;
           if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
           shown = dedupeEvents(shown, eventDate === "all");
           const eventDateChips = [];
@@ -77,7 +105,10 @@ export default function EventsScreen({ ctx }) {
             const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
             eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
           }
-          const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#fff" : C.light, fontWeight: 700 });
+          // Selected chip text is dark-on-orange (#0D1117 on C.accent), the same
+          // pairing the app's primary CTAs use — white-on-orange fails WCAG AA
+          // (2.8:1) and axe rightly flags it now that events render in CI.
+          const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
           return (
             <div>
               <div style={{ paddingTop: 4, marginBottom: 12 }}>
@@ -93,9 +124,9 @@ export default function EventsScreen({ ctx }) {
                     </div>
                   )}
                   <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                    <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{all.length}</div></button>
+                    <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
                     {eventDateChips.map((d) => {
-                      const count = all.filter((e) => e.date === d.value).length;
+                      const count = countFor(d.value);
                       return (
                         <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
                           <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>

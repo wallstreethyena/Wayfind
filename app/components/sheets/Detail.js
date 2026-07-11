@@ -528,10 +528,11 @@ export default function DetailSheet({ ctx }) {
                     {venueEventsLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking Ticketmaster…</div>}
                     {!venueEventsLoading && venueEvents && venueEvents.length > 0 && (
                       <>
-                        {venueEvents.map((e) => {
+                        {venueEvents.filter((e) => e && e.dest).map((e) => {
                           const f = formatEventDate(e.date, e.time);
+                          const _internal = e.destKind === "internal";
                           return (
-                            <a key={e.id} href={e.url} target="_blank" rel="noreferrer" style={{ display: "flex", gap: 10, alignItems: "center", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", marginBottom: 7 }}>
+                            <a key={e.id} href={_internal ? e.dest : ticketUrl(e.dest)} {...(_internal ? {} : { target: "_blank", rel: "noreferrer" })} style={{ display: "flex", gap: 10, alignItems: "center", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", marginBottom: 7 }}>
                               <div style={{ flexShrink: 0, textAlign: "center", minWidth: 34 }}>
                                 <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase" }}>{f.mo}</div>
                                 <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1 }}>{f.day}</div>

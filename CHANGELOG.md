@@ -1,3 +1,84 @@
+## v5.54 - events pipeline integrity, Phases 1-4 (default-deny: no destination, no card)
+- lib/eventsPipeline.js: one normalized contract enforced at the API
+  boundary -- validation (past/cancelled/malformed/unsafe-URL/fabricated
+  search-URL excluded), cross-provider dedup on title+venue+start (was
+  name+date only, which merged different venues and double-counted
+  matinees), geo guard, then a DESTINATION CHECK: every returned event
+  carries dest/destKind (internal /events/[city]/[slug] page preferred,
+  validated external URL otherwise) or is excluded. The returned list IS
+  the usable list; usableCount ships in the response.
+- app/api/events/route.js: every provider now runs behind its own 6s
+  deadline (one hung provider can no longer stall or erase the others),
+  reports health (ok/timeout/latency/received) into an
+  events_provider_health log line, passes Ticketmaster's
+  dates.status.code through (cancelled/postponed events were previously
+  never checked), and PredictHQ's fabricated google.com/search
+  destinations are gone -- URL-less events are excluded, not faked. The
+  response counts field is now post-validation per-source (was raw
+  pre-dedup provider totals, 346 vs 222 in the Phase 0 probe).
+- app/events/[city]/[slug]/page.js: internal event detail page,
+  server-rendered from a fresh by-id provider lookup (lib/eventResolve.js:
+  Ticketmaster by-id API, LibCal iCal UID scan, staples recompute) with
+  Event JSON-LD, venue/Directions, source attribution, explicit
+  cancelled/postponed state, and a branded 404 via notFound() for ids
+  that no longer resolve -- never a silent redirect to /. Implements the
+  /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
+- Phase 2 card semantics on every surface (Events grid, For You hero +
+  rail, Community grid, Map preview, Detail venue-events): the title/
+  image/body are ONE semantic <a> to the resolved destination; venue
+  lookup, tickets, and dismiss are separate controls outside that link.
+  The Events-screen card's natural tap target was previously wired to
+  NOTHING; homepage/map cards routed through a fallible Google venue
+  lookup. Destination-less events are also filtered at client state entry
+  (belt-and-braces), and the Detail sheet's venue-events card no longer
+  pads "at this venue" with unrelated nearby events when the venue match
+  is empty.
+- Phase 3 routing: /events (+ ?date=&cat= filter params) stays in the
+  address bar while the Events view is open -- shareable, reload-safe,
+  Back/Forward work, aria-current already on the nav. GoScreen forwards
+  query params through the ?go= handoff.
+- Counts equal cards: the date chips and "All" chip count the SAME
+  collapsed, category-filtered list the grid renders (was pre-collapse).
+- Ticketmaster affiliate param moved to lib/affiliates.js ticketOutUrl()
+  (single source; the server detail page appends the identical value).
+- Tests: scripts/test-events-contract.mjs (prebuild) covers every
+  exclusion rule, dedup, provider-timeout isolation, count integrity on a
+  mixed fixture, DST/timezone pass-through, and the by-id round trip;
+  tests/e2e/events.spec.js (audit:regression) fixture-injects /api/events
+  and locks in: destination-less event never renders/counts, count equals
+  cards, one-semantic-link card with controls outside, keyboard Enter
+  navigation, /events URL survival + refresh + Back/Forward + filtered
+  share, detail-page 200 and invalid-id 404.
+
+## v5.53 - events pipeline integrity, Phase 0 (diagnosis only, no product change)
+- EVENTS_PIPELINE_DIAGNOSIS.md maps the full pipeline: 9 providers in one
+  aggregator route (only Ticketmaster + Manatee LibCal + curated staples
+  configured in prod today), 4 render surfaces (Events screen, For You
+  hero/rail/community grid, Map events mode, Detail venue-events), plus a
+  dead zero-caller /api/ticketmaster route and dead eventCounts state.
+- Live measurement (Parrish + Orlando probes): today's DATA is clean --
+  every displayed event has a real URL, future date, no cross-provider
+  dupes (250/250 usable by those measures in both probes). The damage is
+  in the interaction layer: the Events-screen card's natural tap target
+  (title/image/body) is wired to NOTHING, and every other surface routes
+  the primary tap through a fallible runtime Google venue lookup
+  (openVenue -> "Could not find this venue" toast) instead of the
+  validated URL the event already carries.
+- Counts don't match cards: date-chip/"All" counts are computed on the
+  pre-recurrence-collapse list while the grid renders the collapsed one;
+  the API's counts field is raw pre-dedup provider totals (346 vs 222
+  actually served in the Parrish probe).
+- Five latent default-allow failures, each one env var away from live:
+  no cancelled-status handling (TM dates.status.code never read),
+  PredictHQ destinations fabricated as google.com/search URLs, empty-URL
+  providers unguarded (renders href=""), no per-provider timeout, dedup
+  key ignores venue.
+- Routing confirmed broken for sharing: /events redirects to /?go=events
+  and history.replaceState strips it -- address bar shows "/" while the
+  Events view displays; refresh loses the view; no shareable event URLs;
+  the audit prompt's /events/[city] URL scheme is not built (Phase 3 here
+  will implement it, not fork one).
+
 ## v5.52 - booking-CTA integrity, Phases 1-5 (default-deny resolver + persisted offers + single render contract + self-healing cron + golden tests)
 - Re-checked the Viator key before starting (`?probe=1`): still 401,
   unchanged since Phase 0. Rather than block indefinitely on owner action,
