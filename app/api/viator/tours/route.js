@@ -52,11 +52,18 @@ export async function GET(req) {
         searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count } }],
       }),
     });
-    if (!res.ok) return Response.json({ items: [] });
+    if (!res.ok) {
+      // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): log upstream failures
+      // too — a 401/429/5xx here silently degrades to "no tours" today, which
+      // looks identical to "genuinely no product exists" from the outside.
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, regionTokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
+      return Response.json({ items: [] });
+    }
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
-    const items = results
-      .filter((r) => r && r.productUrl && r.title)
+    const regionFiltered = results.filter((r) => r && r.productUrl && r.title);
+    const rejectedByRegion = regionTokens.length ? regionFiltered.filter((r) => { const hay = (r.title + " " + r.productUrl).toLowerCase().replace(/[-_]/g, " "); return !regionTokens.some((t) => hay.includes(t)); }) : [];
+    const items = regionFiltered
       .filter((r) => { if (!regionTokens.length) return true; const hay = (r.title + " " + r.productUrl).toLowerCase().replace(/[-_]/g, " "); return regionTokens.some((t) => hay.includes(t)); })
       .map((r) => ({
         code: r.productCode || "",
@@ -68,9 +75,28 @@ export async function GET(req) {
         fromPrice: (() => { try { const p = r.pricing && r.pricing.summary && r.pricing.summary.fromPrice; return typeof p === "number" ? Math.round(p) : null; } catch { return null; } })(),
         duration: (() => { try { const d = r.duration && (r.duration.fixedDurationInMinutes || r.duration.variableDurationToMinutes); if (!d) return null; return d >= 60 ? Math.round(d / 60) + "h" : d + "m"; } catch { return null; } })(),
       }));
+    // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): one structured line per
+    // query so we can measure, from real Vercel function logs, how often a
+    // "kept" product is actually specific to the place vs. just a
+    // region-name substring match (the Bradenton Riverwalk failure mode) and
+    // how often the same product wins for many different queries (fan-out /
+    // genericness). No per-item confidence score exists yet — that's exactly
+    // the gap this diagnosis is measuring. Remove once Phase 1+ lands.
+    try {
+      console.log(JSON.stringify({
+        tag: "booking_integrity_diag",
+        q, regionTokens,
+        rawCount: results.length,
+        keptTitles: items.map((x) => x.title),
+        keptCodes: items.map((x) => x.code),
+        rejectedByRegionTitles: rejectedByRegion.map((x) => x.title),
+        decision: items.length > 0 ? "cta_would_render" : "no_cta",
+      }));
+    } catch (e) {}
     mem.set(ck, { items, exp: Date.now() + TTL });
     return Response.json({ items }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
   } catch (e) {
+    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", q, regionTokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
     return Response.json({ items: [] });
   } finally {
     clearTimeout(timer);

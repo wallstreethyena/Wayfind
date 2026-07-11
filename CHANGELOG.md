@@ -1,3 +1,36 @@
+## v5.51 - booking-CTA integrity, Phase 0 (diagnosis only, no render change)
+- No product/UI logic changed. This is the diagnose-before-building phase
+  of a default-deny rework for the "Tickets & tours" booking CTA (today's
+  free-text-search + city-substring-match model can surface a generic
+  regional tour as if it were venue-specific — the "Bradenton Riverwalk"
+  failure mode).
+- Full diagnosis in BOOKING_INTEGRITY_DIAGNOSIS.md: the exact code path
+  (app/home.js's viaTours effect -> /api/viator/tours ->
+  app/components/sheets/Detail.js's card list, plus the sibling
+  /api/viator/go resolver), and the honest finding that there is currently
+  no confidence threshold at all -- only a place-type/category gate and a
+  boolean city-name substring match.
+- Bigger finding, not anticipated by the brief: VIATOR_API_KEY in Vercel
+  production is rejected by Viator's own API with 401 on every request
+  (confirmed via the existing /api/viator/go?probe=1 diagnostic, 3x
+  consistent). The booking-CTA feature is currently dark site-wide --
+  every visitor sees a generic search link, never a specific product,
+  correct or incorrect. This blocks measuring real match-quality numbers
+  and must be fixed (owner: Viator partner console) before Phase 1 can be
+  built against real data instead of guesses.
+- Temporary structured logging added to both Viator routes
+  (booking_integrity_diag lines in Vercel function logs: query, region
+  tokens, raw/kept/rejected product titles, final decision) so real
+  numbers are available the moment the key works, without another deploy.
+- Also noted, connected but out of scope here: scripts/check-cta.mjs (a
+  pre-existing, already-failing guardrail) only inspects the "shell"
+  concat (home.js + kit + screens/sheets) and never looks at
+  lib/affiliates.js, where the resolver call it's checking for actually
+  lives now -- relevant to Phase 3's CI-enforcement requirement, not
+  fixed in this commit.
+- Per the brief's own instruction: stopping here to report before Phase 1
+  (the persisted VerifiedOffer schema) gets built.
+
 ## v5.50 - PostHog now initializes on every route, not just the homepage
 - Root cause of "zero events ever captured": PostHog's init lived inside
   app/home.js's PageInner, which is rendered ONLY by app/page.js ("/").
