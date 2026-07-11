@@ -13,7 +13,10 @@ import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
-import MapView from "./components/MapView";
+import nextDynamic from "next/dynamic";
+// v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
+// screen (or sidebar map) first renders, not on first paint.
+const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
@@ -27,7 +30,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.38";
+const BUILD_ID = "v5.39";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -2008,7 +2011,7 @@ function EventHeroBg({ image, acc, venue, near }) {
   const src = image && !bad ? image : (alt || "");
   if (src) {
     return (<>
-      <img src={src} alt="" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       {usingAlt && <div style={{ position: "absolute", bottom: 6, right: 8, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.85)", background: "rgba(0,0,0,.5)", padding: "2px 7px", borderRadius: 999, pointerEvents: "none" }}>{altBy ? "Photo: " + altBy + " · Google" : "via Google"}</div>}
     </>);
   }
@@ -3394,6 +3397,9 @@ function PageInner() {
   const [introOpen, setIntroOpen] = useState(false);
   const [introSel, setIntroSel] = useState([]);
   const [locBannerGone, setLocBannerGone] = useState(false);
+  // v5.39: the approximate-location notice is a fixed toast (no layout
+  // shift) and dismisses itself after 8 seconds.
+  useEffect(() => { if (!locApprox || locBannerGone) return; const t = setTimeout(() => setLocBannerGone(true), 8000); return () => clearTimeout(t); }, [locApprox, locBannerGone]);
   const [reservations, setReservations] = useState([]);
   useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
   function persistRes(next) { setReservations(next); try { localStorage.setItem("wf_reservations", JSON.stringify(next)); } catch (e) {} }
@@ -3924,6 +3930,26 @@ function PageInner() {
     window._phInit = true;
     import("posthog-js").then(({ default: ph }) => { try { ph.init(key, { api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com", capture_pageview: true, capture_pageleave: true, autocapture: true }); window.posthog = ph; } catch (e) {} }).catch(() => {});
   }, []);
+  // v5.39 field Core Web Vitals -> PostHog (July 2026 audit, Phase 7). The
+  // hourly /api/cron/cwv job stores LAB metrics (PageSpeed API); this is the
+  // missing FIELD half — real visits, tagged by route, device, location
+  // permission outcome, and signed-in state (read from window.__WF_CTX so
+  // the values are current at metric time, not frozen in this closure).
+  useEffect(() => {
+    if (typeof window === "undefined" || window._wfVitals) return;
+    window._wfVitals = true;
+    import("web-vitals").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+      const send = (m) => {
+        try {
+          if (!window.posthog) return;
+          const ctx = window.__WF_CTX || {};
+          window.posthog.capture("web_vitals", { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID });
+        } catch (e) {}
+      };
+      [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
+    }).catch(() => {});
+  }, []);
+  useEffect(() => { try { window.__WF_CTX = { signedIn: !!user, locPermission: deviceLoc ? "granted" : locApprox ? "ip-fallback" : "pending" }; } catch (e) {} }, [user, deviceLoc, locApprox]);
   // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
@@ -6142,7 +6168,7 @@ function PageInner() {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", marginBottom: 12 }}>
+                      <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(64px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
                         <span style={{ fontSize: 15 }}>📍</span>
                         <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
                         <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
@@ -6298,7 +6324,7 @@ function PageInner() {
                   {card("Best things to do today", "Ranked by what is worth your time: quality, distance, weather and time of day.", todo10, top10Open, () => setTop10Open((v) => !v))}
                 </>);
               })()}
-              {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+              {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
@@ -6309,7 +6335,7 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => { if (!e || !e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff >= 0 && diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; };
                 const withImg = evs.filter((e) => e && e.image);
@@ -6368,7 +6394,7 @@ function PageInner() {
                   old (ISR), so computing it at render made server and client
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
-              {!browseCat && suggested === null && <Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" />}
+              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
                   <div style={{ textAlign: "center", marginBottom: 12 }}>
@@ -8396,7 +8422,7 @@ function PageInner() {
               home-screen row is gone by design). */}
           <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
           <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both, wfIntroGlow 2.8s ease-in-out .5s infinite" }}>
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 38px rgba(255,138,61,.6), 0 0 90px rgba(249,115,22,.3)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>

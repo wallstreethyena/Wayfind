@@ -1,3 +1,31 @@
+## v5.39 - performance: local mobile Lighthouse 31 -> 72-74, CLS 0.20 -> 0.004
+- THE finding: Stay22's LinkSwap script cost ~3.0s of mobile main-thread —
+  the entire TBT problem (2,880ms). It now loads on first user interaction
+  only (pointer/key/scroll; a visitor who never interacts can never click a
+  booking link). TBT: 2,880ms -> 10-30ms.
+- CLS 0.249 -> 0.004: the approximate-location banner became a fixed,
+  auto-dismissing toast (it inserted into the feed 2.5s after paint and
+  pushed everything); the boot loader reserves the feed's space (62vh); the
+  events strip renders atomically with the resolved feed instead of
+  inserting above the loader.
+- MapView is dynamically imported — the Maps rendering bundle leaves the
+  first paint entirely (map screen shows a loading placeholder for a beat).
+- The intro card's infinite box-shadow/border keyframe animation (paint
+  on every frame) is gone; entrance animation + static glow + the existing
+  opacity-animated halo remain (compositor-only).
+- public/ images (icons, weather art, wordmark — all query-versioned) get
+  Cache-Control: 30 days + stale-while-revalidate. Hashed /_next/static
+  was already immutable.
+- The featured event hero (the LCP image) fetches at high priority;
+  everything else stays lazy.
+- Field Core Web Vitals now flow to PostHog (web-vitals lib, dynamic
+  import): LCP/CLS/INP/TTFB/FCP tagged by route, device, location-permission
+  outcome, signed-in state, and build — complementing the lab-only
+  /api/cron/cwv PageSpeed job. Nothing duplicated.
+- Honest gap: score 72-74 vs the >=75 target. The remaining LCP (~10s lab)
+  is structural — 241KB of route JS from the app/home.js monolith plus a
+  data-dependent hero. Decomposing home.js is owner-roadmap work.
+
 ## v5.38 - accessibility sweep: landmarks, contrast, keyboard, axe gate
 - Every route gets a <main id="wf-main"> landmark and a keyboard-visible
   "Skip to main content" link (layout.js); the homepage gets a descriptive

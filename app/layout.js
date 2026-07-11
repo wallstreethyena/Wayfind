@@ -76,8 +76,14 @@ export default function RootLayout({ children }) {
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
-            afterInteractive so it never blocks first paint. */}
-        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(s,t,a,y,twenty,two){s.Stay22=s.Stay22||{};s.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};twenty=t.createElement(a);two=t.getElementsByTagName(a)[0];twenty.async=1;twenty.src=y;two.parentNode.insertBefore(twenty,two);})(window,document,'script','https://scripts.stay22.com/letmeallez.js');` }} />
+            v5.39 (July 2026 audit, Phase 7): Lighthouse attributed ~3.0s of
+            mobile main-thread work to this script — the single largest TBT
+            contributor on the page. It now loads on the FIRST user
+            interaction (pointer/key/scroll), — a visitor who never
+            interacts can never click a booking link, and any real click is
+            preceded by a pointerdown that starts this load. Until it
+            loads, booking links are plain (functional, just untracked). */}
+        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var loaded=false;function load(){if(loaded)return;loaded=true;window.Stay22=window.Stay22||{};window.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};var s=document.createElement('script');s.async=1;s.src='https://scripts.stay22.com/letmeallez.js';var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,load,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,load,{passive:true,once:true})});})();` }} />
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
         <main id="wf-main" style={{ minHeight: "100%" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real

@@ -39,6 +39,16 @@ const nextConfig = {
           { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
         ],
       },
+      // v5.39 (July 2026 audit, Phase 7): public/ images are versioned by
+      // query string (e.g. wordmark.png?v=2), so a month of caching is safe
+      // and repeat visits stop refetching icons, weather art, and wordmarks.
+      // Hashed /_next/static assets already ship immutable from Next itself.
+      {
+        source: "/:all*(svg|jpg|jpeg|png|webp|avif|ico)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" },
+        ],
+      },
     ];
   },
   // v4.54 PROTECTED (check-canon.mjs): any request arriving on a *.vercel.app
