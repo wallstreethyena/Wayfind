@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.49";
+const BUILD_ID = "v5.50";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -3662,13 +3662,8 @@ function PageInner() {
   // shared Supabase "events" table — this is the proprietary signal Google can't
   // give us (what locals actually like, save, and share). Never throws, never
   // blocks the UI, and only writes when a backend is configured.
-  // PostHog: product analytics + session replay. No-ops until NEXT_PUBLIC_POSTHOG_KEY is set.
-  useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-    if (!key || typeof window === "undefined" || window._phInit) return;
-    window._phInit = true;
-    import("posthog-js").then(({ default: ph }) => { try { ph.init(key, { api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com", capture_pageview: true, capture_pageleave: true, autocapture: true }); window.posthog = ph; } catch (e) {} }).catch(() => {});
-  }, []);
+  // PostHog init moved to app/components/PostHogProvider.js (v5.50),
+  // mounted in the root layout so every route gets it, not just this one.
   // v5.39 field Core Web Vitals -> PostHog (July 2026 audit, Phase 7). The
   // hourly /api/cron/cwv job stores LAB metrics (PageSpeed API); this is the
   // missing FIELD half — real visits, tagged by route, device, location
