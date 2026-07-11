@@ -1,3 +1,21 @@
+## v5.33 - hydration is deterministic: storage-backed state loads after mount
+- Root cause of the live React errors 418/423/425 (July 2026 audit, Phase 1):
+  thirteen useState initializers in app/home.js read localStorage (and
+  window.location.search) during render. The server rendered the empty
+  fallback, a returning visitor's first client render produced real data,
+  and React discarded the whole SSR tree. All of them (liked, disliked,
+  likedItems, dislikedItems, sharedItems, savedCoupons, hookLikes,
+  placeComments, signals, myVotes, signupDone, debugOn) now start at the
+  same deterministic fallback on both sides and hydrate from storage in one
+  post-mount effect. No persistence path clobbers stored data (verified:
+  every setItem site is an event handler or read-modify-write merge).
+- New e2e gate (Playwright + npm run test:e2e): loads the production build
+  and fails on ANY hydration warning or console error. Covers fresh visitor,
+  returning visitor with populated localStorage, ?debug=1 URL params, a
+  +6h clock-skew run that simulates a stale ISR shell, and /privacy.
+  Environment-only noise (keyless Maps/PostHog/Supabase, degraded /api
+  routes) is filtered by origin, never by our own page's errors.
+
 ## v4.06 - fix crashing Share button on Top 10 list cards
 - PlaceCard share button called addShared() and referenced giveawayMark from
   a scope where neither existed, throwing ReferenceError on every tap: no

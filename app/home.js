@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.32";
+const BUILD_ID = "v5.33";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3102,7 +3102,7 @@ function PageInner() {
   const manualRef = useRef(false);
   // Hook state — declared before hookCards memo to avoid temporal dead zone.
   const [aiHooks, setAiHooks] = useState(null);
-  const [hookLikes, setHookLikes] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]")); } catch { return new Set(); } });
+  const [hookLikes, setHookLikes] = useState(() => new Set());
   const [cuisineSheet, setCuisineSheet] = useState(null);
   const openHoliday = async (h) => {
     const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
@@ -3186,9 +3186,9 @@ function PageInner() {
   const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
-  const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
+  const [debugOn, setDebugOn] = useState(false);
   const noteRef = useRef(null);
-  const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } return c; } catch { return {}; } });
+  const [placeComments, setPlaceComments] = useState({});
   const [commentType, setCommentType] = useState("Tip");
   const [placePosts, setPlacePosts] = useState([]);
   const [confirmDel, setConfirmDel] = useState(false);
@@ -3249,8 +3249,8 @@ function PageInner() {
   const insightFullCache = useRef({});
   const detailCache = useRef({});
   // Engagement signals — stored in localStorage, used to personalise the feed.
-  const [signals, setSignals] = useState(() => { try { if (typeof window === "undefined") return []; return loadSignals(); } catch { return []; } });
-  const [liked, setLiked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked") || "{}"); } catch { return {}; } });
+  const [signals, setSignals] = useState([]);
+  const [liked, setLiked] = useState({});
   useEffect(() => {
     if (!supabase) return;
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
@@ -3275,12 +3275,12 @@ function PageInner() {
       if (data) data.forEach((r) => { if (r && r.place_id) SIGNALS.map[r.place_id] = true; });
     }, () => { SIGNALS.loaded = true; });
   }, []);
-  const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
-  const [likedItems, setLikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch { return {}; } });
+  const [disliked, setDisliked] = useState({});
+  const [likedItems, setLikedItems] = useState({});
   // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
   // in, in the cloud "Coupons" folder (saved_places) so they survive devices.
   // Dashboard-loaded offers rows merge with the code-shipped COUPONS list.
-  const [savedCoupons, setSavedCoupons] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_coupons") || "{}"); } catch { return {}; } });
+  const [savedCoupons, setSavedCoupons] = useState({});
   const [walletOpen, setWalletOpen] = useState(false); // v5.08: saved coupons stack like Apple Wallet — collapsed pile, tap to fan out
   const [cpnOffers, setCpnOffers] = useState([]);
   const _cpnLoadedRef = useRef(false);
@@ -3305,14 +3305,14 @@ function PageInner() {
     const done = () => showToast("Code copied — show it at checkout");
     try { navigator.clipboard.writeText(code).then(done, () => { try { const ta = document.createElement("textarea"); ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); } catch (e) {} }); } catch (e) {}
   }
-  const [dislikedItems, setDislikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch { return {}; } });
-  const [sharedItems, setSharedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_shared_items") || "{}"); } catch { return {}; } });
+  const [dislikedItems, setDislikedItems] = useState({});
+  const [sharedItems, setSharedItems] = useState({});
   const [sysFolder, setSysFolder] = useState(null);
   const [listMenu, setListMenu] = useState(null);
   const [renamingList, setRenamingList] = useState(null);
   const [signupOpen, setSignupOpen] = useState(false);
   const [signupEmail, setSignupEmail] = useState("");
-  const [signupDone, setSignupDone] = useState(() => { try { return !!localStorage.getItem("wf_signed_up"); } catch { return false; } });
+  const [signupDone, setSignupDone] = useState(false);
   // Auth state (Supabase). Null user = signed out / no backend configured.
   const [user, setUser] = useState(null);
   const [authOpen, setAuthOpen] = useState(false);
@@ -3532,7 +3532,27 @@ function PageInner() {
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
-  const [myVotes, setMyVotes] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_drive_votes") || "{}"); } catch { return {}; } });
+  const [myVotes, setMyVotes] = useState({});
+  // v5.33 hydration fix: every localStorage-backed state above used to be
+  // read in its useState initializer — the server rendered the empty
+  // fallback, a returning visitor's first client render produced real data,
+  // and React hydration failed (minified errors 418/423/425 → full client
+  // re-render of the root). All of them now start at the same deterministic
+  // fallback on both sides and load from storage after mount, in one place.
+  useEffect(() => {
+    try { setHookLikes(new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]"))); } catch {}
+    try { if (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)) setDebugOn(true); } catch {}
+    try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } setPlaceComments(c); } catch {}
+    try { setSignals(loadSignals()); } catch {}
+    try { setLiked(JSON.parse(localStorage.getItem("wf_liked") || "{}")); } catch {}
+    try { setDisliked(JSON.parse(localStorage.getItem("wf_disliked") || "{}")); } catch {}
+    try { setLikedItems(JSON.parse(localStorage.getItem("wf_liked_items") || "{}")); } catch {}
+    try { setSavedCoupons(JSON.parse(localStorage.getItem("wf_coupons") || "{}")); } catch {}
+    try { setDislikedItems(JSON.parse(localStorage.getItem("wf_disliked_items") || "{}")); } catch {}
+    try { setSharedItems(JSON.parse(localStorage.getItem("wf_shared_items") || "{}")); } catch {}
+    try { setSignupDone(!!localStorage.getItem("wf_signed_up")); } catch {}
+    try { setMyVotes(JSON.parse(localStorage.getItem("wf_drive_votes") || "{}")); } catch {}
+  }, []);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
