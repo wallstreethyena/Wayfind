@@ -1,4 +1,4 @@
-## v5.59 - moment/experience picks integrity, Phase 0 (diagnosis only, no behavior change)
+## v5.60 - moment/experience picks integrity, Phase 0 (diagnosis only, no behavior change)
 - MOMENT_PICKS_DIAGNOSIS.md: entry-path matrix + root cause of the
   "chip shows nothing, modal shows 21" divergence. Corrected the assumed
   model: chips AND the mood modal both call openExperience into the SAME
@@ -18,6 +18,26 @@
   Phase 1/3); city-as-venue toast + price + CSP = audit prompt's scope,
   filed not fixed. Also filed (separate track, from #67/#68): event-detail
   "Open in Wayfind", Get-tickets→Expedia, Market-at-Waterside broken page.
+
+## v5.59 - event-detail regression fixes (owner-reported, from #67/#68)
+- "Open in Wayfind ›" on the event detail page (which only went back to
+  /events and confused the owner) is now "‹ Back to all events" -> /events.
+- Get-tickets -> Expedia on the Florida Railroad train ride: the page's
+  href is correctly the event's own site (frrm.org), but the Stay22
+  LinkSwap script rewrites outbound <a> hrefs after load, redirecting it to
+  a hotel OTA. New TicketButton client component opens the ORIGINAL url
+  captured in a JS closure on click (+ data-s22-autopilot="false"), so an
+  event's own ticket/official site can never be affiliate-swapped. NOTE for
+  owner: if Expedia still appears from the venue path, it's Stay22 autopilot
+  wrapping non-hotel links -- a Stay22-dashboard setting.
+- "The Market at Waterside" -> "Safari can't open the page": the staple id
+  embeds a date and the resolver only searched a forward-only window, so a
+  tap a day+ after the feed loaded fell outside it. resolveEventById now
+  resolves against a 2-week-back window (the feed still emits future-only).
+  Two new e2e regression tests (Back-to-all-events label present /
+  Open-in-Wayfind gone; just-passed staple id still 200s).
+- Green theme on tapping the venue is the event's category color
+  (Family/Community), expected -- not changed.
 
 ## v5.58 - premium redesign, Phases 4-6 (calm onboarding, a11y polish, crawlable homepage)
 - Onboarding de-arcaded (Intro.js): the pulsing halo + layered orange glow

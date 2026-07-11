@@ -8,6 +8,7 @@
 import { notFound } from "next/navigation";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
 import { ticketOutUrl } from "../../../../lib/affiliates.js";
+import TicketButton from "./TicketButton.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -87,14 +88,12 @@ export default async function EventPage({ params }) {
         {e.description && <p style={{ fontSize: 14, lineHeight: 1.65, color: "#CBD5E1", marginTop: 14 }}>{String(e.description).slice(0, 600)}</p>}
         {e.price && <div style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "#22C55E" }}>{e.price}</div>}
         {!cancelled && external && (
-          <a href={external} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", marginTop: 18, background: A, color: "#0D1117", fontWeight: 800, fontSize: 15, borderRadius: 12, padding: "13px 0", textDecoration: "none" }}>
-            {e.ticketed ? "Get tickets ↗" : "Official site ↗"}
-          </a>
+          <TicketButton url={external} label={e.ticketed ? "Get tickets ↗" : "Official site ↗"} />
         )}
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>
-        <a href="/?go=events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>Open in Wayfind ›</a>
+        <a href="/events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>‹ Back to all events</a>
       </div>
     </div>
   );
