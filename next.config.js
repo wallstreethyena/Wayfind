@@ -4,8 +4,10 @@
 // photos, PostHog + its asset host, Supabase incl. websockets, open-meteo
 // weather, Stay22 LinkSwap affiliate script). Next.js requires inline
 // scripts/styles, hence 'unsafe-inline'.
-// TODO(csp-enforce): after a clean report-only period in production, rename
-// the header to Content-Security-Policy and remove this note.
+// TODO(csp-enforce): violations report to /api/csp-report (one structured
+// "csp-violation" line each in the Vercel function logs). After SEVEN DAYS
+// of production traffic with zero same-origin violations, rename the header
+// to Content-Security-Policy and remove this note.
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com",
@@ -19,6 +21,7 @@ const CSP_REPORT_ONLY = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
+  "report-uri /api/csp-report",
 ].join("; ");
 
 /** @type {import('next').NextConfig} */
@@ -33,8 +36,13 @@ const nextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          // NOTE: no HSTS includeSubDomains here on purpose — that needs a
-          // subdomain HTTPS audit first (owner task from the July 2026 audit).
+          // v5.42: subdomain HTTPS audit completed 2026-07-11 — wildcard DNS
+          // routes every *.gowayfind.com name to Vercel with valid TLS, and
+          // mail is external (iCloud MX), so includeSubDomains is safe. Same
+          // max-age Vercel was already sending, now with subdomain coverage.
+          // (No `preload` yet — that's a browser-list commitment the owner
+          // should make deliberately.)
+          { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
           { key: "Permissions-Policy", value: "geolocation=(self), camera=(), microphone=(), payment=()" },
           { key: "Content-Security-Policy-Report-Only", value: CSP_REPORT_ONLY },
         ],

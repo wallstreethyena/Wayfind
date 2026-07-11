@@ -1,3 +1,20 @@
+## v5.42 - the CSP flip is measurable, and HSTS covers subdomains
+- New /api/csp-report endpoint: browsers POST report-only CSP violations
+  (both legacy report-uri and Reporting-API shapes); each becomes one
+  structured "csp-violation" line in the Vercel function logs. report-uri
+  added to the CSP. Flip criterion now written down: 7 days of production
+  traffic with zero same-origin violations -> rename the header to
+  Content-Security-Policy.
+- Strict-Transport-Security: max-age=63072000; includeSubDomains. The
+  subdomain HTTPS audit (2026-07-11) cleared it: wildcard DNS routes every
+  *.gowayfind.com name to Vercel with valid TLS (verified against random
+  names), and mail is external iCloud MX. Same max-age Vercel already sent,
+  now with subdomain coverage. No preload yet - that is a deliberate
+  owner commitment.
+- E2E_BASE_URL env: point the Playwright suite at a deployed site (no local
+  server) for post-deploy live smoke verification.
+- check-headers.mjs asserts the HSTS header and the report-uri.
+
 ## v5.41 - one command guards the whole audit: npm run audit:regression
 - audit:regression = the placeholder-key production build (whose prebuild
   now runs 11 gates: version, jsx, dupes, env, tags, libs, gate, seo,

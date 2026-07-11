@@ -23,7 +23,8 @@ const REQUIRED = {
   "x-frame-options": "SAMEORIGIN",
   "referrer-policy": "strict-origin-when-cross-origin",
   "permissions-policy": /geolocation=\(self\)/,
-  "content-security-policy-report-only": /frame-ancestors 'self'/,
+  "strict-transport-security": /max-age=63072000; includeSubDomains/,
+  "content-security-policy-report-only": /frame-ancestors 'self'.*report-uri \/api\/csp-report|report-uri \/api\/csp-report/,
 };
 for (const [name, want] of Object.entries(REQUIRED)) {
   const got = res.headers.get(name);
