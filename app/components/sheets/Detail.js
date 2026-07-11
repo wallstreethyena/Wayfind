@@ -12,6 +12,7 @@ import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
 import * as Aff from "../../../lib/affiliates";
 import { supabase } from "../../../lib/supabase";
+import BookingCTA from "../BookingCTA";
 
 function galleryBtn(side) {
   return {
@@ -202,7 +203,7 @@ export default function DetailSheet({ ctx }) {
                 {detail._event && detail._event.url ? (
                   <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
                 ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(_vt.items[0].url) || _vt.items[0].url) : null; /* v5.01: the button opens the TOP real product for this place directly (tracked) — never the /go resolver, whose search-page fallback broke trust */ const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
+                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} /></>
                 )}
                 {detail._event && detail._event.url && (
                   <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
@@ -214,7 +215,7 @@ export default function DetailSheet({ ctx }) {
                 </>)}
                 <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
-              {(((viaTours[detail.id] && !viaTours[detail.id].loading && Array.isArray(viaTours[detail.id].items) && viaTours[detail.id].items.length > 0) && Aff.ticketsUrl(detail)) || Aff.hotelUrl(detail)) ? <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission from partner links</div> : null}
+              <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
               <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
                 <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
@@ -283,41 +284,7 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16 }}>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                const _vt = viaTours[detail.id];
-                const _items = (_vt && _vt.items) || [];
-                if (_items.length > 0) {
-                  return (
-                    <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
-                        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-                      </div>
-                      {_items.map((t, i) => (
-                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {} try { addReservation("tour", detail, "Viator", _live); } catch (er) {} openExternal(_live); }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
-                          {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>
-                              {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
-                            </div>
-                          </div>
-                          <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
-                        </a>
-                      ))}
-                    </div>
-                  );
-                }
-                if (_hasNoteUrl) return null;
-                return (
-                  <a onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : ""); try { logEvent("tour", detail); } catch (er) {} openExternal(_live); }} href={Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                  <span style={{ fontSize: 18 }}>🎟️</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
-                  </div>
-                  <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
-                </a>
-                );
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} />;
               })()}
 
               {!detail._event && (

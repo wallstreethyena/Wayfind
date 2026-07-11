@@ -3,7 +3,17 @@
 // to the exact product page with affiliate attribution. If the API key is
 // missing or the lookup fails for any reason, we fall back to the tracked
 // search URL, so this can never be worse than the old behavior.
+//
+// v5.52 (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 1-3): "first region-token
+// match" is replaced with the same scored resolver used by
+// /api/viator/tours -- a candidate only redirects to a real product page if
+// it clears the hard invariant in lib/verifiedOffers.js. Anything that
+// doesn't falls back to the tracked search page (unchanged, and still
+// honest about not knowing rather than teleporting to a wrong product).
 export const runtime = "nodejs";
+
+import { resolveVerified } from "../../../../lib/bookingResolver.js";
+import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -23,22 +33,18 @@ function searchFallback(q) {
     : `https://www.viator.com/searchResults/all?text=${t}`;
 }
 
-// v4.94 — GEOGRAPHIC VALIDATION (the "Explore Los Angeles" fix). Freetext
-// search is keyword-based: a Florida fossil attraction resolved to an LA tour
-// literally named "The Fast & The Fossilized". A resolved product now must
-// match the user's region tokens (city + metro words, e.g. "ruskin,tampa
-// bay") in its title or destination URL; no match → the tracked SEARCH page,
-// which shows honest options instead of teleporting the user to LA.
-function regionOk(r, tokens) {
-  if (!tokens.length) return true;
-  const hay = ((r.title || "") + " " + (r.productUrl || "")).toLowerCase().replace(/[-_]/g, " ");
-  return tokens.some((t) => hay.includes(t));
-}
 function regionTokens(region) {
   return String(region || "").toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
 }
-async function resolveProduct(q, tokens) {
-  const hit = mem.get(q + "|" + tokens.join("+"));
+
+// searchTerm: what's sent to Viator's freetext search (name + city, for
+// recall). name: the bare place/query name, used to score candidates
+// against (see lib/bookingResolver.js — distinctive-token extraction needs
+// the name isolated from the city, not the combined search string).
+async function resolveProduct(searchTerm, name, region, kind, placeId) {
+  const tokens = regionTokens(region);
+  const ck = searchTerm + "|" + tokens.join("+") + "|" + (kind || "");
+  const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) return hit.url;
   const KEY = getKey();
   if (!KEY) return null;
@@ -55,38 +61,46 @@ async function resolveProduct(q, tokens) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        searchTerm: q,
+        searchTerm,
         currency: "USD",
         searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 3 } }],
       }),
     });
     if (!res.ok) {
-      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q, tokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
+      try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q: searchTerm, tokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
       return null;
     }
     const data = await res.json();
     const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
-    const best = results.find((r) => r && r.productUrl && regionOk(r, tokens));
-    // TEMP (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 0): this picks the FIRST
-    // region-token match with zero geo/entity/specificity scoring — logging
-    // every candidate + the one chosen so we can see how often "best" is
-    // actually a generic area product rather than the named place.
+    const candidates = results.filter((r) => r && r.productUrl && r.title);
+    const fanoutByCode = {};
+    await Promise.all(candidates.map(async (r) => {
+      const key = r.productCode || r.productUrl;
+      fanoutByCode[key] = await getFanoutCount("viator", r.productCode || r.productUrl);
+    }));
+    // v5.52 (BOOKING_INTEGRITY_DIAGNOSIS.md, Phase 1-3): "first region-token
+    // match" -> the scored resolver. A candidate only wins if it clears the
+    // hard invariant in lib/verifiedOffers.js — a bare city mention is no
+    // longer sufficient on its own.
+    const offer = resolveVerified({ id: placeId, name }, candidates, { region, kind, fanoutByCode, placeId });
     try {
       console.log(JSON.stringify({
         tag: "booking_integrity_diag",
-        route: "go", q, tokens,
+        route: "go", q: searchTerm, name, tokens,
         rawCount: results.length,
-        candidateTitles: results.filter((r) => r && r.productUrl).map((r) => r.title),
-        chosenTitle: best ? best.title : null,
-        decision: best ? "redirect_to_product" : "search_fallback",
+        candidateTitles: candidates.map((r) => r.title),
+        chosenTitle: offer ? candidates.find((r) => (r.productCode || r.productUrl) === (offer.productCode || offer.productUrl))?.title : null,
+        confidence: offer ? offer.confidence : null,
+        decision: offer ? "redirect_to_product" : "search_fallback",
       }));
     } catch (e) {}
-    if (!best) return null;
+    if (!offer) return null;
+    await persistOffer(offer);
     // productUrl from the affiliate API carries partner attribution already.
-    mem.set(q + "|" + tokens.join("+"), { url: best.productUrl, exp: Date.now() + TTL });
-    return best.productUrl;
+    mem.set(ck, { url: offer.productUrl, exp: Date.now() + TTL });
+    return offer.productUrl;
   } catch (e) {
-    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q, tokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
+    try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q: searchTerm, tokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
     return null;
   } finally {
     clearTimeout(timer);
@@ -111,8 +125,10 @@ export async function GET(req) {
   const city = (searchParams.get("city") || "").trim().slice(0, 60);
   if (!q) return Response.redirect("https://www.viator.com", 302);
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
-  const tokens = regionTokens(searchParams.get("region") || city);
-  const url = (await resolveProduct(term, tokens)) || searchFallback(term);
+  const region = searchParams.get("region") || city;
+  const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
+  const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || ("q:" + q.toLowerCase());
+  const url = (await resolveProduct(term, q, region, kind, placeId)) || searchFallback(term);
   return new Response(null, {
     status: 302,
     headers: {
