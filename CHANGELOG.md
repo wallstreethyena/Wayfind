@@ -1,3 +1,24 @@
+## v5.35 - deep links finish the job, and the loader mismatch is dead
+- THE live hydration bug, found and fixed: the v5.32 contextual loader
+  computed "Friday evening" from new Date() during render. The ISR shell
+  can be an hour stale, so server and client disagreed → React 418/423 and
+  a full client re-render on real visits. The moment phrase now arrives
+  from post-mount state; both sides render the generic line first. Caught
+  by the clock-skew e2e test once the app rendered fully under test.
+- /?go=favorites now lands on Saved (alias added — bridge pages sent
+  go=saved, but the natural URL form 404'd to the generic feed).
+- app/p/[id]/page.js share metadata: stale wayfind-xi.vercel.app replaced
+  with the shared SITE_URL constant. check-canon.mjs now scans ALL of app/
+  and lib/ for the stale domain — it lived in p/[id] for months because
+  the gate only read home.js and layout.js.
+- New deep-link e2e suite: every bridge page (/events /map /coupons
+  /favorites /itinerary) must show its promised screen, /?q= must fire a
+  real Places search with the query and consume the param, two guide CTAs
+  must hand off to a search for the promised place, and /p/<id> must
+  resolve the place through the app (not just echo metadata).
+- test:e2e builds with a placeholder Maps key so the UI renders under
+  test; remote calls 403 and the tests assert outbound requests, not data.
+
 ## v5.34 - security headers: A-grade set enforced, CSP in report-only
 - next.config.js now sends X-Content-Type-Options: nosniff, X-Frame-Options:
   SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, and a

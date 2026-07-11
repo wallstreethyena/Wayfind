@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.34";
+const BUILD_ID = "v5.35";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -3533,6 +3533,10 @@ function PageInner() {
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
   const [myVotes, setMyVotes] = useState({});
+  // v5.35: the loader's "Friday evening" moment phrase — post-mount only,
+  // so the (possibly hour-stale) ISR HTML and the client can't disagree.
+  const [bootMoment, setBootMoment] = useState(null);
+  useEffect(() => { try { const _d = new Date(); const _wd = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][_d.getDay()]; const _h = _d.getHours(); const _dp = _h < 6 ? "night" : _h < 12 ? "morning" : _h < 17 ? "afternoon" : "evening"; setBootMoment(`${_wd} ${_dp}`); } catch (e) {} }, []);
   // v5.33 hydration fix: every localStorage-backed state above used to be
   // read in its useState initializer — the server rendered the empty
   // fallback, a returning visitor's first client render produced real data,
@@ -4666,7 +4670,7 @@ function PageInner() {
     try {
       const go = new URLSearchParams(window.location.search).get("go");
       if (!go) return;
-      const valid = { events: "events", map: "map", saved: "saved", itinerary: "itinerary", coupons: "coupons" };
+      const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (valid[go]) setScreen(valid[go]);
       const u = new URL(window.location.href); u.searchParams.delete("go");
       window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
@@ -6245,7 +6249,12 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {!browseCat && suggested === null && <Loader label={(() => { try { const _d = new Date(); const _wd = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][_d.getDay()]; const _h = _d.getHours(); const _dp = _h < 6 ? "night" : _h < 12 ? "morning" : _h < 17 ? "afternoon" : "evening"; return `Finding the best options for ${_wd} ${_dp} near ${locName ? locName.split(",")[0] : "you"}…`; } catch (e) { return "Finding the best options near you…"; } })()} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" />}
+              {/* v5.35 hydration: the moment phrase ("Friday evening") comes
+                  from post-mount state — the SSR'd shell can be up to an hour
+                  old (ISR), so computing it at render made server and client
+                  disagree (this was the live React 418/423). Both sides render
+                  the generic line first; the moment arrives one paint later. */}
+              {!browseCat && suggested === null && <Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" />}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
                   <div style={{ textAlign: "center", marginBottom: 12 }}>

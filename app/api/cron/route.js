@@ -11,8 +11,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // v5.04: the OSM warm below fans out over 16 markets
 
-const SITE = "https://wayfind-xi.vercel.app";
+// v5.35: health canaries hit the canonical domain — the old deployment URL
+// only tested the redirect, not the site (caught by the widened check-canon).
 const CANON = "https://www.gowayfind.com";
+const SITE = CANON;
 
 async function check(name, url) {
   try {

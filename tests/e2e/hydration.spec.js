@@ -13,7 +13,8 @@ const ENV_NOISE_URLS =
   /(\.googleapis\.com|\.gstatic\.com|posthog|supabase|\/api\/)/i;
 const ENV_NOISE_TEXT = [
   /net::ERR_(NAME_NOT_RESOLVED|INTERNET_DISCONNECTED|CONNECTION_REFUSED)/,
-  /Google Maps JavaScript API warning/,
+  /Google Maps JavaScript API (warning|error)/,
+  /InvalidKey|ApiTargetBlockedMapError/,
 ];
 
 function isEnvNoise(text, url) {

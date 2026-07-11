@@ -1,6 +1,5 @@
 import ShareRedirect from "../../ShareRedirect";
-
-const SITE = "https://wayfind-xi.vercel.app";
+import { SITE_URL } from "../../../lib/site";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
@@ -31,7 +30,7 @@ export async function generateMetadata({ searchParams }) {
   if (hk) og += "&hk=" + encodeURIComponent(hk);
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
-    metadataBase: new URL(SITE),
+    metadataBase: new URL(SITE_URL),
     title: t + " \u00b7 Wayfind",
     description: desc,
     openGraph: {
