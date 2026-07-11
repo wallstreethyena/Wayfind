@@ -1,3 +1,24 @@
+## v5.59 - moment/experience picks integrity, Phase 0 (diagnosis only, no behavior change)
+- MOMENT_PICKS_DIAGNOSIS.md: entry-path matrix + root cause of the
+  "chip shows nothing, modal shows 21" divergence. Corrected the assumed
+  model: chips AND the mood modal both call openExperience into the SAME
+  Experience screen (not two paths). Systematic bug: the screen fetches to
+  60mi into expPlaces but Experience.js clamps the visible list to expMi
+  (17mi default) while the empty copy hardcodes "Nothing matched within 60
+  miles" -- so an indoor intent at Parrish fetches museums 25-35mi out,
+  clamps them all away, and prints a false scope. "0 curated picks · Tap
+  any" instructs tapping at zero. HookDetail has the identical 17mi clamp.
+- Confirmed live: /api/moment/picks has no input validation -- POST {} and
+  POST a wrong intent id both return 200 {picks:[]}, indistinguishable from
+  a real no-match. The 21-vs-0 split is a stale/adopted-expPlaces timing
+  artifact on top of the clamp+copy bug.
+- Added one inert telemetry line (moment_open_diag: fetched/kept/radiusMi/
+  clampMi/within17) so the exact trigger is measurable on the owner's
+  device. Triaged: dinner-near-small-town = same root cause (fixed by
+  Phase 1/3); city-as-venue toast + price + CSP = audit prompt's scope,
+  filed not fixed. Also filed (separate track, from #67/#68): event-detail
+  "Open in Wayfind", Get-tickets→Expedia, Market-at-Waterside broken page.
+
 ## v5.58 - premium redesign, Phases 4-6 (calm onboarding, a11y polish, crawlable homepage)
 - Onboarding de-arcaded (Intro.js): the pulsing halo + layered orange glow
   bloom are gone -> a quiet elevated dialog with a single subtle scale-in;

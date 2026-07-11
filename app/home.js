@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.58";
+const BUILD_ID = "v5.59";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -4353,6 +4353,11 @@ function PageInner() {
           results = sortFit(raw);
         }
         results = results.slice(0, 40); // v4.81: more options per vibe
+        // TEMP (MOMENT_PICKS_DIAGNOSIS.md, Phase 0): one inert telemetry line
+        // per experience open so the exact divergence is measurable on the
+        // owner's device — fetched vs kept, the radius actually searched, and
+        // the client clamp (expMi) that hides fetched-but-distant results.
+        try { logEvent("moment_open_diag", null, { intent: activeBadge, fetched: raw.length, kept: results.length, radiusMi: Math.round(radius / 1609.34), clampMi: expMi, within17: results.filter((p) => p.distMi != null && p.distMi <= 17).length }); } catch (e) {}
         if (!_tok.dead) { setExpPlaces(results); loadBlurbs(results); fetchMemberSignals(supabase, results).then((sig) => { if (!_tok.dead && sig) setExpPlaces((cur) => withMemberSignal(cur, sig)); }); }
         // v4.89: photo fix for the vibe rows — resolve real photos for the
         // top photoless multi-source entries (cached lookups), then repaint.
