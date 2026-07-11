@@ -154,6 +154,23 @@ test("internal event detail page renders server-side for a resolvable id", async
   await expect(page.getByRole("heading", { level: 1 })).toContainText("The Market at Waterside Place");
   await expect(page.getByText("Listing from Local staples")).toBeVisible();
   await expect(page.getByText("Directions ↗")).toBeVisible();
+  // Event-detail regression fixes (owner-reported): the bottom link is a
+  // clear "Back to all events", not the confusing "Open in Wayfind"; the
+  // ticket CTA is marked so the Stay22 LinkSwap script can't rewrite an
+  // event's own site into a hotel OTA (the train-ride -> Expedia bug).
+  await expect(page.getByText("Back to all events")).toBeVisible();
+  await expect(page.getByText("Open in Wayfind")).toHaveCount(0);
+});
+
+test("a just-passed staple id still resolves (no Safari-cant-open 404 a day later)", async ({ page }) => {
+  // The feed embeds a date in the staple id; the resolver now searches a
+  // wider (2-week-back) window so a tap a day or two after the feed loaded
+  // still resolves to the page instead of 404-ing.
+  const lastSunday = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 7) % 7 || 7)); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+  const id = encodeURIComponent(`ls_waterside_market_${lastSunday}`);
+  const resp = await page.goto(`/events/lakewood-ranch/the-market-at-waterside-place--${id}`);
+  expect(resp.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("The Market at Waterside Place");
 });
 
 test("an invalid event id 404s with a proper not-found state — never a silent redirect to /", async ({ page }) => {
