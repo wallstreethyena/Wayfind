@@ -1,3 +1,44 @@
+## v5.50 - PostHog now initializes on every route, not just the homepage
+- Root cause of "zero events ever captured": PostHog's init lived inside
+  app/home.js's PageInner, which is rendered ONLY by app/page.js ("/").
+  22 of the app's 23 page.js routes — every guide, city/culture page,
+  /florida hub, /privacy, /terms, /about, and the /events, /map, /coupons
+  bridge pages — never mounted it, so they generated zero events by
+  construction, independent of CSP or key validity.
+- CSP was already correctly configured and was NOT the blocker: script-src
+  had us-assets.i.posthog.com, connect-src had both us.i.posthog.com and
+  us-assets.i.posthog.com, worker-src had blob: — verified directly
+  against next.config.js before touching anything. No CSP changes in this
+  commit.
+- New app/components/PostHogProvider.js, mounted in the root layout
+  (app/layout.js) so it wraps every route by construction. Init uses
+  PostHog's current dated-defaults API: `defaults: "2026-05-30"` (handles
+  SPA pageview capture on history change — no hand-rolled
+  usePathname/useSearchParams $pageview component, that's the older
+  pattern) and `person_profiles: "identified_only"` (Wayfind traffic is
+  mostly anonymous; only real sign-ins should create a billed person
+  profile). api_host is hardcoded to https://us.i.posthog.com since
+  NEXT_PUBLIC_POSTHOG_HOST doesn't exist in Vercel and isn't read anymore.
+  The old home.js-only init (capture_pageview/autocapture flags, the
+  NEXT_PUBLIC_POSTHOG_HOST fallback) is removed — one init site, not two
+  with different configs.
+- The existing in-app `screen_view` custom event (home.js, fires when the
+  SPA's internal `screen` state changes without a URL change) is untouched
+  — it's a real gap `defaults`-based $pageview capture can't fill, not a
+  competing pageview mechanism.
+- No @vercel/analytics present (confirmed, nothing to flag). Reverse proxy
+  (/ingest rewrite) deliberately NOT built yet — shipping the simple
+  version first per explicit instruction, to change one variable at a time.
+- Verified via a real `next build` + `next start` (production mode, not
+  dev): the compiled root-layout chunk containing the init code is
+  referenced identically across /, a /florida hub, a Sarasota
+  things-to-do page, /privacy, a guide page, and /about.
+- NOT yet verified: a real event landing in the PostHog dashboard from the
+  actual deployed production site. posthog-js does not reliably send from
+  localhost/dev, and a local production build isn't the live deployment —
+  only the owner can confirm real capture, by deploying this and checking
+  PostHog's Activity/Live Events view.
+
 ## v5.49 - sign-in is required before any favorite/save/like can persist
 - Site-wide behavior change: a signed-out tap on any favorite/save/like/
   dislike/bookmark/list/trip control no longer writes anything — not to

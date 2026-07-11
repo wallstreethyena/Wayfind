@@ -2,6 +2,7 @@ import Script from "next/script";
 import { SITE_URL } from "../lib/site";
 import { GUIDES } from "../lib/guides";
 import { CULTURE } from "../lib/culture";
+import PostHogProvider from "./components/PostHogProvider";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -57,6 +58,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>
+        <PostHogProvider>
         {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
             is visually hidden until focused, then appears top-left. */}
         <a
@@ -129,6 +131,7 @@ export default function RootLayout({ children }) {
             <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
           </div>
         </footer>
+        </PostHogProvider>
       </body>
     </html>
   );
