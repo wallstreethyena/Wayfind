@@ -1,3 +1,29 @@
+## v5.47 - the detail sheet leaves the monolith (G3)
+- The place-detail bottom sheet — Wayfind's core, most-used UI surface,
+  ~630 lines — now lives in app/components/sheets/Detail.js and loads as
+  its own chunk via next/dynamic({ ssr:false }). `detail` starts null, so
+  this is the same safe pattern as every other extraction.
+- Five helpers used exclusively by the detail sheet moved with it:
+  galleryBtn, InfoChip, WorthTheDriveWidget, compass, insightSane.
+  betterAlternatives/similarPlaces/relatedPicks stayed in home.js instead
+  (they close over the module-scope EXPERIENCES table) and flow through
+  ctx like everything else, avoiding an entanglement that would have
+  forced EXPERIENCES itself into kit.js for no real benefit.
+- This extraction got extra scrutiny beyond the ctx pattern: the free-identifier
+  list was built three independent ways (an inventory agent, a manual
+  line-by-line read that caught one gap the agent missed —
+  `insightFullLoading` — and a script-based token diff against every
+  declared/imported/ctx name) before touching home.js. Caught and fixed
+  two off-by-one extraction bugs (InfoChip and insightSane were both
+  missing their closing braces after the initial cut) via check:jsx
+  before they ever reached a commit.
+- Known gap, documented rather than papered over: test:e2e builds with
+  placeholder Maps/Supabase keys, so no place data loads and `detail`
+  never actually opens during automated tests — same limitation already
+  noted in tests/e2e/deeplinks.spec.js for search results. The static
+  verification above is what stands in for runtime coverage here.
+- home.js: ~7,510 -> ~6,820 lines.
+
 ## v5.46 - four sheets leave the monolith (G2)
 - hookDetail (the themed Best-of/Top-5/Skip list sheet), the account sheet,
   the app-tile menu sheet (6 sub-states: menu/community/explore/pick/
