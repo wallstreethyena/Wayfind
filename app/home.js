@@ -17,6 +17,24 @@ import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
+// G1 (July 2026 decomposition): non-default screens ship in their own chunks.
+// `screen` initializes to "suggested" and these render only on user action, so
+// ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
+// first idle (see the SCREEN_LOADERS effect in PageInner), so switching
+// screens never waits on the network in practice.
+const loadSurprise = () => import("./components/screens/Surprise");
+const loadCoupons = () => import("./components/screens/Coupons");
+const loadSaved = () => import("./components/screens/Saved");
+const loadItinerary = () => import("./components/screens/Itinerary");
+const loadShared = () => import("./components/screens/Shared");
+const loadEventsScreen = () => import("./components/screens/Events");
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen];
+const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const ItineraryScreen = nextDynamic(loadItinerary, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SharedScreen = nextDynamic(loadShared, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const EventsScreen = nextDynamic(loadEventsScreen, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
@@ -33,7 +51,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.44";
+const BUILD_ID = "v5.45";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -1854,58 +1872,6 @@ function EventHeroBg({ image, acc, venue, near }) {
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
-}
-function EventArt({ e, seg, height }) {
-  const [bad, setBad] = useState(false);
-  const acc = (seg && seg.color) || C.accent;
-  if (eventUseImage(e) && !bad) {
-    return <img src={e.image} alt="" loading="lazy" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setBad(true); } catch {} }} style={{ width: "100%", height, objectFit: "cover", display: "block" }} />;
-  }
-  return (
-    <div style={{ width: "100%", height, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${acc}30 0%, #131A24 56%, #0D1117 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", top: -24, right: -24, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${acc}33 0%, transparent 70%)`, pointerEvents: "none" }} />
-      <div style={{ fontSize: 42, lineHeight: 1, opacity: 0.95 }}>{seg ? seg.icon : null}</div>
-      <div style={{ position: "absolute", bottom: 7, left: 10, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: acc, opacity: 0.92 }}>{seg ? seg.short : "Event"}</div>
-    </div>
-  );
-}
-function EventCard({ e, onVenue }) {
-  const f = formatEventDate(e.date, e.time);
-  const seg = eventCategory(e);
-  const rec = recurrenceLabel(e);
-  const venue = cleanVenueName(e.venue);
-  const cta = eventCTA(e);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-      <div style={{ position: "relative" }}>
-        <EventArt e={e} seg={seg} height={120} />
-        <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
-        </div>
-        {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)" }}>{seg.icon} {seg.short}</div>}
-      </div>
-      <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-        {venue && (
-          <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
-        )}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
-          {rec
-            ? <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
-            : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
-          {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
-        </div>
-        {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
-        <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-          {cta.show
-            ? <a href={ticketUrl(e.url)} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{cta.label}</a>
-            : <span />}
-          {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, opacity: 0.75 }}>{e.source}</span>}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function Logo({ size = 26 }) {
@@ -5484,6 +5450,36 @@ function PageInner() {
     </>
   );
 
+  // G1: fetch every extracted screen chunk at first idle, so the first tap on
+  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
+    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
+    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
+  }, []);
+
+  // G1: the one ctx bag handed to the extracted screens. Every hook stays in
+  // PageInner — screens are render-only and read state/callbacks/module
+  // helpers from here. Add members as later phases extract more surfaces.
+  const ctx = {
+    // shared navigation + card actions
+    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, logEvent,
+    // module-scope components + helpers the screens render with
+    PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
+    // surprise
+    surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise,
+    // coupons
+    cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, walletOpen, setWalletOpen,
+    // saved
+    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    // itinerary
+    activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
+    // shared list
+    sharedList, setSharedList,
+    // events
+    events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, eventSegmentMeta, dedupeEvents, formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, eventCTA, ticketUrl, eventUseImage,
+  };
+
   return (
     <div style={shell}>
     <div style={{ ...wrap, maxWidth: isDesktop ? 1040 : 480 }}>
@@ -6313,138 +6309,7 @@ function PageInner() {
           );
         })()}
 
-        {screen === "surprise" && (() => {
-          const p = surprisePick;
-          const sl = p ? scoreLabel(p.wfScore) : null;
-          const badges = p ? experienceBadges(p).slice(0, 2) : [];
-          const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
-          // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
-          const period = (() => { const hr = new Date().getHours(); return hr < 12 ? "Morning" : hr < 17 ? "Afternoon" : "Evening"; })();
-          const sOpen = !!(p && p.openNow === true);
-          const sOpensLater = !!(p && p.openNow === false && p.nextOpen && p.nextOpen.today);
-          const sSub = sOpen ? "Open now, nearby, and worth your time."
-            : sOpensLater ? (p.nextOpen.label + " · a strong pick for a little later.")
-            : "A top pick nearby, chosen for rating, distance, and fit.";
-          // v5.0: state-aware primary action. Never tell someone to drive to a closed place.
-          const openAlt = surprisePool.find((o) => o && o.openNow === true && (!p || o.id !== p.id)) || null;
-          const goMaps = () => { if (p && p.mapsUrl) window.open(p.mapsUrl, "_blank", "noopener"); else if (p) openDetail(p); };
-          let primaryLabel = "Take me there →";
-          let primaryAction = goMaps;
-          if (p && !sOpen) {
-            if (sOpensLater) { primaryLabel = "Plan for " + p.nextOpen.label.replace(/^opens\s+/i, "") + " →"; primaryAction = goMaps; }
-            else { primaryLabel = isSaved(p.id) ? "Saved ✓" : "Save for later →"; primaryAction = () => quickSaveFavorite(p); }
-          }
-          const sWhy = [];
-          if (p) {
-            if (sOpen) sWhy.push("open now");
-            else if (sOpensLater) sWhy.push("opens " + p.nextOpen.label.replace(/^opens\s+/i, "").trim());
-            if (p.rating != null && p.rating >= 4.5) sWhy.push("local favorite");
-            else if (sl && sl.word) sWhy.push(sl.word.toLowerCase() + " rated");
-            if (p.distMi != null && p.distMi <= 20) sWhy.push("close enough");
-            sWhy.push("strong " + period.toLowerCase() + " option");
-          }
-          return (
-            <div>
-              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 10 }}>‹ Back</div>
-              <div style={{ paddingBottom: 4 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, lineHeight: 1.45 }}>{sSub}</div>
-              </div>
-              {surpriseLoading && <Loader label="Finding something good" pad="16px 2px" />}
-              {!surpriseLoading && !p && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing to suggest right now</strong>
-                  <span style={{ fontSize: 13 }}>Try a different area.</span>
-                </div>
-              )}
-              {!surpriseLoading && p && (
-                <div>
-                  <div onClick={() => openDetail(p)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
-                    <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 168, objectFit: "cover", display: "block" }} />
-                    <div style={{ padding: 13 }}>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>{p.name}</div>
-                      {p.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>📍 {p.address}</div>}
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-                        {sl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{sl.word}</span>}
-                        {sl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{sl.s}/10</span>}
-                        {p.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {p.rating}{p.reviews ? ` (${p.reviews.toLocaleString()})` : ""}</span>}
-                        {liveOpen(p) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Open now</span>}
-                        {liveOpen(p) === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
-                        {p.price && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· {p.price}</span>}
-                        {cuisineLabel && <span style={{ fontSize: 12, color: C.muted }}>· {cuisineLabel}</span>}
-                        {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                      </div>
-                      {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
-                      {badges.length > 0 && (
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-                          {badges.map((b) => (
-                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
-                          ))}
-                        </div>
-                      )}
-                      {blurbs[p.id] && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45, marginTop: 10 }}>{blurbs[p.id]}</div>}
-                    </div>
-                  </div>
-                  <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
-                  <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    
-                    <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.accent : C.light, border: `1px solid ${isSaved(p.id) ? C.accent : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
-                  </div>
-                  <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    {!sOpen && openAlt ? (
-                      <button onClick={() => setSurprisePick(openAlt)} style={{ flex: 1, background: "transparent", color: C.green, border: `1.5px solid ${C.green}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>Find open now</button>
-                    ) : (
-                      <button onClick={() => openDetail(p)} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "12px 0", cursor: "pointer" }}>See details</button>
-                    )}
-                    <button onClick={rerollSurprise} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>🎲 Roll again</button>
-                  </div>
-                  {/* v4.6: backup picks split into Open now and For later so closed spots are labeled, not hidden in prime slots. */}
-                  {(() => {
-                    const others = surprisePool.filter((o) => o && o.id !== p.id);
-                    const openG = others.filter((o) => o.openNow === true).slice(0, 3);
-                    const laterG = others.filter((o) => o.openNow === false).slice(0, 3);
-                    if (!openG.length && !laterG.length) return null;
-                    return (
-                      <div style={{ marginTop: 22, paddingBottom: 8 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: "0.3px", textTransform: "uppercase", marginBottom: 10 }}>Backup picks</div>
-                        {openG.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, color: C.green, textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 7 }}>Open now</div>}
-                        {openG.map((other) => (
-                          <div key={other.id} onClick={() => setSurprisePick(other)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 8, cursor: "pointer" }}>
-                            <FallbackImg src={other.photo} icon="🍽️" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{other.name}</div>
-                              <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
-                                {other.rating && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {other.rating}</span>}
-                                {other.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {other.distMi.toFixed(1)} mi</span>}
-                              </div>
-                            </div>
-                            <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                          </div>
-                        ))}
-                        {laterG.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.4px", margin: "12px 0 7px" }}>For later</div>}
-                        {laterG.map((other) => (
-                          <div key={other.id} onClick={() => setSurprisePick(other)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 8, cursor: "pointer", opacity: 0.82 }}>
-                            <FallbackImg src={other.photo} icon="🍽️" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{other.name}</div>
-                              <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
-                                {other.rating && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {other.rating}</span>}
-                                {other.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {other.distMi.toFixed(1)} mi</span>}
-                                <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>{other.nextOpen && other.nextOpen.today ? other.nextOpen.label : "Opens later"}</span>
-                              </div>
-                            </div>
-                            <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        {screen === "surprise" && <SurpriseScreen ctx={ctx} />}
 
         {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && (() => {
           const exp = EXPERIENCES[activeBadge];
@@ -6539,413 +6404,12 @@ function PageInner() {
           );
         })()}
 
-        {screen === "coupons" && (() => {
-          const _today = new Date().toISOString().slice(0, 10);
-          const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
-          const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
-          const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
-          const savedIds = new Set(savedList.map((c) => c.id));
-          const fresh = live.filter((c) => !savedIds.has(c.id));
-          const Cpn = (c) => {
-            const isSaved = !!savedCoupons[c.id];
-            return (
-              <div key={c.id} style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.accent : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-                  <div style={{ minWidth: 0 }}>
-                    {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
-                    <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.3 }}>🏷️ {c.title}</div>
-                    {c.details ? <div style={{ fontSize: 13, color: C.light, marginTop: 4, lineHeight: 1.45 }}>{c.details}</div> : null}
-                    {c.expires ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5 }}>Ends {String(c.expires).slice(0, 10)}</div> : null}
-                  </div>
-                  <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.accent : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.accent : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
-                </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
-                  {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
-                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
-                  {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
-                </div>
-              </div>
-            );
-          };
-          return (
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "4px 0 4px" }}>🏷️ Coupons</div>
-              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Real deals at great local places, hand-picked by Wayfind — no junk offers. Tap ♡ to keep one; saved coupons stay on this device and in your account when you're signed in.</div>
-              {savedList.length > 0 && (
-                <>
-                  {/* v5.08 (user direction): saved coupons behave like cards in
-                      Apple Wallet — a collapsed stack showing each card's top
-                      band, tap to fan out, tap the header to restack. */}
-                  <div onClick={() => setWalletOpen((v) => !v)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase" }}>Your wallet · {savedList.length}</div>
-                    <span style={{ fontSize: 11.5, fontWeight: 800, color: C.accent }}>{walletOpen ? "Stack ▴" : "Fan out ▾"}</span>
-                  </div>
-                  {walletOpen || savedList.length === 1 ? savedList.map(Cpn) : (
-                    <div onClick={() => setWalletOpen(true)} style={{ cursor: "pointer", marginBottom: 16 }}>
-                      {[...savedList.slice(0, 6)].reverse().map((c, i, arr) => (
-                        <div key={c.id} style={{ position: "relative", marginTop: i === 0 ? 0 : -58, zIndex: i + 1, background: "#1A2030", border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: i === arr.length - 1 ? "13px 16px 15px" : "13px 16px 74px", boxShadow: "0 -8px 20px rgba(0,0,0,.5)" }}>
-                          {c.business ? <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}</div> : null}
-                          <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>🏷️ {c.title}</div>
-                        </div>
-                      ))}
-                      <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 8 }}>{savedList.length > 6 ? `+${savedList.length - 6} more · ` : ""}Tap to open your wallet</div>
-                    </div>
-                  )}
-                  {fresh.length > 0 && <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", margin: "14px 0 8px" }}>More deals</div>}
-                </>
-              )}
-              {fresh.map(Cpn)}
-              {live.length === 0 && savedList.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 42, marginBottom: 12 }}>🏷️</div>
-                  <strong style={{ display: "block", color: C.light, marginBottom: 6 }}>New local deals land here</strong>
-                  <span style={{ fontSize: 13, lineHeight: 1.5, display: "block" }}>Wayfind is signing up local spots now. Every coupon here will be real — no junk offers, ever. Check back soon.</span>
-                </div>
-              )}
-              {live.length > 0 && <div style={{ fontSize: 11, color: C.muted, marginTop: 10, textAlign: "center" }}>Some deals may be affiliate offers. Wayfind may earn a commission at no cost to you.</div>}
-            </div>
-          );
-        })()}
-        {screen === "saved" && !activeList && !sysFolder && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingTop: 4 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Saved</div>
-              <button onClick={() => setNewListOpen(true)} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
-            </div>
-            {supabase && !user && (
-              <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16, cursor: "pointer" }}>
-                <span style={{ fontSize: 17 }}>☁️</span>
-                <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.35 }}>Sign in to save your lists across devices.</div>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
-              </div>
-            )}
-            {supabase && user && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16 }}>
-                <div style={{ fontSize: 13, color: C.muted, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Signed in as {user.email}</div>
-                <span onClick={signOutUser} style={{ fontSize: 13, fontWeight: 700, color: C.accent, cursor: "pointer" }}>Sign out</span>
-              </div>
-            )}
-            <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginBottom: 2 }}>Your lists</div>
-            {Object.values(lists).map((l) => {
-              const row = (
-                <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}` }}>
-                  <div onClick={() => setActiveList(l.id)} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, cursor: "pointer" }}>
-                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: `1px solid ${C.border}`, flexShrink: 0 }}>{l.emoji}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.name}</div>
-                      <div style={{ fontSize: 13, color: C.muted }}>{l.places.length} place{l.places.length !== 1 ? "s" : ""}</div>
-                    </div>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); setListMenu(l.id); }} aria-label="List options" style={{ flexShrink: 0, width: 36, height: 36, borderRadius: "50%", border: "none", background: "transparent", color: C.muted, fontSize: 22, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>⋯</button>
-                </div>
-              );
-              // v4.6: render every list as a plain tap-to-open row, like Favorites (which always opened).
-              // The swipe-to-delete wrapper put touch handlers and a transform around the row, which
-              // swallowed taps on iOS so the list would not open. Delete is unaffected: it still lives in
-              // the row "..." menu (Open / Share / Rename / Delete) and the trash button inside the open list.
-              return <div key={l.id}>{row}</div>;
-            })}
-            {(
-              <>
-                <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 2 }}>From your activity</div>
-                {[{ k: "liked", name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems }, { k: "disliked", name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems }, { k: "shared", name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems }].map((f) => {
-                  const cnt = Object.keys(f.items || {}).length;
-                  return (
-                    <div key={f.k} onClick={() => setSysFolder(f.k)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{f.emoji}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{f.name}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{cnt} place{cnt !== 1 ? "s" : ""} · automatic</div>
-                      </div>
-                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
-                    </div>
-                  );
-                })}
-              </>
-            )}
-          </div>
-        )}
+        {screen === "coupons" && <CouponsScreen ctx={ctx} />}
+        {screen === "saved" && <SavedScreen ctx={ctx} />}
+        {screen === "itinerary" && <ItineraryScreen ctx={ctx} />}
 
-        {screen === "saved" && sysFolder && (() => {
-          const cfg = { liked: { name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems, empty: "Tap the thumbs up on any place and it lands here, newest first." }, disliked: { name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems, empty: "Places you thumbs down collect here, so you can revisit them or change your mind." }, shared: { name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems, empty: "Anything you share gets gathered here automatically." } }[sysFolder];
-          if (!cfg) return null;
-          const arr = Object.values(cfg.items || {}).filter((x) => x && x.place && x.place.id).sort((a, b) => (b.ts || 0) - (a.ts || 0));
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => setSysFolder(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-                <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{cfg.emoji} {cfg.name}</div>
-                <span style={{ fontSize: 13, color: C.muted }}>{arr.length} place{arr.length !== 1 ? "s" : ""}</span>
-              </div>
-              {supabase && !user && arr.length > 0 && (
-                <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, marginBottom: 14, cursor: "pointer" }}>
-                  <span style={{ fontSize: 18 }}>☁️</span>
-                  <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>These live only on this phone. Sign in to save them.</div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
-                </div>
-              )}
-              {arr.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>{cfg.empty}</div>
-              ) : (
-                arr.map(({ place: p }) => (
-                  <PlaceCard key={p.id} p={p} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-                ))
-              )}
-            </div>
-          );
-        })()}
-
-        {screen === "saved" && activeList && lists[activeList] && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-              <button onClick={() => setActiveList(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-              <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{lists[activeList].emoji} {lists[activeList].name}</div>
-              {lists[activeList].places.length > 0 && (
-                <button onClick={() => shareList(lists[activeList].places, lists[activeList].name)} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 20, cursor: "pointer" }}>Share ↗</button>
-              )}
-              {activeList !== "favorites" && (
-                <button onClick={() => deleteList(activeList)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.red, fontSize: 16, width: 34, height: 34, borderRadius: 10, cursor: "pointer" }}>🗑</button>
-              )}
-            </div>
-            {lists[activeList].places.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>Tap the bookmark on any place to save it here.</div>
-            ) : (
-              <>
-                {lists[activeList].places.length > 1 && (
-                  <button onClick={rollDice} style={{ width: "100%", marginBottom: 14, padding: "12px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
-                )}
-                {lists[activeList].places.map((p) => (
-                  <PlaceCard key={p.id} p={p} saved liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-                ))}
-              </>
-            )}
-          </div>
-        )}
-        {screen === "itinerary" && !activeTrip && (() => {
-          const list = Trips.tripList(trips);
-          return (
-            <div>
-              <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} setScreen("home"); setTimeout(() => pickBrowse(id), 60); }} onSub={() => {}} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
-                {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
-              </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
-              {reservations.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🧾 Reservations</div>
-                    <span style={{ fontSize: 12, color: C.muted }}>{reservations.length}</span>
-                  </div>
-                  {reservations.map((r) => (
-                    <div key={r.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "11px 13px", marginBottom: 9 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                        <span style={{ fontSize: 18 }}>{r.kind === "hotel" ? "🏨" : "🎟️"}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
-                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Booked via {r.partner} · {new Date(r.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-                        </div>
-                        {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none", flexShrink: 0 }}>View ↗</a> : null}
-                        <button onClick={() => removeRes(r.id)} aria-label="Remove reservation" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 15, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}>✕</button>
-                      </div>
-                      <input defaultValue={r.conf} onBlur={(e) => saveResConf(r.id, e.target.value)} placeholder="Add confirmation # or note"
-                        style={{ width: "100%", boxSizing: "border-box", marginTop: 9, padding: "8px 11px", borderRadius: 10, border: `1px dashed ${r.conf ? C.border : C.accent + "66"}`, background: "transparent", color: C.text, fontSize: 12.5, outline: "none" }} />
-                    </div>
-                  ))}
-                  <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind logs when you head out to book. Your confirmation details stay on this device.</div>
-                </div>
-              )}
-              {list.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>No trips yet. Save any place from Home or the Map and a city trip is created for you automatically.</div>
-              ) : (
-                list.map((t) => {
-                  const st = Trips.tripStats(t);
-                  return (
-                    <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <StateBadge code={t.state} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
-                      </div>
-                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          );
-        })()}
-
-        {screen === "itinerary" && activeTrip && trips[activeTrip] && (() => {
-          const t = trips[activeTrip];
-          const items = Trips.sortedItems(t);
-          const st = Trips.tripStats(t);
-          const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
-          const tripCtl = { width: 34, height: 30, borderRadius: 8, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
-          const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 18, cursor: "pointer" };
-          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { try { window.open(u, "_blank"); } catch {} try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
-                </div>
-                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
-              </div>
-              {items.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
-              ) : items.map((it, i) => {
-                const p = it.place;
-                const editing = tripNoteEdit === p.id;
-                const moving = tripMoveFor === p.id;
-                return (
-                  <div key={p.id} style={{ marginBottom: 12 }}>
-                    <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
-                      <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
-                      {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
-                    </div>
-                    {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
-                    {editing && (
-                      <div style={{ marginTop: 6 }}>
-                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 13, resize: "vertical" }} />
-                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                          <button onClick={() => { const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Save note</button>
-                          <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Cancel</button>
-                        </div>
-                      </div>
-                    )}
-                    {moving && (
-                      <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
-                        <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
-                        {others.length === 0 ? (
-                          <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
-                        ) : others.map((o) => (
-                          <div key={o.key} onClick={() => { setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", borderRadius: 8, cursor: "pointer" }}>
-                            <StateBadge code={o.state} size={28} />
-                            <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
-                          </div>
-                        ))}
-                        <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "4px 2px", cursor: "pointer" }}>Cancel</button>
-                      </div>
-                    )}
-                    {!editing && !moving && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1))} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1))} disabled={i === items.length - 1} style={{ ...tripCtl, opacity: i === items.length - 1 ? 0.35 : 1 }}>↓</button>
-                        <button onClick={() => setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id))} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.accent } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                        <button onClick={() => { setTripNoteEdit(p.id); setTripMoveFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                        <button onClick={() => { setTripMoveFor(p.id); setTripNoteEdit(null); }} style={tripChip}>Move</button>
-                        <button onClick={() => { if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); }} style={{ ...tripChip, color: C.red }}>Remove</button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-
-        {screen === "shared" && sharedList && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>📩 Shared with you</div>
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{sharedList.length} place{sharedList.length !== 1 ? "s" : ""} someone wanted you to see</div>
-              </div>
-              <button onClick={() => { setSharedList(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
-            </div>
-            {sharedList.map((p) => (
-              <PlaceCard key={p.id} p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-            ))}
-          </div>
-        )}
-        {screen === "events" && (() => {
-          const all = events || [];
-          const segs = [];
-          all.forEach((e) => { const m = eventSegmentMeta(e.segment, e.genre); if ((e.segment || e.genre) && !segs.find((s) => s.short === m.short)) segs.push(m); });
-          let shown = all;
-          if (eventCat !== "all") shown = shown.filter((e) => eventSegmentMeta(e.segment, e.genre).short === eventCat);
-          if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
-          shown = dedupeEvents(shown, eventDate === "all");
-          const eventDateChips = [];
-          const enow = new Date();
-          for (let i = 0; i < 28; i++) {
-            const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
-            const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-            eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
-          }
-          const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#fff" : C.light, fontWeight: 700 });
-          return (
-            <div>
-              <div style={{ paddingTop: 4, marginBottom: 12 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
-                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Concerts, sports, and shows worth building a night around</div>
-              </div>
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  {(eventCat !== "all" || eventDate !== "all") && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-                      <button onClick={() => { setEventCat("all"); setEventDate("all"); }} style={{ fontSize: 11, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Show all ✕</button>
-                    </div>
-                  )}
-                  <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                    <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{all.length}</div></button>
-                    {eventDateChips.map((d) => {
-                      const count = all.filter((e) => e.date === d.value).length;
-                      return (
-                        <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
-                          <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
-                          <div style={{ fontSize: 14 }}>{d.day}</div>
-                          <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && segs.length > 1 && (
-                <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-                  <button onClick={() => setEventCat("all")} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === "all" ? C.adim : C.panel, color: eventCat === "all" ? C.accent : C.light, border: `1px solid ${eventCat === "all" ? C.accent : C.border}` }}>All</button>
-                  {segs.map((m) => (
-                    <button key={m.short} onClick={() => setEventCat(m.short)} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === m.short ? C.adim : C.panel, color: eventCat === m.short ? C.accent : C.light, border: `1px solid ${eventCat === m.short ? C.accent : C.border}` }}>{m.icon} {m.short}</button>
-                  ))}
-                </div>
-              )}
-              {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-              {!eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Events are not turned on yet. Add a Ticketmaster key in Vercel to switch them on.</div>}
-              {!eventsLoading && !eventsUnavailable && eventsError && (
-                <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
-                  <span style={{ fontSize: 13 }}>Check back in a little while.</span>
-                  <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
-                  <span style={{ fontSize: 13 }}>We're still expanding Wayfind events to your area. Check back soon.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
-                <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing on this day</strong>
-                  <span style={{ fontSize: 13 }}>Try another date or tap All.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-                  {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} />)}
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
+        {screen === "events" && <EventsScreen ctx={ctx} />}
       </div>
 
       {/* Roll the dice */}

@@ -1,3 +1,23 @@
+## v5.45 - six screens leave the monolith (G1)
+- Surprise, Coupons, Saved (all three branches), Itinerary (both branches),
+  Shared, and Events (+EventArt/EventCard, its only consumers) now live in
+  app/components/screens/* and load as their own chunks via
+  next/dynamic({ ssr:false }). Safe by construction: `screen` initializes
+  to "suggested" and these render only on user action, so SSR never paints
+  them and hydration cannot mismatch.
+- Screens are render-only. Every hook stays in PageInner; state, callbacks,
+  and the module-scope helpers the screens render with (PlaceCard,
+  CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, event
+  helpers...) arrive through one `ctx` prop. Zero hook-order risk.
+- All six chunks are prefetched at first idle (requestIdleCallback, 2.5s
+  fallback), so the first tap on the dice, Favorites, or Events never
+  waits on the network; until then each shows the standard Loader.
+- New tests/e2e/screens.spec.js: drives every extracted screen through the
+  real bottom nav in one page (a broken dynamic import can never ship),
+  the empty-search -> Surprise route, and axe on the extracted surfaces.
+- home.js: 8,559 -> ~7,950 lines. The content guardrails keep passing
+  untouched because they grep the shell concat (that was G0's point).
+
 ## v5.44 - decomposition enablers: the home shell, a bundle budget, and the shared kit (G0)
 - First step of the home.js decomposition (owner-roadmap item 6; lifts the
   Lighthouse ceiling). Zero behavior change by design - this phase only
