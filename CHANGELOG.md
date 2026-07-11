@@ -1,3 +1,28 @@
+## v5.55 - premium redesign, Phases 0-1 (baseline + design system)
+- REDESIGN_BASELINE.md: full shared-layer inventory + screenshot matrix
+  (320/390/768/1024/1440 + zoom equivalents, dark-only). Findings: no
+  token scale (only colors), emoji-as-chrome everywhere, ~13 competing
+  CTAs and ~400px of dead side-margin on desktop 1440, arcade motion
+  (bob/pulse/spin/fireworks) with zero prefers-reduced-motion, Google
+  Maps raw error box as the map "fallback", and a literal em-dash copy
+  bug rendering in the discovery grid.
+- Phase 1 tokens in components/kit.js: TYPE (eyebrow/display/title/body>=16/
+  meta>=14), SPACE, RADII, SHADOW, MOTION (150-220ms one curve, no loops),
+  RATIO, FOCUS, TARGET (44px), CHAMPAGNE (reserved for giveaway/premium --
+  the orange+champagne pairing is FLAGGED FOR OWNER REVIEW, not decided).
+- One icon language: new Icon() line-icon set + NavIcon (moved from home.js
+  to kit.js so nav, CategoryMenu, and the community sheet all draw from it).
+  Emoji-as-chrome replaced on the discovery grid, "Find my vibe" button,
+  event category badges + section headers + hero badges + EventArt tiles,
+  community-sheet category grid, and the empty-state category glyph. Emoji
+  kept only as content (weather, place pins, the user's list-icon picker,
+  Critter mascot).
+- GlowPin de-arcaded (halo rings + radial bloom + drop shadow removed --
+  now a quiet mark). Global prefers-reduced-motion guard + consistent
+  focus-visible ring added in layout.js. Fixed the em-dash JSX-text bug.
+  New scripts/check-design.mjs (prebuild) locks tokens+icons imported,
+  reduced-motion present, and no unicode-escape leaks into JSX text.
+
 ## v5.54 - events pipeline integrity, Phases 1-4 (default-deny: no destination, no card)
 - lib/eventsPipeline.js: one normalized contract enforced at the API
   boundary -- validation (past/cancelled/malformed/unsafe-URL/fabricated

@@ -1,7 +1,7 @@
 "use client";
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 // Six sub-states: menu, community, explore, pick, experiences, weather.
-import { C, CAT_ICONS, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase } from "../kit";
+import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon } from "../kit";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
@@ -18,19 +18,19 @@ export default function MenuSheet({ ctx }) {
                   {CATEGORIES.map((c) => {
                     const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
                     return (
-                      <button key={c.id} onClick={() => { setMenuSheet(null); pickCat(c.id); }} style={{ height: 84, borderRadius: 16, border: `1.5px solid ${cc.c}`, background: cc.dim, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 15, fontWeight: 800 }}>
-                        <span style={{ fontSize: 26, lineHeight: 1 }}>{CAT_ICONS[c.id] || "📍"}</span>
+                      <button key={c.id} onClick={() => { setMenuSheet(null); pickCat(c.id); }} style={{ height: 84, borderRadius: 16, border: `1.5px solid ${cc.c}`, background: cc.dim, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 15, fontWeight: 800 }}>
+                        <NavIcon name={c.id} color={cc.c} size={26} />
                         <span>{c.label.replace(/^\S+\s/, "")}</span>
                       </button>
                     );
                   })}
                 </div>
-                <button onClick={() => setMenuSheet("experiences")} style={{ width: "100%", marginTop: 10, height: 56, borderRadius: 16, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
-                  <span style={{ fontSize: 20 }}>✨</span>
+                <button onClick={() => setMenuSheet("experiences")} style={{ width: "100%", marginTop: 10, minHeight: 56, borderRadius: 16, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
+                  <Icon name="sparkles" size={19} color={C.accent} />
                   <span>Browse by occasion</span>
                 </button>
-                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, height: 62, borderRadius: 16, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
-                  <span style={{ fontSize: 20 }}>🎲</span>
+                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, minHeight: 62, borderRadius: 16, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
+                  <Icon name="dice" size={19} color={C.accent} />
                   <span>Can't decide? Let's Wayfind it</span>
                 </button>
               </>

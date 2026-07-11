@@ -68,7 +68,15 @@ export default function RootLayout({ children }) {
         >
           Skip to main content
         </a>
-        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}" }} />
+        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}"
+          // Premium redesign (v5.55): global accessibility floor for motion +
+          // focus. prefers-reduced-motion collapses every animation/transition
+          // to near-instant (the spec requires it "everywhere"); a consistent
+          // visible focus ring replaces browser defaults so keyboard focus is
+          // never lost against the dark UI.
+          + "@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}"
+          + ":focus-visible{outline:2px solid #F97316 !important;outline-offset:2px !important}"
+        }} />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
