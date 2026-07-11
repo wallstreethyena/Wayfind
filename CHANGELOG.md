@@ -1,3 +1,14 @@
+## v5.41 - one command guards the whole audit: npm run audit:regression
+- audit:regression = the placeholder-key production build (whose prebuild
+  now runs 11 gates: version, jsx, dupes, env, tags, libs, gate, seo,
+  guide-counts, affiliate-URL hygiene, legal), then the full Playwright
+  suite (hydration/console incl. clock-skew and returning-visitor, deep
+  links, prompt coordinator + dialog semantics, axe with zero
+  critical-or-serious), then scripts/check-headers.mjs (boots the build,
+  asserts the enforced header set + report-only CSP + no x-powered-by).
+- This is the July 2026 audit's definition of done, executable locally
+  before every deploy.
+
 ## v5.40 - privacy notice rebuilt (DRAFT FOR COUNSEL) + affiliate URL hygiene
 - /privacy now has the full disclosure structure: retention by data class,
   legal bases, user rights (access/copy/deletion workflow via
