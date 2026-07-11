@@ -1,3 +1,23 @@
+## v5.56 - premium redesign, Phase 2 (homepage restructure, no dead zones, map fallback)
+- Desktop grid widened 1040 -> 1280 (spec's ~1280 target) and the home
+  two-column layout to 1240 (left feed 780, sticky sidebar 400). Root
+  cause of the ~400px side dead zones: the two-column row was a flex ITEM
+  in a flex parent, so it shrank to content width (840px) and floated
+  left-of-center instead of filling 1240 — fixed with width:100%.
+- Map slot no longer shows Google's raw "Oops! Something went wrong" gray
+  box on a load/auth failure (MapView.js): catches both the loader
+  rejection (missing key/network) AND gm_authFailure (invalid key) and
+  renders an intentional branded preview — the Wayfind pin on the map
+  tone, honest copy, with the "Full map" action still on top. Never a
+  half-loaded placeholder.
+- Fixed CSS-grid track overflow on every card grid (discovery tiles,
+  sidebar events, events screen): "1fr 1fr" lets tracks grow past the
+  container to fit min-content, which clipped the sidebar event cards at
+  the viewport edge on desktop -> "repeat(2, minmax(0, 1fr))".
+- Verified: width matrix 320/390/768/1024/1440 + zoom200/400 all clean, no
+  horizontal document scroll; mobile unchanged; before/after in
+  design-after-p2/.
+
 ## v5.55 - premium redesign, Phases 0-1 (baseline + design system)
 - REDESIGN_BASELINE.md: full shared-layer inventory + screenshot matrix
   (320/390/768/1024/1440 + zoom equivalents, dark-only). Findings: no

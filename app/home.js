@@ -76,7 +76,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.55";
+const BUILD_ID = "v5.56";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -5490,7 +5490,7 @@ function PageInner() {
 
   return (
     <div style={shell}>
-    <div style={{ ...wrap, maxWidth: isDesktop ? 1040 : 480 }}>
+    <div style={{ ...wrap, maxWidth: isDesktop ? 1280 : 480 }}>
       <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}`}</style>
       {/* Header */}
       <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
@@ -5720,9 +5720,9 @@ function PageInner() {
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
           return (
-            <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
+            <div style={isDesktop ? { display: "flex", gap: 32, alignItems: "flex-start", width: "100%", maxWidth: 1240, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
-              <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
+              <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 780 : undefined }}>
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
               <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {a2hs && (
@@ -6107,7 +6107,7 @@ function PageInner() {
                     <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>Start with one of these</div>
                     <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>Wayfind is reading what's around you — these always work.</div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
                     {[
                       ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openExpSheet("bestof")],
                       ["gem", "Hidden gems", () => openExpSheet("gem")],
@@ -6141,7 +6141,7 @@ function PageInner() {
               <div style={{ height: 20 }} />
               </div>
               {isDesktop && (
-                <div style={{ width: 340, flexShrink: 0, position: "sticky", top: 12 }}>
+                <div style={{ width: 400, flexShrink: 0, position: "sticky", top: 12 }}>
                   {/* v5.01 (user direction): the orange weather card is gone from
                       the desktop sidebar — weather lives in the header, period.
                       In its place: the in-app map, pinned with what's on screen
@@ -6160,7 +6160,7 @@ function PageInner() {
                         <div style={{ fontSize: 14, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={16} color={C.accent} />Events nearby</div>
                         <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                         {dedupeEvents(foryouEvents, true).filter((e) => e && e.dest).slice(0, 6).map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const internal = e.destKind === "internal";
@@ -6282,7 +6282,7 @@ function PageInner() {
               <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>All experiences</div>
               <button onClick={() => setAllExpOpen(false)} aria-label="Close" style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 999, width: 34, height: 34, fontSize: 16, cursor: "pointer" }}>✕</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
               {Object.keys(EXPERIENCES).map((k) => {
                 const e = EXPERIENCES[k];
                 return (

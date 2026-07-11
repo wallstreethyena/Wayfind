@@ -1,6 +1,22 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getLoader } from "../../lib/google";
+
+// Premium redesign (v5.55): when Google Maps can't load (missing/invalid key,
+// network, quota), Google injects its own raw "Oops! Something went wrong"
+// gray box into the container — a broken placeholder the spec forbids. We
+// render an intentional branded preview instead: the Wayfind pin motif on the
+// same dark map tone, honest about the state, with the parent's "Full map"
+// action still layered on top. Never a half-loaded gray box.
+function MapFallback({ count }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(150deg, #1B2230 0%, #131A24 60%, #0D1117 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, textAlign: "center", padding: 20 }}>
+      <svg width={34} height={45} viewBox="0 0 24 24" style={{ opacity: 0.9 }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#0D1117" /></svg>
+      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#CBD5E1" }}>{count > 0 ? `${count} ${count === 1 ? "spot" : "spots"} nearby` : "Map preview"}</div>
+      <div style={{ fontSize: 12, color: "#94A3B8", maxWidth: 230, lineHeight: 1.5 }}>The interactive map is unavailable right now. Open the full map to explore.</div>
+    </div>
+  );
+}
 
 const CAT_COLOR = {
   food: "#F97316",
@@ -41,6 +57,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   const markersRef = useRef([]);
   const circleRef = useRef(null);
   const lastCenterRef = useRef("");
+  const [failed, setFailed] = useState(false);
 
   // Drawer rows hand us a focus target: fly to the pin so the list locates
   // instead of navigating away.
@@ -55,23 +72,34 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
   useEffect(() => {
     let cancelled = false;
+    // An INVALID key doesn't reject importLibrary — Google loads, then calls
+    // this global and paints its own error box. Catch it and swap in the
+    // branded preview. (A missing key or network failure rejects below.)
+    const prevAuthFail = typeof window !== "undefined" ? window.gm_authFailure : undefined;
+    if (typeof window !== "undefined") window.gm_authFailure = () => { try { prevAuthFail && prevAuthFail(); } catch (e) {} if (!cancelled) setFailed(true); };
     async function init() {
-      const { Map } = await getLoader().importLibrary("maps");
-      if (cancelled || !ref.current) return;
-      if (!mapRef.current) {
-        mapRef.current = new Map(ref.current, {
-          center: center || { lat: 27.5689, lng: -82.4393 },
-          zoom: 12,
-          disableDefaultUI: true,
-          zoomControl: true,
-          gestureHandling: "greedy",
-          styles: DARK_STYLE,
-        });
+      try {
+        const { Map } = await getLoader().importLibrary("maps");
+        if (cancelled || !ref.current) return;
+        if (!mapRef.current) {
+          mapRef.current = new Map(ref.current, {
+            center: center || { lat: 27.5689, lng: -82.4393 },
+            zoom: 12,
+            disableDefaultUI: true,
+            zoomControl: true,
+            gestureHandling: "greedy",
+            styles: DARK_STYLE,
+          });
+        }
+        draw();
+      } catch (e) {
+        // Loader rejects on a missing/invalid key or network failure. Show the
+        // branded preview instead of letting Google paint its raw error box.
+        if (!cancelled) setFailed(true);
       }
-      draw();
     }
     init();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; if (typeof window !== "undefined") window.gm_authFailure = prevAuthFail; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -200,6 +228,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     }
   }
 
+  if (failed) return <MapFallback count={(places || []).length} />;
   return <div ref={ref} style={{ width: "100%", height: "100%" }} />;
 }
 
