@@ -1,3 +1,32 @@
+## v5.53 - events pipeline integrity, Phase 0 (diagnosis only, no product change)
+- EVENTS_PIPELINE_DIAGNOSIS.md maps the full pipeline: 9 providers in one
+  aggregator route (only Ticketmaster + Manatee LibCal + curated staples
+  configured in prod today), 4 render surfaces (Events screen, For You
+  hero/rail/community grid, Map events mode, Detail venue-events), plus a
+  dead zero-caller /api/ticketmaster route and dead eventCounts state.
+- Live measurement (Parrish + Orlando probes): today's DATA is clean --
+  every displayed event has a real URL, future date, no cross-provider
+  dupes (250/250 usable by those measures in both probes). The damage is
+  in the interaction layer: the Events-screen card's natural tap target
+  (title/image/body) is wired to NOTHING, and every other surface routes
+  the primary tap through a fallible runtime Google venue lookup
+  (openVenue -> "Could not find this venue" toast) instead of the
+  validated URL the event already carries.
+- Counts don't match cards: date-chip/"All" counts are computed on the
+  pre-recurrence-collapse list while the grid renders the collapsed one;
+  the API's counts field is raw pre-dedup provider totals (346 vs 222
+  actually served in the Parrish probe).
+- Five latent default-allow failures, each one env var away from live:
+  no cancelled-status handling (TM dates.status.code never read),
+  PredictHQ destinations fabricated as google.com/search URLs, empty-URL
+  providers unguarded (renders href=""), no per-provider timeout, dedup
+  key ignores venue.
+- Routing confirmed broken for sharing: /events redirects to /?go=events
+  and history.replaceState strips it -- address bar shows "/" while the
+  Events view displays; refresh loses the view; no shareable event URLs;
+  the audit prompt's /events/[city] URL scheme is not built (Phase 3 here
+  will implement it, not fork one).
+
 ## v5.52 - booking-CTA integrity, Phases 1-5 (default-deny resolver + persisted offers + single render contract + self-healing cron + golden tests)
 - Re-checked the Viator key before starting (`?probe=1`): still 401,
   unchanged since Phase 0. Rather than block indefinitely on owner action,
