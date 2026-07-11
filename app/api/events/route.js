@@ -494,7 +494,7 @@ async function fromLibCal(lat, lng) {
   const inRegion = haversineMi(lat, lng, 27.4799, -82.5748) <= 35;
   if (!inRegion) return { configured: true, events: [] };
   try {
-    const r = await fetch("https://manateelibrary.libcal.com/ical_subscribe.php?cid=14834", { headers: { "User-Agent": "Wayfind/1.0 (+https://wayfind-xi.vercel.app)" } });
+    const r = await fetch("https://manateelibrary.libcal.com/ical_subscribe.php?cid=14834", { headers: { "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com)" } });
     if (!r.ok) return { configured: true, events: [] };
     const text = await r.text();
     const raw = parseLibCalICS(text);

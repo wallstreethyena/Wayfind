@@ -17,4 +17,16 @@ const gl = readFileSync(new URL("../lib/guides.js", import.meta.url), "utf8");
 if ((gl.match(/appQuery:/g) || []).length < 7) fail("heading-style picks missing appQuery place mappings");
 if (!g.includes("pick.appQuery || pick.name")) fail("guide template not using appQuery for app links");
 if (!g.includes("pick.appQuery !== null")) fail("non-place picks must hide the app button");
-console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates");
+// v5.36 gate: a numbered title is a promise. Any guide whose title starts
+// with a count must deliver exactly that many picks — the July 2026 audit
+// found "10 Best…" shipping 6. (\d{1,2} so a year like "2026 Guide" can
+// never be misread as a count.)
+const { GUIDES } = await import(new URL("../lib/guides.js", import.meta.url));
+for (const [slug, guide] of Object.entries(GUIDES)) {
+  const m = /^(\d{1,2})\s/.exec(guide.title || "");
+  if (!m) continue;
+  const promised = Number(m[1]);
+  const delivered = (guide.picks || []).length;
+  if (promised !== delivered) fail(`${slug}: title promises ${promised} items, delivers ${delivered}`);
+}
+console.log("check-guides: OK — Article + Breadcrumb schema, canonicals, related links, disclosure on both templates; numbered titles match their pick counts");

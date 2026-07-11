@@ -13,7 +13,10 @@ import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
-import MapView from "./components/MapView";
+import nextDynamic from "next/dynamic";
+// v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
+// screen (or sidebar map) first renders, not on first paint.
+const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
@@ -27,7 +30,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.32";
+const BUILD_ID = "v5.43";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -192,6 +195,38 @@ function directionsUrl(p) {
   if (hasCoords) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
   return p.mapsUrl || null;
 }
+// v5.37 (July 2026 audit, Phase 5): real dialog behavior for overlays.
+// While `open` is true the referenced card gets initial focus, a trapped
+// Tab loop, Escape-to-close, and focus restoration to whatever had focus
+// before it opened. Pair it with role="dialog" aria-modal aria-label
+// tabIndex={-1} on the card div itself.
+function useDialogFocus(open, ref, onClose) {
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    if (!open) return;
+    const node = ref.current;
+    const prev = typeof document !== "undefined" ? document.activeElement : null;
+    if (node) { try { node.focus({ preventScroll: true }); } catch (e) {} }
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.stopPropagation(); if (closeRef.current) closeRef.current(); return; }
+      if (e.key !== "Tab" || !node) return;
+      const f = node.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!f.length) { e.preventDefault(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === node)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      try { if (prev && prev.focus && document.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {}
+    };
+  }, [open]);
+}
+
+const KB_CLICK = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }; // v5.38: keyboard activation for role="button" divs
+
 function Grabber() {
   return (
     <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "9px 0 5px" }}>
@@ -1406,7 +1441,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   if (!notes || !c) return null;
   return (
     <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
         <span style={{ fontSize: 15, lineHeight: "19px" }}>{"\uD83C\uDF3A"}</span>
         <span style={{ flex: 1, fontSize: 12.5, color: "#B9D6CE", lineHeight: 1.45 }}>
           <span style={{ fontWeight: 800, color: "#FFFFFF" }}>{isTown ? town : "Around " + (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title)}: </span>
@@ -1421,7 +1456,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
             return (
               <div key={i} style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 12.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
+                  <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
                   {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
                 </div>
                 <div style={{ fontSize: 11.5, color: "#B9D6CE", lineHeight: 1.45, marginTop: 1 }}>{x.story}</div>
@@ -1443,7 +1478,7 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
-      <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
+      <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
         <span style={{ fontSize: 9, color: C.muted, transform: openMenu ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"\u25BC"}</span>
@@ -1454,13 +1489,13 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
           <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 40, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Sort by</div>
             {OPTIONS.map(([k, lb]) => (
-              <div key={k} onClick={() => { onSort(k); }} role="button" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer", background: sortBy === k ? "rgba(249,115,22,.12)" : "transparent" }}>
+              <div key={k} onClick={() => { onSort(k); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer", background: sortBy === k ? "rgba(249,115,22,.12)" : "transparent" }}>
                 <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${sortBy === k ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sortBy === k ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
                 <span style={{ fontSize: 13.5, fontWeight: sortBy === k ? 800 : 600, color: sortBy === k ? C.text : C.light }}>{lb}</span>
               </div>
             ))}
             {dealsAvailable ? (
-              <div onClick={() => onDeals && onDeals(!dealsOnly)} role="button" style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer" }}>
+              <div onClick={() => onDeals && onDeals(!dealsOnly)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer" }}>
                 <span style={{ width: 17, height: 17, borderRadius: 5, border: `2px solid ${dealsOnly ? C.accent : C.border}`, background: dealsOnly ? C.accent : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#0D1117", fontSize: 11, fontWeight: 900 }}>{dealsOnly ? "\u2713" : ""}</span>
                 <span style={{ fontSize: 13.5, fontWeight: 600, color: C.light }}>Deals only</span>
               </div>
@@ -1976,7 +2011,7 @@ function EventHeroBg({ image, acc, venue, near }) {
   const src = image && !bad ? image : (alt || "");
   if (src) {
     return (<>
-      <img src={src} alt="" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       {usingAlt && <div style={{ position: "absolute", bottom: 6, right: 8, fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,.85)", background: "rgba(0,0,0,.5)", padding: "2px 7px", borderRadius: 999, pointerEvents: "none" }}>{altBy ? "Photo: " + altBy + " · Google" : "via Google"}</div>}
     </>);
   }
@@ -2899,6 +2934,22 @@ function PageInner() {
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
+  // v5.37 prompt coordinator (July 2026 audit, Phase 5). One interruptive
+  // surface per SESSION, full stop. dialogOpenRef mirrors every overlay's
+  // state (kept in sync by an effect further down, after those states are
+  // declared); wf_interrupted is the session-wide claim; wf_value_seen is
+  // set once the visitor has actually gotten something out of Wayfind
+  // (results rendered or a place opened) — the giveaway never fires before
+  // it, and never in the same session as onboarding.
+  const dialogOpenRef = useRef(false);
+  const claimInterrupt = (kind) => {
+    try {
+      if (dialogOpenRef.current) return false;
+      if (sessionStorage.getItem("wf_interrupted")) return false;
+      sessionStorage.setItem("wf_interrupted", kind);
+      return true;
+    } catch (e) { return true; }
+  };
   useEffect(() => {
     try {
       if (!(giveawayLive() || giveawaySoon())) return;
@@ -2907,10 +2958,22 @@ function PageInner() {
       if (st.entered) return;                                  // entered: never again
       if (st.dismissedAt && now - st.dismissedAt < 3 * 864e5) return; // dismissed: 3-day snooze
       if (st.shownAt && now - st.shownAt < 864e5) return;      // at most once a day
-      const t = setTimeout(() => {
+      let t;
+      const fire = (attempt) => {
+        try {
+          // Session already used its one interruption: give up quietly.
+          if (sessionStorage.getItem("wf_interrupted")) return;
+          // No value delivered yet, or another dialog is up: queue a retry.
+          if (!sessionStorage.getItem("wf_value_seen") || dialogOpenRef.current) {
+            if (attempt < 8) t = setTimeout(() => fire(attempt + 1), 20000);
+            return;
+          }
+          sessionStorage.setItem("wf_interrupted", "giveaway");
+        } catch (e) {}
         setGwPop(true);
         try { localStorage.setItem("wf_gw_pop", JSON.stringify({ ...st, shownAt: Date.now() })); logEvent("giveaway_pop"); } catch (e) {}
-      }, 30000);
+      };
+      t = setTimeout(() => fire(0), 30000);
       return () => clearTimeout(t);
     } catch (e) {}
   }, []);
@@ -2935,7 +2998,9 @@ function PageInner() {
     if (standalone) return;
     const n = (parseInt(localStorage.getItem("wf_visits") || "0", 10) || 0) + 1;
     localStorage.setItem("wf_visits", String(n));
-    if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed")) { setA2hs(true); try { logEvent("a2hs_shown"); } catch (e) {} }
+    // v5.37: rate-limited — a non-blocking banner, at most once every 3 days.
+    const lastShown = parseInt(localStorage.getItem("wf_a2hs_last") || "0", 10) || 0;
+    if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed") && Date.now() - lastShown > 3 * 864e5) { setA2hs(true); try { localStorage.setItem("wf_a2hs_last", String(Date.now())); logEvent("a2hs_shown"); } catch (e) {} }
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
   const _expLinked = useRef(false);
@@ -3102,7 +3167,7 @@ function PageInner() {
   const manualRef = useRef(false);
   // Hook state — declared before hookCards memo to avoid temporal dead zone.
   const [aiHooks, setAiHooks] = useState(null);
-  const [hookLikes, setHookLikes] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]")); } catch { return new Set(); } });
+  const [hookLikes, setHookLikes] = useState(() => new Set());
   const [cuisineSheet, setCuisineSheet] = useState(null);
   const openHoliday = async (h) => {
     const hol = typeof h === "string" ? (Hol.holidaysFor(new Date().getFullYear()).find((x) => x.key === h) || null) : h;
@@ -3186,9 +3251,9 @@ function PageInner() {
   const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
   const [food10Open, setFood10Open] = useState(false);
-  const [debugOn] = useState(() => { try { return typeof window !== "undefined" && (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)); } catch { return false; } });
+  const [debugOn, setDebugOn] = useState(false);
   const noteRef = useRef(null);
-  const [placeComments, setPlaceComments] = useState(() => { try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } return c; } catch { return {}; } });
+  const [placeComments, setPlaceComments] = useState({});
   const [commentType, setCommentType] = useState("Tip");
   const [placePosts, setPlacePosts] = useState([]);
   const [confirmDel, setConfirmDel] = useState(false);
@@ -3249,8 +3314,8 @@ function PageInner() {
   const insightFullCache = useRef({});
   const detailCache = useRef({});
   // Engagement signals — stored in localStorage, used to personalise the feed.
-  const [signals, setSignals] = useState(() => { try { if (typeof window === "undefined") return []; return loadSignals(); } catch { return []; } });
-  const [liked, setLiked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked") || "{}"); } catch { return {}; } });
+  const [signals, setSignals] = useState([]);
+  const [liked, setLiked] = useState({});
   useEffect(() => {
     if (!supabase) return;
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
@@ -3275,12 +3340,12 @@ function PageInner() {
       if (data) data.forEach((r) => { if (r && r.place_id) SIGNALS.map[r.place_id] = true; });
     }, () => { SIGNALS.loaded = true; });
   }, []);
-  const [disliked, setDisliked] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked") || "{}"); } catch { return {}; } });
-  const [likedItems, setLikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch { return {}; } });
+  const [disliked, setDisliked] = useState({});
+  const [likedItems, setLikedItems] = useState({});
   // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
   // in, in the cloud "Coupons" folder (saved_places) so they survive devices.
   // Dashboard-loaded offers rows merge with the code-shipped COUPONS list.
-  const [savedCoupons, setSavedCoupons] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_coupons") || "{}"); } catch { return {}; } });
+  const [savedCoupons, setSavedCoupons] = useState({});
   const [walletOpen, setWalletOpen] = useState(false); // v5.08: saved coupons stack like Apple Wallet — collapsed pile, tap to fan out
   const [cpnOffers, setCpnOffers] = useState([]);
   const _cpnLoadedRef = useRef(false);
@@ -3305,14 +3370,14 @@ function PageInner() {
     const done = () => showToast("Code copied — show it at checkout");
     try { navigator.clipboard.writeText(code).then(done, () => { try { const ta = document.createElement("textarea"); ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); } catch (e) {} }); } catch (e) {}
   }
-  const [dislikedItems, setDislikedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch { return {}; } });
-  const [sharedItems, setSharedItems] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_shared_items") || "{}"); } catch { return {}; } });
+  const [dislikedItems, setDislikedItems] = useState({});
+  const [sharedItems, setSharedItems] = useState({});
   const [sysFolder, setSysFolder] = useState(null);
   const [listMenu, setListMenu] = useState(null);
   const [renamingList, setRenamingList] = useState(null);
   const [signupOpen, setSignupOpen] = useState(false);
   const [signupEmail, setSignupEmail] = useState("");
-  const [signupDone, setSignupDone] = useState(() => { try { return !!localStorage.getItem("wf_signed_up"); } catch { return false; } });
+  const [signupDone, setSignupDone] = useState(false);
   // Auth state (Supabase). Null user = signed out / no backend configured.
   const [user, setUser] = useState(null);
   const [authOpen, setAuthOpen] = useState(false);
@@ -3332,6 +3397,9 @@ function PageInner() {
   const [introOpen, setIntroOpen] = useState(false);
   const [introSel, setIntroSel] = useState([]);
   const [locBannerGone, setLocBannerGone] = useState(false);
+  // v5.39: the approximate-location notice is a fixed toast (no layout
+  // shift) and dismisses itself after 8 seconds.
+  useEffect(() => { if (!locApprox || locBannerGone) return; const t = setTimeout(() => setLocBannerGone(true), 8000); return () => clearTimeout(t); }, [locApprox, locBannerGone]);
   const [reservations, setReservations] = useState([]);
   useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
   function persistRes(next) { setReservations(next); try { localStorage.setItem("wf_reservations", JSON.stringify(next)); } catch (e) {} }
@@ -3532,7 +3600,31 @@ function PageInner() {
 
   // "Worth the Drive?" feature
   const [detailContext, setDetailContext] = useState(null); // theme that opened the detail ("drive", "gem", etc.)
-  const [myVotes, setMyVotes] = useState(() => { try { return JSON.parse(localStorage.getItem("wf_drive_votes") || "{}"); } catch { return {}; } });
+  const [myVotes, setMyVotes] = useState({});
+  // v5.35: the loader's "Friday evening" moment phrase — post-mount only,
+  // so the (possibly hour-stale) ISR HTML and the client can't disagree.
+  const [bootMoment, setBootMoment] = useState(null);
+  useEffect(() => { try { const _d = new Date(); const _wd = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][_d.getDay()]; const _h = _d.getHours(); const _dp = _h < 6 ? "night" : _h < 12 ? "morning" : _h < 17 ? "afternoon" : "evening"; setBootMoment(`${_wd} ${_dp}`); } catch (e) {} }, []);
+  // v5.33 hydration fix: every localStorage-backed state above used to be
+  // read in its useState initializer — the server rendered the empty
+  // fallback, a returning visitor's first client render produced real data,
+  // and React hydration failed (minified errors 418/423/425 → full client
+  // re-render of the root). All of them now start at the same deterministic
+  // fallback on both sides and load from storage after mount, in one place.
+  useEffect(() => {
+    try { setHookLikes(new Set(JSON.parse(localStorage.getItem("wf_hook_likes") || "[]"))); } catch {}
+    try { if (localStorage.getItem("wf_debug") === "1" || /[?&]debug=1/.test(window.location.search)) setDebugOn(true); } catch {}
+    try { const c = JSON.parse(localStorage.getItem("wf_place_comments") || "{}"); const legacy = JSON.parse(localStorage.getItem("wf_place_notes") || "{}"); for (const k in legacy) { if (legacy[k] && !c[k]) c[k] = { type: "Tip", text: legacy[k] }; } for (const k in c) { const t = c[k] && c[k].type; if (t === "Insider tip") c[k].type = "Tip"; else if (t === "Recommendation") c[k].type = "Review"; } setPlaceComments(c); } catch {}
+    try { setSignals(loadSignals()); } catch {}
+    try { setLiked(JSON.parse(localStorage.getItem("wf_liked") || "{}")); } catch {}
+    try { setDisliked(JSON.parse(localStorage.getItem("wf_disliked") || "{}")); } catch {}
+    try { setLikedItems(JSON.parse(localStorage.getItem("wf_liked_items") || "{}")); } catch {}
+    try { setSavedCoupons(JSON.parse(localStorage.getItem("wf_coupons") || "{}")); } catch {}
+    try { setDislikedItems(JSON.parse(localStorage.getItem("wf_disliked_items") || "{}")); } catch {}
+    try { setSharedItems(JSON.parse(localStorage.getItem("wf_shared_items") || "{}")); } catch {}
+    try { setSignupDone(!!localStorage.getItem("wf_signed_up")); } catch {}
+    try { setMyVotes(JSON.parse(localStorage.getItem("wf_drive_votes") || "{}")); } catch {}
+  }, []);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -3766,7 +3858,7 @@ function PageInner() {
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, WebkitOverflowScrolling: "touch" }}>
         {Gems.GEMS.map((g) => (
-          <div key={g.key} onClick={() => openGemPlace(g)} role="button" style={{ minWidth: 218, maxWidth: 218, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 13px", cursor: "pointer", flexShrink: 0 }}>
+          <div key={g.key} onClick={() => openGemPlace(g)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ minWidth: 218, maxWidth: 218, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 13px", cursor: "pointer", flexShrink: 0 }}>
             <div style={{ fontSize: 13.5, fontWeight: 800, color: C.light, lineHeight: 1.2 }}>{g.name}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
               {g.award ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#E8B84B", border: "1px solid rgba(232,184,75,.5)", borderRadius: 999, padding: "2px 8px", letterSpacing: ".4px" }}>{g.award.label}</span> : null}
@@ -3783,7 +3875,7 @@ function PageInner() {
   // World Cup hero card. topSlot=true renders only on match days (fixed
   // knockout calendar); topSlot=false renders mid-feed on off days.
   const renderWorldCupCard = (topSlot) => { const _w = Hol.worldCup(new Date()); if (!_w) return null; if (Hol.worldCupDaysToNext(new Date()) > 2) return null; if (!!topSlot !== Hol.worldCupMatchToday(new Date())) return null; const _wc = Hol.themeFor(_w.key); const _wct = Hol.contentFor(_w.key, _w.name); return (
-                      <div onClick={() => openHoliday(_w)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                      <div onClick={() => openHoliday(_w)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _wc.grad, border: `1px solid ${_wc.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                       <style>{"@keyframes wcJuggle{0%{transform:translateY(0) rotate(0deg);animation-timing-function:cubic-bezier(.17,.84,.44,1)}45%{transform:translateY(-26px) rotate(180deg);animation-timing-function:cubic-bezier(.55,0,.85,.36)}90%{transform:translateY(0) rotate(360deg)}100%{transform:translateY(0) rotate(360deg)}}@keyframes wcBob{0%,86%,100%{transform:translateY(0)}93%{transform:translateY(2px)}}@keyframes wcGlow{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                       <span style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 26px, transparent 26px, transparent 52px)", pointerEvents: "none" }} />
                       <span aria-hidden="true" style={{ position: "absolute", right: 12, bottom: 6, width: 64, height: 116, pointerEvents: "none", opacity: .97 }}><span style={{ position: "absolute", left: 35, bottom: 72, fontSize: 15, animation: "wcJuggle 1.5s infinite" }}>⚽</span><img src="/wf-player.png" alt="" draggable={false} style={{ position: "absolute", left: 32, bottom: 0, height: 74, width: "auto", animation: "wcBob 1.5s infinite", filter: "drop-shadow(0 3px 8px rgba(0,0,0,.5))" }} /></span>
@@ -3838,6 +3930,26 @@ function PageInner() {
     window._phInit = true;
     import("posthog-js").then(({ default: ph }) => { try { ph.init(key, { api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com", capture_pageview: true, capture_pageleave: true, autocapture: true }); window.posthog = ph; } catch (e) {} }).catch(() => {});
   }, []);
+  // v5.39 field Core Web Vitals -> PostHog (July 2026 audit, Phase 7). The
+  // hourly /api/cron/cwv job stores LAB metrics (PageSpeed API); this is the
+  // missing FIELD half — real visits, tagged by route, device, location
+  // permission outcome, and signed-in state (read from window.__WF_CTX so
+  // the values are current at metric time, not frozen in this closure).
+  useEffect(() => {
+    if (typeof window === "undefined" || window._wfVitals) return;
+    window._wfVitals = true;
+    import("web-vitals").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+      const send = (m) => {
+        try {
+          if (!window.posthog) return;
+          const ctx = window.__WF_CTX || {};
+          window.posthog.capture("web_vitals", { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID });
+        } catch (e) {}
+      };
+      [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
+    }).catch(() => {});
+  }, []);
+  useEffect(() => { try { window.__WF_CTX = { signedIn: !!user, locPermission: deviceLoc ? "granted" : locApprox ? "ip-fallback" : "pending" }; } catch (e) {} }, [user, deviceLoc, locApprox]);
   // Screen views: this app switches screens via state, not URLs, so PostHog page autocapture misses them.
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
@@ -4042,6 +4154,7 @@ function PageInner() {
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
   async function openDetail(p, context) {
+    try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} // v5.37: opening a place = value delivered
     // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
     // when one exists (reviews, hours, photos come along); otherwise it
     // renders honestly from the Foursquare data it arrived with.
@@ -4629,13 +4742,64 @@ function PageInner() {
   useEffect(() => {
     try {
       const sp0 = new URLSearchParams(window.location.search);
-      if (sp0.get("intro") === "1") { setIntroOpen(true); return; }
-      if (sp0.get("q")) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
-        const t = setTimeout(() => setIntroOpen(true), 3200);
+      if (sp0.get("intro") === "1") { try { sessionStorage.setItem("wf_interrupted", "intro"); } catch (e) {} setIntroOpen(true); return; }
+      // v5.37: EVERY deep link owns its visit, not just ?q — a visitor who
+      // arrived for a specific screen, place, list, or experience gets it
+      // without a greeting on top.
+      const deepLink = sp0.get("q") || sp0.get("go") || sp0.get("place") || sp0.get("list") || sp0.get("exp");
+      if (deepLink) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
+        const t = setTimeout(() => { if (claimInterrupt("intro")) setIntroOpen(true); }, 3200);
         return () => clearTimeout(t);
       }
     } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // v5.37: mirror of "some dialog is open" for the prompt coordinator —
+  // while ANY of these is up, no timed prompt may fire.
+  useEffect(() => {
+    dialogOpenRef.current = !!(introOpen || gwPop || gwOpen || authOpen || accountOpen || recoveryOpen);
+  }, [introOpen, gwPop, gwOpen, authOpen, accountOpen, recoveryOpen]);
+  // v5.37 dialog semantics: focus management for every modal overlay.
+  const introDlgRef = useRef(null);
+  const gwPopDlgRef = useRef(null);
+  const gwRulesDlgRef = useRef(null);
+  const authDlgRef = useRef(null);
+  const accountDlgRef = useRef(null);
+  const recoveryDlgRef = useRef(null);
+  const closeIntro = () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); };
+  // v5.37: Escape closes the topmost user-invoked sheet too (the six main
+  // dialogs above trap their own Escape; this chain covers the rest, in
+  // z-order: lightbox 1000 > cuisine 95 > the zIndex-900 sheet family).
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (lightbox) return setLightbox(null);
+      if (cuisineSheet) return setCuisineSheet(null);
+      if (allExpOpen) return setAllExpOpen(false);
+      if (diceChoose) return setDiceChoose(false);
+      if (hookDetail) return setHookDetail(null);
+      if (newListOpen) return setNewListOpen(false);
+      if (renamingList) return setRenamingList(null);
+      if (listMenu) return setListMenu(null);
+      if (saveTarget) return setSaveTarget(null);
+      if (radiusSheet) return setRadiusSheet(false);
+      if (menuSheet) return setMenuSheet(null);
+      if (wxOpen) return setWxOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, cuisineSheet, allExpOpen, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
+  useDialogFocus(introOpen, introDlgRef, closeIntro);
+  useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
+  useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
+  useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
+  useDialogFocus(accountOpen, accountDlgRef, () => setAccountOpen(false));
+  useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
+  // v5.37: "value seen" — results actually rendered for this visitor. The
+  // giveaway waits for this signal (see the coordinator by gwPop above).
+  useEffect(() => {
+    if (suggested && suggested.length) { try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} }
+  }, [suggested]);
 
   // v4.58: build number leaves the visible UI (launch polish) but stays
   // machine-readable for deploy verification and diagnostics.
@@ -4646,7 +4810,7 @@ function PageInner() {
     try {
       const go = new URLSearchParams(window.location.search).get("go");
       if (!go) return;
-      const valid = { events: "events", map: "map", saved: "saved", itinerary: "itinerary", coupons: "coupons" };
+      const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (valid[go]) setScreen(valid[go]);
       const u = new URL(window.location.href); u.searchParams.delete("go");
       window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
@@ -5553,7 +5717,7 @@ function PageInner() {
               onChange={(e) => onQueryChange(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") { if (suggestions.length > 0) pickSuggestion(suggestions[0]); else submitSearch(); } }}
               onBlur={() => { setTimeout(() => setSuggestions([]), 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
-              placeholder="Search a place or city"
+              aria-label="Search a place or city" placeholder="Search a place or city"
               style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
@@ -6004,7 +6168,7 @@ function PageInner() {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", marginBottom: 12 }}>
+                      <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(64px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
                         <span style={{ fontSize: 15 }}>📍</span>
                         <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
                         <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
@@ -6014,7 +6178,7 @@ function PageInner() {
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
                                             {gwPop && (giveawayLive() || giveawaySoon()) && (
                         <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
-                          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
+                          <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-label="Wayfind giveaway" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
                             <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
                             <button onClick={() => gwPopClose("x")} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.4)", border: "1px solid rgba(232,184,75,.4)", color: "#F2D48A", fontSize: 15, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>×</button>
@@ -6043,7 +6207,7 @@ function PageInner() {
                       )}
                       {gwOpen && (
                         <div onClick={() => setGwOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "flex-end" }}>
-                          <div onClick={(e) => e.stopPropagation()} style={{ background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
+                          <div ref={gwRulesDlgRef} role="dialog" aria-modal="true" aria-label="Giveaway official rules" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
                             <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 10 }}>Wayfind Annual Giveaway · Official Rules (2026)</div>
                             {["No purchase necessary. Free to enter.", "How to enter: create a free Wayfind account, then share any 3 different places or lists from the app between July 3 and October 31, 2026 (11:59 pm ET). Entries are counted on our server per account.", "Winner: one entrant selected at random on or about November 1, 2026, and notified via account email. Odds depend on the number of eligible entries.", "Prize: a 3-night stay at Hilton Orlando, provided by the sponsor. Approximate retail value $600 to $900. Dates subject to availability; no cash substitute. Taxes are the winner's responsibility.", "Eligibility: legal US residents 18 or older. Void where prohibited.", "Sponsor: Wayfind. This promotion is not sponsored, endorsed, or administered by Hilton or by Apple.", "Share progress shown on this device may differ from the server count if you share from multiple devices; the server count decides."].map((t, i) => (
                               <div key={i} style={{ fontSize: 12.5, color: C.light, lineHeight: 1.6, marginBottom: 9 }}>{t}</div>
@@ -6054,7 +6218,7 @@ function PageInner() {
                       )}
                       {renderWorldCupCard(true)}
                       {(() => { const _h = Hol.activeHoliday(new Date()); if (!_h) return null; const _c = Hol.themeFor(_h.key); const _ct = Hol.contentFor(_h.key, _h.name); return (
-                        <div onClick={() => openHoliday(_h)} role="button" style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
+                        <div onClick={() => openHoliday(_h)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", borderRadius: 18, padding: "18px 16px 16px", marginBottom: 12, background: _c.grad, border: `1px solid ${_c.border}`, boxShadow: "0 10px 28px rgba(0,0,0,.42)", position: "relative", overflow: "hidden" }}>
                           <style>{"@keyframes wfBurst{0%{transform:scale(.15);opacity:.95}70%{opacity:.4}100%{transform:scale(1);opacity:0}}@keyframes wfGlow{0%,100%{opacity:.55}50%{opacity:1}}@keyframes wfTwinkle{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:1;transform:scale(1.2)}}@keyframes wfSweep{0%{transform:translateX(-140%) skewX(-18deg)}100%{transform:translateX(240%) skewX(-18deg)}}"}</style>
                           <span style={{ position: "absolute", top: -18, right: 26, width: 120, height: 120, borderRadius: "50%", border: "2px solid #FFD166", opacity: 0, animation: "wfBurst 2.4s ease-out infinite", pointerEvents: "none" }} />
                           <span style={{ position: "absolute", top: 14, right: 96, width: 76, height: 76, borderRadius: "50%", border: "2px solid #FF6B6B", opacity: 0, animation: "wfBurst 2.4s ease-out .8s infinite", pointerEvents: "none" }} />
@@ -6086,7 +6250,7 @@ function PageInner() {
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
                             <div style={{ padding: "14px 15px 10px" }}>
                               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Top 10s near you</div>
-                              <div onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "curated" }); } catch (e) {} }} role="button" style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", marginBottom: 7 }}>✨ Or tell us your mood and we'll design your list →</div>
+                              <div onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "curated" }); } catch (e) {} }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", marginBottom: 7 }}>✨ Or tell us your mood and we'll design your list →</div>
                               <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick by where you want to go. Each one opens the ranked Top 10 for that category near you, with no ads and no paid placement.</div>
                             </div>
                             {_items.map(([k, ic, lb, desc, col]) => (
@@ -6160,7 +6324,7 @@ function PageInner() {
                   {card("Best things to do today", "Ranked by what is worth your time: quality, distance, weather and time of day.", todo10, top10Open, () => setTop10Open((v) => !v))}
                 </>);
               })()}
-              {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+              {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16 }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
@@ -6171,7 +6335,7 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => { if (!e || !e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff >= 0 && diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; };
                 const withImg = evs.filter((e) => e && e.image);
@@ -6195,20 +6359,20 @@ function PageInner() {
                           <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
                             <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, color: "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
+                              <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
                             </div>
                             {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><span style={{ fontSize: 11 }}>{seg.icon}</span><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
                           </div>
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                             <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
-                            <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) (logEvent("ticket", null, { src: "cta" }), window.open(ticketUrl(featured.url), "_blank", "noopener")); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#fff", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
+                            <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) (logEvent("ticket", null, { src: "cta" }), window.open(ticketUrl(featured.url), "_blank", "noopener")); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
                           </div>
                         </div>
                       );
                     })()}
                     {rest.length > 0 && (
-                      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const evRel = relLabel(e);
@@ -6225,7 +6389,12 @@ function PageInner() {
                   </div>
                 );
               })()}
-              {!browseCat && suggested === null && <Loader label={(() => { try { const _d = new Date(); const _wd = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][_d.getDay()]; const _h = _d.getHours(); const _dp = _h < 6 ? "night" : _h < 12 ? "morning" : _h < 17 ? "afternoon" : "evening"; return `Finding the best options for ${_wd} ${_dp} near ${locName ? locName.split(",")[0] : "you"}…`; } catch (e) { return "Finding the best options near you…"; } })()} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" />}
+              {/* v5.35 hydration: the moment phrase ("Friday evening") comes
+                  from post-mount state — the SSR'd shell can be up to an hour
+                  old (ISR), so computing it at render made server and client
+                  disagree (this was the live React 418/423). Both sides render
+                  the generic line first; the moment arrives one paint later. */}
+              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
                 <div style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
                   <div style={{ textAlign: "center", marginBottom: 12 }}>
@@ -7901,7 +8070,7 @@ function PageInner() {
       {/* Full-screen photo viewer */}
       {lightbox && (
         <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
-          <img src={lightbox} alt="" onClick={() => setLightbox(null)} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
+          <img src={lightbox} alt={detail && detail.name ? "Photo of " + detail.name : "Full-size photo"} onClick={() => setLightbox(null)} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
           <button onClick={() => setLightbox(null)} aria-label="Close" style={{ position: "absolute", top: "max(16px, calc(env(safe-area-inset-top) + 10px))", right: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)", color: "#fff", fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
           <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
             {(() => { const i = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1; const by = i >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[i] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
@@ -7913,7 +8082,7 @@ function PageInner() {
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && (
         <div style={sheetBg} onClick={() => setAccountOpen(false)}>
-          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -8197,7 +8366,7 @@ function PageInner() {
       {/* Save-to-list sheet */}
       {authOpen && (
         <div style={sheetBg} onClick={() => setAuthOpen(false)}>
-          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={authDlgRef} role="dialog" aria-modal="true" aria-label="Sign in or create your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
@@ -8253,7 +8422,7 @@ function PageInner() {
               home-screen row is gone by design). */}
           <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
           <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both, wfIntroGlow 2.8s ease-in-out .5s infinite" }}>
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 38px rgba(255,138,61,.6), 0 0 90px rgba(249,115,22,.3)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
@@ -8325,7 +8494,7 @@ function PageInner() {
       )}
       {recoveryOpen && (
         <div style={sheetBg} onClick={() => setRecoveryOpen(false)}>
-          <div style={{ ...sheet, padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
+          <div ref={recoveryDlgRef} role="dialog" aria-modal="true" aria-label="Set a new password" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>Set a new password</div>
             <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>You opened a password reset link. Choose a new password for your account.</div>
             <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (8+ characters)"

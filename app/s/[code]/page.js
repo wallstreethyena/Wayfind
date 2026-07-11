@@ -1,6 +1,7 @@
 import Redirect from "./Redirect";
+import { SITE_URL } from "../../../lib/site";
 
-const SITE = "https://wayfind-xi.vercel.app";
+const SITE = SITE_URL;
 const SUPA_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPA_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

@@ -1,6 +1,7 @@
 import ShareRedirect from "../../ShareRedirect";
+import { SITE_URL } from "../../../lib/site";
 
-const SITE = "https://wayfind-xi.vercel.app";
+const SITE = SITE_URL;
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";

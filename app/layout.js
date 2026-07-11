@@ -57,6 +57,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>
+        {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
+            is visually hidden until focused, then appears top-left. */}
+        <a
+          href="#wf-main"
+          style={{ position: "absolute", left: -9999, top: 0, zIndex: 2000, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 14, padding: "10px 16px", borderRadius: "0 0 10px 0", textDecoration: "none" }}
+          className="wf-skip-link"
+        >
+          Skip to main content
+        </a>
+        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}" }} />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
@@ -66,9 +76,16 @@ export default function RootLayout({ children }) {
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
-            afterInteractive so it never blocks first paint. */}
-        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(s,t,a,y,twenty,two){s.Stay22=s.Stay22||{};s.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};twenty=t.createElement(a);two=t.getElementsByTagName(a)[0];twenty.async=1;twenty.src=y;two.parentNode.insertBefore(twenty,two);})(window,document,'script','https://scripts.stay22.com/letmeallez.js');` }} />
-        {children}
+            v5.39 (July 2026 audit, Phase 7): Lighthouse attributed ~3.0s of
+            mobile main-thread work to this script — the single largest TBT
+            contributor on the page. It now loads on the FIRST user
+            interaction (pointer/key/scroll), — a visitor who never
+            interacts can never click a booking link, and any real click is
+            preceded by a pointerdown that starts this load. Until it
+            loads, booking links are plain (functional, just untracked). */}
+        <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var loaded=false;function load(){if(loaded)return;loaded=true;window.Stay22=window.Stay22||{};window.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};var s=document.createElement('script');s.async=1;s.src='https://scripts.stay22.com/letmeallez.js';var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,load,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,load,{passive:true,once:true})});})();` }} />
+        {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
+        <main id="wf-main" style={{ minHeight: "100%" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
@@ -76,40 +93,40 @@ export default function RootLayout({ children }) {
         <footer style={{ background: "#0D1117", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
-            <p style={{ fontSize: 12.5, color: "#64748B", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>
+            <p style={{ fontSize: 12.5, color: "#94A3B8", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>
             <nav aria-label="Guides and cities" style={{ display: "flex", flexWrap: "wrap", gap: 28 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>
                 {Object.keys(GUIDES).slice(0, 8).map((k) => (
-                  <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>{GUIDES[k].title}</a>
+                  <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>{GUIDES[k].title}</a>
                 ))}
                 <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#F97316", textDecoration: "none", padding: "3px 0", fontWeight: 700 }}>All guides</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>
                 {Object.keys(CULTURE).map((m) => (
-                  <a key={m} href={"/culture/" + m} style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
+                  <a key={m} href={"/culture/" + m} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
                 ))}
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>People use Wayfind to</div>
-                <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
-                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>
-                <a href="/?go=map" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>See the best places on a map</a>
-                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Skip the tourist traps</a>
+                <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
+                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>
+                <a href="/?go=map" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>See the best places on a map</a>
+                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Skip the tourist traps</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Explore</div>
-                <a href="/events" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Events near you</a>
-                <a href="/map" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Map view</a>
-                <a href="/terms" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Terms</a>
-                <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
-                <a href="/about" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>About</a>
-                <a href="/editorial-policy" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>Editorial policy</a>
-                <a href="/how-wayfind-ranks" style={{ display: "block", fontSize: 12.5, color: "#64748B", textDecoration: "none", padding: "3px 0" }}>How we rank</a>
+                <a href="/events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Events near you</a>
+                <a href="/map" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Map view</a>
+                <a href="/terms" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Terms</a>
+                <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
+                <a href="/about" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>About</a>
+                <a href="/editorial-policy" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Editorial policy</a>
+                <a href="/how-wayfind-ranks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>How we rank</a>
               </div>
             </nav>
-            <p style={{ fontSize: 11, color: "#475569", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
+            <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
           </div>
         </footer>
       </body>

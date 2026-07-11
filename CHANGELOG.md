@@ -1,3 +1,215 @@
+## v5.43 - fail-closed crons + RLS hardening draft (static security review)
+- /api/cron ran fully PUBLIC whenever CRON_SECRET was unset (the guard was
+  inside `if (secret)`), leaking signup stats and letting anyone trigger
+  the fan-out work; /api/cron/cwv had no guard at all (PageSpeed quota
+  burn). Both now fail closed. OWNER ACTION: set CRON_SECRET in Vercel or
+  Vercel's own cron pings will 401.
+- supabase/DRAFT-rls-fixes.sql (OWNER REVIEW + dashboard apply): findings
+  from the static review - (H1) the older root supabase-schema.sql makes
+  saved_places/likes world-readable via the anon key while the newer
+  supabase/schema.sql is owner-only; verification queries included to see
+  which is live. (H2) events inserts never bind user_id to the caller, so
+  giveaway entries (counted from action='share' rows) are forgeable and
+  attributable to other users - draft policies bind anon inserts to NULL
+  user_id and authed inserts to auth.uid(). (M2/M3/L2) size/content
+  constraints for events, comments, shared_lists. The giveaway draw
+  should long-term not trust a client-writable table at all.
+- Guide picks 7-10 (Sarasota) and 7-12 (Orlando) are owner-approved as of
+  2026-07-11; DRAFT markers replaced accordingly.
+
+## v5.42 - the CSP flip is measurable, and HSTS covers subdomains
+- New /api/csp-report endpoint: browsers POST report-only CSP violations
+  (both legacy report-uri and Reporting-API shapes); each becomes one
+  structured "csp-violation" line in the Vercel function logs. report-uri
+  added to the CSP. Flip criterion now written down: 7 days of production
+  traffic with zero same-origin violations -> rename the header to
+  Content-Security-Policy.
+- Strict-Transport-Security: max-age=63072000; includeSubDomains. The
+  subdomain HTTPS audit (2026-07-11) cleared it: wildcard DNS routes every
+  *.gowayfind.com name to Vercel with valid TLS (verified against random
+  names), and mail is external iCloud MX. Same max-age Vercel already sent,
+  now with subdomain coverage. No preload yet - that is a deliberate
+  owner commitment.
+- E2E_BASE_URL env: point the Playwright suite at a deployed site (no local
+  server) for post-deploy live smoke verification.
+- check-headers.mjs asserts the HSTS header and the report-uri.
+
+## v5.41 - one command guards the whole audit: npm run audit:regression
+- audit:regression = the placeholder-key production build (whose prebuild
+  now runs 11 gates: version, jsx, dupes, env, tags, libs, gate, seo,
+  guide-counts, affiliate-URL hygiene, legal), then the full Playwright
+  suite (hydration/console incl. clock-skew and returning-visitor, deep
+  links, prompt coordinator + dialog semantics, axe with zero
+  critical-or-serious), then scripts/check-headers.mjs (boots the build,
+  asserts the enforced header set + report-only CSP + no x-powered-by).
+- This is the July 2026 audit's definition of done, executable locally
+  before every deploy.
+
+## v5.40 - privacy notice rebuilt (DRAFT FOR COUNSEL) + affiliate URL hygiene
+- /privacy now has the full disclosure structure: retention by data class,
+  legal bases, user rights (access/copy/deletion workflow via
+  privacy@gowayfind.com), international transfers, location-data-and-
+  analytics statement, consent & opt-out posture, children's policy,
+  security practices, and WAYFIND LLC as named controller. Every fact that
+  needs an owner or counsel decision is an explicit [OWNER/COUNSEL: ...]
+  placeholder — nothing invented. The false "encrypted password" claim is
+  replaced with the exact Supabase statement (salted hashes, Wayfind never
+  receives plaintext). OWNER ACTION: create the privacy@gowayfind.com
+  alias — the page now points there instead of the personal @me.com.
+- Affiliate URL hygiene: withViatorTracking() builds outbound Viator URLs
+  once via new URL() + URLSearchParams.set(), so pid/mcid/medium appear
+  exactly once with consistent values even when the source URL (e.g. an
+  API productUrl) already carries tracking — string concatenation used to
+  double them. All four call sites (ticketsUrl, experienceSearchUrl,
+  viatorDirectUrl, viatorServer product resolution) go through it.
+- New scripts/test-affiliates.mjs unit gate (5 cases incl. the
+  double-append bug and no-PID passthrough) and check-legal.mjs both now
+  run in prebuild.
+
+## v5.39 - performance: local mobile Lighthouse 31 -> 72-74, CLS 0.20 -> 0.004
+- THE finding: Stay22's LinkSwap script cost ~3.0s of mobile main-thread —
+  the entire TBT problem (2,880ms). It now loads on first user interaction
+  only (pointer/key/scroll; a visitor who never interacts can never click a
+  booking link). TBT: 2,880ms -> 10-30ms.
+- CLS 0.249 -> 0.004: the approximate-location banner became a fixed,
+  auto-dismissing toast (it inserted into the feed 2.5s after paint and
+  pushed everything); the boot loader reserves the feed's space (62vh); the
+  events strip renders atomically with the resolved feed instead of
+  inserting above the loader.
+- MapView is dynamically imported — the Maps rendering bundle leaves the
+  first paint entirely (map screen shows a loading placeholder for a beat).
+- The intro card's infinite box-shadow/border keyframe animation (paint
+  on every frame) is gone; entrance animation + static glow + the existing
+  opacity-animated halo remain (compositor-only).
+- public/ images (icons, weather art, wordmark — all query-versioned) get
+  Cache-Control: 30 days + stale-while-revalidate. Hashed /_next/static
+  was already immutable.
+- The featured event hero (the LCP image) fetches at high priority;
+  everything else stays lazy.
+- Field Core Web Vitals now flow to PostHog (web-vitals lib, dynamic
+  import): LCP/CLS/INP/TTFB/FCP tagged by route, device, location-permission
+  outcome, signed-in state, and build — complementing the lab-only
+  /api/cron/cwv PageSpeed job. Nothing duplicated.
+- Honest gap: score 72-74 vs the >=75 target. The remaining LCP (~10s lab)
+  is structural — 241KB of route JS from the app/home.js monolith plus a
+  data-dependent hero. Decomposing home.js is owner-roadmap work.
+
+## v5.38 - accessibility sweep: landmarks, contrast, keyboard, axe gate
+- Every route gets a <main id="wf-main"> landmark and a keyboard-visible
+  "Skip to main content" link (layout.js); the homepage gets a descriptive
+  server-rendered H1 (visually hidden — the conditional proof block stays
+  an h2 under it); /privacy's heading is a real <h1> and its links are
+  underlined (link-in-text-block fix).
+- Contrast: white-on-#FF8A3D CTAs (2.34:1) — the event hero's date chip and
+  "Get tickets" — now use dark ink on the bright accent (>7:1); the footer's
+  #64748B text/links (3.97:1) are #94A3B8 (~7:1) and the #475569 affiliate
+  line is #8B98A9.
+- Keyboard: all nine role="button" divs got tabIndex + Enter/Space
+  activation (shared KB_CLICK); the horizontal events strip is a named,
+  focusable region (scrollable-region-focusable fix); search input has a
+  persistent accessible name with the placeholder demoted to hint.
+- Map pins now pass title (Maps' supported accessible-name API) — every
+  pin was an unnamed role="button" to screen readers; zoom is the only
+  Google control (defaultUI already disabled) and the drawer list remains
+  the keyboard path. Lightbox photos describe their place.
+- New axe e2e gate: /, /privacy, and a guide page must have ZERO critical
+  or serious violations; plus a keyboard-journey test (skip link → search →
+  landmarks). Full suite 24/24.
+
+## v5.37 - one interruption per session + real dialog semantics
+- Prompt coordinator: at most ONE interruptive surface per session
+  (sessionStorage wf_interrupted). The intro claims it or nothing does; the
+  giveaway popup only fires after the visitor has actually received value
+  (results rendered or a place opened — wf_value_seen), never alongside
+  onboarding, and queues politely (20s retries) while any dialog is open.
+  Existing giveaway frequency rules (entered/3-day snooze/once daily) kept.
+- Deep links now ALL own their visit: ?q, ?go, ?place, ?list, and ?exp each
+  suppress the intro (previously only ?q did — arriving at /?go=map got a
+  greeting stacked on the map).
+- Install nudge is rate-limited to once every 3 days (was: every visit from
+  the 2nd on, until dismissed). It and the location notice remain
+  non-blocking inline banners.
+- Dialog semantics: intro, giveaway, giveaway rules, auth, account, and
+  recovery all have role="dialog", aria-modal, an accessible label, initial
+  focus, a trapped Tab loop, Escape-to-close, and focus restoration
+  (shared useDialogFocus hook). Every other sheet (lightbox, cuisine,
+  experiences, dice, hook detail, lists, radius, menu, weather) closes on
+  Escape via a z-ordered chain.
+- New e2e gates: first visit shows the intro and NOTHING else for 33s+
+  (the audit's stacking bug, replayed); ?go visits get no greeting; Escape
+  closes and restores focus; Tab can't leave the dialog; auth modal has
+  full semantics.
+
+## v5.36 - numbered guide titles deliver their count, enforced at build
+- DRAFT FOR OWNER REVIEW: 4 new Sarasota picks (Myakka River State Park,
+  Sarasota Jungle Gardens, the Legacy Trail, the Celery Fields) and 6 new
+  Orlando picks (Kennedy Space Center, Blue Spring in manatee season,
+  Wekiwa Springs, Leu Gardens, Mount Dora, East End Market) bring
+  "10 Best Things to Do in Sarasota" and "12 Things to Do in Orlando That
+  Aren't Theme Parks" up to their promised counts. Same structure and
+  voice as the existing entries; every place is real, established, and
+  operating. Review before treating as published editorial.
+- check-guides.mjs now fails the build when any guide title starting with
+  a number doesn't deliver exactly that many picks (year-leading titles
+  like "2026 Guide" can't be misread — counts are 1–2 digits). Verified:
+  breaking a count breaks the build.
+- check-guides.mjs is now actually part of prebuild — it existed but
+  nothing ran it.
+
+## v5.35 - deep links finish the job, and the loader mismatch is dead
+- THE live hydration bug, found and fixed: the v5.32 contextual loader
+  computed "Friday evening" from new Date() during render. The ISR shell
+  can be an hour stale, so server and client disagreed → React 418/423 and
+  a full client re-render on real visits. The moment phrase now arrives
+  from post-mount state; both sides render the generic line first. Caught
+  by the clock-skew e2e test once the app rendered fully under test.
+- /?go=favorites now lands on Saved (alias added — bridge pages sent
+  go=saved, but the natural URL form 404'd to the generic feed).
+- app/p/[id]/page.js share metadata: stale wayfind-xi.vercel.app replaced
+  with the shared SITE_URL constant. check-canon.mjs now scans ALL of app/
+  and lib/ for the stale domain — it lived in p/[id] for months because
+  the gate only read home.js and layout.js.
+- New deep-link e2e suite: every bridge page (/events /map /coupons
+  /favorites /itinerary) must show its promised screen, /?q= must fire a
+  real Places search with the query and consume the param, two guide CTAs
+  must hand off to a search for the promised place, and /p/<id> must
+  resolve the place through the app (not just echo metadata).
+- test:e2e builds with a placeholder Maps key so the UI renders under
+  test; remote calls 403 and the tests assert outbound requests, not data.
+
+## v5.34 - security headers: A-grade set enforced, CSP in report-only
+- next.config.js now sends X-Content-Type-Options: nosniff, X-Frame-Options:
+  SAMEORIGIN, Referrer-Policy: strict-origin-when-cross-origin, and a
+  Permissions-Policy locking camera/microphone/payment (geolocation stays
+  self — core feature) on every route; X-Powered-By is gone.
+- Content-Security-Policy ships as Report-Only first. Allowlist built from
+  the code's real browser-side origins: Maps/Places JS + tiles + Roboto
+  fonts, Places photos (googleusercontent/ggpht), PostHog + asset host,
+  Supabase (https + wss), open-meteo weather, Stay22 LinkSwap. Includes
+  frame-ancestors 'self'. TODO(csp-enforce) marks the flip to enforcing
+  after a clean report-only period in production.
+- Deliberately NO HSTS includeSubDomains — subdomain HTTPS audit is an
+  owner task first. The PROTECTED vercel.app→gowayfind.com redirect is
+  untouched (check-canon still green).
+
+## v5.33 - hydration is deterministic: storage-backed state loads after mount
+- Root cause of the live React errors 418/423/425 (July 2026 audit, Phase 1):
+  thirteen useState initializers in app/home.js read localStorage (and
+  window.location.search) during render. The server rendered the empty
+  fallback, a returning visitor's first client render produced real data,
+  and React discarded the whole SSR tree. All of them (liked, disliked,
+  likedItems, dislikedItems, sharedItems, savedCoupons, hookLikes,
+  placeComments, signals, myVotes, signupDone, debugOn) now start at the
+  same deterministic fallback on both sides and hydrate from storage in one
+  post-mount effect. No persistence path clobbers stored data (verified:
+  every setItem site is an event handler or read-modify-write merge).
+- New e2e gate (Playwright + npm run test:e2e): loads the production build
+  and fails on ANY hydration warning or console error. Covers fresh visitor,
+  returning visitor with populated localStorage, ?debug=1 URL params, a
+  +6h clock-skew run that simulates a stale ISR shell, and /privacy.
+  Environment-only noise (keyless Maps/PostHog/Supabase, degraded /api
+  routes) is filtered by origin, never by our own page's errors.
+
 ## v4.06 - fix crashing Share button on Top 10 list cards
 - PlaceCard share button called addShared() and referenced giveawayMark from
   a scope where neither existed, throwing ReferenceError on every tap: no

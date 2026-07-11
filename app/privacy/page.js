@@ -1,3 +1,9 @@
+// v5.40 (July 2026 audit, Phase 8): full privacy notice structure — data
+// retention by class, legal bases, user rights, transfers, consent, and
+// security practices. DRAFT FOR COUNSEL REVIEW: statements marked
+// [OWNER/COUNSEL: …] are policy decisions that must be made by the owner
+// or reviewed by counsel before this page is treated as final. This page
+// is a disclosure document, not legal advice.
 export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures - Wayfind" };
 
 const S = {
@@ -7,36 +13,63 @@ const S = {
   date: { color: "#8B949E", fontSize: 13, marginBottom: 28 },
   h2: { fontSize: 17, fontWeight: 800, marginTop: 28, marginBottom: 8, color: "#F0883E" },
   p: { margin: "0 0 12px", color: "#C9D1D9" },
-  a: { color: "#F0883E", textDecoration: "none" },
+  li: { margin: "0 0 8px", color: "#C9D1D9" },
+  a: { color: "#F0883E", textDecoration: "underline", textUnderlineOffset: 2 },
 };
 
 export default function Privacy() {
   return (
     <div style={S.page}>
       <div style={S.wrap}>
-        <div style={S.h1}>Privacy &amp; Disclosures</div>
-        <div style={S.date}>Wayfind &middot; Effective July 5, 2026</div>
+        <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
+        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective July 10, 2026</div>
 
-        <div style={S.h2}>What Wayfind is</div>
-        <p style={S.p}>Wayfind is a local discovery app that helps visitors find great places nearby. You can use most of it without an account.</p>
+        <h2 style={S.h2}>What Wayfind is</h2>
+        <p style={S.p}>Wayfind is a local discovery app that helps visitors find great places nearby. You can use most of it without an account. WAYFIND LLC is the data controller for the personal information described here.</p>
 
-        <div style={S.h2}>What we collect</div>
-        <p style={S.p}>If you create an account: your email address and an encrypted password, handled by Supabase, our authentication and database provider. If you use features: places you save, like, or write tips about. Your search location is used to find nearby places and power results; we do not sell it or build advertising profiles from it. Preferences such as saved spots for signed-out visitors are stored on your own device.</p>
+        <h2 style={S.h2}>What we collect</h2>
+        <p style={S.p}>If you create an account: your email address. Authentication credentials are managed by Supabase; Wayfind does not receive or store plaintext passwords. Supabase stores salted password hashes.</p>
+        <p style={S.p}>If you use features: places you save, like, or write tips about, and coupons you keep. Your search location is used to find nearby places and power results; we do not sell it or build advertising profiles from it. Preferences for signed-out visitors (saved spots, likes, settings) are stored on your own device and never leave it unless you sign in.</p>
 
-        <div style={S.h2}>Analytics</div>
-        <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only.</p>
+        <h2 style={S.h2}>How long we keep it</h2>
+        <p style={S.li}>&bull; <b>Account data</b> (email, saved places, tips): kept while your account exists; deleted when your account is deleted. [OWNER/COUNSEL: confirm any backup retention window, e.g. &ldquo;plus up to 30 days in encrypted backups&rdquo;.]</p>
+        <p style={S.li}>&bull; <b>On-device data</b> (signed-out saves and preferences): stays on your device until you clear it; we never see it.</p>
+        <p style={S.li}>&bull; <b>Analytics events</b>: retained by PostHog per our project settings. [OWNER/COUNSEL: set and state the retention period, e.g. 12 months.]</p>
+        <p style={S.li}>&bull; <b>Server logs</b> (Vercel): short-lived operational logs. [OWNER/COUNSEL: confirm log retention period.]</p>
 
-        <div style={S.h2}>Emails</div>
+        <h2 style={S.h2}>Legal bases</h2>
+        <p style={S.p}>Where laws such as the GDPR apply, we process personal data on these bases: performing our service for you (accounts, saved places), our legitimate interest in understanding and improving the product (analytics, security), and your consent where required (marketing email, if ever introduced). [OWNER/COUNSEL: confirm this mapping before relying on it.]</p>
+
+        <h2 style={S.h2}>Your rights</h2>
+        <p style={S.p}>You can request access to, a copy of, or deletion of your personal data at any time. Email <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> from the address on your account and we will verify the request and respond. Deletion removes your account, saved places, and tips from our systems. [OWNER/COUNSEL: state the response window, e.g. within 30 days, and the export format, e.g. JSON by email.]</p>
+        <p style={S.p}>Signed-out data lives on your device: clearing your browser storage removes it completely.</p>
+
+        <h2 style={S.h2}>International transfers</h2>
+        <p style={S.p}>Wayfind's providers (Vercel, Supabase, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US. [OWNER/COUNSEL: confirm transfer mechanisms with each provider — e.g. Standard Contractual Clauses / Data Privacy Framework participation.]</p>
+
+        <h2 style={S.h2}>Location data &amp; analytics</h2>
+        <p style={S.p}>Your precise device location (if you grant it) is used in your browser to rank nearby places and is sent to Google's Places service to run your searches. Analytics events describe features used and screens viewed. [OWNER/COUNSEL: confirm and state whether coordinates or coarse location ever reach PostHog; if they do, either stop sending them or disclose it explicitly here.] We do not sell location data.</p>
+
+        <h2 style={S.h2}>Analytics, consent &amp; opt-out</h2>
+        <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only. Web performance metrics (page speed measurements) are also collected. [OWNER/COUNSEL: decide the consent posture — e.g. whether a consent banner is required for your user base (EU/UK visitors) and what the opt-out mechanism is; document it here.]</p>
+
+        <h2 style={S.h2}>Children</h2>
+        <p style={S.p}>Wayfind is not directed at children and we do not knowingly collect personal information from children under 13. If you believe a child has provided us personal information, contact <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> and we will delete it. [OWNER/COUNSEL: confirm the age threshold appropriate to your markets, e.g. 16 in parts of the EU.]</p>
+
+        <h2 style={S.h2}>Security practices</h2>
+        <p style={S.p}>All traffic is encrypted in transit (HTTPS). Accounts and data are hosted by Supabase with row-level security policies limiting each user to their own records. Passwords are never stored by Wayfind in any form (see above). Access to production systems is limited to the operator.</p>
+
+        <h2 style={S.h2}>Emails</h2>
         <p style={S.p}>We send account emails (confirmation, password reset) through Resend and Supabase. No marketing email without your consent.</p>
 
-        <div style={S.h2}>Affiliate disclosure</div>
-        <p style={S.p}>Some links to tickets, tours, and experiences (for example via Viator or GetYourGuide) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence rankings or recommendations: what we feature is chosen on merit, and paid placement, if ever introduced, will be clearly labeled.</p>
+        <h2 style={S.h2}>Affiliate disclosure</h2>
+        <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence rankings or recommendations: what we feature is chosen on merit, and paid placement, if ever introduced, will be clearly labeled.</p>
 
-        <div style={S.h2}>Service providers</div>
-        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, PostHog for analytics, and Resend for email. Each processes only what is needed to provide the service.</p>
+        <h2 style={S.h2}>Service providers</h2>
+        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, PostHog for analytics, Resend for email, and Stay22 for booking-link optimization. Each processes only what is needed to provide the service.</p>
 
-        <div style={S.h2}>Your choices</div>
-        <p style={S.p}>You can use Wayfind without an account. To delete your account and associated data, email <a style={S.a} href="mailto:gabrielpereira@me.com">gabrielpereira@me.com</a> and we will handle it promptly.</p>
+        <h2 style={S.h2}>Contact</h2>
+        <p style={S.p}>WAYFIND LLC &middot; <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a></p>
 
         <p style={{ ...S.p, marginTop: 32 }}><a style={S.a} href="/">&larr; Back to Wayfind</a></p>
       </div>
