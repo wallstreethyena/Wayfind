@@ -76,25 +76,17 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.53";
+const BUILD_ID = "v5.54";
 // ─── Affiliate config ────────────────────────────────────────────────────────
-// Fill these in AFTER you are approved, then redeploy and the links go live
-// automatically. Nothing here is secret; affiliate ids appear in public URLs.
-//  • Viator: your Partner ID from partners.viator.com (format P12345678).
-//  • Ticketmaster: leave blank until you join their Impact program, then set the
-//    tracking param they give you. Until then "Get tickets" links work normally,
-//    just untracked.
-const AFFIL = {
-  viatorPid: (process.env.NEXT_PUBLIC_VIATOR_PID || "").trim(), // one env var lights all Viator surfaces
-  viatorCampaign: "wayfind",
-  ticketmasterParam: "",         // e.g. "irgwc=1&clickid=..." once approved, else blank
-};
-// Build a Viator search link for a place or area, tracked when a Partner ID is set.
+// All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
+// Ticketmaster param as a const there). Nothing is secret; ids appear in
+// public URLs. Fill them in after approval and links go live automatically.
 // Pass a ticket/event URL through here so it gains affiliate tracking the moment a
-// Ticketmaster param is set. Fails soft: returns the plain URL when not configured.
+// Ticketmaster param is set. The param itself lives in lib/affiliates.js
+// (v5.54) so the server-rendered /events/[city]/[slug] page appends the
+// identical value. Fails soft: returns the plain URL when not configured.
 function ticketUrl(url) {
-  if (!url || !AFFIL.ticketmasterParam) return url;
-  try { return url + (url.indexOf("?") >= 0 ? "&" : "?") + AFFIL.ticketmasterParam; } catch { return url; }
+  return Aff.ticketOutUrl(url);
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
@@ -3948,13 +3940,17 @@ function PageInner() {
         body: JSON.stringify({ lat: p.lat, lng: p.lng, radius: 2 }),
       });
       const data = await res.json();
-      let list = data && Array.isArray(data.events) ? data.events : [];
+      let list = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
       const nm = (p.name || "").toLowerCase();
       const matches = list.filter((e) => {
         const v = (e.venue || "").toLowerCase();
         return v && (v.includes(nm) || nm.includes(v));
       });
-      setVenueEvents((matches.length ? matches : list).slice(0, 8));
+      // Phase 2 (EVENTS_PIPELINE_DIAGNOSIS.md): the card says "at this
+      // venue" -- the old fallback padded it with ALL nearby events when
+      // the venue-name match came up empty, which is a wrong claim. No
+      // match now means the honest empty state.
+      setVenueEvents(matches.slice(0, 8));
     } catch {
       setVenueEvents([]);
     } finally {
@@ -3996,7 +3992,10 @@ function PageInner() {
       setEventsError(!!data.error);
       setEventCounts(data && data.counts ? data.counts : null);
       try { if (process.env.NODE_ENV !== "production" && data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
-      const evs = data && Array.isArray(data.events) ? data.events : [];
+      // Phase 1/2 contract (EVENTS_PIPELINE_DIAGNOSIS.md): only events with a
+      // resolved destination enter client state, so every count downstream is
+      // computed on exactly the list the cards render from.
+      const evs = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
       setEvents(evs);
       if (!data.unavailable && !data.error && evs.length === 0) logEvent("events_none", null, { loc: locName || "", lat: center.lat, lng: center.lng });
     } catch {
@@ -4542,13 +4541,79 @@ function PageInner() {
   // v4.55: /events, /map, /favorites, /itinerary routes hand off here.
   useEffect(() => {
     try {
-      const go = new URLSearchParams(window.location.search).get("go");
+      const sp = new URLSearchParams(window.location.search);
+      const go = sp.get("go");
       if (!go) return;
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (valid[go]) setScreen(valid[go]);
+      if (go === "events") {
+        // v5.54 (events pipeline, Phase 3): restore filter state from the
+        // shared URL, then put /events back in the address bar instead of
+        // stripping to "/" — the Events view and the URL must agree so the
+        // state survives refresh and sharing.
+        const d = sp.get("date") || "";
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) setEventDate(d);
+        const c = (sp.get("cat") || "").slice(0, 24);
+        if (c) setEventCat(c);
+        const keep = new URLSearchParams();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) keep.set("date", d);
+        if (c) keep.set("cat", c);
+        window.history.replaceState({ wf: "screen" }, "", "/events" + (keep.toString() ? "?" + keep.toString() : ""));
+        return;
+      }
       const u = new URL(window.location.href); u.searchParams.delete("go");
       window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
     } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // v5.54 (events pipeline, Phase 3): the Events view and the address bar
+  // stay in lockstep — /events (+ date/cat filter params) while the screen
+  // is open, back to "/" when it closes — so refresh, Back/Forward, and
+  // sharing all restore exactly what was on screen.
+  const prevScreenRef = useRef(null);
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      const prev = prevScreenRef.current;
+      prevScreenRef.current = screen;
+      if (screen === "events") {
+        const sp = new URLSearchParams();
+        if (eventDate !== "all") sp.set("date", eventDate);
+        if (eventCat !== "all") sp.set("cat", eventCat);
+        const target = "/events" + (sp.toString() ? "?" + sp.toString() : "");
+        const cur = window.location.pathname + window.location.search;
+        if (cur === target) return;
+        if (window.location.pathname !== "/events") window.history.pushState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ wf: "screen" }, "", target); // filter change: same view, refined
+      } else if (prev === "events" && window.location.pathname === "/events") {
+        window.history.pushState({ wf: "screen" }, "", "/");
+      }
+    } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, eventDate, eventCat]);
+
+  // Back/Forward traverse the entries the effect above creates. The detail
+  // sheet has its own popstate contract ({wf:"detail"} entries) — this
+  // handler only reconciles the SCREEN with the pathname, which is a no-op
+  // while a detail entry pops (pathname unchanged).
+  useEffect(() => {
+    const onPop = () => {
+      try {
+        const p = window.location.pathname;
+        if (p === "/events") {
+          const sp = new URLSearchParams(window.location.search);
+          const d = sp.get("date") || "";
+          setEventDate(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : "all");
+          setEventCat((sp.get("cat") || "all").slice(0, 24));
+          setScreen("events");
+        } else if (p === "/" && prevScreenRef.current === "events") {
+          setScreen("suggested");
+        }
+      } catch (e) {}
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -4860,10 +4925,10 @@ function PageInner() {
         const r = await fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: center.lat, lng: center.lng, radius: 25, city: locName }) });
         if (!r.ok) { if (!cancelled) setForyouEvents([]); return; }
         const data = await r.json();
-        const evs = (data && data.events) || [];
+        const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
           setForyouEvents(evs.slice(0, 8));
-          setLibraryEvents(evs.filter((e) => e && e.civic).slice(0, 6));
+          setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
       } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
     })();
@@ -5976,8 +6041,9 @@ function PageInner() {
               {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => { if (!e || !e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff >= 0 && diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; };
-                const withImg = evs.filter((e) => e && e.image);
-                const featured = (withImg.length ? withImg : evs).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"))[0];
+                const usable = evs.filter((e) => e && e.dest);
+                const withImg = usable.filter((e) => e.image);
+                const featured = (withImg.length ? withImg : usable).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"))[0];
                 const rest = evs.filter((e) => e && (!featured || e.id !== featured.id)).slice(0, 24);
                 return (
                   <div style={{ marginBottom: 16 }}>
@@ -5985,41 +6051,54 @@ function PageInner() {
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🎟️ Happening near you</div>
                       <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                     </div>
-                    {featured && (() => {
+                    {featured && featured.dest && (() => {
                       const f = formatEventDate(featured.date, featured.time);
                       const seg = eventSegmentMeta(featured.segment, featured.genre);
                       const rel = relLabel(featured);
                       const acc = C.purple;
+                      const internal = featured.destKind === "internal";
+                      const href = internal ? featured.dest : ticketUrl(featured.dest);
+                      const tix = internal && featured.url ? ticketUrl(featured.url) : null;
+                      // Phase 2 card semantics: the hero is ONE semantic link to
+                      // the event's resolved destination; the tickets action is a
+                      // separate sibling control layered on top, never nested.
                       return (
-                        <div onClick={() => openVenue(featured)} style={{ position: "relative", height: 176, borderRadius: 18, overflow: "hidden", marginBottom: 10, cursor: "pointer", boxShadow: "0 4px 20px rgba(0,0,0,.4)" }}>
-                          <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
-                          <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
-                          <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                            <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
+                        <div style={{ position: "relative", marginBottom: 10 }}>
+                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: 176, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
+                            <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
+                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
+                            <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
+                            <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                              <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                                <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
+                              </div>
+                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><span style={{ fontSize: 11 }}>{seg.icon}</span><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
                             </div>
-                            {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><span style={{ fontSize: 11 }}>{seg.icon}</span><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
-                          </div>
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", marginBottom: 11, textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
-                            <div onClick={(e2) => { e2.stopPropagation(); if (featured.url) (logEvent("ticket", null, { src: "cta" }), window.open(ticketUrl(featured.url), "_blank", "noopener")); else openVenue(featured); }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", cursor: "pointer" }}>{featured.url ? "Get tickets →" : "See event →"}</div>
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 52px" }}>
+                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
+                            </div>
+                          </a>
+                          <div style={{ position: "absolute", bottom: 14, left: 14, display: "flex", gap: 8 }}>
+                            {tix
+                              ? <a href={tix} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "cta" }); } catch (e2) {} }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", textDecoration: "none" }}>Get tickets →</a>
+                              : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
                           </div>
                         </div>
                       );
                     })()}
                     {rest.length > 0 && (
                       <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                        {rest.map((e) => {
+                        {rest.filter((e) => e && e.dest).map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const evRel = relLabel(e);
+                          const internal = e.destKind === "internal";
                           return (
-                            <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, cursor: "pointer", width: 150, flexShrink: 0, scrollSnapAlign: "start" }}>
+                            <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "foryou_rail" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, width: 150, flexShrink: 0, scrollSnapAlign: "start", textDecoration: "none" }}>
                               <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
                               <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}>{e.name}</div>
                               <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                            </div>
+                            </a>
                           );
                         })}
                       </div>
@@ -6094,14 +6173,15 @@ function PageInner() {
                         <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                       </div>
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                        {dedupeEvents(foryouEvents, true).slice(0, 6).map((e) => {
+                        {dedupeEvents(foryouEvents, true).filter((e) => e && e.dest).slice(0, 6).map((e) => {
                           const f = formatEventDate(e.date, e.time);
+                          const internal = e.destKind === "internal";
                           return (
-                            <div key={e.id} onClick={() => openVenue(e)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 10, cursor: "pointer" }}>
+                            <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "community_grid" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 10, textDecoration: "none" }}>
                               <div style={{ fontSize: 10, fontWeight: 800, color: C.purple, marginBottom: 3 }}>{f.wd} {f.mo} {f.day}{f.time ? " · " + f.time : ""}</div>
                               <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
                               <div style={{ fontSize: 10.5, color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                            </div>
+                            </a>
                           );
                         })}
                       </div>

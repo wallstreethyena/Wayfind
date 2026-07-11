@@ -1,11 +1,18 @@
 export const runtime = "nodejs";
 
 // Unified local-events feed. Calls every configured provider in parallel,
-// normalizes each to one shape, merges, and de-duplicates. Every provider is
-// optional and gated by its own env key: a missing key simply skips that source
-// and the others still work. Any provider error fails soft to an empty list, so
-// the events screen never breaks. "unavailable" is only true when NO provider
-// is configured at all.
+// normalizes each to one shape, then hands EVERYTHING to
+// lib/eventsPipeline.js (Phase 1, EVENTS_PIPELINE_DIAGNOSIS.md):
+// validation -> cross-provider dedup (title+venue+start) -> geo guard ->
+// destination check -> sort/cap. An event without a working destination is
+// excluded there, so the returned list IS the usable list and the client
+// can count what it renders. Every provider is optional (own env key),
+// isolated behind its own timeout, and fail-soft: one provider timing out
+// or erroring never touches another provider's events. "unavailable" is
+// only true when NO provider is configured at all.
+
+import { processEvents } from "../../../lib/eventsPipeline.js";
+import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -75,11 +82,14 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         lat: vloc && vloc.latitude != null ? Number(vloc.latitude) : null,
         lng: vloc && vloc.longitude != null ? Number(vloc.longitude) : null,
         segment: seg, genre, image: img, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
+        // Phase 1: cancelled/postponed events used to flow into cards
+        // unchecked -- the pipeline now excludes on this field.
+        status: e.dates && e.dates.status && e.dates.status.code ? e.dates.status.code : "",
       };
     });
     _tmMem.set(ck, { events, exp: Date.now() + TM_TTL });
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 function seatgeekSegment(type) {
@@ -106,7 +116,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
     const secret = process.env.SEATGEEK_CLIENT_SECRET;
     if (secret) p.set("client_secret", secret);
     const r = await fetch(`https://api.seatgeek.com/2/events?${p.toString()}`);
-    if (!r.ok) return { configured: true, events: [] };
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
     const raw = data.events || [];
     const events = raw.map((e) => {
@@ -127,10 +137,11 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
         venue: v.name || "", city: v.city || "",
         lat: loc.lat != null ? loc.lat : null, lng: loc.lon != null ? loc.lon : null,
         segment: sm.segment, genre: sm.genre, image: img, price, url: e.url || "", ticketed: true, source: "SeatGeek",
+        status: (e.status || "") === "normal" ? "" : (e.status || ""),
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 function phqSegment(category) {
@@ -157,7 +168,7 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
     const r = await fetch(`https://api.predicthq.com/v1/events/?${p.toString()}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
-    if (!r.ok) return { configured: true, events: [] };
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
     const raw = data.results || [];
     const events = raw.map((e) => {
@@ -168,15 +179,21 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
       const loc = Array.isArray(e.location) && e.location.length === 2 ? e.location : null;
       let venue = "";
       if (Array.isArray(e.entities)) { const ven = e.entities.find((x) => x.type === "venue"); if (ven) venue = ven.name || ""; }
-      const url = `https://www.google.com/search?q=${encodeURIComponent((e.title || "") + " " + (venue || (e.country || "")))}`;
+      // Phase 1 (EVENTS_PIPELINE_DIAGNOSIS.md): this provider used to ship a
+      // fabricated google.com/search URL as the "destination" -- the exact
+      // banned pattern. PredictHQ's API genuinely carries no public event
+      // URL at this tier, so these events have NO destination and the
+      // pipeline excludes them. If PredictHQ coverage matters, that's a
+      // data-enrichment conversation (owner), not a fake link.
       return {
         id: "phq_" + e.id, name: e.title || "", date, time,
         venue, city: "", lat: loc ? loc[1] : null, lng: loc ? loc[0] : null,
-        segment: phqSegment(e.category), genre: "", image: null, price: null, url, ticketed: false, source: "PredictHQ",
+        segment: phqSegment(e.category), genre: "", image: null, price: null, url: "", ticketed: false, source: "PredictHQ",
+        status: (e.state || "") === "deleted" ? "cancelled" : "",
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 // Bandsintown Partner Search API. Location-based concert discovery, gated by a
@@ -193,7 +210,7 @@ async function fromBandsintown(lat, lng, radius) {
     };
     const url = `https://search.bandsintown.com/search?query=${encodeURIComponent(JSON.stringify(q))}`;
     const r = await fetch(url, { headers: { "x-api-key": key, Accept: "application/json" } });
-    if (!r.ok) return { configured: true, events: [] };
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
     const rawEvents = data.events || (Array.isArray(data) ? data : []) || [];
     const venuesById = {};
@@ -219,10 +236,11 @@ async function fromBandsintown(lat, lng, radius) {
         url: e.ticket_url || e.event_url || "",
         ticketed: !!e.ticket_available,
         source: "Bandsintown",
+        status: "",
       };
     });
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 
@@ -263,74 +281,19 @@ async function fromEventbriteOrgs(lat, lng, radius) {
         url: e.url || "",
         ticketed: !e.is_free,
         source: "Eventbrite",
+        status: "",
       };
     }).filter((e) => {
       if (!e.name || !e.date) return false;
       const t = new Date(e.date + "T12:00:00").getTime();
       if (!(t >= Date.now() - 86400000 && t <= horizon)) return false;
       if (e.lat != null && e.lng != null && lat != null && lng != null) {
-        return haversineMi(lat, lng, e.lat, e.lng) <= Math.max(Number(radius) || 60, 60);
+        return haversineMiLocal(lat, lng, e.lat, e.lng) <= Math.max(Number(radius) || 60, 60);
       }
       return true;
     });
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
-}
-
-// v4.31 — Curated local staples. Keyless and alive immediately: the reliable
-// recurring events small towns actually run on, computed against the calendar
-// and geo-fenced to the Parrish / Manatee region. Facts sourced from the
-// venues' own materials; no invented times.
-function fromLocalStaples(lat, lng) {
-  if (lat == null || lng == null) return { configured: false, events: [] };
-  const near = (clat, clng, mi) => haversineMi(lat, lng, clat, clng) <= mi;
-  const inParrishRegion = near(27.5859, -82.4254, 30);
-  if (!inParrishRegion) return { configured: true, events: [] };
-  const out = [];
-  const d = new Date();
-  const pushOn = (target, ev) => {
-    const date = target.toISOString().slice(0, 10);
-    out.push({ ...ev, id: ev.id + "_" + date, date, time: "", price: ev.price || null, ticketed: !!ev.ticketed, civic: true, source: "Local staples" });
-  };
-  const nextDow = (dow, weeks) => {
-    for (let w = 0; w < weeks; w++) {
-      const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + ((dow - d.getDay() + 7) % 7) + w * 7);
-      if (t.getTime() >= new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) yieldDates.push(t);
-    }
-  };
-  const yieldDates = [];
-  nextDow(0, 3); // next 3 Sundays
-  for (const t of yieldDates) {
-    pushOn(t, { id: "ls_waterside_market", name: "The Market at Waterside Place", venue: "Waterside Place, Lakewood Ranch", city: "Lakewood Ranch", lat: 27.3934, lng: -82.4415, segment: "Community", genre: "Farmers market", image: null, url: "https://mywatersideplace.com", ticketed: false });
-    pushOn(t, { id: "ls_frm_sun", name: "Florida Railroad Museum scenic train ride", venue: "Florida Railroad Museum", city: "Parrish", lat: 27.5837, lng: -82.4273, segment: "Family", genre: "Heritage railroad", image: null, url: "https://frrm.org", ticketed: true });
-  }
-  const sats = [];
-  const nd = (dow, weeks, arr) => { for (let w = 0; w < weeks; w++) { const t = new Date(d.getFullYear(), d.getMonth(), d.getDate() + ((dow - d.getDay() + 7) % 7) + w * 7); arr.push(t); } };
-  nd(6, 3, sats); // next 3 Saturdays
-  for (const t of sats) {
-    pushOn(t, { id: "ls_frm_sat", name: "Florida Railroad Museum scenic train ride", venue: "Florida Railroad Museum", city: "Parrish", lat: 27.5837, lng: -82.4273, segment: "Family", genre: "Heritage railroad", image: null, url: "https://frrm.org", ticketed: true });
-  }
-  return { configured: true, events: out };
-}
-
-function dedupe(all) {
-  const norm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
-  const rank = { Ticketmaster: 5, SeatGeek: 4, Bandsintown: 3, PredictHQ: 2, Google: 1 };
-  const map = new Map();
-  for (const e of all) {
-    if (!e || !e.name) continue;
-    const k = norm(e.name) + "|" + (e.date || "");
-    const ex = map.get(k);
-    if (!ex) { map.set(k, e); continue; }
-    // Keep the richer source; if the winner lacks coords/image the other has, borrow them.
-    const keep = (rank[e.source] || 0) > (rank[ex.source] || 0) ? e : ex;
-    const other = keep === e ? ex : e;
-    if (keep.lat == null && other.lat != null) { keep.lat = other.lat; keep.lng = other.lng; }
-    if (!keep.image && other.image) keep.image = other.image;
-    if (!keep.price && other.price) keep.price = other.price;
-    map.set(k, keep);
-  }
-  return Array.from(map.values());
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 // Google Events via SerpAPI. This is the long tail: markets, festivals, free
@@ -360,7 +323,7 @@ async function fromSerpEvents(lat, lng, keyword, city) {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ engine: "google_events", q, hl: "en", gl: "us", api_key: key });
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
-    if (!r.ok) return { configured: true, events: [] };
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
     const raw = data.events_results || [];
     const events = raw.map((e, i) => {
@@ -381,10 +344,11 @@ async function fromSerpEvents(lat, lng, keyword, city) {
         venue, city: cityStr, lat: null, lng: null,
         segment: "Event", genre: "", image: e.thumbnail || e.image || null,
         price: null, url, ticketed, source: "Google",
+        status: "",
       };
     }).filter((e) => e.name && e.date);
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 async function fromOpenWebNinja(lat, lng, keyword, city) {
@@ -395,7 +359,7 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ query: q, date: "month", is_virtual: "false" });
     const r = await fetch(`https://api.openwebninja.com/realtime-events-data/search-events?${p.toString()}`, { headers: { "x-api-key": key } });
-    if (!r.ok) return { configured: true, events: [] };
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const data = await r.json();
     const raw = data.data || data.events || (Array.isArray(data) ? data : []) || [];
     const events = raw.map((e, i) => {
@@ -421,65 +385,26 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
         lng: ven.longitude != null ? Number(ven.longitude) : null,
         segment: "Event", genre: "", image: e.thumbnail || null,
         price: null, url, ticketed, source: "Google",
+        status: "",
       };
     }).filter((e) => e.name && e.date);
     return { configured: true, events };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
 // --- Manatee County Public Library (LibCal) ---------------------------------
 // Public iCal feed, no key required (cid 14834). Parsed, curated, and gated by
 // proximity so we never show Manatee events to someone exploring elsewhere.
 // Fail-soft like every other source: any error yields an empty list.
-function haversineMi(lat1, lng1, lat2, lng2) {
+// (ICS parsing + staples generation live in lib/eventResolve.js since Phase 1
+// so the /events/[city]/[slug] detail page resolves the same records.)
+function haversineMiLocal(lat1, lng1, lat2, lng2) {
   const R = 3958.8;
   const toRad = (d) => (d * Math.PI) / 180;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
   const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-function unfoldICS(text) {
-  // RFC 5545 line unfolding: a line break followed by space or tab continues the prior line.
-  return text.replace(/\r\n[ \t]/g, "").replace(/\n[ \t]/g, "");
-}
-function unescapeICS(s) {
-  return (s || "").replace(/\\n/gi, " ").replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\\\/g, "\\").trim();
-}
-function parseICSDate(val) {
-  const m = (val || "").match(/(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})(Z)?)?/);
-  if (!m) return null;
-  const y = +m[1], mo = +m[2], d = +m[3];
-  const hasTime = m[4] != null;
-  const hh = hasTime ? m[4] : null, mi = hasTime ? m[5] : null;
-  const date = `${m[1]}-${m[2]}-${m[3]}`;
-  const time = hasTime ? `${hh}:${mi}` : "";
-  let dt;
-  if (hasTime) dt = m[7] ? new Date(Date.UTC(y, mo - 1, d, +hh, +mi)) : new Date(y, mo - 1, d, +hh, +mi);
-  else dt = new Date(y, mo - 1, d);
-  return { date, time, dt };
-}
-function parseLibCalICS(text) {
-  const lines = unfoldICS(text).split(/\r\n|\n|\r/);
-  const events = [];
-  let cur = null;
-  for (const line of lines) {
-    if (line === "BEGIN:VEVENT") { cur = {}; continue; }
-    if (line === "END:VEVENT") { if (cur) events.push(cur); cur = null; continue; }
-    if (!cur) continue;
-    const idx = line.indexOf(":");
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).split(";")[0].toUpperCase();
-    const val = line.slice(idx + 1);
-    if (key === "SUMMARY") cur.summary = unescapeICS(val);
-    else if (key === "DTSTART") cur.start = val;
-    else if (key === "LOCATION") cur.location = unescapeICS(val);
-    else if (key === "DESCRIPTION") cur.description = unescapeICS(val);
-    else if (key === "URL") cur.url = val.trim();
-    else if (key === "UID") cur.uid = val.trim();
-    else if (key === "CATEGORIES") cur.categories = unescapeICS(val);
-  }
-  return events;
 }
 // Routine recurring programs we curate OUT, so the card surfaces discovery-worthy
 // events (author talks, special programs, all-ages) rather than a wall of repeats.
@@ -491,11 +416,11 @@ function libcalIsRoutine(title) {
 async function fromLibCal(lat, lng) {
   if (lat == null || lng == null) return { configured: false, events: [] };
   // Bradenton, center of Manatee County. Only serve this feed inside the region.
-  const inRegion = haversineMi(lat, lng, 27.4799, -82.5748) <= 35;
+  const inRegion = haversineMiLocal(lat, lng, 27.4799, -82.5748) <= 35;
   if (!inRegion) return { configured: true, events: [] };
   try {
-    const r = await fetch("https://manateelibrary.libcal.com/ical_subscribe.php?cid=14834", { headers: { "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com)" } });
-    if (!r.ok) return { configured: true, events: [] };
+    const r = await fetch(LIBCAL_FEED, { headers: { "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com)" } });
+    if (!r.ok) return { configured: true, ok: false, events: [] };
     const text = await r.text();
     const raw = parseLibCalICS(text);
     const now = new Date();
@@ -516,7 +441,7 @@ async function fromLibCal(lat, lng) {
       if (seen.has(norm)) continue;
       seen.add(norm);
       out.push({
-        id: "lib_" + (e.uid || norm).replace(/[^a-z0-9]/gi, "").slice(0, 40),
+        id: libcalId(e.uid, norm),
         name: title,
         date: ds.date,
         time: ds.time,
@@ -530,23 +455,24 @@ async function fromLibCal(lat, lng) {
         ticketed: false,
         civic: true,
         source: "Manatee County Library",
+        status: "",
       });
       if (out.length >= 40) break; // v4.87: raised from 12
     }
     return { configured: true, events: out };
-  } catch { return { configured: true, events: [] }; }
+  } catch { return { configured: true, ok: false, events: [] }; }
 }
 
-// Pull a 2-letter US state out of a "City, ST" style string. Used to keep
-// coordinate-less event results (Google) in the user's own region.
-function stateOf(s) {
-  if (!s) return "";
-  const parts = String(s).split(",").map((x) => x.trim()).filter(Boolean);
-  for (let i = parts.length - 1; i >= 0; i--) {
-    const m = parts[i].match(/^([A-Za-z]{2})$/);
-    if (m) return m[1].toUpperCase();
-  }
-  return "";
+// Phase 1: partial-failure isolation. Each provider runs behind its own
+// deadline; a hung provider yields { timedOut } after `ms` instead of
+// stalling the whole response, and never touches the other providers.
+const PROVIDER_TIMEOUT_MS = 6000;
+function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
+  const started = Date.now();
+  return Promise.race([
+    Promise.resolve(promise).then((r) => ({ provider, ...r, ms: Date.now() - started })),
+    new Promise((resolve) => setTimeout(() => resolve({ provider, configured: true, ok: false, timedOut: true, events: [], ms }), ms)),
+  ]).catch(() => ({ provider, configured: true, ok: false, events: [], ms: Date.now() - started }));
 }
 
 export async function POST(req) {
@@ -555,43 +481,31 @@ export async function POST(req) {
     if (lat == null || lng == null) return Response.json({ events: [] }, { status: 200 });
 
     const results = await Promise.all([
-      fromTicketmaster(lat, lng, radius, keyword),
-      fromSeatGeek(lat, lng, radius, keyword),
-      fromPredictHQ(lat, lng, radius, keyword),
-      fromBandsintown(lat, lng, radius, keyword),
-      fromSerpEvents(lat, lng, keyword, city),
-      fromOpenWebNinja(lat, lng, keyword, city),
-      fromLibCal(lat, lng),
-      fromEventbriteOrgs(lat, lng, radius),
-      Promise.resolve(fromLocalStaples(lat, lng)),
+      withDeadline("Ticketmaster", fromTicketmaster(lat, lng, radius, keyword)),
+      withDeadline("SeatGeek", fromSeatGeek(lat, lng, radius, keyword)),
+      withDeadline("PredictHQ", fromPredictHQ(lat, lng, radius, keyword)),
+      withDeadline("Bandsintown", fromBandsintown(lat, lng, radius, keyword)),
+      withDeadline("Google (SerpAPI)", fromSerpEvents(lat, lng, keyword, city)),
+      withDeadline("Google (OpenWebNinja)", fromOpenWebNinja(lat, lng, keyword, city)),
+      withDeadline("Manatee County Library", fromLibCal(lat, lng)),
+      withDeadline("Eventbrite", fromEventbriteOrgs(lat, lng, radius)),
+      withDeadline("Local staples", Promise.resolve(localStaplesFor(lat, lng))),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
     if (configuredCount === 0) return Response.json({ unavailable: true, events: [], sources: [] }, { status: 200 });
 
-    let merged = dedupe(results.flatMap((r) => r.events || []));
-    // Proximity guard: tiny towns make the city-string event search (Google) return
-    // far, national results, e.g. California events for a Florida user. Drop anything
-    // clearly outside the user's region before ranking. Coord-bearing events must be
-    // within range; coord-less ones (Google) must at least share the user's state.
-    const userState = stateOf(city);
-    const maxMi = Math.min(Math.max(Number(radius) || 30, 5), 100); // enforce the user's search radius, no wide floor
-    merged = merged.filter((e) => {
-      // v4.88: civic sources (library, local staples) are already geo-fenced
-      // to the user's region upstream; the state-string guard was silently
-      // dropping the library's coordinate-less events. Trust the fence.
-      if (e.civic) return true;
-      if (e.lat != null && e.lng != null) return haversineMi(lat, lng, e.lat, e.lng) <= maxMi;
-      const es = stateOf(e.city);
-      return userState && es ? es === userState : false;
-    });
-    merged = merged.filter((e) => e.date).sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""))).slice(0, 250); // v4.87: raised from 90 — show LOTS of options
+    const { events, usableCount, health, excludedByReason } = processEvents(results, { lat, lng, radius, city });
 
-    const labels = ["Ticketmaster", "SeatGeek", "PredictHQ", "Bandsintown", "Google", "Google", "Manatee County Library", "Eventbrite", "Local staples"]; // v4.87: complete per-source counts
-    const sources = [...new Set(labels.filter((_, i) => results[i] && results[i].configured))];
+    // Provider health where the owner can see trends (Vercel function logs).
+    try { console.log(JSON.stringify({ tag: "events_provider_health", health: health.filter((h) => h.configured), excludedByReason, usableCount })); } catch (e) {}
+
+    const sources = [...new Set(results.filter((r) => r.configured).map((r) => r.provider))];
+    // Per-source USABLE counts (post-validation/dedup/destination) -- the
+    // old field reported raw provider totals, which never matched the feed.
     const counts = {};
-    labels.forEach((lab, i) => { if (results[i] && results[i].configured) counts[lab] = (counts[lab] || 0) + ((results[i].events && results[i].events.length) || 0); });
-    return Response.json({ events: merged, sources, counts }, { status: 200 });
+    for (const e of events) counts[e.source] = (counts[e.source] || 0) + 1;
+    return Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 });
   } catch (e) {
     return Response.json({ error: true, events: [] }, { status: 200 });
   }
