@@ -1,3 +1,27 @@
+## v5.37 - one interruption per session + real dialog semantics
+- Prompt coordinator: at most ONE interruptive surface per session
+  (sessionStorage wf_interrupted). The intro claims it or nothing does; the
+  giveaway popup only fires after the visitor has actually received value
+  (results rendered or a place opened — wf_value_seen), never alongside
+  onboarding, and queues politely (20s retries) while any dialog is open.
+  Existing giveaway frequency rules (entered/3-day snooze/once daily) kept.
+- Deep links now ALL own their visit: ?q, ?go, ?place, ?list, and ?exp each
+  suppress the intro (previously only ?q did — arriving at /?go=map got a
+  greeting stacked on the map).
+- Install nudge is rate-limited to once every 3 days (was: every visit from
+  the 2nd on, until dismissed). It and the location notice remain
+  non-blocking inline banners.
+- Dialog semantics: intro, giveaway, giveaway rules, auth, account, and
+  recovery all have role="dialog", aria-modal, an accessible label, initial
+  focus, a trapped Tab loop, Escape-to-close, and focus restoration
+  (shared useDialogFocus hook). Every other sheet (lightbox, cuisine,
+  experiences, dice, hook detail, lists, radius, menu, weather) closes on
+  Escape via a z-ordered chain.
+- New e2e gates: first visit shows the intro and NOTHING else for 33s+
+  (the audit's stacking bug, replayed); ?go visits get no greeting; Escape
+  closes and restores focus; Tab can't leave the dialog; auth modal has
+  full semantics.
+
 ## v5.36 - numbered guide titles deliver their count, enforced at build
 - DRAFT FOR OWNER REVIEW: 4 new Sarasota picks (Myakka River State Park,
   Sarasota Jungle Gardens, the Legacy Trail, the Celery Fields) and 6 new

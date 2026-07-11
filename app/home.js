@@ -27,7 +27,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.36";
+const BUILD_ID = "v5.37";
 const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
@@ -192,6 +192,36 @@ function directionsUrl(p) {
   if (hasCoords) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
   return p.mapsUrl || null;
 }
+// v5.37 (July 2026 audit, Phase 5): real dialog behavior for overlays.
+// While `open` is true the referenced card gets initial focus, a trapped
+// Tab loop, Escape-to-close, and focus restoration to whatever had focus
+// before it opened. Pair it with role="dialog" aria-modal aria-label
+// tabIndex={-1} on the card div itself.
+function useDialogFocus(open, ref, onClose) {
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  useEffect(() => {
+    if (!open) return;
+    const node = ref.current;
+    const prev = typeof document !== "undefined" ? document.activeElement : null;
+    if (node) { try { node.focus({ preventScroll: true }); } catch (e) {} }
+    const onKey = (e) => {
+      if (e.key === "Escape") { e.stopPropagation(); if (closeRef.current) closeRef.current(); return; }
+      if (e.key !== "Tab" || !node) return;
+      const f = node.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!f.length) { e.preventDefault(); return; }
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || document.activeElement === node)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => {
+      document.removeEventListener("keydown", onKey, true);
+      try { if (prev && prev.focus && document.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {}
+    };
+  }, [open]);
+}
+
 function Grabber() {
   return (
     <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "9px 0 5px" }}>
@@ -2899,6 +2929,22 @@ function PageInner() {
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
+  // v5.37 prompt coordinator (July 2026 audit, Phase 5). One interruptive
+  // surface per SESSION, full stop. dialogOpenRef mirrors every overlay's
+  // state (kept in sync by an effect further down, after those states are
+  // declared); wf_interrupted is the session-wide claim; wf_value_seen is
+  // set once the visitor has actually gotten something out of Wayfind
+  // (results rendered or a place opened) — the giveaway never fires before
+  // it, and never in the same session as onboarding.
+  const dialogOpenRef = useRef(false);
+  const claimInterrupt = (kind) => {
+    try {
+      if (dialogOpenRef.current) return false;
+      if (sessionStorage.getItem("wf_interrupted")) return false;
+      sessionStorage.setItem("wf_interrupted", kind);
+      return true;
+    } catch (e) { return true; }
+  };
   useEffect(() => {
     try {
       if (!(giveawayLive() || giveawaySoon())) return;
@@ -2907,10 +2953,22 @@ function PageInner() {
       if (st.entered) return;                                  // entered: never again
       if (st.dismissedAt && now - st.dismissedAt < 3 * 864e5) return; // dismissed: 3-day snooze
       if (st.shownAt && now - st.shownAt < 864e5) return;      // at most once a day
-      const t = setTimeout(() => {
+      let t;
+      const fire = (attempt) => {
+        try {
+          // Session already used its one interruption: give up quietly.
+          if (sessionStorage.getItem("wf_interrupted")) return;
+          // No value delivered yet, or another dialog is up: queue a retry.
+          if (!sessionStorage.getItem("wf_value_seen") || dialogOpenRef.current) {
+            if (attempt < 8) t = setTimeout(() => fire(attempt + 1), 20000);
+            return;
+          }
+          sessionStorage.setItem("wf_interrupted", "giveaway");
+        } catch (e) {}
         setGwPop(true);
         try { localStorage.setItem("wf_gw_pop", JSON.stringify({ ...st, shownAt: Date.now() })); logEvent("giveaway_pop"); } catch (e) {}
-      }, 30000);
+      };
+      t = setTimeout(() => fire(0), 30000);
       return () => clearTimeout(t);
     } catch (e) {}
   }, []);
@@ -2935,7 +2993,9 @@ function PageInner() {
     if (standalone) return;
     const n = (parseInt(localStorage.getItem("wf_visits") || "0", 10) || 0) + 1;
     localStorage.setItem("wf_visits", String(n));
-    if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed")) { setA2hs(true); try { logEvent("a2hs_shown"); } catch (e) {} }
+    // v5.37: rate-limited — a non-blocking banner, at most once every 3 days.
+    const lastShown = parseInt(localStorage.getItem("wf_a2hs_last") || "0", 10) || 0;
+    if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed") && Date.now() - lastShown > 3 * 864e5) { setA2hs(true); try { localStorage.setItem("wf_a2hs_last", String(Date.now())); logEvent("a2hs_shown"); } catch (e) {} }
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
   const _expLinked = useRef(false);
@@ -4066,6 +4126,7 @@ function PageInner() {
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
   async function openDetail(p, context) {
+    try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} // v5.37: opening a place = value delivered
     // v4.86: a Foursquare-sourced place upgrades to its Google twin on open
     // when one exists (reviews, hours, photos come along); otherwise it
     // renders honestly from the Foursquare data it arrived with.
@@ -4653,13 +4714,64 @@ function PageInner() {
   useEffect(() => {
     try {
       const sp0 = new URLSearchParams(window.location.search);
-      if (sp0.get("intro") === "1") { setIntroOpen(true); return; }
-      if (sp0.get("q")) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
-        const t = setTimeout(() => setIntroOpen(true), 3200);
+      if (sp0.get("intro") === "1") { try { sessionStorage.setItem("wf_interrupted", "intro"); } catch (e) {} setIntroOpen(true); return; }
+      // v5.37: EVERY deep link owns its visit, not just ?q — a visitor who
+      // arrived for a specific screen, place, list, or experience gets it
+      // without a greeting on top.
+      const deepLink = sp0.get("q") || sp0.get("go") || sp0.get("place") || sp0.get("list") || sp0.get("exp");
+      if (deepLink) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
+        const t = setTimeout(() => { if (claimInterrupt("intro")) setIntroOpen(true); }, 3200);
         return () => clearTimeout(t);
       }
     } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  // v5.37: mirror of "some dialog is open" for the prompt coordinator —
+  // while ANY of these is up, no timed prompt may fire.
+  useEffect(() => {
+    dialogOpenRef.current = !!(introOpen || gwPop || gwOpen || authOpen || accountOpen || recoveryOpen);
+  }, [introOpen, gwPop, gwOpen, authOpen, accountOpen, recoveryOpen]);
+  // v5.37 dialog semantics: focus management for every modal overlay.
+  const introDlgRef = useRef(null);
+  const gwPopDlgRef = useRef(null);
+  const gwRulesDlgRef = useRef(null);
+  const authDlgRef = useRef(null);
+  const accountDlgRef = useRef(null);
+  const recoveryDlgRef = useRef(null);
+  const closeIntro = () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); };
+  // v5.37: Escape closes the topmost user-invoked sheet too (the six main
+  // dialogs above trap their own Escape; this chain covers the rest, in
+  // z-order: lightbox 1000 > cuisine 95 > the zIndex-900 sheet family).
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (lightbox) return setLightbox(null);
+      if (cuisineSheet) return setCuisineSheet(null);
+      if (allExpOpen) return setAllExpOpen(false);
+      if (diceChoose) return setDiceChoose(false);
+      if (hookDetail) return setHookDetail(null);
+      if (newListOpen) return setNewListOpen(false);
+      if (renamingList) return setRenamingList(null);
+      if (listMenu) return setListMenu(null);
+      if (saveTarget) return setSaveTarget(null);
+      if (radiusSheet) return setRadiusSheet(false);
+      if (menuSheet) return setMenuSheet(null);
+      if (wxOpen) return setWxOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, cuisineSheet, allExpOpen, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
+  useDialogFocus(introOpen, introDlgRef, closeIntro);
+  useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
+  useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
+  useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
+  useDialogFocus(accountOpen, accountDlgRef, () => setAccountOpen(false));
+  useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
+  // v5.37: "value seen" — results actually rendered for this visitor. The
+  // giveaway waits for this signal (see the coordinator by gwPop above).
+  useEffect(() => {
+    if (suggested && suggested.length) { try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} }
+  }, [suggested]);
 
   // v4.58: build number leaves the visible UI (launch polish) but stays
   // machine-readable for deploy verification and diagnostics.
@@ -6038,7 +6150,7 @@ function PageInner() {
                       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
                                             {gwPop && (giveawayLive() || giveawaySoon()) && (
                         <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
-                          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
+                          <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-label="Wayfind giveaway" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
                             <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
                             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: "#E8B84B", animation: "wfGold 2.8s ease-in-out infinite" }} />
                             <button onClick={() => gwPopClose("x")} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,.4)", border: "1px solid rgba(232,184,75,.4)", color: "#F2D48A", fontSize: 15, fontWeight: 700, cursor: "pointer", lineHeight: 1 }}>×</button>
@@ -6067,7 +6179,7 @@ function PageInner() {
                       )}
                       {gwOpen && (
                         <div onClick={() => setGwOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(0,0,0,.6)", display: "flex", alignItems: "flex-end" }}>
-                          <div onClick={(e) => e.stopPropagation()} style={{ background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
+                          <div ref={gwRulesDlgRef} role="dialog" aria-modal="true" aria-label="Giveaway official rules" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", background: C.panel, borderRadius: "18px 18px 0 0", width: "100%", maxHeight: "82vh", overflowY: "auto", padding: "18px 18px calc(20px + env(safe-area-inset-bottom))" }}>
                             <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 10 }}>Wayfind Annual Giveaway · Official Rules (2026)</div>
                             {["No purchase necessary. Free to enter.", "How to enter: create a free Wayfind account, then share any 3 different places or lists from the app between July 3 and October 31, 2026 (11:59 pm ET). Entries are counted on our server per account.", "Winner: one entrant selected at random on or about November 1, 2026, and notified via account email. Odds depend on the number of eligible entries.", "Prize: a 3-night stay at Hilton Orlando, provided by the sponsor. Approximate retail value $600 to $900. Dates subject to availability; no cash substitute. Taxes are the winner's responsibility.", "Eligibility: legal US residents 18 or older. Void where prohibited.", "Sponsor: Wayfind. This promotion is not sponsored, endorsed, or administered by Hilton or by Apple.", "Share progress shown on this device may differ from the server count if you share from multiple devices; the server count decides."].map((t, i) => (
                               <div key={i} style={{ fontSize: 12.5, color: C.light, lineHeight: 1.6, marginBottom: 9 }}>{t}</div>
@@ -7942,7 +8054,7 @@ function PageInner() {
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && (
         <div style={sheetBg} onClick={() => setAccountOpen(false)}>
-          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
@@ -8226,7 +8338,7 @@ function PageInner() {
       {/* Save-to-list sheet */}
       {authOpen && (
         <div style={sheetBg} onClick={() => setAuthOpen(false)}>
-          <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={authDlgRef} role="dialog" aria-modal="true" aria-label="Sign in or create your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
@@ -8282,7 +8394,7 @@ function PageInner() {
               home-screen row is gone by design). */}
           <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
           <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both, wfIntroGlow 2.8s ease-in-out .5s infinite" }}>
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both, wfIntroGlow 2.8s ease-in-out .5s infinite" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
               <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
@@ -8354,7 +8466,7 @@ function PageInner() {
       )}
       {recoveryOpen && (
         <div style={sheetBg} onClick={() => setRecoveryOpen(false)}>
-          <div style={{ ...sheet, padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
+          <div ref={recoveryDlgRef} role="dialog" aria-modal="true" aria-label="Set a new password" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
             <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>Set a new password</div>
             <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>You opened a password reset link. Choose a new password for your account.</div>
             <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (8+ characters)"
