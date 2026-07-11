@@ -2,7 +2,8 @@
 // every directive chip exists, trust copy is present, and exploration never
 // requires sign-in.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+import { shellSrc } from "./lib/shellSrc.mjs";
+const s = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 const fail = (m) => { console.error("check-moment: FAIL — " + m); process.exit(1); };
 for (const id of ["family", "date", "twohrs", "outside", "locals", "drive", "fifty", "visitors", "rainy", "surprise"]) {
   if (!new RegExp('id: "' + id + '"').test(s.slice(s.indexOf("const MOMENT_CHIPS"), s.indexOf("function composeMoment")))) fail("moment chip missing: " + id);

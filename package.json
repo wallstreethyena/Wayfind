@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "test": "node scripts/test-tags.mjs",
-    "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/home.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\"",
+    "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/home.js app/components/kit.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\"",
     "check:dupes": "node scripts/check-dupes.mjs",
     "check:env": "node scripts/check-env.mjs",
     "prebuild": "npm run check:version && npm run check:jsx && npm run check:dupes && npm run check:env && node scripts/test-tags.mjs && node scripts/check-libs.mjs && npm run check:gate && npm run check:seo && node scripts/check-guides.mjs && node scripts/test-affiliates.mjs && node scripts/check-legal.mjs",
@@ -15,7 +15,8 @@
     "check:gate": "node scripts/check-gate.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "test:e2e": "NEXT_PUBLIC_GOOGLE_MAPS_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_KEY:-e2e-placeholder-not-a-real-key} NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL:-https://e2eplaceholder.supabase.co} NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-e2e-placeholder-anon-key-not-real} next build && NEXT_PUBLIC_GOOGLE_MAPS_KEY=${NEXT_PUBLIC_GOOGLE_MAPS_KEY:-e2e-placeholder-not-a-real-key} playwright test",
-    "audit:regression": "npm run test:e2e && node scripts/check-headers.mjs"
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "audit:regression": "npm run test:e2e && npm run check:bundle && node scripts/check-headers.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

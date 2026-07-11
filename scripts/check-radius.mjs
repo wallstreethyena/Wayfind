@@ -1,5 +1,6 @@
 // Guardrail + unit tests: honest small-market handling.
 import { readFileSync } from "fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 import { bucketize, strongWithin } from "../lib/radius.js";
 const fail = (m) => { console.error("check-radius: FAIL — " + m); process.exit(1); };
 const P = (d, r = 4.5, rv = 200) => ({ id: String(d) + Math.random(), distMi: d, rating: r, reviews: rv });
@@ -18,7 +19,7 @@ if (bk2.places.length !== 2) fail("unknown-distance place was dropped");
 if (strongWithin([P(5), P(5, 4.0), P(5, 4.8, 20), P(15)], 10) !== 1) fail("quality floor wrong");
 
 // Wiring: composites must use the honest path.
-const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 if (!page.includes("Radius.strongWithin(out, 10) < 10")) fail("thin-market detection missing from composites");
 if (!page.includes("Radius.bucketize(out, town)")) fail("radius sections missing from composites");
 if (!page.includes("smaller market")) fail("honest small-market copy missing");

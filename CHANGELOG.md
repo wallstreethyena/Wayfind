@@ -1,3 +1,26 @@
+## v5.44 - decomposition enablers: the home shell, a bundle budget, and the shared kit (G0)
+- First step of the home.js decomposition (owner-roadmap item 6; lifts the
+  Lighthouse ceiling). Zero behavior change by design - this phase only
+  builds the rails the extractions (G1-G4) run on.
+- scripts/lib/shellSrc.mjs: the 9 content guardrails (cards/copy/cta/ux/
+  moment/auth/meals/lodging/radius) now grep the concatenated "home shell"
+  (home.js + kit + future screens/sheets), so moving code between shell
+  files never breaks a contract while deleting it still fails the build.
+  check-version/canon/seo/gate stay pinned to home.js on purpose (BUILD_ID,
+  CANON_ORIGIN, loader copy, data-fetch wiring must not migrate out).
+- scripts/check-bundle.mjs (in audit:regression): gzipped JS budget for the
+  "/" route from the real build manifest - route chunk 175KB, total 325KB,
+  measured baseline 172.4/321.1KB. Ratchets DOWN each extraction phase.
+  (Note: the earlier "241KB route chunk" figure came from the next build
+  table; this gate measures gzip of the emitted assets directly.)
+- app/components/kit.js: first tranche of shared stateless helpers out of
+  home.js (C tokens, CAT_* maps, SHEET_EASE, EMOJIS, GlowPin, Grabber,
+  KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars,
+  moonPhase, weatherFromCode, hourIcon) - eager import, so no bundle or
+  behavior delta; screens/sheets extracted later import these directly.
+- check:jsx and check-dupes now cover the new shell files (check-dupes via
+  shellFiles(), so future screens/sheets are covered automatically).
+
 ## v5.43 - fail-closed crons + RLS hardening draft (static security review)
 - /api/cron ran fully PUBLIC whenever CRON_SECRET was unset (the guard was
   inside `if (secret)`), leaking signup stats and letting anyone trigger

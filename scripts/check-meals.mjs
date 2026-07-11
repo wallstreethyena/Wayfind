@@ -3,6 +3,7 @@
 // including the exact production bug (Italian restaurant opening at 11 AM
 // listed under Breakfast).
 import { readFileSync } from "fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 import { mealEligible, hoursSpan } from "../lib/meals.js";
 const fail = (m) => { console.error("check-meals: FAIL — " + m); process.exit(1); };
 
@@ -36,7 +37,7 @@ const sp = hoursSpan(P("x", [], [per(17, 0, 2, 0, 2)]));
 if (!sp || sp.lc <= 1440) fail("overnight close not treated as 24h+");
 
 // 8. The composite loop is actually wired through the engine.
-const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 if (!page.includes("Meals.mealEligible(sl.label, pp)")) fail("openCurated not filtering through mealEligible");
 if ((page.match(/Meals\.mealEligible\(sl\.label, pp\)/g) || []).length < 2) fail("backfill path missing eligibility check");
 console.log("check-meals: OK — 8 fixture suites pass; slot labels are hours-verified promises");
