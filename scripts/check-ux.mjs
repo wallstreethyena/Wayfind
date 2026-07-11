@@ -1,7 +1,8 @@
 // Guardrail: v4.57 UX decisions. Tile naming, icon semantics, and the
 // reservations capture stay intact.
 import { readFileSync } from "fs";
-const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+import { shellSrc } from "./lib/shellSrc.mjs";
+const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 const cats = readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-ux: FAIL — " + m); process.exit(1); };
 if (!cats.includes('{ id: "attractions", label: "Things to do" }')) fail('attractions tile must be labeled "Things to do"');

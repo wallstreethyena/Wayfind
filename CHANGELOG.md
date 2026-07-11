@@ -1,3 +1,116 @@
+## v5.48 - map, experience picks, and the welcome intro leave the monolith (G4, decomposition complete)
+- The map shell (screen === "map"), the experience-badge picks screen
+  (screen === "experience"), and the welcome intro overlay (introOpen)
+  now live in app/components/screens/Map.js, Experience.js, and
+  app/components/sheets/Intro.js, loading as their own chunks via
+  next/dynamic({ ssr:false }). `screen` always initializes to the literal
+  "suggested" (deep links flip it in a useEffect, never synchronously),
+  and `introOpen` starts false, so this is the same safe pattern as every
+  earlier phase.
+- Two more exclusive helpers moved with their screens: `tasteBoost`
+  (map's default ranking blend) and `IntroIcon` + its `INTRO_PATHS` icon
+  data table (the intro overlay's only consumer).
+- Every boundary was independently re-verified against the file (not just
+  taken from the inventory agent's report) before any code moved, given
+  the off-by-one lesson from G3 — zero syntax errors on the first
+  check:jsx run this time.
+- This closes the home.js decomposition (G0-G4): home.js started this
+  project at 8,559 lines and one 1,133-line render function; it now sits
+  at roughly 6,400 lines with 15 focused screen/sheet components extracted
+  behind lazy, idle-prefetched dynamic imports and a single ctx prop
+  carrying state/callbacks down from PageInner. All content guardrails
+  (cards/copy/cta/ux/moment/auth/meals/lodging/radius/canon) keep passing
+  unmodified throughout, because G0 pointed them at the concatenated shell
+  instead of home.js alone.
+
+## v5.47 - the detail sheet leaves the monolith (G3)
+- The place-detail bottom sheet — Wayfind's core, most-used UI surface,
+  ~630 lines — now lives in app/components/sheets/Detail.js and loads as
+  its own chunk via next/dynamic({ ssr:false }). `detail` starts null, so
+  this is the same safe pattern as every other extraction.
+- Five helpers used exclusively by the detail sheet moved with it:
+  galleryBtn, InfoChip, WorthTheDriveWidget, compass, insightSane.
+  betterAlternatives/similarPlaces/relatedPicks stayed in home.js instead
+  (they close over the module-scope EXPERIENCES table) and flow through
+  ctx like everything else, avoiding an entanglement that would have
+  forced EXPERIENCES itself into kit.js for no real benefit.
+- This extraction got extra scrutiny beyond the ctx pattern: the free-identifier
+  list was built three independent ways (an inventory agent, a manual
+  line-by-line read that caught one gap the agent missed —
+  `insightFullLoading` — and a script-based token diff against every
+  declared/imported/ctx name) before touching home.js. Caught and fixed
+  two off-by-one extraction bugs (InfoChip and insightSane were both
+  missing their closing braces after the initial cut) via check:jsx
+  before they ever reached a commit.
+- Known gap, documented rather than papered over: test:e2e builds with
+  placeholder Maps/Supabase keys, so no place data loads and `detail`
+  never actually opens during automated tests — same limitation already
+  noted in tests/e2e/deeplinks.spec.js for search results. The static
+  verification above is what stands in for runtime coverage here.
+- home.js: ~7,510 -> ~6,820 lines.
+
+## v5.46 - four sheets leave the monolith (G2)
+- hookDetail (the themed Best-of/Top-5/Skip list sheet), the account sheet,
+  the app-tile menu sheet (6 sub-states: menu/community/explore/pick/
+  experiences/weather), and the auth sheet (sign in/up + the separate
+  password-recovery-link sheet) now live in app/components/sheets/* and
+  load as their own chunks via next/dynamic({ ssr:false }). All four are
+  user-triggered only (dice/avatar/hamburger/sign-in taps) so SSR never
+  paints them.
+- Same ctx pattern as G1: sheets are render-only, every hook (including
+  the useDialogFocus calls for account/auth/recovery) stays in PageInner.
+  sheetBg/sheet (the shared sheet style objects) moved into kit.js since
+  every sheet needs them; sheetDragStart/Move/End stay PageInner-local
+  (they close over a ref) and pass through ctx.
+- All 4 sheet chunks join the existing G1 idle-prefetch list, so the first
+  tap on any sheet trigger never waits on the network.
+- home.js: ~7,950 -> ~7,510 lines. check-auth (the auth flow's own
+  guardrail) still passes untouched, proving the extraction preserved the
+  forgot-password link, recovery handler, and new-password sheet contract.
+
+## v5.45 - six screens leave the monolith (G1)
+- Surprise, Coupons, Saved (all three branches), Itinerary (both branches),
+  Shared, and Events (+EventArt/EventCard, its only consumers) now live in
+  app/components/screens/* and load as their own chunks via
+  next/dynamic({ ssr:false }). Safe by construction: `screen` initializes
+  to "suggested" and these render only on user action, so SSR never paints
+  them and hydration cannot mismatch.
+- Screens are render-only. Every hook stays in PageInner; state, callbacks,
+  and the module-scope helpers the screens render with (PlaceCard,
+  CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, event
+  helpers...) arrive through one `ctx` prop. Zero hook-order risk.
+- All six chunks are prefetched at first idle (requestIdleCallback, 2.5s
+  fallback), so the first tap on the dice, Favorites, or Events never
+  waits on the network; until then each shows the standard Loader.
+- New tests/e2e/screens.spec.js: drives every extracted screen through the
+  real bottom nav in one page (a broken dynamic import can never ship),
+  the empty-search -> Surprise route, and axe on the extracted surfaces.
+- home.js: 8,559 -> ~7,950 lines. The content guardrails keep passing
+  untouched because they grep the shell concat (that was G0's point).
+
+## v5.44 - decomposition enablers: the home shell, a bundle budget, and the shared kit (G0)
+- First step of the home.js decomposition (owner-roadmap item 6; lifts the
+  Lighthouse ceiling). Zero behavior change by design - this phase only
+  builds the rails the extractions (G1-G4) run on.
+- scripts/lib/shellSrc.mjs: the 9 content guardrails (cards/copy/cta/ux/
+  moment/auth/meals/lodging/radius) now grep the concatenated "home shell"
+  (home.js + kit + future screens/sheets), so moving code between shell
+  files never breaks a contract while deleting it still fails the build.
+  check-version/canon/seo/gate stay pinned to home.js on purpose (BUILD_ID,
+  CANON_ORIGIN, loader copy, data-fetch wiring must not migrate out).
+- scripts/check-bundle.mjs (in audit:regression): gzipped JS budget for the
+  "/" route from the real build manifest - route chunk 175KB, total 325KB,
+  measured baseline 172.4/321.1KB. Ratchets DOWN each extraction phase.
+  (Note: the earlier "241KB route chunk" figure came from the next build
+  table; this gate measures gzip of the emitted assets directly.)
+- app/components/kit.js: first tranche of shared stateless helpers out of
+  home.js (C tokens, CAT_* maps, SHEET_EASE, EMOJIS, GlowPin, Grabber,
+  KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars,
+  moonPhase, weatherFromCode, hourIcon) - eager import, so no bundle or
+  behavior delta; screens/sheets extracted later import these directly.
+- check:jsx and check-dupes now cover the new shell files (check-dupes via
+  shellFiles(), so future screens/sheets are covered automatically).
+
 ## v5.43 - fail-closed crons + RLS hardening draft (static security review)
 - /api/cron ran fully PUBLIC whenever CRON_SECRET was unset (the guard was
   inside `if (secret)`), leaking signup stats and letting anyone trigger

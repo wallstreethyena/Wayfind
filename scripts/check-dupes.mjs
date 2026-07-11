@@ -3,7 +3,10 @@
 // but kills the Vercel build ("the name X is defined multiple times"). This
 // catches that class before any compile. Exit 1 on any duplicate.
 import { readFileSync } from "fs";
-const FILES = ["app/home.js", "app/p/[id]/page.js", "app/l/[key]/page.js", "app/components/MapView.js", "lib/google.js", "lib/ranking.js", "lib/dining.js", "lib/tags.js", "lib/categories.js", "lib/trips.js", "lib/supabase.js"];
+import { shellFiles } from "./lib/shellSrc.mjs";
+// G0: shellFiles() is home.js + kit.js + every extracted screen/sheet, so new
+// shell files are covered here automatically as the decomposition proceeds.
+const FILES = [...shellFiles(), "app/p/[id]/page.js", "app/l/[key]/page.js", "app/components/MapView.js", "lib/google.js", "lib/ranking.js", "lib/dining.js", "lib/tags.js", "lib/categories.js", "lib/trips.js", "lib/supabase.js"];
 let bad = 0;
 for (const f of FILES) {
   let src; try { src = readFileSync(f, "utf8"); } catch { continue; }

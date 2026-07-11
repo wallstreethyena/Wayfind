@@ -2,7 +2,8 @@
 // generator once shipped phrases like "easy add to the plan" and "review
 // strength"; this gate makes that class of copy a build failure forever.
 import { readFileSync } from "fs";
-const s = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+import { shellSrc } from "./lib/shellSrc.mjs";
+const s = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 const BANNED = [
   "easy add to the plan",
   "rated near the top",

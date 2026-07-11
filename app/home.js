@@ -17,6 +17,49 @@ import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
+// G1 (July 2026 decomposition): non-default screens ship in their own chunks.
+// `screen` initializes to "suggested" and these render only on user action, so
+// ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
+// first idle (see the SCREEN_LOADERS effect in PageInner), so switching
+// screens never waits on the network in practice.
+const loadSurprise = () => import("./components/screens/Surprise");
+const loadCoupons = () => import("./components/screens/Coupons");
+const loadSaved = () => import("./components/screens/Saved");
+const loadItinerary = () => import("./components/screens/Itinerary");
+const loadShared = () => import("./components/screens/Shared");
+const loadEventsScreen = () => import("./components/screens/Events");
+// G2: the sheets (hookDetail/account/menu/auth) are also user-triggered only
+// and never SSR'd — same ssr:false safety as the screens above.
+const loadHookDetail = () => import("./components/sheets/HookDetail");
+const loadAccount = () => import("./components/sheets/Account");
+const loadMenu = () => import("./components/sheets/Menu");
+const loadAuth = () => import("./components/sheets/Auth");
+// G3: the place-detail sheet — `detail` starts null, so this is the same
+// user-triggered-only, never-SSR'd pattern as every other extraction here.
+const loadDetail = () => import("./components/sheets/Detail");
+// G4: `screen` always initializes to the literal "suggested" (never read
+// from the URL synchronously — deep links flip it in a useEffect), and
+// `introOpen` starts false, so map/experience/intro get the same safe
+// ssr:false treatment as everything above.
+const loadMap = () => import("./components/screens/Map");
+const loadExperience = () => import("./components/screens/Experience");
+const loadIntro = () => import("./components/sheets/Intro");
+const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro];
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, ...SHEET_LOADERS];
+const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const ItineraryScreen = nextDynamic(loadItinerary, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SharedScreen = nextDynamic(loadShared, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const EventsScreen = nextDynamic(loadEventsScreen, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const MapScreen = nextDynamic(loadMap, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const ExperienceScreen = nextDynamic(loadExperience, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const HookDetailSheet = nextDynamic(loadHookDetail, { ssr: false, loading: () => null });
+const AccountSheet = nextDynamic(loadAccount, { ssr: false, loading: () => null });
+const MenuSheet = nextDynamic(loadMenu, { ssr: false, loading: () => null });
+const AuthSheet = nextDynamic(loadAuth, { ssr: false, loading: () => null });
+const DetailSheet = nextDynamic(loadDetail, { ssr: false, loading: () => null });
+const IntroSheet = nextDynamic(loadIntro, { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
 import * as Tags from "../lib/tags";
@@ -28,15 +71,12 @@ import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
+// July 2026 decomposition (G0): design tokens and stateless helpers live in the
+// eager shared kit so extracted screens/sheets can import them without home.js.
+import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.43";
-const C = {
-  bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
-  accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
-  red: "#EF4444", purple: "#FF8A3D", pink: "#F472B6", gold: "#FBBF24",
-  text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
-};
+const BUILD_ID = "v5.48";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // Fill these in AFTER you are approved, then redeploy and the links go live
 // automatically. Nothing here is secret; affiliate ids appear in public URLs.
@@ -56,30 +96,7 @@ function ticketUrl(url) {
   if (!url || !AFFIL.ticketmasterParam) return url;
   try { return url + (url.indexOf("?") >= 0 ? "&" : "?") + AFFIL.ticketmasterParam; } catch { return url; }
 }
-const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
-// Each category gets its own accent color, used on the selected category tab.
-const CAT_COLOR = {
-  food: { c: "#F97316", dim: "rgba(249,115,22,.15)" },
-  nightlife: { c: "#F472B6", dim: "rgba(244,114,182,.15)" },
-  attractions: { c: "#FF8A3D", dim: "rgba(167,139,250,.15)" },
-  beach: { c: "#2DD4BF", dim: "rgba(45,212,191,.15)" },
-  hotels: { c: "#38BDF8", dim: "rgba(56,189,248,.15)" },
-  shopping: { c: "#22C55E", dim: "rgba(34,197,94,.15)" },
-};
-const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
-// A small grab handle at the top of every bottom sheet, so it reads as "pull down to close".
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
-function GlowPin({ size = 26 }) {
-  const s = size;
-  return (
-    <span style={{ position: "relative", width: s + 10, height: s + 10, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(249,115,22,.35)" }} />
-      <span style={{ position: "absolute", inset: -7, borderRadius: "50%", border: "1px solid rgba(249,115,22,.18)" }} />
-      <span style={{ position: "absolute", inset: -3, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.4) 0%, transparent 70%)" }} />
-      <svg width={s} height={s} viewBox="0 0 24 24" style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(249,115,22,.5))" }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#fff" /></svg>
-    </span>
-  );
-}
 function iconForPlace(p) {
   const h = ((((p && p.name) || "") + " " + (((p && p.types) || []).join(" "))).toLowerCase());
   const T = [["burger|white castle|shake shack|five guys|mcdonald|wendy|hamburger", "\uD83C\uDF54"], ["pizza", "\uD83C\uDF55"], ["taco|mexican|burrito", "\uD83C\uDF2E"], ["sushi|japanese|ramen", "\uD83C\uDF63"], ["chinese|noodle|wok", "\uD83E\uDD61"], ["italian|pasta", "\uD83C\uDF5D"], ["coffee|cafe|espresso", "\u2615"], ["bakery|donut|doughnut|pastry", "\uD83E\uDD50"], ["ice cream|gelato", "\uD83C\uDF66"], ["bbq|barbecue|smokehouse", "\uD83C\uDF56"], ["seafood|crab|lobster|oyster", "\uD83E\uDD9E"], ["steak|churrasc|brazilian", "\uD83E\uDD69"], ["breakfast|brunch|pancake|waffle", "\uD83E\uDD5E"], ["night_club|cocktail|lounge|pub|brewery|\\bbar\\b", "\uD83C\uDF78"], ["wine", "\uD83C\uDF77"], ["hotel|resort|lodging|\\binn\\b", "\uD83C\uDFE8"], ["beach", "\uD83C\uDFD6\uFE0F"], ["park|garden|trail", "\uD83C\uDF33"], ["museum|gallery", "\uD83C\uDFDB\uFE0F"], ["theater|theatre|cinema", "\uD83C\uDFAD"], ["mall|boutique|market|shopping|store", "\uD83D\uDECD\uFE0F"], ["aquarium", "\uD83D\uDC20"], ["zoo|wildlife", "\uD83E\uDD81"], ["golf", "\u26F3"]];
@@ -170,70 +187,6 @@ function withMemberSignal(list, sig) {
 // is gone by product direction — a list's map icon opens Wayfind's own map.
 // Per-place turn-by-turn stays on each place's explicit Directions button.
 
-// v4.32 — Robust single-destination directions link. detail.mapsUrl is keyed by
-// query_place_id, which only resolves for genuine Google Place IDs. Places from
-// town notes, events, staples, and culture cards carry synthetic ids, so their
-// place_id URL opens a broken Google Maps search. This picks the resolvable form:
-// a real Google Place ID uses the place_id search; otherwise route by name and,
-// when present, coordinates, which Google always resolves. Coordinates alone are
-// the final fallback.
-function directionsUrl(p) {
-  if (!p) return null;
-  const looksLikePlaceId = typeof p.id === "string" && /^ChIJ|^GhIJ|^Eh|^0x/.test(p.id) && p.id.length >= 20;
-  if (looksLikePlaceId) return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name || "")}&query_place_id=${encodeURIComponent(p.id)}`;
-  const hasCoords = p.lat != null && p.lng != null;
-  // v4.94: secondary-source places (fsq/osm/ridb) may not exist under that
-  // name on Google Maps — a name search dead-ends on a blank map. Their
-  // coordinates always resolve, so directions open the exact pin instead.
-  if (hasCoords && typeof p.id === "string" && /^(fsq|osm|ridb|nps):/.test(p.id)) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-  if (p.name) {
-    const q = encodeURIComponent(p.name + (p.address ? " " + p.address : ""));
-    return hasCoords
-      ? `https://www.google.com/maps/search/?api=1&query=${q}&center=${p.lat},${p.lng}`
-      : `https://www.google.com/maps/search/?api=1&query=${q}`;
-  }
-  if (hasCoords) return `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
-  return p.mapsUrl || null;
-}
-// v5.37 (July 2026 audit, Phase 5): real dialog behavior for overlays.
-// While `open` is true the referenced card gets initial focus, a trapped
-// Tab loop, Escape-to-close, and focus restoration to whatever had focus
-// before it opened. Pair it with role="dialog" aria-modal aria-label
-// tabIndex={-1} on the card div itself.
-function useDialogFocus(open, ref, onClose) {
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-  useEffect(() => {
-    if (!open) return;
-    const node = ref.current;
-    const prev = typeof document !== "undefined" ? document.activeElement : null;
-    if (node) { try { node.focus({ preventScroll: true }); } catch (e) {} }
-    const onKey = (e) => {
-      if (e.key === "Escape") { e.stopPropagation(); if (closeRef.current) closeRef.current(); return; }
-      if (e.key !== "Tab" || !node) return;
-      const f = node.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])');
-      if (!f.length) { e.preventDefault(); return; }
-      const first = f[0], last = f[f.length - 1];
-      if (e.shiftKey && (document.activeElement === first || document.activeElement === node)) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    };
-    document.addEventListener("keydown", onKey, true);
-    return () => {
-      document.removeEventListener("keydown", onKey, true);
-      try { if (prev && prev.focus && document.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {}
-    };
-  }, [open]);
-}
-
-const KB_CLICK = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.currentTarget.click(); } }; // v5.38: keyboard activation for role="button" divs
-
-function Grabber() {
-  return (
-    <div style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "9px 0 5px" }}>
-      <div style={{ width: 38, height: 5, borderRadius: 99, background: "#3A4453" }} />
-    </div>
-  );
-}
 const DEFAULT_CENTER = { lat: 27.5689, lng: -82.4393, name: "Parrish, FL" };
 const FEATURED_AREAS = [];
 
@@ -266,7 +219,6 @@ function dynamicSubline(weather) {
   if (h < 15) return "Lunch and midday picks near you";
   return "Today's top picks near you";
 }
-const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#FF8A3D", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
 
 // Lowercased description + review text per place id, filled in when we prefetch
 // the top results. Lets the badge engine read evidence like "on the waterfront
@@ -275,17 +227,6 @@ const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#F
 // Google attributes. Nothing here is invented.
 const HINTS = {};
 const OFFERS = {};
-function offerLabel(o) {
-  if (!o) return "Offer";
-  const t = (o.offer_type || "").toLowerCase();
-  if (t.indexOf("happy") >= 0) return "Happy hour";
-  if (t.indexOf("kids") >= 0) return "Kids eat free";
-  if (t.indexOf("bogo") >= 0) return "2 for 1";
-  if (t.indexOf("percent") >= 0 || t.indexOf("%") >= 0) return "Save today";
-  if (t === "partner" || o.source === "partner") return "Partner offer";
-  return "Offer";
-}
-const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
 
 // Signal engine — captures like/dislike/open/save per place, drives personalised ranking.
 // All data stays on-device (localStorage) until the user opts in by signing up.
@@ -483,20 +424,6 @@ function randCode() {
   return out;
 }
 
-function galleryBtn(side) {
-  return {
-    position: "absolute", top: "50%", transform: "translateY(-50%)", [side]: 8,
-    width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.25)",
-    background: "rgba(13,17,23,.55)", color: "#fff", fontSize: 20, lineHeight: 1,
-    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-  };
-}
-
-function stars(r) {
-  if (!r) return "";
-  return "★".repeat(Math.floor(r)) + (r % 1 >= 0.5 ? "½" : "");
-}
-
 const LINE_TTL = 30 * 24 * 3600 * 1000; // 30 days
 function allCachedLines() {
   try { return JSON.parse(localStorage.getItem("wf_lines") || "{}"); } catch { return {}; }
@@ -592,18 +519,6 @@ function placeShareUrl(p, loc, hook) {
   if (sl && sl.s != null) add("sc", sl.s);
   return originUrl("/p/" + encodeURIComponent(p.id) + (q.length ? "?" + q.join("&") : ""));
 }
-function scoreLabel(wf) {
-  if (wf == null) return null;
-  const s = (wf / 10).toFixed(1);
-  let word = "Fair";
-  if (wf >= 95) word = "Exceptional";
-  else if (wf >= 90) word = "Excellent";
-  else if (wf >= 85) word = "Great";
-  else if (wf >= 80) word = "Very good";
-  else if (wf >= 70) word = "Good";
-  return { s, word };
-}
-
 function greetingText() {
   const h = new Date().getHours();
   if (h < 12) return "Good morning";
@@ -621,29 +536,6 @@ function picksHeader(cat) {
   if (cat === "hotels") return "Top places to stay";
   if (cat === "shopping") return "Best shopping nearby";
   return `Top picks ${part}`;
-}
-
-// WMO weather code to a small icon and word. Used with the free, keyless
-// Open-Meteo API so Wayfind can show local weather and reason about it.
-function hourIcon(code, isDay, ms) {
-  // At night, clear/partly conditions show the actual moon phase; precip keeps its icon.
-  const w = weatherFromCode(code);
-  if (!isDay && (code === 0 || code === 1 || code === 2)) { const m = moonPhase(new Date(ms)); return { icon: m.emoji, label: m.name }; }
-  return { icon: w.icon, label: w.label };
-}
-function weatherFromCode(code) {
-  const c = Number(code);
-  if (c === 0) return { icon: "☀️", img: "sunny", label: "Clear", warm: true };
-  if (c === 1 || c === 2) return { icon: "🌤️", img: "partly", label: "Partly cloudy", warm: true };
-  if (c === 3) return { icon: "☁️", img: "cloudy", label: "Overcast" };
-  if (c === 45 || c === 48) return { icon: "🌫️", img: "cloudy", label: "Fog" };
-  if (c >= 51 && c <= 57) return { icon: "🌦️", img: "rain", label: "Drizzle", wet: true };
-  if (c >= 61 && c <= 67) return { icon: "🌧️", img: "rain", label: "Rain", wet: true };
-  if (c >= 71 && c <= 77) return { icon: "❄️", img: "snow", label: "Snow", wet: true };
-  if (c >= 80 && c <= 82) return { icon: "🌦️", img: "rain", label: "Showers", wet: true };
-  if (c >= 85 && c <= 86) return { icon: "🌨️", img: "snow", label: "Snow", wet: true };
-  if (c >= 95) return { icon: "⛈️", img: "storm", label: "Storms", wet: true };
-  return { icon: "🌡️", img: "cloudy", label: "" };
 }
 
 // A clean, honest one-liner built only from a place's stats. Used instantly and
@@ -940,9 +832,6 @@ function featuredBoost(name) {
 function tasteBump(place) {
   try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); localStorage.setItem("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
 }
-function tasteBoost(place) {
-  try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
-}
 
 // v1.8: hard category gate for intent-specific meal searches. A breakfast search
 // must not surface generic "Food" places with no breakfast evidence. Evidence is
@@ -1101,27 +990,6 @@ const MOMENT_GROUPS = [
   { label: "Who's going", ids: ["family", "date", "friends", "visitors"] },
   { label: "The vibe", ids: ["outside", "locals", "rainy", "surprise"] },
 ];
-const INTRO_PATHS = {
-  family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
-  date: "M12 20s-7-4.4-9.2-8.6C1.2 8.3 3.2 5 6.4 5c2 0 3.4 1.1 4.1 2.4l1.5 2.4 1.5-2.4C14.2 6.1 15.6 5 17.6 5c3.2 0 5.2 3.3 3.6 6.4C19 15.6 12 20 12 20Z",
-  friends: "M8.5 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.5 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2.5 19.5c0-2.7 2.7-4.5 6-4.5 1.7 0 3.2.5 4.2 1.3M15 15.1c3.1.1 5.5 1.9 5.5 4.4",
-  twohrs: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-13v5l3.2 2",
-  outside: "M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8-1.4 1.4m-10 10-1.4 1.4",
-  locals: "M6 3h12l3 5-9 13L3 8l3-5Zm-3 5h18M9.5 3 8 8l4 13m2.5-18L16 8l-4 13",
-  drive: "M5 12l1.6-4.2A2 2 0 0 1 8.5 6.5h7a2 2 0 0 1 1.9 1.3L19 12M5 12h14M5 12a2 2 0 0 0-2 2v3.5h2M19 12a2 2 0 0 1 2 2v3.5h-2m-14 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m8 0V19a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.5m-11 0h8M7.5 14.8h.01m9 0h.01",
-  fifty: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm2.6-11.6c-.4-.9-1.4-1.5-2.6-1.5-1.6 0-2.8.9-2.8 2.1s1 1.7 2.8 2c1.9.3 3 .9 3 2.2 0 1.3-1.3 2.2-3 2.2-1.4 0-2.5-.7-2.9-1.7M12 6.5v11",
-  surprise: "M12 3l1.7 4.6L18 9l-4.3 1.4L12 15l-1.7-4.6L6 9l4.3-1.4L12 3Zm6.5 9 .9 2.3 2.3.9-2.3.9-.9 2.3-.9-2.3-2.3-.9 2.3-.9.9-2.3ZM5 14.5l.7 1.9 1.9.7-1.9.7L5 19.7l-.7-1.9-1.9-.7 1.9-.7.7-1.9Z",
-  visitors: "M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7m-9.5 0h11A1.5 1.5 0 0 1 19 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 17.5v-9A1.5 1.5 0 0 1 6.5 7ZM9 11v4m6-4v4",
-  rainy: "M7 15a4.5 4.5 0 0 1-.9-8.9A5.5 5.5 0 0 1 16.7 7 4 4 0 0 1 17 15H7Zm1.5 3-.8 2.2m4.3-2.2-.8 2.2m4.3-2.2-.8 2.2",
-  wand: "M6 21 17.5 9.5M15 4l.8 2.2L18 7l-2.2.8L15 10l-.8-2.2L12 7l2.2-.8L15 4Zm5.5 5 .5 1.4 1.4.5-1.4.5-.5 1.4-.5-1.4-1.4-.5 1.4-.5.5-1.4ZM8 3.5l.5 1.3 1.3.5-1.3.5L8 7.1l-.5-1.3-1.3-.5 1.3-.5.5-1.3Z",
-  pin: "M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11Zm0-8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z",
-  spark: "M12 2l2 5.5L19.5 9 14 11l-2 5.5L10 11 4.5 9 10 7.5 12 2Zm7 11 .9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9.9-2.4Z",
-  shield: "M12 3l7 2.8v5.4c0 4.5-3 8.1-7 9.8-4-1.7-7-5.3-7-9.8V5.8L12 3Zm-2.5 8.6 1.8 1.9 3.4-3.7",
-};
-function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
-  const d = INTRO_PATHS[k]; if (!d) return null;
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d={d} /></svg>;
-}
 // v4.70 — feelings are queries. "I'm bored" and "somewhere relaxing" must
 // work as searches; each maps to Moment chips so the whole filter engine
 // (radius, price, open-now, indoor) does the heavy lifting.
@@ -1248,17 +1116,6 @@ function experienceBadges(p, selectedKey, max, audit) {
     keys.unshift(selectedKey);
   }
   return keys.slice(0, lim).map((k) => ({ key: k, icon: EXPERIENCES[k].icon, label: EXPERIENCES[k].label }));
-}
-
-// v4.52: AI insight text guard. The insight model occasionally returns meta
-// commentary about categorization ("this is a performing arts theater, not a
-// food establishment...") instead of a real verdict. That must never reach a
-// user. Applied at render time so poisoned cache entries are neutralized too.
-function insightSane(t) {
-  const x = String(t || "").trim();
-  if (!x) return "";
-  if (/not a (food|restaurant|dining)|food establishment|does not belong|browsing category|miscategor|wrong category|as an ai|i cannot|i can't|unable to (assess|evaluate)/i.test(x)) return "";
-  return x;
 }
 
 // The main Wayfind section a place belongs to, read from its Google types.
@@ -1586,15 +1443,6 @@ function StateBadge({ code, size }) {
   );
 }
 
-function InfoChip({ label, value }) {
-  return (
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px" }}>
-      <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>{label}</div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{value}</div>
-    </div>
-  );
-}
-
 const PRICE_WORD = { 0: "Free", 1: "Inexpensive", 2: "Moderate", 3: "Pricey", 4: "High-end" };
 function PriceMeter({ level, word }) {
   if (level == null) return null;
@@ -1629,10 +1477,6 @@ function formatEventDate(dateStr, timeStr) {
 }
 
 // Compass label from degrees (direction the wind/waves come FROM).
-function compass(deg) {
-  const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-  return dirs[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16];
-}
 function isBeach(p) {
   if (!p) return false;
   const t = (((p.types || []).join(" ")) + " " + (p.type || "")).toLowerCase();
@@ -1679,26 +1523,6 @@ function eventSegmentMeta(seg, genre) {
   return { icon: "🎪", short: seg || "Other", color: "#94A3B8" };
 }
 
-// Deterministic lunar phase from a known new-moon epoch. Pure math, no API, no
-// fabrication: same date always yields the same phase.
-function moonPhase(date) {
-  const synodic = 29.530588853;
-  const epochDays = Date.UTC(2000, 0, 6, 18, 14, 0) / 86400000;
-  const nowDays = date.getTime() / 86400000;
-  const age = (((nowDays - epochDays) % synodic) + synodic) % synodic;
-  const illum = Math.round(((1 - Math.cos((2 * Math.PI * age) / synodic)) / 2) * 100);
-  let name, emoji;
-  if (age < 1.85) { name = "New moon"; emoji = "🌑"; }
-  else if (age < 5.54) { name = "Waxing crescent"; emoji = "🌒"; }
-  else if (age < 9.23) { name = "First quarter"; emoji = "🌓"; }
-  else if (age < 12.92) { name = "Waxing gibbous"; emoji = "🌔"; }
-  else if (age < 16.61) { name = "Full moon"; emoji = "🌕"; }
-  else if (age < 20.30) { name = "Waning gibbous"; emoji = "🌖"; }
-  else if (age < 23.99) { name = "Last quarter"; emoji = "🌗"; }
-  else if (age < 27.68) { name = "Waning crescent"; emoji = "🌘"; }
-  else { name = "New moon"; emoji = "🌑"; }
-  return { name, emoji, illum };
-}
 // v5.4: pick the moon image for the current phase; a clouded moon for overcast nights.
 function moonImgName(date, cloudy) {
   if (cloudy) return "moon-cloud";
@@ -2016,58 +1840,6 @@ function EventHeroBg({ image, acc, venue, near }) {
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
-}
-function EventArt({ e, seg, height }) {
-  const [bad, setBad] = useState(false);
-  const acc = (seg && seg.color) || C.accent;
-  if (eventUseImage(e) && !bad) {
-    return <img src={e.image} alt="" loading="lazy" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setBad(true); } catch {} }} style={{ width: "100%", height, objectFit: "cover", display: "block" }} />;
-  }
-  return (
-    <div style={{ width: "100%", height, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${acc}30 0%, #131A24 56%, #0D1117 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ position: "absolute", top: -24, right: -24, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${acc}33 0%, transparent 70%)`, pointerEvents: "none" }} />
-      <div style={{ fontSize: 42, lineHeight: 1, opacity: 0.95 }}>{seg ? seg.icon : null}</div>
-      <div style={{ position: "absolute", bottom: 7, left: 10, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: acc, opacity: 0.92 }}>{seg ? seg.short : "Event"}</div>
-    </div>
-  );
-}
-function EventCard({ e, onVenue }) {
-  const f = formatEventDate(e.date, e.time);
-  const seg = eventCategory(e);
-  const rec = recurrenceLabel(e);
-  const venue = cleanVenueName(e.venue);
-  const cta = eventCTA(e);
-  return (
-    <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
-      <div style={{ position: "relative" }}>
-        <EventArt e={e} seg={seg} height={120} />
-        <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
-          <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
-        </div>
-        {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)" }}>{seg.icon} {seg.short}</div>}
-      </div>
-      <div style={{ padding: "9px 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-        {venue && (
-          <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
-        )}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
-          {rec
-            ? <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
-            : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
-          {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
-        </div>
-        {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
-        <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-          {cta.show
-            ? <a href={ticketUrl(e.url)} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{cta.label}</a>
-            : <span />}
-          {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600, opacity: 0.75 }}>{e.source}</span>}
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function Logo({ size = 26 }) {
@@ -2867,66 +2639,6 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // Interactive voting widget — shows on detail sheets for far-away places or
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
-function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
-  const hasVoted = !!myVote;
-  const total = votes ? (votes.yes || 0) + (votes.no || 0) : 0;
-  const yesPct = total > 0 ? Math.round(((votes.yes || 0) / total) * 100) : 0;
-  return (
-    <div style={{ background: "rgba(56,189,248,.08)", border: "1.5px solid rgba(56,189,248,.35)", borderRadius: 16, padding: "16px 16px", marginBottom: 14 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-        <span style={{ fontSize: 22 }}>🚗</span>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: "#E2E8F0" }}>Worth the drive?</div>
-          {place.distMi != null && <div style={{ fontSize: 12, color: "#64748B" }}>{place.distMi.toFixed(1)} miles from you — weigh in</div>}
-        </div>
-      </div>
-      {!hasVoted ? (
-        <div style={{ display: "flex", gap: 10 }}>
-          <button
-            onClick={() => onVote("yes")}
-            style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #22C55E", background: "rgba(34,197,94,.12)", color: "#22C55E", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
-          >
-            🚗 Yes, worth it
-          </button>
-          <button
-            onClick={() => onVote("no")}
-            style={{ flex: 1, padding: "13px 0", borderRadius: 12, border: "1.5px solid #64748B", background: "transparent", color: "#94A3B8", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-          >
-            🤷 Not really
-          </button>
-        </div>
-      ) : (
-        <div>
-          {total > 0 ? (
-            <>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: yesPct >= 50 ? "#22C55E" : "#EF4444" }}>{yesPct}%</span>
-                <span style={{ fontSize: 12, color: "#64748B" }}>say yes · {total} vote{total === 1 ? "" : "s"} total</span>
-              </div>
-              <div style={{ height: 9, background: "#2D3748", borderRadius: 999, overflow: "hidden", marginBottom: 10 }}>
-                <div style={{ height: "100%", width: `${yesPct}%`, background: yesPct >= 50 ? "#22C55E" : "#EF4444", borderRadius: 999, transition: "width 0.6s ease" }} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5 }}>
-                <span style={{ color: "#22C55E", fontWeight: 700 }}>🚗 {votes.yes || 0} say worth it</span>
-                <span style={{ color: "#64748B" }}>{votes.no || 0} say not really</span>
-              </div>
-              <div style={{ marginTop: 10, fontSize: 12, color: "#64748B", borderTop: "1px solid #2D3748", paddingTop: 8 }}>
-                You voted: <span style={{ fontWeight: 700, color: myVote === "yes" ? "#22C55E" : "#EF4444" }}>{myVote === "yes" ? "✓ Worth the drive" : "✗ Not really"}</span>
-              </div>
-            </>
-          ) : (
-            <div style={{ textAlign: "center", padding: "6px 0" }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: myVote === "yes" ? "#22C55E" : "#94A3B8", marginBottom: 4 }}>
-                {myVote === "yes" ? "🚗 You said it's worth the drive!" : "You said not really. Fair enough."}
-              </div>
-              <div style={{ fontSize: 12, color: "#64748B" }}>Results will show as others weigh in.</div>
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function PageInner() {
   const [screen, setScreen] = useState("suggested");
@@ -4760,13 +4472,13 @@ function PageInner() {
     dialogOpenRef.current = !!(introOpen || gwPop || gwOpen || authOpen || accountOpen || recoveryOpen);
   }, [introOpen, gwPop, gwOpen, authOpen, accountOpen, recoveryOpen]);
   // v5.37 dialog semantics: focus management for every modal overlay.
-  const introDlgRef = useRef(null);
+  // G4 fix: introOpen/accountOpen/authOpen/recoveryOpen's dialogs now live in
+  // next/dynamic({ssr:false}) sheet components — useDialogFocus's ref would be
+  // null on the tick this effect first ran (the chunk hadn't mounted its DOM
+  // yet), so those four now own useDialogFocus internally instead. Only the
+  // still-inline giveaway dialogs keep their refs/hook calls here.
   const gwPopDlgRef = useRef(null);
   const gwRulesDlgRef = useRef(null);
-  const authDlgRef = useRef(null);
-  const accountDlgRef = useRef(null);
-  const recoveryDlgRef = useRef(null);
-  const closeIntro = () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); };
   // v5.37: Escape closes the topmost user-invoked sheet too (the six main
   // dialogs above trap their own Escape; this chain covers the rest, in
   // z-order: lightbox 1000 > cuisine 95 > the zIndex-900 sheet family).
@@ -4789,12 +4501,8 @@ function PageInner() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox, cuisineSheet, allExpOpen, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
-  useDialogFocus(introOpen, introDlgRef, closeIntro);
   useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
   useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
-  useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
-  useDialogFocus(accountOpen, accountDlgRef, () => setAccountOpen(false));
-  useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
   // v5.37: "value seen" — results actually rendered for this visitor. The
   // giveaway waits for this signal (see the coordinator by gwPop above).
   useEffect(() => {
@@ -5646,6 +5354,54 @@ function PageInner() {
     </>
   );
 
+  // G1: fetch every extracted screen chunk at first idle, so the first tap on
+  // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
+  useEffect(() => {
+    const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
+    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
+    return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
+  }, []);
+
+  // G1: the one ctx bag handed to the extracted screens. Every hook stays in
+  // PageInner — screens are render-only and read state/callbacks/module
+  // helpers from here. Add members as later phases extract more surfaces.
+  const ctx = {
+    // shared navigation + card actions
+    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, logEvent,
+    // module-scope components + helpers the screens render with
+    PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
+    // surprise
+    surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise,
+    // coupons
+    cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, walletOpen, setWalletOpen,
+    // saved
+    activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    // itinerary
+    activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
+    // shared list
+    sharedList, setSharedList,
+    // events
+    events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, eventSegmentMeta, dedupeEvents, formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, eventCTA, ticketUrl, eventUseImage,
+    // sheets (G2): drag-to-dismiss handlers shared by every sheet
+    sheetDragStart, sheetDragMove, sheetDragEnd,
+    // hookDetail sheet
+    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl,
+    // account sheet
+    accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
+    // menu sheet (6 sub-states incl. weather)
+    menuSheet, setMenuSheet, pickCat, openSurprise, SheetHero, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
+    // auth + password-recovery sheets
+    authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword,
+    // detail sheet (G3)
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach,
+    // map screen (G4)
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
+    // experience badge screen (G4)
+    activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail,
+    // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
+    introOpen, setIntroOpen, introSel, setIntroSel,
+  };
+
   return (
     <div style={shell}>
     <div style={{ ...wrap, maxWidth: isDesktop ? 1040 : 480 }}>
@@ -5774,158 +5530,7 @@ function PageInner() {
       <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(48px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
-            {screen === "map" && (() => {
-              const dateChips = [];
-              const now = new Date();
-              for (let i = 0; i < 14; i++) {
-                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
-                const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                dateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
-              }
-              let mapEvents = [];
-              if (mapMode === "events") {
-                const src = (events || []).filter((e) => e.lat != null && e.lng != null && (mapDate === "all" || e.date === mapDate));
-                const seen = new Set();
-                for (const e of src) { const k = `${e.lat.toFixed(3)},${e.lng.toFixed(3)}`; if (!seen.has(k)) { seen.add(k); mapEvents.push(e); } }
-              }
-              const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.accent : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
-              return (
-                <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
-                    <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
-                      {/* v5.08 (user direction): the map menu never fully
-                          collapses — the primary tile row stays; only the
-                          sub-row expands down after a category is chosen. */}
-                      {(<>
-                      <CategoryMenu activeCat={mapBrowse ? cat : null} sub={sub} onCat={(id, label) => { setMapBrowse(true); try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} if (cat !== id || !mapBrowse) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen((v) => !v)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
-                      </>)}
-                    </div>
-                  </div>
-                  <MapView fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                  <div style={{ position: "absolute", top: 212, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
-                    {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.accent : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
-                    <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.accent : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
-                  </div>
-                  {mapMode === "places" && (
-                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 292, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.accent : "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
-                      <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
-                        <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
-                        <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
-                      </span>
-                    </button>
-                  )}
-                  {mapMode === "places" && (
-                    <div style={{ position: "absolute", bottom: 118, right: 12, zIndex: 5, background: "rgba(22,27,34,.82)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: `1px solid ${C.border}`, borderRadius: 12, padding: "8px 10px", boxShadow: "0 4px 16px rgba(0,0,0,.45)", display: "flex", flexDirection: "column", gap: 5 }}>
-                      {[["#FBBF24", "Top pick"], ["#4C8DFF", "Open"], ["#5B6675", "Closed"]].map((row) => (
-                        <div key={row[1]} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                          <span style={{ width: 9, height: 9, borderRadius: "50%", background: row[0], flexShrink: 0, boxShadow: "0 0 0 1px rgba(0,0,0,.3)" }} />
-                          <span style={{ fontSize: 10.5, fontWeight: 700, color: C.light, whiteSpace: "nowrap" }}>{row[1]}</span>
-                        </div>
-                      ))}
-                      <div style={{ marginTop: 3, paddingTop: 5, borderTop: `1px solid ${C.border}`, fontSize: 9.5, fontWeight: 700, color: C.muted, whiteSpace: "nowrap" }}>Numbered by rank</div>
-                    </div>
-                  )}
-                  {mapMode === "events" && (
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 64, zIndex: 5, padding: "0 12px" }}>
-                      {!eventsLoading && !eventsUnavailable && (
-                        <div style={{ fontSize: 11.5, color: "#fff", fontWeight: 700, textAlign: "center", marginBottom: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>{mapEvents.length} venue{mapEvents.length === 1 ? "" : "s"}{mapDate === "all" ? " coming up" : " that day"}</div>
-                      )}
-                      <div style={{ display: "flex", gap: 6, overflowX: "auto", background: "rgba(13,17,23,.9)", border: `1px solid ${C.border}`, borderRadius: 14, padding: 8, WebkitOverflowScrolling: "touch" }}>
-                        <button onClick={() => setMapDate("all")} style={tchip(mapDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 13 }}>All</div></button>
-                        {dateChips.map((d) => (
-                          <button key={d.value} onClick={() => setMapDate(d.value)} style={tchip(mapDate === d.value)}><div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div><div style={{ fontSize: 13 }}>{d.day}</div></button>
-                        ))}
-                      </div>
-                      {eventsUnavailable && <div style={{ fontSize: 11.5, color: "#fff", textAlign: "center", marginTop: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>Add a Ticketmaster key in Vercel to switch events on.</div>}
-                    </div>
-                  )}
-                  {mapMode !== "events" && mapPreview && (() => {
-                    const mp = mapPreview;
-                    const sl = scoreLabel(mp.wfScore);
-                    const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
-                    const openList = (view || []).filter((x) => x && x.openNow === true && x.distMi != null);
-                    const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
-                    let tag = null;
-                    if (closestOpen && closestOpen.id === mp.id) tag = { t: "Closest open spot", c: C.green };
-                    else if (mp.distMi != null && mp.distMi >= 25 && (mp.rating || 0) >= 4.5) tag = { t: "Worth the drive", c: C.gold };
-                    return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
-                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openDetail(mp)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={mp.photo} icon="📍" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{mp.name}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
-                                {sl && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{sl.word}</span>}
-                                {mp.rating && <span style={{ color: "#F59E0B", fontSize: 12 }}>★ {mp.rating}</span>}
-                                {liveOpen(mp) === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
-                                {liveOpen(mp) === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>· ≈ {Math.max(4, Math.round((mp.distMi * 1.3 / 28) * 60) + 3)} min drive</span>}
-                              </div>
-                              {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: tag ? 4 : 5 }}>See details →</div>
-                            </div>
-                          </div>
-                          <button onClick={(ev) => { ev.stopPropagation(); setMapPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {mapMode === "events" && eventPreview && (() => {
-                    const ev = eventPreview;
-                    const dl = ev.date ? (() => { try { return new Date(ev.date + "T00:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); } catch { return ev.date; } })() : "";
-                    return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
-                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openVenue(ev)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={ev.image} icon="🎫" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{ev.name}</div>
-                              {(dl || ev.time) && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 4 }}>{dl}{ev.time ? " · " + ev.time : ""}</div>}
-                              {ev.venue && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {ev.venue}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, marginTop: 5 }}>View venue →</div>
-                            </div>
-                          </div>
-                          <button onClick={(ev2) => { ev2.stopPropagation(); setEventPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  {mapMode === "places" && !mapPreview && view.length > 0 && (
-                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, zIndex: 7, background: C.panel, borderTop: `1px solid ${C.border}`, borderRadius: "16px 16px 0 0", boxShadow: "0 -8px 30px rgba(0,0,0,.5)", maxHeight: mapDrawer ? "60%" : 48, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                      <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "7px auto 5px" }} />
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7, paddingBottom: 8 }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{view.length} place{view.length === 1 ? "" : "s"} {sortBy === "near" ? "nearest first" : "ranked by fit"}</span>
-                          <span style={{ fontSize: 12, color: C.accent, fontWeight: 800 }}>{mapDrawer ? "▾" : "▴"}</span>
-                        </div>
-                      </button>
-                      {mapDrawer && (
-                        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px" }}>
-                          {view.map((p, i) => (
-                            <div key={p.id} onClick={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < view.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                              <div style={{ flexShrink: 0, width: 24, textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent }}>{i + 1}</div>
-                              <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
-                                  {p.rating && <span style={{ color: "#F59E0B", fontSize: 11.5 }}>★ {p.rating}</span>}
-                                  {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open</span>}
-                                  {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
-                                  {p.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                                </div>
-                              </div>
-                              <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+            {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
         {screen === "suggested" && (() => {
@@ -6475,639 +6080,16 @@ function PageInner() {
           );
         })()}
 
-        {screen === "surprise" && (() => {
-          const p = surprisePick;
-          const sl = p ? scoreLabel(p.wfScore) : null;
-          const badges = p ? experienceBadges(p).slice(0, 2) : [];
-          const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
-          // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
-          const period = (() => { const hr = new Date().getHours(); return hr < 12 ? "Morning" : hr < 17 ? "Afternoon" : "Evening"; })();
-          const sOpen = !!(p && p.openNow === true);
-          const sOpensLater = !!(p && p.openNow === false && p.nextOpen && p.nextOpen.today);
-          const sSub = sOpen ? "Open now, nearby, and worth your time."
-            : sOpensLater ? (p.nextOpen.label + " · a strong pick for a little later.")
-            : "A top pick nearby, chosen for rating, distance, and fit.";
-          // v5.0: state-aware primary action. Never tell someone to drive to a closed place.
-          const openAlt = surprisePool.find((o) => o && o.openNow === true && (!p || o.id !== p.id)) || null;
-          const goMaps = () => { if (p && p.mapsUrl) window.open(p.mapsUrl, "_blank", "noopener"); else if (p) openDetail(p); };
-          let primaryLabel = "Take me there →";
-          let primaryAction = goMaps;
-          if (p && !sOpen) {
-            if (sOpensLater) { primaryLabel = "Plan for " + p.nextOpen.label.replace(/^opens\s+/i, "") + " →"; primaryAction = goMaps; }
-            else { primaryLabel = isSaved(p.id) ? "Saved ✓" : "Save for later →"; primaryAction = () => quickSaveFavorite(p); }
-          }
-          const sWhy = [];
-          if (p) {
-            if (sOpen) sWhy.push("open now");
-            else if (sOpensLater) sWhy.push("opens " + p.nextOpen.label.replace(/^opens\s+/i, "").trim());
-            if (p.rating != null && p.rating >= 4.5) sWhy.push("local favorite");
-            else if (sl && sl.word) sWhy.push(sl.word.toLowerCase() + " rated");
-            if (p.distMi != null && p.distMi <= 20) sWhy.push("close enough");
-            sWhy.push("strong " + period.toLowerCase() + " option");
-          }
-          return (
-            <div>
-              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 10 }}>‹ Back</div>
-              <div style={{ paddingBottom: 4 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, lineHeight: 1.45 }}>{sSub}</div>
-              </div>
-              {surpriseLoading && <Loader label="Finding something good" pad="16px 2px" />}
-              {!surpriseLoading && !p && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>✨</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing to suggest right now</strong>
-                  <span style={{ fontSize: 13 }}>Try a different area.</span>
-                </div>
-              )}
-              {!surpriseLoading && p && (
-                <div>
-                  <div onClick={() => openDetail(p)} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
-                    <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 168, objectFit: "cover", display: "block" }} />
-                    <div style={{ padding: 13 }}>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>{p.name}</div>
-                      {p.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 4, lineHeight: 1.4 }}>📍 {p.address}</div>}
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
-                        {sl && <span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{sl.word}</span>}
-                        {sl && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{sl.s}/10</span>}
-                        {p.rating && <span style={{ color: "#F59E0B", fontSize: 13 }}>★ {p.rating}{p.reviews ? ` (${p.reviews.toLocaleString()})` : ""}</span>}
-                        {liveOpen(p) === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>Open now</span>}
-                        {liveOpen(p) === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
-                        {p.price && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· {p.price}</span>}
-                        {cuisineLabel && <span style={{ fontSize: 12, color: C.muted }}>· {cuisineLabel}</span>}
-                        {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                      </div>
-                      {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
-                      {badges.length > 0 && (
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
-                          {badges.map((b) => (
-                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
-                          ))}
-                        </div>
-                      )}
-                      {blurbs[p.id] && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45, marginTop: 10 }}>{blurbs[p.id]}</div>}
-                    </div>
-                  </div>
-                  <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
-                  <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    
-                    <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.accent : C.light, border: `1px solid ${isSaved(p.id) ? C.accent : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
-                  </div>
-                  <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
-                    {!sOpen && openAlt ? (
-                      <button onClick={() => setSurprisePick(openAlt)} style={{ flex: 1, background: "transparent", color: C.green, border: `1.5px solid ${C.green}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>Find open now</button>
-                    ) : (
-                      <button onClick={() => openDetail(p)} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 700, padding: "12px 0", cursor: "pointer" }}>See details</button>
-                    )}
-                    <button onClick={rerollSurprise} style={{ flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" }}>🎲 Roll again</button>
-                  </div>
-                  {/* v4.6: backup picks split into Open now and For later so closed spots are labeled, not hidden in prime slots. */}
-                  {(() => {
-                    const others = surprisePool.filter((o) => o && o.id !== p.id);
-                    const openG = others.filter((o) => o.openNow === true).slice(0, 3);
-                    const laterG = others.filter((o) => o.openNow === false).slice(0, 3);
-                    if (!openG.length && !laterG.length) return null;
-                    return (
-                      <div style={{ marginTop: 22, paddingBottom: 8 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: C.muted, letterSpacing: "0.3px", textTransform: "uppercase", marginBottom: 10 }}>Backup picks</div>
-                        {openG.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, color: C.green, textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 7 }}>Open now</div>}
-                        {openG.map((other) => (
-                          <div key={other.id} onClick={() => setSurprisePick(other)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 8, cursor: "pointer" }}>
-                            <FallbackImg src={other.photo} icon="🍽️" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{other.name}</div>
-                              <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
-                                {other.rating && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {other.rating}</span>}
-                                {other.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {other.distMi.toFixed(1)} mi</span>}
-                              </div>
-                            </div>
-                            <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                          </div>
-                        ))}
-                        {laterG.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.4px", margin: "12px 0 7px" }}>For later</div>}
-                        {laterG.map((other) => (
-                          <div key={other.id} onClick={() => setSurprisePick(other)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 8, cursor: "pointer", opacity: 0.82 }}>
-                            <FallbackImg src={other.photo} icon="🍽️" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{other.name}</div>
-                              <div style={{ display: "flex", gap: 6, marginTop: 3, alignItems: "center", flexWrap: "wrap" }}>
-                                {other.rating && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {other.rating}</span>}
-                                {other.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {other.distMi.toFixed(1)} mi</span>}
-                                <span style={{ fontSize: 11, fontWeight: 600, color: C.gold }}>{other.nextOpen && other.nextOpen.today ? other.nextOpen.label : "Opens later"}</span>
-                              </div>
-                            </div>
-                            <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        {screen === "surprise" && <SurpriseScreen ctx={ctx} />}
 
-        {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && (() => {
-          const exp = EXPERIENCES[activeBadge];
-          let list = expPlaces || [];
-          if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
-          if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-          else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
-          else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
-          else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                <div onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button onClick={() => { shareLink(cityFix(exp.title), listShareUrl(activeBadge, cityFix(exp.title), list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + cityFix(exp.title), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                  {list.some((pp) => pp && pp.lat != null) ? (<button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(list.filter((pp) => pp && pp.lat != null).slice(0, 20)); setScreen("map"); try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>) : null}
-                  {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFix(exp.title), label: cityFix(exp.title) }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
-                </div>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <span style={{ fontSize: 16 }}>{exp.icon}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", color: C.accent, textTransform: "uppercase" }}>Wayfind picks</span>
-              </div>
-              <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFix(exp.title)}</div>
-              <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
-              {!expLoading && momentPicks && momentPicks.badge === activeBadge && (() => {
-                const byId = new Map((expPlaces || []).map((p) => [p.id, p]));
-                const rows = momentPicks.picks.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
-                if (!rows.length) return null;
-                return (
-                  <div style={{ background: C.card, border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>✨ Perfect right now</div>
-                    {rows.map((x, i) => (
-                      <div key={x.id} onClick={() => openDetail(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}{x.p.rating ? <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 700 }}> ★ {x.p.rating}</span> : null}</div>
-                          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
-              {!expLoading && <div style={{ fontSize: 12.5, color: C.muted, fontWeight: 600, marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${C.border}` }}>{list.length} curated pick{list.length === 1 ? "" : "s"} · Tap any to see full details</div>}
-              {expLoading && <Loader label="Curating the best spots" pad="8px 2px" />}
-              {/* v4.98 GLOBAL RULE (user direction): every list — browse,
-                  sheets, experiences — shows ONE control: the standard
-                  SortControl (Top rated default, 17-mi default radius). No
-                  extra chip bars, no "Open now" toggle, no dice chip on
-                  list views, here or anywhere else. */}
-              {!expLoading && (expPlaces || []).length > 0 && (
-                <div style={{ display: "flex", gap: 7, marginBottom: 12, flexWrap: "wrap", alignItems: "center" }}>
-                  <SortControl sortBy={expSort} onSort={setExpSort} mi={expMi} onMi={setExpMi} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={false} dealsOnly={false} onDeals={null} />
-                </div>
-              )}
-              {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
-                const h = new Date().getHours();
-                let light;
-                if (h < 8) light = "Early light is soft and golden. Keep the sun to one side of your subject and shoot toward the open sky, not into the sun.";
-                else if (h < 11) light = "Morning sun sits in the east. Stand with the sun behind you or to your left so faces are evenly lit and shadows stay short.";
-                else if (h < 15) light = "Midday sun is high and harsh. Find open shade or a covered spot, keep the sun behind you, and avoid overhead noon shadows on faces.";
-                else if (h < 18) light = "Afternoon sun moves to the west and softens. Side light works well; angle your subject so light skims across them.";
-                else if (h < 20) light = "Golden hour. Put the sun behind your subject for a warm rim glow, then tap to focus and raise exposure so faces do not go dark.";
-                else light = "After sunset, light is low. Use railings or a ledge to steady the shot, and frame against city lights or the sky.";
-                return (
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.pink, marginBottom: 8 }}>📸 Photo tips for right now</div>
-                    <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5, marginBottom: 8 }}>{light}</div>
-                    <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.55 }}>
-                      <div style={{ marginBottom: 4 }}>🎯 Framing: put the subject on a third, not dead center, and use a doorway, archway, or branches in front as a natural frame.</div>
-                      <div style={{ marginBottom: 4 }}>🧍 Poses: shoot a candid walking or looking-away shot rather than a straight-on stare, turn shoulders slightly off camera, and keep hands busy.</div>
-                      <div>📐 Lines: line up paths, railings, or shorelines so they lead toward the subject, and get low for a taller, more dramatic look.</div>
-                    </div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>General photography guidance based on the current time, not specific to each spot.</div>
-                  </div>
-                );
-              })()}
-              {!expLoading && list.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>{exp.icon}</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing matched within 60 miles</strong>
-                  <span style={{ fontSize: 13 }}>Try a different experience or area.</span>
-                </div>
-              )}
-              {!expLoading && list.map((p, i) => (
-                <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} selectedBadge={activeBadge} />
-              ))}
-            </div>
-          );
-        })()}
+        {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && <ExperienceScreen ctx={ctx} />}
 
-        {screen === "coupons" && (() => {
-          const _today = new Date().toISOString().slice(0, 10);
-          const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
-          const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
-          const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
-          const savedIds = new Set(savedList.map((c) => c.id));
-          const fresh = live.filter((c) => !savedIds.has(c.id));
-          const Cpn = (c) => {
-            const isSaved = !!savedCoupons[c.id];
-            return (
-              <div key={c.id} style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.accent : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-                  <div style={{ minWidth: 0 }}>
-                    {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
-                    <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.3 }}>🏷️ {c.title}</div>
-                    {c.details ? <div style={{ fontSize: 13, color: C.light, marginTop: 4, lineHeight: 1.45 }}>{c.details}</div> : null}
-                    {c.expires ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5 }}>Ends {String(c.expires).slice(0, 10)}</div> : null}
-                  </div>
-                  <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.accent : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.accent : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
-                </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
-                  {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
-                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
-                  {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
-                </div>
-              </div>
-            );
-          };
-          return (
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "4px 0 4px" }}>🏷️ Coupons</div>
-              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Real deals at great local places, hand-picked by Wayfind — no junk offers. Tap ♡ to keep one; saved coupons stay on this device and in your account when you're signed in.</div>
-              {savedList.length > 0 && (
-                <>
-                  {/* v5.08 (user direction): saved coupons behave like cards in
-                      Apple Wallet — a collapsed stack showing each card's top
-                      band, tap to fan out, tap the header to restack. */}
-                  <div onClick={() => setWalletOpen((v) => !v)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase" }}>Your wallet · {savedList.length}</div>
-                    <span style={{ fontSize: 11.5, fontWeight: 800, color: C.accent }}>{walletOpen ? "Stack ▴" : "Fan out ▾"}</span>
-                  </div>
-                  {walletOpen || savedList.length === 1 ? savedList.map(Cpn) : (
-                    <div onClick={() => setWalletOpen(true)} style={{ cursor: "pointer", marginBottom: 16 }}>
-                      {[...savedList.slice(0, 6)].reverse().map((c, i, arr) => (
-                        <div key={c.id} style={{ position: "relative", marginTop: i === 0 ? 0 : -58, zIndex: i + 1, background: "#1A2030", border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: i === arr.length - 1 ? "13px 16px 15px" : "13px 16px 74px", boxShadow: "0 -8px 20px rgba(0,0,0,.5)" }}>
-                          {c.business ? <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}</div> : null}
-                          <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>🏷️ {c.title}</div>
-                        </div>
-                      ))}
-                      <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 8 }}>{savedList.length > 6 ? `+${savedList.length - 6} more · ` : ""}Tap to open your wallet</div>
-                    </div>
-                  )}
-                  {fresh.length > 0 && <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", margin: "14px 0 8px" }}>More deals</div>}
-                </>
-              )}
-              {fresh.map(Cpn)}
-              {live.length === 0 && savedList.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 42, marginBottom: 12 }}>🏷️</div>
-                  <strong style={{ display: "block", color: C.light, marginBottom: 6 }}>New local deals land here</strong>
-                  <span style={{ fontSize: 13, lineHeight: 1.5, display: "block" }}>Wayfind is signing up local spots now. Every coupon here will be real — no junk offers, ever. Check back soon.</span>
-                </div>
-              )}
-              {live.length > 0 && <div style={{ fontSize: 11, color: C.muted, marginTop: 10, textAlign: "center" }}>Some deals may be affiliate offers. Wayfind may earn a commission at no cost to you.</div>}
-            </div>
-          );
-        })()}
-        {screen === "saved" && !activeList && !sysFolder && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingTop: 4 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Saved</div>
-              <button onClick={() => setNewListOpen(true)} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
-            </div>
-            {supabase && !user && (
-              <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16, cursor: "pointer" }}>
-                <span style={{ fontSize: 17 }}>☁️</span>
-                <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.35 }}>Sign in to save your lists across devices.</div>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
-              </div>
-            )}
-            {supabase && user && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16 }}>
-                <div style={{ fontSize: 13, color: C.muted, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Signed in as {user.email}</div>
-                <span onClick={signOutUser} style={{ fontSize: 13, fontWeight: 700, color: C.accent, cursor: "pointer" }}>Sign out</span>
-              </div>
-            )}
-            <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginBottom: 2 }}>Your lists</div>
-            {Object.values(lists).map((l) => {
-              const row = (
-                <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}` }}>
-                  <div onClick={() => setActiveList(l.id)} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, cursor: "pointer" }}>
-                    <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.card, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: `1px solid ${C.border}`, flexShrink: 0 }}>{l.emoji}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.name}</div>
-                      <div style={{ fontSize: 13, color: C.muted }}>{l.places.length} place{l.places.length !== 1 ? "s" : ""}</div>
-                    </div>
-                  </div>
-                  <button onClick={(e) => { e.stopPropagation(); setListMenu(l.id); }} aria-label="List options" style={{ flexShrink: 0, width: 36, height: 36, borderRadius: "50%", border: "none", background: "transparent", color: C.muted, fontSize: 22, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>⋯</button>
-                </div>
-              );
-              // v4.6: render every list as a plain tap-to-open row, like Favorites (which always opened).
-              // The swipe-to-delete wrapper put touch handlers and a transform around the row, which
-              // swallowed taps on iOS so the list would not open. Delete is unaffected: it still lives in
-              // the row "..." menu (Open / Share / Rename / Delete) and the trash button inside the open list.
-              return <div key={l.id}>{row}</div>;
-            })}
-            {(
-              <>
-                <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 2 }}>From your activity</div>
-                {[{ k: "liked", name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems }, { k: "disliked", name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems }, { k: "shared", name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems }].map((f) => {
-                  const cnt = Object.keys(f.items || {}).length;
-                  return (
-                    <div key={f.k} onClick={() => setSysFolder(f.k)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{f.emoji}</div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{f.name}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{cnt} place{cnt !== 1 ? "s" : ""} · automatic</div>
-                      </div>
-                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
-                    </div>
-                  );
-                })}
-              </>
-            )}
-          </div>
-        )}
+        {screen === "coupons" && <CouponsScreen ctx={ctx} />}
+        {screen === "saved" && <SavedScreen ctx={ctx} />}
+        {screen === "itinerary" && <ItineraryScreen ctx={ctx} />}
 
-        {screen === "saved" && sysFolder && (() => {
-          const cfg = { liked: { name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems, empty: "Tap the thumbs up on any place and it lands here, newest first." }, disliked: { name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems, empty: "Places you thumbs down collect here, so you can revisit them or change your mind." }, shared: { name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems, empty: "Anything you share gets gathered here automatically." } }[sysFolder];
-          if (!cfg) return null;
-          const arr = Object.values(cfg.items || {}).filter((x) => x && x.place && x.place.id).sort((a, b) => (b.ts || 0) - (a.ts || 0));
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => setSysFolder(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-                <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{cfg.emoji} {cfg.name}</div>
-                <span style={{ fontSize: 13, color: C.muted }}>{arr.length} place{arr.length !== 1 ? "s" : ""}</span>
-              </div>
-              {supabase && !user && arr.length > 0 && (
-                <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, marginBottom: 14, cursor: "pointer" }}>
-                  <span style={{ fontSize: 18 }}>☁️</span>
-                  <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>These live only on this phone. Sign in to save them.</div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
-                </div>
-              )}
-              {arr.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>{cfg.empty}</div>
-              ) : (
-                arr.map(({ place: p }) => (
-                  <PlaceCard key={p.id} p={p} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-                ))
-              )}
-            </div>
-          );
-        })()}
-
-        {screen === "saved" && activeList && lists[activeList] && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-              <button onClick={() => setActiveList(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-              <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{lists[activeList].emoji} {lists[activeList].name}</div>
-              {lists[activeList].places.length > 0 && (
-                <button onClick={() => shareList(lists[activeList].places, lists[activeList].name)} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 20, cursor: "pointer" }}>Share ↗</button>
-              )}
-              {activeList !== "favorites" && (
-                <button onClick={() => deleteList(activeList)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.red, fontSize: 16, width: 34, height: 34, borderRadius: 10, cursor: "pointer" }}>🗑</button>
-              )}
-            </div>
-            {lists[activeList].places.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>Tap the bookmark on any place to save it here.</div>
-            ) : (
-              <>
-                {lists[activeList].places.length > 1 && (
-                  <button onClick={rollDice} style={{ width: "100%", marginBottom: 14, padding: "12px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
-                )}
-                {lists[activeList].places.map((p) => (
-                  <PlaceCard key={p.id} p={p} saved liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-                ))}
-              </>
-            )}
-          </div>
-        )}
-        {screen === "itinerary" && !activeTrip && (() => {
-          const list = Trips.tripList(trips);
-          return (
-            <div>
-              <CategoryMenu activeCat={null} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "itinerary" }); } catch (e) {} setScreen("home"); setTimeout(() => pickBrowse(id), 60); }} onSub={() => {}} />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6, paddingTop: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
-                {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
-              </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
-              {reservations.length > 0 && (
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🧾 Reservations</div>
-                    <span style={{ fontSize: 12, color: C.muted }}>{reservations.length}</span>
-                  </div>
-                  {reservations.map((r) => (
-                    <div key={r.id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "11px 13px", marginBottom: 9 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                        <span style={{ fontSize: 18 }}>{r.kind === "hotel" ? "🏨" : "🎟️"}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
-                          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Booked via {r.partner} · {new Date(r.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-                        </div>
-                        {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none", flexShrink: 0 }}>View ↗</a> : null}
-                        <button onClick={() => removeRes(r.id)} aria-label="Remove reservation" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 15, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}>✕</button>
-                      </div>
-                      <input defaultValue={r.conf} onBlur={(e) => saveResConf(r.id, e.target.value)} placeholder="Add confirmation # or note"
-                        style={{ width: "100%", boxSizing: "border-box", marginTop: 9, padding: "8px 11px", borderRadius: 10, border: `1px dashed ${r.conf ? C.border : C.accent + "66"}`, background: "transparent", color: C.text, fontSize: 12.5, outline: "none" }} />
-                    </div>
-                  ))}
-                  <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind logs when you head out to book. Your confirmation details stay on this device.</div>
-                </div>
-              )}
-              {list.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted, fontSize: 14, lineHeight: 1.5 }}>No trips yet. Save any place from Home or the Map and a city trip is created for you automatically.</div>
-              ) : (
-                list.map((t) => {
-                  const st = Trips.tripStats(t);
-                  return (
-                    <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <StateBadge code={t.state} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
-                      </div>
-                      <span style={{ color: C.muted, fontSize: 20 }}>›</span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          );
-        })()}
-
-        {screen === "itinerary" && activeTrip && trips[activeTrip] && (() => {
-          const t = trips[activeTrip];
-          const items = Trips.sortedItems(t);
-          const st = Trips.tripStats(t);
-          const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
-          const tripCtl = { width: 34, height: 30, borderRadius: 8, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
-          const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 18, cursor: "pointer" };
-          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { try { window.open(u, "_blank"); } catch {} try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
-          return (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
-                </div>
-                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
-              </div>
-              {items.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
-              ) : items.map((it, i) => {
-                const p = it.place;
-                const editing = tripNoteEdit === p.id;
-                const moving = tripMoveFor === p.id;
-                return (
-                  <div key={p.id} style={{ marginBottom: 12 }}>
-                    <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
-                      <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
-                      {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
-                    </div>
-                    {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
-                    {editing && (
-                      <div style={{ marginTop: 6 }}>
-                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 13, resize: "vertical" }} />
-                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                          <button onClick={() => { const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Save note</button>
-                          <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Cancel</button>
-                        </div>
-                      </div>
-                    )}
-                    {moving && (
-                      <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
-                        <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
-                        {others.length === 0 ? (
-                          <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
-                        ) : others.map((o) => (
-                          <div key={o.key} onClick={() => { setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", borderRadius: 8, cursor: "pointer" }}>
-                            <StateBadge code={o.state} size={28} />
-                            <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
-                          </div>
-                        ))}
-                        <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "4px 2px", cursor: "pointer" }}>Cancel</button>
-                      </div>
-                    )}
-                    {!editing && !moving && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1))} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                        <button onClick={() => setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1))} disabled={i === items.length - 1} style={{ ...tripCtl, opacity: i === items.length - 1 ? 0.35 : 1 }}>↓</button>
-                        <button onClick={() => setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id))} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.accent } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                        <button onClick={() => { setTripNoteEdit(p.id); setTripMoveFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                        <button onClick={() => { setTripMoveFor(p.id); setTripNoteEdit(null); }} style={tripChip}>Move</button>
-                        <button onClick={() => { if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); }} style={{ ...tripChip, color: C.red }}>Remove</button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })()}
-
-        {screen === "shared" && sharedList && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>📩 Shared with you</div>
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{sharedList.length} place{sharedList.length !== 1 ? "s" : ""} someone wanted you to see</div>
-              </div>
-              <button onClick={() => { setSharedList(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
-            </div>
-            {sharedList.map((p) => (
-              <PlaceCard key={p.id} p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />
-            ))}
-          </div>
-        )}
-        {screen === "events" && (() => {
-          const all = events || [];
-          const segs = [];
-          all.forEach((e) => { const m = eventSegmentMeta(e.segment, e.genre); if ((e.segment || e.genre) && !segs.find((s) => s.short === m.short)) segs.push(m); });
-          let shown = all;
-          if (eventCat !== "all") shown = shown.filter((e) => eventSegmentMeta(e.segment, e.genre).short === eventCat);
-          if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
-          shown = dedupeEvents(shown, eventDate === "all");
-          const eventDateChips = [];
-          const enow = new Date();
-          for (let i = 0; i < 28; i++) {
-            const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
-            const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-            eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
-          }
-          const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#fff" : C.light, fontWeight: 700 });
-          return (
-            <div>
-              <div style={{ paddingTop: 4, marginBottom: 12 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
-                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Concerts, sports, and shows worth building a night around</div>
-              </div>
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  {(eventCat !== "all" || eventDate !== "all") && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-                      <button onClick={() => { setEventCat("all"); setEventDate("all"); }} style={{ fontSize: 11, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Show all ✕</button>
-                    </div>
-                  )}
-                  <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                    <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{all.length}</div></button>
-                    {eventDateChips.map((d) => {
-                      const count = all.filter((e) => e.date === d.value).length;
-                      return (
-                        <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
-                          <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
-                          <div style={{ fontSize: 14 }}>{d.day}</div>
-                          <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && segs.length > 1 && (
-                <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-                  <button onClick={() => setEventCat("all")} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === "all" ? C.adim : C.panel, color: eventCat === "all" ? C.accent : C.light, border: `1px solid ${eventCat === "all" ? C.accent : C.border}` }}>All</button>
-                  {segs.map((m) => (
-                    <button key={m.short} onClick={() => setEventCat(m.short)} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === m.short ? C.adim : C.panel, color: eventCat === m.short ? C.accent : C.light, border: `1px solid ${eventCat === m.short ? C.accent : C.border}` }}>{m.icon} {m.short}</button>
-                  ))}
-                </div>
-              )}
-              {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-              {!eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Events are not turned on yet. Add a Ticketmaster key in Vercel to switch them on.</div>}
-              {!eventsLoading && !eventsUnavailable && eventsError && (
-                <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
-                  <span style={{ fontSize: 13 }}>Check back in a little while.</span>
-                  <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
-                  <span style={{ fontSize: 13 }}>We're still expanding Wayfind events to your area. Check back soon.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
-                <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing on this day</strong>
-                  <span style={{ fontSize: 13 }}>Try another date or tap All.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-                  {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} />)}
-                </div>
-              )}
-            </div>
-          );
-        })()}
+        {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
+        {screen === "events" && <EventsScreen ctx={ctx} />}
       </div>
 
       {/* Roll the dice */}
@@ -7189,635 +6171,7 @@ function PageInner() {
       </div>
 
       {/* Detail sheet */}
-      {detail && (
-        <div style={sheetBg} onClick={() => window.history.back()}>
-          <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ position: "relative" }}>
-              <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
-              {detail.photos && detail.photos.length > 0 ? (
-                <div style={{ position: "relative" }}>
-                  <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
-                    {detail.photos.map((src, i) => (
-                      <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
-                    ))}
-                  </div>
-                  {detail.photos.length > 1 && (
-                    <>
-                      <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
-                      <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
-                    </>
-                  )}
-                </div>
-              ) : detail._event && !detail.photo ? (
-                <div style={{ width: "100%", height: 250, background: `linear-gradient(150deg, ${C.adim} 0%, #0D1117 78%)`, display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontSize: 54, opacity: 0.5 }}>🎟️</span></div>
-              ) : (
-                <FallbackImg src={detail.photo} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => detail.photo && setLightbox(detail.photo)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: detail.photo ? "zoom-in" : "default" }} />
-              )}
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
-                {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
-                <div style={{ fontSize: 27, fontWeight: 800, color: "#fff", lineHeight: 1.13, letterSpacing: "-0.5px", textShadow: "0 2px 12px rgba(0,0,0,.8)" }}>{detail.name}</div>
-              </div>
-            </div>
-            <div style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
-              {/* 1. Basics */}
-
-              {detail.address && (
-                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
-              )}
-              {/* Verdict: one consistent row of the things that decide whether to go */}
-              <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
-                {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.accent, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
-                {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
-                {detail.rating != null && (<>
-                  <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ color: C.muted, textDecoration: "none" }}><span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()}) ↗</span></a>}</span>{(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<a href={_ta.url || "https://www.tripadvisor.com"} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href); try { logEvent("ta_out", detail); } catch (er) {} openExternal(_live); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor ↗</a>); })()}
-                </>)}
-                {detail._event ? (() => {
-                  const ef = formatEventDate(detail._event.date, detail._event.time);
-                  const d = detail._event.date ? new Date(detail._event.date + "T00:00:00") : null;
-                  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
-                  const diff = d && !isNaN(d) ? Math.round((d - t0) / 86400000) : null;
-                  const when = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (detail._event.time || "");
-                  const label = diff == null ? (when || "Event") : diff < 0 ? "Ended" : diff === 0 ? ("Tonight" + (ef.time ? " · " + ef.time : "")) : diff === 1 ? ("Tomorrow" + (ef.time ? " · " + ef.time : "")) : when;
-                  return (<>
-                    <span style={{ color: C.border }}>·</span>
-                    <span style={{ fontWeight: 800, color: diff != null && diff < 0 ? C.muted : C.accent }}>{label}</span>
-                    {detail.openNow != null && (<span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 600, fontSize: 11.5, color: C.muted }}>Venue hours</span>)}
-                  </>);
-                })() : (detail.openNow != null && (<>
-                  <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: detail.openNow ? C.green : C.red }}>{detail.openNow ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
-                </>))}
-                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.accent, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
-                {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.accent, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
-                {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (detail.price) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>); return null; })()}
-              </div>
-              {!detail._event && Tags.requiresParkAdmission(detail.types) && (
-                <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
-              )}
-              {hoursOpen && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "10px 12px", marginBottom: 14 }}>
-                  {detailExtra && detailExtra.hours && detailExtra.hours.length > 0 ? (
-                    detailExtra.hours.map((line, i) => {
-                      const parts = line.split(": ");
-                      return (
-                        <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5, color: C.light, padding: "2px 0" }}>
-                          <span style={{ fontWeight: 600, color: C.text }}>{parts[0]}</span>
-                          <span style={{ textAlign: "right" }}>{parts.slice(1).join(": ")}</span>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra ? "Hours not listed for this place." : "Loading hours…"}</div>
-                  )}
-                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
-                </div>
-              )}
-
-              {/* Action dock: one row. Directions (or Get tickets for events) is the single primary; everything else is a quiet icon. */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "stretch" }}>
-                {detail._event && detail._event.url ? (
-                  <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
-                ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a>{(() => { const _vt = viaTours[detail.id]; const _hasTours = !!(_vt && !_vt.loading && Array.isArray(_vt.items) && _vt.items.length > 0); const _tk = (_hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(_vt.items[0].url) || _vt.items[0].url) : null; /* v5.01: the button opens the TOP real product for this place directly (tracked) — never the /go resolver, whose search-page fallback broke trust */ const _tu = _tk || Aff.hotelUrl(detail); return _tu ? <a href={_tu} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || _tu; /* v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, never the original variable, or hotel attribution is lost */ try { logEvent(_tk ? "tickets_out" : "hotel_out", detail); } catch (er) {} try { addReservation(_tk ? "tickets" : "hotel", detail, _tk ? "Viator" : "Stay22", _live); } catch (er) {} openExternal(_live); }} style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15 }}>{_tk ? "Tickets & tours ↗" : "Check rates ↗"}</a> : null; })()}</>
-                )}
-                {detail._event && detail._event.url && (
-                  <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
-                )}
-                {!detail._event && (<>
-                  <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${isSaved(detail.id) ? C.accent : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                  <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 46, background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.accent : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.accent : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
-                  <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
-                </>)}
-                <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-              </div>
-              {(((viaTours[detail.id] && !viaTours[detail.id].loading && Array.isArray(viaTours[detail.id].items) && viaTours[detail.id].items.length > 0) && Aff.ticketsUrl(detail)) || Aff.hotelUrl(detail)) ? <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission from partner links</div> : null}
-              {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
-              <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
-                {insightLoading && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
-                    <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
-                    Reading the reviews
-                  </div>
-                )}
-                {!insightLoading && (() => {
-                  const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                  const S = (v) => insightSane(v);
-                  const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
-                  let why = ins ? S(ins.why) : "";
-                  if (!why && ins) {
-                    const goWhen = S(ins.goWhen) || S(ins.bestTime);
-                    const skipIf = S(ins.skipIf);
-                    why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
-                  }
-                  if (!why) why = detail.rating != null && detail.rating >= 4.3 ? "A highly reviewed nearby option with a strong rating." : "Worth a look while you are nearby.";
-                  return <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{why}</div>;
-                })()}
-              </div>
-              {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
-                  {insightFull.mustTry.filter((x) => x && String(x).trim()).slice(0, 3).map((d, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 5 }}>
-                      <span style={{ color: C.accent, fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{i + 1}</span>
-                      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>{d}</span>
-                    </div>
-                  ))}
-                  {insightFull.pairing && String(insightFull.pairing).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Pairs well: </span>{insightFull.pairing}</div>}
-                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>From what reviewers mention most.</div>
-                </div>
-              )}
-              {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Insider notes</span>
-                    <span style={{ fontSize: 9.5, color: C.muted }}>Curated by Wayfind</span>
-                  </div>
-                  {_wn.map((n, i) => { const o = typeof n === "string" ? { text: n } : n; return (
-                    <div key={i} style={{ marginTop: i ? 8 : 0 }}>
-                      <div style={{ fontSize: 13, color: C.text, lineHeight: 1.55 }}>{o.text}</div>
-                      {o.url && (
-                        <a href={o.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("note_link", detail, { label: o.label || "" }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 7, marginTop: 7, padding: "9px 15px", borderRadius: 999, background: C.adim, border: `1.5px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 800, textDecoration: "none" }}>🎟 {o.label || "Open link"} ↗</a>
-                      )}
-                    </div>
-                  ); })}
-                </div>
-              ); })()}
-              {/* 3. Insider tip */}
-              {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>🔑 Insider intel</div>
-                  {_ins.special ? <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, marginBottom: 8, lineHeight: 1.4 }}>{_ins.special}</div> : null}
-                  {rows.map(([ic, lb, tx], i) => (
-                    <div key={lb} style={{ display: "flex", gap: 9, padding: "6px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
-                      <span style={{ flexShrink: 0, fontSize: 14 }}>{ic}</span>
-                      <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}><b style={{ color: C.text }}>{lb}:</b> {tx}</div>
-                    </div>
-                  ))}
-                </div>
-              ); })()}
-              <div style={{ marginBottom: 16 }}>
-              {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
-                const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                const _vt = viaTours[detail.id];
-                const _items = (_vt && _vt.items) || [];
-                if (_items.length > 0) {
-                  return (
-                    <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
-                        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-                      </div>
-                      {_items.map((t, i) => (
-                        <a key={t.code || i} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {} try { addReservation("tour", detail, "Viator", _live); } catch (er) {} openExternal(_live); }} style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}>
-                          {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                            <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>
-                              {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
-                            </div>
-                          </div>
-                          <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
-                        </a>
-                      ))}
-                    </div>
-                  );
-                }
-                if (_hasNoteUrl) return null;
-                return (
-                  <a onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : ""); try { logEvent("tour", detail); } catch (er) {} openExternal(_live); }} href={Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "")} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                  <span style={{ fontSize: 18 }}>🎟️</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
-                  </div>
-                  <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
-                </a>
-                );
-              })()}
-
-              {!detail._event && (
-                <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 9 }}>
-                    <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Community takes</span>
-                    {placePosts.length > 0 && <span style={{ fontSize: 10, color: C.muted }}>{placePosts.length}</span>}
-                  </div>
-                  <div style={{ marginBottom: placePosts.length ? 12 : 0, paddingBottom: placePosts.length ? 12 : 0, borderBottom: placePosts.length ? `1px solid ${C.border}` : "none" }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 2 }}>Add yours</div>
-                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
-                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-                      {["Tip", "Best dish", "Warning", "Review"].map((t) => (
-                        <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.accent : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.accent : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
-                      ))}
-                    </div>
-                    <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 13.5, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); if (v && supabase && !user) { setAuthOpen(true); } showToast(v ? (posting ? "Saving…" : commentType + " saved on this device — sign in to post to everyone") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { try { supabase.auth.getSession().then(({ data: _sd }) => { const _u = _sd && _sd.session && _sd.session.user; if (!_u) { setAuthOpen(true); showToast("Session expired — sign in and tap Save again"); return; } const author = ((_u.email || "member").split("@")[0] || "member").slice(0, 24); supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: _u.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then((res) => { if (res && res.error) { showToast("Couldn't post: " + String((res.error && res.error.message) || "server error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {} } else { showToast(commentType + " posted"); setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]); } }, (err) => { showToast("Couldn't post: " + String((err && err.message) || "network error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", err); } catch (e2) {} }); }, () => { showToast("Couldn't reach the server — saved on this device"); }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
-                      {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.accent, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
-                    </div>
-                  </div>
-                  {placePosts.length > 0 ? placePosts.slice(0, 6).map((cp, i) => (
-                    <div key={cp.id || i} style={{ paddingTop: 10, marginTop: i ? 10 : 0, borderTop: `1px solid ${C.border}` }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 3 }}>
-                        <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light }}>{cp.author || "member"}</span>
-                        <span style={{ fontSize: 9, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}44`, borderRadius: 999, padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>{cp.type}</span>
-                        {user && cp.user_id === user.id && (
-                          <span style={{ marginLeft: "auto", display: "inline-flex", gap: 10 }}>
-                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus(); } }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
-                            {confirmDel ? (
-                              <button onClick={() => { try { supabase.from("comments").delete().eq("user_id", user.id).eq("place_id", detail.id).then(() => {}, () => {}); } catch (e) {} setPlacePosts((pp) => (pp || []).filter((x) => x.user_id !== user.id)); const next = { ...placeComments }; delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} if (noteRef.current) noteRef.current.value = ""; setConfirmDel(false); showToast("Deleted"); try { logEvent("user_comment_delete", detail, {}); } catch (e) {} }} style={{ background: "transparent", border: "none", color: "#F26D6D", fontSize: 10.5, fontWeight: 800, cursor: "pointer", padding: 0 }}>Confirm delete</button>
-                            ) : (
-                              <button onClick={() => { setConfirmDel(true); setTimeout(() => setConfirmDel(false), 3500); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Delete</button>
-                            )}
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5 }}>{cp.body}</div>
-                    </div>
-                  )) : (
-                    <div style={{ fontSize: 11.5, color: C.muted, marginTop: 10 }}>Be the first to share a tip for this place.</div>
-                  )}
-                </div>
-              )}
-              <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
-                <FeaturedTag name={detail.name} />
-                {experienceBadges(detail, null, 4).map((b) => (
-                  <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
-                ))}
-              </div>
-
-              {detail._event && (() => {
-                const ef = formatEventDate(detail._event.date, detail._event.time);
-                const human = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (ef.time || [detail._event.date, detail._event.time].filter(Boolean).join(" · "));
-                const url = detail._event.url || "";
-                const hasTickets = /ticket|seatgeek|stubhub|axs|livenation|eventbrite/i.test(url);
-                const place = locName ? locName.split(",")[0] : "you";
-                const why = [];
-                if (detail.rating != null) why.push("★ " + detail.rating + " venue"); else why.push("at " + detail.name);
-                if (detail.distMi != null) why.push(detail.distMi.toFixed(1) + " mi from " + place);
-                return (
-                  <div style={{ border: `1.5px solid ${C.accent}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
-                    <div style={{ padding: "14px 15px" }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>Know before you go</div>
-                      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 3, marginBottom: 8 }}>Event time from the venue listing.</div>
-                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>🎟️ Upcoming event</div>
-                      <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{detail._event.name}</div>
-                      {human && <div style={{ fontSize: 14, fontWeight: 800, color: C.accent, marginTop: 7 }}>{human}</div>}
-                      <div style={{ fontSize: 13, color: C.light, marginTop: 5 }}>📍 {detail.name}{detail.distMi != null ? " · " + detail.distMi.toFixed(1) + " mi" : ""}</div>
-                      {why.length > 0 && <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 7 }}>{why.join(", ") + "."}</div>}
-                      {url && <a href={url} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", marginTop: 12, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{hasTickets ? "Get tickets ↗" : "View event ↗"}</a>}
-                    </div>
-                  </div>
-                );
-              })()}
-              {reviewsOpen && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 10 }}>What people say</div>
-                  {insightFullLoading && !insightFull && <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>Reading the reviews…</div>}
-                  {insightFull && !insightFull.error && (() => {
-                    const A = (v) => (Array.isArray(v) ? v.filter((x) => x && String(x).trim()) : []);
-                    const loves = A(insightFull.loves);
-                    const keywords = A(insightFull.keywords);
-                    if (!loves.length && !keywords.length) return null;
-                    return (
-                      <div style={{ marginBottom: 12 }}>
-                        {loves.length > 0 && loves.slice(0, 5).map((l, i) => (
-                          <div key={i} style={{ fontSize: 13.5, color: C.text, display: "flex", gap: 8, padding: "3px 0" }}><span style={{ color: C.green }}>✔</span><span>{l}</span></div>
-                        ))}
-                        {keywords.length > 0 && (
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                            {keywords.slice(0, 6).map((k, i) => (
-                              <span key={i} style={{ fontSize: 11, fontWeight: 600, color: C.light, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px" }}>{k}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-                  <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Reviews</div>
-                  {detailExtra && detailExtra.reviews && detailExtra.reviews.length > 0 ? (
-                    detailExtra.reviews.map((r, i) => (
-                      <div key={i} style={{ marginBottom: i < detailExtra.reviews.length - 1 ? 12 : 0, paddingBottom: i < detailExtra.reviews.length - 1 ? 12 : 0, borderBottom: i < detailExtra.reviews.length - 1 ? `1px solid ${C.border}` : "none" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
-                          {r.rating && <span style={{ color: "#F59E0B", fontSize: 12 }}>{stars(r.rating)}</span>}
-                          {r.author && <span style={{ fontSize: 11, color: C.muted }}>{r.author}</span>}
-                          {r.when && <span style={{ fontSize: 11, color: C.muted }}>· {r.when}</span>}
-                        </div>
-                        <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5 }}>{r.text}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div style={{ fontSize: 13, color: C.muted }}>No review text available for this place.</div>
-                  )}
-                  <div style={{ fontSize: 10, color: C.muted, marginTop: 10 }}>Reviews from Google, which shares up to five per place. The good, the bad, and everything between. No invented numbers.</div>
-                  <a href={`https://search.google.com/local/reviews?placeid=${detail.id}`} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 10, fontSize: 12.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>Read all reviews on Google ↗</a>
-                </div>
-              )}
-
-              {detailExtra && detailExtra.editorial && (
-                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 14, paddingLeft: 10, borderLeft: `3px solid ${C.border}` }}>{detailExtra.editorial}</div>
-              )}
-
-              {/* Worth the Drive? widget — shows for far-away places or when opened from the drive hook */}
-              {detail && (detailContext === "drive" || (detail.distMi != null && detail.distMi >= 20)) && (
-                <WorthTheDriveWidget
-                  place={detail}
-                  myVote={(myVotes || {})[detail.id]}
-                  votes={(communityVotes || {})[detail.id]}
-                  onVote={(v) => handleVote(detail, v)}
-                />
-              )}
-
-              {/* v6.25: founder curated note, shown only for properties in CURATED_NOTES. Hand-written, leads the page. */}
-              {(() => { const cn = curatedNote(detail); if (!cn) return null; return (
-                <div style={{ background: `linear-gradient(135deg, ${C.adim} 0%, ${C.card} 55%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "14px 15px", marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: cn.intro ? 3 : 10 }}>
-                    <span style={{ fontSize: 15 }}>📌</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{cn.title}</span>
-                  </div>
-                  {cn.intro && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 11 }}>{cn.intro}</div>}
-                  {cn.items.map((it, i) => (
-                    <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: i < cn.items.length - 1 ? 11 : 0 }}>
-                      <span style={{ fontSize: 16, flexShrink: 0, lineHeight: 1.3 }}>{it.icon}</span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, lineHeight: 1.35 }}>{it.head}</div>
-                        <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 2 }}>{it.body}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ); })()}
-
-              {/* 2. Why Wayfind picked it — a judgment-driven decision reason, not a formula. No expand button; the deeper context lives in the insider tip and Tips, videos & more. */}
-              {/* Viator experiences: shown only for activity-type places Viator actually sells (attractions, museums, nature, scenic, etc.), never restaurants, bars, or hotels. This is an affiliate link, disclosed in Terms; it is tracked once a Partner ID is set in AFFIL and works untracked until then. */}
-              <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
-                {showMore && (
-                  <div style={{ marginTop: 10 }}>
-                    {insightFullLoading && !insightFull && <div style={{ fontSize: 13, color: C.muted }}>Pulling the details together…</div>}
-                    {insightFull && !insightFull.error && !insightFull.unavailable && (() => {
-                      const A = (v) => (Array.isArray(v) ? v.filter((x) => x && String(x).trim()) : []);
-                      const goodFor = A(insightFull.goodFor);
-                      const tips = A(insightFull.tips);
-                      const lab = { fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", margin: "12px 0 7px" };
-                      return (
-                        <div>
-                          {goodFor.length > 0 && (
-                            <>
-                              <div style={lab}>Good for</div>
-                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                                {goodFor.slice(0, 6).map((g, i) => (
-                                  <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, color: C.text, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px" }}><span style={{ color: C.green, fontWeight: 800 }}>✓</span>{g}</span>
-                                ))}
-                              </div>
-                            </>
-                          )}
-                          {(() => {
-                            const mt = Array.isArray(insightFull.mustTry) ? insightFull.mustTry.filter((x) => x && String(x).trim()) : (insightFull.mustTry && String(insightFull.mustTry).trim() ? [insightFull.mustTry] : []);
-                            if (!mt.length) return null;
-                            return (
-                              <>
-                                <div style={lab}>Must try</div>
-                                <div style={{ background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 10, padding: "10px 12px" }}>
-                                  {mt.slice(0, 3).map((m, i) => (
-                                    <div key={i} style={{ fontSize: 14, fontWeight: 600, color: C.text, display: "flex", gap: 8, padding: "2px 0" }}><span>🍴</span><span>{m}</span></div>
-                                  ))}
-                                </div>
-                              </>
-                            );
-                          })()}
-                          {tips.length > 0 && (
-                            <>
-                              <div style={lab}>Insider tips</div>
-                              {tips.slice(0, 4).map((t, i) => (
-                                <div key={i} style={{ fontSize: 13, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", marginBottom: 6, display: "flex", gap: 8 }}><span>💡</span><span>{t}</span></div>
-                              ))}
-                            </>
-                          )}
-                          {insightFull.vibe && String(insightFull.vibe).trim() && (
-                            <div style={{ marginTop: 10 }}><InfoChip label="Vibe" value={insightFull.vibe} /></div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                    {insightFull && insightFull.error && (
-                      <div style={{ fontSize: 13, color: C.muted }}>That's everything we have on this spot for now.</div>
-                    )}
-                    {(videosLoading || (videos && videos.length > 0)) && (
-                      <div style={{ marginTop: 14 }}>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: C.text, marginBottom: 2, display: "flex", alignItems: "center", gap: 7 }}><span style={{ color: "#FF0000", fontSize: 14 }}>▶</span> Video reviews</div>
-                        <div style={{ fontSize: 11, color: C.muted, marginBottom: 10 }}>Creators who covered this place on YouTube.</div>
-                        {videosLoading && !videos ? (
-                          <div style={{ fontSize: 13, color: C.muted }}>Finding videos…</div>
-                        ) : (
-                          videos.map((v) => (
-                            <a key={v.id} href={v.url} target="_blank" rel="noreferrer" style={{ display: "flex", gap: 10, marginBottom: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
-                              {v.thumb && <FallbackImg src={v.thumb} icon="▶️" style={{ width: 120, height: 68, objectFit: "cover", flexShrink: 0 }} />}
-                              <div style={{ padding: "7px 8px 7px 0", minWidth: 0 }}>
-                                <div style={{ fontSize: 12.5, fontWeight: 600, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{v.title}</div>
-                                <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{v.channel}</div>
-                              </div>
-                            </a>
-                          ))
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-
-              {/* 5. Optional collapsed */}
-              <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 12, marginBottom: 4 }}>
-                <div onClick={() => { const n = !venueEventsOpen; setVenueEventsOpen(n); if (n && venueEvents === null && !venueEventsLoading) loadVenueEvents(detail); }} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", fontSize: 13, fontWeight: 700, color: C.text }}>
-                  <span>What's happening nearby</span>
-                  <span style={{ fontSize: 12, color: C.accent, fontWeight: 800 }}>{venueEventsOpen ? "▴" : "▾"}</span>
-                </div>
-                {venueEventsOpen && (
-                  <div style={{ marginTop: 10 }}>
-                    {venueEventsLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking Ticketmaster…</div>}
-                    {!venueEventsLoading && venueEvents && venueEvents.length > 0 && (
-                      <>
-                        {venueEvents.map((e) => {
-                          const f = formatEventDate(e.date, e.time);
-                          return (
-                            <a key={e.id} href={e.url} target="_blank" rel="noreferrer" style={{ display: "flex", gap: 10, alignItems: "center", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", marginBottom: 7 }}>
-                              <div style={{ flexShrink: 0, textAlign: "center", minWidth: 34 }}>
-                                <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase" }}>{f.mo}</div>
-                                <div style={{ fontSize: 15, fontWeight: 800, color: C.text, lineHeight: 1 }}>{f.day}</div>
-                              </div>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</div>
-                                <div style={{ fontSize: 11, color: C.muted, marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.venue ? `📍 ${e.venue} · ` : ""}{f.wd}{f.time ? ` · ${f.time}` : ""}{e.price ? ` · ${e.price}` : ""}</div>
-                              </div>
-                              <span style={{ flexShrink: 0, fontSize: 11.5, fontWeight: 800, color: C.accent }}>{e.ticketed === false ? "Details ↗" : "Tickets ↗"}</span>
-                            </a>
-                          );
-                        })}
-                        <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Ticketed events at or near this location, from Ticketmaster. Check the venue on each before you go.</div>
-                      </>
-                    )}
-                    {!venueEventsLoading && venueEvents && venueEvents.length === 0 && (
-                      <div style={{ fontSize: 12.5, color: C.muted }}>No ticketed events found near here right now. Casual or free live music will not show up here, since only ticketed events are listed.</div>
-                    )}
-                  </div>
-                )}
-              </div>
-              </div>
-
-              {detailExtra && (detailExtra.phone || detailExtra.website) && (
-                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  {detailExtra.phone && <a href={"tel:" + detailExtra.phone} style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>📞 Call</a>}
-                  {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
-                </div>
-              )}
-
-              {detail && offers[detail.id] && (() => {
-                const o0 = offers[detail.id];
-                const o = { ...o0, offer_title: o0.offer_title || o0.title, offer_description: o0.offer_description || o0.description, affiliate_url: o0.affiliate_url || o0.url, expiration_date: o0.expiration_date || (o0.expires_at ? String(o0.expires_at).slice(0, 10) : null) };
-                return (
-                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>{offerLabel(o)}</span>
-                      {o.last_verified_at && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>✓ Verified</span>}
-                    </div>
-                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{o.offer_title}</div>
-                    {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
-                    {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
-                    {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
-                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
-                    {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
-                    <div onClick={() => { logEvent("offer_report", detail, { offer_id: o.id }); showToast("Thanks, we will take a look"); }} style={{ textAlign: "center", fontSize: 11, color: C.muted, marginTop: 10, cursor: "pointer", textDecoration: "underline" }}>Report an issue</div>
-                  </div>
-                );
-              })()}
-
-              {isBeach(detail) && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF", marginBottom: 8 }}>🏖️ Beach conditions</div>
-                  {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind and water…</div>}
-                  {!beachCondLoading && beachCond && (() => {
-                    const bc = beachCond;
-                    const dir = bc.windDir != null ? compass(bc.windDir) : null;
-                    const opp = bc.windDir != null ? compass((bc.windDir + 180) % 360) : null;
-                    let shore = null;
-                    if (bc.windDir != null && bc.waveDir != null) {
-                      let diff = Math.abs(bc.windDir - bc.waveDir) % 360;
-                      if (diff > 180) diff = 360 - diff;
-                      shore = diff <= 60 ? "onshore" : diff >= 120 ? "offshore" : "cross";
-                    }
-                    const waveFt = bc.waveHeight != null ? (bc.waveHeight * 3.281).toFixed(1) : null;
-                    const hasAny = bc.wind != null || shore || waveFt;
-                    return (
-                      <div>
-                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.gust ? " (gusts " + bc.gust + ")" : ""}{dir ? " from the " + dir : ""}</div>}
-                        {shore && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🧭 {shore === "onshore" ? "Blowing in off the water" : shore === "offshore" ? "Blowing out toward the water" : "Blowing along the beach"}</div>}
-                        {waveFt && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {waveFt} ft{bc.wavePeriod != null ? ", " + Math.round(bc.wavePeriod) + "s apart" : ""}</div>}
-                        {dir && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginTop: 4 }}>Tent tip: the wind comes from the {dir}, so set your tent or windbreak with the opening facing the {opp}, away from the wind.</div>}
-                        {!hasAny && <div style={{ fontSize: 13, color: C.muted }}>Live conditions are not available for this spot right now.</div>}
-                      </div>
-                    );
-                  })()}
-                  {!beachCondLoading && !beachCond && <div style={{ fontSize: 13, color: C.muted }}>Live conditions aren't available right now.</div>}
-                </div>
-              )}
-
-
-
-              {/* Hours now expand from the Open/Closed status badge near the title. */}
-
-              {debugOn && !detail._event && (() => {
-                const audit = {};
-                experienceBadges(detail, null, 99, audit);
-                const ai = insight && !insight.error && !insight.unavailable ? insight : {};
-                const aiRow = (k) => { const v = ai[k]; const has = Array.isArray(v) ? v.filter(Boolean).length > 0 : !!(v && String(v).trim()); return k + ": " + (has ? "shown" : "empty/hidden"); };
-                return (
-                  <div style={{ marginBottom: 16, padding: "10px 12px", background: "#0A0E14", border: "1px dashed #30363D", borderRadius: 10, fontFamily: "ui-monospace, monospace", fontSize: 10.5, color: "#8B949E", lineHeight: 1.6, overflowWrap: "anywhere" }}>
-                    <div style={{ color: "#F97316", fontWeight: 800 }}>TRUST AUDIT</div>
-                    <div>identity: {audit.identity}</div>
-                    <div>types: {(detail.types || []).join(", ") || "none"}</div>
-                    <div>candidates: {(audit.candidates || []).join(", ") || "none"}</div>
-                    <div>shown: {(audit.shown || []).join(", ") || "none"}</div>
-                    <div>blocked: {(audit.blocked || []).map((b) => b.key + " (" + b.reason + ")").join("; ") || "none"}</div>
-                    <div>park admission cue: {String(Tags.requiresParkAdmission(detail.types))}</div>
-                    <div>ai fields: {["verdict", "bestFor", "goWhen", "skipIf", "whyPicked", "tip", "caution", "mustTry"].map(aiRow).join(" · ")}</div>
-                  </div>
-                );
-              })()}
-              {/* v6.25: "More like this" — similar experience among loaded places, matched on shared traits. */}
-              {!detail._event && (() => {
-                const simPool = dedupePlaces([...(suggested || []), ...places]);
-                const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };
-                const sim = similarPlaces(simPool, detail, 4, badgesOf);
-                if (sim.length === 0) return null;
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>More like {detail.name}</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Spots nearby with a similar vibe and crowd, matched on what this place is known for.</div>
-                    {sim.map((p) => (
-                      <div key={"sim-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
-                        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                        <div style={{ minWidth: 0, flex: 1 }}>
-                          <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
-                            {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>{cz}</span> : null; })()}
-                            {p.rating != null && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {p.rating}</span>}
-                            {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
-                            {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span>}
-                            {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                          </div>
-                        </div>
-                        <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {(() => {
-                const altPool = dedupePlaces([...(suggested || []), ...places]);
-                const alts = betterAlternatives(detail, altPool, 3);
-                const Row = (p, reasons, knownFor) => (
-                  <div key={"alt-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
-                    <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
-                        {p.rating != null && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {p.rating}</span>}
-                        {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
-                        {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span>}
-                        {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                      </div>
-                      {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 3 }}>{reasons.join(" · ")}</div>}
-                      {knownFor ? <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.4, marginTop: 2 }}>{knownFor.charAt(0).toUpperCase() + knownFor.slice(1)}</div> : null}
-                    </div>
-                    <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
-                  </div>
-                );
-                if (alts.length > 0) {
-                  return (
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Worth comparing nearby</div>
-                      <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Other strong spots nearby, in case you want to compare.</div>
-                      {alts.map(({ p, reasons, knownFor }) => Row(p, reasons, knownFor))}
-                    </div>
-                  );
-                }
-                const others = relatedPicks(altPool, detail, 4).filter((p) => p && p.id !== detail.id).slice(0, 3);
-                if (others.length === 0) return null;
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>One of the strongest nearby</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing close by clearly beats this pick right now. If you still want to compare, these are the next best in the same vein.</div>
-                    {others.map((p) => Row(p, null))}
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      )}
+      {detail && <DetailSheet ctx={ctx} />}
 
       {allExpOpen && (
         <div onClick={() => setAllExpOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
@@ -7874,193 +6228,7 @@ function PageInner() {
           </div>
         );
       })()}
-      {hookDetail && (() => {
-        // Merge the two source lists, but de-dupe by id — a place that appears
-        // in both the suggested feed and the nearby search would otherwise show
-        // up twice in a themed list.
-        const allSrc = dedupePlaces([...(suggested || []), ...places], true);
-        const acc = hookDetail.accent || C.accent;
-        const theme = hookDetail.theme || "best";
-        const isLiked = hookLikes.has(hookDetail.id);
-        const primaryId = hookDetail.placeId;
-
-        // Theme-specific place curation — each theme shows the right number
-        // of places, curated from real data. "Top 5" = exactly 5. "Skip" = 3.
-        const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-        let themePlaces = hookDetail.places || placesForHook(hookDetail, allSrc);
-
-        if (themePlaces.length === 0 && primaryId) {
-          const pri = allSrc.find((x) => x.id === primaryId);
-          if (pri) themePlaces = [pri];
-        }
-        // Safety net: no theme should ever render the same place twice.
-        themePlaces = themePlaces.filter((p, i, a) => p && p.id && a.findIndex((x) => x && x.id === p.id) === i);
-        if (hkSort === "near") themePlaces = themePlaces.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
-        else if (hkSort === "price") themePlaces = themePlaces.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
-        if (hkMi < 60) themePlaces = themePlaces.filter((p) => p.distMi == null || p.distMi <= hkMi);
-        if (hkDeals) themePlaces = themePlaces.filter((p) => offers[p.id]);
-        const sheetLoading = !!(hookDetail.fetchKey && !hookDetail.places);
-
-        const MEDALS = { 0: "🥇", 1: "🥈", 2: "🥉" };
-        const rankColours = { 0: "#FBBF24", 1: "#CBD5E1", 2: "#CD7F32" };
-        const showRank = theme === "top5" || theme === "best";
-        const showWarn = theme === "skip";
-
-        return (
-          <div style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, display: "flex", flexDirection: "column", overflowY: "hidden", alignItems: isDesktop ? "center" : "stretch" }}>
-            {/* Gradient hero header */}
-            <div style={{ background: `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px" }}>‹ Back</button>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {themePlaces.some((pp) => pp && pp.lat != null) ? (
-                    <button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(themePlaces.filter((pp) => pp && pp.lat != null).slice(0, 20)); setHookDetail(null); setScreen("map"); try { logEvent("maps_list", null, { theme, n: Math.min(themePlaces.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>
-                  ) : null}
-                  <button onClick={() => { const _k = (hookDetail && (hookDetail.key || hookDetail.id)) || theme; const _t = (hookDetail && (hookDetail.title || hookDetail.label)) || "Top picks"; shareLink(_t, listShareUrl(_k, _t, themePlaces.length, locName, hookDetail.hol || ""), () => showToast("Link copied"), "Check this Wayfind list: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: _k }); } catch (e) {} giveawayMark("list:" + _k); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                  <button onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }} aria-label={isLiked ? "Saved to lists" : "Save to lists"} title={isLiked ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, color: isLiked ? acc : C.muted, cursor: "pointer" }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? acc : "none"} stroke={isLiked ? acc : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                  </button>
-                </div>
-              </div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>{hookDetail.emoji} {hookDetail.label}</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: C.text, lineHeight: 1.25, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
-                {hookDetail.themeTitle || hookDetail.hook}
-              </div>
-              {hookDetail.themeBody && (
-                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.6, marginBottom: 8 }}>{hookDetail.themeBody}</div>
-              )}
-              <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
-                {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
-              </div>
-              <div style={{ marginTop: 10 }}>
-                <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
-              </div>
-              <div style={{ fontSize: 10, color: C.muted, marginTop: 8 }}>Rankings are merit-based. Affiliate links never change placement.</div>
-            </div>
-
-            {/* Scrollable editorial list */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px calc(24px + env(safe-area-inset-bottom))", width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
-              {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
-              {!sheetLoading && themePlaces.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 12 }}><Critter size={48} /></div>
-                  <div style={{ fontSize: 14, color: C.light }}>Not enough data for this filter right now</div>
-                </div>
-              )}
-
-              {themePlaces.map((p, i) => {
-                const isFeatured = i === 0;
-                const medalEmoji = MEDALS[i];
-                const rankColor = rankColours[i] || C.accent;
-                const _isWC = !!(hookDetail && hookDetail.hol === "worldcup");
-                const _wcb = _isWC ? WCC.wcBadge(p, themePlaces) : null;
-                const badges = _isWC ? (_wcb ? [{ key: "wc", icon: _wcb.icon, label: _wcb.label }] : []) : experienceBadges(p, null, 2);
-                return (
-                  <Fragment key={p.id}>
-                    {hookDetail.sections && (() => { let acc = 0; for (const sec of hookDetail.sections) { if (i === acc) return <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "0.9px", textTransform: "uppercase", color: C.accent, margin: i === 0 ? "2px 2px 10px" : "18px 2px 10px" }}>{sec.label}</div>; acc += sec.count; } return null; })()}
-                  <div
-                    onClick={() => { setHookDetail(null); openDetail(p, hookDetail.theme); }}
-                    style={{
-                      background: isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card,
-                      border: `1.5px solid ${isFeatured ? acc + "60" : C.border}`,
-                      borderRadius: 16, marginBottom: 10, overflow: "hidden", cursor: "pointer",
-                      boxShadow: isFeatured ? `0 4px 20px ${acc}20` : "none",
-                    }}
-                  >
-                    {/* Featured (first) place: large photo on top */}
-                    {isFeatured && (
-                      <div style={{ position: "relative" }}>
-                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
-                        {showRank && (
-                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", borderRadius: 10, padding: "5px 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: 20 }}>{medalEmoji || "🏆"}</span>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>#{i + 1} Pick</span>
-                          </div>
-                        )}
-                        {showWarn && (
-                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(239,68,68,.85)", borderRadius: 10, padding: "5px 12px" }}>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>⚠️ Skip this</span>
-                          </div>
-                        )}
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(13,17,23,.95))", padding: "20px 14px 12px" }}>
-                          <div style={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>{p.name}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Card body */}
-                    <div style={{ display: isFeatured ? "block" : "flex", padding: isFeatured ? "12px 14px 14px" : 0, gap: 0 }}>
-                      {!isFeatured && (
-                        <div style={{ position: "relative", flexShrink: 0 }}>
-                          <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 86, height: 86, objectFit: "cover", display: "block" }} />
-                          {showRank && (
-                            <div style={{ position: "absolute", top: 5, left: 5, width: 22, height: 22, borderRadius: "50%", background: rankColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: medalEmoji ? 14 : 10, fontWeight: 800, color: "#0D1117" }}>
-                              {medalEmoji || (i + 1)}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <div style={{ padding: isFeatured ? 0 : "10px 12px", flex: 1, minWidth: 0, position: "relative" }}>
-                        {(() => { const _sv = isSaved(p.id); return (
-                          <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6, zIndex: 2 }}>
-                            <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: _sv ? acc : "rgba(0,0,0,.38)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.28)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                            
-                          </div>
-                        ); })()}
-                        {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5, paddingRight: isFeatured ? 74 : 0 }}>
-                          {p.rating && (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: showWarn ? C.red : (p.rating >= 4.5 ? C.green : "#3F8F4E"), color: "#0D1117", fontWeight: 800, fontSize: 13, padding: "2px 8px", borderRadius: 7 }}>
-                              ★ {p.rating}
-                            </span>
-                          )}
-                          {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
-                          {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
-                          {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
-                          {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                          {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
-                        </div>
-                        {badges.length > 0 && (
-                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
-                            {badges.map((b) => (
-                              <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {cityFixM(b.label)}</span>
-                            ))}
-                          </div>
-                        )}
-                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.accent : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
-                        {isFeatured && (
-                          <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  </Fragment>
-                );
-              })}
-
-              {/* Bottom save + share actions */}
-              {themePlaces.length > 0 && (
-                <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                  <button
-                    onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }}
-                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 0", borderRadius: 14, border: `1.5px solid ${isLiked ? acc : C.border}`, background: isLiked ? acc + "20" : "transparent", color: isLiked ? acc : C.light, fontSize: 14, fontWeight: 700, cursor: "pointer" }}
-                  >
-                    {isLiked ? "❤️ Saved" : "🤍 Save this list"}
-                  </button>
-                  <button
-                    onClick={async () => { const ttl = hookDetail.themeTitle || hookDetail.hook || "My Wayfind picks"; const url = await buildListShareUrl(themePlaces, ttl); shareLink(ttl, url, () => showToast("Link copied"), `${ttl} — help me wayfind it`); }}
-                    style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 0", borderRadius: 14, border: "none", background: acc, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}
-                  >
-                    ↗ Share
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      {hookDetail && <HookDetailSheet ctx={ctx} />}
 
       {/* Copied toast */}
       {toast && (
@@ -8080,431 +6248,15 @@ function PageInner() {
       )}
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
-      {accountOpen && user && (
-        <div style={sheetBg} onClick={() => setAccountOpen(false)}>
-          <div ref={accountDlgRef} role="dialog" aria-modal="true" aria-label="Your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAccountOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, textTransform: "uppercase", flexShrink: 0 }}>{(user.email || "?").slice(0, 1)}</div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>Signed in</div>
-                <div style={{ fontSize: 13, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email || ""}</div>
-              </div>
-            </div>
-            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-              <span style={{ color: C.accent }}>✓ </span>Your favorites and likes are saved to your account and follow you to any device you sign in on.
-            </div>
-            <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
-            <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
-            <div style={{ textAlign: "center", marginTop: 12 }}><a href="/privacy" style={{ fontSize: 11.5, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
-            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind · {BUILD_ID}</div>
-            <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 4 }}>© 2026 Wayfind. All rights reserved.</div>
-          </div>
-        </div>
-      )}
+      {accountOpen && user && <AccountSheet ctx={ctx} />}
 
       {/* App-tile sheets: opened from the home navigation grid */}
-      {menuSheet && (
-        <div style={sheetBg} onClick={() => setMenuSheet(null)}>
-          <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setMenuSheet(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            {menuSheet === "menu" && (
-              <>
-                <SheetHero icon="🧭" title="Browse by category" subtitle={"Pick a category to explore near " + (locName ? locName.split(",")[0] : "you") + "."} color={C.accent} />
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                  {CATEGORIES.map((c) => {
-                    const cc = CAT_COLOR[c.id] || { c: C.accent, dim: C.adim };
-                    return (
-                      <button key={c.id} onClick={() => { setMenuSheet(null); pickCat(c.id); }} style={{ height: 84, borderRadius: 16, border: `1.5px solid ${cc.c}`, background: cc.dim, color: C.text, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 15, fontWeight: 800 }}>
-                        <span style={{ fontSize: 26, lineHeight: 1 }}>{CAT_ICONS[c.id] || "📍"}</span>
-                        <span>{c.label.replace(/^\S+\s/, "")}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <button onClick={() => setMenuSheet("experiences")} style={{ width: "100%", marginTop: 10, height: 56, borderRadius: 16, border: `1px solid ${C.border}`, background: C.card, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
-                  <span style={{ fontSize: 20 }}>✨</span>
-                  <span>Browse by occasion</span>
-                </button>
-                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, height: 62, borderRadius: 16, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
-                  <span style={{ fontSize: 20 }}>🎲</span>
-                  <span>Can't decide? Let's Wayfind it</span>
-                </button>
-              </>
-            )}
-            {menuSheet === "community" && (
-              <>
-                <SheetHero icon="📚" title="Local Events" subtitle="Free local programs and civic events near you." color="#2DD4BF" />
-                {libraryEvents && libraryEvents.length > 0 ? (
-                  <>
-                    {libraryEvents.slice(0, 12).map((e, i) => {
-                      const dt = e.date ? new Date(e.date + "T00:00:00") : null;
-                      return (
-                        <div key={(e.id || e.name || "ev") + "-" + i} onClick={() => { if (e.url) window.open(e.url, "_blank", "noopener"); }} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: 8, cursor: e.url ? "pointer" : "default" }}>
-                          <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
-                            {dt ? (<><div style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", textTransform: "uppercase", letterSpacing: "0.3px" }}>{dt.toLocaleDateString(undefined, { month: "short" })}</div><div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1.05 }}>{dt.getDate()}</div></>) : (<div style={{ fontSize: 22 }}>📚</div>)}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-                            <div style={{ fontSize: 12, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{e.time ? e.time + " · " : ""}{e.venue || "Manatee County Library"}</div>
-                          </div>
-                          {e.url && <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>}
-                        </div>
-                      );
-                    })}
-                    <div style={{ fontSize: 10.5, color: C.muted, marginTop: 10, textAlign: "center" }}>Manatee County Public Library · via LibCal</div>
-                  </>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "28px 16px", color: C.muted, fontSize: 13.5, lineHeight: 1.5 }}>No local programs loaded right now. Check back soon for library events, workshops, and civic happenings nearby.</div>
-                )}
-              </>
-            )}
-            {menuSheet === "explore" && (
-              <>
-                <SheetHero icon="📍" title={locName || "Nearby"} subtitle="Open spots near you, ranked best first." color={C.accent} />
-                {(() => {
-                  const src = (suggested && suggested.length ? suggested : places) || [];
-                  if (src.length < 4) return null;
-                  const counts = {};
-                  src.forEach((p) => { const c = primaryCategory(p); if (c) counts[c] = (counts[c] || 0) + 1; });
-                  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 2);
-                  if (!top.length) return null;
-                  const gems = src.filter((p) => (p.rating || 0) >= 4.5).length;
-                  const catLine = top.map(([c, n]) => `${c} (${n})`).join(" and ");
-                  return (
-                    <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 16 }}>
-                      <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700, marginBottom: 5 }}>The local scene</div>
-                      Strongest around here: {catLine}.{gems > 0 ? ` ${gems} spot${gems === 1 ? "" : "s"} sitting at 4.5★ or higher.` : ""}
-                    </div>
-                  );
-                })()}
-                {(() => {
-                  const src = dedupePlaces([...(suggested || []), ...places]);
-                  if (!src.length) return null;
-                  const openFirst = src.filter((p) => p && p.openNow === true);
-                  const base = (openFirst.length >= 2 ? openFirst : src).filter(Boolean);
-                  const picks = base.slice(0, 2);
-                  if (picks.length === 0) return null;
-                  const evs = dedupeEvents(foryouEvents || [], true).filter(Boolean).slice(0, 2);
-                  return (
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, marginBottom: 8 }}>Start with these</div>
-                      {picks.map((p, i) => (
-                        <div key={"nbpick-" + p.id} onClick={() => { setMenuSheet(null); openDetail(p); }} style={{ marginBottom: 10, border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card }}>
-                          <div style={{ position: "relative" }}>
-                            <FallbackImg src={p.photo} icon="📍" style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
-                            <div style={{ position: "absolute", top: 9, left: 9, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${(p.openNow === true ? C.green : C.accent)}80`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 9.5, fontWeight: 800, color: p.openNow === true ? C.green : C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{p.openNow === true ? "Open now" : (i === 0 ? "Top pick nearby" : "Also near you")}</span>
-                            </div>
-                          </div>
-                          <div style={{ padding: "11px 13px 13px" }}>
-                            <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{p.name}</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
-                              {p.rating != null && <span style={{ fontSize: 12.5, color: "#F59E0B" }}>★ {p.rating}</span>}
-                              {p.reviews != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.reviews.toLocaleString()} reviews</span>}
-                              {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
-                              {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span>}
-                              {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                            </div>
-                            {whyNow(p) && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 7 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
-                          </div>
-                        </div>
-                      ))}
-                      {evs.length > 0 && (
-                        <>
-                          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, margin: "6px 2px 8px" }}>Happening near you</div>
-                          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 9, marginBottom: 4 }}>
-                            {evs.map((e) => {
-                              const f = formatEventDate(e.date, e.time);
-                              const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
-                              return (
-                                <div key={"nbev-" + e.id} onClick={() => { setMenuSheet(null); openVenue(e); }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>
-                                  <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
-                                  <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-                                  <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  );
-                })()}
-                {(() => {
-                  const near = ((suggested && suggested.length ? suggested : places) || []).filter(Boolean);
-                  if (near.length >= 1) return null;
-                  return (
-                    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 16px", marginBottom: 12, textAlign: "center" }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>Quiet right around {locName ? locName.split(",")[0] : "you"}</div>
-                      <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 12 }}>We did not find much in your immediate area. Want to look a little farther out?</div>
-                      <button onClick={() => { setMenuSheet(null); setPendingRadius(Math.max(searchRadius || 0, 40234)); setRadiusSheet(true); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Search a wider area →</button>
-                    </div>
-                  );
-                })()}
-                <button onClick={() => { setMenuSheet(null); setScreen("explore"); }} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Show me the best spots →</button>
-              </>
-            )}
-            {menuSheet === "pick" && (
-              <>
-                <SheetHero icon="🎲" title="I want to take a chance" subtitle="Roll and Wayfind lands you on one great spot nearby. Your rolls are saved below." color={C.purple} />
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, marginBottom: 6 }}>
-                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ width: 84, height: 84, borderRadius: 20, border: `2px solid ${C.accent}`, background: C.adim, fontSize: 42, cursor: homeRolling ? "default" : "pointer", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", animation: homeRolling ? "wfroll 0.5s linear infinite" : "none" }}>{homeRolling ? homeDiceFace : "🎲"}</button>
-                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ padding: "11px 26px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: homeRolling ? "default" : "pointer", opacity: homeRolling ? 0.6 : 1 }}>{rollHistory.length ? "Roll again" : "Roll the dice"}</button>
-                </div>
-                {rollHistory.length > 0 && (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Your rolls</div>
-                    {rollHistory.map((rp, i) => (
-                      <div key={rp.id + "-" + i} onClick={() => { setMenuSheet(null); openDetail(rp); }} style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", marginBottom: 7, cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{rollHistory.length - i}</span>
-                        <FallbackImg src={rp.photo} icon="🍽️" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{rp.name}</div>
-                          <div style={{ display: "flex", gap: 6, marginTop: 2, alignItems: "center" }}>
-                            {rp.rating && <span style={{ fontSize: 11, color: "#F59E0B" }}>★ {rp.rating}</span>}
-                            {rp.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {rp.distMi.toFixed(1)} mi</span>}
-                          </div>
-                        </div>
-                        <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-            {menuSheet === "experiences" && (
-              <>
-                <SheetHero icon="✨" title="Occasions" subtitle="Pick an occasion and the feed reshapes around it." color={C.gold} />
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                  {INTENTS.map((it) => {
-                    const on = intent === it.id;
-                    return (
-                      <button key={it.id} onClick={() => { setIntent(on ? null : it.id); setMenuSheet(null); }} style={{ height: 76, borderRadius: 16, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 14, fontWeight: 800 }}>
-                        <span style={{ fontSize: 24, lineHeight: 1 }}>{it.icon}</span>
-                        <span>{it.label}</span>
-                      </button>
-                    );
-                  })}
-                  <button onClick={() => { const rc = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)]; setMenuSheet(null); pickCat(rc.id); }} style={{ height: 76, borderRadius: 16, border: `1.5px dashed ${C.accent}`, background: C.adim, color: C.accent, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 13, fontWeight: 800 }}>
-                    <span style={{ fontSize: 24, lineHeight: 1 }}>🎲</span>
-                    <span>Surprise Me</span>
-                  </button>
-                </div>
-              </>
-            )}
-            {menuSheet === "weather" && weather && (
-              <>
-                {/* v4.7: no static icon tile above the title. The live condition icon sits to the right of the words. */}
-                {(() => {
-                  const hr = new Date().getHours();
-                  const timeLabel = hr < 5 ? "Late-night weather" : hr < 12 ? "This morning's weather" : hr < 17 ? "This afternoon's weather" : hr < 21 ? "This evening's weather" : "Tonight's weather";
-                  const night = isNightNow(weather);
-                  const cloudyNight = night && !!weather.img && weather.img !== "sunny";
-                  const headIcon = night ? ("/wx/" + moonImgName(new Date(), cloudyNight) + ".png") : ("/wx/" + (weather.img || "cloudy") + ".png");
-                  return (
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{timeLabel}</div>
-                        <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{(locName ? locName.split(",")[0] : "Your area") + (weather && weather.updated ? " · updated " + weather.updated : ", live conditions.")}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 11, flexShrink: 0 }}>
-                        <img src={headIcon} alt="" style={{ height: 58, width: "auto", display: "block" }} />
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 32, fontWeight: 800, color: C.text, lineHeight: 1 }}>{weather.temp}°</div>
-                          {weather.label && <div style={{ fontSize: 12.5, color: C.light, marginTop: 3 }}>{weather.label}</div>}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-                {(() => { const adv = weatherAdvisory(weather); return adv ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, background: C.adim, border: `1px solid ${C.gold}`, borderRadius: 12, padding: "11px 13px", marginBottom: 14 }}>
-                    <span style={{ fontSize: 20, flexShrink: 0 }}>{adv.icon}</span>
-                    <div style={{ fontSize: 13, color: C.light, lineHeight: 1.45 }}>{adv.text}</div>
-                  </div>
-                ) : null; })()}
-                {(() => { const t = wayfindWeatherTake(weather); if (!t || (!t.good.length && !t.avoid.length)) return null; return (
-                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: "13px 14px", marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", color: C.accent, textTransform: "uppercase", marginBottom: 8 }}>Wayfind take · {t.night ? "tonight" : "today"}</div>
-                    {t.good.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5, marginBottom: t.avoid.length ? 7 : 0 }}><span style={{ color: C.green, fontWeight: 800, flexShrink: 0 }}>Good for</span><span>{t.good.join(", ")}</span></div>}
-                    {t.avoid.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5 }}><span style={{ color: C.muted, fontWeight: 800, flexShrink: 0 }}>Skip</span><span>{t.avoid.join(", ")}</span></div>}
-                  </div>
-                ); })()}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
-                  {weather.feels != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Feels like</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.feels}°</div></div>)}
-                  {weather.wind != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Wind</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>💨 {weather.wind} mph</div></div>)}
-                  {weather.sunset && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Sunset</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}><img src="/wx/sunset.png" alt="" style={{ height: 18, width: "auto", verticalAlign: "middle", marginRight: 4 }} />{weather.sunset}</div></div>)}
-                  {weather.rain != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Rain chance</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.rain}%</div></div>)}
-                  {weather.hi != null && weather.lo != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>High / Low</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.hi}° / {weather.lo}°</div></div>)}
-                  {weather.humidity != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Humidity</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.humidity}%</div></div>)}
-                  {weather.uv != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Today's UV peak</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.uv} · {uvLabel(weather.uv)}</div></div>)}
-                  {weather.dew != null && (<div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 14px" }}><div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Dew point</div><div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginTop: 3 }}>{weather.dew}°{weather.dew >= 70 ? " · muggy" : weather.dew >= 60 ? " · sticky" : " · comfy"}</div></div>)}
-                  {(() => { const m = moonPhase(new Date()); return (
-                    <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 14, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "12px 16px" }}>
-                      <img src={"/wx/" + moonImgName(new Date(), false) + ".png"} alt="" style={{ height: 40, width: "auto", display: "block", flexShrink: 0 }} />
-                      <div>
-                        <div style={{ fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", fontWeight: 700 }}>Tonight's moon</div>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginTop: 2 }}>{m.name}</div>
-                        <div style={{ fontSize: 12, color: C.muted, marginTop: 1 }}>{m.illum}% illuminated</div>
-                      </div>
-                    </div>
-                  ); })()}
-                </div>
-                <button onClick={shareWeather} style={{ width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
-                  {isNightNow(weather) ? "Share the weather tonight" : "Share the weather"}
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      {menuSheet && <MenuSheet ctx={ctx} />}
 
       {/* Save-to-list sheet */}
-      {authOpen && (
-        <div style={sheetBg} onClick={() => setAuthOpen(false)}>
-          <div ref={authDlgRef} role="dialog" aria-modal="true" aria-label="Sign in or create your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
-            <Grabber />
-            <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
-            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
-
-            {!isStandalone && (
-              <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-              <span style={{ fontSize: 16, fontWeight: 800 }}>G</span> Continue with Google
-            </button>
-            )}
-
-            {!isStandalone && (
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <div style={{ flex: 1, height: 1, background: C.border }} />
-              <div style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>or with email</div>
-              <div style={{ flex: 1, height: 1, background: C.border }} />
-            </div>
-            )}
-
-            {isStandalone && (
-              <div style={{ fontSize: 12.5, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 14, lineHeight: 1.5 }}>
-                You're in the home-screen app, so sign in with email below. Google sign-in only works in Safari; if you use Google, open Wayfind in Safari to sign in there.
-              </div>
-            )}
-
-            <input type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@email.com"
-              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 10, outline: "none" }} />
-            <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder="Password"
-              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 12, outline: "none" }} />
-            <button onClick={passwordAuth} disabled={authSending || !authEmail || !authPassword} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: authSending || !authEmail || !authPassword ? "default" : "pointer", opacity: authSending || !authEmail || !authPassword ? 0.6 : 1 }}>
-              {authSending ? "…" : authMode === "signup" ? "Create account" : "Sign in"}
-            </button>
-            <div style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: C.muted }}>
-              {authMode === "signup" ? "Already have an account? " : "New here? "}
-              <span onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</span>
-            </div>
-            {authMode === "signin" && (
-              <div style={{ textAlign: "center", marginTop: 8 }}>
-                <span onClick={resetSending ? undefined : sendPasswordReset} style={{ fontSize: 12.5, color: C.muted, textDecoration: "underline", cursor: "pointer", opacity: resetSending ? 0.6 : 1 }}>{resetSending ? "Sending…" : "Forgot password?"}</span>
-              </div>
-            )}
-            <div style={{ textAlign: "center", marginTop: 10 }}><a href="/privacy" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
-          </div>
-        </div>
-      )}
-      {introOpen && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          {/* v4.80: livelier breathing — wider swing between soft and bright, and
-              the border warms with the glow so the whole frame feels lit.
-              v5.25 premium concierge: soft radial halo behind a frosted-glass
-              card, a scale-and-fade entrance instead of a hard cut, and the six
-              adaptive mood tiles (the ONLY home of the mood picker — the inline
-              home-screen row is gone by design). */}
-          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
-          <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 38px rgba(255,138,61,.6), 0 0 90px rgba(249,115,22,.3)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
-            </div>
-            <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 8 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
-            <div style={{ textAlign: "center", marginTop: 7 }}><IntroIcon k="spark" size={21} color="#FFC28A" /></div>
-            {/* v5.25 concierge greeting — personalization (name/time/weather),
-                real abundance (live open-now count, never invented), and an
-                easy out. Every claim in it is computed from live data. */}
-            <div style={{ textAlign: "center", fontSize: 13.5, color: "#B6BCD0", lineHeight: 1.55, margin: "8px auto 12px", maxWidth: 360 }}>{(() => { try {
-              const h = new Date().getHours();
-              const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
-              const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
-              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + " \ud83d\udc4b";
-              const town = locName ? locName.split(",")[0] : "your area";
-              let w = "";
-              if (weather && typeof weather.temp === "number") {
-                // v5.26: the greeting speaks in what it FEELS like — a Florida
-                // 92° with a 103° heat index greets as 103°. When feels-like
-                // meaningfully differs from the thermometer, say so explicitly.
-                const felt = weather.feels != null ? weather.feels : weather.temp;
-                const diff = weather.feels != null && Math.abs(weather.feels - weather.temp) >= 3;
-                const rainy = weather.wet || /rain|storm|shower/i.test(weather.label || "");
-                w = rainy ? " Rain out there — the perfect excuse for a cozy find in " + town + "."
-                  : felt >= 99 ? (diff ? " It's " + weather.temp + "° but feels like " + felt + "° — cool, easy picks are winning today." : " It's a steamy " + felt + "° — cool, easy picks are winning today.")
-                  : felt >= 60 ? (diff ? " It feels like a gorgeous " + felt + "° out — a great moment to be out in " + town + "." : " It's a gorgeous " + felt + "° — a great moment to be out in " + town + ".")
-                  : (diff ? " It feels like a crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good." : " A crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good.");
-              }
-              const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
-              const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
-              return g + w + alive;
-            } catch (e) { return "Wayfind turns how you feel into the best places near you."; } })()}</div>
-            <div style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for?</span>
-              </div>
-            </div>
-            {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
-                adaptive rules the home row used: evenings lead with Date Night
-                and Night Out, bad weather swaps Outside for Cozy Indoor, weekend
-                mornings swap Where to Eat for Brunch. Every tile fires the full
-                moment engine (structured ranking + cached LLM why-lines). */}
-            {(() => { try {
-              const _h = new Date().getHours(); const _d = new Date().getDay();
-              const _eve = _h >= 16 || _h < 4;
-              const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
-              // "Too hot" is what it FEELS like, not the thermometer: a Florida
-              // 91° with a 104° heat index is not an Outside afternoon.
-              const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;
-              const _bad = !!(weather && (weather.wet || (weather.rain != null && weather.rain >= 55) || /storm|rain|shower/i.test(weather.label || "") || (_felt != null && (_felt >= 99 || _felt <= 40))));
-              const outsideKey = _bad ? "cozyindoor" : "outdoors";
-              const eatKey = _wkndMorn ? "brunch" : "eatnow";
-              const MOOD_LBL = { outdoors: ["\u2600\ufe0f", "Outside"], cozyindoor: ["\ud83c\udf27\ufe0f", "Cozy Indoor"], datenight: ["\ud83c\udf39", "Date Night"], nightout: ["\ud83c\udf78", "Night Out"], eatnow: ["\ud83c\udf7d\ufe0f", "Where to Eat"], brunch: ["\ud83e\udd5e", "Brunch"], hiddengems: ["\ud83d\udc8e", "Hidden Gems"], familyfun: ["\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", "Family Fun"] };
-              const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
-              return (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
-                  {order.map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "16px 10px 13px", borderRadius: 16, border: `1.5px solid ${on ? "#FF8A3D" : "rgba(255,255,255,.13)"}`, background: on ? "linear-gradient(150deg, rgba(255,138,61,.24) 0%, rgba(255,138,61,.10) 100%)" : "linear-gradient(150deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.015) 100%)", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                      <span style={{ fontSize: 25 }}>{(MOOD_LBL[k] || [ex.icon])[0]}</span><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
-                    </button>
-                  ); })}
-                </div>
-              );
-            } catch (e) { return null; } })()}
-            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
-            <div onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
-          </div>
-        </div>
-      )}
-      {recoveryOpen && (
-        <div style={sheetBg} onClick={() => setRecoveryOpen(false)}>
-          <div ref={recoveryDlgRef} role="dialog" aria-modal="true" aria-label="Set a new password" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "22px 20px 30px" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>Set a new password</div>
-            <div style={{ fontSize: 13, color: C.muted, marginBottom: 14, lineHeight: 1.5 }}>You opened a password reset link. Choose a new password for your account.</div>
-            <input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New password (8+ characters)"
-              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 10, outline: "none" }} />
-            <input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} placeholder="Repeat new password"
-              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 12, outline: "none" }} />
-            <button onClick={saveNewPassword} disabled={pwSaving || !newPw || !newPw2} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: pwSaving || !newPw || !newPw2 ? "default" : "pointer", opacity: pwSaving || !newPw || !newPw2 ? 0.6 : 1 }}>{pwSaving ? "…" : "Save new password"}</button>
-          </div>
-        </div>
-      )}
+      {authOpen && <AuthSheet ctx={ctx} />}
+      {introOpen && <IntroSheet ctx={ctx} />}
+      {recoveryOpen && <AuthSheet ctx={ctx} />}
       {saveTarget && (
         <div style={sheetBg} onClick={() => setSaveTarget(null)}>
           <div style={{ ...sheet, padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setSaveTarget(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -8717,8 +6469,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
 const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(249,115,22,.3)", borderRadius: 999, padding: "5px 11px" };
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
-const sheetBg = { position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 900, display: "flex", alignItems: "flex-end", justifyContent: "center" };
-const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto" };
 
 export default function Page() {
   return (
