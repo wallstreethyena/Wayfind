@@ -7,14 +7,14 @@ const S = {
   date: { color: "#8B949E", fontSize: 13, marginBottom: 28 },
   h2: { fontSize: 17, fontWeight: 800, marginTop: 28, marginBottom: 8, color: "#F0883E" },
   p: { margin: "0 0 12px", color: "#C9D1D9" },
-  a: { color: "#F0883E", textDecoration: "none" },
+  a: { color: "#F0883E", textDecoration: "underline", textUnderlineOffset: 2 },
 };
 
 export default function Privacy() {
   return (
     <div style={S.page}>
       <div style={S.wrap}>
-        <div style={S.h1}>Privacy &amp; Disclosures</div>
+        <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
         <div style={S.date}>Wayfind &middot; Effective July 5, 2026</div>
 
         <div style={S.h2}>What Wayfind is</div>

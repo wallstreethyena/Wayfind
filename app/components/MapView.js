@@ -100,6 +100,9 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const marker = new window.google.maps.Marker({
         position: { lat: p.lat, lng: p.lng },
         map,
+        // v5.38 a11y: title is Maps' supported accessible-name API — without
+        // it every pin is an unnamed role="button" to screen readers.
+        title: `${i + 1}. ${p.name || "Place"}`,
         icon: {
           url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(placePinSVG(fill, i + 1, "#ffffff")),
           scaledSize: new window.google.maps.Size(w, s),

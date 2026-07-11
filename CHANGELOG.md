@@ -1,3 +1,25 @@
+## v5.38 - accessibility sweep: landmarks, contrast, keyboard, axe gate
+- Every route gets a <main id="wf-main"> landmark and a keyboard-visible
+  "Skip to main content" link (layout.js); the homepage gets a descriptive
+  server-rendered H1 (visually hidden — the conditional proof block stays
+  an h2 under it); /privacy's heading is a real <h1> and its links are
+  underlined (link-in-text-block fix).
+- Contrast: white-on-#FF8A3D CTAs (2.34:1) — the event hero's date chip and
+  "Get tickets" — now use dark ink on the bright accent (>7:1); the footer's
+  #64748B text/links (3.97:1) are #94A3B8 (~7:1) and the #475569 affiliate
+  line is #8B98A9.
+- Keyboard: all nine role="button" divs got tabIndex + Enter/Space
+  activation (shared KB_CLICK); the horizontal events strip is a named,
+  focusable region (scrollable-region-focusable fix); search input has a
+  persistent accessible name with the placeholder demoted to hint.
+- Map pins now pass title (Maps' supported accessible-name API) — every
+  pin was an unnamed role="button" to screen readers; zoom is the only
+  Google control (defaultUI already disabled) and the drawer list remains
+  the keyboard path. Lightbox photos describe their place.
+- New axe e2e gate: /, /privacy, and a guide page must have ZERO critical
+  or serious violations; plus a keyboard-journey test (skip link → search →
+  landmarks). Full suite 24/24.
+
 ## v5.37 - one interruption per session + real dialog semantics
 - Prompt coordinator: at most ONE interruptive surface per session
   (sessionStorage wf_interrupted). The intro claims it or nothing does; the
