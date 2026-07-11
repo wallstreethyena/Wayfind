@@ -73,10 +73,10 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_ICONS, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.54";
+const BUILD_ID = "v5.58";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1149,19 +1149,21 @@ function medal(rank) {
 
 // Shows a real photo, or a clean branded placeholder if the photo is missing or
 // fails to load. Never a broken image icon. onClick only fires on a real photo.
+// Premium redesign, Phase 3: the shared image chain — skeleton while loading,
+// the image once it decodes, branded artwork if the src is missing or fails.
+// Never a blank rectangle or a broken-image glyph. The state decision lives
+// in kit.js imageDisplayState() so it's unit-tested independent of the DOM.
 function FallbackImg({ src, alt, style, icon, onClick }) {
   const [bad, setBad] = useState(false);
-  if (!src || bad) {
-    return (
-      <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)", cursor: "default" }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
-          <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
-          <circle cx="12" cy="9.4" r="2.4" />
-        </svg>
-      </div>
-    );
-  }
-  return <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onError={() => setBad(true)} onClick={onClick} style={style} />;
+  const [loaded, setLoaded] = useState(false);
+  const state = imageDisplayState({ src, errored: bad, loaded });
+  if (state === "fallback") return <BrandedImageFallback style={style} />;
+  return (
+    <div style={{ ...style, position: "relative", overflow: "hidden" }}>
+      {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
+      <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => setBad(true)} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+    </div>
+  );
 }
 
 // v3.9: a home-grid tile backed by a generated image (public/tiles/*.png). If the image
@@ -1372,23 +1374,8 @@ function SheetHero({ icon, title, subtitle, color }) {
 
 // v4.4: flat line nav icons in the Wayfind language — no emoji, no red heart. Each takes
 // the active or inactive color so the bar stays on-brand and consistent at any state.
-function NavIcon({ name, color, size }) {
-  const sz = size || 23;
-  const p = { width: sz, height: sz, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
-  if (name === "home") return (<svg {...p}><path d="M4 12 L12 4.5 L20 12" /><path d="M6 10.5 V19.5 H18 V10.5" /><path d="M10 19.5 V14 H14 V19.5" /></svg>);
-  if (name === "events") return (<svg {...p}><rect x="4" y="5.4" width="16" height="15" rx="2.4" /><path d="M8 3.4v3.4" /><path d="M16 3.4v3.4" /><path d="M4 10.4h16" /><circle cx="12" cy="15" r="1.7" /></svg>);
-  if (name === "map") return (<svg {...p}><path d="M9 4.5 L3 7 V19.5 L9 17 L15 19.5 L21 17 V4.5 L15 7 L9 4.5 Z" /><path d="M9 4.5 V17" /><path d="M15 7 V19.5" /></svg>);
-  if (name === "saved") return (<svg {...p}><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>);
-  if (name === "food") return (<svg {...p}><path d="M7 3v6" /><path d="M5 3v4" /><path d="M9 3v4" /><path d="M7 9v12" /><path d="M16.5 3c-1.6 1-2.3 3-2.3 5.2 0 1.7 1 2.5 2.3 2.7V21" /></svg>);
-  if (name === "nightlife") return (<svg {...p}><path d="M5 5h14l-7 8-7-8Z" /><path d="M12 13v6" /><path d="M8.5 19.5h7" /></svg>);
-  if (name === "attractions") return (<svg {...p}><circle cx="12" cy="9.5" r="5.8" /><circle cx="12" cy="9.5" r="1.2" /><path d="M12 4.9v3.4" /><path d="M12 10.7v3.4" /><path d="M7.4 9.5h3.4" /><path d="M13.2 9.5h3.4" /><path d="M8.8 6.3l2.3 2.3" /><path d="M12.9 10.4l2.3 2.3" /><path d="M15.2 6.3l-2.3 2.3" /><path d="M11.1 10.4l-2.3 2.3" /><path d="M12 15.3 8.6 21" /><path d="M12 15.3 15.4 21" /><path d="M6.8 21h10.4" /></svg>);
-  if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
-  if (name === "hotels") return (<svg {...p}><rect x="5" y="3.8" width="14" height="17.2" rx="1.6" /><path d="M10.2 21v-4.2h3.6V21" /><path d="M8.4 7.4h1.7" /><path d="M13.9 7.4h1.7" /><path d="M8.4 11.4h1.7" /><path d="M13.9 11.4h1.7" /></svg>);
-  if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
-  if (name === "coupons") return (<svg {...p}><path d="M20.6 12.6 L13.4 19.8 a2.1 2.1 0 0 1-3 0 L4.2 13.6 a2.1 2.1 0 0 1-.6-1.5 V5.7 a2.1 2.1 0 0 1 2.1-2.1 h6.4 a2.1 2.1 0 0 1 1.5.6 l7 7 a2.1 2.1 0 0 1 0 3 Z" /><circle cx="8.6" cy="8.6" r="1.5" /></svg>);
-  if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
-  return null;
-}
+// NavIcon (category + nav line-icon set) now lives in components/kit.js so
+// every surface shares one icon language — imported at the top of this file.
 
 // Branded loading indicator: the Wayfind pin, gently pulsing.
 function Loader({ label, size, pad, sub }) {
@@ -1502,17 +1489,20 @@ async function loadBeachConditions(p) {
 }
 
 // Ticketmaster segment and genre to a chip icon, short label, and accent color.
+// iconName (v5.55 redesign) is the line-icon key for chrome (badges/section
+// heads); the emoji stays as `icon` for the EventArt tile fallback, which is
+// large decorative content, not chrome.
 function eventSegmentMeta(seg, genre) {
   const s = (seg || "").toLowerCase();
   const g = (genre || "").toLowerCase();
-  if (g.includes("comedy")) return { icon: "😂", short: "Comedy", color: "#FBBF24" };
-  if (s.includes("music")) return { icon: "🎵", short: "Concert", color: "#F472B6" };
-  if (s.includes("sport")) return { icon: "⚾", short: "Sports", color: "#38BDF8" };
-  if (s.includes("arts") || s.includes("theatre") || s.includes("theater")) return { icon: "🎭", short: "Theater", color: "#FF8A3D" };
-  if (s.includes("film")) return { icon: "🎬", short: "Film", color: "#FBBF24" };
-  if (s.includes("family")) return { icon: "👨‍👩‍👧", short: "Family", color: "#22C55E" };
-  if (!s || s.includes("misc") || s.includes("undefined") || s.includes("other")) return { icon: "🎪", short: "Other", color: "#94A3B8" };
-  return { icon: "🎪", short: seg || "Other", color: "#94A3B8" };
+  if (g.includes("comedy")) return { icon: "😂", iconName: "smile", short: "Comedy", color: "#FBBF24" };
+  if (s.includes("music")) return { icon: "🎵", iconName: "music", short: "Concert", color: "#F472B6" };
+  if (s.includes("sport")) return { icon: "⚾", iconName: "trophy", short: "Sports", color: "#38BDF8" };
+  if (s.includes("arts") || s.includes("theatre") || s.includes("theater")) return { icon: "🎭", iconName: "masks", short: "Theater", color: "#FF8A3D" };
+  if (s.includes("film")) return { icon: "🎬", iconName: "film", short: "Film", color: "#FBBF24" };
+  if (s.includes("family")) return { icon: "👨‍👩‍👧", iconName: "users", short: "Family", color: "#22C55E" };
+  if (!s || s.includes("misc") || s.includes("undefined") || s.includes("other")) return { icon: "🎪", iconName: "ticket", short: "Other", color: "#94A3B8" };
+  return { icon: "🎪", iconName: "ticket", short: seg || "Other", color: "#94A3B8" };
 }
 
 // v5.4: pick the moon image for the current phase; a clouded moon for overcast nights.
@@ -1779,14 +1769,14 @@ function eventCategory(e) {
   if (seg.short && seg.short !== "Other" && seg.short !== "Event") return seg;
   const t = ((e && e.name) || "").toLowerCase();
   const has = (re) => re.test(t);
-  if (has(/\b(wine|beer|brewery|cocktail|happy hour|pub|tap ?room|tasting|spirits|nightlife|club|dj|martini)\b/)) return { icon: "🍷", short: "Nightlife", color: "#F472B6" };
-  if (has(/\b(food|truck|taste|culinary|bbq|brunch|dinner|chef|eats|dining|feast|pizza|seafood)\b/)) return { icon: "🍔", short: "Food", color: "#F97316" };
-  if (has(/\b(trail|park|hike|outdoor|cleanup|clean-up|workday|garden|nature|beach|kayak|paddle|fishing)\b/)) return { icon: "🌳", short: "Outdoors", color: "#22C55E" };
-  if (has(/\b(market|farmers|craft|vendor|flea|bazaar|artisan|swap)\b/)) return { icon: "🛒", short: "Market", color: "#2DD4BF" };
-  if (has(/\b(kids|family|children|child|story ?time|teen)\b/)) return { icon: "👪", short: "Family", color: "#22C55E" };
-  if (has(/\b(art|gallery|exhibit|paint|sculpt|museum|pottery)\b/)) return { icon: "🎨", short: "Arts", color: "#FF8A3D" };
-  if (has(/\b(music|concert|live|band|jazz|acoustic|symphony|karaoke|open mic)\b/)) return { icon: "🎵", short: "Live", color: "#F472B6" };
-  if (has(/\b(run|race|5k|10k|marathon|sport|tournament|yoga|fitness|cycling|golf)\b/)) return { icon: "🏃", short: "Active", color: "#38BDF8" };
+  if (has(/\b(wine|beer|brewery|cocktail|happy hour|pub|tap ?room|tasting|spirits|nightlife|club|dj|martini)\b/)) return { icon: "🍷", iconName: "glass", short: "Nightlife", color: "#F472B6" };
+  if (has(/\b(food|truck|taste|culinary|bbq|brunch|dinner|chef|eats|dining|feast|pizza|seafood)\b/)) return { icon: "🍔", iconName: "utensils", short: "Food", color: "#F97316" };
+  if (has(/\b(trail|park|hike|outdoor|cleanup|clean-up|workday|garden|nature|beach|kayak|paddle|fishing)\b/)) return { icon: "🌳", iconName: "leaf", short: "Outdoors", color: "#22C55E" };
+  if (has(/\b(market|farmers|craft|vendor|flea|bazaar|artisan|swap)\b/)) return { icon: "🛒", iconName: "cart", short: "Market", color: "#2DD4BF" };
+  if (has(/\b(kids|family|children|child|story ?time|teen)\b/)) return { icon: "👪", iconName: "users", short: "Family", color: "#22C55E" };
+  if (has(/\b(art|gallery|exhibit|paint|sculpt|museum|pottery)\b/)) return { icon: "🎨", iconName: "palette", short: "Arts", color: "#FF8A3D" };
+  if (has(/\b(music|concert|live|band|jazz|acoustic|symphony|karaoke|open mic)\b/)) return { icon: "🎵", iconName: "music", short: "Live", color: "#F472B6" };
+  if (has(/\b(run|race|5k|10k|marathon|sport|tournament|yoga|fitness|cycling|golf)\b/)) return { icon: "🏃", iconName: "activity", short: "Active", color: "#38BDF8" };
   return seg;
 }
 function EventHeroBg({ image, acc, venue, near }) {
@@ -5417,7 +5407,7 @@ function PageInner() {
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>{CAT_ICONS[cat]}</div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
           <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
           <span style={{ fontSize: 13 }}>We're still adding spots in your area. Try another category nearby.</span>
         </div>
@@ -5502,7 +5492,7 @@ function PageInner() {
 
   return (
     <div style={shell}>
-    <div style={{ ...wrap, maxWidth: isDesktop ? 1040 : 480 }}>
+    <div style={{ ...wrap, maxWidth: isDesktop ? 1280 : 480 }}>
       <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}`}</style>
       {/* Header */}
       <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
@@ -5526,9 +5516,9 @@ function PageInner() {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
-            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 33, height: 33, borderRadius: 999, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 15, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}>✨</button>
+            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}><Icon name="sparkles" size={17} color={C.accent} /></button>
             {supabase && (user ? (
-              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
+              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
               <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
@@ -5592,7 +5582,7 @@ function PageInner() {
               </div>
             )}
           </div>
-          <button onClick={submitSearch} aria-label="Wayfind it" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", border: "none", borderRadius: "0 14px 14px 0", color: "#fff", fontSize: 22, fontWeight: 800, cursor: "pointer", boxShadow: "0 2px 10px rgba(249,115,22,.4)" }}>→</button>
+          <button onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
         </div>
         )}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
@@ -5732,9 +5722,9 @@ function PageInner() {
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
           return (
-            <div style={isDesktop ? { display: "flex", gap: 28, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" } : {}}>
+            <div style={isDesktop ? { display: "flex", gap: 32, alignItems: "flex-start", width: "100%", maxWidth: 1240, margin: "0 auto" } : {}}>
               {/* LEFT column on desktop: intent chips + hooks + feed */}
-              <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 600 : undefined }}>
+              <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 780 : undefined }}>
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
               <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {a2hs && (
@@ -6048,7 +6038,7 @@ function PageInner() {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>🎟️ Happening near you</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                       <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                     </div>
                     {featured && featured.dest && (() => {
@@ -6072,7 +6062,7 @@ function PageInner() {
                               <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                                 <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
                               </div>
-                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><span style={{ fontSize: 11 }}>{seg.icon}</span><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
+                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} /><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
                             </div>
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 52px" }}>
                               <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
@@ -6117,21 +6107,21 @@ function PageInner() {
                   <div style={{ textAlign: "center", marginBottom: 12 }}>
                     <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 8 }}><Critter size={44} /></div>
                     <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>Start with one of these</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>Wayfind is reading what's around you \u2014 these always work.</div>
+                    <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>Wayfind is reading what's around you — these always work.</div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
                     {[
-                      ["\u2728", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openExpSheet("bestof")],
-                      ["\uD83D\uDC8E", "Hidden gems", () => openExpSheet("gem")],
-                      ["\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Family favorites", () => openExpSheet("family")],
-                      ["\uD83D\uDC95", "Date night ideas", () => openExpSheet("romantic")],
-                      ["\uD83C\uDF9F\uFE0F", "Perfect for tonight", () => setScreen("events")],
-                      ["\uD83D\uDE97", "Worth the drive", () => openExpSheet("entertainment")],
-                      ["\uD83D\uDCB5", "Big fun, small budget", () => openExpSheet("budget")],
-                      ["\uD83C\uDFB2", "Surprise me", () => setMenuSheet("pick")],
+                      ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openExpSheet("bestof")],
+                      ["gem", "Hidden gems", () => openExpSheet("gem")],
+                      ["users", "Family favorites", () => openExpSheet("family")],
+                      ["heart", "Date night ideas", () => openExpSheet("romantic")],
+                      ["ticket", "Perfect for tonight", () => setScreen("events")],
+                      ["car", "Worth the drive", () => openExpSheet("entertainment")],
+                      ["wallet", "Big fun, small budget", () => openExpSheet("budget")],
+                      ["dice", "Surprise me", () => setMenuSheet("pick")],
                     ].map(([ic, lbl, go]) => (
-                      <button key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                        <span style={{ fontSize: 18 }}>{ic}</span><span>{lbl}</span>
+                      <button key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: TARGET }}>
+                        <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
                       </button>
                     ))}
                   </div>
@@ -6153,7 +6143,7 @@ function PageInner() {
               <div style={{ height: 20 }} />
               </div>
               {isDesktop && (
-                <div style={{ width: 340, flexShrink: 0, position: "sticky", top: 12 }}>
+                <div style={{ width: 400, flexShrink: 0, position: "sticky", top: 12 }}>
                   {/* v5.01 (user direction): the orange weather card is gone from
                       the desktop sidebar — weather lives in the header, period.
                       In its place: the in-app map, pinned with what's on screen
@@ -6169,10 +6159,10 @@ function PageInner() {
                   {foryouEvents && foryouEvents.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>🎟️ Events nearby</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={16} color={C.accent} />Events nearby</div>
                         <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                       </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
                         {dedupeEvents(foryouEvents, true).filter((e) => e && e.dest).slice(0, 6).map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const internal = e.destKind === "internal";
@@ -6294,7 +6284,7 @@ function PageInner() {
               <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>All experiences</div>
               <button onClick={() => setAllExpOpen(false)} aria-label="Close" style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 999, width: 34, height: 34, fontSize: 16, cursor: "pointer" }}>✕</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
               {Object.keys(EXPERIENCES).map((k) => {
                 const e = EXPERIENCES[k];
                 return (

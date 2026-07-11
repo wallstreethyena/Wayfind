@@ -13,7 +13,13 @@ const CSP_REPORT_ONLY = [
   "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
-  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com",
+  // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
+  // card images are served from provider CDNs that were absent from this
+  // allowlist, so they load today only because the CSP is Report-Only —
+  // the moment it flips to enforcing they would break. Added: Ticketmaster
+  // event images (s1.ticketm.net, proven live), and the Viator partner
+  // image CDNs used by the booking-CTA tour cards.
+  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com",
   "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com",
   "worker-src 'self' blob:",
   "frame-src 'self'",

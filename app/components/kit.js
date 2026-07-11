@@ -29,14 +29,120 @@ export const sheetBg = { position: "fixed", inset: 0, background: "rgba(0,0,0,.7
 export const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto" };
 export const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
 
+// ─── Design tokens (premium redesign, v5.55) ────────────────────────────────
+// One token system for the whole app. C above stays the color source of
+// truth; these add the editorial scale the redesign builds on. New and
+// touched surfaces MUST consume these instead of ad-hoc literals.
+export const TYPE = {
+  eyebrow: { fontSize: 11, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase" },
+  display: { fontSize: 22, fontWeight: 800, letterSpacing: "-0.4px", lineHeight: 1.15 },
+  title: { fontSize: 16, fontWeight: 700, lineHeight: 1.3 },
+  body: { fontSize: 16, lineHeight: 1.55 },
+  meta: { fontSize: 14, lineHeight: 1.4 },
+};
+export const SPACE = { xs: 4, s: 8, m: 12, l: 16, xl: 24, xxl: 32 };
+export const RADII = { chip: 999, control: 12, card: 14, sheet: 20 };
+export const SHADOW = { card: "0 1px 2px rgba(0,0,0,.35)", raised: "0 10px 34px rgba(0,0,0,.5)" };
+// 150–220ms, one curve, no bounce/pulse/glow loops anywhere in chrome.
+export const MOTION = { fast: "150ms", base: "180ms", slow: "220ms", ease: "cubic-bezier(.4,0,.2,1)" };
+export const RATIO = { card: "3 / 2", hero: "16 / 9" };
+export const FOCUS = { outline: `2px solid ${C.accent}`, outlineOffset: "2px" };
+// Champagne/gold — RESERVED for the giveaway/premium surfaces (share/save
+// prompt's Phase 3 direction). Orange stays the app-wide accent. The
+// orange+champagne pairing is FLAGGED FOR OWNER REVIEW — do not spread
+// champagne into general chrome without that decision.
+export const CHAMPAGNE = { base: "#E8C97A", deep: "#B98A2F", dim: "rgba(232,201,122,.14)" };
+// 44×44px minimum interactive target (design standard, stricter than WCAG).
+export const TARGET = 44;
+
+// ─── Line icons (premium redesign, v5.55) ───────────────────────────────────
+// ONE icon language for UI chrome: 24-viewbox stroke icons matching the
+// bottom nav's existing style (stroke 2, round caps). Emoji remain only as
+// CONTENT (weather glyphs, the user's list-icon picker, place pins) — never
+// as navigation, category identity, or section chrome.
+const ICON_PATHS = {
+  sparkles: <><path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9L12 3z" /><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z" /></>,
+  gem: <><path d="M6 3h12l4 6-10 12L2 9l4-6z" /><path d="M2 9h20" /><path d="M12 21L8 9l4-6 4 6-4 12" /></>,
+  users: <><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9.5" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M15.5 3.13a4 4 0 0 1 0 7.75" /></>,
+  heart: <path d="M20.4 4.6a5.5 5.5 0 0 0-7.8 0L12 5.2l-.6-.6a5.5 5.5 0 0 0-7.8 7.8l.6.6L12 20.8l7.8-7.8.6-.6a5.5 5.5 0 0 0 0-7.8z" />,
+  ticket: <><path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2.5 2.5 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2.5 2.5 0 0 0 0-6z" /><path d="M13 5v2" /><path d="M13 11v2" /><path d="M13 17v2" /></>,
+  car: <><path d="M5 11l1.7-4.2A2 2 0 0 1 8.5 5.5h7a2 2 0 0 1 1.8 1.3L19 11" /><path d="M3 16v-3a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3" /><path d="M3 16h18" /><circle cx="7" cy="18.5" r="1.6" /><circle cx="17" cy="18.5" r="1.6" /></>,
+  wallet: <><path d="M20 7H5a2 2 0 0 1-2-2 2 2 0 0 1 2-2h13v4" /><path d="M3 5v13a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1" /><path d="M16 13.5h.01" /></>,
+  dice: <><rect x="3.5" y="3.5" width="17" height="17" rx="3.5" /><circle cx="8.5" cy="8.5" r="1" fill="currentColor" /><circle cx="15.5" cy="8.5" r="1" fill="currentColor" /><circle cx="12" cy="12" r="1" fill="currentColor" /><circle cx="8.5" cy="15.5" r="1" fill="currentColor" /><circle cx="15.5" cy="15.5" r="1" fill="currentColor" /></>,
+  pin: <><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="2.6" /></>,
+  calendar: <><rect x="4" y="5.4" width="16" height="15" rx="2.4" /><path d="M8 3.4v3.4" /><path d="M16 3.4v3.4" /><path d="M4 10.4h16" /></>,
+  music: <><path d="M9 18V5l11-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="17" cy="16" r="3" /></>,
+  trophy: <><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></>,
+  masks: <><path d="M4 4h7v7a3.5 3.5 0 0 1-7 0V4z" /><path d="M13 9h7v7a3.5 3.5 0 0 1-7 0V9z" /><path d="M6 7.2h.01" /><path d="M9 7.2h.01" /><path d="M15 12.2h.01" /><path d="M18 12.2h.01" /><path d="M6 9a2 2 0 0 0 3 0" /><path d="M18.5 14.6a2 2 0 0 0-3 0" /></>,
+  film: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M7 4v16" /><path d="M17 4v16" /><path d="M3 9h4" /><path d="M3 15h4" /><path d="M17 9h4" /><path d="M17 15h4" /></>,
+  smile: <><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" /><path d="M9 9.5h.01" /><path d="M15 9.5h.01" /></>,
+  cart: <><circle cx="9" cy="20" r="1.4" /><circle cx="17.5" cy="20" r="1.4" /><path d="M2.5 3.5h3l2.5 12.5h10.5l2-8.5H6.6" /></>,
+  leaf: <><path d="M4 20c0-9 5-15 16-16-1 11-7 16-16 16z" /><path d="M4 20c3-6 7-10 12-12" /></>,
+  glass: <path d="M5.5 3.5h13L12 12v6.5M8 21.5h8" />,
+  utensils: <><path d="M7 3.6v7" /><path d="M4.5 3.6v3.9a2.5 2.5 0 0 0 5 0V3.6" /><path d="M7 13.4v7" /><path d="M15.9 3.9c-1.6 1.6-2.3 4.4-1.6 6.6.2.6.7 1 1.3 1h1.2v9" /></>,
+  palette: <><path d="M12 21a9 9 0 1 1 9-9c0 2-1.5 3-3 3h-2a2 2 0 0 0-1.5 3.3c.4.5.6 1 .3 1.6-.4.7-1.6 1.1-2.8 1.1z" /><path d="M7.5 10.5h.01" /><path d="M11 7h.01" /><path d="M15.5 8.5h.01" /></>,
+  activity: <path d="M22 12h-4l-3 8L9 4l-3 8H2" />,
+  image: <><rect x="3" y="4" width="18" height="16" rx="2.4" /><circle cx="9" cy="9.5" r="1.6" /><path d="M21 15.5l-5-5-9 9" /></>,
+  cloudrain: <><path d="M17.5 17a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.6A4 4 0 0 0 7 17h10.5z" /><path d="M8.5 19.5v2" /><path d="M12 19.5v2" /><path d="M15.5 19.5v2" /></>,
+};
+export function Icon({ name, size = 18, color = "currentColor", strokeWidth = 2, style, ...rest }) {
+  const paths = ICON_PATHS[name];
+  if (!paths) return null;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0, ...style }} {...rest}>{paths}</svg>
+  );
+}
+
+// Navigation + category line icons (the "FINAL MENU" set, founder-approved).
+// Moved here from home.js in the v5.55 redesign so every surface — bottom nav,
+// CategoryMenu, the community sheet — draws category identity from ONE icon
+// language instead of forking into emoji.
+export function NavIcon({ name, color, size }) {
+  const sz = size || 23;
+  const p = { width: sz, height: sz, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+  if (name === "home") return (<svg {...p}><path d="M4 12 L12 4.5 L20 12" /><path d="M6 10.5 V19.5 H18 V10.5" /><path d="M10 19.5 V14 H14 V19.5" /></svg>);
+  if (name === "events") return (<svg {...p}><rect x="4" y="5.4" width="16" height="15" rx="2.4" /><path d="M8 3.4v3.4" /><path d="M16 3.4v3.4" /><path d="M4 10.4h16" /><circle cx="12" cy="15" r="1.7" /></svg>);
+  if (name === "map") return (<svg {...p}><path d="M9 4.5 L3 7 V19.5 L9 17 L15 19.5 L21 17 V4.5 L15 7 L9 4.5 Z" /><path d="M9 4.5 V17" /><path d="M15 7 V19.5" /></svg>);
+  if (name === "saved") return (<svg {...p}><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>);
+  if (name === "food") return (<svg {...p}><path d="M7 3v6" /><path d="M5 3v4" /><path d="M9 3v4" /><path d="M7 9v12" /><path d="M16.5 3c-1.6 1-2.3 3-2.3 5.2 0 1.7 1 2.5 2.3 2.7V21" /></svg>);
+  if (name === "nightlife") return (<svg {...p}><path d="M5 5h14l-7 8-7-8Z" /><path d="M12 13v6" /><path d="M8.5 19.5h7" /></svg>);
+  if (name === "attractions") return (<svg {...p}><circle cx="12" cy="9.5" r="5.8" /><circle cx="12" cy="9.5" r="1.2" /><path d="M12 4.9v3.4" /><path d="M12 10.7v3.4" /><path d="M7.4 9.5h3.4" /><path d="M13.2 9.5h3.4" /><path d="M8.8 6.3l2.3 2.3" /><path d="M12.9 10.4l2.3 2.3" /><path d="M15.2 6.3l-2.3 2.3" /><path d="M11.1 10.4l-2.3 2.3" /><path d="M12 15.3 8.6 21" /><path d="M12 15.3 15.4 21" /><path d="M6.8 21h10.4" /></svg>);
+  if (name === "beach") return (<svg {...p}><circle cx="12" cy="12" r="4.3" /><path d="M12 2.7v2.4" /><path d="M12 18.9v2.4" /><path d="M2.7 12h2.4" /><path d="M18.9 12h2.4" /><path d="M5.6 5.6l1.7 1.7" /><path d="M16.7 16.7l1.7 1.7" /><path d="M18.4 5.6l-1.7 1.7" /><path d="M7.3 16.7l-1.7 1.7" /></svg>);
+  if (name === "hotels") return (<svg {...p}><rect x="5" y="3.8" width="14" height="17.2" rx="1.6" /><path d="M10.2 21v-4.2h3.6V21" /><path d="M8.4 7.4h1.7" /><path d="M13.9 7.4h1.7" /><path d="M8.4 11.4h1.7" /><path d="M13.9 11.4h1.7" /></svg>);
+  if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
+  if (name === "coupons") return (<svg {...p}><path d="M20.6 12.6 L13.4 19.8 a2.1 2.1 0 0 1-3 0 L4.2 13.6 a2.1 2.1 0 0 1-.6-1.5 V5.7 a2.1 2.1 0 0 1 2.1-2.1 h6.4 a2.1 2.1 0 0 1 1.5.6 l7 7 a2.1 2.1 0 0 1 0 3 Z" /><circle cx="8.6" cy="8.6" r="1.5" /></svg>);
+  if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
+  return null;
+}
+
+// ─── Image pipeline (premium redesign, Phase 3) ─────────────────────────────
+// The fallback-state decision lives in lib/imageState.js (pure, JSX-free) so
+// scripts/test-image-fallback.mjs can unit-test it; re-exported here for the
+// components below.
+export { imageDisplayState } from "../../lib/imageState.js";
+
+// Branded artwork fallback — the last link in the chain, shared by every
+// image surface (cards, hero, tiles) so a dead URL always ends here, never a
+// gray box. Matches the share-card prompt's "ends at branded artwork" rule.
+export function BrandedImageFallback({ style }) {
+  return (
+    <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)" }} aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
+        <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
+        <circle cx="12" cy="9.4" r="2.4" />
+      </svg>
+    </div>
+  );
+}
+
+// Calm brand pin (was GlowPin: halo rings + radial bloom + drop shadow — the
+// arcade-glow look the redesign removes). Same export name so every call
+// site keeps working; the mark itself is now quiet.
 export function GlowPin({ size = 26 }) {
   const s = size;
   return (
-    <span style={{ position: "relative", width: s + 10, height: s + 10, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1.5px solid rgba(249,115,22,.35)" }} />
-      <span style={{ position: "absolute", inset: -7, borderRadius: "50%", border: "1px solid rgba(249,115,22,.18)" }} />
-      <span style={{ position: "absolute", inset: -3, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.4) 0%, transparent 70%)" }} />
-      <svg width={s} height={s} viewBox="0 0 24 24" style={{ position: "relative", filter: "drop-shadow(0 2px 6px rgba(249,115,22,.5))" }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#fff" /></svg>
+    <span style={{ position: "relative", width: s, height: s, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+      <svg width={s} height={s} viewBox="0 0 24 24"><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#0D1117" /></svg>
     </span>
   );
 }

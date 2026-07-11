@@ -10,7 +10,11 @@
 // The 3.2s auto-show timer stays in PageInner (it's a useEffect); it just
 // flips introOpen, which arrives here as a normal ctx value.
 import { useRef } from "react";
-import { C, useDialogFocus } from "../kit";
+import { C, useDialogFocus, Icon } from "../kit";
+
+// Premium redesign, Phase 4: the mood tiles draw from the app's one line-icon
+// language instead of an emoji grid, calmer and on-brand.
+const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart", nightout: "glass", eatnow: "utensils", brunch: "utensils", hiddengems: "gem", familyfun: "users" };
 
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
@@ -46,11 +50,14 @@ export default function IntroSheet({ ctx }) {
               card, a scale-and-fade entrance instead of a hard cut, and the six
               adaptive mood tiles (the ONLY home of the mood picker — the inline
               home-screen row is gone by design). */}
-          <style>{"@keyframes wfIntroGlow{0%,100%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 14px rgba(255,138,61,.28),0 0 45px rgba(249,115,22,.14);border-color:rgba(255,138,61,.4)}50%{box-shadow:0 30px 90px rgba(0,0,0,.65),0 0 38px rgba(255,138,61,.8),0 0 120px rgba(249,115,22,.5);border-color:rgba(255,178,110,.9)}}@keyframes wfIntroIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfHalo{0%,100%{opacity:.5}50%{opacity:.95}}.wf-mood-tile{transition:transform .18s ease,border-color .18s ease,background .18s ease}.wf-mood-tile:hover{transform:translateY(-2px) scale(1.02)}.wf-mood-tile:active{transform:scale(.96)}@media (prefers-reduced-motion: reduce){.wf-intro-pop,.wf-intro-halo{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
-          <div className="wf-intro-halo" aria-hidden="true" style={{ position: "absolute", width: 560, height: 560, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.30) 0%, rgba(249,115,22,.12) 42%, transparent 68%)", filter: "blur(34px)", pointerEvents: "none", animation: "wfHalo 2.8s ease-in-out infinite" }} />
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 24, padding: "12px 16px 16px", background: "linear-gradient(165deg, rgba(22,26,42,.90) 0%, rgba(11,14,23,.86) 60%)", backdropFilter: "blur(22px) saturate(1.4)", WebkitBackdropFilter: "blur(22px) saturate(1.4)", border: "1.5px solid rgba(255,138,61,.55)", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 22px rgba(255,138,61,.45), 0 0 70px rgba(249,115,22,.25)", animation: "wfIntroIn .5s cubic-bezier(.16,1,.3,1) both", boxShadow: "0 30px 90px rgba(0,0,0,.65), 0 0 38px rgba(255,138,61,.6), 0 0 90px rgba(249,115,22,.3)" }}>
+          {/* Premium redesign, Phase 4: calm onboarding — the pulsing halo and
+              layered orange glow are gone; a clean elevation and a single
+              subtle scale-in entrance (reduced-motion disables it) replace the
+              arcade bloom the first impression must never lead with. */}
+          <style>{"@keyframes wfIntroIn{from{opacity:0;transform:scale(.98) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}.wf-mood-tile{transition:border-color .18s ease,background .18s ease}@media (prefers-reduced-motion: reduce){.wf-intro-pop{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 20, padding: "12px 16px 16px", background: "#161B22", border: `1px solid ${C.border}`, boxShadow: "0 24px 60px rgba(0,0,0,.55)", animation: "wfIntroIn .32s cubic-bezier(.16,1,.3,1) both" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,.14)", border: "1.5px solid rgba(255,255,255,.45)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
+              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: "#E8EAF2", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
             </div>
             <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 8 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
             <div style={{ textAlign: "center", marginTop: 7 }}><IntroIcon k="spark" size={21} color="#FFC28A" /></div>
@@ -61,7 +68,7 @@ export default function IntroSheet({ ctx }) {
               const h = new Date().getHours();
               const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
               const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
-              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + " \ud83d\udc4b";
+              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + ".";
               const town = locName ? locName.split(",")[0] : "your area";
               let w = "";
               if (weather && typeof weather.temp === "number") {
@@ -105,15 +112,15 @@ export default function IntroSheet({ ctx }) {
               return (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
                   {order.map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "16px 10px 13px", borderRadius: 16, border: `1.5px solid ${on ? "#FF8A3D" : "rgba(255,255,255,.13)"}`, background: on ? "linear-gradient(150deg, rgba(255,138,61,.24) 0%, rgba(255,138,61,.10) 100%)" : "linear-gradient(150deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.015) 100%)", color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25 }}>
-                      <span style={{ fontSize: 25 }}>{(MOOD_LBL[k] || [ex.icon])[0]}</span><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
+                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: "16px 10px 13px", borderRadius: 14, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: 88 }}>
+                      <Icon name={MOOD_ICON[k] || "pin"} size={24} color={on ? C.accent : "#C7CDDC"} strokeWidth={1.8} /><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
                     </button>
                   ); })}
                 </div>
               );
             } catch (e) { return null; } })()}
-            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, padding: "13px 10px", borderRadius: 15, border: "none", background: "linear-gradient(90deg, #F97316 0%, #FF8A3D 55%, #E8B84B 100%)", color: "#FFFFFF", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.55, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, boxShadow: "0 0 18px rgba(255,138,61,.55), 0 8px 30px rgba(249,115,22,.45)" }}><IntroIcon k="wand" size={19} color="#FFFFFF" />Let's Wayfind it</button>
-            <div onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ textAlign: "center", fontSize: 12.5, color: "#AEB4C8", marginTop: 12, cursor: "pointer" }}>Just let me look around</div>
+            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, minHeight: 48, padding: "13px 10px", borderRadius: 14, border: "none", background: C.accent, color: "#0D1117", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9 }}><IntroIcon k="wand" size={19} color="#0D1117" />Let's Wayfind it</button>
+            <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ display: "block", width: "100%", minHeight: 44, marginTop: 6, background: "transparent", border: "none", textAlign: "center", fontSize: 13, color: "#AEB4C8", cursor: "pointer" }}>Just let me look around</button>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
           </div>
         </div>

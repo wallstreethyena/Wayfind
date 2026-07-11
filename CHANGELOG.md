@@ -1,3 +1,87 @@
+## v5.58 - premium redesign, Phases 4-6 (calm onboarding, a11y polish, crawlable homepage)
+- Onboarding de-arcaded (Intro.js): the pulsing halo + layered orange glow
+  bloom are gone -> a quiet elevated dialog with a single subtle scale-in;
+  the emoji mood grid is now line-icon tiles; the CTA is solid accent with
+  dark text; the greeting wave emoji is gone. Skip is a real 44px button.
+- Focus: global :focus-visible ring, and tabindex="-1" dialog containers
+  no longer show a ring around the whole panel (interactive children keep
+  theirs). Dialog semantics + one-interruption coordinator verified, not
+  re-forked (prior G4/audit work); a11y/screens/modals e2e all pass.
+- Search submit de-glowed (gradient+shadow -> solid accent, dark glyph) and
+  relabeled aria-label "Search"; header icon buttons 36/34 -> 40 toward the
+  44px target; intro controls 40/44/48.
+- Phase 6: the shared footer now carries crawlable category-landing links
+  (/restaurants/sarasota, /things-to-do/orlando, /beaches/sarasota,
+  /nightlife/tampa — all verified 200), closing the one gap in the
+  server-rendered homepage's no-JS crawlable contract (single descriptive
+  H1, explanatory copy, 9 guides, 7 cities, map CTA, canonical, OG, JSON-LD
+  all already present). No indexed URL changed. check-seo still passes.
+- Full wrap-up (before/afters, emoji->icon inventory, image-test results,
+  width/zoom matrix, owner-review flags incl. the orange/champagne accent
+  pairing) in REDESIGN.md.
+
+## v5.57 - premium redesign, Phase 3 (images that always work)
+- The image fallback chain (skeleton -> image -> branded artwork) as PURE
+  logic in lib/imageState.js, unit-tested exhaustively by
+  scripts/test-image-fallback.mjs (prebuild): every (src, errored, loaded)
+  combination maps to one of three states, and a dead/absent URL can never
+  resolve to "image" -- so a card is never a blank rectangle or a
+  broken-image glyph. FallbackImg (home.js) now shows a shimmer skeleton
+  while loading and BrandedImageFallback (kit.js) on failure.
+- Real image-pipeline bug fixed: event card images come from s1.ticketm.net
+  and Viator's CDNs, which were absent from the CSP img-src allowlist —
+  they load today only because the CSP is Report-Only and would break the
+  moment it flips to enforcing. Added the live host (Ticketmaster, proven)
+  and the Viator partner image CDNs to next.config img-src; check-design
+  guards the Ticketmaster host so it can't regress.
+- Verified: a fixture event with a dead image URL renders the branded tile,
+  no broken <img> (design-after-p3/events-deadimg-390.png).
+
+## v5.56 - premium redesign, Phase 2 (homepage restructure, no dead zones, map fallback)
+- Desktop grid widened 1040 -> 1280 (spec's ~1280 target) and the home
+  two-column layout to 1240 (left feed 780, sticky sidebar 400). Root
+  cause of the ~400px side dead zones: the two-column row was a flex ITEM
+  in a flex parent, so it shrank to content width (840px) and floated
+  left-of-center instead of filling 1240 — fixed with width:100%.
+- Map slot no longer shows Google's raw "Oops! Something went wrong" gray
+  box on a load/auth failure (MapView.js): catches both the loader
+  rejection (missing key/network) AND gm_authFailure (invalid key) and
+  renders an intentional branded preview — the Wayfind pin on the map
+  tone, honest copy, with the "Full map" action still on top. Never a
+  half-loaded placeholder.
+- Fixed CSS-grid track overflow on every card grid (discovery tiles,
+  sidebar events, events screen): "1fr 1fr" lets tracks grow past the
+  container to fit min-content, which clipped the sidebar event cards at
+  the viewport edge on desktop -> "repeat(2, minmax(0, 1fr))".
+- Verified: width matrix 320/390/768/1024/1440 + zoom200/400 all clean, no
+  horizontal document scroll; mobile unchanged; before/after in
+  design-after-p2/.
+
+## v5.55 - premium redesign, Phases 0-1 (baseline + design system)
+- REDESIGN_BASELINE.md: full shared-layer inventory + screenshot matrix
+  (320/390/768/1024/1440 + zoom equivalents, dark-only). Findings: no
+  token scale (only colors), emoji-as-chrome everywhere, ~13 competing
+  CTAs and ~400px of dead side-margin on desktop 1440, arcade motion
+  (bob/pulse/spin/fireworks) with zero prefers-reduced-motion, Google
+  Maps raw error box as the map "fallback", and a literal em-dash copy
+  bug rendering in the discovery grid.
+- Phase 1 tokens in components/kit.js: TYPE (eyebrow/display/title/body>=16/
+  meta>=14), SPACE, RADII, SHADOW, MOTION (150-220ms one curve, no loops),
+  RATIO, FOCUS, TARGET (44px), CHAMPAGNE (reserved for giveaway/premium --
+  the orange+champagne pairing is FLAGGED FOR OWNER REVIEW, not decided).
+- One icon language: new Icon() line-icon set + NavIcon (moved from home.js
+  to kit.js so nav, CategoryMenu, and the community sheet all draw from it).
+  Emoji-as-chrome replaced on the discovery grid, "Find my vibe" button,
+  event category badges + section headers + hero badges + EventArt tiles,
+  community-sheet category grid, and the empty-state category glyph. Emoji
+  kept only as content (weather, place pins, the user's list-icon picker,
+  Critter mascot).
+- GlowPin de-arcaded (halo rings + radial bloom + drop shadow removed --
+  now a quiet mark). Global prefers-reduced-motion guard + consistent
+  focus-visible ring added in layout.js. Fixed the em-dash JSX-text bug.
+  New scripts/check-design.mjs (prebuild) locks tokens+icons imported,
+  reduced-motion present, and no unicode-escape leaks into JSX text.
+
 ## v5.54 - events pipeline integrity, Phases 1-4 (default-deny: no destination, no card)
 - lib/eventsPipeline.js: one normalized contract enforced at the API
   boundary -- validation (past/cancelled/malformed/unsafe-URL/fabricated

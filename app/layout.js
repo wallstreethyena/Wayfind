@@ -68,7 +68,24 @@ export default function RootLayout({ children }) {
         >
           Skip to main content
         </a>
-        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}" }} />
+        <style dangerouslySetInnerHTML={{ __html: ".wf-skip-link:focus{left:0 !important}"
+          // Premium redesign (v5.55): global accessibility floor for motion +
+          // focus. prefers-reduced-motion collapses every animation/transition
+          // to near-instant (the spec requires it "everywhere"); a consistent
+          // visible focus ring replaces browser defaults so keyboard focus is
+          // never lost against the dark UI.
+          + "@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}"
+          + ":focus-visible{outline:2px solid #F97316 !important;outline-offset:2px !important}"
+          // A dialog/sheet container is focused programmatically for the focus
+          // trap; a ring around the whole panel is noise. Interactive children
+          // keep their :focus-visible ring (rule above).
+          + "[tabindex=\"-1\"]:focus,[tabindex=\"-1\"]:focus-visible{outline:none !important}"
+          // Image-loading skeleton (Phase 3): a calm shimmer matching the card
+          // frame, shown until the image decodes. Reduced-motion (above)
+          // freezes the sweep to a static tint.
+          + ".wf-skeleton{background:linear-gradient(100deg,#161B22 30%,#232B3A 50%,#161B22 70%);background-size:200% 100%;animation:wfShimmer 1.4s ease-in-out infinite}"
+          + "@keyframes wfShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}"
+        }} />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
@@ -109,6 +126,17 @@ export default function RootLayout({ children }) {
                 {Object.keys(CULTURE).map((m) => (
                   <a key={m} href={"/culture/" + m} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
                 ))}
+              </div>
+              <div>
+                {/* Premium redesign, Phase 6: crawlable category links on the
+                    homepage (and every page) — direct paths into the
+                    /{category}/{city} landing pages, which the client category
+                    chips can't expose to a crawler. All verified 200. */}
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Browse</div>
+                <a href="/restaurants/sarasota" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Restaurants in Sarasota</a>
+                <a href="/things-to-do/orlando" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Things to do in Orlando</a>
+                <a href="/beaches/sarasota" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Beaches near Sarasota</a>
+                <a href="/nightlife/tampa" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Nightlife in Tampa</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>People use Wayfind to</div>
