@@ -115,6 +115,26 @@ export function NavIcon({ name, color, size }) {
   return null;
 }
 
+// ─── Image pipeline (premium redesign, Phase 3) ─────────────────────────────
+// The fallback-state decision lives in lib/imageState.js (pure, JSX-free) so
+// scripts/test-image-fallback.mjs can unit-test it; re-exported here for the
+// components below.
+export { imageDisplayState } from "../../lib/imageState.js";
+
+// Branded artwork fallback — the last link in the chain, shared by every
+// image surface (cards, hero, tiles) so a dead URL always ends here, never a
+// gray box. Matches the share-card prompt's "ends at branded artwork" rule.
+export function BrandedImageFallback({ style }) {
+  return (
+    <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)" }} aria-hidden="true">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
+        <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
+        <circle cx="12" cy="9.4" r="2.4" />
+      </svg>
+    </div>
+  );
+}
+
 // Calm brand pin (was GlowPin: halo rings + radial bloom + drop shadow — the
 // arcade-glow look the redesign removes). Same export name so every call
 // site keeps working; the mark itself is now quiet.

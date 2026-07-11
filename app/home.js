@@ -73,10 +73,10 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.56";
+const BUILD_ID = "v5.57";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1149,19 +1149,21 @@ function medal(rank) {
 
 // Shows a real photo, or a clean branded placeholder if the photo is missing or
 // fails to load. Never a broken image icon. onClick only fires on a real photo.
+// Premium redesign, Phase 3: the shared image chain — skeleton while loading,
+// the image once it decodes, branded artwork if the src is missing or fails.
+// Never a blank rectangle or a broken-image glyph. The state decision lives
+// in kit.js imageDisplayState() so it's unit-tested independent of the DOM.
 function FallbackImg({ src, alt, style, icon, onClick }) {
   const [bad, setBad] = useState(false);
-  if (!src || bad) {
-    return (
-      <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)", cursor: "default" }}>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
-          <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
-          <circle cx="12" cy="9.4" r="2.4" />
-        </svg>
-      </div>
-    );
-  }
-  return <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onError={() => setBad(true)} onClick={onClick} style={style} />;
+  const [loaded, setLoaded] = useState(false);
+  const state = imageDisplayState({ src, errored: bad, loaded });
+  if (state === "fallback") return <BrandedImageFallback style={style} />;
+  return (
+    <div style={{ ...style, position: "relative", overflow: "hidden" }}>
+      {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
+      <img decoding="async" src={src} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => setLoaded(true)} onError={() => setBad(true)} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+    </div>
+  );
 }
 
 // v3.9: a home-grid tile backed by a generated image (public/tiles/*.png). If the image

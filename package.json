@@ -8,7 +8,7 @@
     "check:jsx": "tsc --noEmit --allowJs --jsx preserve --target es2020 --module esnext --noResolve --skipLibCheck app/home.js app/components/kit.js app/components/BookingCTA.js app/components/screens/*.js app/components/sheets/*.js \"app/p/[id]/page.js\" app/components/MapView.js \"app/l/[key]/page.js\"",
     "check:dupes": "node scripts/check-dupes.mjs",
     "check:env": "node scripts/check-env.mjs",
-    "prebuild": "npm run check:version && npm run check:jsx && npm run check:dupes && npm run check:env && node scripts/test-tags.mjs && node scripts/check-libs.mjs && npm run check:gate && npm run check:seo && node scripts/check-guides.mjs && node scripts/test-affiliates.mjs && node scripts/check-legal.mjs && node scripts/check-favorites-auth.mjs && node scripts/test-booking-resolver.mjs && node scripts/check-booking-cta.mjs && node scripts/test-events-contract.mjs && node scripts/check-design.mjs",
+    "prebuild": "npm run check:version && npm run check:jsx && npm run check:dupes && npm run check:env && node scripts/test-tags.mjs && node scripts/check-libs.mjs && npm run check:gate && npm run check:seo && node scripts/check-guides.mjs && node scripts/test-affiliates.mjs && node scripts/check-legal.mjs && node scripts/check-favorites-auth.mjs && node scripts/test-booking-resolver.mjs && node scripts/check-booking-cta.mjs && node scripts/test-events-contract.mjs && node scripts/check-design.mjs && node scripts/test-image-fallback.mjs",
     "build": "next build",
     "start": "next start",
     "check:version": "node scripts/check-version.mjs",

@@ -76,6 +76,11 @@ export default function RootLayout({ children }) {
           // never lost against the dark UI.
           + "@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}}"
           + ":focus-visible{outline:2px solid #F97316 !important;outline-offset:2px !important}"
+          // Image-loading skeleton (Phase 3): a calm shimmer matching the card
+          // frame, shown until the image decodes. Reduced-motion (above)
+          // freezes the sweep to a static tint.
+          + ".wf-skeleton{background:linear-gradient(100deg,#161B22 30%,#232B3A 50%,#161B22 70%);background-size:200% 100%;animation:wfShimmer 1.4s ease-in-out infinite}"
+          + "@keyframes wfShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}"
         }} />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />

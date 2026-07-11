@@ -26,6 +26,16 @@ for (const tok of ["TYPE", "TARGET", "MOTION"]) {
 
 const layout = readFileSync(join(root, "app/layout.js"), "utf8");
 if (!layout.includes("prefers-reduced-motion")) fail("layout.js lost the global prefers-reduced-motion guard");
+if (!layout.includes("wf-skeleton")) fail("layout.js lost the image-loading skeleton style (Phase 3)");
+
+// Phase 3 image pipeline: the provider image CDNs the cards actually load
+// from must stay in the CSP img-src allowlist, or images break the moment
+// CSP flips from Report-Only to enforcing.
+const cfg = readFileSync(join(root, "next.config.js"), "utf8");
+const imgSrc = (cfg.match(/"img-src[^"]*"/) || [""])[0];
+for (const host of ["s1.ticketm.net"]) {
+  if (!imgSrc.includes(host)) fail(`CSP img-src is missing the live event-image host ${host} — cards will break when CSP enforces`);
+}
 
 // 4. Literal \uXXXX inside JSX text renders raw. A JS string literal escape
 // (inside quotes) is fine; the bug is the escape sitting between JSX tags.

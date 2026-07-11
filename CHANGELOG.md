@@ -1,3 +1,20 @@
+## v5.57 - premium redesign, Phase 3 (images that always work)
+- The image fallback chain (skeleton -> image -> branded artwork) as PURE
+  logic in lib/imageState.js, unit-tested exhaustively by
+  scripts/test-image-fallback.mjs (prebuild): every (src, errored, loaded)
+  combination maps to one of three states, and a dead/absent URL can never
+  resolve to "image" -- so a card is never a blank rectangle or a
+  broken-image glyph. FallbackImg (home.js) now shows a shimmer skeleton
+  while loading and BrandedImageFallback (kit.js) on failure.
+- Real image-pipeline bug fixed: event card images come from s1.ticketm.net
+  and Viator's CDNs, which were absent from the CSP img-src allowlist —
+  they load today only because the CSP is Report-Only and would break the
+  moment it flips to enforcing. Added the live host (Ticketmaster, proven)
+  and the Viator partner image CDNs to next.config img-src; check-design
+  guards the Ticketmaster host so it can't regress.
+- Verified: a fixture event with a dead image URL renders the branded tile,
+  no broken <img> (design-after-p3/events-deadimg-390.png).
+
 ## v5.56 - premium redesign, Phase 2 (homepage restructure, no dead zones, map fallback)
 - Desktop grid widened 1040 -> 1280 (spec's ~1280 target) and the home
   two-column layout to 1240 (left feed 780, sticky sidebar 400). Root
