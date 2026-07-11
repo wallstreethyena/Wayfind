@@ -1,4 +1,23 @@
-## v5.60 - moment/experience picks integrity, Phase 0 (diagnosis only, no behavior change)
+## v5.60 - moment/experience picks integrity, Phases 0-5 (same intent = same results)
+- THE FIX for "chip shows nothing within 60 miles, mood modal shows 21":
+  moment/experience views fetched to 60mi but clamped the visible list to
+  the app's 17mi default while the empty copy hardcoded "60 miles". New
+  lib/momentIntents.js declares each intent's real radius in ONE place
+  (imported by client + server); openExperience now opens at the intent's
+  scope (cozyindoor/gems/family 45mi, nightout/date/outdoors 30mi, food
+  20mi) so the fetched-wide museums/cafes actually show. No more 17mi clamp.
+- Loud API (/api/moment/picks): malformed/unknown-intent input returns 400
+  with a machine-readable error (validated against the shared intent-id
+  module, so cozy-indoor-day vs cozyindoor drift is caught) instead of
+  200 {picks:[]}. Genuine no-match returns a 200 reason envelope; every
+  zero-pick logs moment_picks_zero; client treats 400 as error, not empty.
+- Honest empty/loading: the empty state states the scope ACTUALLY searched
+  ("No indoor spots within 45 miles of Parrish yet"), never a fixed 60; the
+  "Tap any" line is gone at zero; a "Search within 60 miles" action offered.
+- Tests: scripts/test-moment-contract.mjs (prebuild) + tests/e2e/moment.spec.js
+  (audit:regression). MOMENT_PICKS_DIAGNOSIS.md has the entry-path matrix +
+  fix writeup. Follow-ups noted (per-view shareable URL). Secondary items
+  (city-as-venue toast, price, CSP) filed to the audit prompt per scope.
 - MOMENT_PICKS_DIAGNOSIS.md: entry-path matrix + root cause of the
   "chip shows nothing, modal shows 21" divergence. Corrected the assumed
   model: chips AND the mood modal both call openExperience into the SAME

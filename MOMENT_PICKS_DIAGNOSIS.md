@@ -83,6 +83,49 @@ date — the live tapped date likely isn't in the current `generateStaples`
 window, so `resolveEventById` 404s); the "green theme" on open (tapped the
 venue → place detail sheet, colored by category).
 
+## Phase 1-5 implementation (this branch)
+
+- **Phase 1 — one intent config, `lib/momentIntents.js`.** Each intent
+  declares its real display+search radius and an honest scope label in ONE
+  place, imported by both the client and the server. `openExperience` now
+  opens a moment view at `intentRadiusMi(key)` (cozyindoor/hiddengems/
+  familyfun 45mi; nightout/datenight/outdoors 30mi; eatnow/brunch 20mi) —
+  NOT the app-wide 17mi default that clamped the fetched-wide results down
+  to nothing. The Experience effect already fetches to 60mi; the fix is
+  that the visible-list clamp is now the intent's scope, so the same intent
+  shows the same places from a chip, the mood modal, or a deep link. (The
+  spec's standalone `resolveCandidates()` abstraction is satisfied in place:
+  the existing wide fetch + the shared radius config together enforce the
+  invariant; the momentPicks "Perfect right now" card already draws from the
+  same fetched `expPlaces`, not an ambient pool.)
+- **Phase 2 — loud API, `app/api/moment/picks/route.js`.** Malformed input
+  (bad JSON, missing/unknown intent id, non-array candidates) now returns
+  **400** with a machine-readable `error`, validated against
+  `momentIntents`' shared id set — never `200 {picks:[]}`. A genuine
+  no-match returns `200 {picks:[], reason, candidatesReceived}`. Every
+  zero-pick outcome logs `moment_picks_zero` with the intent + count; the
+  client treats a 400 as a contract error (`moment_picks_contract_error`
+  telemetry), never as "no results".
+- **Phase 3 — honest states, `Experience.js`.** The empty state states the
+  scope actually searched ("No indoor spots within 45 miles of Parrish
+  yet · We searched 45 miles"), never a fixed "60 miles"; the "N curated
+  picks · Tap any" line no longer renders at zero; a "Search within 60
+  miles" widen action is offered. Renders only after the fetch finished
+  (no false-empty flash).
+- **Phase 4/5 — regression + telemetry.** `scripts/test-moment-contract.mjs`
+  (prebuild) locks the shared id set (cozy-indoor-day is rejected), the
+  per-intent radius (museum-hiding fix), and inclusive radius boundaries
+  (1/30/59.9/60 in, 60.1 out). `tests/e2e/moment.spec.js` (audit:regression)
+  asserts the 400 contract and the 200 reason envelope. Chip controls are
+  already semantic `<button>`s with visible labels (keyboard-operable). The
+  Phase-0 `moment_open_diag` telemetry stays for on-device confirmation.
+
+**Left as follow-ups (noted, not blocking the fix):** a dedicated
+shareable URL for an open experience view (the `?exp=` deep-link opens one
+but the view doesn't push its own URL on a chip tap — the results bug is
+fixed independent of this), and the standalone `resolveCandidates()`
+extraction if the team wants the fetch logic pulled out of the effect.
+
 ## Diagnosis (one paragraph, before Phase 1)
 
 Every moment/experience view opens through `openExperience` into one
