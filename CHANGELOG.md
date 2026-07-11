@@ -1,3 +1,24 @@
+## v5.40 - privacy notice rebuilt (DRAFT FOR COUNSEL) + affiliate URL hygiene
+- /privacy now has the full disclosure structure: retention by data class,
+  legal bases, user rights (access/copy/deletion workflow via
+  privacy@gowayfind.com), international transfers, location-data-and-
+  analytics statement, consent & opt-out posture, children's policy,
+  security practices, and WAYFIND LLC as named controller. Every fact that
+  needs an owner or counsel decision is an explicit [OWNER/COUNSEL: ...]
+  placeholder — nothing invented. The false "encrypted password" claim is
+  replaced with the exact Supabase statement (salted hashes, Wayfind never
+  receives plaintext). OWNER ACTION: create the privacy@gowayfind.com
+  alias — the page now points there instead of the personal @me.com.
+- Affiliate URL hygiene: withViatorTracking() builds outbound Viator URLs
+  once via new URL() + URLSearchParams.set(), so pid/mcid/medium appear
+  exactly once with consistent values even when the source URL (e.g. an
+  API productUrl) already carries tracking — string concatenation used to
+  double them. All four call sites (ticketsUrl, experienceSearchUrl,
+  viatorDirectUrl, viatorServer product resolution) go through it.
+- New scripts/test-affiliates.mjs unit gate (5 cases incl. the
+  double-append bug and no-PID passthrough) and check-legal.mjs both now
+  run in prebuild.
+
 ## v5.39 - performance: local mobile Lighthouse 31 -> 72-74, CLS 0.20 -> 0.004
 - THE finding: Stay22's LinkSwap script cost ~3.0s of mobile main-thread —
   the entire TBT problem (2,880ms). It now loads on first user interaction
