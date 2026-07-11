@@ -1,3 +1,22 @@
+## v5.46 - four sheets leave the monolith (G2)
+- hookDetail (the themed Best-of/Top-5/Skip list sheet), the account sheet,
+  the app-tile menu sheet (6 sub-states: menu/community/explore/pick/
+  experiences/weather), and the auth sheet (sign in/up + the separate
+  password-recovery-link sheet) now live in app/components/sheets/* and
+  load as their own chunks via next/dynamic({ ssr:false }). All four are
+  user-triggered only (dice/avatar/hamburger/sign-in taps) so SSR never
+  paints them.
+- Same ctx pattern as G1: sheets are render-only, every hook (including
+  the useDialogFocus calls for account/auth/recovery) stays in PageInner.
+  sheetBg/sheet (the shared sheet style objects) moved into kit.js since
+  every sheet needs them; sheetDragStart/Move/End stay PageInner-local
+  (they close over a ref) and pass through ctx.
+- All 4 sheet chunks join the existing G1 idle-prefetch list, so the first
+  tap on any sheet trigger never waits on the network.
+- home.js: ~7,950 -> ~7,510 lines. check-auth (the auth flow's own
+  guardrail) still passes untouched, proving the extraction preserved the
+  forgot-password link, recovery handler, and new-password sheet contract.
+
 ## v5.45 - six screens leave the monolith (G1)
 - Surprise, Coupons, Saved (all three branches), Itinerary (both branches),
   Shared, and Events (+EventArt/EventCard, its only consumers) now live in

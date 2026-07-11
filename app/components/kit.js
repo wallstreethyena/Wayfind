@@ -25,6 +25,8 @@ export const CAT_COLOR = {
 };
 export const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#FF8A3D", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
 export const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
+export const sheetBg = { position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 900, display: "flex", alignItems: "flex-end", justifyContent: "center" };
+export const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto" };
 export const EMOJIS = ["❤️","⭐","🍴","🍸","🏖️","✈️","🎉","☕","🏨","🛍️","🎯","🌮","🍜","🎸","🏞️","📍"];
 
 export function GlowPin({ size = 26 }) {
