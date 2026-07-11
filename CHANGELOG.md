@@ -1,3 +1,19 @@
+## v5.36 - numbered guide titles deliver their count, enforced at build
+- DRAFT FOR OWNER REVIEW: 4 new Sarasota picks (Myakka River State Park,
+  Sarasota Jungle Gardens, the Legacy Trail, the Celery Fields) and 6 new
+  Orlando picks (Kennedy Space Center, Blue Spring in manatee season,
+  Wekiwa Springs, Leu Gardens, Mount Dora, East End Market) bring
+  "10 Best Things to Do in Sarasota" and "12 Things to Do in Orlando That
+  Aren't Theme Parks" up to their promised counts. Same structure and
+  voice as the existing entries; every place is real, established, and
+  operating. Review before treating as published editorial.
+- check-guides.mjs now fails the build when any guide title starting with
+  a number doesn't deliver exactly that many picks (year-leading titles
+  like "2026 Guide" can't be misread — counts are 1–2 digits). Verified:
+  breaking a count breaks the build.
+- check-guides.mjs is now actually part of prebuild — it existed but
+  nothing ran it.
+
 ## v5.35 - deep links finish the job, and the loader mismatch is dead
 - THE live hydration bug, found and fixed: the v5.32 contextual loader
   computed "Friday evening" from new Date() during render. The ISR shell
