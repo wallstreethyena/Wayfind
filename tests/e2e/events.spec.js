@@ -163,11 +163,23 @@ test("internal event detail page renders server-side for a resolvable id", async
 });
 
 test("a just-passed staple id still resolves (no Safari-cant-open 404 a day later)", async ({ page }) => {
-  // The feed embeds a date in the staple id; the resolver now searches a
-  // wider (2-week-back) window so a tap a day or two after the feed loaded
+  // The feed embeds a date in the staple id; the resolver searches a window
+  // covering the feed's full forward horizon so a tap after the feed loaded
   // still resolves to the page instead of 404-ing.
   const lastSunday = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 7) % 7 || 7)); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
   const id = encodeURIComponent(`ls_waterside_market_${lastSunday}`);
+  const resp = await page.goto(`/events/lakewood-ranch/the-market-at-waterside-place--${id}`);
+  expect(resp.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("The Market at Waterside Place");
+});
+
+test("a staple link stale by ~3 weeks still resolves (forward/back window asymmetry, v5.84)", async ({ page }) => {
+  // The feed emits Sunday staples up to ~20 days FORWARD; before v5.84 the
+  // resolver looked only 2 weeks back, so a card for a 15-20-day-out date tapped
+  // after it passed 404'd (a tab left open / a shared link). The window now
+  // covers 4 weeks back. A ~3-week-old staple id must resolve, not 404.
+  const staleSunday = (() => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 7) % 7 || 7) - 14); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+  const id = encodeURIComponent(`ls_waterside_market_${staleSunday}`);
   const resp = await page.goto(`/events/lakewood-ranch/the-market-at-waterside-place--${id}`);
   expect(resp.status()).toBe(200);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("The Market at Waterside Place");

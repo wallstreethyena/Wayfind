@@ -74,13 +74,13 @@ import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
-import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../lib/homeTiles";
+import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.83";
+const BUILD_ID = "v5.84";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2678,12 +2678,9 @@ function PageInner() {
     if (k) { setTimeout(() => { try {
       if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); }
       else if (k.indexOf("cur-") === 0) { openCurated(k.slice(4)); }
-      else if (k === "gem") { openCurated("bestof", { lens: "gems" }); }
-      else if (k === "entertainment" || k === "shows") { openCurated("experiences"); }
+      else if (k === "gem") { openCurated("today", { lens: "gems" }); }
+      else if (k === "entertainment" || k === "shows" || k === "experiences" || k === "bestof") { openCurated("today"); }
       else if (k === "stays") { openCurated("stays"); }
-      else if (k === "bestof") { openCurated("bestof"); }
-      else if (k === "family") { setFamilyChip(true); }
-      else if (k === "budget") { setBudgetChip(true); }
       else if (k === "events") { setScreen("events"); }
       else { openExperience(k); }
     } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
@@ -2879,6 +2876,13 @@ function PageInner() {
   const gemsScore = (p) => (p.rating || 0) / Math.log((p.reviews || 0) + Math.E);
   const GEMS_RANK = (a, b) => gemsScore(b) - gemsScore(a);
   const CURATED = {
+    // v5.84 (B-spec consolidation): "Today's Best" — the ONE "Best things to do
+    // today" destination that Experiences + Best-of fold into. Attractions, tours,
+    // shows, and top-rated local spots, ranked by fit; the broken Sarasota-only
+    // isBestOf gate is dropped so it works in any market (Parrish included).
+    // Supports the "Hidden gems" lens (opts.lens==="gems") from the retired
+    // Best-of tile. Phase 2 adds live events + Parrish curation.
+    today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", slots: [{ label: "Top experiences", n: 4, q: "top attractions tours and things to do" }, { label: "Theme parks", n: 2, q: "theme parks" }, { label: "Shows & theater", n: 2, q: "shows theater live entertainment" }, { label: "Local favorites", n: 2, q: "top rated attractions and local favorites" }], rank: DEFAULT_RANK },
     food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
     // v5.7x: entertainment + shows fold into experiences — the shows/theater
     // query joins the slot mix, nothing about the destination is deleted.
@@ -2888,25 +2892,14 @@ function PageInner() {
     stays: { title: "Hotels & Stays", emoji: "\uD83C\uDFE8", lead: "Places to stay near you, ranked by rating \u2014 resorts, boutique hotels, and easy overnights.", slots: [{ label: "Hotels & stays", n: 10, q: "best hotels resorts lodging" }], rank: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0), presetSort: "curated" },
     bestof: { title: "Best of " + cityNow, emoji: "\uD83C\uDFC6", lead: "The local institutions people here name among the best \u2014 ranked by rating and how many people agree.", slots: [{ label: "Institutions", n: 10, q: "top rated restaurants attractions and shops" }], rank: (a, b) => bestOfScore(b) - bestOfScore(a), presetSort: "curated" },
   };
-  // v5.7x: Family and Budget retire as EXPERIENCES-sheet tiles and become
-  // persistent filter chips that apply to whichever curated list is open.
-  const [familyChip, setFamilyChip] = useState(false);
-  const [budgetChip, setBudgetChip] = useState(false);
-  const FAMILY_RX = /\bzoo\b|aquarium|museum|amusement_park|theme_park|playground|water_park|mini.?golf|arcade|splash|carousel|\bfamily\b|\bkids?\b|children/i;
-  const chipFilter = (pp) => {
-    if (familyChip) {
-      const t = (((pp.types || []).join(" ")) + " " + (pp.name || "")).toLowerCase();
-      if (!FAMILY_RX.test(t)) return false;
-    }
-    if (budgetChip) {
-      const pn = pp.priceNum;
-      if (pn != null && pn > 2) return false; // free/unknown-price places pass — never claimed expensive
-    }
-    return true;
-  };
+  // v5.84 (B-spec): the Family/Budget filter chips were removed from the home
+  // menu (they were the two non-working controls). No visible chip row replaces
+  // them; the filter logic can return behind a future, fully-functional Filters
+  // sheet if wanted. (The legacy family/budget EXPERIENCE tiles are separate and
+  // untouched — see EXPERIENCES / REVENUE_EXP_KEYS, guarded by check-cards.)
   const openCurated = async (kind, opts = {}) => {
     const c = CURATED[kind]; if (!c) return;
-    const lens = kind === "bestof" ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
+    const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
@@ -2918,16 +2911,16 @@ function PageInner() {
       // v5.7x: stays and bestof skip meal-period eligibility entirely — a
       // hotel or a beloved institution is never a "breakfast slot" promise —
       // and they are never filtered or ranked by open-status.
-      const skipMeals = kind === "stays" || kind === "bestof";
+      const skipMeals = kind === "stays" || kind === "bestof" || kind === "today";
       const mealOk = (label, pp) => skipMeals || Meals.mealEligible(label, pp);
       const rankFn = lens === "gems" ? GEMS_RANK : (c.rank || DEFAULT_RANK);
       const unionAll = dedupePlaces([].concat(...results.map((r) => r || [])), true);
       c.slots.forEach((sl, ix) => {
-        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp) && chipFilter(pp));
+        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp));
         pool.sort(rankFn);
         let take = pool.slice(0, sl.n);
         if (take.length < sl.n) {
-          const extra = unionAll.filter((pp) => pp && pp.id && !used.has(pp.id) && !take.some((x) => x.id === pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp) && chipFilter(pp)).sort(rankFn);
+          const extra = unionAll.filter((pp) => pp && pp.id && !used.has(pp.id) && !take.some((x) => x.id === pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp)).sort(rankFn);
           take = [...take, ...extra.slice(0, sl.n - take.length)];
         }
         take.forEach((pp) => used.add(pp.id));
@@ -2941,7 +2934,7 @@ function PageInner() {
       const town = locName ? locName.split(",")[0].trim() : "";
       const thin = Radius.strongWithin(out, 10) < 10;
       let title2 = c.title, body2 = c.lead, places2 = out, sections2 = sections.length > 1 ? sections : null;
-      if (thin && kind !== "experiences") {
+      if (thin && kind !== "experiences" && kind !== "today") {
         const bk = Radius.bucketize(out, town);
         places2 = bk.places;
         sections2 = bk.sections.length > 1 ? bk.sections : sections2;
@@ -2954,24 +2947,24 @@ function PageInner() {
       setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
     } catch (e) { showToast("Could not load that list"); }
   };
-  // v5.7x (home-menu consolidation, Part D — hydration safety): the six tile
-  // sublines start from {} on both server and first client render, so first
-  // paint always renders lib/homeTiles.js's STATIC_FALLBACK — server and
-  // client agree, no hydration mismatch. A post-mount effect fetches the
-  // live digest and swaps sublines in on a normal client re-render, same
-  // pattern as every other post-mount data effect in this file. Never
-  // computes time/geo/random data during the render itself — closingTime
-  // arrives pre-formatted from the server.
-  const [tileData, setTileData] = useState({});
+  // v5.84 (B-spec): the per-tile live-digest pipeline (tileData + /api/home/tiles
+  // + lib/homeTiles computeTileSubline) was removed. It produced the unverifiable
+  // sublines the spec forbids ("17 open right now", "4.9 stars", "6,109 reviews").
+  // The menu now uses fixed benefit copy from lib/exploreMenu.js — no live claims,
+  // nothing to fetch.
+  // The one dynamic bit — the 3:33 PM local reorder — is computed in THIS
+  // post-mount effect, never in the render body: new Date() during render would
+  // diverge between server SSR and client hydration across the cutoff (the exact
+  // mismatch the retired pipeline was structured to avoid). First paint renders
+  // EXPLORE_ORDER_DEFAULT; this swaps in the time-of-day order client-side. A
+  // nearby place's utcOffsetMinutes refines "local" (no location IANA tz exists).
+  const [menuOrder, setMenuOrder] = useState(EXPLORE_ORDER_DEFAULT);
   useEffect(() => {
-    if (!center || center.lat == null || center.lng == null) return;
-    let live = true;
-    fetch(`/api/home/tiles?lat=${center.lat}&lng=${center.lng}`)
-      .then((r) => (r.ok ? r.json() : {}))
-      .then((d) => { if (live) setTileData(d && typeof d === "object" ? d : {}); })
-      .catch(() => {});
-    return () => { live = false; };
-  }, [center && center.lat, center && center.lng]);
+    try {
+      const p = (suggested || []).find((x) => x && typeof x.utcOffsetMinutes === "number");
+      setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
+    } catch (e) {}
+  }, [suggested]);
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
@@ -5240,7 +5233,7 @@ function PageInner() {
         if (g) {
           setCenter(g); const nm = g.name.split(",").slice(0, 2).join(",").trim(); setLocName(nm);
           setSearchMode(false); setSearchLabel(""); setQuery(""); setLoading(false);
-          setTimeout(() => { try { openExpSheet("bestof"); } catch (e) {} }, 60);
+          setTimeout(() => { try { openCurated("today"); } catch (e) {} }, 60);
           return;
         }
       }
@@ -6062,45 +6055,27 @@ function PageInner() {
                       {false && <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />}
                     </>)}
                       {(() => {
-                        // v5.7x (home-menu consolidation): 13 rows -> 6, one action
-                        // model (openCurated(kind)), live honest sublines from the
-                        // batched /api/home/tiles digest. Family/Budget are filter
-                        // chips now (they actually filter openCurated's results, see
-                        // chipFilter above); Events left for the bottom-nav tab;
-                        // dice moved to an icon button beside search. Nothing beneath
-                        // any tile was deleted — see the ?exp= alias resolver.
-                        const _tiles = [
-                          ["food", "food", "Food", () => openCurated("food")],
-                          ["nightlife", "nightlife", "Nightlife", () => openCurated("nightlife")],
-                          ["experiences", "attractions", "Experiences", () => openCurated("experiences")],
-                          ["shopping", "shopping", "Shopping", () => openCurated("shopping")],
-                          ["stays", "hotels", "Stays", () => openCurated("stays")],
-                          ["bestof", "award", "Best of " + cityNow, () => openCurated("bestof")],
-                        ];
+                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
+                        // The 3:33 PM reorder is computed in a post-mount effect
+                        // (menuOrder), never in this render body — hydration-safe.
+                        // "Today's Best" opens the consolidated openCurated("today").
+                        const _order = menuOrder;
                         return (
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
                             <div style={{ padding: "14px 15px 4px" }}>
                               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
                             </div>
-                            <div style={{ display: "flex", gap: 8, padding: "10px 15px 12px", flexWrap: "wrap" }}>
-                              {[["family", "Family", familyChip, setFamilyChip], ["budget", "Budget", budgetChip, setBudgetChip]].map(([id, lb, active, setActive]) => (
-                                <button key={id} onClick={() => { const nv = !active; setActive(nv); try { logEvent("intent_chip", null, { src: "home_menu", intent: id }); } catch (e) {} }} aria-pressed={active} style={{ padding: "7px 14px", borderRadius: 999, border: "1px solid " + (active ? C.accent : "rgba(255,255,255,.14)"), background: active ? "rgba(249,115,22,.14)" : "transparent", color: active ? C.accent : "rgba(255,255,255,.7)", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{lb}</button>
-                              ))}
-                            </div>
                             <style>{".wf-mrow{transition:background .12s ease}.wf-mrow:active{background:rgba(255,255,255,.06)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.035)}}"}</style>
-                            {_tiles.map(([k, icon, label, act]) => {
-                              const segs = computeTileSubline(k, tileData[k]);
-                              const subline = segs || [{ text: HOME_TILE_FALLBACK[k] }];
+                            {_order.map((key) => {
+                              const t = EXPLORE_TILES[key];
                               return (
-                                <button key={k} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { act(); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "16px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "16px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
                                   <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}>
-                                    <NavIcon name={icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.75)" />
+                                    <NavIcon name={t.icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.75)" />
                                   </span>
                                   <span style={{ flex: 1, minWidth: 0 }}>
-                                    <span style={{ display: "block", fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{label}</span>
-                                    <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,.55)", lineHeight: 1.35, marginTop: 2 }}>
-                                      {subline.map((s, i) => (s.accent ? <span key={i} style={{ color: C.accent, fontWeight: 600 }}>{s.text}</span> : <span key={i}>{s.text}</span>))}
-                                    </span>
+                                    <span style={{ display: "block", fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
+                                    <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,.55)", lineHeight: 1.35, marginTop: 2 }}>{t.sub}</span>
                                   </span>
                                   <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)", display: "inline-flex" }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
@@ -6151,7 +6126,7 @@ function PageInner() {
                     <div onClick={onToggle} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer" }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
-                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
+                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span title={avg.explain} aria-label={avg.text + ". " + avg.explain} style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
                         <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
@@ -6162,8 +6137,8 @@ function PageInner() {
                   </div>
                 ) : null);
                 return (<>
-                  {card("Best places to eat right now", "Ranked by what is worth your time: open status, ratings, distance, weather and time of day.", food10, food10Open, () => setFood10Open((v) => !v))}
-                  {card("Best things to do today", "Ranked by what is worth your time: quality, distance, weather and time of day.", todo10, top10Open, () => setTop10Open((v) => !v))}
+                  {card("Best places to eat nearby", "Ranked by what is worth your time: ratings, distance, price, weather and time of day.", food10, food10Open, () => setFood10Open((v) => !v))}
+                  {card("Best things to do today", "Too many options? Start here. We narrow today's local things to do into a short list worth your time.", todo10, top10Open, () => setTop10Open((v) => !v))}
                 </>);
               })()}
               {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
@@ -6260,7 +6235,7 @@ function PageInner() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
                     {[
-                      ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openExpSheet("bestof")],
+                      ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openCurated("today")],
                       ["gem", "Hidden gems", () => openExpSheet("gem")],
                       ["users", "Family favorites", () => openExpSheet("family")],
                       ["heart", "Date night ideas", () => openExpSheet("romantic")],
