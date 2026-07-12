@@ -1,3 +1,11 @@
+## v5.80 - Ticketmaster affiliate: update Impact verification token (reissued)
+- Impact reissued the site-verification token on the "Add Website" retry (each
+  attempt mints a fresh token and invalidates the prior one). Swapped the meta
+  value in app/layout.js from the v5.79 token to the current one. Replace, not
+  append — two impact-site-verification metas would leave the crawler guessing
+  which token to read. First "verification failed" was expected: Impact was
+  looking for the new token while only the old one was live.
+
 ## v5.79 - Ticketmaster affiliate: site verification + remove the dead duplicate route
 - Impact.com publisher site-ownership verification. Signing up as a PUBLISHER for
   the Ticketmaster affiliate program (Ticketmaster runs it through Impact) requires
