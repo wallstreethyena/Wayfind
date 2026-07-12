@@ -5,7 +5,7 @@
 //   3. prefers-reduced-motion is honored globally (spec: "everywhere").
 //   4. No literal unicode escape (\uXXXX) leaks into a JSX text node — that
 //      renders as the raw characters, the "—" bug this phase fixed.
-import { readFileSync } from "fs";
+import { readFileSync, statSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -42,6 +42,14 @@ for (const host of ["s1.ticketm.net"]) {
 for (const needle of ['role="combobox"', 'aria-controls="wf-suggestions"', 'aria-autocomplete="list"', 'role="listbox"', 'role="option"', "aria-selected={i === sugIdx}", '"ArrowDown"', '"ArrowUp"', '"Escape"']) {
   if (!home.includes(needle)) fail(`search combobox a11y regressed: home.js is missing ${needle}`);
 }
+
+// v5.64 (audit P6): the header wordmark must stay lightweight — it was a
+// 657KB PNG rendered at 34px tall. Keep it well under the 20KB target so a
+// re-export at source resolution can't sneak the bloat back.
+try {
+  const wmBytes = statSync(join(root, "public/wordmark.png")).size;
+  if (wmBytes > 25 * 1024) fail(`public/wordmark.png is ${Math.round(wmBytes / 1024)}KB — must stay under 25KB (it renders at 34px tall)`);
+} catch (e) { fail("public/wordmark.png missing"); }
 
 // 4. Literal \uXXXX inside JSX text renders raw. A JS string literal escape
 // (inside quotes) is fine; the bug is the escape sitting between JSX tags.

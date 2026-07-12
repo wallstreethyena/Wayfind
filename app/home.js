@@ -77,7 +77,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.64";
+const BUILD_ID = "v5.65";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -5545,7 +5545,7 @@ function PageInner() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             <span onClick={openSuggested} style={{ position: "relative", display: "inline-block", cursor: "pointer" }}>
-              <img src="/wordmark.png?v=2" alt="wayfind" style={{ height: 34, width: "auto", display: "block" }} />
+              <img src="/wordmark.png?v=3" alt="wayfind" style={{ height: 34, width: "auto", display: "block" }} />
               <span style={{ position: "absolute", left: LOGO_PIN.left, top: LOGO_PIN.top, pointerEvents: "none" }}><GlowPin size={LOGO_PIN.size} /></span>
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
