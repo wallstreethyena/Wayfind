@@ -1,3 +1,20 @@
+## v5.63 - v5.50 audit remediation, durable event LIST URLs (Phase 5)
+- /events/[city]/this-weekend | tonight | this-month are server-rendered,
+  shareable event listings (the [slug] route branches: a window slug renders
+  the LIST, anything else stays the event-detail id from #67). Each list
+  page SSRs the event cards (visible before hydration), carries ItemList +
+  per-item Event JSON-LD, OpenGraph tags, a window-nav, and an honest empty
+  state stating the range searched. /events/[city] 307-redirects to
+  this-weekend; an unknown city 404s. lib/eventsList.js holds the pure
+  window date-math (this-weekend = nearest Fri-Sun, inclusive).
+- Kept noindex (dated inventory, matching the #67 detail-page decision), so
+  they stay OUT of the sitemap and check-seo stays green — flipping them
+  indexable + adding to the sitemap is an owner crawl-budget call.
+- Tests: scripts/test-events-list.mjs (prebuild, window boundary math) +
+  tests/e2e/events.spec.js (SSR H1 + ItemList + window nav + redirect + bad
+  city 404). Note: /?events=orlando 301 not added — no such deep link
+  exists in the app, so a redirect for it would be dead weight.
+
 ## v5.62 - v5.50 audit remediation, classification quality (Phase 2)
 - Recommendation misclassifications fixed at the source with a manual
   override table (lib/placeOverrides.js) that ALWAYS wins over Google's

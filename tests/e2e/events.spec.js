@@ -179,3 +179,24 @@ test("an invalid event id 404s with a proper not-found state — never a silent 
   expect(new URL(page.url()).pathname).not.toBe("/"); // no silent homepage fallback
   await expect(page.getByText("This event isn't listed anymore")).toBeVisible();
 });
+
+// v5.62 (audit Phase 5): durable, server-rendered event LIST URLs.
+test("a time-window event list URL renders server-side with an H1, window nav, and ItemList schema", async ({ page }) => {
+  const resp = await page.goto("/events/parrish/this-weekend");
+  expect(resp.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/Events This Weekend in Parrish/i);
+  // Window nav gives durable sibling URLs.
+  await expect(page.locator('a[href="/events/parrish/tonight"]')).toBeVisible();
+  await expect(page.locator('a[href="/events/parrish/this-month"]')).toBeVisible();
+  // ItemList structured data is in the server HTML (not hydration-dependent).
+  // The layout also emits WebSite/Organization schema, so scan every block.
+  const blocks = await page.locator('script[type="application/ld+json"]').allTextContents();
+  expect(blocks.some((b) => b.includes("ItemList"))).toBe(true);
+});
+
+test("/events/[city] redirects to the this-weekend listing; an unknown city 404s", async ({ page }) => {
+  await page.goto("/events/orlando");
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/events/orlando/this-weekend");
+  const bad = await page.goto("/events/notacity/this-weekend");
+  expect(bad.status()).toBe(404);
+});
