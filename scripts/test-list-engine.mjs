@@ -8,7 +8,9 @@ import {
   LIST_TYPES, LIST_TYPE_BY_ID, qualifyingPlaces, selectListTypes,
   buildListInput, validateListOutput, minutesUntilClose, localHourOf,
   headlineSize, truncName, fitTickerItems, splitAccent,
+  buildCardFromList, stripFromContext,
 } from "../lib/listEngine.js";
+import { slugify, listSlug, versionOf, isStale, buildSnapshot } from "../lib/listStore.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-list-engine: FAIL — " + m); failures++; };
@@ -197,6 +199,45 @@ function goodList() {
   ok(splitAccent("no accent here", "missing").length === 1, "splitAccent: a non-substring accent yields one plain segment");
 }
 
+// ── snapshot store: slugs, versions, staleness, snapshot shape (Part 0) ──
+{
+  ok(slugify("Sarasota") === "sarasota", "slugify lowercases");
+  ok(slugify("Hot Dogs!") === "hot-dogs", "slugify strips punctuation to hyphens");
+  ok(slugify("  Multiple   Spaces  ") === "multiple-spaces", "slugify collapses + trims");
+  ok(listSlug("Sarasota", "underexposed") === "sarasota-underexposed", "listSlug joins city + type");
+
+  const v = versionOf("2026-07-11T19:14:00-04:00");
+  ok(v > 0 && v === Math.floor(Date.parse("2026-07-11T19:14:00-04:00") / 1000), "versionOf is generated_at epoch seconds");
+  ok(versionOf("not-a-date") === 0, "versionOf of a bad date is 0");
+
+  ok(isStale(100, 200) === true, "isStale: a newer live version means the shown card is stale");
+  ok(isStale(200, 100) === false, "isStale: shown newer than live is not stale");
+  ok(isStale(0, 100) === false, "isStale: no shown version -> not stale (fresh visit)");
+
+  const snap = buildSnapshot({ slug: "sarasota-underexposed", city: "Sarasota", list_type: "underexposed", list: { generated_at: "2026-07-11T19:14:00-04:00", items: [] }, card: { hook: { lines: ["a", "b"] } } });
+  ok(snap.slug === "sarasota-underexposed" && snap.v === versionOf("2026-07-11T19:14:00-04:00"), "buildSnapshot keys by slug + version");
+  ok(snap.card && snap.list, "buildSnapshot carries the frozen card + list payload");
+}
+
+// ── buildCardFromList: generated list -> card payload (ratings joined by name) ──
+{
+  const list = {
+    headline: "x", hook: { lines: ["Sarasota's #1 hot dog", "is at a gas station."], accent: "gas station" }, bar_label: "See which one",
+    items: [
+      { rank: 1, name: "Twenty Pho Hour" }, { rank: 2, name: "Georgie's Dogs" },
+      { rank: 3, name: "The Dog House" }, { rank: 4, name: "Dawgy Style" },
+      { rank: 5, name: "Wieners on Main" }, { rank: 6, name: "Sixth Place" },
+    ],
+  };
+  const places = [{ name: "Georgie's Dogs", rating: 4.7 }, { name: "The Dog House", rating: 4.6 }, { name: "Dawgy Style", rating: 4.4 }, { name: "Wieners on Main", rating: 4.3 }];
+  const card = buildCardFromList(list, places, { city: "Sarasota", local_time: "2026-07-11T19:14:00-04:00", day_of_week: "Saturday", weather: { temp_f: 94, condition: "Overcast" }, open_count: 12 });
+  ok(card.ticker.length === 4 && card.ticker[0].rank === 2 && card.ticker[3].rank === 5, "card ticker is exactly ranks 2-5 (never #1, never 6+)");
+  ok(card.ticker[0].rating === 4.7, "card ticker joins the rating from the input places by name");
+  ok(card.hook.accent === "gas station" && card.bar_label === "See which one", "card carries the hook + bar_label through");
+  ok(card.strip.includes("Sarasota") && card.strip.some((x) => /94°F/.test(x)) && card.strip.includes("12 open now"), "card strip reflects city, weather, and open count");
+  ok(stripFromContext({ city: "Tampa", local_time: "2026-07-11T22:47:00-04:00", day_of_week: "Saturday" }).some((x) => x === "10:47 PM Sat"), "stripFromContext formats venue-local time");
+}
+
 // ── the share card's fonts must exist (Satori has no fallback for a missing
 // face; a deleted font silently wrecks the card). Guard the subset .ttf files.
 {
@@ -209,4 +250,4 @@ function goodList() {
 }
 
 if (failures) { console.error(`test-list-engine: ${failures} failure(s)`); process.exit(1); }
-console.log("test-list-engine: OK — conditions, gates, hook rules, card helpers, and the share-card fonts all hold");
+console.log("test-list-engine: OK — conditions, gates, hook rules, card helpers, snapshot store, and the share-card fonts all hold");

@@ -8,7 +8,9 @@
 //   503  generation offline (no ANTHROPIC_API_KEY configured)
 // No UI calls this yet — the engine is proven here first, wired in a later PR.
 import { claudeJson, logLlmCall } from "../../../../lib/insiderServer.js";
-import { LIST_SYSTEM_PROMPT, LIST_TYPE_BY_ID, qualifyingPlaces, selectListTypes, buildListInput, validateListOutput } from "../../../../lib/listEngine.js";
+import { LIST_SYSTEM_PROMPT, LIST_TYPE_BY_ID, qualifyingPlaces, selectListTypes, buildListInput, validateListOutput, buildCardFromList } from "../../../../lib/listEngine.js";
+import { listSlug, buildSnapshot, putSnapshot } from "../../../../lib/listStore.js";
+import { SITE_URL } from "../../../../lib/site.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -80,5 +82,21 @@ export async function POST(req) {
     return Response.json({ ok: false, reason: "validation_failed", list_type: chosen, violations: check.violations, list: out });
   }
 
-  return Response.json({ ok: true, list_type: chosen, qualifying: input.places.length, list: out });
+  // Freeze this list into an immutable snapshot so its already-shared card never
+  // changes. generated_at is stamped here (authoritative), not trusted from the
+  // model; v is its epoch. A re-rank later writes a NEW v under the same slug.
+  out.generated_at = new Date().toISOString();
+  const openCount = places.filter((p) => p.open_now === true).length;
+  const card = buildCardFromList(out, places, { city, local_time: ctx.local_time, day_of_week: body.day_of_week || "", weather: ctx.weather, open_count: openCount || null });
+  const slug = listSlug(city, chosen);
+  const snap = buildSnapshot({ slug, city, list_type: chosen, list: out, card });
+  const stored = await putSnapshot(snap);
+
+  return Response.json({
+    ok: true, list_type: chosen, qualifying: input.places.length,
+    slug, v: snap.v, stored,
+    share_url: `${SITE_URL}/l/${slug}`,
+    image_url: `${SITE_URL}/api/og/${slug}?v=${snap.v}`,
+    card, list: out,
+  });
 }
