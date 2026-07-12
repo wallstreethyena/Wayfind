@@ -97,9 +97,9 @@ export function Icon({ name, size = 18, color = "currentColor", strokeWidth = 2,
 // Moved here from home.js in the v5.55 redesign so every surface — bottom nav,
 // CategoryMenu, the community sheet — draws category identity from ONE icon
 // language instead of forking into emoji.
-export function NavIcon({ name, color, size }) {
+export function NavIcon({ name, color, size, strokeWidth }) {
   const sz = size || 23;
-  const p = { width: sz, height: sz, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+  const p = { width: sz, height: sz, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: strokeWidth || 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
   if (name === "home") return (<svg {...p}><path d="M4 12 L12 4.5 L20 12" /><path d="M6 10.5 V19.5 H18 V10.5" /><path d="M10 19.5 V14 H14 V19.5" /></svg>);
   if (name === "events") return (<svg {...p}><rect x="4" y="5.4" width="16" height="15" rx="2.4" /><path d="M8 3.4v3.4" /><path d="M16 3.4v3.4" /><path d="M4 10.4h16" /><circle cx="12" cy="15" r="1.7" /></svg>);
   if (name === "map") return (<svg {...p}><path d="M9 4.5 L3 7 V19.5 L9 17 L15 19.5 L21 17 V4.5 L15 7 L9 4.5 Z" /><path d="M9 4.5 V17" /><path d="M15 7 V19.5" /></svg>);
@@ -112,6 +112,10 @@ export function NavIcon({ name, color, size }) {
   if (name === "shopping") return (<svg {...p}><path d="M6 8h12l1 12H5L6 8Z" /><path d="M9 8V6.4a3 3 0 0 1 6 0V8" /></svg>);
   if (name === "coupons") return (<svg {...p}><path d="M20.6 12.6 L13.4 19.8 a2.1 2.1 0 0 1-3 0 L4.2 13.6 a2.1 2.1 0 0 1-.6-1.5 V5.7 a2.1 2.1 0 0 1 2.1-2.1 h6.4 a2.1 2.1 0 0 1 1.5.6 l7 7 a2.1 2.1 0 0 1 0 3 Z" /><circle cx="8.6" cy="8.6" r="1.5" /></svg>);
   if (name === "itinerary") return (<svg {...p}><circle cx="5.5" cy="18.3" r="1.7" /><path d="M5.5 16.6 C5.5 12 17 13.6 17 9" strokeDasharray="1.5 2" /><path d="M17 3 C14.9 3 13.2 4.7 13.2 6.8 C13.2 9.5 17 12.2 17 12.2 C17 12.2 20.8 9.5 20.8 6.8 C20.8 4.7 19.1 3 17 3 Z" /><circle cx="17" cy="6.7" r="1.3" /></svg>);
+  // v5.7x (home-menu consolidation): "Best of" tile (trophy/medal) and the
+  // Take-a-chance icon button (two crossing arrows) beside search.
+  if (name === "award") return (<svg {...p}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>);
+  if (name === "shuffle") return (<svg {...p}><path d="M16 3h5v5" /><path d="M4 20 21 3" /><path d="M21 16v5h-5" /><path d="M15 15 21 21" /><path d="M4 4 9 9" /></svg>);
   return null;
 }
 

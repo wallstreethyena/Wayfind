@@ -6,7 +6,7 @@ import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 
 export default function HookDetailSheet({ ctx }) {
-  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl } = ctx;
+  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
         // up twice in a themed list.
@@ -68,6 +68,16 @@ export default function HookDetailSheet({ ctx }) {
               <div style={{ marginTop: 10 }}>
                 <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
               </div>
+              {hookDetail.id === "cur-bestof" && (
+                <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                  {[["institutions", "Institutions"], ["gems", "Hidden gems"]].map(([id, lb]) => {
+                    const on = (hookDetail.lens || "institutions") === id;
+                    return (
+                      <button key={id} onClick={() => openCurated("bestof", { lens: id })} aria-pressed={on} style={{ flex: 1, padding: "8px 0", borderRadius: 999, border: `1px solid ${on ? acc : C.border}`, background: on ? acc + "20" : "transparent", color: on ? acc : C.light, fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{lb}</button>
+                    );
+                  })}
+                </div>
+              )}
               <div style={{ fontSize: 10, color: C.muted, marginTop: 8 }}>Rankings are merit-based. Affiliate links never change placement.</div>
             </div>
 
