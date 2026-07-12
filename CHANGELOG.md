@@ -1,3 +1,17 @@
+## v5.82 - B7 dead-code removal + reclaim the hand-written curated fun facts
+- Removed three genuinely-dead items (verified 0 reads across app/lib/scripts/tests):
+  eventCounts (write-only React state — set from the events API, never rendered),
+  and decisionReason / decisionLine (two ~40-line functions defined but never
+  called). 84 lines out of home.js.
+- funFact was NOT dead — it was authored content defeated by a wiring gap. ~90
+  hand-written, vetted fun facts live in lib/curated.js, the place-detail "Fun
+  fact" line exists (Detail.js), but the wire ran only to the AI insider
+  generator — so curated places showed an AI-improvised fact instead of the real
+  one. Fixed by wiring curatedFor(detail).funFact into that line (reusing the same
+  name matcher behind the "Wayfind pick" badge): curated places now show YOUR fact,
+  everywhere else keeps the AI fallback. Hand-vetted beats improvised, especially
+  in the launch market.
+
 ## v5.81 - Ticketmaster affiliate: update Impact verification token (3rd reissue) + coordinate the crawl
 - Impact mints a fresh site-verification token every time the verify flow is
   restarted (3eaf7df8 -> 960c2f71 -> b13f8126), which is the race that kept
