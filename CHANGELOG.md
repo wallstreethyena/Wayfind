@@ -32,6 +32,36 @@
 - New prebuild gate scripts/test-list-engine.mjs: condition predicates, gates,
   unbuildable-type refusal, and every validator rule with negative controls.
 
+## v5.68 - map: Tripsy-style distance rings + Apple-Maps-dark palette (main Map only)
+- The main Map tab now draws adaptive concentric distance rings centered on the
+  search origin (deviceLoc when present, else the geocoded city center), Tripsy-
+  style. Three rings at 1x/2x/3x an interval that adapts to zoom: candidates
+  [0.25,0.5,1,2,5,10,25,50]mi, largest where 3x fits within ~85% of the origin-
+  to-nearest-viewport-edge span. Zoomed way in -> single 0.25mi ring; way out
+  (interval would exceed 50mi) -> rings hidden. Innermost ring is the emphasized
+  "close to you" zone (strokeWeight 1.5, opacity .85, faint white fill); outer
+  two are quieter. One 12px label per ring at its 12 o'clock (labelLat = center +
+  r/111320), trimmed miles ("0.5mi"/"1mi"/"2mi"), text-shadow for legibility, no
+  pill. Interval changes crossfade old/new over ~200ms (instant under
+  prefers-reduced-motion).
+- Implemented with native google.maps.Circle + a lightweight OverlayView label
+  (no new deps). Rings/labels are purely decorative: Circle clickable:false,
+  labels pointer-events:none, both on the overlay pane BELOW every marker, so a
+  tap on a pin sitting on a ring stroke always hits the pin. Recompute is
+  debounced ~150ms off the map's own `idle` event (never per-frame during a
+  gesture); anchored to the origin (pan moves them with the map, they do not
+  re-center); re-anchors on a new search / locate-me.
+- Gated behind a new `rings` prop passed ONLY by the main Map (screens/Map.js).
+  The small home-screen map card (home.js) is unchanged and keeps its single
+  orange boundary ring.
+- Palette refined to the muted Apple-Maps-dark reference: water #101C28 (deep
+  navy), land #1B3A33 (desaturated teal-green), parks #1E463C, roads #2A3B44 /
+  arterials #2F424C / highways #334754 (no casings or shields), label fill
+  #AEBFC7 with #0C151C halo, business POI + POI labels + street-level labels +
+  transit hidden. Nothing on the base map competes with the pins or rings.
+- Untouched: pins, numbered markers, marker click behavior, clustering, search,
+  bottom nav, Events Nearby.
+
 ## v5.67 - hotfix: unblock Vercel deploy (noindex the /events/[city] redirect) + close the audit gap
 - PRODUCTION DEPLOY WAS FAILING. `app/events/[city]/page.js` (added in v5.63) is a
   redirect-only stub (-> /events/[city]/this-weekend, else 404) that declared no

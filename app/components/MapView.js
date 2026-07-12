@@ -51,13 +51,62 @@ function placePinSVG(fill, num, numColor) {
     "</svg>";
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit }) {
+// ── Distance rings (main Map only) ────────────────────────────────────────
+// Tripsy-style concentric rings centered on the search origin: native
+// google.maps.Circle + a lightweight OverlayView label. No new deps. Purely
+// decorative — Circles are clickable:false, labels are pointer-events:none, and
+// both live on the overlay pane BELOW every marker, so a tap always hits a pin.
+const MI_TO_M = 1609.344;
+const RING_MI_STEPS = [0.25, 0.5, 1, 2, 5, 10, 25, 50];
+const RING_STYLES = [
+  { w: 1.5, op: 0.85, fill: 0.03 }, // innermost = the emphasized "close to you" zone
+  { w: 1, op: 0.35, fill: 0 },
+  { w: 1, op: 0.22, fill: 0 },
+];
+function fmtRingMi(mi) {
+  const s = mi % 1 === 0 ? String(mi) : String(Number(mi.toFixed(2)));
+  return s + "mi";
+}
+let RingLabelClass = null;
+function ensureRingLabelClass() {
+  if (RingLabelClass || typeof window === "undefined" || !window.google) return RingLabelClass;
+  class RingLabel extends window.google.maps.OverlayView {
+    constructor(position, text) { super(); this.pos = position; this.text = text; this.div = null; }
+    onAdd() {
+      const d = document.createElement("div");
+      d.textContent = this.text;
+      d.style.cssText = "position:absolute;transform:translate(-50%,-50%);font:600 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:rgba(255,255,255,0.92);text-shadow:0 1px 3px rgba(0,0,0,0.85);pointer-events:none;white-space:nowrap;will-change:opacity;transition:opacity .2s ease;";
+      this.div = d;
+      const panes = this.getPanes();
+      (panes.overlayLayer || panes.overlayMouseTarget || panes.floatPane).appendChild(d);
+    }
+    draw() {
+      const proj = this.getProjection();
+      if (!proj || !this.div) return;
+      const p = proj.fromLatLngToDivPixel(new window.google.maps.LatLng(this.pos.lat, this.pos.lng));
+      if (p) { this.div.style.left = Math.round(p.x) + "px"; this.div.style.top = Math.round(p.y) + "px"; }
+    }
+    onRemove() { if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div); this.div = null; }
+    setOpacity(o) { if (this.div) this.div.style.opacity = String(o); }
+  }
+  RingLabelClass = RingLabel;
+  return RingLabelClass;
+}
+
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const circleRef = useRef(null);
   const lastCenterRef = useRef("");
+  const anchorRef = useRef(null);
+  const ringGenRef = useRef(null);
+  const ringStateRef = useRef(null);
+  const ringTimerRef = useRef(null);
+  const ringListenerRef = useRef(null);
+  const ringsOnRef = useRef(false);
   const [failed, setFailed] = useState(false);
+  ringsOnRef.current = !!rings;
 
   // Drawer rows hand us a focus target: fly to the pin so the list locates
   // instead of navigating away.
@@ -90,6 +139,14 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
             gestureHandling: "greedy",
             styles: DARK_STYLE,
           });
+          if (ringsOnRef.current) {
+            // Rings recompute only after a gesture settles (never per-frame):
+            // debounce the map's own idle event ~150ms.
+            ringListenerRef.current = mapRef.current.addListener("idle", () => {
+              clearTimeout(ringTimerRef.current);
+              ringTimerRef.current = setTimeout(() => recomputeRings(), 150);
+            });
+          }
         }
         draw();
       } catch (e) {
@@ -99,7 +156,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       }
     }
     init();
-    return () => { cancelled = true; if (typeof window !== "undefined") window.gm_authFailure = prevAuthFail; };
+    return () => { cancelled = true; if (typeof window !== "undefined") window.gm_authFailure = prevAuthFail; clearTimeout(ringTimerRef.current); if (ringListenerRef.current) { try { ringListenerRef.current.remove(); } catch (e) {} ringListenerRef.current = null; } clearRings(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -162,9 +219,15 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       bounds.extend({ lat: ev.lat, lng: ev.lng });
     });
 
-    // Boundary ring around the searched area.
+    // Origin anchor for the distance rings: the user's own dot when we have it,
+    // otherwise the geocoded center of the searched city.
+    anchorRef.current = deviceLoc || center || null;
+
+    // Boundary ring around the searched area. The small home-screen map card
+    // keeps this single orange ring; the main Map replaces it with adaptive
+    // distance rings (drawn on idle, below), so skip it when rings are on.
     if (circleRef.current) { circleRef.current.setMap(null); circleRef.current = null; }
-    if (center) {
+    if (center && !ringsOnRef.current) {
       circleRef.current = new window.google.maps.Circle({
         map,
         center: { lat: center.lat, lng: center.lng },
@@ -226,6 +289,97 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         map.setZoom(12);
       }
     }
+    // On a fit (stateChanged) the viewport moves and the idle listener will
+    // recompute with the settled bounds. When nothing re-fit (e.g. a locate-me
+    // that only moved the user dot), recompute now against the live bounds.
+    if (ringsOnRef.current && !stateChanged) recomputeRings();
+  }
+
+  // ── Distance-ring lifecycle ─────────────────────────────────────────────
+  function destroyRingGen(gen) {
+    if (!gen) return;
+    gen.circles.forEach((o) => { try { o.c.setMap(null); } catch (e) {} });
+    gen.labels.forEach((l) => { try { l.setMap(null); } catch (e) {} });
+  }
+  function clearRings() {
+    if (ringGenRef.current) { destroyRingGen(ringGenRef.current); ringGenRef.current = null; }
+    ringStateRef.current = null;
+  }
+  function buildRings(interval, single) {
+    const map = mapRef.current; const anchor = anchorRef.current;
+    if (!map || !anchor || !window.google) return;
+    const Cls = ensureRingLabelClass();
+    if (!Cls) return;
+    const radiiMi = single ? [0.25] : [interval, interval * 2, interval * 3];
+    const circles = []; const labels = [];
+    radiiMi.forEach((mi, idx) => {
+      const st = RING_STYLES[Math.min(idx, RING_STYLES.length - 1)];
+      const rM = mi * MI_TO_M;
+      const c = new window.google.maps.Circle({
+        map, center: { lat: anchor.lat, lng: anchor.lng }, radius: rM,
+        clickable: false, zIndex: 1,
+        strokeColor: "#FFFFFF", strokeOpacity: st.op, strokeWeight: st.w,
+        fillColor: "#FFFFFF", fillOpacity: st.fill,
+      });
+      circles.push({ c, op: st.op, fill: st.fill });
+      const lbl = new Cls({ lat: anchor.lat + rM / 111320, lng: anchor.lng }, fmtRingMi(mi));
+      lbl.setMap(map);
+      labels.push(lbl);
+    });
+    const prev = ringGenRef.current;
+    ringGenRef.current = { circles, labels };
+    const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prev && prev.circles.length && !reduce) {
+      // Crossfade old out / new in over ~200ms.
+      circles.forEach((o) => o.c.setOptions({ strokeOpacity: 0, fillOpacity: 0 }));
+      labels.forEach((l) => l.setOpacity(0));
+      const now0 = (typeof performance !== "undefined" && performance.now) ? performance.now() : 0;
+      const dur = 200;
+      const step = () => {
+        const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : now0 + dur;
+        const t = Math.min(1, (now - now0) / dur);
+        circles.forEach((o) => o.c.setOptions({ strokeOpacity: o.op * t, fillOpacity: o.fill * t }));
+        labels.forEach((l) => l.setOpacity(t));
+        prev.circles.forEach((o) => o.c.setOptions({ strokeOpacity: o.op * (1 - t), fillOpacity: o.fill * (1 - t) }));
+        prev.labels.forEach((l) => l.setOpacity(1 - t));
+        if (t < 1) requestAnimationFrame(step); else destroyRingGen(prev);
+      };
+      requestAnimationFrame(step);
+    } else if (prev) {
+      destroyRingGen(prev);
+    }
+  }
+  function recomputeRings() {
+    const map = mapRef.current;
+    if (!map || !ringsOnRef.current || !window.google) return;
+    const anchor = anchorRef.current;
+    if (!anchor) { clearRings(); return; }
+    const bounds = map.getBounds && map.getBounds();
+    if (!bounds) return;
+    const anchorLL = new window.google.maps.LatLng(anchor.lat, anchor.lng);
+    if (!bounds.contains(anchorLL)) return; // anchor panned off-screen: leave rings anchored, don't rescale
+    const ne = bounds.getNorthEast(); const sw = bounds.getSouthWest();
+    const cosLat = Math.max(0.02, Math.cos(anchor.lat * Math.PI / 180));
+    const nearestMi = Math.min(
+      (ne.lat() - anchor.lat) * 111320,
+      (anchor.lat - sw.lat()) * 111320,
+      (ne.lng() - anchor.lng) * 111320 * cosLat,
+      (anchor.lng - sw.lng()) * 111320 * cosLat,
+    ) / MI_TO_M;
+    const ideal = (0.85 * nearestMi) / 3; // 3x the interval must fit in ~85% of the origin-to-nearest-edge span
+    const anchorKey = anchor.lat.toFixed(5) + "," + anchor.lng.toFixed(5);
+    if (ideal > 50) { // zoomed way out: hide the rings entirely
+      const key = anchorKey + "|hidden";
+      if (ringStateRef.current === key) return;
+      clearRings(); ringStateRef.current = key; return;
+    }
+    let single = false; let interval;
+    if (ideal < 0.25) { single = true; interval = 0.25; } // zoomed way in: a single 0.25mi ring
+    else { interval = RING_MI_STEPS.filter((c) => c <= ideal).pop() || 0.25; }
+    const key = anchorKey + "|" + (single ? "q" : interval);
+    if (ringStateRef.current === key) return; // no interval/anchor change: keep the current rings
+    ringStateRef.current = key;
+    buildRings(interval, single);
   }
 
   if (failed) return <MapFallback count={(places || []).length} />;
@@ -238,16 +392,27 @@ const EVENT_PIN_SVG =
   "<circle cx='13' cy='11.5' r='4.4' fill='#0D1117'/>" +
   "</svg>";
 
+// Muted Apple-Maps-dark palette (Tripsy reference): deep-navy water, desaturated
+// teal-green land, quiet roads, no business POI or shields — nothing on the base
+// map competes with the Wayfind pins or the white distance rings.
 const DARK_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#232b39" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0D1117" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#DCE3EC" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#1B4060" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9FC1DE" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#21392b" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#3d4759" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#4d5870" }] },
-  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#AEB8C5" }] },
+  { elementType: "geometry", stylers: [{ color: "#1B3A33" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#AEBFC7" }] },
+  { elementType: "labels.text.stroke", stylers: [{ color: "#0C151C" }] },
+  { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1B3A33" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#101C28" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#5E7C90" }] },
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1E463C" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2A3B44" }] },
+  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8B9AA6" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#2F424C" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#334754" }] },
+  { featureType: "road.highway", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+  { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "off" }] },
 ];
