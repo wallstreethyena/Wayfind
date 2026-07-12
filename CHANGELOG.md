@@ -1,3 +1,37 @@
+## v5.69 - List Engine, PR A: generation core (prompt + rotation library + validator + route)
+- First slice of the Wayfind List Engine (v5.68 is the concurrent map-rings PR).
+  A backend-only, flag-free-but-unwired generation pipeline that turns ranked
+  places into a screenshot-and-send list. Nothing in the UI calls it yet — the
+  engine is proven in isolation first, wired into a surface in a later PR.
+- lib/listEngine.js (pure, testable): the PART 1 system prompt; the PART 2
+  rotation library as data with each list's real data condition; input builder;
+  and the hard-rule output validator. The rotation library only marks a list
+  `available: true` when every claim its headline makes is computable from the
+  Google-Places fields we actually have: The Underexposed (rating>=4.7 &&
+  reviews<150), Value Shock (rating>=4.6 && $), Still Open (after 22:00 && open),
+  Closing Soon (closes within 90m), Heat List (>=90F, indoor/water tags), Rain
+  List (storm, indoor tags), Consensus vs Contrarian (>1000 vs <100 reviews).
+  The five that need data we do NOT have — Price Gradient, Hundred Dollar
+  Saturday, Three Hours (all need per-place coords / real price estimates the
+  input lacks), Locals vs Tourists (reviewer segmentation), Most Divisive (full
+  star histogram) — are present but `available: false` with a reason, never
+  faked (the spec's own rule: "do not attempt a list whose condition you cannot
+  satisfy from real fields").
+- The validator enforces the machine-checkable hard rules: no dashes in GENERATED
+  copy (never in place names), no exclamation points, no "hidden gem" unless
+  category is gems, exactly one contrarian item, ranks 1..N sequential, exactly
+  10 items max, share_card_headline <= 60 chars, og_description <= 155.
+- app/api/list/generate/route.js: loud contract mirrored on /api/moment/picks —
+  400 on malformed input, 200 { ok:false, reason } when no list type is
+  satisfiable (or an unbuildable type is requested), 503 when ANTHROPIC_API_KEY
+  is absent (no silent empty list), 200 { ok:true, list } otherwise. Reuses the
+  existing Claude Haiku backend (lib/insiderServer.js claudeJson + logLlmCall);
+  one automatic rewrite pass hands the model its own rule violations before
+  giving up. Returns { ok:false, reason:"validation_failed", violations } if the
+  model still can't comply (caller must not ship it).
+- New prebuild gate scripts/test-list-engine.mjs: condition predicates, gates,
+  unbuildable-type refusal, and every validator rule with negative controls.
+
 ## v5.67 - hotfix: unblock Vercel deploy (noindex the /events/[city] redirect) + close the audit gap
 - PRODUCTION DEPLOY WAS FAILING. `app/events/[city]/page.js` (added in v5.63) is a
   redirect-only stub (-> /events/[city]/this-weekend, else 404) that declared no
