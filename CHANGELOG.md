@@ -1,3 +1,22 @@
+## v5.79 - Ticketmaster affiliate: site verification + remove the dead duplicate route
+- Impact.com publisher site-ownership verification. Signing up as a PUBLISHER for
+  the Ticketmaster affiliate program (Ticketmaster runs it through Impact) requires
+  proving we own gowayfind.com. Added Impact's <meta name="impact-site-verification"
+  value="..."> to the homepage <head> (app/layout.js). Impact reads the `value`
+  attribute (NOT the usual `content`) — preserved exactly; Next hoists the raw
+  <meta> into <head> alongside the existing preconnect <link>s. Harmless to keep
+  permanently once verified.
+- Removed the dead duplicate route app/api/ticketmaster/route.js. This was the
+  ORIGINAL events fetcher, superseded when the pipeline was rebuilt into the richer
+  /api/events (multi-segment + caching + LibCal + local staples). Nothing anywhere
+  referenced /api/ticketmaster (verified: zero references in app/lib/scripts/tests) —
+  it was orphaned dead code. This does NOT touch the live Ticketmaster data feed
+  (/api/events, lib/eventResolve.js) or the affiliate money path (lib/affiliates.js
+  ticketOutUrl / TICKETMASTER_PARAM), both untouched and still in place.
+- Money switch still pending: lib/affiliates.js TICKETMASTER_PARAM stays blank until
+  the Impact signup completes and a real tracking link is generated — then it's a
+  one-line fill and every ticket link earns.
+
 ## v5.78 - remediation B1: every standalone tab is a real, shareable URL (Map/Coupons/Favorites/Itinerary — not just Events)
 - Deep-link lockstep, generalized. Only /events kept its view in the address bar;
   opening Map, Coupons, Favorites, or Itinerary silently stripped the URL back to
