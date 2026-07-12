@@ -2,6 +2,7 @@
 // cards render, served as real HTML so search engines can read it. These are
 // the trust-and-authority pages in the middleman structure: they earn links
 // and pass authority to the guides and the app through internal links.
+import { notFound } from "next/navigation";
 import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
@@ -41,11 +42,17 @@ const S = {
 
 export default async function CulturePage({ params }) {
   const c = CULTURE[params.metro];
-  if (!c) return <main style={S.page}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} /><h1 style={S.h1}>Not found</h1><p><a href="/" style={S.footerLink}>Back to Wayfind</a></p></main>;
+  // v5.75 (crash fix): the old not-found branch referenced c.title while c was
+  // undefined — a guaranteed TypeError → HTTP 500 on any unknown metro slug (bad
+  // for users and for how Google reads these URLs). Return a real 404.
+  if (!c) notFound();
   return (
     <main style={S.page}>
+      {/* v5.75: the Article + Breadcrumb JSON-LD used to sit ONLY in the
+          not-found branch (which crashed), so the REAL culture pages shipped
+          with no structured data. Moved here, onto the actual page Google reads. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} />
       <div style={S.kicker}>Know before you go · {c.tag}</div>
       <h1 style={S.h1}>What {c.title} Is Known For</h1>
       <p style={S.sub}>The local food, the experiences you shouldn&apos;t leave without, the sights worth your eyes, and how the locals actually talk.</p>

@@ -79,7 +79,7 @@ import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../li
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.74";
+const BUILD_ID = "v5.75";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -549,7 +549,9 @@ function templateBlurb(p) {
     pizza: "Come for the pizza, leave happy.",
     sushi: "Fresh sushi and a steady hand.",
     steak: "For when only a great steak will do.",
-    seafood: "Fresh seafood close to the water.",
+    // v5.75 (accuracy): "seafood" is a cuisine, not a location — the old
+    // "close to the water" was a false geography claim on inland seafood spots.
+    seafood: "Fresh seafood, cooked with care.",
     burgers: "Go for a proper, messy burger.",
     mexican: "Tacos and everything around them, done right.",
     italian: "Pasta and red sauce worth the carbs.",
@@ -1044,6 +1046,10 @@ function experienceBadges(p, selectedKey, max, audit) {
   const q = new Set();
   const hint = (HINTS[p.id] || "").toLowerCase();
   const said = (arr) => arr.some((w) => nm.includes(w) || hint.includes(w));
+  // v5.75 (accuracy): an override can hard-disable the waterfront badge for an
+  // inland place whose name/reviews merely mention water words.
+  const _ovB = Ranking.overrideFor ? Ranking.overrideFor(p) : null;
+  const _noWater = !!(_ovB && _ovB.noWater);
 
   // Reputation, computed from rating and review volume and price.
   if (p.rating >= 4.6 && p.reviews >= 800) q.add("localfav");
@@ -1056,7 +1062,10 @@ function experienceBadges(p, selectedKey, max, audit) {
 
   // Setting, read from the place name and (for prefetched places) its
   // description and reviews. Honest text evidence, never invented.
-  if (said(["waterfront", "riverfront", "river roo", "riverwalk", "on the river", "bayfront", "beachfront", "lakefront", " pier", "wharf", "dockside", "marina", "boathouse", "fish house", "on the bay", "on the water"])) q.add("waterfront");
+  // v5.75 (accuracy): " pier" (matched "pierogies") and bare "fish house" dropped;
+  // gated on the override so an inland place can't earn a water badge from a
+  // stray review mention.
+  if (!_noWater && said(["waterfront", "riverfront", "riverwalk", "on the river", "bayfront", "beachfront", "lakefront", "wharf", "dockside", "boathouse", "on the bay", "on the water"])) q.add("waterfront");
   if (said(["rooftop", "roof top", "sky bar", "skybar", "skyline"])) q.add("rooftop");
   if (said(["romantic", "date night", "intimate", "candlelit", "special occasion"])) q.add("romantic");
   if (said(["instagram", "instagrammable", "photo spot", "photogenic", "aesthetic", "scenic", "great views", "amazing views", "beautiful views", "stunning views", "picturesque", "mural"])) q.add("instagram");
@@ -1477,9 +1486,18 @@ function formatEventDate(dateStr, timeStr) {
 // Compass label from degrees (direction the wind/waves come FROM).
 function isBeach(p) {
   if (!p) return false;
+  // v5.75 (accuracy): an override { noWater:true } stops an inland place named
+  // "Beach ___" (e.g. "Beach Bum Burgers") from getting a surf/wind conditions
+  // panel. A real beach TYPE still qualifies regardless of name.
+  const _ov = Ranking.overrideFor ? Ranking.overrideFor(p) : null;
   const t = (((p.types || []).join(" ")) + " " + (p.type || "")).toLowerCase();
+  if (t.includes("beach")) return true;
+  if (_ov && _ov.noWater) return false;
+  // A food/bar/shop named "Beach ___" is not a beach; require it not be a dining
+  // or retail venue before trusting the name alone.
+  const isVenue = /restaurant|food|cafe|coffee|bar|pub|brewery|store|shop|mall|market|bakery|deli/.test(t);
   const n = (p.name || "").toLowerCase();
-  return t.includes("beach") || n.includes("beach");
+  return !isVenue && n.includes("beach");
 }
 // Keyless wind + marine conditions for a beach point, from Open-Meteo. Fail-soft.
 async function loadBeachConditions(p) {
@@ -2376,6 +2394,10 @@ function calmReason(p) {
 // v6.8: read what KIND of place this is from its Google types and name. Used by the
 // reason engine so a museum, a preserve, a bridge and a restaurant each read differently.
 function placeKind(p) {
+  // v5.75 (accuracy): a manual override pins the kind and can hard-disable the
+  // name-based "waterfront" read (lib/placeOverrides.js).
+  const _ov = Ranking.overrideFor ? Ranking.overrideFor(p) : null;
+  if (_ov && _ov.kind) return _ov.kind;
   const ts = ((p.types || []).join(" ") + " " + (p.type || "")).toLowerCase();
   const nm = (p.name || "").toLowerCase();
   const has = (arr) => arr.some((k) => ts.includes(k));
@@ -2387,12 +2409,20 @@ function placeKind(p) {
   if (has(["beach"])) return "beach";
   if (has(["national_park", "state_park", "_park", "natural_feature", "botanical_garden", "campground"]) || (p.types || []).includes("park") || named(["preserve", "trailhead"])) return "nature";
   if (has(["historical_landmark", "historical"]) || named(["memorial", "fort ", "historic "])) return "landmark";
-  if (named(["waterfront", "riverfront", "river roo", "bayfront", "marina", "riverwalk", "on the river", "on the bay", " pier", " wharf"])) return "waterfront";
+  // v5.75 (accuracy): dining venues are classified by TYPE before any name-based
+  // "waterfront" read, so a restaurant/bar/cafe is NEVER asserted to have a water
+  // view just because its NAME contains bay/pier/marina/river (the "Oar & Iron" /
+  // "Pieroguys Pierogies" class). A genuinely waterfront dining spot is pinned via
+  // lib/placeOverrides.js { kind: "waterfront" }.
   if (has(["night_club", "bar", "pub", "brewery"])) return "bar";
   if (has(["cafe", "coffee_shop", "bakery"]) || named(["coffee", "cafe", "espresso", "roasters"])) return "cafe";
   if (has(["restaurant", "food", "meal_"])) return "restaurant";
   if (has(["lodging", "hotel", "resort"])) return "hotel";
   if (has(["store", "shopping_mall", "market"])) return "shopping";
+  // Water-word NAME only classifies a place we could not otherwise type — a
+  // generic attraction actually named for the water it sits on — and never when
+  // an override says noWater. " pier" was dropped (matched "pierogies").
+  if (!(_ov && _ov.noWater) && named(["waterfront", "riverfront", "bayfront", "riverwalk", "marina", " wharf", "on the river", "on the bay"])) return "waterfront";
   return "generic";
 }
 // The global "why this pick" engine. Specific, varied and honest: it weighs the place

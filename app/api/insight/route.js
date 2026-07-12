@@ -99,8 +99,45 @@ export async function POST(req) {
     text = text.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
     let parsed;
     try { parsed = JSON.parse(text); } catch { parsed = mode === "full" ? { error: true } : { verdict: text.slice(0, 200) }; }
+    // v5.75 (accuracy): geographic-claim guard. The model was asserting things
+    // like "waterfront location … sunset waterfront views" for The Oar & Iron —
+    // an inland bar/grill — with ZERO grounding (empty reviews/editorial). Strip
+    // any water/waterfront/view-over-water claim UNLESS the provided facts
+    // (editorial + real review text) actually contain that evidence. Belt-and-
+    // suspenders on top of the prompt's honesty rule, which silently failed.
+    parsed = scrubUngroundedGeo(parsed, factsText);
     return Response.json(parsed, { status: 200 });
   } catch (e) {
     return Response.json({ error: true }, { status: 200 });
   }
+}
+
+// v5.75 (accuracy): remove water/waterfront/water-view claims from model output
+// when the input facts don't support them. A "claim" is any sentence (in a
+// string field) or any array item asserting proximity to / a view of water. If
+// the facts (editorial + reviews) genuinely mention water, we trust the model
+// and leave it alone — this only fires on ungrounded invention.
+const WATER_CLAIM_RX = /(waterfront|water[\s-]?view|water[\s-]?views|on the water|by the water|near the water|steps from the water|beachfront|ocean[\s-]?front|ocean view|gulf[\s-]?front|gulf view|bay[\s-]?front|bay view|river[\s-]?front|river view|dockside|harbor view|overlooking the (?:water|bay|gulf|river|ocean)|views? of the (?:water|bay|gulf|ocean)|sunset over the (?:water|bay|gulf))/i;
+const WATER_FACT_RX = /(waterfront|water view|on the water|beachfront|ocean|gulf|\briver\b|\bbay\b|harbor|marina|\bdock|lagoon|lakefront|riverwalk|\bpier\b|intracoastal|canal)/i;
+
+function scrubUngroundedGeo(obj, factsText) {
+  try {
+    if (!obj || typeof obj !== "object") return obj;
+    // Grounded? Then the model has real evidence — don't touch it.
+    if (WATER_FACT_RX.test(String(factsText || ""))) return obj;
+    const cleanStr = (s) => {
+      if (typeof s !== "string" || !s) return s;
+      if (!WATER_CLAIM_RX.test(s)) return s;
+      // Drop only the offending sentence(s), keep the rest of the field.
+      const kept = s.split(/(?<=[.!?])\s+/).filter((sent) => !WATER_CLAIM_RX.test(sent));
+      return kept.join(" ").replace(/\s+/g, " ").trim();
+    };
+    const walk = (v) => {
+      if (typeof v === "string") return cleanStr(v);
+      if (Array.isArray(v)) return v.map(walk).filter((x) => !(typeof x === "string" && x === ""));
+      if (v && typeof v === "object") { const o = {}; for (const k of Object.keys(v)) o[k] = walk(v[k]); return o; }
+      return v;
+    };
+    return walk(obj);
+  } catch (e) { return obj; }
 }
