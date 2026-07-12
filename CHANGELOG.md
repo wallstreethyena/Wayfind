@@ -1,3 +1,23 @@
+## v5.66 - home menu: fold the category cards into one iOS-style list
+- The homepage "More ways to explore" image cards (Best of, Hidden gems,
+  Attractions, Families, Shows, Budget, Hotels) and the Take-a-chance card
+  were photo-backed HookSolo cards. The photos intermittently failed to load,
+  ate vertical space, and were hard to read. They are now folded into ONE
+  iOS-Settings-style list, together with the Top 10 rows (Food, Nightlife,
+  Experiences, Shopping) and Events tonight: squircle gradient icon tiles
+  (emoji glyphs, no network images), title + subtitle, hairline separators,
+  chevron, 56px min touch target, and :active/:hover press states.
+- Every row navigates to the EXACT destination its old card CTA pointed to,
+  and preserves analytics parity: Top 10 rows -> openCurated() (curated_open);
+  category rows -> openExpSheet() with logEvent("intent_chip",{src:"home_menu"});
+  Events -> setScreen("events"); Take-a-chance -> setMenuSheet("pick") with
+  logEvent("dice_card",{src:"home_menu"}). "Best of {city}" stays dynamic.
+- The menu was previously gated behind heroPlace (a photo-backed hero), so it
+  vanished in sparse areas with no photo hero. It now renders whenever the
+  home feed has data (suggested.length > 0), independent of any image loading.
+- Untouched: the hero/holiday/giveaway cards, search bar, weather chip, map,
+  Events Nearby, coupons, bottom nav, and every destination route.
+
 ## v5.65 - v5.50 audit remediation, performance: wordmark (Phase 6)
 - The header wordmark was a 2172x724 / 657KB PNG rendered at 34px tall.
   Resized to 255x85 (2.5x retina) and re-exported -> 14KB, a 98% cut, still

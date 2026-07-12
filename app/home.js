@@ -77,7 +77,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.65";
+const BUILD_ID = "v5.66";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -5997,36 +5997,49 @@ function PageInner() {
                       
                       {/* "Your Next Move" hidden per request — change false to true to bring it back */}
                       {false && <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />}
+                    </>)}
                       {(() => {
-                        const _hr = new Date().getHours(); const _eve = _hr >= 14 || _hr < 5;
-                        const _items = _eve
-                          ? [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "Breakfast, lunch, dinner, and a quick bite, ranked.", C.accent], ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife", "Bars and lounges, live music, and late-night eats.", C.pink], ["events", "\uD83C\uDF9F\uFE0F", "Events tonight", "What is actually happening near you tonight.", C.blue]]
-                          : [["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "Breakfast, lunch, dinner, and a quick bite, ranked.", C.accent], ["experiences", "\uD83C\uDFA2", "Top 10 Experiences", "Theme parks, top attractions, and bookable tours.", C.purple], ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping", "The malls, outlets, and boutiques that rate best.", C.green]];
+                        const _bestCity = (locName && locName.split(",")[0]) || "your area";
+                        // v5.66: the "More ways to explore" image cards + Top 10 rows + Take-a-chance
+                        // folded into ONE iOS-style list menu (no photos: they failed to load and ate
+                        // vertical space). Every row keeps the exact destination + analytics its card had.
+                        const _items = [
+                          ["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "The best places to eat near you, ranked.", C.accent, () => openCurated("food")],
+                          ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife", "Bars, live music, and late-night eats.", C.pink, () => openCurated("nightlife")],
+                          ["experiences", "\uD83C\uDFA2", "Top 10 Experiences", "Theme parks, attractions, and bookable tours.", C.purple, () => openCurated("experiences")],
+                          ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping", "Malls, outlets, and the boutiques that rate best.", C.green, () => openCurated("shopping")],
+                          ["events", "\uD83C\uDF9F\uFE0F", "Events tonight", "What is happening near you tonight.", C.blue, () => setScreen("events")],
+                          ["bestof", "\uD83C\uDFC6", "Best of " + _bestCity, "The local institutions people here swear by.", C.gold, () => { try { logEvent("intent_chip", null, { intent: "bestof", src: "home_menu" }); } catch (e) {} openExpSheet("bestof"); }],
+                          ["gem", "\uD83D\uDC8E", "Hidden gems", "The under-the-radar spots locals keep quiet.", C.teal, () => { try { logEvent("intent_chip", null, { intent: "gem", src: "home_menu" }); } catch (e) {} openExpSheet("gem"); }],
+                          ["entertainment", "\uD83C\uDFA1", "Attractions & fun", "Theme parks, tours, and the can't-miss stops.", C.purple, () => { try { logEvent("intent_chip", null, { intent: "entertainment", src: "home_menu" }); } catch (e) {} openExpSheet("entertainment"); }],
+                          ["family", "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Best for families", "Easy with kids, good for the grown-ups too.", C.green, () => { try { logEvent("intent_chip", null, { intent: "family", src: "home_menu" }); } catch (e) {} openExpSheet("family"); }],
+                          ["shows", "\uD83C\uDFAD", "Shows & tickets", "Dinner shows, theater, and live entertainment.", C.pink, () => { try { logEvent("intent_chip", null, { intent: "shows", src: "home_menu" }); } catch (e) {} openExpSheet("shows"); }],
+                          ["budget", "\uD83E\uDE99", "On a budget", "Big fun that goes easy on the wallet.", C.gold, () => { try { logEvent("intent_chip", null, { intent: "budget", src: "home_menu" }); } catch (e) {} openExpSheet("budget"); }],
+                          ["stays", "\uD83C\uDFE8", "Hotels & stays", "Places to stay, from resorts to easy overnights.", C.blue, () => { try { logEvent("intent_chip", null, { intent: "stays", src: "home_menu" }); } catch (e) {} openExpSheet("stays"); }],
+                          ["dice", "\uD83C\uDFB2", "Take a chance", "Let Wayfind surprise you with one pick.", C.pink, () => { try { logEvent("dice_card", null, { to: "pick", src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }],
+                        ];
                         return (
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
                             <div style={{ padding: "14px 15px 10px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Top 10s near you</div>
+                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Explore near you</div>
                               <div onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "curated" }); } catch (e) {} }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", marginBottom: 7 }}>✨ Or tell us your mood and we'll design your list →</div>
-                              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick by where you want to go. Each one opens the ranked Top 10 for that category near you, with no ads and no paid placement.</div>
+                              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick where you want to go. Every list is ranked for you, with no ads and no paid placement.</div>
                             </div>
-                            {_items.map(([k, ic, lb, desc, col]) => (
-                              <button key={k} onClick={(e) => { e.stopPropagation(); if (k === "events") { setScreen("events"); } else { openCurated(k); } }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid " + C.border, padding: "12px 15px", cursor: "pointer" }}>
-                                <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 11, fontSize: 19, background: col + "1F", border: "1px solid " + col + "59" }}>{ic}</span>
+                            <style>{".wf-mrow{transition:background .12s ease}.wf-mrow:active{background:rgba(255,255,255,.06)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.035)}}"}</style>
+                            {_items.map(([k, ic, lb, desc, col, act]) => (
+                              <button key={k} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { act(); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid " + C.border, padding: "13px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent", minHeight: 56 }}>
+                                <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 12, fontSize: 19, background: "linear-gradient(145deg, " + col + "33, " + col + "12)", border: "1px solid " + col + "4D" }}>{ic}</span>
                                 <span style={{ flex: 1, minWidth: 0 }}>
                                   <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{lb}</span>
                                   <span style={{ display: "block", fontSize: 12, color: C.muted, lineHeight: 1.35, marginTop: 2 }}>{desc}</span>
                                 </span>
-                                <span style={{ flexShrink: 0, color: col, fontSize: 20, fontWeight: 700 }}>{"\u203A"}</span>
+                                <span aria-hidden="true" style={{ flexShrink: 0, color: col, fontSize: 20, fontWeight: 700 }}>{"\u203A"}</span>
                               </button>
                             ))}
                           </div>
                         );
                       })()}
-                    </>)}
-                    {restExp.length > 0 && <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.muted, margin: "6px 2px 8px" }}>More ways to explore</div>}
-                    {restExp.map((a) => { const hk = mkHook(a); return <HookSolo key={a.key} h={hk} place={a.place} collage={!a.place ? expCollage(a.key) : undefined} hideLike hideShare={!a.place} onOpen={(h) => { if (h && h.fetchKey) { try { logEvent("intent_chip", null, { intent: h.label, src: "home_revenue_hero", hookVar: h._hookVar }); } catch (e) {} try { heroTap(h.theme, h._hookVar); } catch (e) {} } openHook(h); }} onShare={() => a.place && shareHook(hk, a.place)} />; })}
-
-                    <HookSolo h={diceHook} place={null} collage={dicePhotos} liked={false} onOpen={() => { try { logEvent("dice_card", null, { to: "pick", hookVar: diceHook._hookVar }); } catch (e) {} try { heroTap("chance", diceHook._hookVar); } catch (e) {} setMenuSheet("pick"); }} />
+                    {/* v5.66: the "More ways to explore" image cards + the Take-a-chance card are now folded into the single iOS-style list menu above — destinations + analytics preserved, no photos. */}
                   </div>
                 );
               })()}
