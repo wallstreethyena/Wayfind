@@ -1,3 +1,36 @@
+## v5.71 - List Engine, PR C: snapshot architecture (immutable store + versioned card + /l live page + staleness banner)
+- THE SNAPSHOT RULE, wired end to end: an image someone already shared must never
+  change. A list is identified by a slug; every snapshot is keyed by (slug, v)
+  where v = generated_at epoch seconds and is written once, never rewritten. A
+  re-rank writes a NEW v under the same slug. Three URLs, three jobs:
+  /l/<slug> (permanent, always the live list), /api/og/<slug>?v=<epoch> (the
+  versioned image, cached immutably), and the stored snapshot JSON keyed by v.
+- lib/listStore.js: slugify/listSlug/versionOf/isStale/buildSnapshot (pure) +
+  getLatestSnapshot/getSnapshot/putSnapshot backed by Supabase `wf_lists`
+  (supabase/lists.sql — OWNER must apply it), fail-soft everywhere (no Supabase
+  -> null and callers degrade). getSnapshot caches immutably; reads normalize the
+  jsonb payload to a flat {card, list} shape.
+- app/api/og/[slug]/route.js: the versioned card. A specific ?v renders the
+  frozen snapshot with `Cache-Control: public, immutable, ... max-age=31536000`;
+  no v (or a missing v) serves the current list under a short cache; nothing
+  stored -> the branded sample, so a share never breaks. The 1200x630 layout was
+  extracted into app/api/og/list/card.jsx and is shared with the preview route.
+- app/l/[key]/page.js: when the slug has a stored snapshot it now renders a real
+  server-rendered list page (headline, ranked 1-10 with verdicts, the method
+  line, a CTA) with og:image pointing at the versioned card; otherwise it keeps
+  its original share-redirect behavior unchanged (backward compatible). THE
+  STALENESS BANNER: a visitor arriving from an older ?v than the live list sees
+  "This list changed <ago> ago. The #1 is different now." — turning staleness
+  into proof the product is alive. Stays noindex (the /l space is noindex by
+  policy; the value here is the share, not SEO).
+- app/api/list/generate/route.js now stamps generated_at (authoritative, not
+  trusted from the model), builds the card via buildCardFromList (ratings joined
+  from the input places by name), writes the snapshot, and returns slug + v +
+  share_url + image_url.
+- test-list-engine extended: slugify/version/staleness/snapshot shape and the
+  list->card mapping (ticker is ranks 2-5 with joined ratings; strip reflects
+  city/weather/open-count).
+
 ## v5.70 - List Engine, PR B: the 1200x630 share card (Satori/next-og) + hook amendment
 - The share card that turns a list into a link preview a person forwards. A
   1200x630 PNG rendered on the Edge from a list's hook, matching the reference
