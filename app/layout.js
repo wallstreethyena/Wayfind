@@ -92,6 +92,13 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
         <link rel="preconnect" href="https://scripts.stay22.com" />
+        {/* v5.79: Impact.com publisher site-ownership verification for the
+            Ticketmaster affiliate program. Impact crawls the homepage <head> for
+            this exact tag when "Add Website" is clicked. NOTE: Impact reads the
+            `value` attribute (NOT the usual `content`) — do not "normalize" it or
+            verification fails. Next hoists this raw <meta> into <head> (same as
+            the preconnect <link>s above). Safe to keep permanently once verified. */}
+        <meta name="impact-site-verification" value="3eaf7df8-fec2-4b13-b61e-c04b3d302d3b" />
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
