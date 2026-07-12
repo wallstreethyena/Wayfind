@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 // Six sub-states: menu, community, explore, pick, experiences, weather.
 import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon } from "../kit";
+import { openExternal } from "../../../lib/links";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
@@ -43,7 +44,7 @@ export default function MenuSheet({ ctx }) {
                     {libraryEvents.slice(0, 12).map((e, i) => {
                       const dt = e.date ? new Date(e.date + "T00:00:00") : null;
                       return (
-                        <div key={(e.id || e.name || "ev") + "-" + i} onClick={() => { if (e.url) window.open(e.url, "_blank", "noopener"); }} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: 8, cursor: e.url ? "pointer" : "default" }}>
+                        <div key={(e.id || e.name || "ev") + "-" + i} onClick={() => openExternal(e.url)} style={{ display: "flex", alignItems: "center", gap: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: 8, cursor: e.url ? "pointer" : "default" }}>
                           <div style={{ flexShrink: 0, width: 44, textAlign: "center" }}>
                             {dt ? (<><div style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", textTransform: "uppercase", letterSpacing: "0.3px" }}>{dt.toLocaleDateString(undefined, { month: "short" })}</div><div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1.05 }}>{dt.getDate()}</div></>) : (<div style={{ fontSize: 22 }}>📚</div>)}
                           </div>

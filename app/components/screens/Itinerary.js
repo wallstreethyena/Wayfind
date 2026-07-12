@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only; the
 // two original sibling branches (trip list, open trip) keep their conditions.
 import { C } from "../kit";
+import { openExternal } from "../../../lib/links";
 import * as Trips from "../../../lib/trips";
 
 export default function ItineraryScreen({ ctx }) {
@@ -69,7 +70,7 @@ export default function ItineraryScreen({ ctx }) {
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
           const tripCtl = { width: 34, height: 30, borderRadius: 8, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
           const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 18, cursor: "pointer" };
-          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { try { window.open(u, "_blank"); } catch {} try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
+          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { openExternal(u); try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
