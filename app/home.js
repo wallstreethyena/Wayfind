@@ -74,7 +74,7 @@ import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
-import { orderExploreMenu, EXPLORE_TILES } from "../lib/exploreMenu";
+import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
@@ -2951,7 +2951,20 @@ function PageInner() {
   // + lib/homeTiles computeTileSubline) was removed. It produced the unverifiable
   // sublines the spec forbids ("17 open right now", "4.9 stars", "6,109 reviews").
   // The menu now uses fixed benefit copy from lib/exploreMenu.js — no live claims,
-  // nothing to fetch, no hydration surface.
+  // nothing to fetch.
+  // The one dynamic bit — the 3:33 PM local reorder — is computed in THIS
+  // post-mount effect, never in the render body: new Date() during render would
+  // diverge between server SSR and client hydration across the cutoff (the exact
+  // mismatch the retired pipeline was structured to avoid). First paint renders
+  // EXPLORE_ORDER_DEFAULT; this swaps in the time-of-day order client-side. A
+  // nearby place's utcOffsetMinutes refines "local" (no location IANA tz exists).
+  const [menuOrder, setMenuOrder] = useState(EXPLORE_ORDER_DEFAULT);
+  useEffect(() => {
+    try {
+      const p = (suggested || []).find((x) => x && typeof x.utcOffsetMinutes === "number");
+      setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
+    } catch (e) {}
+  }, [suggested]);
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
@@ -6042,11 +6055,11 @@ function PageInner() {
                       {false && <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />}
                     </>)}
                       {(() => {
-                        // v5.84 (B-spec): 5 tiles, benefit copy (no live "17 open /
-                        // 4.9 stars" claims), reordered at 3:33 PM local via the pure
-                        // orderExploreMenu(). "Today's Best" opens openCurated("today").
-                        const _tzOff = (() => { try { const p = (suggested || []).find((x) => x && typeof x.utcOffsetMinutes === "number"); return p ? p.utcOffsetMinutes : null; } catch (e) { return null; } })();
-                        const _order = orderExploreMenu(new Date(), _tzOff);
+                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
+                        // The 3:33 PM reorder is computed in a post-mount effect
+                        // (menuOrder), never in this render body — hydration-safe.
+                        // "Today's Best" opens the consolidated openCurated("today").
+                        const _order = menuOrder;
                         return (
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
                             <div style={{ padding: "14px 15px 4px" }}>
