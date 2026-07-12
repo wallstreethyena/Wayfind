@@ -11,6 +11,12 @@
   name matcher behind the "Wayfind pick" badge): curated places now show YOUR fact,
   everywhere else keeps the AI fallback. Hand-vetted beats improvised, especially
   in the launch market.
+- SEO addendum (no version bump): app/layout.js — openGraph + twitter titles now
+  carry the full "Wayfind — Find the Best Things to Do Near You, Right Now" headline
+  (shared links show the real headline instead of bare "Wayfind"), and the homepage
+  JSON-LD moved from next/script (beforeInteractive) to a plain server-rendered
+  <script type="application/ld+json"> so Google reads identity data on first load —
+  matching the pattern the guide/culture pages already use. SEO only, no visual change.
 
 ## v5.81 - Ticketmaster affiliate: update Impact verification token (3rd reissue) + coordinate the crawl
 - Impact mints a fresh site-verification token every time the verify flow is
