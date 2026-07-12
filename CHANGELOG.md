@@ -1,3 +1,19 @@
+## v5.67 - hotfix: unblock Vercel deploy (noindex the /events/[city] redirect) + close the audit gap
+- PRODUCTION DEPLOY WAS FAILING. `app/events/[city]/page.js` (added in v5.63) is a
+  redirect-only stub (-> /events/[city]/this-weekend, else 404) that declared no
+  canonical and no robots directive, so check-seo.mjs failed it: it inherited the
+  root layout's canonical "/" and read as a homepage duplicate. Every `npm run
+  build` (what Vercel runs) has failed since v5.63 — the site kept serving the
+  last good deploy, which is why the live site stayed up (HTTP 200) while the
+  Vercel dashboard showed "error deploying". Fix: `export const metadata =
+  { robots: { index: false, follow: true } }` on the redirect route.
+- ROOT CAUSE of why the audits never caught it: `audit:regression` -> `test:e2e`
+  calls `next build` DIRECTLY, and the `prebuild` npm lifecycle hook only fires
+  for `npm run build`, not for a direct `next build`. So all ~18 prebuild
+  guardrails (check-seo included) were never exercised by the regression audit,
+  even though Vercel runs them. Fix: `audit:regression` now runs `npm run
+  prebuild` first, so the audit validates exactly what Vercel validates.
+
 ## v5.66 - home menu: fold the category cards into one iOS-style list
 - The homepage "More ways to explore" image cards (Best of, Hidden gems,
   Attractions, Families, Shows, Budget, Hotels) and the Take-a-chance card
