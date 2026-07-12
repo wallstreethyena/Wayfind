@@ -1,3 +1,21 @@
+## v5.62 - v5.50 audit remediation, classification quality (Phase 2)
+- Recommendation misclassifications fixed at the source with a manual
+  override table (lib/placeOverrides.js) that ALWAYS wins over Google's
+  noisy Places types. Google auto-tags a full-service American seafood
+  grill "vegan_restaurant" and a Latin grill "breakfast_restaurant" — that's
+  how the audit saw Seasons 52 as "Vegan" and Bocas Grill as "Breakfast".
+  Overrides (keyed by normalized name): Seasons 52 -> American (suppress
+  Vegan/Vegetarian), Bocas Grill -> Latin (suppress Breakfast), Mochiry ->
+  Food (Ramen/Café both fine, suppress Breakfast). cuisineLabel (dining.js)
+  and coarseCat (ranking.js) both consult the override first; cuisineLabel
+  also skips any suppressed label.
+- scripts/test-classification.mjs (prebuild) validates the table shape +
+  ALLOWED_CUISINES vocabulary, asserts the seeded misfires now classify
+  correctly (Seasons 52 not Vegan, Bocas not Breakfast, Mochiry not
+  Breakfast), and enforces the category whitelist (a pure bar must coarse to
+  Nightlife, not Food). Build fails on a violation. The 67-test tag/dining
+  suite still passes (no regression to existing classification).
+
 ## v5.61 - v5.50 audit remediation, P0s + sign-in a11y (Phase 0 diagnosis + Phase 1/2/4 fixes)
 - P0 screen-level auth gate: Favorites (Saved) and Itinerary no longer
   RENDER for a signed-out visitor (nav tap, ?go= deep link, or restore) —
