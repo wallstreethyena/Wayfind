@@ -1,3 +1,19 @@
+## v5.65 - v5.50 audit remediation, performance: wordmark (Phase 6)
+- The header wordmark was a 2172x724 / 657KB PNG rendered at 34px tall.
+  Resized to 255x85 (2.5x retina) and re-exported -> 14KB, a 98% cut, still
+  crisp. Cache-buster bumped (?v=2 -> ?v=3) so browsers refetch.
+  scripts/check-design.mjs now fails if public/wordmark.png exceeds 25KB.
+- Bundle: the route chunk is already gated at 144KB gz (budget 175) and the
+  total at 293KB gz (budget 325) by check-bundle's ratchet — under the
+  spec's <200KB initial-load target for the route chunk. No dependency
+  removal pursued (home.js already lazy-loads every non-home screen; the
+  risk/payoff didn't justify it against a passing budget). The large
+  card-art/share-card PNGs are OG/share images (loaded by social crawlers,
+  not on-page) and were left as-is to preserve share-card quality.
+- Remaining audit items are all OWNER-ONLY: CSP report-only -> enforce flip
+  (after 7 clean days), Google Search Console reindex, counsel review of
+  Privacy, and Lighthouse/Core-Web-Vitals verification against production.
+
 ## v5.64 - v5.50 audit remediation, search combobox a11y (Phase 3/4)
 - The search autocomplete is now a real WAI-ARIA combobox: the input carries
   role="combobox" + aria-autocomplete="list" + aria-controls +
