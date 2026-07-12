@@ -1,3 +1,33 @@
+## v5.70 - List Engine, PR B: the 1200x630 share card (Satori/next-og) + hook amendment
+- The share card that turns a list into a link preview a person forwards. A
+  1200x630 PNG rendered on the Edge from a list's hook, matching the reference
+  exactly: condition strip, a big condensed hook with one accent phrase, the
+  off-axis overhanging orange redaction bar ("See which one ->"), a one-line
+  runners-up ticker (ranks 2-5), and the Wayfind foot. Route: app/api/og/list.
+- THE SATORI TRAP handled: next/og renders through Satori, not a browser, so the
+  condensed look comes from a STATIC condensed face (Anton) instead of a variable
+  width axis (Satori ignores those silently). Fonts are Latin-subset .ttf files
+  (Anton 19KB + Archivo 600/700/900 ~32KB each, 116KB total) loaded as
+  ArrayBuffers from the bundle via import.meta.url, never fetched from Google at
+  request time. Uppercase is applied in JS; every box is display:flex (no grid);
+  no blur/shadow/gradient; the bar keeps rotate(-0.55deg) + negative-margin
+  overhang. Verified: renders a valid 1200x630 PNG in ~150ms cold (budget 800ms),
+  ~50ms warm; visually confirmed against the reference for both a surprise hook
+  and a scarcity hook with long (truncated) ticker names.
+- Auto-fit (Part 3): headlineSize() steps 101/88/74/62 by the longest line, never
+  a third line. Ticker (Part 4): fitTickerItems() truncates names to 18 chars and
+  drops position 5 then 4 rather than wrapping.
+- PART 2 prompt amendment: the engine prompt + validator now require hook{lines[2]
+  <=24 chars each, accent verbatim in a line}, bar_label (<=16 chars), and
+  hook_type on the surprise/scarcity/constraint/value ladder (never invent a
+  surprise). New card helpers (headlineSize/truncName/fitTickerItems/splitAccent)
+  and every new rule are covered by test-list-engine, plus a guard that the
+  subset fonts exist.
+- This PR renders from a base64url `d` param (or the reference sample) so the card
+  is verifiable now. The versioned immutable snapshot route (/api/og/<slug>?v=),
+  the permanent /l/<slug> live page, and its "this list changed" staleness banner
+  (Part 0) are the next PR.
+
 ## v5.69 - List Engine, PR A: generation core (prompt + rotation library + validator + route)
 - First slice of the Wayfind List Engine (v5.68 is the concurrent map-rings PR).
   A backend-only, flag-free-but-unwired generation pipeline that turns ranked

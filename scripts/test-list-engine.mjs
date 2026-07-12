@@ -3,9 +3,11 @@
 // refused), and the hard-rule output validator (no dashes in copy, exactly 10,
 // one contrarian, char limits, sequential ranks). The LLM copy itself is not
 // testable here; these are the rules that decide what may ship.
+import { statSync } from "fs";
 import {
   LIST_TYPES, LIST_TYPE_BY_ID, qualifyingPlaces, selectListTypes,
   buildListInput, validateListOutput, minutesUntilClose, localHourOf,
+  headlineSize, truncName, fitTickerItems, splitAccent,
 } from "../lib/listEngine.js";
 
 let failures = 0;
@@ -94,6 +96,9 @@ function goodList() {
     share_card_headline: "The best in Sarasota has 71 reviews",
     share_card_teaser: "Number one has 71 reviews and closes in an hour.",
     og_description: "Ten Sarasota spots ranked by rating and obscurity. Number one has 71 reviews. Tap to see who.",
+    hook: { lines: ["Sarasota's #1 hot dog", "is at a gas station."], accent: "gas station" },
+    bar_label: "See which one",
+    hook_type: "surprise",
     generated_at: "2026-07-11T19:14:00-04:00",
     items: [
       { rank: 1, name: "Twenty Pho Hour", verdict: "The broth is the whole point.", reason: "Highest rating in the set with the fewest reviews.", contrarian: false },
@@ -140,5 +145,68 @@ function goodList() {
   ok(!validateListOutput(noHead, "eat").ok, "an empty required field is flagged");
 }
 
+// ── the share-card hook rules (Part 2) ──
+{
+  const noHook = goodList(); delete noHook.hook;
+  ok(!validateListOutput(noHook, "eat").ok, "a missing hook object is flagged");
+
+  const threeLines = goodList(); threeLines.hook = { lines: ["a", "b", "c"], accent: "a" };
+  ok(!validateListOutput(threeLines, "eat").ok, "a hook with 3 lines is flagged");
+
+  const longLine = goodList(); longLine.hook = { lines: ["This line is way too long to fit", "ok"], accent: "ok" };
+  ok(!validateListOutput(longLine, "eat").ok, "a hook line over 24 chars is flagged");
+
+  const badAccent = goodList(); badAccent.hook = { lines: ["Sarasota's #1 hot dog", "is at a gas station."], accent: "airport lounge" };
+  ok(!validateListOutput(badAccent, "eat").ok, "an accent phrase not present in a line is flagged");
+
+  const noBar = goodList(); delete noBar.bar_label;
+  ok(!validateListOutput(noBar, "eat").ok, "a missing bar_label is flagged");
+
+  const longBar = goodList(); longBar.bar_label = "See which one is best now";
+  ok(!validateListOutput(longBar, "eat").ok, "a bar_label over 16 chars is flagged");
+
+  const badType = goodList(); badType.hook_type = "clever";
+  ok(!validateListOutput(badType, "eat").ok, "a hook_type off the ladder is flagged");
+
+  const dashHook = goodList(); dashHook.hook = { lines: ["Two-for-one tonight", "downtown only"], accent: "downtown only" };
+  ok(!validateListOutput(dashHook, "eat").ok, "a dash inside a hook line is flagged");
+}
+
+// ── card helpers (Part 3/4) ──
+{
+  ok(headlineSize(["short", "line"]) === 101, "headlineSize: <=20 chars -> 101");
+  ok(headlineSize(["Sarasota's number one hot dog spot", "x"]) === 62, "headlineSize: >30 chars -> 62");
+  ok(headlineSize(["twenty two chars here!", "x"]) === 88, "headlineSize: 21-24 chars -> 88");
+  ok(headlineSize(["twenty seven characters here", "x"]) === 74, "headlineSize: 25-30 chars -> 74");
+
+  ok(truncName("Georgie's Dogs") === "Georgie's Dogs", "truncName: short name unchanged");
+  ok(truncName("The Very Long Restaurant Name Co").length === 18, "truncName: long name capped to 18");
+  ok(truncName("The Very Long Restaurant Name Co").endsWith("…"), "truncName: capped name ends with ellipsis");
+
+  const many = fitTickerItems([
+    { rank: 2, name: "Aaaaaaaaaaaaaaaaaaaaaaaa", rating: 4.7 },
+    { rank: 3, name: "Bbbbbbbbbbbbbbbbbbbbbbbb", rating: 4.6 },
+    { rank: 4, name: "Cccccccccccccccccccccccc", rating: 4.5 },
+    { rank: 5, name: "Dddddddddddddddddddddddd", rating: 4.4 },
+  ]);
+  ok(many.every((it) => it.name.length <= 18), "fitTickerItems: all names truncated to <=18");
+  ok(many.length >= 2 && many.length <= 4, "fitTickerItems: keeps 2-4, drops from the end to avoid overflow");
+
+  const segs = splitAccent("is at a gas station.", "gas station");
+  ok(segs.length === 3 && segs[1].accent === true && segs[1].text === "gas station", "splitAccent: isolates the accent phrase with the plain text around it");
+  ok(splitAccent("no accent here", "missing").length === 1, "splitAccent: a non-substring accent yields one plain segment");
+}
+
+// ── the share card's fonts must exist (Satori has no fallback for a missing
+// face; a deleted font silently wrecks the card). Guard the subset .ttf files.
+{
+  const fontDir = new URL("../app/api/og/list/fonts/", import.meta.url);
+  for (const f of ["Anton-Latin.ttf", "Archivo-600-Latin.ttf", "Archivo-700-Latin.ttf", "Archivo-900-Latin.ttf"]) {
+    let sz = 0;
+    try { sz = statSync(new URL(f, fontDir)).size; } catch (e) {}
+    ok(sz > 5000, `share-card font ${f} must exist and be a real subset (>5KB), got ${sz} bytes`);
+  }
+}
+
 if (failures) { console.error(`test-list-engine: ${failures} failure(s)`); process.exit(1); }
-console.log("test-list-engine: OK — rotation conditions, gates, unbuildable-type refusal, and the hard-rule validator all hold");
+console.log("test-list-engine: OK — conditions, gates, hook rules, card helpers, and the share-card fonts all hold");
