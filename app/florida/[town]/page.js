@@ -4,6 +4,7 @@
 // (real places with ratings and review counts in the initial HTML — not
 // after geolocation or JS). Every CTA deep-links the exact place with its
 // town, so location intent survives the jump into the app.
+import { notFound } from "next/navigation";
 import { TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
 import { rankedFor, whyLine, LANDING_CITIES } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
@@ -49,7 +50,10 @@ const SECTIONS = [["todo", "Things to do"], ["food", "Food & drink"], ["night", 
 export default async function Page({ params }) {
   const key = KEY_BY_SLUG[params.town];
   const t = TOWN_PROFILES[key];
-  if (!t) return null;
+  // v5.76: hard 404 instead of a 200-status empty body. dynamicParams=false
+  // already 404s slugs outside generateStaticParams; this covers the residual
+  // in-params-but-no-profile edge so an unknown town never renders blank.
+  if (!t) notFound();
   // Live top-rated list, rendered into the initial HTML (fails soft to the
   // editorial content alone if the upstream search is unavailable).
   const top = (await rankedFor("things-to-do", params.town).catch(() => null)) || [];

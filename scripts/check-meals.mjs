@@ -38,6 +38,9 @@ if (!sp || sp.lc <= 1440) fail("overnight close not treated as 24h+");
 
 // 8. The composite loop is actually wired through the engine.
 const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
-if (!page.includes("Meals.mealEligible(sl.label, pp)")) fail("openCurated not filtering through mealEligible");
-if ((page.match(/Meals\.mealEligible\(sl\.label, pp\)/g) || []).length < 2) fail("backfill path missing eligibility check");
+// v5.76: openCurated now wraps the meal gate in mealOk() (skip for stays/bestof,
+// where meal-period is meaningless), so assert BOTH the gate helper and its
+// application to the slot pool are present.
+if (!page.includes("Meals.mealEligible(label, pp)") || !page.includes("mealOk(sl.label, pp)")) fail("openCurated no longer filters slot candidates through mealEligible");
+if ((page.match(/mealOk\(sl\.label, pp\)/g) || []).length < 2) fail("backfill path missing eligibility check (slot + backfill must both gate through mealOk)");
 console.log("check-meals: OK — 8 fixture suites pass; slot labels are hours-verified promises");

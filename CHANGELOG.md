@@ -1,3 +1,39 @@
+## v5.76 - remediation B (part 1): wire the unenforced guardrails + fix a dead-end event card + hard 404
+- THE PREVENTION (B5): 12 content guardrails weren't in prebuild/audit — which is
+  exactly why the false-water copy shipped unchecked. Wired the 9 that pass clean
+  into prebuild (was 0): check-auth, check-canon, check-cards, check-copy,
+  check-cwv, check-family, check-lodging, check-radius, check-meals. These now run
+  on every build, local and Vercel.
+- check-meals had rotted because the v5.74 home-tiles work wrapped the meal gate
+  in mealOk() (skip for stays/bestof); updated the check to the new call site so
+  it re-enforces that food/nightlife slots + backfill both gate through
+  mealEligible. Real contract, restored.
+- Retired scripts/check-cta.mjs — superseded by check-booking-cta.mjs (already
+  wired) for the booking-CTA contract.
+- Design note: B5's instruction to add BookingCTA.js to shellSrc.mjs was NOT
+  applied — it breaks check-booking-cta, which relies on shellSrc meaning "the
+  shell EXCLUDING the sanctioned CTA component" to assert the raw construction
+  never leaks back into the shell. Documented that invariant in shellSrc.mjs;
+  the deferred check-ux will read BookingCTA.js directly instead.
+- B3: the "Happening near you" community-event cards in the menu sheet were the
+  last event surface still dead-ending via openVenue() (a "Could not find this
+  venue" toast). Now each is a real <a href={e.dest}> link to the event's
+  resolved destination, and an event with no working destination is dropped
+  rather than rendering a card that goes nowhere — the same contract every other
+  event surface already uses.
+- B4: app/florida/[town] now hard-404s an unknown town (notFound()) instead of a
+  200-status empty body. (The category landing pages — restaurants/beaches/
+  nightlife/things-to-do/[city] — already 404 unknown slugs via
+  dynamicParams=false + generateStaticParams, so no change needed there.)
+- DEFERRED (with reasons): check-moment + check-ux carry multiple redesign/
+  decomposition-era stale assertions (a changed gradient spec; the collage +
+  booking-CTA moved) that each need individual reconciliation — and check-ux is
+  actually catching a REAL bug (the BookingCTA experienceGoUrl -> /api/viator/go
+  fallback = the "Get tickets -> Expedia" symptom), so it belongs with the
+  link-centralization PR that removes that fallback, where it will guard the fix.
+  B1 (tab deep-links), B2 (Viator resolver, blocked on verified-offers.sql), and
+  B6 (Stay22, needs a prod click-test) are the remaining B items.
+
 ## v5.75 - accuracy remediation A: kill the "false water view" lie at all sources + a real 404 for unknown slugs
 - The app was confidently telling users things that were not true at the exact
   moment of decision — the trust-killer. The "water view" lie was never one bug;

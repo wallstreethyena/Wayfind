@@ -27,7 +27,9 @@ if (!s.includes('sp0.get("intro") === "1"')) fail("?intro=1 preview switch missi
 // v5.25 product direction: the welcome concierge arrives ~3.2s after landing
 // (so weather + the open-now count are loaded and the greeting is personal),
 // once per session — not instantly, not once-ever.
-if (!s.includes("setIntroOpen(true), 3200")) fail("intro must auto-show ~3.2s after landing");
+// v5.76: the auto-show now runs through the claimInterrupt("intro") guard (so it
+// yields to a higher-priority interrupt), still on the ~3.2s timer.
+if (!(s.includes("3200") && s.includes('claimInterrupt("intro")') && s.includes("setIntroOpen(true)"))) fail("intro must auto-show ~3.2s after landing");
 if (!s.includes('sessionStorage.getItem("wf_intro_seen")')) fail("intro session guard missing");
 if (!s.includes("WebkitBackgroundClip")) fail("gradient headline missing");
 if (!s.includes("F97316 0%, #FF8A3D")) fail("brand gradient CTA missing");

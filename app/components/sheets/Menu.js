@@ -118,14 +118,21 @@ export default function MenuSheet({ ctx }) {
                           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, margin: "6px 2px 8px" }}>Happening near you</div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 9, marginBottom: 4 }}>
                             {evs.map((e) => {
+                              // v5.76 (B3): the last event surface still dead-ending via openVenue(e)
+                              // (which showed a "Could not find this venue" toast). Render the card as
+                              // a real link to the event's resolved destination — the same contract every
+                              // other event surface uses — and drop any event without a working
+                              // destination rather than showing a card that goes nowhere.
+                              if (!e.dest) return null;
                               const f = formatEventDate(e.date, e.time);
                               const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
+                              const internal = typeof e.dest === "string" && e.dest[0] === "/";
                               return (
-                                <div key={"nbev-" + e.id} onClick={() => { setMenuSheet(null); openVenue(e); }} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>
+                                <a key={"nbev-" + e.id} href={e.dest} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => setMenuSheet(null)} style={{ display: "block", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>
                                   <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
                                   <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
                                   <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                                </div>
+                                </a>
                               );
                             })}
                           </div>
