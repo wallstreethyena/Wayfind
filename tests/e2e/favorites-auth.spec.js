@@ -20,71 +20,49 @@
 // constraint above.
 const { test, expect } = require("@playwright/test");
 
-test("signed-out: '+ New list' opens the sign-in prompt, not the create-list sheet", async ({ page }) => {
+// v5.61 (audit P0): the Saved screen is now gated at RENDER — signed out, the
+// "+ New list" control (and every other write control) is never even shown;
+// the AuthWall replaces the whole screen. That makes "no anonymous write"
+// structurally true, not just gated per-action. These tests assert the gate.
+
+test("signed-out: Favorites shows the sign-in wall, never the Saved screen or its create controls", async ({ page }) => {
   await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
-
-  const before = await page.evaluate(() => localStorage.getItem("wayfind_lists"));
-
-  await page.getByText("+ New list", { exact: true }).click();
-
-  // The auth dialog opens...
-  const authDialog = page.getByRole("dialog", { name: /Sign in or create/i });
-  await expect(authDialog).toBeVisible({ timeout: 10_000 });
-  // ...and the create-list sheet (a "List name" input) never appears.
+  await expect(page.getByText("Sign in to view your Favorites").first()).toBeVisible({ timeout: 15_000 });
+  // The Saved-screen content and its write controls never render.
+  await expect(page.getByText("YOUR LISTS")).toHaveCount(0);
+  await expect(page.getByText("+ New list", { exact: true })).toHaveCount(0);
   await expect(page.getByPlaceholder("List name")).toHaveCount(0);
-
-  // No new list was persisted.
-  const after = await page.evaluate(() => localStorage.getItem("wayfind_lists"));
-  expect(after).toBe(before);
 });
 
-test("signed-out: no favorite-related localStorage key is ever written from the Saved screen", async ({ page }) => {
-  await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
-
+test("signed-out: no favorite-related localStorage key is written while on the gated Favorites screen", async ({ page }) => {
   const keys = ["wayfind_lists", "wayfind_trips", "wf_liked", "wf_disliked", "wf_liked_items", "wf_disliked_items", "wf_shared_items", "wf_hook_likes", "wf_coupons"];
+  await page.goto("/?go=favorites");
+  await expect(page.getByText("Sign in to view your Favorites").first()).toBeVisible({ timeout: 15_000 });
   const before = await page.evaluate((ks) => Object.fromEntries(ks.map((k) => [k, localStorage.getItem(k)])), keys);
-
-  // Tap every reachable write-adjacent control on this screen while signed out.
-  await page.getByText("+ New list", { exact: true }).click();
-  await page.keyboard.press("Escape"); // close whatever opened (the auth dialog)
-
+  // The gate withholds the whole screen, so nothing on it can write. Give any
+  // async effect a beat, then confirm no favorite key changed.
+  await page.waitForTimeout(600);
   const after = await page.evaluate((ks) => Object.fromEntries(ks.map((k) => [k, localStorage.getItem(k)])), keys);
   expect(after).toEqual(before);
 });
 
-test("signed-out: favorite-related localStorage state does not appear after a full page refresh", async ({ page }) => {
+test("signed-out: the gate survives a fresh load — still the wall, no favorite lists written", async ({ page }) => {
   await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
-  await page.getByText("+ New list", { exact: true }).click();
-  await expect(page.getByRole("dialog", { name: /Sign in or create/i })).toBeVisible({ timeout: 10_000 });
-
-  // Not page.reload(): the ?go=favorites param is consumed and stripped via
-  // history.replaceState on first load (same pattern deeplinks.spec.js
-  // documents), so reloading the now-bare "/" would land on the default
-  // screen instead of Saved. Re-navigate with the deep link instead — the
-  // point of this test is a fresh load, which this still is.
+  await expect(page.getByText("Sign in to view your Favorites").first()).toBeVisible({ timeout: 15_000 });
   await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
-
+  await expect(page.getByText("Sign in to view your Favorites").first()).toBeVisible({ timeout: 15_000 });
   const lists = await page.evaluate(() => localStorage.getItem("wayfind_lists"));
-  // Either never written, or (if some other flow wrote the untouched default
-  // shape) contains no list beyond the built-in empty "Favorites" — never a
-  // list this test's aborted create attempt could have produced.
   if (lists) {
     const parsed = JSON.parse(lists);
     expect(Object.keys(parsed).filter((k) => k !== "favorites")).toEqual([]);
-    expect(parsed.favorites.places).toEqual([]);
+    if (parsed.favorites) expect(parsed.favorites.places).toEqual([]);
   }
 });
 
-test("signed-out: the auth dialog opened by a favorite control behaves like every other modal (Escape closes, no stray state)", async ({ page }) => {
+test("signed-out: the auto-opened sign-in dialog behaves like every other modal (Escape closes)", async ({ page }) => {
   await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
-  await page.getByText("+ New list", { exact: true }).click();
-  const dialog = page.getByRole("dialog", { name: /Sign in or create/i });
-  await expect(dialog).toBeVisible({ timeout: 10_000 });
+  const dialog = page.getByRole("dialog", { name: /Sign in|Create/i });
+  await expect(dialog).toBeVisible({ timeout: 15_000 });
   await expect(dialog).toHaveAttribute("aria-modal", "true");
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);

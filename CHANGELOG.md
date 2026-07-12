@@ -1,3 +1,41 @@
+## v5.61 - v5.50 audit remediation, P0s + sign-in a11y (Phase 0 diagnosis + Phase 1/2/4 fixes)
+- P0 screen-level auth gate: Favorites (Saved) and Itinerary no longer
+  RENDER for a signed-out visitor (nav tap, ?go= deep link, or restore) —
+  an AuthWall prompts sign-in and the dialog auto-opens; the screen content
+  is withheld. Reuses the one auth source of truth (setAuthOpen), no second
+  system. Coupons stays public (deal browse; only its save action is gated,
+  per v5.49) — documented decision, not an oversight.
+- P0 price: PriceMeter now renders the ACTUAL $ count (lib/dining.js
+  priceGlyphs) instead of a fixed 4-glyph meter with the tier hidden in
+  color — a card labeled "Moderate" showed "$$$$" to a black-box reviewer.
+- Anonymous-persistence copy removed: /favorites + /itinerary bridge pages
+  and the Saved-screen prompt no longer say "live on this device / only on
+  this phone" -> "sign in to save ... sync across all your devices."
+- Sign-in a11y (Phase 4): email/password inputs get visible <label> +
+  id/name/autocomplete (email / current-password|new-password); "Create
+  one" and "Forgot password?" are semantic <button>s (were <span onClick>);
+  a visible 44px close button added; dialog gets aria-labelledby/describedby.
+- Tests: scripts/test-price.mjs (prebuild) + tests/e2e/auth-screens.spec.js
+  (audit:regression). AUDIT_AUTH_REMEDIATION_DIAGNOSIS.md has the full
+  entry-path matrix + what's done/open/owner-only. Remaining fixable items
+  (classification override, event list pages, autocomplete ARIA, perf) come
+  as follow-up PRs; CSP-enforce/GSC/counsel/Lighthouse are owner-sequenced.
+- AUDIT_AUTH_REMEDIATION_DIAGNOSIS.md maps the auth flows + P0/P1 state,
+  cross-referenced against work already merged this session. Confirmed-OPEN
+  P0s: (1) Saved/Itinerary/Coupons screens RENDER signed-out (bottom nav
+  setScreen with no auth gate) — PR #63 gated write actions but not screen
+  rendering; the Saved screen still reads+displays anonymously-stored items
+  under "these live only on this phone" copy, and the legacy wf_liked/
+  wf_shared_items/etc. keys are still live. (2) PriceMeter always paints 4
+  $ glyphs (level encoded in color only) so every card reads "$$$$" next to
+  "Moderate" despite priceNum being correct. Open P1s: classification has
+  no override/whitelist/confidence; sign-in inputs lack <label>/autocomplete
+  and use <span> controls + no close button; event time-window LIST pages
+  (/events/[city]/this-weekend) don't exist (detail pages DONE #67);
+  autocomplete lacks combobox/listbox ARIA. Owner-only/done: CSP headers
+  (#61) + enforce-flip, GSC reindex, counsel review, Lighthouse/perf. STOP
+  and report before fixing.
+
 ## v5.60 - moment/experience picks integrity, Phases 0-5 (same intent = same results)
 - THE FIX for "chip shows nothing within 60 miles, mood modal shows 21":
   moment/experience views fetched to 60mi but clamped the visible list to

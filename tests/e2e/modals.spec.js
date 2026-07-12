@@ -72,11 +72,11 @@ test("auth modal: opens with dialog semantics, Escape closes", async ({
   page,
 }) => {
   await page.goto("/?go=favorites"); // deep link suppresses intro
-  // The Saved screen's sign-in affordance opens auth; use the header button.
-  const signIn = page.getByText("Sign in", { exact: false }).first();
-  await signIn.click();
-  const auth = page.getByRole("dialog", { name: /Sign in or create/i });
-  await expect(auth).toBeVisible({ timeout: 10_000 });
+  // v5.61 (audit P0): /?go=favorites signed-out auto-opens the auth dialog
+  // (the personal screen is gated). The dialog's accessible name now comes
+  // from its title (aria-labelledby), i.e. "Sign in to Wayfind".
+  const auth = page.getByRole("dialog", { name: /Sign in|Create/i });
+  await expect(auth).toBeVisible({ timeout: 15_000 });
   await expect(auth).toHaveAttribute("aria-modal", "true");
   await page.keyboard.press("Escape");
   await expect(auth).toHaveCount(0);

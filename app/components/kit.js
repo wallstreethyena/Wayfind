@@ -225,6 +225,8 @@ export function offerLabel(o) {
   return "Offer";
 }
 
+export { priceGlyphs } from "../../lib/dining.js";
+
 export function scoreLabel(wf) {
   if (wf == null) return null;
   const s = (wf / 10).toFixed(1);
