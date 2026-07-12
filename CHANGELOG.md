@@ -1,3 +1,16 @@
+## v5.64 - v5.50 audit remediation, search combobox a11y (Phase 3/4)
+- The search autocomplete is now a real WAI-ARIA combobox: the input carries
+  role="combobox" + aria-autocomplete="list" + aria-controls +
+  aria-expanded + aria-activedescendant; the suggestion dropdown is a
+  <ul role="listbox"> of <li role="option" aria-selected>; a visually-hidden
+  aria-live region announces the highlighted option. Full keyboard nav:
+  ArrowDown/ArrowUp move the highlight (with a visible background), Enter
+  selects the highlighted (or first) option, Escape closes without
+  selecting. (Selection already cleared the list immediately — v5.x.)
+- Guarded by scripts/check-design.mjs (static: the combobox/listbox/option
+  roles + key handlers must stay in home.js) + a screens.spec.js e2e
+  asserting the input's combobox attributes. Full audit green.
+
 ## v5.63 - v5.50 audit remediation, durable event LIST URLs (Phase 5)
 - /events/[city]/this-weekend | tonight | this-month are server-rendered,
   shareable event listings (the [slug] route branches: a window slug renders

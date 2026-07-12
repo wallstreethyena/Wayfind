@@ -37,6 +37,12 @@ for (const host of ["s1.ticketm.net"]) {
   if (!imgSrc.includes(host)) fail(`CSP img-src is missing the live event-image host ${host} — cards will break when CSP enforces`);
 }
 
+// v5.63 (audit P4): the search autocomplete is a real combobox — the input
+// owns the listbox, options carry aria-selected, and keyboard nav exists.
+for (const needle of ['role="combobox"', 'aria-controls="wf-suggestions"', 'aria-autocomplete="list"', 'role="listbox"', 'role="option"', "aria-selected={i === sugIdx}", '"ArrowDown"', '"ArrowUp"', '"Escape"']) {
+  if (!home.includes(needle)) fail(`search combobox a11y regressed: home.js is missing ${needle}`);
+}
+
 // 4. Literal \uXXXX inside JSX text renders raw. A JS string literal escape
 // (inside quotes) is fine; the bug is the escape sitting between JSX tags.
 // Match >\uXXXX or a \uXXXX immediately followed by plain text before a <.

@@ -40,6 +40,17 @@ test("in-app bottom nav renders every extracted screen without a reload", async 
   expect(await page.evaluate(() => window.__wfSamePage)).toBe(true);
 });
 
+test("search input exposes combobox semantics (audit P4)", async ({ page }) => {
+  await boot(page);
+  const search = page.locator('input[aria-label="Search a place or city"]');
+  await expect(search).toHaveAttribute("role", "combobox");
+  await expect(search).toHaveAttribute("aria-autocomplete", "list");
+  await expect(search).toHaveAttribute("aria-controls", "wf-suggestions");
+  // Collapsed with no suggestions; the listbox isn't in the DOM yet.
+  await expect(search).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#wf-suggestions")).toHaveCount(0);
+});
+
 test("empty search opens the Surprise screen (dice route, no data needed)", async ({ page }) => {
   await boot(page);
   const search = page.locator('input[aria-label="Search a place or city"]');
