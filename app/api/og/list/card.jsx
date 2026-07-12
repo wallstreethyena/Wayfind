@@ -55,7 +55,7 @@ export async function listCardResponse(card, opts = {}) {
 
   const [fAnton, f6, f7, f9] = await Promise.all([anton, arch600, arch700, arch900]);
 
-  return new ImageResponse(
+  const res = new ImageResponse(
     (
       <div style={{ width: "1200px", height: "630px", display: "flex", flexDirection: "column", backgroundColor: INK, padding: "38px 44px 34px", fontFamily: "Archivo" }}>
         <div style={{ display: "flex", flexShrink: 0, alignItems: "center", fontSize: 12, fontWeight: 700, letterSpacing: 2.3, color: MUTE }}>
@@ -112,13 +112,19 @@ export async function listCardResponse(card, opts = {}) {
         { name: "Archivo", data: f7, weight: 700, style: "normal" },
         { name: "Archivo", data: f9, weight: 900, style: "normal" },
       ],
-      headers: { "Cache-Control": opts.immutable ? CARD_CACHE.immutable : CARD_CACHE.live },
     }
   );
+  // next/og's ImageResponse sets its OWN default Cache-Control (public, immutable,
+  // no-transform, max-age=31536000). Passing headers in the options APPENDS to
+  // it, so the live card shipped both that and max-age=600 — a cache honoring the
+  // first directive would freeze the "live" card for a year, breaking the
+  // snapshot contract. set() REPLACES, guaranteeing one correct directive.
+  res.headers.set("Cache-Control", opts.immutable ? CARD_CACHE.immutable : CARD_CACHE.live);
+  return res;
 }
 
 export function listCardFallback() {
-  return new ImageResponse(
+  const res = new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backgroundColor: INK, color: WHITE }}>
         <div style={{ display: "flex", fontSize: 84, fontWeight: 800, color: ORANGE }}>Wayfind</div>
@@ -127,4 +133,7 @@ export function listCardFallback() {
     ),
     { width: 1200, height: 630 }
   );
+  // A transient error fallback — never let next/og's immutable default freeze it.
+  res.headers.set("Cache-Control", "public, max-age=60");
+  return res;
 }

@@ -1,3 +1,16 @@
+## v5.73 - fix: share-card Cache-Control was doubled (froze the "live" card)
+- next/og's ImageResponse sets its OWN default Cache-Control (public, immutable,
+  no-transform, max-age=31536000). Passing `headers` in the ImageResponse options
+  APPENDS rather than replaces, so /api/og/list and /api/og/<slug> shipped a
+  comma-joined pair: the unversioned "live" card came out as
+  "...immutable, max-age=31536000, public, max-age=600". A cache honoring the
+  first directive would freeze the live card for a YEAR — directly contradicting
+  the snapshot architecture (only a versioned ?v URL may be immutable; the live
+  URL must stay refetchable). Confirmed against production before fixing.
+- Fix: build the ImageResponse, then res.headers.set("Cache-Control", ...), which
+  REPLACES. Now the versioned card is a single immutable directive, the live card
+  a single max-age=600, and the error fallback a short max-age=60. app/api/og/list/card.jsx.
+
 ## v5.72 - List Engine, PR D (final): share measurement (share_rate / open_rate / return_rate)
 - Part 4: instrument the one number that matters. If share_rate is under 2% of
   sessions the content is not shareable and no menu change fixes it; that number,
