@@ -28,13 +28,36 @@ for (const [route, marker] of BRIDGES) {
     page,
   }) => {
     await page.goto(route);
-    // GoScreen redirects to /?go=<screen>, the app consumes the param.
-    await page.waitForURL((u) => u.pathname === "/", { timeout: 15_000 });
+    // GoScreen redirects to /?go=<screen>; the app consumes the param and (v5.78)
+    // restores the screen's OWN path in the address bar — the view survives in the
+    // URL for refresh/Back/share, instead of being stripped back to "/".
+    await page.waitForURL((u) => u.pathname === route, { timeout: 15_000 });
     await expect(page.getByText(marker).first()).toBeVisible({
       timeout: 15_000,
     });
   });
 }
+
+// v5.78 (B1): the generalized reconciler must survive Back/Forward on a
+// non-events tab too, not just land + share. /map is the cleanest case (renders
+// without an auth wall). Mirrors the Events Back/Forward test in events.spec.js:
+// same-document pushState entries are traversed via window.history.back/forward
+// (page.goBack waits on a "load" that never fires for same-doc nav and flakes).
+test("Back/Forward traverse the Map tab (the generalized non-events path)", async ({ page }) => {
+  await page.goto("/map");
+  await expect(page.getByText("Numbered by rank").first()).toBeVisible({ timeout: 15_000 });
+  await expect.poll(() => new URL(page.url()).pathname, { timeout: 15_000 }).toBe("/map");
+  // Leave via bottom-nav Home -> the URL returns to "/".
+  await page.locator('a[aria-label="Home"]').click();
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
+  // Back returns to /map with the Map view showing.
+  await page.evaluate(() => window.history.back());
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/map");
+  await expect(page.getByText("Numbered by rank").first()).toBeVisible({ timeout: 15_000 });
+  // Forward leaves again.
+  await page.evaluate(() => window.history.forward());
+  await expect.poll(() => new URL(page.url()).pathname).toBe("/");
+});
 
 test("direct /?go=favorites (signed out) shows the sign-in wall, not the Saved screen", async ({ page }) => {
   await page.goto("/?go=favorites");

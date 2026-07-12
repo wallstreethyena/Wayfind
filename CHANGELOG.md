@@ -1,3 +1,25 @@
+## v5.78 - remediation B1: every standalone tab is a real, shareable URL (Map/Coupons/Favorites/Itinerary — not just Events)
+- Deep-link lockstep, generalized. Only /events kept its view in the address bar;
+  opening Map, Coupons, Favorites, or Itinerary silently stripped the URL back to
+  "/", so a refresh or a shared link dropped the user on the generic homepage
+  instead of the screen they were looking at. Now every standalone screen restores
+  its OWN path — the view survives refresh, Back/Forward, and sharing.
+  - SCREEN_PATH / PATH_SCREEN: one map from screen name to public path
+    (events->/events, map->/map, coupons->/coupons, saved->/favorites,
+    itinerary->/itinerary) and its reverse, replacing the events-only special case.
+  - /?go=<screen> handoff (from the SEO bridge pages) now replaceState()s the
+    screen's own path instead of stripping to "/", so /map, /coupons, /favorites,
+    /itinerary settle on their real URL just like /events already did.
+  - screen<->URL sync effect: a NEW screen pushes a history entry, refining the
+    same screen (events date/cat filter) replaces in place (no dead Back step),
+    and leaving a standalone screen restores "/". Events keeps its date/cat query
+    params exactly as before.
+  - popstate reconciler drives setScreen() from the pathname for any mapped path,
+    so Back/Forward onto /map, /coupons, /favorites, /itinerary shows the right
+    screen; popping back to "/" returns to the feed.
+  - deeplinks.spec.js now asserts each bridge settles on its screen's path (was:
+    stripped to "/"), locking the corrected behavior.
+
 ## v5.77 - remediation B (part 2): centralize + validate every outbound link (kills the Safari-can't-open / Expedia class)
 - ROOT CAUSE fixed once, in one place. Link handling was scattered across three
   mechanisms with zero validation (openExternal, direct window.open in 4 files,

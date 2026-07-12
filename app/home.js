@@ -80,7 +80,7 @@ import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../li
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.77";
+const BUILD_ID = "v5.78";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -4687,6 +4687,13 @@ function PageInner() {
   // machine-readable for deploy verification and diagnostics.
   useEffect(() => { try { window.__WF_BUILD = BUILD_ID; document.documentElement.setAttribute("data-wf-build", BUILD_ID); } catch (e) {} }, []);
 
+  // v5.78 (B1): every standalone screen keeps the address bar in lockstep, not
+  // just /events — so refresh, Back/Forward, and sharing restore the view
+  // instead of stripping to "/". SCREEN_PATH maps an internal screen name to its
+  // public path (note "saved" -> "/favorites"); PATH_SCREEN is the reverse.
+  const SCREEN_PATH = { events: "/events", map: "/map", coupons: "/coupons", saved: "/favorites", itinerary: "/itinerary" };
+  const PATH_SCREEN = { "/events": "events", "/map": "map", "/coupons": "coupons", "/favorites": "saved", "/itinerary": "itinerary" };
+
   // v4.55: /events, /map, /favorites, /itinerary routes hand off here.
   useEffect(() => {
     try {
@@ -4710,6 +4717,13 @@ function PageInner() {
         window.history.replaceState({ wf: "screen" }, "", "/events" + (keep.toString() ? "?" + keep.toString() : ""));
         return;
       }
+      // v5.78 (B1): the other standalone screens restore their OWN path (was:
+      // stripped to "/", which lost the view on refresh/share).
+      const scr = valid[go];
+      if (scr && SCREEN_PATH[scr]) {
+        window.history.replaceState({ wf: "screen" }, "", SCREEN_PATH[scr]);
+        return;
+      }
       const u = new URL(window.location.href); u.searchParams.delete("go");
       window.history.replaceState({}, "", u.pathname + (u.search || "") + (u.hash || ""));
     } catch (e) {}
@@ -4726,16 +4740,24 @@ function PageInner() {
       if (typeof window === "undefined") return;
       const prev = prevScreenRef.current;
       prevScreenRef.current = screen;
-      if (screen === "events") {
-        const sp = new URLSearchParams();
-        if (eventDate !== "all") sp.set("date", eventDate);
-        if (eventCat !== "all") sp.set("cat", eventCat);
-        const target = "/events" + (sp.toString() ? "?" + sp.toString() : "");
+      if (SCREEN_PATH[screen]) {
+        // On a standalone screen -> put (and keep) its path in the address bar.
+        // events additionally carries its date/cat filter as query params.
+        let target = SCREEN_PATH[screen];
+        if (screen === "events") {
+          const sp = new URLSearchParams();
+          if (eventDate !== "all") sp.set("date", eventDate);
+          if (eventCat !== "all") sp.set("cat", eventCat);
+          if (sp.toString()) target += "?" + sp.toString();
+        }
         const cur = window.location.pathname + window.location.search;
         if (cur === target) return;
-        if (window.location.pathname !== "/events") window.history.pushState({ wf: "screen" }, "", target);
-        else window.history.replaceState({ wf: "screen" }, "", target); // filter change: same view, refined
-      } else if (prev === "events" && window.location.pathname === "/events") {
+        // A new screen pushes a history entry; refining the same screen's filter
+        // replaces in place (no dead Back step).
+        if (window.location.pathname !== SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", target);
+        else window.history.replaceState({ wf: "screen" }, "", target);
+      } else if (prev && SCREEN_PATH[prev] && PATH_SCREEN[window.location.pathname]) {
+        // Left a standalone screen for the feed/detail -> restore "/".
         window.history.pushState({ wf: "screen" }, "", "/");
       }
     } catch (e) {}
@@ -4750,14 +4772,17 @@ function PageInner() {
     const onPop = () => {
       try {
         const p = window.location.pathname;
-        if (p === "/events") {
+        const scr = PATH_SCREEN[p];
+        if (scr === "events") {
           const sp = new URLSearchParams(window.location.search);
           const d = sp.get("date") || "";
           setEventDate(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : "all");
           setEventCat((sp.get("cat") || "all").slice(0, 24));
           setScreen("events");
-        } else if (p === "/" && prevScreenRef.current === "events") {
-          setScreen("suggested");
+        } else if (scr) {
+          setScreen(scr); // Back/Forward onto /map, /coupons, /favorites, /itinerary
+        } else if (p === "/" && prevScreenRef.current && SCREEN_PATH[prevScreenRef.current]) {
+          setScreen("suggested"); // popped back to the feed from any standalone screen
         }
       } catch (e) {}
     };
