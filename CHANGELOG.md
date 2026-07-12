@@ -1,3 +1,33 @@
+## v5.83 - B2: Viator region gate (kills the "Key West tour on a Siesta Key place" leak)
+- Root cause: the booking resolver never scored geography (geoMatch was a
+  hardcoded 0.5) and the v4.94 region-token filter was silently dropped in the
+  v5.52 resolver rewrite (regionTokens computed in the tours route but only
+  logged, never used to gate). So when the region string absorbs a place's own
+  name — e.g. a place whose Google locality is "Siesta Key", region
+  "Siesta Key,Sarasota" — the only distinctive name token left is the generic
+  "key", which a "Key West" product matches, buying false place-specific credit.
+  Reproduced at confidence 0.80 (well over the 0.72 bar) for Siesta Key and
+  Longboat Key beaches.
+- Fix (region gate): lib/bookingResolver.js now detects when a product title
+  names a well-known FOREIGN destination (high-precision, multi-word list — key
+  west, key largo, florida keys, miami, orlando, ...) that is absent from the
+  place's region, and does NOT also name the local region (so a legit
+  "Siesta Key to Key West day trip" departing locally is kept). scoreCandidate
+  sets evidence.geoMismatch; lib/verifiedOffers.js isLiveEligible HARD-rejects on
+  it — same class of floor as the entity-evidence floor, not a soft weight.
+  pickBest also skips geo-mismatched candidates so a foreign leak can't out-rank
+  and null out a genuine local product.
+- Deliberately NOT touched: the 0.72 threshold (it was correctly blocking the
+  partial-match case) and the entity scoring (blunting "key" would also kill the
+  legit "Siesta Key Kayak Tour" — lost local revenue). Fix targets false
+  geographic evidence, not score height.
+- Golden fixture #7 added (leak gated + genuine Siesta Key product kept +
+  local-origin trip kept); the 6 existing fixtures stay green.
+- Note: B2 is independent of C1 (verified-offers.sql) — the resolver works
+  without the store. But until C1 is applied, specificity is always 1, so the
+  high-fan-out bundle suppression (fixtures 4 & 6) does not yet fire in
+  production. The region gate stands on its own.
+
 ## v5.82 - B7 dead-code removal + reclaim the hand-written curated fun facts
 - Removed three genuinely-dead items (verified 0 reads across app/lib/scripts/tests):
   eventCounts (write-only React state — set from the events API, never rendered),

@@ -35,9 +35,11 @@ export async function GET(req) {
   const name = (searchParams.get("name") || q).trim().slice(0, 120);
   const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
   const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || ("q:" + name.toLowerCase());
-  // v4.94: optional region tokens — when a place's tour list is fetched, only
-  // products whose title/URL mention the user's city or metro survive, so a
-  // Florida place can never show Los Angeles tours. The vibe rails query by
+  // v4.94/v5.83: the place's region (city + metro) is passed to the resolver,
+  // which (a) excludes region tokens from the place's "distinctive" name tokens
+  // and (b) applies the region gate in lib/bookingResolver.js — a product whose
+  // title names a foreign destination absent from this region is hard-rejected,
+  // so a Siesta Key place can never show a Key West tour. The vibe rails query by
   // metro name and pass no region (the query itself is the region).
   const region = (searchParams.get("region") || "").trim();
   const regionTokens = region.toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
