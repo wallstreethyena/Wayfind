@@ -1,3 +1,37 @@
+## v5.84 - Homepage: menu redesign, kill misleading sublines, consolidate "Today's Best", price honesty, Waterside window (Phase 1)
+- New Explore-near-you menu (lib/exploreMenu.js): 5 tiles (Today's Best, Eat Well,
+  Shop Local, Stay Tonight, Night Out) with fixed BENEFIT copy — no live claims.
+  Reorders at 3:33 PM local (inclusive) via a pure, injectable orderExploreMenu()
+  (device tz; a nearby place's utcOffsetMinutes refines it — the app stores no
+  location IANA tz). New prebuild gate scripts/test-explore-menu.mjs locks the
+  exact 15:32/15:33:00/15:33+ boundary + no-dup/no-drop + benefit-only copy.
+- Removed the misleading-subline pipeline entirely: tileData + /api/home/tiles +
+  lib/homeTiles.js (computeTileSubline) + scripts/test-home-tiles.mjs. It produced
+  exactly the forbidden claims ("17 open right now", "4.9 stars", "6,109 reviews",
+  "22.9 miles out"). Nothing renders a live stat in the menu anymore.
+- Removed the two non-working Family/Budget filter chips (UI, state, chipFilter +
+  its openCurated call sites, ?exp=family/budget restores). No chip row replaces
+  them. The LEGACY family/budget experience system (EXPERIENCES/REVENUE_EXP_KEYS,
+  guarded by check-cards) is untouched.
+- Consolidated "Today's Best" -> a new openCurated("today") = "Best things to do
+  today" (attractions/tours/shows/top-rated local, DEFAULT_RANK), dropping the
+  broken Sarasota-only isBestOf gate so it works in any market (Parrish). Repointed
+  every dangling link in the SAME change: ?exp=experiences|bestof|gem|entertainment|
+  shows, the two openExpSheet("bestof") stragglers, and the "best of {city}" search.
+  Gems lens preserved (?exp=gem -> today+gems). Experiences/Best-of tiles removed.
+- Food module heading "Best places to eat right now" -> "Best places to eat nearby"
+  (the list is ranked, NOT gated on open-now, so "right now" over-claimed). Price
+  estimate (lib/dining.js avgCostForTwo) now counts ONLY observed Google priceRange
+  dollars, never the coarse tier heuristic; hidden unless >=2 real prices; clearer
+  copy ("Typical dinner for two: about $X") + an accessible tooltip/aria explanation.
+- Waterside card: NOT broken on a fresh click (confirmed 200). The only failure was
+  a forward/back window asymmetry — the feed emits Sunday staples ~20 days forward
+  but resolveStaple looked only 2 weeks back, so a stale/shared link >14 days out
+  404'd. Fixed lib/eventResolve.js back:2 -> back:4 (covers the horizon) + an e2e
+  regression test for a ~3-week-stale id.
+- Phase 2 (deferred): deep Experience-screen parity (Viator rail, moment picks) +
+  wiring TOWN_PROFILES["parrish"] real institutions into the consolidated destination.
+
 ## v5.83 - B2: Viator region gate (kills the "Key West tour on a Siesta Key place" leak)
 - Root cause: the booking resolver never scored geography (geoMatch was a
   hardcoded 0.5) and the v4.94 region-token filter was silently dropped in the
