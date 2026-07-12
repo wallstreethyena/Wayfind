@@ -36,8 +36,12 @@ if (!page.includes('id: "search-" + Date.now()')) fail("multi-result search must
 if (page.includes('setSearchLabel(`${nearby.length} results for')) fail("legacy explore search routing resurfaced");
 if (!page.includes("const lo = liveOpen(p);")) fail("feed open-status must be hours-computed, not cached");
 if (/if \(im === "sunny" \|\| im === "partly"\) return moonPhase[\s\S]{0,80}\\uD83C\\uDF19/.test(page)) fail("overcast nights still showing a bare moon");
-if (!page.includes("expCollage(a.key)")) fail("revenue hero cards missing photo collages");
-if (!page.includes("EXP_COLLAGE_RX")) fail("per-theme collage matching missing");
+// v5.76: the "More ways to explore" revenue HERO cards (which rendered
+// expCollage(a.key)) were folded into the iOS-style tile menu in v5.66 — the
+// call is intentionally gone. The collage machinery (EXP_COLLAGE_RX) is retained
+// but now unused; a B7 dead-code candidate. Assertion for the removed call
+// dropped so this contract tracks the shipped product.
+if (!page.includes("EXP_COLLAGE_RX")) fail("per-theme collage machinery unexpectedly removed (update this check if intentional)");
 if (!page.includes("I want to take a chance")) fail("chance card copy missing");
 if (!page.includes("gradient beats a lie")) fail("collage cross-theme fallback resurfaced");
 if (!page.includes('title="Find my vibe"')) fail("header vibe button missing");

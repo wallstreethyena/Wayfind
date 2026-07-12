@@ -14,6 +14,12 @@ const root = new URL("../../", import.meta.url);
 export function shellFiles() {
   const files = ["app/home.js"];
   if (existsSync(new URL("app/components/kit.js", root))) files.push("app/components/kit.js");
+  // NOTE: app/components/BookingCTA.js is deliberately NOT in this set. The
+  // booking CTA was extracted there so check-booking-cta.mjs can assert the raw
+  // construction (Aff.ticketsUrl / experienceGoUrl) lives ONLY in that component
+  // and never leaks back into the shell — i.e. shellSrc means "the shell EXCEPT
+  // the sanctioned CTA." Checks that need BookingCTA's own code (check-ux's
+  // reservation-capture assertions) must read that file directly, not via here.
   for (const dir of ["app/components/screens", "app/components/sheets"]) {
     const abs = new URL(dir + "/", root);
     if (!existsSync(abs)) continue;
