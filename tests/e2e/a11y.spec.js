@@ -42,7 +42,8 @@ test("keyboard journey: skip link → search → landmarks all reachable", async
   await expect(page.locator("main#wf-main")).toHaveCount(1);
   await expect(page.locator("footer")).toHaveCount(1);
   await expect(page.locator("h1")).toHaveCount(1);
-  // The search input is reachable and has an accessible name.
-  const search = page.getByRole("textbox", { name: "Search a place or city" });
+  // The search input is reachable and has an accessible name. v5.64 (audit
+  // P4): it's now a combobox role (autocomplete), not a plain textbox.
+  const search = page.getByRole("combobox", { name: "Search a place or city" });
   await expect(search).toBeVisible();
 });

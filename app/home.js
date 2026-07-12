@@ -77,7 +77,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.63";
+const BUILD_ID = "v5.64";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2751,6 +2751,7 @@ function PageInner() {
   const cityFix = cityFixM;
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [sugIdx, setSugIdx] = useState(-1); // v5.63 (audit P4): keyboard-highlighted suggestion, -1 = none
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
@@ -5600,31 +5601,49 @@ function PageInner() {
         <div style={{ display: "flex", gap: 0, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
             <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none", opacity: 0.85 }}>🔍</span>
+            {/* v5.63 (audit P4): a real combobox — the input owns the listbox
+                (aria-controls), announces its expanded state and the active
+                option (aria-activedescendant), and supports full keyboard
+                navigation (Down/Up move the highlight, Enter selects it,
+                Escape closes without selecting). */}
             <input
               value={query}
-              onChange={(e) => onQueryChange(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { if (suggestions.length > 0) pickSuggestion(suggestions[0]); else submitSearch(); } }}
-              onBlur={() => { setTimeout(() => setSuggestions([]), 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
+              onChange={(e) => { onQueryChange(e.target.value); setSugIdx(-1); }}
+              onKeyDown={(e) => {
+                if (e.key === "ArrowDown" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i + 1) % suggestions.length); }
+                else if (e.key === "ArrowUp" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1)); }
+                else if (e.key === "Escape") { if (suggestions.length) { e.preventDefault(); setSuggestions([]); setSugIdx(-1); } }
+                else if (e.key === "Enter") { if (suggestions.length > 0) pickSuggestion(suggestions[sugIdx >= 0 ? sugIdx : 0]); else submitSearch(); }
+              }}
+              onBlur={() => { setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
+              role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
+              aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
               aria-label="Search a place or city" placeholder="Search a place or city"
               style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 15, outline: "none" }}
             />
             {suggestions.length > 0 && (
-              <div style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
+              <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
                 {suggestions.map((s, i) => (
-                  <div
+                  <li
                     key={i}
+                    id={`wf-sug-${i}`}
+                    role="option"
+                    aria-selected={i === sugIdx}
+                    onMouseEnter={() => setSugIdx(i)}
                     onMouseDown={(e) => { e.preventDefault(); pickSuggestion(s); }}
-                    style={{ padding: "11px 14px", fontSize: 14, color: C.text, borderBottom: i < suggestions.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
+                    style={{ padding: "11px 14px", fontSize: 14, color: C.text, background: i === sugIdx ? C.adim : "transparent", borderBottom: i < suggestions.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
                   >
                     <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
                       {s.kind === "place" && <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>Go to this place</div>}
                     </div>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
+            {/* Live region: announce the highlighted suggestion to screen readers. */}
+            <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{sugIdx >= 0 && suggestions[sugIdx] ? `${suggestions[sugIdx].text}, ${sugIdx + 1} of ${suggestions.length}` : ""}</div>
           </div>
           <button onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
         </div>
