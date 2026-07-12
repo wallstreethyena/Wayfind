@@ -80,7 +80,7 @@ import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../li
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.81";
+const BUILD_ID = "v5.82";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2508,86 +2508,6 @@ function whyFirst(p, list) {
   if (caveat) out += " Not the move if you want " + caveat + ".";
   return out;
 }
-// v6.9: the detail page "decision brief". Returns a one-line judgment verdict (use case)
-// and a supporting body (signals + a real tradeoff), so the page reads like a sharp local
-// guide instead of a row of database fields. Deterministic and honest.
-function decisionReason(p) {
-  if (!p) return { verdict: "", body: "" };
-  const kind = placeKind(p);
-  const r = p.rating, n = p.reviews || 0, d = p.distMi, open = liveOpen(p);
-  const verdicts = {
-    scenic: "Best as a scenic stop or sunset run, not a quick errand.",
-    beach: "Worth a few hours when the weather cooperates, not a quick stop.",
-    nature: "Best with the time to walk it, not a quick errand.",
-    museum: "A plan-around-it visit. Give it real time.",
-    wildlife: "A half day kind of place, especially with kids.",
-    entertainment: "A full outing. Come with time and energy.",
-    landmark: "Worth a deliberate stop, not a drive by.",
-    waterfront: "Best for a relaxed meal with a view, not a rushed bite.",
-    bar: "Built for the evening, not the afternoon.",
-    cafe: "An easy, low effort stop any time of day.",
-    restaurant: "A reliable sit down. Worth booking ahead if it is busy.",
-    hotel: "A comfortable base if you are staying over.",
-    shopping: "Worth it if you have the time to browse.",
-    generic: "Worth a deliberate look when you are nearby.",
-  };
-  const verdict = verdicts[kind] || verdicts.generic;
-  const qual = (r != null && r >= 4.6 && n >= 300) ? `Strong reviews from ${n.toLocaleString()} people`
-    : (r != null && r >= 4.5 && n >= 50) ? `A ${r} with ${n.toLocaleString()} reviews behind it`
-    : (r != null && r >= 4.2) ? "Well rated nearby"
-    : (n >= 1000) ? "A popular local spot" : "Worth a closer look";
-  const dist = d == null ? "" : d <= 4 ? ", and it is close by" : d <= 10 ? `, a short ${Math.round(d)} mile drive` : `, and the ${Math.round(d)} mile drive pays off`;
-  const tradeoffs = {
-    scenic: " — skip it if heights or crowds bother you.",
-    beach: ", though it lives and dies by the weather.",
-    nature: " — bring water and check the forecast first.",
-    museum: ", an indoor and slower pace either way.",
-    wildlife: ", and an easy crowd pleaser rain or shine.",
-    entertainment: " — best with a half day to spare.",
-    landmark: ", and it rewards reading up a little first.",
-    waterfront: ", and it shines near sunset.",
-    bar: " — a night out, not a daytime stop.",
-  };
-  const descKeys = (() => { try { return experienceBadges(p, null, 4).map((b) => b.key).filter((k) => !["localfav", "gem", "value", "bestof", "coffee", "breakfast"].includes(k)); } catch (e) { return []; } })();
-  const knownFor = descKeys.length ? (", known for " + descKeys.slice(0, 2).map((k) => (EXPERIENCES[k] && EXPERIENCES[k].label ? EXPERIENCES[k].label.toLowerCase() : "")).filter(Boolean).join(" and ")) : "";
-  let body = qual + knownFor + dist + (tradeoffs[kind] || ".");
-  if (open === false) body = "Closed right now, so save it for later. " + body;
-  return { verdict, body: body.charAt(0).toUpperCase() + body.slice(1) };
-}
-// v6.10: a short, decision-based line for a home card. Frames the call (closest pick,
-// worth the drive, best open now) and adds a use case or tradeoff by kind. Two lines max,
-// so it never truncates. Lightly varied by place id.
-function decisionLine(p, ctx) {
-  if (!p) return "";
-  ctx = ctx || {};
-  const w = ctx.weather;
-  const kind = placeKind(p);
-  const r = p.rating, n = p.reviews || 0, d = p.distMi, open = liveOpen(p), pr = p.priceNum;
-  const cat = (primaryCategory(p) || "spot").toLowerCase();
-  let seed = 0; const s = String(p.id || p.name || "");
-  for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
-  const pick = (arr) => arr[seed % arr.length];
-  let lead;
-  if (open === false) lead = pick(["Closed now, one to save for later", "Worth saving, it is closed right now"]);
-  else if (d != null && d <= 5 && r != null && r >= 4.4) lead = pick([`Closest strong ${cat} pick near you`, `A strong ${cat} pick right nearby`]);
-  else if (d != null && d > 12 && r != null && r >= 4.5) lead = pick([`Worth the ${Math.round(d)} mile drive`, `A ${Math.round(d)} mile trip that earns it`]);
-  else if (open === true && r != null && r >= 4.6 && n >= 300) lead = pick(["One of the highest rated, open now", "Top rated near you, open now"]);
-  else if (r != null && r >= 4.5) lead = pick([`A strong ${cat} pick`, `One of the better ${cat} picks near you`]);
-  else lead = pick([`A solid ${cat} option nearby`, "Worth a look nearby"]);
-  let use = "";
-  if (kind === "restaurant") use = (pr != null && pr >= 3) ? ", better for a proper sit-down" : (pr != null && pr <= 1) ? ", good for an easy bite" : pick([", better for a sit-down than takeout", ", easy for a casual meal"]);
-  else if (kind === "cafe") use = pick([", easy for coffee or a catch up", ", good for a slow morning"]);
-  else if (kind === "bar") use = ", best after dark";
-  else if (kind === "waterfront") use = ", and it shines near sunset";
-  else if (kind === "scenic") use = ", best for the view, not a quick stop";
-  else if (kind === "nature") use = (w && (w.wet || (w.rain != null && w.rain >= 50))) ? ", though the weather is iffy today" : ", good for a walk";
-  else if (kind === "beach") use = ", weather permitting";
-  else if (kind === "museum") use = ", an indoor, slower pace";
-  else if (kind === "wildlife") use = ", easy with kids";
-  else if (kind === "entertainment") use = ", a full outing";
-  else if (kind === "landmark") use = ", worth a deliberate stop";
-  return lead + use + ".";
-}
 // One distinct, engaging, place-specific headline per experience theme, so no
 // two hero cards ever read alike. Claims stay true: the rating is real and the
 // angle matches what the theme means. Returns a unique hook, subtitle, CTA, and
@@ -2827,7 +2747,6 @@ function PageInner() {
   const [eventsError, setEventsError] = useState(false);
   const [eventCat, setEventCat] = useState("all");
   const [eventDate, setEventDate] = useState("all");
-  const [eventCounts, setEventCounts] = useState(null);
   const [mapMode, setMapMode] = useState("places");
   const [mapBrowse, setMapBrowse] = useState(false); // false = neutral Top 10 map, true = category browse
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
@@ -4125,7 +4044,6 @@ function PageInner() {
       const data = await res.json();
       setEventsUnavailable(!!data.unavailable);
       setEventsError(!!data.error);
-      setEventCounts(data && data.counts ? data.counts : null);
       try { if (process.env.NODE_ENV !== "production" && data && data.counts) console.log("[wayfind events]", data.counts, "total", (data.events || []).length); } catch (e) {}
       // Phase 1/2 contract (EVENTS_PIPELINE_DIAGNOSIS.md): only events with a
       // resolved destination enter client state, so every count downstream is
@@ -5665,7 +5583,7 @@ function PageInner() {
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword,
     // detail sheet (G3)
-    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach,
+    detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach,
     // map screen (G4)
     mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
     // experience badge screen (G4)
