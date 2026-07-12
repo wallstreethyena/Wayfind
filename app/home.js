@@ -2,6 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
+import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -77,7 +78,7 @@ import { CURATED } from "../lib/curated";
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.71";
+const BUILD_ID = "v5.72";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -4163,14 +4164,23 @@ function PageInner() {
     if (placeId) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
     if (listStr) {
       const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); }
+      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
     } else if (placeId) {
       logEvent("share_open", null, { kind: "place", place_id: placeId });
+      markShareOpen();
       (async () => {
         const p = await fetchPlaceById(placeId);
         if (p) openDetail(p);
       })();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Part 4 measurement: count one "session" per tab (share_rate denominator) and
+  // fire "share_return" if a shared-card visitor is back within 7 days. Both are
+  // guarded/no-op-safe; `share` and `share_open` are already logged elsewhere.
+  useEffect(() => {
+    try { markSessionStart(logEvent); checkShareReturn(logEvent); } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const listsHydrated = useRef(false);

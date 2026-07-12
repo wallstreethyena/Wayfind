@@ -1,3 +1,27 @@
+## v5.72 - List Engine, PR D (final): share measurement (share_rate / open_rate / return_rate)
+- Part 4: instrument the one number that matters. If share_rate is under 2% of
+  sessions the content is not shareable and no menu change fixes it; that number,
+  not traffic, is the target. The three ratios: share_rate = shares / sessions,
+  open_rate = share_opens / shares, return_rate = returns / shared-card visitors.
+- Two of the four events already existed (`share` at every share action,
+  `share_open` when the app boots from a shared link), so open_rate was already
+  computable. This PR adds the two missing pieces in lib/shareMetrics.js:
+  a `session` event fired once per tab session (sessionStorage-guarded; the
+  share_rate denominator, tagged ref: share|direct), and `share_return`, fired
+  once when a device that opened a shared card returns in a later session more
+  than 6h later and within 7 days (localStorage-guarded). Wired into the two
+  existing app-boot effects in app/home.js; both helpers are no-op-safe.
+- app/api/metrics/share: GET ?days=30 aggregates the events table into the three
+  ratios + meets_benchmark, read-only and aggregate-only (no PII). Gated by
+  METRICS_SECRET or CRON_SECRET when either is set (?key=), open otherwise. Uses
+  content-range exact counts (no rows transferred) and dedupes device_ids for
+  the shared-card-visitor denominator.
+- computeShareMetrics is pure and covered by scripts/test-share-metrics.mjs (ratio
+  definitions, the 2% bar as >=, and no NaN/Infinity on empty or garbage input).
+- SHARE_METRICS.md documents the ratios, the events, and how to read the endpoint.
+- Closes the List Engine build (PRs A-D: generation -> Satori share card ->
+  snapshot architecture -> measurement).
+
 ## v5.71 - List Engine, PR C: snapshot architecture (immutable store + versioned card + /l live page + staleness banner)
 - THE SNAPSHOT RULE, wired end to end: an image someone already shared must never
   change. A list is identified by a slug; every snapshot is keyed by (slug, v)
