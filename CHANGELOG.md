@@ -1,3 +1,12 @@
+## v5.81 - Ticketmaster affiliate: update Impact verification token (3rd reissue) + coordinate the crawl
+- Impact mints a fresh site-verification token every time the verify flow is
+  restarted (3eaf7df8 -> 960c2f71 -> b13f8126), which is the race that kept
+  beating us: each deployed token was already stale by the time the crawl ran.
+  Swapped app/layout.js to the current token. The fix isn't just the value — it's
+  the sequence: deploy, confirm live, then click Add Website WITHOUT refreshing
+  Impact's page (a refresh rotates the token). If this coordinated attempt still
+  fails, the next step is DNS TXT verification (no token-in-page, no redirect).
+
 ## v5.80 - Ticketmaster affiliate: update Impact verification token (reissued)
 - Impact reissued the site-verification token on the "Add Website" retry (each
   attempt mints a fresh token and invalidates the prior one). Swapped the meta

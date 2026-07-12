@@ -98,9 +98,13 @@ export default function RootLayout({ children }) {
             `value` attribute (NOT the usual `content`) — do not "normalize" it or
             verification fails. Next hoists this raw <meta> into <head> (same as
             the preconnect <link>s above). Safe to keep permanently once verified.
-            v5.80: token reissued by Impact (each "Add Website" attempt mints a
-            fresh one; the prior token is invalidated — only the current one here). */}
-        <meta name="impact-site-verification" value="960c2f71-4045-49bf-8b47-39f565802aa1" />
+            v5.80/v5.81: Impact mints a FRESH token each time the verify flow is
+            restarted (3eaf7df8 -> 960c2f71 -> b13f8126). Only the current one lives
+            here — deploy it, then click Add Website WITHOUT refreshing Impact's page
+            (a refresh rotates the token and invalidates this one). If a clean,
+            coordinated attempt still fails, switch to DNS TXT (no token-in-page,
+            no redirect, no race). */}
+        <meta name="impact-site-verification" value="b13f8126-bbae-4672-a6d8-4485ec075229" />
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
