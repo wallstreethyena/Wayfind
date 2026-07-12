@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only: all
 // state and callbacks arrive via the single ctx prop assembled in PageInner.
 import { C, scoreLabel } from "../kit";
+import { openExternal } from "../../../lib/links";
 
 export default function SurpriseScreen({ ctx }) {
   const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg } = ctx;
@@ -18,7 +19,7 @@ export default function SurpriseScreen({ ctx }) {
             : "A top pick nearby, chosen for rating, distance, and fit.";
           // v5.0: state-aware primary action. Never tell someone to drive to a closed place.
           const openAlt = surprisePool.find((o) => o && o.openNow === true && (!p || o.id !== p.id)) || null;
-          const goMaps = () => { if (p && p.mapsUrl) window.open(p.mapsUrl, "_blank", "noopener"); else if (p) openDetail(p); };
+          const goMaps = () => { if (p && p.mapsUrl) openExternal(p.mapsUrl); else if (p) openDetail(p); };
           let primaryLabel = "Take me there →";
           let primaryAction = goMaps;
           if (p && !sOpen) {

@@ -69,6 +69,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
+import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
@@ -79,7 +80,7 @@ import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../li
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.76";
+const BUILD_ID = "v5.77";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -88,8 +89,13 @@ const BUILD_ID = "v5.76";
 // Ticketmaster param is set. The param itself lives in lib/affiliates.js
 // (v5.54) so the server-rendered /events/[city]/[slug] page appends the
 // identical value. Fails soft: returns the plain URL when not configured.
+// v5.77: validate first. A malformed/empty ticket URL now yields null (the
+// caller must HIDE the control) instead of rendering href="null" — the source
+// of the "Safari can't open the page" bug. Only a real URL gets the affiliate
+// param and reaches the DOM.
 function ticketUrl(url) {
-  return Aff.ticketOutUrl(url);
+  const s = safeUrl(url);
+  return s ? safeUrl(Aff.ticketOutUrl(s)) : null;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
@@ -366,15 +372,11 @@ function offerRedeemable(o) {
   const flyer = /print|flyer|present (the )?coupon|must present|presented at/i.test(txt);
   return !!o.url && !flyer;
 }
-function openExternal(url) {
-  if (!url) return;
-  try { const w = window.open(url, "_blank", "noopener"); if (w) return; } catch (e) {}
-  // v5.01 GLOBAL RULE (user direction): partner/affiliate pages NEVER replace
-  // Wayfind. If the popup was blocked, synthesize an anchor click in the same
-  // gesture — new tab, tracking intact. Same-tab navigation is banned here:
-  // it swapped the app for the partner page, which is exactly the bug fixed.
-  try { const a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer"; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
-}
+// v5.77: the single validated opener now lives in lib/links.js (validate ->
+// new tab, never same-tab, no-op on an invalid URL). Kept the v5.01 global rule:
+// partner/affiliate pages NEVER replace the app. Delegates so every window.open
+// path in the app goes through one validated function.
+function openExternal(url) { return safeOpenExternal(url); }
 function shareLink(title, url, onCopied, text, onShared) {
   // v4.07: the native sheet must be the FIRST activation-consuming API in the tap.
   // v4.06 copied to the clipboard first; on iOS the clipboard write consumes the

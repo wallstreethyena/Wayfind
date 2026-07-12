@@ -1,3 +1,38 @@
+## v5.77 - remediation B (part 2): centralize + validate every outbound link (kills the Safari-can't-open / Expedia class)
+- ROOT CAUSE fixed once, in one place. Link handling was scattered across three
+  mechanisms with zero validation (openExternal, direct window.open in 4 files,
+  raw <a href> anchors), so a missing/malformed URL became a broken button
+  ("Safari can't open the page"), a dead link, or a wrong affiliate default.
+  New lib/links.js is the SINGLE validated source of truth:
+  - safeUrl(url) -> a string safe for an href/window.open, or null. Rejects
+    empty, junk sentinels (N/A/TBD/null), javascript:/data:/mailto:, protocol-
+    relative (//evil), bare words, and anything URL() can't parse; accepts
+    http(s) with a real host and app-relative redirect routes (/api/viator/go).
+  - openExternal(url) -> validate, open in a NEW tab (never same-tab), no-op on
+    an invalid URL.
+  - ticketHref(event) -> the real validated ticket URL or null, NEVER an
+    affiliate-search default.
+- GRACEFUL DEGRADATION (the rule that would have prevented Symptoms 1 & 2):
+  home.js ticketUrl() now validates through safeUrl and returns null for a bad
+  URL, so the existing conditional "Get tickets" anchors (Events grid, the home
+  CTA) HIDE instead of rendering href="null" -> the exact Safari-can't-open bug.
+  home.js openExternal() delegates to the central validated opener. The direct
+  window.open sites in Menu/Surprise/Itinerary now route through openExternal;
+  TicketButton keeps its DIRECT window.open (anti-Stay22 from #69 — openExternal's
+  popup-blocked <a> fallback could be re-rewritten) but validates via safeUrl and
+  hides when the URL is bad.
+- REGRESSION NET: scripts/test-links.mjs (safeUrl rejects junk/malformed/js/
+  protocol-relative, accepts http(s)+internal; ticketHref null on a bad URL) and
+  scripts/check-links.mjs (lib/links is the single source of truth; ticketUrl/
+  openExternal + the migrated openers all route through it). Both wired into
+  prebuild so the consolidation can't silently rot back.
+- The BookingCTA "Find tours & experiences" fallback is a deliberate tracked
+  SEARCH page (not a broken button); it already routes through the now-validated
+  openExternal, and with Viator returning 200 again the search yields real
+  results rather than the down-state Expedia rewrite. Left intact by design.
+- Still to pair: wiring check-ux (it guards the BookingCTA experienceGoUrl path)
+  once the resolver work lands; B1 (tab deep-links) next.
+
 ## v5.76 - remediation B (part 1): wire the unenforced guardrails + fix a dead-end event card + hard 404
 - THE PREVENTION (B5): 12 content guardrails weren't in prebuild/audit — which is
   exactly why the false-water copy shipped unchecked. Wired the 9 that pass clean
