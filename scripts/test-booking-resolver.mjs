@@ -86,5 +86,28 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
   else if (offers[0].productCode !== "Y1") fail("wrong candidate survived resolveVerifiedMany: " + offers[0].productCode);
 }
 
+// 7. Cross-region leak (B2 region gate): a Key West product must NOT render for
+//    a Siesta Key place. When the region string absorbs the place's own name
+//    (locality "Siesta Key"), the only distinctive token left is the generic
+//    "key" -- which a "Key West" product matches, buying false place-specific
+//    credit (reproduced at confidence 0.80). The region gate hard-rejects any
+//    product naming a foreign destination absent from the region, WITHOUT
+//    blunting a genuine local product (which would lose real Siesta Key revenue).
+{
+  const place = { name: "Siesta Key Beach" };
+  const leak = { title: "Key West Sunset Sail & Snorkel Cruise", productUrl: "https://www.viator.com/tours/kw1", productCode: "KW1" };
+  const local = { title: "Siesta Key Parasailing Adventure", productUrl: "https://www.viator.com/tours/sk1", productCode: "SK1" };
+  if (resolveVerified(place, [leak], { region: "Siesta Key,Sarasota", kind: "beach" })) fail("Key West product leaked a live CTA onto a Siesta Key place");
+  const good = resolveVerified(place, [local], { region: "Siesta Key,Sarasota", kind: "beach" });
+  if (!good) fail("a genuine Siesta Key product was wrongly gated by the region filter (lost local revenue)");
+  else if (good.productCode !== "SK1") fail("wrong product survived the region gate: " + good.productCode);
+  const many = resolveVerifiedMany(place, [leak, local], { region: "Siesta Key,Sarasota", kind: "beach" });
+  if (many.length !== 1 || many[0].productCode !== "SK1") fail("region gate did not isolate the local product from the foreign leak: " + JSON.stringify(many.map((o) => o.productCode)));
+  // A local-origin trip that names both the local region and a foreign stop
+  // (departs Siesta Key) is kept -- the gate only fires when the LOCAL token is absent.
+  const localOrigin = { title: "Siesta Key to Key West Full-Day Adventure", productUrl: "https://www.viator.com/tours/sk2", productCode: "SK2" };
+  if (!resolveVerified(place, [localOrigin], { region: "Siesta Key,Sarasota", kind: "beach" })) fail("a local-origin trip naming the region was wrongly gated");
+}
+
 if (failures) process.exit(1);
-console.log("test-booking-resolver: OK — default-deny resolver behaves on all golden fixtures");
+console.log("test-booking-resolver: OK — default-deny resolver + region gate behave on all golden fixtures");
