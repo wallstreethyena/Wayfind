@@ -3,6 +3,7 @@
 // carry a Viator experience link (bookQuery) or a Booking.com rate link
 // (hotel), both clearly disclosed. Pages cross-link into the app and back to
 // the guide index for the middleman internal-link structure.
+import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
@@ -41,7 +42,9 @@ const S = {
 
 export default function GuidePage({ params }) {
   const g = GUIDES[params.slug];
-  if (!g) return <main style={S.page}><h1 style={S.h1}>Guide not found</h1><p style={S.p}><a href="/" style={S.footerLink}>Back to Wayfind</a></p></main>;
+  // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
+  // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
+  if (!g) notFound();
   const appUrl = (name) => "/?q=" + encodeURIComponent(name);
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.

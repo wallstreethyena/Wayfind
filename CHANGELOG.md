@@ -1,3 +1,41 @@
+## v5.75 - accuracy remediation A: kill the "false water view" lie at all sources + a real 404 for unknown slugs
+- The app was confidently telling users things that were not true at the exact
+  moment of decision — the trust-killer. The "water view" lie was never one bug;
+  it was minted independently at four places, so it's fixed at each:
+  - placeKind() (app/home.js): dining venues are typed by their Google TYPE
+    before any name-based "waterfront" read, so a restaurant/bar/cafe is never
+    asserted to have a water view because its NAME contains bay/pier/marina/river
+    (The Oar & Iron, Pieroguys Pierogies). " pier" dropped (it matched
+    "pierogies"). A genuinely-waterfront place is pinned via an override.
+  - venueLean() (lib/ranking.js): an indoor TYPE (theater, church, museum, gym...)
+    now beats a water word in the name — no more false "Prime beach weather"
+    hero copy or hot-day water ranking boost on "Bay Street Players Theater" /
+    "Lake Wales Community Church". KW.indoor expanded accordingly. Genuine
+    beaches (Siesta Key) preserved.
+  - experienceBadges() (app/home.js): the waterfront badge is override-gated and
+    dropped its loosest tokens (" pier", bare "fish house"). templateBlurb's
+    seafood line "close to the water" -> "cooked with care" (seafood is a
+    cuisine, not a location).
+  - isBeach() (app/home.js): a food/bar/retail venue named "Beach ___" no longer
+    triggers the surf/wind conditions panel; a real beach TYPE still does.
+- lib/placeOverrides.js gains two owner knobs: `kind` (pins placeKind) and
+  `noWater` (forces every water/beach assertion off for a place, across
+  placeKind/venueLean/experienceBadges/isBeach). The Oar & Iron is seeded. Any
+  future false-water place is now a one-line entry.
+- app/api/insight/route.js: scrubUngroundedGeo() strips any water/waterfront/
+  water-view sentence from the AI "why we picked this" blurb UNLESS the input
+  facts actually mention water — independent of the prompt (which silently
+  failed). The exact Oar & Iron hallucination is stripped; a grounded water
+  claim is kept.
+- app/culture/[metro]/page.js: /culture/{unknown} returned HTTP 500 (the
+  not-found branch dereferenced c.title on an undefined c). Now notFound() -> a
+  real 404. app/guides/[slug]/page.js: unknown slug now 404s instead of a
+  200-status "not found" body (stops Google indexing infinite junk URLs).
+- NEW prebuild guardrail scripts/check-water.mjs — the check that would have
+  caught this class before it shipped (venueLean never calls a dining/indoor
+  venue "water"; genuine beaches preserved; noWater override enforced). Wiring
+  the rest of the unwired content guardrails is the next PR.
+
 ## v5.74 - home: consolidate the "Explore near you" menu 13 tiles -> 6, live honest sublines
 - The 13-tile menu fired FOUR different actions (openCurated / setScreen /
   openExpSheet / setMenuSheet) — a junk drawer. Now SIX tiles, ONE action:
