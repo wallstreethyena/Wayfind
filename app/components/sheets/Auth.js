@@ -20,11 +20,14 @@ export default function AuthSheet({ ctx }) {
     <>
       {authOpen && (
         <div style={sheetBg} onClick={() => setAuthOpen(false)}>
-          <div ref={authDlgRef} role="dialog" aria-modal="true" aria-label="Sign in or create your account" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
+          <div ref={authDlgRef} role="dialog" aria-modal="true" aria-labelledby="wf-auth-title" aria-describedby="wf-auth-desc" tabIndex={-1} style={{ ...sheet, outline: "none", padding: "6px 16px 32px", overscrollBehaviorY: "contain", transition: SHEET_EASE, position: "relative" }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAuthOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
+            {/* v5.61 (audit P1): a visible close button (>=44px) — the dialog
+                previously only closed via tap-outside/drag. */}
+            <button onClick={() => setAuthOpen(false)} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 44, height: 44, borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 17, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>✕</button>
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
-            <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
-            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
+            <div id="wf-auth-title" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
+            <div id="wf-auth-desc" style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
 
             {!isStandalone && (
               <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
@@ -46,20 +49,25 @@ export default function AuthSheet({ ctx }) {
               </div>
             )}
 
-            <input type="email" inputMode="email" autoCapitalize="none" autoCorrect="off" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@email.com"
-              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 10, outline: "none" }} />
-            <input type="password" value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder="Password"
+            {/* v5.61 (audit P1): visible labels + id/name/autocomplete on both
+                inputs (were placeholder-only). */}
+            <label htmlFor="wf-auth-email" style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.light, marginBottom: 5 }}>Email address</label>
+            <input id="wf-auth-email" name="email" type="email" autoComplete="email" inputMode="email" autoCapitalize="none" autoCorrect="off" value={authEmail} onChange={(e) => setAuthEmail(e.target.value)} placeholder="you@email.com"
+              style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 12, outline: "none" }} />
+            <label htmlFor="wf-auth-password" style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.light, marginBottom: 5 }}>Password</label>
+            <input id="wf-auth-password" name="password" type="password" autoComplete={authMode === "signup" ? "new-password" : "current-password"} value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} placeholder="Password"
               style={{ width: "100%", boxSizing: "border-box", padding: "13px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 15, marginBottom: 12, outline: "none" }} />
             <button onClick={passwordAuth} disabled={authSending || !authEmail || !authPassword} style={{ width: "100%", padding: 14, borderRadius: 12, border: "none", background: C.accent, color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: authSending || !authEmail || !authPassword ? "default" : "pointer", opacity: authSending || !authEmail || !authPassword ? 0.6 : 1 }}>
               {authSending ? "…" : authMode === "signup" ? "Create account" : "Sign in"}
             </button>
             <div style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: C.muted }}>
               {authMode === "signup" ? "Already have an account? " : "New here? "}
-              <span onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ color: C.accent, fontWeight: 700, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</span>
+              {/* v5.61 (audit P1): semantic <button>, not a <span> onClick. */}
+              <button type="button" onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ background: "none", border: "none", padding: "6px 4px", color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</button>
             </div>
             {authMode === "signin" && (
               <div style={{ textAlign: "center", marginTop: 8 }}>
-                <span onClick={resetSending ? undefined : sendPasswordReset} style={{ fontSize: 12.5, color: C.muted, textDecoration: "underline", cursor: "pointer", opacity: resetSending ? 0.6 : 1 }}>{resetSending ? "Sending…" : "Forgot password?"}</span>
+                <button type="button" onClick={resetSending ? undefined : sendPasswordReset} disabled={resetSending} style={{ background: "none", border: "none", padding: "8px 4px", minHeight: 36, fontSize: 12.5, color: C.muted, textDecoration: "underline", cursor: resetSending ? "default" : "pointer", opacity: resetSending ? 0.6 : 1 }}>{resetSending ? "Sending…" : "Forgot password?"}</button>
               </div>
             )}
             <div style={{ textAlign: "center", marginTop: 10 }}><a href="/privacy" style={{ fontSize: 11, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>

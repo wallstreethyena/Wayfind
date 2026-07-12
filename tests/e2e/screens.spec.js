@@ -13,9 +13,11 @@ const { test, expect } = require("@playwright/test");
 const { AxeBuilder } = require("@axe-core/playwright");
 
 // Boot on a deep link: it suppresses the intro, so no overlay races the test.
-async function boot(page, go = "favorites") {
+// v5.61 (audit P0): Favorites is now auth-gated (AuthWall signed out), so boot
+// via the public Events screen and wait for its data-independent header.
+async function boot(page, go = "events") {
   await page.goto(`/?go=${go}`);
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Events near you").first()).toBeVisible({ timeout: 15_000 });
   // A same-page marker: if any click causes a full navigation, this vanishes.
   await page.evaluate(() => { window.__wfSamePage = true; });
 }
@@ -23,8 +25,10 @@ async function boot(page, go = "favorites") {
 const NAV_SCREENS = [
   ["Events", "Concerts, sports, and shows worth building a night around"],
   ["Coupons", "Real deals at great local places"],
-  ["Itinerary", "Your trips"],
-  ["Favorites", "YOUR LISTS"],
+  // v5.61 (audit P0): Itinerary + Favorites are auth-gated; signed out they
+  // render the AuthWall in-app (still same-page, no reload).
+  ["Itinerary", "Sign in to view your Itinerary"],
+  ["Favorites", "Sign in to view your Favorites"],
 ];
 
 test("in-app bottom nav renders every extracted screen without a reload", async ({ page }) => {
@@ -46,7 +50,7 @@ test("empty search opens the Surprise screen (dice route, no data needed)", asyn
   await expect(page.getByText("Nothing to suggest right now").first()).toBeVisible({ timeout: 15_000 });
 });
 
-for (const [label, marker] of [["Favorites", "YOUR LISTS"], ["Events", "Concerts, sports, and shows worth building a night around"]]) {
+for (const [label, marker] of [["Favorites", "Sign in to view your Favorites"], ["Events", "Concerts, sports, and shows worth building a night around"]]) {
   test(`axe: extracted ${label} screen has no critical or serious violations`, async ({ page }) => {
     await boot(page);
     await page.locator(`a[aria-label="${label}"]`).click();

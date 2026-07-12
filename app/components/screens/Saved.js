@@ -82,7 +82,7 @@ export default function SavedScreen({ ctx }) {
               {supabase && !user && arr.length > 0 && (
                 <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, marginBottom: 14, cursor: "pointer" }}>
                   <span style={{ fontSize: 18 }}>☁️</span>
-                  <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>These live only on this phone. Sign in to save them.</div>
+                  <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>Sign in to save these and sync them across your devices.</div>
                   <span style={{ fontSize: 13, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
                 </div>
               )}

@@ -74,7 +74,7 @@ import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
 const BUILD_ID = "v5.61";
@@ -1378,6 +1378,22 @@ function SheetHero({ icon, title, subtitle, color }) {
 // NavIcon (category + nav line-icon set) now lives in components/kit.js so
 // every surface shares one icon language — imported at the top of this file.
 
+// v5.61 (audit P0): the sign-in wall shown when a signed-out visitor lands on
+// a personal screen (Favorites / Itinerary). The screen content never renders
+// behind it; the auth dialog auto-opens. Reuses the one auth source of truth
+// (setAuthOpen) — no second auth system.
+const AUTH_SCREENS = new Set(["saved", "itinerary"]);
+function AuthWall({ label, onSignIn }) {
+  return (
+    <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
+      <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
+      <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>Sign in to save places, create lists, and plan trips. Your saves sync across all your devices.</p>
+      <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+    </div>
+  );
+}
+
 // Branded loading indicator: the Wayfind pin, gently pulsing.
 function Loader({ label, size, pad, sub }) {
   return (
@@ -1427,13 +1443,13 @@ const PRICE_WORD = { 0: "Free", 1: "Inexpensive", 2: "Moderate", 3: "Pricey", 4:
 function PriceMeter({ level, word }) {
   if (level == null) return null;
   if (level === 0) return <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>Free</span>;
+  // v5.61 (audit P0): render the ACTUAL number of "$" (level 1-4), not a
+  // fixed 4-glyph meter with the tier hidden in color — a black-box reviewer
+  // (and a colorblind user) read the old meter as "$$$$" on every card,
+  // including ones labeled "Inexpensive"/"Moderate".
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1 }}>
-        {[1, 2, 3, 4].map((n) => (
-          <span key={n} style={{ color: n <= level ? C.green : C.muted }}>$</span>
-        ))}
-      </span>
+      <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, color: C.green }} aria-label={PRICE_WORD[level]}>{priceGlyphs(level)}</span>
       {word && <span style={{ fontSize: 12, color: C.light }}>{PRICE_WORD[level]}</span>}
     </span>
   );
@@ -3159,6 +3175,16 @@ function PageInner() {
     showToast(msg || "Sign in to save");
     return false;
   }
+
+  // v5.61 (audit P0): landing on a personal screen (Favorites/Itinerary) while
+  // signed out — via nav tap, deep link (?go=favorites), or restore — pops the
+  // sign-in dialog. The screen content is already withheld (AuthWall renders
+  // instead); this makes the required next action immediate. Fires once auth
+  // has resolved, so a returning signed-in user is never prompted.
+  useEffect(() => {
+    if (authReady && !user && AUTH_SCREENS.has(screen)) setAuthOpen(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, authReady, user]);
 
   // One-tap social sign-in. No email, no rate limits. Needs the provider enabled
   // in Supabase. Redirects out to Google/Apple and back to the app.
@@ -6206,8 +6232,14 @@ function PageInner() {
         {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && <ExperienceScreen ctx={ctx} />}
 
         {screen === "coupons" && <CouponsScreen ctx={ctx} />}
-        {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && <ItineraryScreen ctx={ctx} />}
+        {/* v5.61 (audit P0): the personal screens never RENDER for a signed-out
+            visitor — the write-action gate (v5.49) wasn't enough; the screen
+            itself is now gated. authReady prevents a flash before auth
+            resolves; while signed out an AuthWall prompts sign-in and the
+            dialog auto-opens (effect below). Coupons stays public (deal
+            browse); only its save action is gated, already, per v5.49. */}
+        {screen === "saved" && (authReady && !user ? <AuthWall label="your Favorites" onSignIn={() => setAuthOpen(true)} /> : <SavedScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "events" && <EventsScreen ctx={ctx} />}

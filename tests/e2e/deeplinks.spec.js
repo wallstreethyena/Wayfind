@@ -12,12 +12,15 @@
 const { test, expect } = require("@playwright/test");
 
 // [route, marker unique to the destination screen]
+// v5.61 (audit P0): Favorites + Itinerary are now personal screens gated
+// behind auth — signed out (the e2e build has no session) they land on the
+// AuthWall, NOT the Saved/Itinerary content. Events/Map/Coupons stay public.
 const BRIDGES = [
   ["/events", "Concerts, sports, and shows worth building a night around"],
   ["/map", "Numbered by rank"],
   ["/coupons", "Real deals at great local places"],
-  ["/favorites", "YOUR LISTS"],
-  ["/itinerary", "Your trips"],
+  ["/favorites", "Sign in to view your Favorites"],
+  ["/itinerary", "Sign in to view your Itinerary"],
 ];
 
 for (const [route, marker] of BRIDGES) {
@@ -33,11 +36,12 @@ for (const [route, marker] of BRIDGES) {
   });
 }
 
-test("direct /?go=favorites aliases to the Saved screen", async ({ page }) => {
+test("direct /?go=favorites (signed out) shows the sign-in wall, not the Saved screen", async ({ page }) => {
   await page.goto("/?go=favorites");
-  await expect(page.getByText("YOUR LISTS").first()).toBeVisible({
+  await expect(page.getByText("Sign in to view your Favorites").first()).toBeVisible({
     timeout: 15_000,
   });
+  await expect(page.getByText("YOUR LISTS")).toHaveCount(0);
 });
 
 function searchRequestWith(page, text) {
