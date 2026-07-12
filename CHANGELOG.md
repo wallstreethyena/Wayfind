@@ -1,3 +1,28 @@
+## v5.85 - Ranking-page maps + desktop map legibility (reuses the Map-tab map)
+- Every ranking detail page (the 5 category sheets: Today's Best, Night Out, Eat
+  Well, Shop Local, Stay Tonight) now leads with the LIST ON A MAP — the same
+  MapView (dark tiles, concentric mile rings, zoom/compass) reused, not a new map.
+  The lead blurb text is replaced by the map; the ranked list stays below it.
+- MapView gains three reused capabilities (one component, both maps inherit):
+  - Medal pins: rank 1/2/3 read as gold/silver/bronze, 4+ stay blue, closed-now
+    recedes to gray (extended the existing #1-gold fill).
+  - Per-place category icons + name·score labels via a new PlaceLabel OverlayView
+    (same pattern as the ring labels). Shared catKeyOf(place) -> CAT_ICONS
+    (fork&knife/martini/ferris-wheel/sun/building/bag) in kit.js. Score = the real
+    0-10 Wayfind score (wfScore/10; hidden when a place has no rating, never faked).
+    Labels are bounded to the top pins so a dense map stays readable; name·score
+    labels show only on the ranking map (labels prop) — the main maps stay clean.
+  - fitBounds now caps at maxZoom ~14 (spec) so a tight cluster never slams to
+    street level; a nearZoom prop centers on the user at a fixed closer zoom.
+- Desktop home/sidebar map: added the distance rings + nearZoom=13 (it was
+  fitBounds-ing to ~20 spread pins and read as far too zoomed out), and pushed the
+  water color clearly bluer/lighter than the teal-green land (was #101C28, nearly
+  the same dark tone — water and land were hard to tell apart).
+- LIVE-TUNING NOTE: zoom levels, the water/land colors, and label density are
+  first-pass values only verifiable with a real browser (MapView is ssr:false, so
+  check:jsx+build is the CI bar; the visual is a smoke-test). Category icons on the
+  MAIN maps' pins were deferred — labels focus on the ranking pages for now.
+
 ## v5.84 - Homepage: menu redesign, kill misleading sublines, consolidate "Today's Best", price honesty, Waterside window (Phase 1)
 - New Explore-near-you menu (lib/exploreMenu.js): 5 tiles (Today's Best, Eat Well,
   Shop Local, Stay Tonight, Night Out) with fixed BENEFIT copy — no live claims.
