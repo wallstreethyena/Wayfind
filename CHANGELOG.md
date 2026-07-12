@@ -1,3 +1,38 @@
+## v5.74 - home: consolidate the "Explore near you" menu 13 tiles -> 6, live honest sublines
+- The 13-tile menu fired FOUR different actions (openCurated / setScreen /
+  openExpSheet / setMenuSheet) — a junk drawer. Now SIX tiles, ONE action:
+  openCurated(kind) for food | nightlife | experiences | shopping | stays |
+  bestof. stays + bestof moved off openExpSheet onto curated lists with their
+  OWN ranking (hotels can't rank by open-status): stays by rating, bestof by
+  rating x review-volume; the "Hidden gems" inverse (high rating, low reviews)
+  is a lens/toggle inside Best of, not its own tile. Attractions + Shows fold
+  into Experiences. Family + Budget are real filter chips above the rows.
+  Take-a-chance is now a Shuffle icon button beside the search. Events tile
+  removed (the Events tab already covers it).
+- Nothing underneath deleted: every retired ?exp= key still resolves at the
+  deep-link resolver (gem->bestof/gems, entertainment/shows->experiences,
+  stays/bestof->curated, family/budget->chip active, events->Events tab).
+- LIVE SUBLINES (lib/homeTiles.js, honest by construction): one server-batched
+  digest (/api/home/tiles, self-fetches /api/places/search, warm-mem cache ~10min,
+  geo-bucketed) gives each tile the top result's real stats. Each tile renders
+  the first template whose data is satisfied, else the static fallback — never a
+  guess. Straight-line MILES (never minutes), review-average STARS (never a hotel
+  "N-star" class), server-computed ABSOLUTE closing time (never a client
+  countdown), radius-bounded counts, and the #1 place is never named.
+- HYDRATION-SAFE: tileData starts {} so SSR + first client render show the static
+  fallback identically; the digest is fetched only in a post-mount effect and
+  swapped in — no 418/423. tests/e2e/hydration.spec.js stays green.
+- VISUAL: killed the emoji + rainbow chevrons. Six NavIcon line icons (added
+  award + shuffle to kit.js), one muted color; identical 40x40 tinted icon
+  squares; one chevron color; live subline values in the single accent orange;
+  one "EXPLORE NEAR YOU" eyebrow (dropped the redundant mood line); trust line
+  moved below the rows; no fixed height / nested scroll.
+- Analytics: all six -> curated_open{kind}; the two chips -> intent_chip
+  {src:home_menu}; the shuffle button -> dice_card{src:home_menu}.
+- New prebuild gate scripts/test-home-tiles.mjs locks the honesty contract.
+- Note: NavIcon line icons (not lucide-react) — same outcome, no new dependency,
+  already governed by check-design.
+
 ## v5.73 - fix: share-card Cache-Control was doubled (froze the "live" card)
 - next/og's ImageResponse sets its OWN default Cache-Control (public, immutable,
   no-transform, max-age=31536000). Passing `headers` in the ImageResponse options

@@ -73,12 +73,13 @@ import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { CURATED } from "../lib/curated";
+import { STATIC_FALLBACK as HOME_TILE_FALLBACK, computeTileSubline } from "../lib/homeTiles";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.73";
+const BUILD_ID = "v5.74";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2720,7 +2721,20 @@ function PageInner() {
     if (_expLinked.current) return; _expLinked.current = true;
     const sp = new URLSearchParams(window.location.search);
     const k = sp.get("exp");
-    if (k) { setTimeout(() => { try { if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); } else if (k.indexOf("cur-") === 0) { openCurated(k.slice(4)); } else { openExperience(k); } } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
+    // v5.7x: every retired ?exp= key from the old 13-tile menu still resolves
+    // — the six-tile consolidation removed rows, never destinations.
+    if (k) { setTimeout(() => { try {
+      if (k.indexOf("hol-") === 0) { openHoliday(k.slice(4)); }
+      else if (k.indexOf("cur-") === 0) { openCurated(k.slice(4)); }
+      else if (k === "gem") { openCurated("bestof", { lens: "gems" }); }
+      else if (k === "entertainment" || k === "shows") { openCurated("experiences"); }
+      else if (k === "stays") { openCurated("stays"); }
+      else if (k === "bestof") { openCurated("bestof"); }
+      else if (k === "family") { setFamilyChip(true); }
+      else if (k === "budget") { setBudgetChip(true); }
+      else if (k === "events") { setScreen("events"); }
+      else { openExperience(k); }
+    } catch (e) {} }, 400); sp.delete("exp"); const qs = sp.toString(); window.history.replaceState({}, "", window.location.pathname + (qs ? "?" + qs : "")); }
   } catch (e) {} }, []);
   const [moodPick, setMoodPick] = useState(null);   // last category tapped, drives the orange highlight
   const [browseCat, setBrowseCat] = useState(null); // v6.22: category tapped in the mood menu browses IN PLACE on the home feed. No navigation, the feed updates under the weather and the sub-menu slides down.
@@ -2900,14 +2914,48 @@ function PageInner() {
       setHookDetail({ id: "hol-" + hol.key, key: "hol-" + hol.key, theme: "hol-" + hol.key, hol: hol.key, title: content.headline(locName), themeTitle: content.headline(locName), label: hol.name + " picks", take: content.sub, themeBody: content.sub, emoji: hol.emoji, accent: theme.accent, places: pool });
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
   };
+  // v5.7x (home-menu consolidation): six tiles, one action model. Every
+  // CURATED entry carries a `rank` comparator \u2014 food/nightlife/experiences/
+  // shopping keep the original wfScore sort explicit (DEFAULT_RANK, byte-
+  // identical behavior); stays ranks by rating (tie-break reviews); bestof
+  // ranks by rating*log(reviews) ("institutions" \u2014 high rating AND high
+  // review volume). bestof's "Hidden gems" lens (toggled inside the opened
+  // sheet) inverts that to GEMS_RANK \u2014 high rating, LOW review volume.
+  // presetSort:"curated" tells the opened sheet (hkSort effect) to keep this
+  // exact order instead of re-running its own generic "rated" formula.
+  const DEFAULT_RANK = (a, b) => (b.wfScore || 0) - (a.wfScore || 0);
+  const bestOfScore = (p) => (p.rating || 0) * Math.log((p.reviews || 0) + Math.E);
+  const gemsScore = (p) => (p.rating || 0) / Math.log((p.reviews || 0) + Math.E);
+  const GEMS_RANK = (a, b) => gemsScore(b) - gemsScore(a);
   const CURATED = {
-    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }] },
-    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now — parks, attractions, and tours — ranked by fit. Attraction pages include bookable tours; live events have their own tab below.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Top experiences", n: 7, q: "top attractions tours and experiences" }] },
-    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }] },
-    shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }] },
+    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
+    // v5.7x: entertainment + shows fold into experiences — the shows/theater
+    // query joins the slot mix, nothing about the destination is deleted.
+    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now \u2014 parks, attractions, tours, and shows \u2014 ranked by fit. Attraction pages include bookable tours.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Shows & theater", n: 2, q: "shows theater dinner show live entertainment" }, { label: "Top experiences", n: 5, q: "top attractions tours and things to do" }], rank: DEFAULT_RANK },
+    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }], rank: DEFAULT_RANK },
+    shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }], rank: DEFAULT_RANK },
+    stays: { title: "Hotels & Stays", emoji: "\uD83C\uDFE8", lead: "Places to stay near you, ranked by rating \u2014 resorts, boutique hotels, and easy overnights.", slots: [{ label: "Hotels & stays", n: 10, q: "best hotels resorts lodging" }], rank: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0), presetSort: "curated" },
+    bestof: { title: "Best of " + cityNow, emoji: "\uD83C\uDFC6", lead: "The local institutions people here name among the best \u2014 ranked by rating and how many people agree.", slots: [{ label: "Institutions", n: 10, q: "top rated restaurants attractions and shops" }], rank: (a, b) => bestOfScore(b) - bestOfScore(a), presetSort: "curated" },
   };
-  const openCurated = async (kind) => {
+  // v5.7x: Family and Budget retire as EXPERIENCES-sheet tiles and become
+  // persistent filter chips that apply to whichever curated list is open.
+  const [familyChip, setFamilyChip] = useState(false);
+  const [budgetChip, setBudgetChip] = useState(false);
+  const FAMILY_RX = /\bzoo\b|aquarium|museum|amusement_park|theme_park|playground|water_park|mini.?golf|arcade|splash|carousel|\bfamily\b|\bkids?\b|children/i;
+  const chipFilter = (pp) => {
+    if (familyChip) {
+      const t = (((pp.types || []).join(" ")) + " " + (pp.name || "")).toLowerCase();
+      if (!FAMILY_RX.test(t)) return false;
+    }
+    if (budgetChip) {
+      const pn = pp.priceNum;
+      if (pn != null && pn > 2) return false; // free/unknown-price places pass — never claimed expensive
+    }
+    return true;
+  };
+  const openCurated = async (kind, opts = {}) => {
     const c = CURATED[kind]; if (!c) return;
+    const lens = kind === "bestof" ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
@@ -2916,13 +2964,19 @@ function PageInner() {
       // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every
       // candidate must pass meal-period eligibility (hours-proven when hours
       // exist), and short slots backfill from the union of eligible places.
+      // v5.7x: stays and bestof skip meal-period eligibility entirely — a
+      // hotel or a beloved institution is never a "breakfast slot" promise —
+      // and they are never filtered or ranked by open-status.
+      const skipMeals = kind === "stays" || kind === "bestof";
+      const mealOk = (label, pp) => skipMeals || Meals.mealEligible(label, pp);
+      const rankFn = lens === "gems" ? GEMS_RANK : (c.rank || DEFAULT_RANK);
       const unionAll = dedupePlaces([].concat(...results.map((r) => r || [])), true);
       c.slots.forEach((sl, ix) => {
-        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && Meals.mealEligible(sl.label, pp));
-        pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+        const pool = dedupePlaces(results[ix] || [], true).filter((pp) => pp && pp.id && !used.has(pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp) && chipFilter(pp));
+        pool.sort(rankFn);
         let take = pool.slice(0, sl.n);
         if (take.length < sl.n) {
-          const extra = unionAll.filter((pp) => pp && pp.id && !used.has(pp.id) && !take.some((x) => x.id === pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && Meals.mealEligible(sl.label, pp)).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+          const extra = unionAll.filter((pp) => pp && pp.id && !used.has(pp.id) && !take.some((x) => x.id === pp.id) && !(kind === "nightlife" && CHAIN_RX.test(pp.name || "")) && mealOk(sl.label, pp) && chipFilter(pp)).sort(rankFn);
           take = [...take, ...extra.slice(0, sl.n - take.length)];
         }
         take.forEach((pp) => used.add(pp.id));
@@ -2946,9 +3000,27 @@ function PageInner() {
       // v4.85: a thin market opens at the SMALLEST radius that actually shows the
       // list (17 → 30 → 45 → 60) instead of jumping straight to 60.
       const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
-      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi });
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
     } catch (e) { showToast("Could not load that list"); }
   };
+  // v5.7x (home-menu consolidation, Part D — hydration safety): the six tile
+  // sublines start from {} on both server and first client render, so first
+  // paint always renders lib/homeTiles.js's STATIC_FALLBACK — server and
+  // client agree, no hydration mismatch. A post-mount effect fetches the
+  // live digest and swaps sublines in on a normal client re-render, same
+  // pattern as every other post-mount data effect in this file. Never
+  // computes time/geo/random data during the render itself — closingTime
+  // arrives pre-formatted from the server.
+  const [tileData, setTileData] = useState({});
+  useEffect(() => {
+    if (!center || center.lat == null || center.lng == null) return;
+    let live = true;
+    fetch(`/api/home/tiles?lat=${center.lat}&lng=${center.lng}`)
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((d) => { if (live) setTileData(d && typeof d === "object" ? d : {}); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [center && center.lat, center && center.lng]);
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
@@ -5528,7 +5600,7 @@ function PageInner() {
     // sheets (G2): drag-to-dismiss handlers shared by every sheet
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
-    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl,
+    hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
     // account sheet
     accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
@@ -5656,6 +5728,12 @@ function PageInner() {
             <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{sugIdx >= 0 && suggestions[sugIdx] ? `${suggestions[sugIdx].text}, ${sugIdx + 1} of ${suggestions.length}` : ""}</div>
           </div>
           <button onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
+          {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
+              icon button beside search — same visual weight as the sparkle
+              "Find my vibe" button in the header. */}
+          <button onClick={() => { try { logEvent("dice_card", null, { src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Take a chance" title="Take a chance" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <NavIcon name="shuffle" size={17} color={C.accent} />
+          </button>
         </div>
         )}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
@@ -6009,43 +6087,53 @@ function PageInner() {
                       {false && <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />}
                     </>)}
                       {(() => {
-                        const _bestCity = (locName && locName.split(",")[0]) || "your area";
-                        // v5.66: the "More ways to explore" image cards + Top 10 rows + Take-a-chance
-                        // folded into ONE iOS-style list menu (no photos: they failed to load and ate
-                        // vertical space). Every row keeps the exact destination + analytics its card had.
-                        const _items = [
-                          ["food", "\uD83C\uDF7D\uFE0F", "Top 10 Food", "The best places to eat near you, ranked.", C.accent, () => openCurated("food")],
-                          ["nightlife", "\uD83C\uDF78", "Top 10 Nightlife", "Bars, live music, and late-night eats.", C.pink, () => openCurated("nightlife")],
-                          ["experiences", "\uD83C\uDFA2", "Top 10 Experiences", "Theme parks, attractions, and bookable tours.", C.purple, () => openCurated("experiences")],
-                          ["shopping", "\uD83D\uDECD\uFE0F", "Top 10 Shopping", "Malls, outlets, and the boutiques that rate best.", C.green, () => openCurated("shopping")],
-                          ["events", "\uD83C\uDF9F\uFE0F", "Events tonight", "What is happening near you tonight.", C.blue, () => setScreen("events")],
-                          ["bestof", "\uD83C\uDFC6", "Best of " + _bestCity, "The local institutions people here swear by.", C.gold, () => { try { logEvent("intent_chip", null, { intent: "bestof", src: "home_menu" }); } catch (e) {} openExpSheet("bestof"); }],
-                          ["gem", "\uD83D\uDC8E", "Hidden gems", "The under-the-radar spots locals keep quiet.", C.teal, () => { try { logEvent("intent_chip", null, { intent: "gem", src: "home_menu" }); } catch (e) {} openExpSheet("gem"); }],
-                          ["entertainment", "\uD83C\uDFA1", "Attractions & fun", "Theme parks, tours, and the can't-miss stops.", C.purple, () => { try { logEvent("intent_chip", null, { intent: "entertainment", src: "home_menu" }); } catch (e) {} openExpSheet("entertainment"); }],
-                          ["family", "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67", "Best for families", "Easy with kids, good for the grown-ups too.", C.green, () => { try { logEvent("intent_chip", null, { intent: "family", src: "home_menu" }); } catch (e) {} openExpSheet("family"); }],
-                          ["shows", "\uD83C\uDFAD", "Shows & tickets", "Dinner shows, theater, and live entertainment.", C.pink, () => { try { logEvent("intent_chip", null, { intent: "shows", src: "home_menu" }); } catch (e) {} openExpSheet("shows"); }],
-                          ["budget", "\uD83E\uDE99", "On a budget", "Big fun that goes easy on the wallet.", C.gold, () => { try { logEvent("intent_chip", null, { intent: "budget", src: "home_menu" }); } catch (e) {} openExpSheet("budget"); }],
-                          ["stays", "\uD83C\uDFE8", "Hotels & stays", "Places to stay, from resorts to easy overnights.", C.blue, () => { try { logEvent("intent_chip", null, { intent: "stays", src: "home_menu" }); } catch (e) {} openExpSheet("stays"); }],
-                          ["dice", "\uD83C\uDFB2", "Take a chance", "Let Wayfind surprise you with one pick.", C.pink, () => { try { logEvent("dice_card", null, { to: "pick", src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }],
+                        // v5.7x (home-menu consolidation): 13 rows -> 6, one action
+                        // model (openCurated(kind)), live honest sublines from the
+                        // batched /api/home/tiles digest. Family/Budget are filter
+                        // chips now (they actually filter openCurated's results, see
+                        // chipFilter above); Events left for the bottom-nav tab;
+                        // dice moved to an icon button beside search. Nothing beneath
+                        // any tile was deleted — see the ?exp= alias resolver.
+                        const _tiles = [
+                          ["food", "food", "Food", () => openCurated("food")],
+                          ["nightlife", "nightlife", "Nightlife", () => openCurated("nightlife")],
+                          ["experiences", "attractions", "Experiences", () => openCurated("experiences")],
+                          ["shopping", "shopping", "Shopping", () => openCurated("shopping")],
+                          ["stays", "hotels", "Stays", () => openCurated("stays")],
+                          ["bestof", "award", "Best of " + cityNow, () => openCurated("bestof")],
                         ];
                         return (
                           <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
-                            <div style={{ padding: "14px 15px 10px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, marginBottom: 5 }}>Explore near you</div>
-                              <div onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "curated" }); } catch (e) {} }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", marginBottom: 7 }}>✨ Or tell us your mood and we'll design your list →</div>
-                              <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>Pick where you want to go. Every list is ranked for you, with no ads and no paid placement.</div>
+                            <div style={{ padding: "14px 15px 4px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, padding: "10px 15px 12px", flexWrap: "wrap" }}>
+                              {[["family", "Family", familyChip, setFamilyChip], ["budget", "Budget", budgetChip, setBudgetChip]].map(([id, lb, active, setActive]) => (
+                                <button key={id} onClick={() => { const nv = !active; setActive(nv); try { logEvent("intent_chip", null, { src: "home_menu", intent: id }); } catch (e) {} }} aria-pressed={active} style={{ padding: "7px 14px", borderRadius: 999, border: "1px solid " + (active ? C.accent : "rgba(255,255,255,.14)"), background: active ? "rgba(249,115,22,.14)" : "transparent", color: active ? C.accent : "rgba(255,255,255,.7)", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>{lb}</button>
+                              ))}
                             </div>
                             <style>{".wf-mrow{transition:background .12s ease}.wf-mrow:active{background:rgba(255,255,255,.06)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.035)}}"}</style>
-                            {_items.map(([k, ic, lb, desc, col, act]) => (
-                              <button key={k} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { act(); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid " + C.border, padding: "13px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent", minHeight: 56 }}>
-                                <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 38, height: 38, borderRadius: 12, fontSize: 19, background: "linear-gradient(145deg, " + col + "33, " + col + "12)", border: "1px solid " + col + "4D" }}>{ic}</span>
-                                <span style={{ flex: 1, minWidth: 0 }}>
-                                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{lb}</span>
-                                  <span style={{ display: "block", fontSize: 12, color: C.muted, lineHeight: 1.35, marginTop: 2 }}>{desc}</span>
-                                </span>
-                                <span aria-hidden="true" style={{ flexShrink: 0, color: col, fontSize: 20, fontWeight: 700 }}>{"\u203A"}</span>
-                              </button>
-                            ))}
+                            {_tiles.map(([k, icon, label, act]) => {
+                              const segs = computeTileSubline(k, tileData[k]);
+                              const subline = segs || [{ text: HOME_TILE_FALLBACK[k] }];
+                              return (
+                                <button key={k} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { act(); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "16px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}>
+                                    <NavIcon name={icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.75)" />
+                                  </span>
+                                  <span style={{ flex: 1, minWidth: 0 }}>
+                                    <span style={{ display: "block", fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{label}</span>
+                                    <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,.55)", lineHeight: 1.35, marginTop: 2 }}>
+                                      {subline.map((s, i) => (s.accent ? <span key={i} style={{ color: C.accent, fontWeight: 600 }}>{s.text}</span> : <span key={i}>{s.text}</span>))}
+                                    </span>
+                                  </span>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)", display: "inline-flex" }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                                  </span>
+                                </button>
+                              );
+                            })}
+                            <div style={{ padding: "12px 15px 14px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
                           </div>
                         );
                       })()}
