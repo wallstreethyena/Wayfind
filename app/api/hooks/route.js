@@ -1,10 +1,12 @@
 // Wayfind AI Hook Generator — uses Claude to write provocative, specific,
 // data-grounded discovery hooks from real nearby place data.
 // Each hook is tied to a real place and includes a themed "detail sheet" body.
+import { aiKey } from "../../../lib/aiKey";
+
 export async function POST(req) {
   try {
     const { places, locName, hour, weather, signals } = await req.json();
-    const key = process.env.ANTHROPIC_API_KEY;
+    const key = aiKey();
     if (!key || !places || places.length < 3) return Response.json({ hooks: [] });
 
     const city = (locName || "your area").split(",")[0];
