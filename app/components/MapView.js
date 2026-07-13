@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { getLoader } from "../../lib/google";
-import { CAT_ICONS, catKeyOf } from "./kit";
 
 // Premium redesign (v5.55): when Google Maps can't load (missing/invalid key,
 // network, quota), Google injects its own raw "Oops! Something went wrong"
@@ -94,39 +93,10 @@ function ensureRingLabelClass() {
   return RingLabelClass;
 }
 
-// v5.85: an HTML overlay label anchored to a place pin — the category icon and
-// (on the ranking-page map) the place name + its 0-10 score. Reuses the same
-// OverlayView pattern as the ring labels; pointer-events off so taps hit the pin.
-let PlaceLabelClass = null;
-function ensurePlaceLabelClass() {
-  if (PlaceLabelClass || typeof window === "undefined" || !window.google) return PlaceLabelClass;
-  class PlaceLabel extends window.google.maps.OverlayView {
-    constructor(position, html, yOff) { super(); this.pos = position; this.html = html; this.yOff = yOff || 0; this.div = null; }
-    onAdd() {
-      const d = document.createElement("div");
-      d.innerHTML = this.html;
-      d.style.cssText = "position:absolute;transform:translate(-50%,0);pointer-events:none;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;max-width:200px;overflow:hidden;font:700 11px/1.15 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#fff;background:rgba(13,17,23,0.86);border:1px solid rgba(255,255,255,0.16);border-radius:8px;padding:2px 7px;box-shadow:0 2px 8px rgba(0,0,0,0.5);will-change:transform;";
-      this.div = d;
-      const panes = this.getPanes();
-      (panes.floatPane || panes.overlayMouseTarget || panes.overlayLayer).appendChild(d);
-    }
-    draw() {
-      const proj = this.getProjection();
-      if (!proj || !this.div) return;
-      const p = proj.fromLatLngToDivPixel(new window.google.maps.LatLng(this.pos.lat, this.pos.lng));
-      if (p) { this.div.style.left = Math.round(p.x) + "px"; this.div.style.top = Math.round(p.y + this.yOff) + "px"; }
-    }
-    onRemove() { if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div); this.div = null; }
-  }
-  PlaceLabelClass = PlaceLabel;
-  return PlaceLabelClass;
-}
-
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, labels, nearZoom }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings }) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
-  const placeLabelsRef = useRef([]);
   const circleRef = useRef(null);
   const lastCenterRef = useRef("");
   const anchorRef = useRef(null);
@@ -200,8 +170,6 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     if (!map || !window.google) return;
     markersRef.current.forEach((m) => m.setMap(null));
     markersRef.current = [];
-    placeLabelsRef.current.forEach((l) => l.setMap(null));
-    placeLabelsRef.current = [];
     // v4.4: simplified pin colors. Rank still reads through SIZE (below), so color
     // carries just three signals: gold = the #1 pick, blue = other open spots, gray =
     // closed right now, so closed places recede on the map too. The orange teardrop is
@@ -211,10 +179,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const bounds = new window.google.maps.LatLngBounds();
 
     (places || []).forEach((p, i) => {
-      // v5.85: rank 1/2/3 read as gold/silver/bronze medals; 4+ stay blue; a
-      // place closed right now recedes to gray regardless of rank.
-      const MEDAL = i === 0 ? "#FBBF24" : i === 1 ? "#CBD5E1" : i === 2 ? "#CD7F32" : REST;
-      const fill = p.openNow === false ? CLOSED : MEDAL;
+      const fill = p.openNow === false ? CLOSED : (i === 0 ? "#FBBF24" : REST);
       const s = i === 0 ? 50 : i === 1 ? 45 : i === 2 ? 41 : i <= 4 ? 37 : 32;
       const w = Math.round((s * 34) / 44);
       const marker = new window.google.maps.Marker({
@@ -233,23 +198,6 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       marker.addListener("click", () => onSelect && onSelect(p));
       markersRef.current.push(marker);
       bounds.extend({ lat: p.lat, lng: p.lng });
-
-      // v5.85: on the ranking-page map, label the top pins with the category
-      // icon + place name + its 0-10 score (medal for the podium). Bounded to
-      // the top few so labels don't stack into an unreadable pile on a dense map.
-      if (labels && i < 8) {
-        const PL = ensurePlaceLabelClass();
-        if (PL) {
-          const emoji = CAT_ICONS[catKeyOf(p)] || "📍";
-          const medal = i === 0 ? " 🥇" : i === 1 ? " 🥈" : i === 2 ? " 🥉" : "";
-          const score = typeof p.wfScore === "number" ? (p.wfScore / 10).toFixed(1) : null;
-          const name = String(p.name || "").replace(/[<>&]/g, "").slice(0, 40);
-          const html = "<span style='font-size:13px'>" + emoji + "</span><span style='overflow:hidden;text-overflow:ellipsis;max-width:150px'>" + name + (score ? " · " + score : "") + medal + "</span>";
-          const lbl = new PL({ lat: p.lat, lng: p.lng }, html, 8);
-          lbl.setMap(map);
-          placeLabelsRef.current.push(lbl);
-        }
-      }
     });
 
     // Event venue markers (purple pins), shown when the map is in events mode.
@@ -318,19 +266,11 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
     if (stateChanged) {
       lastCenterRef.current = stateKey;
-      if (nearZoom && (deviceLoc || center)) {
-        // v5.85: a closer, fixed near-view centered on the user. The desktop home
-        // map was fitBounds-ing to ~20 spread pins and read as too zoomed out;
-        // this keeps the area legible and the distance rings in view.
-        map.setCenter(deviceLoc || center);
-        map.setZoom(nearZoom);
-      } else if (fit && places && places.length > 0) {
+      if (fit && places && places.length > 0) {
         // v4.95 list-map mode: the user's location AND every listed place
         // must be visible at once so it's obvious which is closest.
         if (deviceLoc) bounds.extend(deviceLoc); else if (center) bounds.extend(center);
         map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
-        // v5.85: cap the fit (spec maxZoom ~14) so a tightly-clustered list never slams to street level.
-        window.google.maps.event.addListenerOnce(map, "idle", () => { try { if (map.getZoom() > 14) map.setZoom(14); } catch (e) {} });
         if (places.length === 1) map.setZoom(14);
       } else if (places && places.length > 0) {
         // Always fit to the actual pins, not the search center.
@@ -460,11 +400,8 @@ const DARK_STYLE = [
   { elementType: "labels.text.fill", stylers: [{ color: "#AEBFC7" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0C151C" }] },
   { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1B3A33" }] },
-  // v5.85: water pushed clearly bluer + lighter than the teal-green land (was
-  // #101C28, nearly the same dark tone as land — water and shoreline were hard
-  // to tell apart). First-pass value; tune live.
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#17466E" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#7FA8C4" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#101C28" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#5E7C90" }] },
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
   { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1E463C" }] },

@@ -14,18 +14,6 @@ export const C = {
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };
 export const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
-// v5.85: one place -> category-icon key (CAT_ICONS). Types-driven with a name
-// fallback so map pins/labels show the RIGHT icon per place — a mixed list like
-// "Today's Best" gets a correct per-row icon. Order matters (most specific first).
-export function catKeyOf(place) {
-  const hay = ((((place && place.types) || []).join(" ")) + " " + ((place && place.name) || "")).toLowerCase();
-  if (/lodging|hotel|motel|resort|\binn\b|guest_house|bed_and_breakfast/.test(hay)) return "hotels";
-  if (/night_club|\bbar\b|\bpub\b|lounge|brewery|winery|cocktail|nightlife/.test(hay)) return "nightlife";
-  if (/beach|shore|\bsand\b/.test(hay)) return "beach";
-  if (/restaurant|cafe|coffee|bakery|meal_|food|diner|eatery|bistro|grill|steakhouse|pizzeria/.test(hay)) return "food";
-  if (/shopping_mall|department_store|\bstore\b|boutique|\bmarket\b|\bshop\b|\bmall\b|outlet/.test(hay)) return "shopping";
-  return "attractions"; // tourist_attraction / museum / park / the "things to do" default
-}
 // Each category gets its own accent color, used on the selected category tab.
 export const CAT_COLOR = {
   food: { c: "#F97316", dim: "rgba(249,115,22,.15)" },
