@@ -7,3 +7,8 @@ playwright-report
 
 # candidate-set seeder crash-recovery checkpoint (local, not committed)
 .seed-progress.*.json
+.vercel
+.env*
+
+# local inventory dump (not committed)
+wf-inventory-list.txt
