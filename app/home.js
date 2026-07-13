@@ -81,7 +81,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.99";
+const BUILD_ID = "v6.00";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -268,7 +268,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (curatedFor(p) ? 15 : 0) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -2865,7 +2865,7 @@ function PageInner() {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name);
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -2925,7 +2925,7 @@ function PageInner() {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
-        const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p);
+        const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -4399,7 +4399,7 @@ function PageInner() {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -4750,7 +4750,7 @@ function PageInner() {
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
         let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name)) - ((a.wfScore || 0) + featuredBoost(a.name)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -6133,7 +6133,7 @@ function PageInner() {
                 const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
                 const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
                 const cityN = locName ? locName.split(",")[0] : "you";
-                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p);
+                const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
                 const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).slice(0, 10);
                 const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
                 const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).slice(0, 10);
