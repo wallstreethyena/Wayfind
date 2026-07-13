@@ -1,3 +1,44 @@
+## v6.08 - PR-C: fix the mobile experience (separate from the candidate-set work)
+- Four live mobile defects. Touches NO candidate-set code (lib/google.js, /api/fsq, the seeder,
+  the taxonomy mapper are untouched); Shop-Local-two-results / Stay-one-hotel / speakeasy-priority
+  are the candidate-set bug and are out of scope here.
+- (1) iOS ZOOM ON INPUT FOCUS — the July-2026 audit correctly removed user-scalable=no (a WCAG
+  1.4.4 failure), which re-enabled iOS Safari's zoom-on-focus for any text control below 16px.
+  Fix WITHOUT re-disabling pinch-zoom: a global `input,select,textarea{font-size:16px}` rule
+  (app/layout.js) PLUS bumping all 10 inline field font-sizes that were below 16 (an inline value
+  overrides the rule): search bar 15, both list-name inputs 15, all four Auth email/password
+  fields 15, the Community-takes composer 13.5, and the two Itinerary fields 12.5/13 — every one
+  to 16. This is the deterministic part of the PR.
+- (2) BOTTOM NAV "UNPINNED" — diagnosis: the nav is NOT position:fixed being broken by a
+  transformed ancestor (there is none). It is a flexShrink:0 child pinned at the bottom of a
+  100dvh flex column with an inner scroller — a structurally-correct pinned-nav shell. The likely
+  remaining cause is that <body> had no scroll lock, so the body could scroll and drag the flex-
+  pinned nav. HARDENED (not "fixed", since the cause could not be reproduced statically): a
+  home-route-only body scroll lock (a `wf-app-locked` class added to <body> on mount, removed on
+  unmount so /privacy, /places, /events still scroll) using position:fixed + overscroll-behavior:
+  none, which iOS honors more reliably than overflow:hidden. Needs an on-device check.
+- (3) BACK LOSES SCROLL POSITION — next.config `experimental.scrollRestoration` (minor here: the
+  app opens places in client sheets, not route changes) PLUS the real fix: capture the inner
+  scroller's scrollTop when a place opens, keyed by the list identity (screen|cat|sub|vibe), and
+  restore it on close via a double rAF (the list stays mounted behind the sheet, so its items
+  already exist). Also persisted to sessionStorage.
+- (4) HOME MENU READS CHEAP — premium treatment per spec: killed the card fill + drop shadow (a
+  premium dark UI is edges + type, not tinted boxes), one 1px top hairline on the container, 1px
+  row dividers, a uniform quiet icon (20px / stroke 1.5 / rgba .55, no tinted container), 17px/600
+  titles, a near-invisible 14px chevron, 18px row rhythm, 120ms ease-out only. The aspirational
+  marketing sublines ("A short list for a good day out") are REMOVED. The live-fact sublines the
+  owner wants ("47 open now") are DEFERRED: the pool that would feed them is the current bugged
+  candidate set (PR-B not merged), and a confident count off a 30-item text-search result is the
+  exact fabrication-from-bad-data the candidate-set fix exists to kill. They land honestly once
+  the inventory is seeded.
+- Also: every `100vh` -> `100dvh` (1 app-shell fallback + 8 secondary pages). Footer now reads
+  "Wayfind beta · vX.Y" (check-ux updated to match).
+- VERIFICATION HONESTY: #1 is deterministic and can be stood behind. #2 and #3 are structural and
+  require a REAL iPhone in Safari to accept (desktop Chrome cannot reproduce iOS focus-zoom, safe-
+  area insets, or the body-scroll behavior). #4's treatment is shown via a labeled design mock,
+  not a live-app screenshot (the real menu needs a running instance + data). Build compiles, all
+  67 prebuild guardrails pass.
+
 ## v6.07 - Own the candidate set, slice 2: the seeder (by-hand local script)
 - The piece that finally makes Marie Selby and Mote ELIGIBLE: scripts/seed-places.mjs seeds
   Wayfind's own inventory (wf_inventory) by GEOGRAPHY + TYPE via Google searchNearby, instead

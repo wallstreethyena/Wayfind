@@ -15,7 +15,7 @@ const a = { color: "#F97316", textDecoration: "none", fontWeight: 700 };
 
 export default function Terms() {
   return (
-    <div style={{ background: "#0D1117", minHeight: "100vh" }}>
+    <div style={{ background: "#0D1117", minHeight: "100dvh" }}>
       <div style={wrap}>
         <a href="/" style={{ ...a, fontSize: 13 }}>‹ Back to Wayfind</a>
         <h1 style={{ ...h1, marginTop: 18 }}>Terms of Service</h1>

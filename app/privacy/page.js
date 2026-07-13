@@ -7,7 +7,7 @@
 export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures - Wayfind" };
 
 const S = {
-  page: { background: "#0D1117", color: "#E6EDF3", minHeight: "100vh", padding: "40px 20px 80px", fontFamily: "system-ui, -apple-system, sans-serif" },
+  page: { background: "#0D1117", color: "#E6EDF3", minHeight: "100dvh", padding: "40px 20px 80px", fontFamily: "system-ui, -apple-system, sans-serif" },
   wrap: { maxWidth: 720, margin: "0 auto", lineHeight: 1.65, fontSize: 15 },
   h1: { fontSize: 26, fontWeight: 800, marginBottom: 4 },
   date: { color: "#8B949E", fontSize: 13, marginBottom: 28 },

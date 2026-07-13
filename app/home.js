@@ -81,7 +81,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.07";
+const BUILD_ID = "v6.08";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1917,7 +1917,7 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hit) {
       return (
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: C.bg, color: C.text, padding: 24, textAlign: "center" }}>
+        <div style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, background: C.bg, color: C.text, padding: 24, textAlign: "center" }}>
           <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={48} /></div>
           <div style={{ fontSize: 16, fontWeight: 800 }}>That took a wrong turn</div>
           <div style={{ fontSize: 13.5, color: C.light, maxWidth: 280, lineHeight: 1.5 }}>Something hiccuped. Tap below to get back on track.</div>
@@ -2679,6 +2679,14 @@ function PageInner() {
     if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed") && Date.now() - lastShown > 3 * 864e5) { setA2hs(true); try { localStorage.setItem("wf_a2hs_last", String(Date.now())); logEvent("a2hs_shown"); } catch (e) {} }
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
+  // v6.08 (PR-C): lock body scroll ONLY while the home app is mounted. The shell
+  // is a 100dvh flex column with an inner scroller; this stops the body itself
+  // from scrolling and dragging the flex-pinned bottom nav. Removed on unmount so
+  // document-flow routes (/privacy, /places, /events) scroll normally.
+  useEffect(() => {
+    try { document.body.classList.add("wf-app-locked"); } catch (e) {}
+    return () => { try { document.body.classList.remove("wf-app-locked"); } catch (e) {} };
+  }, []);
   const _expLinked = useRef(false);
   useEffect(() => { try {
     if (_expLinked.current) return; _expLinked.current = true;
@@ -3074,6 +3082,7 @@ function PageInner() {
   const tokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
+  const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
   const sheetDragRef = useRef({});
   const insightFullCache = useRef({});
   const detailCache = useRef({});
@@ -3712,6 +3721,18 @@ function PageInner() {
   // Without this, changing a filter leaves you stranded mid-list looking at
   // different content.
   useEffect(() => { try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {} setMapPreview(null); setEventPreview(null); setMapDrawer(false); }, [cat, sub, vibe, intent, searchRadius, screen, activeBadge]);
+  // v6.08 (PR-C): when a place detail closes (back), restore the list scroll
+  // position captured on open. The list stays mounted behind the sheet so its
+  // items already exist; a double rAF waits for the close re-render. Keyed by
+  // the list identity so switching lists never cross-restores.
+  useEffect(() => {
+    if (detail != null) return;
+    const s = scrollRestore.current;
+    if (!s || !scrollRef.current || s.key !== screen + "|" + cat + "|" + sub + "|" + vibe) return;
+    const top = s.top;
+    scrollRestore.current = null;
+    requestAnimationFrame(() => requestAnimationFrame(() => { try { if (scrollRef.current) scrollRef.current.scrollTop = top; } catch (e) {} }));
+  }, [detail]);
   // Reset the explore list back to 5 whenever a new result set loads or search mode flips.
   useEffect(() => { setVisibleCount(5); }, [places, searchMode]);
   function pickSub(id) { setSub(id); setVibe("all"); try { logEvent("filter_changed", null, { cat, sub: id }); } catch (e) {} }
@@ -3980,6 +4001,8 @@ function PageInner() {
       } catch (e) {}
     }
     try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null }); } catch (e) {}
+    // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
+    try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, top: _t }; sessionStorage.setItem("wf_sc_" + _k, String(_t)); } } catch (e) {}
     setDetail(p);
     setDetailContext(context || null);
     recordSignal(p, "open"); // implicit engagement signal
@@ -5704,7 +5727,7 @@ function PageInner() {
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
               aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
               aria-label="Search a place or city" placeholder="Search a place or city"
-              style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 15, outline: "none" }}
+              style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
             {suggestions.length > 0 && (
               <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
@@ -6095,30 +6118,35 @@ function PageInner() {
                         // (menuOrder), never in this render body — hydration-safe.
                         // "Today's Best" opens the consolidated openCurated("today").
                         const _order = menuOrder;
+                        // v6.08 (PR-C): premium treatment — edges + type, not tinted boxes.
+                        // One hairline of edge light on the container, 1px row dividers, a
+                        // uniform quiet icon, a near-invisible chevron. The aspirational
+                        // marketing sublines are REMOVED; the live-fact sublines the owner
+                        // wants ("47 open now") are DEFERRED until PR-B seeds a real
+                        // inventory — computing counts off the current bugged candidate set
+                        // would be a confident-but-false number, the exact thing the
+                        // candidate-set fix exists to eliminate.
                         return (
-                          <div style={{ marginBottom: 16, background: C.card, border: "1px solid " + C.border, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.32)" }}>
-                            <div style={{ padding: "14px 15px 4px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
+                          <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
+                            <div style={{ padding: "16px 15px 6px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "rgba(255,255,255,.4)" }}>Explore near you</div>
                             </div>
-                            <style>{".wf-mrow{transition:background .12s ease}.wf-mrow:active{background:rgba(255,255,255,.06)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.035)}}"}</style>
+                            <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
                             {_order.map((key) => {
                               const t = EXPLORE_TILES[key];
                               return (
-                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "16px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 40, height: 40, borderRadius: 10, background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.08)" }}>
-                                    <NavIcon name={t.icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.75)" />
+                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22 }}>
+                                    <NavIcon name={t.icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.55)" />
                                   </span>
-                                  <span style={{ flex: 1, minWidth: 0 }}>
-                                    <span style={{ display: "block", fontSize: 16, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
-                                    <span style={{ display: "block", fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,.55)", lineHeight: 1.35, marginTop: 2 }}>{t.sub}</span>
-                                  </span>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)", display: "inline-flex" }}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                                  <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
                                   </span>
                                 </button>
                               );
                             })}
-                            <div style={{ padding: "12px 15px 14px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
+                            <div style={{ padding: "14px 15px 16px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
                           </div>
                         );
                       })()}
@@ -6297,7 +6325,7 @@ function PageInner() {
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
                 <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.8, lineHeight: 1.5, maxWidth: 320, margin: "0 auto" }}>Some links, including tickets and tours, are affiliate links. Wayfind may earn a commission at no extra cost to you.</div>
-                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
+                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 10, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind beta · {BUILD_ID}</div>
               </div>
               <div style={{ height: 20 }} />
               </div>
@@ -6572,7 +6600,7 @@ function PageInner() {
             <Grabber />
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, color: C.text }}>Rename list</div>
-            <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && renameList()} placeholder="List name" style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, outline: "none", marginBottom: 16 }} />
+            <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && renameList()} placeholder="List name" style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, outline: "none", marginBottom: 16 }} />
             <button onClick={renameList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Save</button>
           </div>
         </div>
@@ -6588,7 +6616,7 @@ function PageInner() {
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && createList()}
               placeholder="List name (e.g. Date Night)"
-              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, outline: "none", marginBottom: 16 }}
+              style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, outline: "none", marginBottom: 16 }}
             />
             <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>Pick an icon</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8, marginBottom: 20 }}>

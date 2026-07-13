@@ -37,6 +37,12 @@ const CSP_REPORT_ONLY = [
 const nextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
+  // v6.08 (PR-C): opt into Next's scroll-position restoration across real route
+  // changes. NOTE: the home app opens places in client-side sheets, not route
+  // changes, so this flag alone does little there — the actual back-restores-
+  // scroll fix is the sessionStorage capture/restore on the inner scroll
+  // container in app/home.js. This covers genuine navigations (e.g. /places).
+  experimental: { scrollRestoration: true },
   async headers() {
     return [
       {
