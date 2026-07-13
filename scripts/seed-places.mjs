@@ -18,10 +18,13 @@
 //     --resume           continue a crashed run from its checkpoint (does not re-fetch done cells)
 //     --limit-cells <n>  only process the first n grid cells (for a cheap trial run)
 //
-// IDEMPOTENT (upsert by Google Place ID) and RESUMABLE (a checkpoint is written
-// after every cell; --resume continues where a crash stopped). It NEVER commits a
-// non-operational place, and it prints every reconciliation failure and every
-// review-queue row IN FULL, not as a count.
+// UPSERT by Google Place ID, RESUMABLE (a checkpoint is written after every cell;
+// --resume continues where a crash stopped, without re-fetching). IMPORTANT:
+// re-running --commit OVERWRITES each row's Google-derived columns with fresh data
+// (category, tags, editorial, needs_review, ...) — set locked=true on a hand-corrected
+// row and the seeder skips it entirely, so a re-run never reinstates away your fix. It
+// NEVER commits a non-operational place, and it prints every reconciliation failure and
+// every review-queue row IN FULL, not as a count.
 import { readFileSync, writeFileSync, existsSync, unlinkSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
@@ -30,10 +33,19 @@ import {
 } from "../lib/seedPlaces.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+// searchNearby mask — validated live against searchNearby via the v6.06 probe.
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.primaryType", "places.types", "places.location",
   "places.rating", "places.userRatingCount", "places.priceLevel", "places.businessStatus",
   "places.editorialSummary", "places.photos",
+].join(",");
+// searchText mask (anchors) — a proven subset the production /api/places/search
+// route already uses against searchText. Deliberately drops primaryType +
+// editorialSummary (unvalidated for searchText, and an anchor forces its category
+// so it needs neither) rather than risk every anchor silently failing on a bad field.
+const ANCHOR_MASK = [
+  "places.id", "places.displayName", "places.types", "places.location",
+  "places.rating", "places.userRatingCount", "places.priceLevel", "places.businessStatus", "places.photos",
 ].join(",");
 
 // ── args ──────────────────────────────────────────────────────────────────────
@@ -68,11 +80,11 @@ function env() {
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // One Google Places (New) call with retry on 429/5xx.
-async function googlePost(path, body, key) {
+async function googlePost(path, body, key, mask) {
   for (let attempt = 0; attempt < 4; attempt++) {
     const r = await fetch("https://places.googleapis.com/v1/places:" + path, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": FIELD_MASK },
+      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
       body: JSON.stringify(body),
     });
     if (r.ok) return (await r.json()).places || [];
@@ -88,15 +100,23 @@ async function googlePost(path, body, key) {
 const nearby = (cell, includedTypes, rank, key) => googlePost("searchNearby", {
   includedTypes, maxResultCount: 20, rankPreference: rank,
   locationRestriction: { circle: { center: { latitude: cell.lat, longitude: cell.lng }, radius: cell.radius } },
-}, key);
+}, key, FIELD_MASK);
 
 const textSearch = (q, center, key) => googlePost("searchText", {
   textQuery: q, maxResultCount: 3, locationBias: { circle: { center, radius: 40000 } },
-}, key);
+}, key, ANCHOR_MASK);
 
 // ── Supabase ────────────────────────────────────────────────────────────────
+// Fail-fast: confirm the table exists in ONE call, BEFORE spending ~135 Google
+// calls — so a forgotten migration costs one request, not the whole quota + the
+// reports lost to a FATAL at the end.
+async function assertTable(url, service) {
+  const r = await fetch(`${url}/rest/v1/wf_inventory?select=place_id&limit=1`, { headers: { apikey: service, Authorization: `Bearer ${service}` } });
+  if (!r.ok) throw new Error(`wf_inventory not readable (${r.status}: ${(await r.text()).slice(0, 160)}). Apply supabase/places-inventory.sql first.`);
+}
+
 async function readExisting(url, service, metro) {
-  const r = await fetch(`${url}/rest/v1/wf_inventory?metro=eq.${encodeURIComponent(metro)}&select=place_id,category,tags,status,signals&limit=20000`, {
+  const r = await fetch(`${url}/rest/v1/wf_inventory?metro=eq.${encodeURIComponent(metro)}&select=place_id,category,tags,status,signals,locked&limit=20000`, {
     headers: { apikey: service, Authorization: `Bearer ${service}` },
   });
   if (!r.ok) throw new Error(`read wf_inventory ${r.status}: ${(await r.text()).slice(0, 200)} (did you apply supabase/places-inventory.sql?)`);
@@ -141,6 +161,8 @@ async function main() {
   if (!METRO_BOUNDS[args.metro]) { console.error(`Unknown metro "${args.metro}". Known: ${Object.keys(METRO_BOUNDS).join(", ")}`); process.exit(1); }
   const { key, url, service, missing } = env();
   if (missing.length) { console.error("Missing env: " + missing.join(", ")); process.exit(1); }
+  // Fail in one call if the migration wasn't applied — before burning ~135 Google calls.
+  await assertTable(url, service).catch((e) => { console.error(e.message); process.exit(1); });
 
   const nowIso = new Date().toISOString();
   const b = METRO_BOUNDS[args.metro];
@@ -226,23 +248,30 @@ async function main() {
     for (const r of skippedClosed) console.log(`  ${r.name.padEnd(34)} [${r.status}] ${r.anchor ? "(ANCHOR — fix it)" : ""}`);
   }
 
-  // ── diff vs current table ──
+  // ── diff vs current table, protecting locked rows from clobber ──
   const existing = await readExisting(url, service, args.metro);
-  const diff = computeDiff(committable, existing);
-  hr(`DIFF vs current wf_inventory (${existing.size} existing rows for this metro)`);
-  console.log(`  ADD ${diff.add.length} · UPDATE ${diff.update.length} · UNCHANGED ${diff.unchanged}`);
+  const lockedIds = new Set([...existing.entries()].filter(([, v]) => v.locked).map(([k]) => k));
+  const toCommit = committable.filter((r) => !lockedIds.has(r.place_id));
+  const lockedPreserved = committable.length - toCommit.length;
+  const diff = computeDiff(toCommit, existing);
+  hr(`DIFF vs current wf_inventory (${existing.size} existing rows${lockedIds.size ? `, ${lockedIds.size} locked` : ""})`);
+  console.log(`  ADD ${diff.add.length} · UPDATE ${diff.update.length} · UNCHANGED ${diff.unchanged}${lockedPreserved ? ` · ${lockedPreserved} LOCKED (left untouched)` : ""}`);
   if (diff.add.length) { console.log(`  --- would ADD ---`); for (const r of diff.add) console.log(`   + ${r.name.padEnd(34)} ${r.category}${r.anchor ? " (anchor)" : ""}`); }
-  if (diff.update.length) { console.log(`  --- would UPDATE ---`); for (const r of diff.update) console.log(`   ~ ${r.name.padEnd(34)} ${r.category}`); }
+  if (diff.update.length) { console.log(`  --- would UPDATE (overwrites the row's Google-derived columns) ---`); for (const r of diff.update) console.log(`   ~ ${r.name.padEnd(34)} ${r.category}`); }
 
   // ── commit ──
   if (!args.commit) {
-    hr("DRY RUN — nothing written. Re-run with --commit to apply the diff above.");
+    hr("DRY RUN — nothing written.");
+    console.log("  First run: `--limit-cells 2` does a ~12-call end-to-end trial (key + table + upsert) before the full run.");
+    console.log("  Then `--commit --resume` reuses THIS run's fetched checkpoint instead of paying Google again.");
     return;
   }
-  hr(`COMMIT — upserting ${committable.length} operational rows to wf_inventory`);
-  await upsert(url, service, committable);
+  hr(`COMMIT — upserting ${toCommit.length} rows to wf_inventory${lockedPreserved ? ` (${lockedPreserved} locked rows skipped)` : ""}`);
+  await upsert(url, service, toCommit);
   clearCk(args.metro);
-  console.log("Done. Re-run any time — upsert by Place ID is idempotent.");
+  console.log("\nHEADS-UP: re-running --commit OVERWRITES each row's Google-derived columns with fresh data");
+  console.log("(category, tags, editorial, needs_review, ...). After you hand-correct a row, set locked=true");
+  console.log("on it — the seeder then skips it entirely, so your fix is never reinstated away.");
 }
 
 main().catch((e) => { console.error("\nFATAL: " + (e && e.stack || e)); process.exit(1); });

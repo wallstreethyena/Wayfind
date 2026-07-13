@@ -42,12 +42,18 @@ create table if not exists public.wf_inventory (
   -- type/primaryType-decided rows get a real last_verified_at.
   needs_review boolean not null default false,
   last_verified_at timestamptz,               -- null = never verified (name-recovered or unresolved)
+  -- v6.07: a hand-corrected row the seeder must NEVER overwrite. Set locked=true
+  -- after you fix a row (a wrong category, a closed listing, an edited field) and
+  -- a re-run of the seeder skips it entirely — the by-hand equivalent of the reason
+  -- the cron was rejected ("Google still lists it open; don't reinstate my fix").
+  locked       boolean not null default false,
   seen_at      timestamptz not null default now(),
   refreshed_at timestamptz not null default now()
 );
 -- Idempotent adds so re-applying over an already-created table is safe.
 alter table public.wf_inventory add column if not exists needs_review boolean not null default false;
 alter table public.wf_inventory add column if not exists last_verified_at timestamptz;
+alter table public.wf_inventory add column if not exists locked boolean not null default false;
 
 -- The read path (slice 3) scopes by (metro, category) then ranks; the geo index
 -- backs the post-fetch distance gate that the live-search path never enforced.
