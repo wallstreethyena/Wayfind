@@ -1,3 +1,33 @@
+## v5.96 - Durable, indexable place pages: /places/[id] (the foundation)
+- Until now a place had no durable, indexable URL — /p/[id] is a noindex share-redirect
+  fed by query params, so a place "loses context" on reload and earns no search traffic.
+  This adds server-rendered, indexable /places/[id] pages (+ a /places directory hub):
+  name, category, rating/reviews, address, hours, an honest description, a map/directions
+  link, and an "Open in Wayfind" deep link. The full interactive sheet stays one tap away.
+- ALLOWLIST is the linchpin (anti-abuse + anti-thin-content): the page renders ONLY for a
+  place_id already in wf_place_ids (the permanent index written by every successful
+  server-proxy search). loadPlace() checks the index FIRST and calls notFound() (a real
+  404) for any unknown id BEFORE any Google call — so a crawler enumerating Place-ID space
+  costs one cheap Supabase read, never Google quota. generateStaticParams, the sitemap, and
+  the /places hub all derive from the SAME listIndexed* source so they can't drift.
+- NEW data path (there was no server-side "fetch place by id" before — places only came
+  from text search): lib/placeIndex.js (reads wf_place_ids), lib/placeDetails.js (Google
+  Place Details New by id, cache-first via the shared cache key "pd1|{id}", fresh 14d,
+  ToS-capped stale 30d, stale-serve on 429), lib/placeData.js (JSX-free: allowlist gate +
+  details/skeleton merge + metadata + content-gated indexability — unit-testable),
+  lib/placePage.js (the JSX renderers).
+- Honest indexability: a page is indexed ONLY when it carries real detail content
+  (address or description); a skeleton-only page (Google down / cold cache) still renders
+  for users but stays noindex, so we never mint thin/doorway pages. NULL category is
+  tolerated everywhere. LocalBusiness + BreadcrumbList JSON-LD; canonical per page.
+- /p/[id] is left ALONE (still the noindex share/OG-card surface — no redirect).
+- HONEST framing: wf_place_ids currently holds ~225 places (a one-time seed fill, not yet
+  organic demand), so the surface is real but its SEO payoff is latent on real search
+  traffic — it grows automatically as people search. Env (Supabase + Google server key)
+  only exists on Vercel, so generateStaticParams prerenders 0 pages locally and the full
+  set on deploy; the pure logic (allowlist gate, merge, indexability, normalize) is
+  unit-tested (18/18) and the allowlist "no Google call for unknown ids" firewall verified.
+
 ## v5.95 - Creator-video: DEFER VideoObject (compliance) + treat non-embeddable posts as plain social links
 - Owner decision: do NOT self-host/re-host a creator's video frame just to force a
   durable thumbnailUrl for VideoObject rich results. Rationale: video indexing must not
