@@ -15,12 +15,15 @@
 // TODO: tips (review snippets) need a per-place /tips call — not wired yet to
 // keep this to one request per search; revisit if the plan includes them.
 export const runtime = "nodejs";
+import { cget, cset, DAY } from "../../../../lib/serverCache";
 
 const getKey = () => ((process.env["FOURSQUARE_API_KEY"] || "").trim());
 
-// Warm-instance memory cache: query|geo -> { places, exp }
-const mem = new Map();
-const TTL = 6 * 3600 * 1000;
+// v5.90: Foursquare now shares the ONE Supabase cache (lib/serverCache) like
+// Places — 30-day TTL, serve stale on a limit/error — so it fills the pool when
+// Google 429s AND survives its own rate cap. (Foursquare's terms permit caching;
+// this 30-day window is a conservative default, not a Google-style hard cap.)
+const FSQ_TTL_MS = 30 * DAY;
 
 const FIELDS = "fsq_id,name,geocodes,location,categories,distance,rating,stats,price,hours,photos";
 const PRICE = { 1: "$", 2: "$$", 3: "$$$", 4: "$$$$" };
@@ -105,24 +108,27 @@ export async function GET(req) {
   const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "30", 10) || 30, 1), 50);
   if (!KEY || !q || !isFinite(lat) || !isFinite(lng)) return Response.json({ places: [] });
 
-  const ck = [q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), radius, limit].join("|");
-  const hit = mem.get(ck);
-  if (hit && hit.exp > Date.now()) {
-    return Response.json({ places: hit.places }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
-  }
+  const ck = "fsq1|" + [q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), radius, limit].join("|");
+  const EDGE = { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+  const forceErr = searchParams.get("forceErr") === "1"; // test hook
+  const fresh = await cget(ck);
+  if (fresh) return Response.json({ places: fresh.v, cached: true }, { headers: EDGE });
+  // On a limit/error, degrade to the last cached result instead of an empty list.
+  const serveStale = async () => { const s = await cget(ck, { staleMs: FSQ_TTL_MS }); return s ? Response.json({ places: s.v, cached: true, stale: true }, { headers: EDGE }) : Response.json({ places: [] }); };
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 5000);
   try {
+    if (forceErr) return await serveStale();
     const params = new URLSearchParams({ ll: lat.toFixed(4) + "," + lng.toFixed(4), radius: String(radius), query: q, limit: String(limit) }).toString();
     const r = await fsqFetch(params, KEY);
-    if (!r.ok) return Response.json({ places: [] });
+    if (!r.ok) return await serveStale();
     const data = await r.json();
     const places = ((data && data.results) || []).map(normalize).filter(Boolean);
-    mem.set(ck, { places, exp: Date.now() + TTL });
-    return Response.json({ places }, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
+    if (places.length) await cset(ck, places, FSQ_TTL_MS);
+    return Response.json({ places, cached: false }, { headers: EDGE });
   } catch (e) {
-    return Response.json({ places: [] });
+    return await serveStale();
   } finally {
     clearTimeout(timer);
   }

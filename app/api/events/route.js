@@ -13,6 +13,7 @@ export const runtime = "nodejs";
 
 import { processEvents } from "../../../lib/eventsPipeline.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
+import { cget, cset, DAY } from "../../../lib/serverCache";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -476,9 +477,26 @@ function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 }
 
 export async function POST(req) {
+  // v5.90: shared cache. Events are time-sensitive, so we ALWAYS prefer a fresh
+  // aggregation and only fall back to the cache when the live providers come back
+  // empty (e.g. SerpApi hit its cap). On any cache serve we FILTER OUT past events
+  // (never show an event whose date has passed) — that date filter is the
+  // freshness guard, so the TTL can be generous (21 days).
+  let evK = null;
+  const todayStr = today();
+  const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || e.date >= todayStr));
+  const staleEvents = async () => {
+    if (!evK) return null;
+    const s = await cget(evK, { staleMs: 30 * DAY });
+    if (!s) return null;
+    const up = upcoming(s.v);
+    return up.length ? Response.json({ events: up, cached: true, stale: true, sources: [], counts: {}, health: [] }, { status: 200 }) : null;
+  };
   try {
     const { lat, lng, keyword, radius, city } = await req.json();
     if (lat == null || lng == null) return Response.json({ events: [] }, { status: 200 });
+    evK = "ev1|" + Number(lat).toFixed(2) + "|" + Number(lng).toFixed(2) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, 40) + "|" + String(keyword || "").toLowerCase().slice(0, 40);
+    if (keyword === "__forceErr__") { const s = await staleEvents(); return s || Response.json({ events: [] }, { status: 200 }); } // test hook
 
     const results = await Promise.all([
       withDeadline("Ticketmaster", fromTicketmaster(lat, lng, radius, keyword)),
@@ -493,7 +511,7 @@ export async function POST(req) {
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
-    if (configuredCount === 0) return Response.json({ unavailable: true, events: [], sources: [] }, { status: 200 });
+    if (configuredCount === 0) { const s = await staleEvents(); return s || Response.json({ unavailable: true, events: [], sources: [] }, { status: 200 }); }
 
     const { events, usableCount, health, excludedByReason } = processEvents(results, { lat, lng, radius, city });
 
@@ -505,8 +523,13 @@ export async function POST(req) {
     // old field reported raw provider totals, which never matched the feed.
     const counts = {};
     for (const e of events) counts[e.source] = (counts[e.source] || 0) + 1;
-    return Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 });
+    // Fresh aggregation with events -> cache it (dates included) for the fallback, then return.
+    if (events.length) { await cset(evK, events, 21 * DAY); return Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 }); }
+    // Live returned nothing (providers limited/failed) -> serve cached UPCOMING events.
+    const s = await staleEvents();
+    return s || Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 });
   } catch (e) {
-    return Response.json({ error: true, events: [] }, { status: 200 });
+    const s = await staleEvents();
+    return s || Response.json({ error: true, events: [] }, { status: 200 });
   }
 }
