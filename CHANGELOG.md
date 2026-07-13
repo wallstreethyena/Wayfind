@@ -1,3 +1,28 @@
+## v5.98 - Seed the creator-video feature with the July-2026 research (data only; ranking boost is a separate PR)
+- Appends the researched creator videos to CURATED in lib/creatorVideos.js in the exact
+  existing (Cindy/Spinning Coffee) shape — matched to VERIFIED venues by name+city, NEVER
+  the aggregator slug (those are wrong: Juicy's/Sweet Krunch mis-mapped to a "jiggs-landing"
+  fishing camp, the drag strip to "lecom-park" baseball). 28 entries total.
+- RENDER-SAFETY is the load-bearing change: most researched entries are STAGED with
+  url:"" + evidenceUrl + needsNativeUrl:true (a curator opens evidenceUrl, finds the
+  creator's real post, fills url + confirms platform). New renderable() filter drops any
+  video without a real, non-empty url from BOTH creatorVideosFor() and videosByKey(), so a
+  staged entry (a) never renders a broken link-out to "" and (b) never counts as "has a
+  video" for the upcoming ranking boost — an invisible-video boost would break the "no paid
+  placement, ranked on real reviews" promise. A staged entry auto-renders + auto-boosts the
+  moment its url is filled; no other code change needed.
+- Renders NOW (real native urls, 5): Spinning Coffee (already there), Mai-Kai (already
+  there), Marie Selby Botanical Gardens (@thefloridaqueenie_), Perspire Sauna Studio
+  (@theerynlalonde), Aqua Tequila (@juliefranklinteam — flagged: PHOTO post + inferred
+  match; confirm or stage). Captions are ALWAYS Wayfind's own words. Excluded: Caddy's
+  (permanently closed), the unresolved @terranandcassie clip (no venue).
+- Link-out only via the noindex detail sheet (no embed/re-host); creator credited by
+  handle; no JSON-LD (v5.95 deferred VideoObject). Per-video address/category/note/warning
+  fields are curator metadata (ignored by rendering).
+- SPLIT from the ranking work by design: the VIDEO_BOOST + list-card "Featured creator
+  video" marker touch the app-wide ranking (3 layers: google.js _sortScore, home.js _ps,
+  Ranking.rankByConditions) and ship as their own PR so this data change stays zero-risk.
+
 ## v5.97 - Booking + affiliate integrity: Viator recall (a GENERAL rule) + Ticketmaster earns on the right links only
 - **Viator "Book" CTA was silently dark** — the key works (upstream 200) but even flagship
   products returned 0 live offers. Diagnosed locally against the real scorer (no deploys):
