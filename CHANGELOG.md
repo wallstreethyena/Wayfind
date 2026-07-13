@@ -1,3 +1,22 @@
+## v6.05 - Own the candidate set, slice 1.5: searchNearby probe (verify before build)
+- The seeder (slice 2) will be built on Google's `places:searchNearby` — a DIFFERENT endpoint
+  from the `searchText` proxy the rest of the app uses (different body: locationRestriction not
+  locationBias; plus rankPreference and includedTypes validity rules). Rather than wrap 400
+  lines around an assumed request shape and discover it 400s on the owner's first run (the same
+  "assume the API" mistake the taxonomy mapper nearly made), this ships a diagnostic to verify
+  the primitive against reality first.
+- NEW `/api/places/search?probe=nearby` (server-side, reuses the proven GOOGLE_MAPS_SERVER_KEY
+  path, so no key is ever exposed). Confirms: the request body is accepted; `primaryType` comes
+  back in the field mask (the mapper's primaryType path has never run in prod — this is its
+  first real exercise); the includedTypes list is valid (an invalid Table-A type 400s the WHOLE
+  call, silently zeroing a category, so the type list is validated here not on the owner's run);
+  and whether searchNearby paginates (no nextPageToken => the grid tiling is mandatory).
+- Flexible by URL — `?probe=nearby&types=museum,art_gallery,aquarium,...&lat=&lng=&radius=&rank=`
+  — so any includedTypes list can be validated without a redeploy. Returns count, hasPrimaryType,
+  hasNextPageToken, and a {name, primaryType, types} sample.
+- No behavior change to the live search path; the probe is a GET-only branch gated on
+  `probe=nearby`, like the existing `probe=1`/`debug=1` diagnostics.
+
 ## v6.04 - Own the candidate set, slice 1: inventory schema + taxonomy mapper
 - Groundwork for the real fix to the root-cause bug: today every category list is built
   from a LIVE third-party text search on a hardcoded string ("top tourist attractions",

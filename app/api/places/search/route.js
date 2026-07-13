@@ -101,9 +101,59 @@ async function handleSearch(params) {
   }
 }
 
+// v6.05 — diagnostic for the candidate-set seeder (PR-B slice 2). searchNearby
+// (New) is a DIFFERENT endpoint from the searchText proxy above — different body
+// (locationRestriction, not locationBias), rankPreference, and includedTypes
+// validity rules — and the seeder will be built on it, so its shape must be
+// verified against reality before 400 lines wrap around a guess. This confirms:
+// the request body is accepted, `primaryType` comes back in the field mask (the
+// mapper's primaryType path has never run in prod), the includedTypes list is
+// valid (an invalid Table-A type 400s the WHOLE call, silently zeroing a
+// category), and whether searchNearby paginates (no nextPageToken => the grid is
+// mandatory). Flexible by URL so any type list can be validated without redeploy.
+const NEARBY_MASK = [
+  "places.id", "places.displayName", "places.primaryType", "places.types",
+  "places.location", "places.rating", "places.userRatingCount", "places.businessStatus",
+].join(",");
+async function probeNearby(params) {
+  const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
+  if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
+  const types = String(params.types || "restaurant").split(",").map((s) => s.trim()).filter(Boolean).slice(0, 50);
+  const lat = Number(params.lat) || 27.3364, lng = Number(params.lng) || -82.5307;
+  const radius = Math.min(Math.max(Number(params.radius) || 15000, 500), 50000);
+  const rankPreference = String(params.rank || "POPULARITY").toUpperCase() === "DISTANCE" ? "DISTANCE" : "POPULARITY";
+  try {
+    const r = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": NEARBY_MASK + ",nextPageToken" },
+      body: JSON.stringify({ includedTypes: types, maxResultCount: 20, rankPreference, locationRestriction: { circle: { center: { latitude: lat, longitude: lng }, radius } } }),
+    });
+    const raw = await r.text();
+    let data = {}; try { data = JSON.parse(raw); } catch {}
+    if (!r.ok) return NextResponse.json({ ok: false, status: r.status, includedTypes: types, error: (data.error && (data.error.message || data.error.status)) || raw.slice(0, 400) }, { status: 200 });
+    const places = data.places || [];
+    const sample = places.slice(0, 12).map((p) => ({
+      name: (p.displayName && p.displayName.text) || null,
+      primaryType: p.primaryType || null,
+      types: p.types || [],
+    }));
+    return NextResponse.json({
+      ok: true, status: 200, includedTypes: types, rankPreference,
+      count: places.length,
+      hasPrimaryType: places.length ? places.every((p) => !!p.primaryType) : null,
+      hasNextPageToken: !!data.nextPageToken,
+      sample,
+    }, { status: 200 });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: String(e && e.message || e) }, { status: 200 });
+  }
+}
+
 export async function GET(req) {
   const u = new URL(req.url);
-  return handleSearch(Object.fromEntries(u.searchParams));
+  const params = Object.fromEntries(u.searchParams);
+  if (params.probe === "nearby") return probeNearby(params);
+  return handleSearch(params);
 }
 
 export async function POST(req) {
