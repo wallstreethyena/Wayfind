@@ -6,7 +6,7 @@ import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 
 export default function HookDetailSheet({ ctx }) {
-  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, MapView, center, deviceLoc } = ctx;
+  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
         // up twice in a themed list.
@@ -59,7 +59,9 @@ export default function HookDetailSheet({ ctx }) {
               <div style={{ fontSize: 24, fontWeight: 800, color: C.text, lineHeight: 1.25, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
                 {hookDetail.themeTitle || hookDetail.hook}
               </div>
-              {/* v5.85: the lead blurb is replaced by the map (below, atop the list). */}
+              {hookDetail.themeBody && (
+                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.6, marginBottom: 8 }}>{hookDetail.themeBody}</div>
+              )}
               <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
                 {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
               </div>
@@ -81,18 +83,6 @@ export default function HookDetailSheet({ ctx }) {
 
             {/* Scrollable editorial list */}
             <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px calc(24px + env(safe-area-inset-bottom))", width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
-              {/* v5.85: the ranking map — this list ON the Map-tab map, with the same
-                  distance rings, medal pins (gold/silver/bronze), per-place category
-                  icons, and name·score labels. It leads the page; the ranked list
-                  stays below. Only places that carry coordinates get pinned. */}
-              {(() => {
-                const _mapPins = themePlaces.filter((pp) => pp && pp.lat != null).slice(0, 20);
-                return _mapPins.length && MapView ? (
-                  <div style={{ position: "relative", height: 250, borderRadius: 16, overflow: "hidden", border: `1px solid ${C.border}`, marginBottom: 14 }}>
-                    <MapView rings fit labels places={_mapPins} center={center} deviceLoc={deviceLoc} onSelect={(p) => { setHookDetail(null); openDetail(p, hookDetail.theme); }} />
-                  </div>
-                ) : null;
-              })()}
               {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
               {!sheetLoading && themePlaces.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>

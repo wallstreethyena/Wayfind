@@ -1,3 +1,11 @@
+## v5.86 - Revert v5.85 (ranking-page maps) at owner request
+- Reverted the entire v5.85 change: the map on the 5 ranking sheets, the medal
+  pins / category icons / name·score labels, the desktop-map rings/nearZoom, and
+  the water-color change. `git revert -m 1` of the v5.85 merge — MapView.js,
+  HookDetail.js, kit.js, and app/home.js are back to their v5.84 state; the UI is
+  exactly the pre-map v5.84. No history rewrite. (The v5.85 entry below is kept
+  for the record.)
+
 ## v5.85 - Ranking-page maps + desktop map legibility (reuses the Map-tab map)
 - Every ranking detail page (the 5 category sheets: Today's Best, Night Out, Eat
   Well, Shop Local, Stay Tonight) now leads with the LIST ON A MAP — the same
