@@ -28,6 +28,7 @@ walk(join(root, "app"));
 if (!readFileSync(join(root, "lib", "landing.js"), "utf8").includes("alternates: { canonical: url }")) fail("landingMetadata lost its canonical");
 const trendingLib = readFileSync(join(root, "lib", "trending.js"), "utf8");
 if (!trendingLib.includes("alternates: { canonical: url }")) fail("trending metadata lost its canonical");
+if (!readFileSync(join(root, "lib", "placeData.js"), "utf8").includes("alternates: { canonical: url }")) fail("place-page metadata lost its canonical");
 // VideoObject rich-result schema is DEFERRED (owner decision; no re-hosting of a
 // creator's frame) behind lib/videoObjectGate.js. Enforce that no VideoObject JSON-LD
 // or og:video meta is actually EMITTED until that gate is deliberately wired. Match
@@ -36,7 +37,7 @@ if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(trendingLib)) fail("Vide
 for (const p of pages) {
   if (p === join(root, "app", "page.js")) continue;
   const s = readFileSync(p, "utf8");
-  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
+  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata(") || s.includes("placePageMetadata(") || s.includes("placesIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
 }
 
 // 2. layout contract: homepage canonical, JSON-LD, footer links, no H1.
