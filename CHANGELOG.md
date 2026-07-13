@@ -1,3 +1,20 @@
+## v5.89 - Menu tiles curate from the ALREADY-LOADED feed pool (no new fetch) — survive the Places 429
+- The menu tiles (Today's Best / Eat Well / Shop Local / Stay Tonight / Night Out)
+  fired fresh Google Places searches on every open, so when the Places quota is
+  exhausted (429) they went blank — even though the homepage feed already has a
+  pool of real places on screen (which is why the home "Best places to eat" cards
+  still work). Now openCurated builds each tile from that loaded pool FIRST:
+  dedupe(suggested + places + homeTodo), filter by the tile's coarse category
+  (Food/Nightlife/Shopping/Hotels/Activities), rank by the app's conditions-aware
+  ranking (same as the homepage Top-10 cards), and open the sheet — no network
+  call, so no 429. A live search only runs as a fallback when the pool has < 3
+  for that category, and even then, if the search comes back empty (429) the tile
+  falls back to whatever pool picks it has instead of a "nothing found" toast.
+- Net: the tiles work from data already loaded (and cheaper — far fewer API
+  calls), and degrade gracefully when Google is capped instead of going blank.
+  Categories the feed carries well (food/things-to-do/nightlife) fill immediately;
+  sparse ones (shopping/stays) still lean on a search when the pool is thin.
+
 ## v5.88 - Serve cached lists when Google 429s (quota resilience) — bring back the good lists
 - The real cause of thin "Explore near you" lists is the Google Places API quota
   (the proxy gets HTTP 429). The proxy already caches every search 3 ways (warm
