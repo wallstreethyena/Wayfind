@@ -1,3 +1,24 @@
+## v6.00 - Creator-video boost now reaches ALL feed rankings (not just browse/search)
+- v5.99 applied VIDEO_BOOST at ONE ranking site (the browse/search viewBase). This wires the
+  same boost into the other 6 feed-ranking sums so video places also rank up in the home feed,
+  the Food/Things-to-do rails, holiday picks, and the vibe/experience sheets — everywhere a
+  place is ranked, not just when browsing a category.
+- Applied by the same rule as before: wherever `featuredBoost(x.name)` appears inside a ranking
+  SUM, the sibling `+ (hasCreatorVideo(x) ? VIDEO_BOOST : 0)` now sits alongside it. Sites:
+  the home-feed `_ps` (home.js:271), holiday `rankScore` (2868), both `boostBase` definitions
+  (2928 + 6136), and the two experience `sortFit` comparators (4402, 4753). viewBase (5462,
+  done in v5.99) and the `PlaceCard` badge (6677) are unchanged.
+- The video boost now MIRRORS featuredBoost exactly, INCLUDING featuredBoost's pre-existing
+  intentional double-count (it lives in `_ps` AND is re-added in the `boostBase` sums that use
+  `_ps` as their base) — deliberately not "corrected," so video-boost behaves identically to
+  the mechanism it sits beside rather than being a special case.
+- Untouched on purpose: the `featured` menu FILTER (936) and the FeaturedTag component (147)
+  are not ranking sums. VIDEO_BOOST (45) + hasCreatorVideo remain defined once (~home.js:830).
+  The badge is still global on PlaceCard, so boosted still implies badged on every surface.
+- Build green; VIDEO_BOOST left at 45 (clears the distance penalty, lifts video places near the
+  top without always pinning #1 over a stellar non-video place — a one-const dial if we want
+  video to dominate harder).
+
 ## v5.99 - Rank places with a creator video substantially higher (labeled, one surface, verified by order)
 - A place with a REAL creator video now ranks near the top of the main ranked browse/search
   feed and shows a visible "🎬 Creator video" badge. VIDEO_BOOST (45) is a single named const
