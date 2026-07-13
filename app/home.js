@@ -80,7 +80,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.88";
+const BUILD_ID = "v5.89";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2901,6 +2901,26 @@ function PageInner() {
     const c = CURATED[kind]; if (!c) return;
     const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
+    // v5.89: curate the tile from the ALREADY-LOADED feed pool FIRST — the same
+    // places already on screen — instead of firing fresh Google searches, which
+    // return nothing while the Places quota is exhausted (429). Only fall through
+    // to a live search when the pool is too thin for this category.
+    const _CAT_FOR = { food: "Food", nightlife: "Nightlife", shopping: "Shopping", stays: "Hotels", today: "Activities", experiences: "Activities" };
+    const _poolPicks = (() => {
+      try {
+        const pool = dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
+        const wantCat = _CAT_FOR[kind];
+        const inCat = (p) => { if (kind === "bestof") return true; const cc = Ranking.coarseCat(p) || primaryCategory(p); return cc === wantCat; };
+        const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
+        if (!picks.length) return [];
+        const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+        const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p);
+        const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
+        return ranked.slice(0, 10);
+      } catch (e) { return []; }
+    })();
+    const _openFromPool = () => setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: _poolPicks, sections: null, presetMi: 60, presetSort: "curated", lens });
+    if (_poolPicks.length >= 3) { _openFromPool(); return; }
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
       const used = new Set(); const out = []; const sections = [];
@@ -2927,7 +2947,11 @@ function PageInner() {
         if (take.length) sections.push({ label: sl.label, count: take.length });
         out.push(...take);
       });
-      if (!out.length) { showToast("Nothing found nearby for that yet"); return; }
+      // v5.89: a tile must ALWAYS render a state, never a silent toast that looks
+      // like "nothing happened". Open the sheet with the pool picks, or (when the
+      // pool is empty too) an honest empty state — HookDetail renders "not enough
+      // data for this filter right now" for an empty list.
+      if (!out.length) { _openFromPool(); return; }
       // v4.64: honest small-market handling. If fewer than 10 strong picks
       // sit within 10 miles, this is a "best near {town}" list — group it by
       // real driving distance instead of pretending town limits filled it.
