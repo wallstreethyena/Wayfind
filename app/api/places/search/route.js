@@ -10,6 +10,7 @@
 // ~10 days for accuracy; the stale-serve fallback is hard-capped at 30 days.
 import { NextResponse } from "next/server";
 import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } from "../../../../lib/serverCache";
+import { serveFromInventory } from "../../../../lib/inventoryServe";
 
 export const dynamic = "force-dynamic";
 
@@ -86,8 +87,12 @@ async function handleSearch(params) {
       body: JSON.stringify({ textQuery: q, maxResultCount: n, locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius } } }),
     });
     if (!r.ok) {
-      // 429 = quota exhausted. Degrade to the last cached result (<=30d, ToS cap)
-      // instead of an empty error; client sees 200 + places, no 2nd Google call.
+      // v6.10: a 429/error on a CATEGORY search serves the OWNED inventory (the
+      // complete owned set, e.g. ~191 hotels) BEFORE the thin stale cache, so a
+      // Google quota outage no longer collapses "Stay" to one hotel. Free-text
+      // searches (no cat) and empty inventory fall through to the stale cache.
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
       const stale = await serveStale();
       if (stale) return stale;
       return NextResponse.json({ error: "upstream " + r.status, debug: dbg() }, { status: 502 });
@@ -97,6 +102,8 @@ async function handleSearch(params) {
     if (places.length) await Promise.all([cset(k, places, FRESH_TTL_MS), upsertPlaceIds(skeletons(places))]);
     return NextResponse.json({ places, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
+    const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+    if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     const stale = await serveStale();
     if (stale) return stale;
     return NextResponse.json({ error: "upstream failure", debug: dbg() }, { status: 502 });

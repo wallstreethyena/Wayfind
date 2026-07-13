@@ -1,3 +1,28 @@
+## v6.10 - Serve the OWNED inventory when Google 429s (fixes "1 hotel of 191")
+- When the live Google search 429s (quota) or errors on a CATEGORY list, the app now serves
+  the list from Wayfind's owned wf_inventory (the 1,027 places already seeded) instead of the
+  thin/near-empty stale query cache. That is the direct fix for "Stay shows one hotel when we
+  have 191": on a Google outage, Stays now serves ~20 quality-ranked real hotels from the table.
+- lib/inventoryServe.js: invRowToPlace() maps a wf_inventory row into the Google Places (New)
+  shape the client already renders (restToPlace/normalize), so an inventory-served place looks
+  identical to a live result. rankInventory() filters to operational places within the search
+  radius and ranks by quality + a light proximity nudge; the client re-ranks anyway. serverCache
+  is lazy-loaded so the pure logic stays unit-testable.
+- app/api/places/search: on a Google !ok/exception, if the request carries a `cat` (category)
+  it serves the inventory FIRST (the complete owned set), then the stale cache, then errors.
+  Free-text searches (no cat) are unaffected and fall through to the stale cache as before.
+- lib/google.js: proxySearch()/_searchPlaces() now pass the categoryId through to the proxy as
+  `cat`, so the server knows which inventory to serve. Category IDs already match wf_inventory's
+  (food|nightlife|attractions|beach|hotels|shopping), so no mapping is needed.
+- VERIFIED against the real wf_inventory: near Sarasota the fallback returns 20 hotels
+  (Kompose 4.7/9249, Carlisle Inn 4.9, Ritz-Carlton, Lido Beach Resort...), attractions
+  (Ringling, Bayfront, Marie Selby, Van Wezel), and beaches (Siesta, Coquina, Turtle). Ranking
+  buries the low-review vacation-rental/mobile-home rows, so the served top-20 is clean.
+- scripts/test-inventory-serve.mjs (23 assertions, wired into prebuild): row->Google-shape
+  mapping, geo gate, closed-place drop, quality rank, n-cap.
+- NOTE: this fires on a 429/error. Reading inventory ALWAYS (so quality lists never depend on
+  a live text search even when Google is up) is the fuller strategy the owner will direct next.
+
 ## v6.09 - Cache place content for the ToS-max 30 days (Places cost fix)
 - Direct response to the July Places bill. Google's ToS allows caching place CONTENT for up
   to 30 days (Place IDs indefinitely). The three Places caches were refreshing well before
