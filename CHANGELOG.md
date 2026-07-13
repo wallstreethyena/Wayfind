@@ -1,3 +1,25 @@
+## v5.99 - Rank places with a creator video substantially higher (labeled, one surface, verified by order)
+- A place with a REAL creator video now ranks near the top of the main ranked browse/search
+  feed and shows a visible "🎬 Creator video" badge. VIDEO_BOOST (45) is a single named const
+  (dial-back point); it clears the 30-pt max distance penalty so a featured place surfaces even
+  from a distance. Displayed wfScore is UNCHANGED — the honest quality number stays; only the
+  hidden sort moves.
+- Labeled, never silent: the badge shows on the SAME predicate as the boost (hasCreatorVideo),
+  so boosted <=> badged. The codebase promises "no paid placement, ranked on real reviews" — an
+  unlabeled thumb-on-the-scale would break it; a labeled one is a feature the user can see.
+- Only REAL videos boost: hasCreatorVideo reuses creatorVideosFor(), which (v5.98) excludes
+  STAGED url:"" entries — so a place never gets a phantom boost for an invisible video.
+- Scoped deliberately to ONE surface (the default rankByConditions "for you" browse/search feed,
+  where featuredBoost already lives) to avoid the compounding bug: the app has THREE ranking
+  layers (google.js _sortScore, home.js _ps, rankByConditions) and stacking the boost across
+  layers built from different bases would double-count inconsistently. Extending to the
+  home-landing tiles/hero is a clean follow-up (the badge is already global on PlaceCard, so
+  there is never a boost-without-badge). Explicit sorts (Nearest / Top rated / Price) are left
+  pure — the boost is only on the "for you" ranking.
+- Verified by OBSERVED ORDER (not "the edit is in"): the real rankByConditions run shows a video
+  place with the LOWEST quality score jump from last to #1 once boosted, and stays last without
+  it. Build green (check-cards + check-copy pass the badge; check-version v5.99).
+
 ## v5.98 - Seed the creator-video feature with the July-2026 research (data only; ranking boost is a separate PR)
 - Appends the researched creator videos to CURATED in lib/creatorVideos.js in the exact
   existing (Cindy/Spinning Coffee) shape — matched to VERIFIED venues by name+city, NEVER
