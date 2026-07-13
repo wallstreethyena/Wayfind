@@ -1,3 +1,36 @@
+## v6.04 - Own the candidate set, slice 1: inventory schema + taxonomy mapper
+- Groundwork for the real fix to the root-cause bug: today every category list is built
+  from a LIVE third-party text search on a hardcoded string ("top tourist attractions",
+  "best hotels"), so Foursquare/Google TEXT RELEVANCE decides which places are even
+  eligible. That is why Marie Selby (a paid botanical garden) and Mote are never candidates,
+  why raising the radius does nothing (the cap is limit=30, not distance), and why "Stay"
+  shows three hotels. This slice adds the schema + classifier; slices 2-4 add the seeder,
+  the read path, and the anchor coverage test.
+- NEW TABLE public.wf_inventory (supabase/places-inventory.sql, apply in Supabase): the OWNED
+  candidate set, seeded by GEOGRAPHY + TYPE rather than search relevance. Distinct from the
+  two existing tables (wf_places_cache = KV response cache; wf_place_ids = a SEARCH LOG shaped
+  by traffic). Reconciliation key is the Google Place ID; RLS is service-role-write /
+  anon-read, same posture as wf_place_ids.
+- NEW lib/placeTaxonomy.js — classifyPlace(types, primaryType, name) -> { category, tags },
+  deterministic and pure. Category is one of food|nightlife|attractions|beach|hotels|shopping.
+  The load-bearing rule: bare `tourist_attraction` is a WEAK signal (famous diners and
+  shopping circles carry it), so STRONG attraction types (museum/aquarium/botanical_garden/
+  zoo/state_park/...) win BEFORE food/hotels/shopping, while tourist_attraction/park/garden/
+  historical_landmark only decide a place nothing stronger claimed. That is what lands Selby,
+  Ringling and Myakka in attractions without dragging in restaurants.
+- Grounded in REAL Google output, not assumptions. Verified live: Mote returns
+  `research_institute` (NO aquarium type) and Siesta Beach returns NO `beach` type at all — a
+  mapper tested on guessed types would pass while the seeder still misclassified them. So the
+  mapper adds a NAME safety net (recovers "Siesta Beach" -> beach) and, when even types+name
+  fail (Mote), returns null on purpose — the honest signal that a marquee place must be an
+  anchor with an explicit category (slice 4).
+- NEW scripts/test-taxonomy.mjs (wired into prebuild): 44 assertions pinned to the REAL types,
+  asserting every emitted tag is a genuine sub-filter id from SUBFILTERS (so the read path can
+  match by equality), and covering the primaryType path, the name net, and the guard that a
+  restaurant named "Beach Bistro" stays food.
+- Non-breaking: nothing reads wf_inventory or classifyPlace yet, and catFromTypes is untouched
+  (the /places pages keep their coarse category); the two converge when slice 3 reads inventory.
+
 ## v6.03 - Events timezone fix: no more "10 PM library events"
 - The events list showed Manatee County Library programs at impossible hours — an ESL class
   and Trivia Night at 10 PM, "Mana-Tween: DIY Dreams" at 9 PM. Confirmed against the live feed.
