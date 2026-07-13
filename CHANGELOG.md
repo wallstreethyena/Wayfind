@@ -1,3 +1,37 @@
+## v5.93 - Creator-video engine, Phase 1: a featured-creator hero on the place sheet (evolve, don't duplicate)
+- First slice of the creator-video discoverability engine (full plan in
+  CREATOR_VIDEO_SPEC.md). Turns real creator videos tagged to a place into UGC social
+  proof AND a creator-referral surface, without duplicating what already exists.
+- The place detail sheet ALREADY had an auto "Video reviews · Creators who covered
+  this place on YouTube" strip (Detail.js, fed by /api/youtube). Rather than add a
+  second competing card, this EVOLVES the surface into two tiers:
+  * NEW curated HERO — a prominent, full-width, tappable card (colored per platform,
+    play affordance, "Featured on {platform}", "Watch @creator's visit to {place}",
+    "Watch Video ↗"). Placed UNGATED below the action row and above "Why Wayfind
+    picked this" — deliberately, because the existing strip sits inside the "show
+    more" expander, where a curated video (the whole point for a seeded place) would
+    otherwise never show. Renders only when a place has a curated video.
+  * The existing auto-YouTube list stays untouched below as secondary content.
+- Creator benefit is built in: the hero credits the creator by name/handle and links
+  out to their REAL video with rel="noopener" (deliberately NOT "noreferrer") so the
+  visit attributes to Wayfind in the creator's analytics — the sheet is noindex, so
+  the creator's value here is traffic, not SEO. No JSON-LD here; VideoObject/ItemList
+  schema is reserved for the indexable /trending/[city] pages (Phase 2/3).
+- New lib/creatorVideos.js: curated map keyed by the app's own place id (Google
+  place_id, "fsq:…", or synthetic — stored verbatim) with a name+city match fallback
+  for hand-curation. Captions are ALWAYS Wayfind's own words, never the creator's
+  verbatim caption (copyright + duplicate content). Supports multiple videos per
+  place and TikTok / Instagram / YouTube / Facebook from day one.
+- Seeded: Spinning Coffee (Bradenton) → @cindy.selects TikTok; Mai-Kai (Fort
+  Lauderdale) → a Facebook reel (seeds the multi-city flow). NOTE: the Facebook share
+  link carries no handle — the creator's name/handle must be supplied to complete the
+  credit (not fabricated). Both seed places verified findable via live Google Places,
+  so the name+city match resolves them; upserting their Google Place IDs into
+  wf_place_ids is a Phase 3 item (the match makes the hero work without it).
+- Phase 1 is client-only (BUILD_ID bump only in home.js). Phases 2-3 (indexable
+  /trending/[city] with facades + VideoObject/ItemList, the followed-link backlink to
+  each creator, and the reshare loop) are specced but NOT in this PR.
+
 ## v5.92 - Reconcile the API/env surface: .env.local.example is the single source of truth
 - The API wiring was already complete (every key read via process.env, some via
   deliberate bracket notation for reliable runtime reads — left untouched). The real
@@ -32,7 +66,6 @@
   Places proxy + shared cache (absent = direct browser calls = Places 429 exposure);
   YOUTUBE_API_KEY enables the video-reviews block. Both must be set in Vercel Production
   for those features to light up.
-
 ## v5.90 - Harden the SHARED cache across all three sources — stay live when Google 429s, Foursquare limits, or SerpApi caps
 - Reliability is not cosmetic: every bug lands at the moment of decision. This
   makes ONE Supabase-backed pool (new lib/serverCache.js) that all three place/event
