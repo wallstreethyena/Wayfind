@@ -1,3 +1,38 @@
+## v5.90 - Harden the SHARED cache across all three sources — stay live when Google 429s, Foursquare limits, or SerpApi caps
+- Reliability is not cosmetic: every bug lands at the moment of decision. This
+  makes ONE Supabase-backed pool (new lib/serverCache.js) that all three place/event
+  sources share, so the first user's search pays and everyone after reads the cache —
+  and the site degrades to "slightly stale" instead of blank when an upstream limits.
+- **Google Places (/api/places/search)** now runs on the shared cache: fresh TTL
+  10 days (accuracy), and on a 429/error it serves the last cached result — but
+  hard-capped at 30 days so we never violate Google's ToS on cached place content.
+  Place IDs (which the ToS lets us keep indefinitely) go into a new PERMANENT
+  wf_place_ids index with our derived category + ranking signals + a minimal
+  name/coords skeleton, so tiles can show known places when detail caches are cold.
+- **Foursquare (/api/fsq/search)** — previously an in-memory-only cache that died
+  with the lambda — now shares the same Supabase pool (30-day TTL) and serves stale
+  on a rate-limit/error, so it can backfill the pool when Google is capped AND
+  survive its own limit.
+- **Events (/api/events)** — was uncached, so when the SerpApi search cap was hit
+  the feed went blank. Now events are cached WITH their dates (21-day TTL); on any
+  serve from cache we FILTER OUT past events (the date is the freshness guard), and
+  when the live providers come back empty/limited we serve the cached STILL-UPCOMING
+  events instead of nothing.
+- Accuracy first: a fresh live result always wins; the cache is only a degradation
+  path, every stale serve is flagged `stale:true`, and callers de-emphasize volatile
+  fields (hours/price) rather than assert them. Cache is shared + owner-owned:
+  writes are service-role-only (RLS), anon may read the non-sensitive skeleton index.
+- Deploy-window safe: this ships BEFORE the migration runs, so the reader selects
+  `*` (never an explicit wrote_at column) and the writer retries without wrote_at on
+  a 400 — the existing cached lists stay readable and shared writes still land on the
+  un-migrated table, so merging does NOT blank the cache. When wrote_at is absent the
+  age cap is approximated from exp; it becomes exact once the migration runs.
+- OWNER TODO (no longer a hard blocker, but do it soon): apply
+  supabase/cache-hardening.sql in the Supabase SQL editor (adds wf_places_cache.wrote_at
+  + the wf_place_ids table; non-destructive) to enable exact age-capping and the
+  permanent place-ID index, confirm SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are set
+  in Vercel, and (still) raise the Google Places quota so fresh serves resume.
+
 ## v5.89 - Menu tiles curate from the ALREADY-LOADED feed pool (no new fetch) — survive the Places 429
 - The menu tiles (Today's Best / Eat Well / Shop Local / Stay Tonight / Night Out)
   fired fresh Google Places searches on every open, so when the Places quota is
