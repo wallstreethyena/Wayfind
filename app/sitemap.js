@@ -4,6 +4,7 @@ import { TOWN_HUBS } from "../lib/culture";
 import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
 import { LANDING_CATS, LANDING_CITIES } from "../lib/landing";
+import { trendingCitySlugs } from "../lib/trending";
 
 export default function sitemap() {
   const now = new Date();
@@ -15,5 +16,7 @@ export default function sitemap() {
   const landing = Object.keys(LANDING_CATS).flatMap((cat) => Object.keys(LANDING_CITIES).map((city) => ({ url: `${SITE_URL}/${cat}/${city}`, lastModified: now })));
   // v5.30 — Florida destination hubs.
   const hubs = Object.values(TOWN_HUBS).map((slug) => ({ url: `${SITE_URL}/florida/${slug}`, lastModified: now }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs];
+  // v5.94 — creator-video "trending" pages: the index + one page per city.
+  const trending = [`${SITE_URL}/trending`, ...trendingCitySlugs().map((s) => `${SITE_URL}/trending/${s}`)].map((url) => ({ url, lastModified: now }));
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending];
 }
