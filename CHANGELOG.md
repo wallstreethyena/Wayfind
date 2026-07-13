@@ -1,3 +1,15 @@
+## v6.06 - searchNearby probe fix: drop nextPageToken, make the field mask configurable
+- The v6.05 probe 400'd every call ("Request contains an invalid argument"), even for a valid
+  types list — so the fault was the REQUEST, not the includedTypes. Cause: `nextPageToken` was
+  in the field mask, but Nearby Search (New) does NOT paginate, so it is an invalid field. That
+  incidentally answers the pagination question — there is none, so the seeder's grid tiling is
+  mandatory.
+- Fix: drop `nextPageToken` from the default mask; add a `fields` URL override so any further
+  field-mask question is answerable without another redeploy; and return Google's FULL error
+  object (not a truncated message) so the next issue names itself. This is the "verify the
+  primitive before building on it" loop working exactly as intended — the bug surfaced in a
+  10-line diagnostic instead of in a 400-line seeder handed to the owner.
+
 ## v6.05 - Own the candidate set, slice 1.5: searchNearby probe (verify before build)
 - The seeder (slice 2) will be built on Google's `places:searchNearby` — a DIFFERENT endpoint
   from the `searchText` proxy the rest of the app uses (different body: locationRestriction not
