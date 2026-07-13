@@ -79,6 +79,12 @@ tc("Beach Bistro guard (name must not override types)", { types: ["restaurant", 
   ok("empty input -> null", r.category === null && r.tags.length === 0);
 }
 
+// `via` — HOW the category was decided (the seeder flags name-recovered rows).
+ok("via: Selby decided by TYPES", classifyPlace(["botanical_garden", "tourist_attraction", "museum"], null, "Marie Selby Botanical Gardens").via === "types");
+ok("via: Siesta Beach decided by NAME (=> review queue, last_verified_at=null)", classifyPlace(["point_of_interest", "establishment"], null, "Siesta Beach").via === "name");
+ok("via: St. Armands +primaryType decided by PRIMARYTYPE", classifyPlace(["shopping_mall", "restaurant"], "shopping_mall", "St. Armands Circle").via === "primaryType");
+ok("via: Mote unclassified => via null", classifyPlace(["research_institute"], null, "Mote Marine Laboratory").via === null);
+
 console.log(`\ntest-taxonomy: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
 console.log("test-taxonomy: OK — mapper pinned to REAL Google types; every tag is a valid sub-filter id; primaryType + name paths verified");
