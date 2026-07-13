@@ -2947,7 +2947,11 @@ function PageInner() {
         if (take.length) sections.push({ label: sl.label, count: take.length });
         out.push(...take);
       });
-      if (!out.length) { if (_poolPicks.length) { _openFromPool(); return; } showToast("Nothing found nearby for that yet"); return; }
+      // v5.89: a tile must ALWAYS render a state, never a silent toast that looks
+      // like "nothing happened". Open the sheet with the pool picks, or (when the
+      // pool is empty too) an honest empty state — HookDetail renders "not enough
+      // data for this filter right now" for an empty list.
+      if (!out.length) { _openFromPool(); return; }
       // v4.64: honest small-market handling. If fewer than 10 strong picks
       // sit within 10 miles, this is a "best near {town}" list — group it by
       // real driving distance instead of pretending town limits filled it.
