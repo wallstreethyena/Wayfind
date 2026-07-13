@@ -1,3 +1,22 @@
+## v5.88 - Serve cached lists when Google 429s (quota resilience) — bring back the good lists
+- The real cause of thin "Explore near you" lists is the Google Places API quota
+  (the proxy gets HTTP 429). The proxy already caches every search 3 ways (warm
+  lambda mem -> Supabase wf_places_cache 10-day -> Vercel edge 10-day), but it had
+  two gaps that made the cache useless exactly when it's needed most:
+  - cacheGet returned null for EXPIRED rows, and
+  - on a Google error (429) the route returned an empty error instead of falling
+    back to the cache.
+  Now: on any upstream failure (esp. 429), /api/places/search serves the LAST
+  cached result for that exact query — even if expired — as a normal 200. So when
+  the daily quota runs out, the lists degrade to "slightly stale" (the great lists
+  already built before) instead of collapsing to nothing. The client gets places
+  and never makes a second Google call that would also 429.
+- Deliberately did NOT change the menu's search queries or radius (that would mint
+  new cache keys and MISS the lists already cached at the old params). Superseded
+  the abandoned v5.87 radius/slot experiment for that reason.
+- Owner: still worth raising the Places quota (C3) so fresh searches work; but the
+  app no longer goes blank while it's capped.
+
 ## v5.86 - Revert v5.85 (ranking-page maps) at owner request
 - Reverted the entire v5.85 change: the map on the 5 ranking sheets, the medal
   pins / category icons / name·score labels, the desktop-map rings/nearZoom, and

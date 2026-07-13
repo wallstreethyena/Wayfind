@@ -33,9 +33,9 @@ function sb() {
   return { url, key };
 }
 
-async function cacheGet(k) {
+async function cacheGet(k, allowStale) {
   const m = mem.get(k);
-  if (m && m.exp > Date.now()) return m.v;
+  if (m && (allowStale || m.exp > Date.now())) return m.v;
   const s = sb();
   if (!s) return null;
   try {
@@ -44,7 +44,11 @@ async function cacheGet(k) {
     });
     if (!r.ok) return null;
     const row = (await r.json())[0];
-    if (!row || new Date(row.exp).getTime() < Date.now()) return null;
+    if (!row) return null;
+    // v5.87: the fresh path (allowStale falsy) misses on expired rows. The
+    // stale-fallback path (used when Google 429s / errors) serves the last known
+    // result regardless of age — slightly-stale beats an empty list.
+    if (!allowStale && new Date(row.exp).getTime() < Date.now()) return null;
     mem.set(k, { v: row.v, exp: new Date(row.exp).getTime() });
     return row.v;
   } catch { return null; }
@@ -96,12 +100,25 @@ async function handleSearch(params) {
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELD_MASK },
       body: JSON.stringify({ textQuery: q, maxResultCount: n, locationBias: { circle: { center: { latitude: lat, longitude: lng }, radius } } }),
     });
-    if (!r.ok) return NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
+    if (!r.ok) {
+      // v5.88: Google rate-limited/failed (esp. 429 = quota exhausted). Rather
+      // than return an empty error — which makes the app's lists collapse to
+      // nothing the moment the daily quota runs out — serve the LAST cached
+      // result for this exact query, even if it has expired. Slightly-stale
+      // "great list" beats a blank screen; this is the whole point of the shared
+      // cache. (The client sees 200 + places, so it never falls back to a second
+      // Google call that would also 429.)
+      const stale = await cacheGet(k, true);
+      if (stale) return NextResponse.json({ places: stale, cached: true, stale: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+      return NextResponse.json({ error: "upstream " + r.status }, { status: 502 });
+    }
     const data = await r.json();
     const places = data.places || [];
     if (places.length) await cacheSet(k, places);
     return NextResponse.json({ places, cached: false, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
   } catch {
+    const stale = await cacheGet(k, true);
+    if (stale) return NextResponse.json({ places: stale, cached: true, stale: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
     return NextResponse.json({ error: "upstream failure" }, { status: 502 });
   }
 }
