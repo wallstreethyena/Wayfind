@@ -13,7 +13,9 @@ import { cget, cset, upsertPlaceIds, cacheConfigured, lastWrite, memSize, DAY } 
 
 export const dynamic = "force-dynamic";
 
-const FRESH_TTL_MS = 10 * DAY;   // refresh within 10 days (accuracy)
+const FRESH_TTL_MS = 30 * DAY;   // v6.09: 30 days = the Google ToS maximum for cached
+                                 // place content. Maximizing the fresh window minimizes
+                                 // paid searchText refreshes (the July cost incident).
 const STALE_MAX_MS = 30 * DAY;   // ToS: never serve place content older than 30 days
 const FIELD_MASK = [
   "places.id", "places.displayName", "places.location", "places.rating",

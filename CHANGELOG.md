@@ -1,3 +1,20 @@
+## v6.09 - Cache place content for the ToS-max 30 days (Places cost fix)
+- Direct response to the July Places bill. Google's ToS allows caching place CONTENT for up
+  to 30 days (Place IDs indefinitely). The three Places caches were refreshing well before
+  that, so every refresh was a paid Text Search Enterprise call. Bumped all three fresh TTLs
+  to the 30-day maximum:
+  - app/api/places/search/route.js: FRESH_TTL_MS 10d -> 30d (user searches)
+  - lib/placeDetails.js: FRESH_MS 14d -> 30d (the /places detail pages)
+  - lib/landing.js: the SEO landing-page cache 5d -> 30d
+- The 30-day stale-serve age cap (STALE_MAX_MS) is unchanged — it was already the ToS ceiling.
+  With fresh == cap, MORE rows are served from cache (including during a 429), so this both
+  cuts cost and improves resilience. Trade-off: served content can be up to 30 days stale
+  (hours/prices), which is the deliberate ToS-max choice.
+- NOTE: the real cost exposure is separate — /api/places/search is a public, unauthenticated
+  proxy to paid Google, so novel queries / scrapers bill regardless of TTL. The durable fix
+  (per-IP throttle) and the owner actions (Places daily quota cap, key restriction) are tracked
+  separately; this change reduces legitimate refresh spend.
+
 ## v6.07 - Own the candidate set, slice 2: the seeder (by-hand local script)
 - The piece that finally makes Marie Selby and Mote ELIGIBLE: scripts/seed-places.mjs seeds
   Wayfind's own inventory (wf_inventory) by GEOGRAPHY + TYPE via Google searchNearby, instead
