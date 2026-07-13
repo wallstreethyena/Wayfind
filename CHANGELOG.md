@@ -1,3 +1,38 @@
+## v5.92 - Reconcile the API/env surface: .env.local.example is the single source of truth
+- The API wiring was already complete (every key read via process.env, some via
+  deliberate bracket notation for reliable runtime reads — left untouched). The real
+  gaps were DRIFT and two inconsistencies. Fixed all three:
+- **.env.local.example is now the single source of truth.** Cross-checked by grepping
+  both process.env.X and process.env["X"] so nothing was missed, then grouped +
+  commented (REQUIRED vs OPTIONAL, the feature each powers, "Sensitive in Vercel",
+  never NEXT_PUBLIC for secrets — placeholders only, no real values). Env vars ADDED
+  to the example that the code reads but the file omitted:
+  - Supabase (REQUIRED): NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+  - AI fallback: LLM_API_KEY (documented as the ANTHROPIC_API_KEY fallback)
+  - Ops/cron: CRON_SECRET, METRICS_SECRET, SIGNUP_WEBHOOK_URL
+  - Email/analytics: RESEND_API_KEY, DIGEST_EMAIL, NEXT_PUBLIC_POSTHOG_KEY
+  - Misc referenced: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_VIATOR_PID, SEATGEEK_CLIENT_SECRET
+  - Also caught by the grep (not in the original ask): PAGESPEED_API_KEY, and
+    TRIPADVISOR_API_KEY (canonical) with TA_API_KEY / TRIPADVISOR_KEY documented as
+    its accepted fallbacks (the || order in app/api/ta/place/route.js).
+- **Standardized the AI key.** New lib/aiKey.js routes it through ONE helper that
+  accepts ANTHROPIC_API_KEY || LLM_API_KEY (the pattern lib/insiderServer.js already
+  used). Wired into app/api/insight, app/api/blurbs, app/api/hooks — which previously
+  read ANTHROPIC_API_KEY only and silently ignored LLM_API_KEY, so all AI endpoints
+  now degrade identically. (insiderServer already had the correct fallback — left as-is.)
+- **Fail loud on required, quiet on optional.** New lib/envAudit.js classifies the
+  surface and logs ONCE per server process: an error line per missing REQUIRED key, an
+  AI-key-off warning (app still runs), and ONE line naming which OPTIONAL integrations
+  are OFF — so an empty section reads as "no key," not "broken feature." It LOGS, never
+  throws (the app stays fail-soft; no graceful 200s were turned into hard 500s). Invoked
+  from request-time code (aiKey() + cget()), never module scope, so it produces ZERO
+  noise during `next build`.
+- **Feature-gate callout** in the example: GOOGLE_MAPS_SERVER_KEY enables the server
+  Places proxy + shared cache (absent = direct browser calls = Places 429 exposure);
+  YOUTUBE_API_KEY enables the video-reviews block. Both must be set in Vercel Production
+  for those features to light up.
+
 ## v5.90 - Harden the SHARED cache across all three sources — stay live when Google 429s, Foursquare limits, or SerpApi caps
 - Reliability is not cosmetic: every bug lands at the moment of decision. This
   makes ONE Supabase-backed pool (new lib/serverCache.js) that all three place/event

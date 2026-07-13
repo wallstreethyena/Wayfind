@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+import { aiKey } from "../../../lib/aiKey";
 
 // Generates a grounded "Wayfind AI" take on a single place using Claude Haiku.
 // Two modes keep cost down: "compact" runs on open and returns just enough for
@@ -7,7 +8,7 @@ export const runtime = "nodejs";
 export async function POST(req) {
   try {
     const p = await req.json();
-    const key = process.env.ANTHROPIC_API_KEY;
+    const key = aiKey();
     if (!key) return Response.json({ unavailable: true }, { status: 200 });
     const mode = p.mode === "full" ? "full" : "compact";
     const kind = p.kind === "event" ? "event" : p.kind === "attraction" ? "attraction" : "dining";

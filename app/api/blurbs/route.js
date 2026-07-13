@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+import { aiKey } from "../../../lib/aiKey";
 
 // Writes ONE short, factual line per place for the list cards, in a single
 // batched Claude call. Grounded ONLY in the stats we already have (rating,
@@ -8,7 +9,7 @@ export const runtime = "nodejs";
 export async function POST(req) {
   try {
     const { places, city } = await req.json();
-    const key = process.env.ANTHROPIC_API_KEY;
+    const key = aiKey();
     if (!key) return Response.json({ unavailable: true, blurbs: {} }, { status: 200 });
     if (!Array.isArray(places) || !places.length) return Response.json({ blurbs: {} }, { status: 200 });
 
