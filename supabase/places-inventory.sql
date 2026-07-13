@@ -36,15 +36,25 @@ create table if not exists public.wf_inventory (
   status       text,                           -- businessStatus (OPERATIONAL/CLOSED_*)
   anchor       boolean not null default false, -- marquee coverage guarantee (Selby/Mote/Ringling)
   source       text,                           -- discovery path: google_type | fsq | anchor
+  -- v6.07 review queue: a category the seeder recovered from the NAME (not a real
+  -- Google type) is NOT trusted — it lands with last_verified_at=null and
+  -- needs_review=true. The name net flags; it never silently decides. Anchors and
+  -- type/primaryType-decided rows get a real last_verified_at.
+  needs_review boolean not null default false,
+  last_verified_at timestamptz,               -- null = never verified (name-recovered or unresolved)
   seen_at      timestamptz not null default now(),
   refreshed_at timestamptz not null default now()
 );
+-- Idempotent adds so re-applying over an already-created table is safe.
+alter table public.wf_inventory add column if not exists needs_review boolean not null default false;
+alter table public.wf_inventory add column if not exists last_verified_at timestamptz;
 
 -- The read path (slice 3) scopes by (metro, category) then ranks; the geo index
 -- backs the post-fetch distance gate that the live-search path never enforced.
 create index if not exists wf_inventory_cat_metro on public.wf_inventory (metro, category);
 create index if not exists wf_inventory_geo        on public.wf_inventory (lat, lng);
 create index if not exists wf_inventory_anchor      on public.wf_inventory (anchor) where anchor;
+create index if not exists wf_inventory_review      on public.wf_inventory (needs_review) where needs_review;
 
 -- RLS: same posture as wf_place_ids. Writes are SERVICE-ROLE ONLY (the service
 -- role bypasses RLS, so no write policy is declared — that is what keeps writes

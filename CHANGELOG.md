@@ -1,3 +1,37 @@
+## v6.07 - Own the candidate set, slice 2: the seeder (by-hand local script)
+- The piece that finally makes Marie Selby and Mote ELIGIBLE: scripts/seed-places.mjs seeds
+  Wayfind's own inventory (wf_inventory) by GEOGRAPHY + TYPE via Google searchNearby, instead
+  of letting a live text search decide which places exist. Verified live (v6.06 probe) that the
+  attractions net returns Selby, Ringling, the Jungle Gardens, Van Wezel — the very places text
+  search dropped.
+- By-hand local script, NOT a cron and NOT a Vercel route (owner's decision): a cron is a
+  self-refilling wrong-data machine (Google still lists closed places as open), Vercel would
+  time out on thousands of calls, and a public write endpoint is needless attack surface while
+  the Google key is being locked down. Run it, read the output, decide.
+- searchNearby (New) returns <=20 with NO pagination (confirmed by the probe), so the seeder
+  TILES each metro into a grid of overlapping circles x six includedTypes discovery nets. The
+  includedTypes group is ONLY a discovery net: every place is RE-CLASSIFIED by lib/placeTaxonomy
+  into the category its own types say (a Walmart found under "food" -> shopping), never the group
+  it was fetched under.
+- Honors the owner's constraints exactly: idempotent (upsert by Google Place ID) and resumable
+  (a checkpoint is written after every cell; --resume continues a crashed run without re-fetching);
+  a category recovered from the NAME rather than a real type lands with needs_review=true and
+  last_verified_at=null (it flags, it never silently decides); a non-operational businessStatus is
+  NEVER committed, only surfaced; and the reconciliation failures, the review queue, and the
+  closed-skipped list all print IN FULL, not as counts. Prints per-category coverage counts and a
+  full add/update/unchanged DIFF, and writes nothing unless --commit is passed.
+- NEW data/anchors.json: marquee places (Selby, Mote, Ringling, Siesta/Lido/Coquina beaches, ...)
+  carry an EXPLICIT category the mapper never overrides — the only way Mote (Google-typed
+  research_institute -> classifier null) and Siesta Beach (no beach type) land correctly. Owner-
+  verifiable and extensible; flagged that Google can resolve an anchor to a closed listing.
+- classifyPlace now returns `via` ("primaryType"|"types"|"name"|null) so the seeder can tell a
+  type-decided row from a name-recovered one. wf_inventory gains needs_review + last_verified_at
+  (idempotent ALTER in supabase/places-inventory.sql). New scripts/test-seed.mjs (23 assertions,
+  wired into prebuild) covers re-classification, name-flagging, anchor override, the non-operational
+  gate, dedup, diff, and grid; test-taxonomy grows to 48 with the `via` assertions.
+- Foursquare discovery (reconciled to Google Place ID) is deferred to a follow-up — the per-category
+  coverage counts from the first Google-only dry run will show whether it is even needed.
+
 ## v6.06 - searchNearby probe fix: drop nextPageToken, make the field mask configurable
 - The v6.05 probe 400'd every call ("Request contains an invalid argument"), even for a valid
   types list — so the fault was the REQUEST, not the includedTypes. Cause: `nextPageToken` was

@@ -1,0 +1,22 @@
+{
+  "_note": "Marquee places that MUST appear in Wayfind's lists regardless of what Google types return. The seeder (scripts/seed-places.mjs) resolves each by name+city to its Google Place ID and FORCES this category+tags onto the row — classifyPlace NEVER overrides an anchor, and an anchor is exempt from the businessStatus/needs_review gates (it is owner-asserted). Slice 4 adds a build test that fails if any anchor is missing from its category above a rank threshold.",
+  "_owner_todo": "VERIFY each anchor resolves to the OPERATING location. Google can return a closed listing (e.g. an old City Island Mote entry that still shows 'open'); if the seeder's reconciliation report shows an anchor resolved to a closed/wrong id, fix the name or add an explicit place_id. Extend this list with your own local knowledge — this is a deliberately conservative starter set, not the final word.",
+  "_schema": "category one of food|nightlife|attractions|beach|hotels|shopping; tags are SUBFILTERS ids for that category (attractions: outdoors|museums|family|tours|spa|landmarks|arts; beach: beaches|marinas).",
+  "manatee-sarasota": [
+    { "name": "Marie Selby Botanical Gardens", "city": "Sarasota", "category": "attractions", "tags": ["outdoors"], "why": "Paid botanical garden; the flagship 'never a candidate under text search' case." },
+    { "name": "Mote Marine Laboratory & Aquarium", "city": "Sarasota", "category": "attractions", "tags": ["family"], "why": "Google types it research_institute (no aquarium) -> classifier returns null -> REQUIRES this anchor. VERIFY it resolves to the operating aquarium, not a closed City Island listing." },
+    { "name": "The Ringling", "city": "Sarasota", "category": "attractions", "tags": ["museums", "arts"], "why": "John & Mable Ringling Museum of Art — the region's marquee museum." },
+    { "name": "Sarasota Jungle Gardens", "city": "Sarasota", "category": "attractions", "tags": ["family", "outdoors"], "why": "Google types it zoo; keep it guaranteed." },
+    { "name": "Big Cat Habitat and Gulf Coast Sanctuary", "city": "Sarasota", "category": "attractions", "tags": ["family"], "why": "Popular family attraction, weak Google types." },
+    { "name": "The Bishop Museum of Science and Nature", "city": "Bradenton", "category": "attractions", "tags": ["museums", "family"], "why": "Formerly South Florida Museum / Bishop Planetarium — verify current name resolves." },
+    { "name": "Myakka River State Park", "city": "Sarasota", "category": "attractions", "tags": ["outdoors"], "why": "State park; strong types but a must-have." },
+    { "name": "Robinson Preserve", "city": "Bradenton", "category": "attractions", "tags": ["outdoors"], "why": "Major nature preserve; can type thin." },
+    { "name": "Van Wezel Performing Arts Hall", "city": "Sarasota", "category": "attractions", "tags": ["arts"], "why": "The region's performing-arts landmark." },
+    { "name": "Bradenton Riverwalk", "city": "Bradenton", "category": "attractions", "tags": ["outdoors"], "why": "Waterfront park; often thin Google types." },
+    { "name": "Historic Spanish Point", "city": "Osprey", "category": "attractions", "tags": ["outdoors", "museums"], "why": "Historic/nature site; verify Osprey resolves." },
+    { "name": "Siesta Key Beach", "city": "Sarasota", "category": "beach", "tags": ["beaches"], "why": "One of the most famous US beaches; Google returns NO beach type -> requires this anchor." },
+    { "name": "Lido Key Beach", "city": "Sarasota", "category": "beach", "tags": ["beaches"], "why": "Types as park; anchor forces beach." },
+    { "name": "Coquina Beach", "city": "Bradenton Beach", "category": "beach", "tags": ["beaches"], "why": "Anna Maria Island beach; thin types." },
+    { "name": "Manatee Public Beach", "city": "Holmes Beach", "category": "beach", "tags": ["beaches"], "why": "Popular public beach; thin types." }
+  ]
+}

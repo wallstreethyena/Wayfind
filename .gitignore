@@ -4,3 +4,6 @@ node_modules
 .DS_Store
 test-results
 playwright-report
+
+# candidate-set seeder crash-recovery checkpoint (local, not committed)
+.seed-progress.*.json
