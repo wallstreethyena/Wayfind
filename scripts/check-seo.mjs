@@ -26,7 +26,13 @@ walk(join(root, "app"));
 // landingMetadata() / trending metadata carry the canonical for their pages —
 // assert that once each, then accept the call sites.
 if (!readFileSync(join(root, "lib", "landing.js"), "utf8").includes("alternates: { canonical: url }")) fail("landingMetadata lost its canonical");
-if (!readFileSync(join(root, "lib", "trending.js"), "utf8").includes("alternates: { canonical: url }")) fail("trending metadata lost its canonical");
+const trendingLib = readFileSync(join(root, "lib", "trending.js"), "utf8");
+if (!trendingLib.includes("alternates: { canonical: url }")) fail("trending metadata lost its canonical");
+// VideoObject rich-result schema is DEFERRED (owner decision; no re-hosting of a
+// creator's frame) behind lib/videoObjectGate.js. Enforce that no VideoObject JSON-LD
+// or og:video meta is actually EMITTED until that gate is deliberately wired. Match
+// real emission (quoted @type / quoted meta value), not prose that mentions them.
+if (/"@type"\s*:\s*"VideoObject"|["']og:video["']/.test(trendingLib)) fail("VideoObject/og:video is gated (lib/videoObjectGate.js) — do not emit until every eligibility condition is met (creator permission + a real self-served thumbnail + no-click render + verification)");
 for (const p of pages) {
   if (p === join(root, "app", "page.js")) continue;
   const s = readFileSync(p, "utf8");

@@ -1,3 +1,28 @@
+## v5.95 - Creator-video: DEFER VideoObject (compliance) + treat non-embeddable posts as plain social links
+- Owner decision: do NOT self-host/re-host a creator's video frame just to force a
+  durable thumbnailUrl for VideoObject rich results. Rationale: video indexing must not
+  depend on a user click (our facade is tap-to-load), a valid VideoObject needs a real
+  self-served representative thumbnail (an oEmbed thumbnail is a signed/expiring CDN URL
+  = invalid when crawled; a Wayfind-branded card isn't the actual frame), re-hosting
+  collides with "never re-host" + platform embed terms, and with one eligible video the
+  SEO upside is ~zero. The clean route later is creator WRITTEN PERMISSION or a
+  creator-SUPPLIED original — not scraping the platform's media.
+- No VideoObject, og:video, or video-sitemap markup is emitted (confirmed). ItemList +
+  BreadcrumbList + place schema stay.
+- NEW lib/videoObjectGate.js (server-only): the eligibility CONTRACT + per-video
+  provenance store (sourceUrl, creatorHandle, permissionStatus, permissionRecord,
+  thumbnailRights, thumbnailUrl, thumbnailRefresh, renderedWithoutClick, verified,
+  lastVerified). videoObjectEligible(key) returns false for every video today; a future
+  2b emitter MUST gate on it. check-seo now enforces "no VideoObject/og:video in
+  lib/trending.js" so it can't be re-added without deliberately wiring the gate.
+- Facebook /share/r/ reels (Mai-Kai) are now a NORMAL external social link, not a
+  video-styled facade tile — they carry no video id and no on-page player, so framing
+  them as video would misrepresent them. VideoFacade now renders ONLY for embeddable
+  platforms (TikTok/YouTube/Instagram, via the extracted lib/videoEmbed.js) and returns
+  null otherwise; the trending card shows the plain external link instead.
+- The TikTok (Spinning Coffee) card keeps its tap-to-load official player + an
+  always-visible "Watch on TikTok ↗" fallback link (survives player failure / removed post).
+
 ## v5.94 - Creator-video engine, Phase 2a: indexable /trending/[city] pages (the SEO surface)
 - The place sheet (Phase 1) is noindex, so it can't earn search traffic. This adds the
   real discoverability surface: NEW server-rendered, INDEXABLE /trending/[city] pages

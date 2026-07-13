@@ -86,9 +86,31 @@ EVOLVE the existing block at Detail.js:496-514 — do NOT add a second, competin
 - NO JSON-LD here. This sheet is noindex; the card is for UX / social proof / the
   reshare loop only. (Schema lives in Phase 2.)
 
+STATUS (2026-07-13): Phase 2a SHIPPED (v5.94) = the indexable pages + facades +
+ItemList/BreadcrumbList + followed backlinks + sitemap + CSP. Phase 2b (VideoObject)
+is DEFERRED by owner decision (v5.95) — see the "VideoObject — DEFERRED" block below.
+
 ── PHASE 2 — /trending/[city]: indexable pages + video SEO (the real discoverability)
 Build NEW indexable routes /trending/[city] (greenfield — you control them; make
 them indexable from day one, unique H1 + description + canonical per city).
+
+── VideoObject — DEFERRED (owner decision, v5.95). DO NOT self-host to force SEO. ──
+Do NOT download, cache, self-host, or commit a creator's TikTok/IG/YouTube video
+frame or thumbnail solely to manufacture a durable thumbnailUrl. Reasons: (a) valid
+video indexing must NOT depend on a user click, but our facade is tap-to-load; (b) a
+valid VideoObject needs a stable, representative, self-served thumbnail frame — an
+oEmbed thumbnail is a signed/expiring CDN URL (invalid when crawled) and a
+Wayfind-branded card is not the actual frame (not representative); (c) re-hosting the
+frame collides with "never re-host" + platform embed terms; (d) with n=1 eligible
+video the SEO upside is ~zero. Also DO NOT emit og:video or video-sitemap entries,
+and treat non-embeddable posts (Facebook /share/r/ reels) as normal external social
+links, never marked up as video. The eligibility CONTRACT + per-video provenance
+store live in lib/videoObjectGate.js; check-seo enforces "no VideoObject in
+lib/trending.js" until the gate is deliberately wired. The clean route to enable it
+is creator WRITTEN PERMISSION or a creator-SUPPLIED original (a real representative
+frame at a stable URL, rendered without a click, hand-verified, passing Google's Rich
+Results Test + monitored in Search Console) — never scraping the platform's media.
+
 - Aggregate every video-tagged place in that city into a content-rich list.
 - BUILD THE VIDEO PLAYERS IN: click-to-load facade (static thumbnail + play button →
   loads the official oEmbed/iframe on interaction). Because a real player renders
