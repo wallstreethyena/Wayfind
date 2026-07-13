@@ -91,13 +91,6 @@ export default function RootLayout({ children }) {
           // re-add user-scalable=no). Inline field styles below 16 are bumped too,
           // since an inline font-size overrides this rule.
           + "input,select,textarea{font-size:16px}"
-          // v6.08 (PR-C, mobile): home-route scroll lock. The app shell is a
-          // 100dvh flex column with an inner scroller; this class (toggled on
-          // <body> only while the home app is mounted — NOT on document-flow pages
-          // like /privacy or /places) stops the body itself from scrolling and
-          // dragging the flex-pinned bottom nav. position:fixed is used over
-          // overflow:hidden because iOS Safari honors it more reliably.
-          + "body.wf-app-locked{position:fixed;inset:0;width:100%;overflow:hidden;overscroll-behavior:none}"
         }} />
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />

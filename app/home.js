@@ -2679,14 +2679,6 @@ function PageInner() {
     if (n >= 2 && !localStorage.getItem("wf_a2hs_dismissed") && Date.now() - lastShown > 3 * 864e5) { setA2hs(true); try { localStorage.setItem("wf_a2hs_last", String(Date.now())); logEvent("a2hs_shown"); } catch (e) {} }
   } catch (e) {} }, []);
   useEffect(() => { const h = (e) => { e.preventDefault(); setDeferredPrompt(e); }; window.addEventListener("beforeinstallprompt", h); return () => window.removeEventListener("beforeinstallprompt", h); }, []);
-  // v6.08 (PR-C): lock body scroll ONLY while the home app is mounted. The shell
-  // is a 100dvh flex column with an inner scroller; this stops the body itself
-  // from scrolling and dragging the flex-pinned bottom nav. Removed on unmount so
-  // document-flow routes (/privacy, /places, /events) scroll normally.
-  useEffect(() => {
-    try { document.body.classList.add("wf-app-locked"); } catch (e) {}
-    return () => { try { document.body.classList.remove("wf-app-locked"); } catch (e) {} };
-  }, []);
   const _expLinked = useRef(false);
   useEffect(() => { try {
     if (_expLinked.current) return; _expLinked.current = true;
@@ -5792,7 +5784,7 @@ function PageInner() {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(48px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(64px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
@@ -6453,8 +6445,11 @@ function PageInner() {
         </div>
       )}
 
-      {/* Bottom nav */}
-      <div style={{ background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", flexShrink: 0, paddingBottom: "env(safe-area-inset-bottom)" }}>
+      {/* Bottom nav — v6.08 (PR-C): pinned to the VIEWPORT bottom with position:fixed
+          (no transformed ancestor exists to break it), centered to the app column
+          (maxWidth 480). Only the inner list scrolls; the nav never moves with the
+          page. The scroll container below reserves matching bottom padding. */}
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
         {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "coupons", icon: "coupons", label: "Coupons" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
