@@ -1,3 +1,20 @@
+## v6.03 - Events timezone fix: no more "10 PM library events"
+- The events list showed Manatee County Library programs at impossible hours — an ESL class
+  and Trivia Night at 10 PM, "Mana-Tween: DIY Dreams" at 9 PM. Confirmed against the live feed.
+- Root cause: the LibCal iCal feed stamps DTSTART in UTC (trailing Z, e.g. 20260713T220000Z).
+  parseICSDate (lib/eventResolve.js) copied the raw UTC clock straight into the displayed
+  `time`, so a 6 PM program (22:00Z) rendered as "22:00". Off by the UTC offset (4h in EDT,
+  5h in EST) for every library event.
+- Fix: when the stamp is UTC, derive BOTH the displayed date and time from the Gulf-Coast
+  local (America/New_York) wall time of that instant — which also corrects the date when the
+  instant crosses local midnight (00:30Z on the 14th is 8:30 PM on the 13th). DST-aware via
+  Intl, so EDT and EST both resolve correctly. The sort/window key `dt` is unchanged (it was
+  always the correct UTC instant). Floating (no-Z) and date-only stamps pass through untouched.
+- Single-point fix: parseICSDate feeds both the list path (fromLibCal) and the by-id resolve
+  path (resolveLibCal), so both are corrected at once. Verified: 22:00Z->18:00, midnight
+  rollover, and a winter EST year-boundary case all resolve correctly; both event test suites
+  still pass.
+
 ## v6.02 - Insider card kill-switch: stop fabricated "local intel" in prod
 - A live-site investigation found the "Insider Intel" card stating things that are not
   true: it told users Marie Selby Botanical Gardens has "cruise-ship crowds." Selby is an
