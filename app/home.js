@@ -80,7 +80,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.86";
+const BUILD_ID = "v5.87";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2882,12 +2882,12 @@ function PageInner() {
     // isBestOf gate is dropped so it works in any market (Parrish included).
     // Supports the "Hidden gems" lens (opts.lens==="gems") from the retired
     // Best-of tile. Phase 2 adds live events + Parrish curation.
-    today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", slots: [{ label: "Top experiences", n: 4, q: "top attractions tours and things to do" }, { label: "Theme parks", n: 2, q: "theme parks" }, { label: "Shows & theater", n: 2, q: "shows theater live entertainment" }, { label: "Local favorites", n: 2, q: "top rated attractions and local favorites" }], rank: DEFAULT_RANK },
+    today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", slots: [{ label: "Top things to do", n: 5, q: "top attractions and things to do" }, { label: "Museums & culture", n: 3, q: "museums art galleries and gardens" }, { label: "Local favorites", n: 2, q: "top rated local landmarks and experiences" }], rank: DEFAULT_RANK },
     food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
     // v5.7x: entertainment + shows fold into experiences — the shows/theater
     // query joins the slot mix, nothing about the destination is deleted.
     experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now \u2014 parks, attractions, tours, and shows \u2014 ranked by fit. Attraction pages include bookable tours.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Shows & theater", n: 2, q: "shows theater dinner show live entertainment" }, { label: "Top experiences", n: 5, q: "top attractions tours and things to do" }], rank: DEFAULT_RANK },
-    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }], rank: DEFAULT_RANK },
+    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Speakeasies & cocktail lounges", n: 4, q: "speakeasy cocktail bars and lounges" }, { label: "Dancing & nightlife", n: 2, q: "dance clubs and nightlife" }, { label: "Live music", n: 2, q: "live music venues and bars" }, { label: "Rooftop & wine bars", n: 2, q: "rooftop and wine bars" }], rank: DEFAULT_RANK },
     shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }], rank: DEFAULT_RANK },
     stays: { title: "Hotels & Stays", emoji: "\uD83C\uDFE8", lead: "Places to stay near you, ranked by rating \u2014 resorts, boutique hotels, and easy overnights.", slots: [{ label: "Hotels & stays", n: 10, q: "best hotels resorts lodging" }], rank: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0), presetSort: "curated" },
     bestof: { title: "Best of " + cityNow, emoji: "\uD83C\uDFC6", lead: "The local institutions people here name among the best \u2014 ranked by rating and how many people agree.", slots: [{ label: "Institutions", n: 10, q: "top rated restaurants attractions and shops" }], rank: (a, b) => bestOfScore(b) - bestOfScore(a), presetSort: "curated" },
@@ -2902,7 +2902,12 @@ function PageInner() {
     const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}
     try {
-      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
+      // v5.87: search the metro (30mi, capped ~31 by the API), not just 17mi.
+      // Sparse categories (shopping/stays/attractions) at a small market like
+      // Parrish sit 18-30mi out in Sarasota/Bradenton — a 17mi search returned
+      // 0-1 and the sheet never opened. Food stays local: its presetMi still
+      // filters the sheet to 15mi, so the wider fetch never loosens it.
+      const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center, 30).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
       const used = new Set(); const out = []; const sections = [];
       const CHAIN_RX = /papa john|domino'?s|pizza hut|mcdonald|burger king|taco bell|wendy'?s|little caesar|kfc\b|dunkin|subway\b|checkers\b|hungry howie/i;
       // v4.61 PROTECTED (check-meals.mjs): a slot label is a promise. Every

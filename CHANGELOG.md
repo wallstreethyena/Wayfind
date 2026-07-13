@@ -1,3 +1,22 @@
+## v5.87 - Fix thin "Explore near you" lists: wider search radius + better Today's Best / Night Out slots
+- ROOT CAUSE of the reported "Today's Best shows 2 cards / Shop Local won't open /
+  Stay Tonight only 1 location" is NOT the menu merge — it is the Google Places API
+  quota (the proxy returns HTTP 429 "upstream 429"). While the quota is exhausted,
+  searches come back empty; food survives (dense/cached), the sparser categories
+  don't. **Owner action C3: raise the Places API quota in Google Cloud.** No code
+  change populates results while the API is 429-ing.
+- Two real code issues fixed so the menu is right once quota is restored (and to
+  cut API pressure):
+  - openCurated searched only a 17mi radius; at a small market (Parrish) shopping/
+    stays/attractions sit 18-30mi out in Sarasota/Bradenton, so they returned 0-1
+    and the sheet never opened. Now searches the metro (30mi, capped ~31 by the
+    API). Food stays local — its presetMi still filters the sheet to 15mi.
+  - Today's Best ("today") dropped the near-empty "theme parks" / "shows" slots for
+    denser queries (top things to do / museums & culture / local favorites) — more
+    results AND fewer API calls (3 slots, was 4).
+  - Night Out now prefers speakeasies, cocktail lounges, dancing/nightlife, live
+    music, and rooftop/wine bars (was generic bars + late-night eats).
+
 ## v5.86 - Revert v5.85 (ranking-page maps) at owner request
 - Reverted the entire v5.85 change: the map on the 5 ranking sheets, the medal
   pins / category icons / name·score labels, the desktop-map rings/nearZoom, and
