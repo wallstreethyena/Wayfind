@@ -1,3 +1,28 @@
+## v6.02 - Insider card kill-switch: stop fabricated "local intel" in prod
+- A live-site investigation found the "Insider Intel" card stating things that are not
+  true: it told users Marie Selby Botanical Gardens has "cruise-ship crowds." Selby is an
+  inland botanical garden with no cruise traffic. This is not a one-off — it is fabrication
+  BY CONSTRUCTION.
+- lib/insiderServer.js generates the card from only the place's name, type, star rating,
+  review COUNT, and price band. It is fed NO evidence source — no review text, no editorial
+  summary, no curated fact. The prompt then instructs the model, when it does not
+  independently know the place, to "write genuinely useful general-but-true guidance" from
+  those five fields. With nothing real to ground on, "a sharp local friend" voice invents
+  plausible-sounding local color (crowds, best times, what to order) that no one verified.
+  That directly contradicts Wayfind's brand promise ("ranked honestly, no fabrication").
+- Fix: the module is now OFF by default behind INSIDER_ENABLED (unset = off). getInsider()
+  returns null on its FIRST line, BEFORE the cache read — so the fabrications already cached
+  in wf_places_cache (30-day TTL) also stop being served, not just newly generated ones.
+  The card simply does not render (the UI already fail-soft-hides it on null).
+- Scope is deliberately narrow: only getInsider() is gated. claudeJson()/logLlmCall() (the
+  shared helpers used by /api/moment/picks and /api/list/generate) are untouched, so the
+  moment picks and List Engine are unaffected.
+- NOTE for follow-up: already-rendered SSR/ISR landing pages have the old insider text baked
+  into their static HTML until they revalidate. A redeploy (fresh ISR) clears them. And the
+  stale rows still sit in wf_places_cache — harmless once unread, purge-able later.
+- This is a stop-the-harm hotfix, NOT a rebuild. Re-enabling requires giving the card a real
+  evidence source first (the same evidence-first pattern v6.01 gave /api/blurbs).
+
 ## v6.01 - Place descriptions, phase 1: evidence-first blurbs, no more metadata filler
 - Fixes the "Keke's wins: closest quality breakfast spot, 4.8 from 3725 reviews, sunny Monday
   morning perfection" problem. The user can already SEE the rating and distance on the card;
