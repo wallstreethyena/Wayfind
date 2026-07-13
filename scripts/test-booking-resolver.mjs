@@ -109,5 +109,27 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
   if (!resolveVerified(place, [localOrigin], { region: "Siesta Key,Sarasota", kind: "beach" })) fail("a local-origin trip naming the region was wrongly gated");
 }
 
+// 6. v5.97 RECALL: a genuine product whose title is a SHORTER form of a long place
+//    name must resolve live. "Mote Aquarium" for "Mote Marine Laboratory & Aquarium"
+//    matched 2 of 4 distinctive tokens -> the old em=hits/total=0.5 fell to 0.675
+//    conf and wrongly suppressed a real, commissionable match. It must be live now,
+//    WITHOUT re-opening any false positive above (those all still suppress).
+{
+  const mote = { name: "Mote Marine Laboratory & Aquarium" };
+  const moteProduct = { title: "Mote Aquarium General Admission Ticket", productUrl: "https://www.viator.com/tours/m1", productCode: "M1" };
+  const moteOffer = resolveVerified(mote, [moteProduct], { region: "Sarasota", kind: "wildlife" });
+  if (!moteOffer || moteOffer.status !== STATUS.LIVE) fail("genuine short-form match (Mote Aquarium) wrongly suppressed — recall regression");
+
+  const selby = { name: "Marie Selby Botanical Gardens" };
+  const selbyProduct = { title: "Selby Gardens Admission", productUrl: "https://www.viator.com/tours/s1", productCode: "S1" };
+  const selbyOffer = resolveVerified(selby, [selbyProduct], { region: "Sarasota", kind: "nature" });
+  if (!selbyOffer || selbyOffer.status !== STATUS.LIVE) fail("genuine short-form match (Selby Gardens) wrongly suppressed — recall regression");
+
+  // Precision guard for the recall change: a SINGLE generic token of a long name is
+  // NOT enough — a product that shares only one weak token must still suppress.
+  const genericPartial = resolveVerified(selby, [{ title: "Downtown Sarasota Botanical Walking Tour", productUrl: "https://www.viator.com/tours/s2", productCode: "S2" }], { region: "Sarasota", kind: "nature" });
+  if (genericPartial) fail("a one-weak-token generic tour cleared the bar for Selby Gardens — recall fix dropped precision");
+}
+
 if (failures) process.exit(1);
 console.log("test-booking-resolver: OK — default-deny resolver + region gate behave on all golden fixtures");

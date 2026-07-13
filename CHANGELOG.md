@@ -1,3 +1,28 @@
+## v5.97 - Booking + affiliate integrity: Viator recall (a GENERAL rule) + Ticketmaster earns on the right links only
+- **Viator "Book" CTA was silently dark** — the key works (upstream 200) but even flagship
+  products returned 0 live offers. Diagnosed locally against the real scorer (no deploys):
+  genuine matches whose Viator product title is a SHORTER form of a long place name were
+  wrongly suppressed. "Mote Aquarium" for "Mote Marine Laboratory & Aquarium" matched 2 of
+  4 distinctive tokens, so the old entity score `hits/total = 0.50` dragged confidence to
+  0.675, under the 0.72 bar. Same for "Selby Gardens" ↔ "Marie Selby Botanical Gardens".
+- **Fixed as a GENERAL SCORING RULE, not a per-place list.** The threshold (0.72) is left
+  ALONE — it's load-bearing for precision (the B2 region gate leans on it). Instead the
+  entity-match ALGORITHM changed: `em = hits / min(total, hits+1)` — a diminishing penalty
+  for unmatched tokens. A FULL match still scores 1; ZERO matched distinctive tokens still
+  scores 0 (so every false positive still suppresses); but matching k of many tokens now
+  scores k/(k+1) (0.5, 0.67, 0.75, …) instead of k/total. This applies to EVERY place and
+  EVERY product title, now and future — no place is named in the production code. Precision
+  is still held globally by the entity FLOOR, specificity (fan-out), and the
+  foreign-destination gate. All golden fixtures stay green; added recall fixtures (Mote,
+  Selby) + a precision guard (a one-weak-token generic tour still suppresses).
+- **Ticketmaster: the affiliate param now earns on the right links only.** `ticketOutUrl`
+  appended TICKETMASTER_PARAM to ANY ticket URL — SeatGeek, Eventbrite, AXS, DICE included —
+  which, once the param is set, would fail to attribute AND pollute a competitor's link with
+  a foreign param. Now guarded to the Ticketmaster FAMILY (ticketmaster.*, livenation.*,
+  ticketweb.* — the same TM/Impact program), a clean pass-through everywhere else. Verified
+  against a spoofed `ticketmaster.com.evil.com` host too. (Still blank until you paste the
+  Impact tracking value; this just makes it correct the moment you do.)
+
 ## v5.96 - Durable, indexable place pages: /places/[id] (the foundation)
 - Until now a place had no durable, indexable URL — /p/[id] is a noindex share-redirect
   fed by query params, so a place "loses context" on reload and earns no search traffic.
