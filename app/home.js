@@ -78,9 +78,10 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
+import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v5.98";
+const BUILD_ID = "v5.99";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -817,6 +818,16 @@ const CURATED_REACH_MI = 45;
 // always labeled per card; manual radius choices always win over auto.
 const RADIUS_LADDER_M = [27359, 48280, 72420, 96560]; // 17 → 30 → 45 → 60 mi
 const ADAPT_MIN = 8;
+// v5.99 CREATOR-VIDEO BOOST (single dial-back point). A place with a REAL creator
+// video ranks substantially higher AND shows a visible "Creator video" badge so the
+// boost is never silent (an unlabeled boost would break the "no paid placement,
+// ranked on real reviews" promise). creatorVideosFor() already excludes STAGED
+// (url:"") entries, so only a genuinely-renderable video earns the boost + badge —
+// same predicate for both, so boosted <=> badged. Displayed wfScore is UNTOUCHED
+// (this only moves the hidden sort). Applied on the main ranked browse/search feed;
+// to remove or retune, change VIDEO_BOOST or delete hasCreatorVideo at its call sites.
+const VIDEO_BOOST = 45; // clears the 30-pt max distance penalty and lifts a featured place near the top
+function hasCreatorVideo(p) { try { return creatorVideosFor(p).length > 0; } catch (e) { return false; } }
 function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
@@ -5448,7 +5459,7 @@ function PageInner() {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -6661,7 +6672,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id]);
-  const badges = [...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  // v5.99: the "Creator video" badge is shown iff the place got the VIDEO_BOOST
+  // (same hasCreatorVideo predicate) — the boost is labeled, never silent.
+  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   const take = line || templateBlurb(p);
