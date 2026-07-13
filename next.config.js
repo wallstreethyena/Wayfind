@@ -22,7 +22,10 @@ const CSP_REPORT_ONLY = [
   "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com",
   "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com",
   "worker-src 'self' blob:",
-  "frame-src 'self'",
+  // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
+  // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
+  // missing origin here fails SILENTLY — the future enforce-flip DEPENDS on this list.
+  "frame-src 'self' https://www.tiktok.com https://www.youtube-nocookie.com https://www.instagram.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

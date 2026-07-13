@@ -23,13 +23,14 @@ const fail = (m) => { console.error("check-seo: FAIL — " + m); process.exit(1)
 const pages = [];
 const walk = (d) => { for (const f of readdirSync(d)) { const p = join(d, f); if (statSync(p).isDirectory()) { if (f !== "api" && f !== "components") walk(p); } else if (f === "page.js") pages.push(p); } };
 walk(join(root, "app"));
-// landingMetadata() carries the canonical for the /{cat}/{city} pages —
-// assert that once, then accept the call sites.
+// landingMetadata() / trending metadata carry the canonical for their pages —
+// assert that once each, then accept the call sites.
 if (!readFileSync(join(root, "lib", "landing.js"), "utf8").includes("alternates: { canonical: url }")) fail("landingMetadata lost its canonical");
+if (!readFileSync(join(root, "lib", "trending.js"), "utf8").includes("alternates: { canonical: url }")) fail("trending metadata lost its canonical");
 for (const p of pages) {
   if (p === join(root, "app", "page.js")) continue;
   const s = readFileSync(p, "utf8");
-  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
+  if (!(s.includes("canonical") || s.includes("index: false") || s.includes("landingMetadata(") || s.includes("trendingMetadata(") || s.includes("trendingIndexMetadata("))) fail(`route ${p.slice(root.length)} declares neither a canonical nor noindex — it inherits canonical "/" and reads as a homepage duplicate`);
 }
 
 // 2. layout contract: homepage canonical, JSON-LD, footer links, no H1.

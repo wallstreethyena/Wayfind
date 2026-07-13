@@ -1,3 +1,36 @@
+## v5.94 - Creator-video engine, Phase 2a: indexable /trending/[city] pages (the SEO surface)
+- The place sheet (Phase 1) is noindex, so it can't earn search traffic. This adds the
+  real discoverability surface: NEW server-rendered, INDEXABLE /trending/[city] pages
+  (plus a /trending index) that aggregate the video-tagged places in a city — Wayfind's
+  own content + the creator's video + a followed backlink to that creator.
+- Scoped deliberately as "2a": ItemList + BreadcrumbList JSON-LD (valid with data we
+  already have), click-to-load video FACADES, followed creator backlinks, sitemap
+  entries, CSP, and internal links. VideoObject schema is DEFERRED to Phase 2b — a
+  valid VideoObject needs a durable thumbnailUrl + uploadDate, and a TikTok oEmbed
+  thumbnail is a signed/expiring CDN URL that would be dead (= invalid, penalized
+  schema) by the time Googlebot crawls. Ship the honest list now; add video schema
+  when thumbnails are self-hosted.
+- lib/trending.js (SERVER-ONLY, so the place blurbs never bloat the client bundle):
+  the city registry + metadata (canonical per page) + the SSR renderer. Blurbs are
+  ALWAYS Wayfind's own words; where we lack grounded facts (Spinning Coffee) we stay
+  honest and lean on the creator feature rather than fabricate specifics.
+- app/components/VideoFacade.js: a lightweight branded tile that loads ZERO third-party
+  JS until tapped (Core Web Vitals safe), then swaps in the platform's official embed
+  iframe by id (TikTok player / YouTube-nocookie / Instagram). Platforms with no
+  embeddable-by-id URL (Facebook /share/r/ reels) degrade to a FOLLOWED link-out.
+- Creator benefit (the backlink): every card carries a real FOLLOWED <a> to the
+  creator's video — deliberately NO rel="noreferrer"/"nofollow" (rel="noopener" only,
+  which doesn't mute the link). This is the durable, indexable creator win Phase 1
+  couldn't give (the sheet being noindex).
+- Wired: sitemap lists /trending + each city; next.config.js CSP frame-src gains the
+  embed origins (CSP is Report-Only, so a missing origin fails SILENTLY today — the
+  future enforce-flip depends on this list being right, so it's set now); check-seo
+  registers the trending metadata delegators + asserts trending.js keeps its canonical.
+- Seeded thin (2 cities, 1 place each): Bradenton (Spinning Coffee / TikTok) and Fort
+  Lauderdale (Mai-Kai / Facebook). HONEST framing: the machine is built; the SEO payoff
+  is latent until more seeds land. Phase 2b = VideoObject (self-hosted thumbnails +
+  ID-derived uploadDate); the reshare loop + a Supabase-backed video store come later.
+
 ## v5.93 - Creator-video engine, Phase 1: a featured-creator hero on the place sheet (evolve, don't duplicate)
 - First slice of the creator-video discoverability engine (full plan in
   CREATOR_VIDEO_SPEC.md). Turns real creator videos tagged to a place into UGC social
