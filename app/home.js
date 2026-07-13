@@ -81,7 +81,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.00";
+const BUILD_ID = "v6.01";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -6677,7 +6677,10 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
-  const take = line || templateBlurb(p);
+  // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
+  // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
+  // generic/metadata filler. Falls back to the LLM line, then a clean local template.
+  const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
   const offer = OFFERS[p.id];
   return (
     <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>

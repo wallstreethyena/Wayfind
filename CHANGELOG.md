@@ -1,3 +1,27 @@
+## v6.01 - Place descriptions, phase 1: evidence-first blurbs, no more metadata filler
+- Fixes the "Keke's wins: closest quality breakfast spot, 4.8 from 3725 reviews, sunny Monday
+  morning perfection" problem. The user can already SEE the rating and distance on the card;
+  the description must say WHY the place is good, using facts they can't see. Two changes:
+- (1) A hand-written Wayfind hook already exists for 75 places (lib/curated.js) — a real,
+  substantive, no-metadata line ("Romantic waterfront seafood with bay views and
+  special-occasion energy"). The list card now PREFERS that hook over the LLM blurb (which
+  drifts to filler), falling back to the LLM line, then a clean local template. 75 places get
+  a real description immediately, zero LLM cost, zero risk.
+- (2) The LLM blurb generator (/api/blurbs) is rewritten EVIDENCE-FIRST: it is no longer fed
+  rating, reviews, price, or distance at all (so it structurally cannot restate them), and the
+  prompt explicitly bans restating or implying them ('closest', 'shortest drive', 'trusted
+  by', star/review/mile counts), bans the time/weather + hype filler the OLD prompt actively
+  encouraged ('perfect for your Monday', 'sunny morning', 'hidden gem'), and applies the SWAP
+  TEST: a line that could sit under a different business of the same type is worthless. It now
+  grounds each line in real evidence (curated funFact, then recurring review specifics restated
+  in Wayfind's words, then editorialSummary) and REFUSES to write a line when it has no
+  place-specific fact — the card then shows a clean template, not filler. Curated places (which
+  already show their hook) are skipped in the generator so no tokens are wasted.
+- This is phase 1 (the visible fix). Phase 2 = the "generate once, store in a place_descriptions
+  table, read everywhere" architecture + an evidence-extraction pass + a grader, which also
+  guarantees the home tile and detail page can never contradict each other and drops the
+  render-time cost. Scoped separately because it needs a new table (owner SQL) + a generation job.
+
 ## v6.00 - Creator-video boost now reaches ALL feed rankings (not just browse/search)
 - v5.99 applied VIDEO_BOOST at ONE ranking site (the browse/search viewBase). This wires the
   same boost into the other 6 feed-ranking sums so video places also rank up in the home feed,
