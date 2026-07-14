@@ -1,0 +1,67 @@
+{
+  "inventory": {
+    "rows": 1027,
+    "byCategory": {
+      "food": 266,
+      "shopping": 212,
+      "hotels": 191,
+      "attractions": 240,
+      "beach": 100,
+      "nightlife": 18
+    },
+    "byMetro": {
+      "manatee-sarasota": 1027
+    },
+    "bySource": {
+      "google_type": 1027
+    },
+    "anchors": 0,
+    "needsReview": 0,
+    "locked": 0,
+    "noCategory": 0,
+    "noCoords": 0,
+    "noTypes": 0,
+    "closedOrNonOperational": 0
+  },
+  "classifierDisagreement": {
+    "comparableRows": 1027,
+    "disagreements": 66,
+    "shape": {
+      "Food -> Activities": 12,
+      "Shopping -> Food": 13,
+      "Food -> Nightlife": 22,
+      "Shopping -> Activities": 1,
+      "Hotels -> Activities": 15,
+      "Activities -> Nightlife": 1,
+      "Nightlife -> Activities": 1,
+      "Activities -> Shopping": 1
+    },
+    "liveGateWouldDrop": 0
+  },
+  "junk": {
+    "serviceBusinesses": 0,
+    "hotelsTotal": 191,
+    "hotelsWithoutLodgingType": 0,
+    "hotelsNonLodgingPct": 0,
+    "hotelsClosed": 0,
+    "foodTotal": 266,
+    "foodThatIsGroceryOrBigBox": 33
+  },
+  "duplicates": {
+    "groups": 4,
+    "rows": 8
+  },
+  "anchorGap": {
+    "anchors": 0,
+    "unclassifiableWithRealTypes": 0,
+    "moteLikeInstitutions": 9,
+    "moteInInventory": false
+  },
+  "atlas590": {
+    "cards": 590,
+    "matchedToInventory": 590,
+    "unmatched": 0,
+    "unmatchedIdShape": {},
+    "categoryConflictsWithInventory": 98
+  }
+}
