@@ -81,7 +81,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.08";
+const BUILD_ID = "v6.11";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2932,6 +2932,33 @@ function PageInner() {
     })();
     const _openFromPool = () => setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: _poolPicks, sections: null, presetMi: 60, presetSort: "curated", lens });
     if (_poolPicks.length >= 3) { _openFromPool(); return; }
+    // v6.11 — "Stay Tonight" reads Wayfind's OWNED hotel library FIRST: scored,
+    // lodging-only, no 55+ noise, no Google. Renders through the same thin-market
+    // presentation. Only falls through to the live search below when we have no
+    // owned coverage for this location (e.g. outside the seeded metro).
+    if (kind === "stays" && center) {
+      try {
+        const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=20`);
+        const hj = await hr.json();
+        if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
+          const owned = hj.hotels;
+          const town = locName ? locName.split(",")[0].trim() : "";
+          const thin = Radius.strongWithin(owned, 10) < 10;
+          let title2 = c.title, body2 = c.lead, places2 = owned, sections2 = null;
+          if (thin) {
+            const bk = Radius.bucketize(owned, town);
+            places2 = bk.places;
+            sections2 = bk.sections.length > 1 ? bk.sections : null;
+            title2 = c.title.replace(" near you", town ? " near " + town : " near you");
+            body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance — every pick is labeled by how far it really is. " : "") + c.lead;
+          }
+          const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
+          setBlurbs((prev) => { const m = { ...prev }; owned.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
+          setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
+          return;
+        }
+      } catch (e) {}
+    }
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
       const used = new Set(); const out = []; const sections = [];
@@ -4762,6 +4789,30 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
+        // v6.11 — "Stay Tonight" reads Wayfind's OWNED lodging-only list FIRST,
+        // ranked by distance from the user: only real bookable hotels (no 55+/
+        // residential leak, stripped at ingest), and thin markets like Parrish
+        // borrow the nearest real hotels (Ellenton/Bradenton) instead of showing
+        // "0 / not enough data". Booking is monetized by the existing Stay22 CTA.
+        // Falls through to the legacy live search only if the owned list is empty.
+        if ((hd.fetchKey || hd.theme) === "stays") {
+          try {
+            const cityQ = locName ? String(locName).split(",")[0].trim() : "";
+            const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&city=${encodeURIComponent(cityQ)}&limit=20`);
+            const hj = await hr.json();
+            if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
+              const hotels = hj.hotels.slice(0, 20);
+              if (!cancelled) {
+                setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: hotels } : cur);
+                // Owned hotels carry Wayfind copy — seed blurbs directly, no
+                // generator/Google call needed for these.
+                setBlurbs((prev) => { const m = { ...prev }; hotels.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
+                try { loadOffers(hotels); } catch (e) {}
+              }
+              return;
+            }
+          } catch (e) {}
+        }
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
         let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
@@ -4784,7 +4835,7 @@ function PageInner() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center]);
+  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center, locName]);
 
   // Surprise Me: an honest curator. Picks one standout for right now using the
   // signals we actually have: time of day, open status, distance, review quality.

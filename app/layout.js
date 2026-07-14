@@ -57,7 +57,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
-      <body style={{ margin: 0, background: "#0D1117", height: "100%" }}>
+      <body style={{ margin: 0, background: "#0D1117", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
         <PostHogProvider>
         {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
             is visually hidden until focused, then appears top-left. */}
