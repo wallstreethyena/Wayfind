@@ -2932,6 +2932,33 @@ function PageInner() {
     })();
     const _openFromPool = () => setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: _poolPicks, sections: null, presetMi: 60, presetSort: "curated", lens });
     if (_poolPicks.length >= 3) { _openFromPool(); return; }
+    // v6.11 — "Stay Tonight" reads Wayfind's OWNED hotel library FIRST: scored,
+    // lodging-only, no 55+ noise, no Google. Renders through the same thin-market
+    // presentation. Only falls through to the live search below when we have no
+    // owned coverage for this location (e.g. outside the seeded metro).
+    if (kind === "stays" && center) {
+      try {
+        const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=20`);
+        const hj = await hr.json();
+        if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
+          const owned = hj.hotels;
+          const town = locName ? locName.split(",")[0].trim() : "";
+          const thin = Radius.strongWithin(owned, 10) < 10;
+          let title2 = c.title, body2 = c.lead, places2 = owned, sections2 = null;
+          if (thin) {
+            const bk = Radius.bucketize(owned, town);
+            places2 = bk.places;
+            sections2 = bk.sections.length > 1 ? bk.sections : null;
+            title2 = c.title.replace(" near you", town ? " near " + town : " near you");
+            body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance — every pick is labeled by how far it really is. " : "") + c.lead;
+          }
+          const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
+          setBlurbs((prev) => { const m = { ...prev }; owned.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
+          setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
+          return;
+        }
+      } catch (e) {}
+    }
     try {
       const results = await Promise.all(c.slots.map((sl) => searchNearbyPlaces(sl.q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: Top-10 pools route through the shared filter
       const used = new Set(); const out = []; const sections = [];
