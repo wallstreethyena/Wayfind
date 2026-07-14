@@ -1,0 +1,473 @@
+{
+  "Cabinetree": {
+    "name": "Cabinetree",
+    "types": [
+      "manufacturer",
+      "general_contractor",
+      "service",
+      "furniture_store",
+      "home_improvement_store",
+      "home_goods_store",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "furniture_store",
+    "storedCategory": "shopping",
+    "reviews": 47
+  },
+  "Ideal Classic Cars": {
+    "name": "Ideal Classic Cars",
+    "types": [
+      "car_dealer",
+      "store",
+      "museum",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "car_dealer",
+    "storedCategory": "attractions",
+    "reviews": 897
+  },
+  "MarineMax Venice": {
+    "name": "MarineMax Venice",
+    "types": [
+      "storage",
+      "marina",
+      "store",
+      "supplier",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "supplier",
+    "storedCategory": "beach",
+    "reviews": 144
+  },
+  "Bay Indies": {
+    "name": "Bay Indies",
+    "types": [
+      "mobile_home_park",
+      "rv_park",
+      "lodging",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "mobile_home_park",
+    "storedCategory": "hotels",
+    "reviews": 352
+  },
+  "Park Store Go": {
+    "name": "Park Store Go",
+    "types": [
+      "parking_lot",
+      "rv_park",
+      "parking",
+      "transportation_service",
+      "storage",
+      "lodging",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "parking_lot",
+    "storedCategory": "hotels",
+    "reviews": 260
+  },
+  "Camelot Lakes Village": {
+    "name": "Camelot Lakes Village",
+    "types": [
+      "mobile_home_park",
+      "rv_park",
+      "lodging",
+      "point_of_interest",
+      "service",
+      "establishment"
+    ],
+    "primaryType": "mobile_home_park",
+    "storedCategory": "hotels",
+    "reviews": 131
+  },
+  "Vizcaya Lakes": {
+    "name": "Vizcaya Lakes",
+    "types": [
+      "mobile_home_park",
+      "rv_park",
+      "lodging",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "mobile_home_park",
+    "storedCategory": "hotels",
+    "reviews": 43
+  },
+  "Beautiful 3-bedroom house in Florida": {
+    "name": "Beautiful 3-bedroom house in Florida",
+    "types": [
+      "lodging",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "lodging",
+    "storedCategory": "hotels",
+    "reviews": 0
+  },
+  "Private Waterfront Cottage with pool on 5 Acres Lakewood Ranch Area in Myakka FL - Entire Place": {
+    "name": "Private Waterfront Cottage with pool on 5 Acres Lakewood Ranch Area in Myakka FL - Entire Place",
+    "types": [
+      "lodging",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "lodging",
+    "storedCategory": "hotels",
+    "reviews": 0
+  },
+  "Island Sun Inn & Suites - Historic Venice & Beach Getaway": {
+    "name": "Island Sun Inn & Suites - Historic Venice & Beach Getaway",
+    "types": [
+      "hotel",
+      "lodging",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "hotel",
+    "storedCategory": "hotels",
+    "reviews": 756
+  },
+  "Venice Beach Villas": {
+    "name": "Venice Beach Villas",
+    "types": [
+      "hotel",
+      "lodging",
+      "point_of_interest",
+      "service",
+      "establishment"
+    ],
+    "primaryType": "hotel",
+    "storedCategory": "hotels",
+    "reviews": 257
+  },
+  "A Beach Retreat On Casey Key": {
+    "name": "A Beach Retreat On Casey Key",
+    "types": [
+      "resort_hotel",
+      "hotel",
+      "lodging",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "resort_hotel",
+    "storedCategory": "hotels",
+    "reviews": 519
+  },
+  "Siesta Heron Suites & Villas": {
+    "name": "Siesta Heron Suites & Villas",
+    "types": [
+      "hotel",
+      "motel",
+      "lodging",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "hotel",
+    "storedCategory": "hotels",
+    "reviews": 55
+  },
+  "EVEN Hotel Sarasota-Lakewood Ranch by IHG": {
+    "name": "EVEN Hotel Sarasota-Lakewood Ranch by IHG",
+    "types": [
+      "wellness_center",
+      "fitness_center",
+      "spa",
+      "gym",
+      "hotel",
+      "lodging",
+      "sports_activity_location",
+      "health",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "hotel",
+    "storedCategory": "hotels",
+    "reviews": 969
+  },
+  "Venice Yacht Club": {
+    "name": "Venice Yacht Club",
+    "types": [
+      "marina",
+      "sports_club",
+      "association_or_organization",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "marina",
+    "storedCategory": "beach",
+    "reviews": 288
+  },
+  "Royal Palm Marina": {
+    "name": "Royal Palm Marina",
+    "types": [
+      "marina",
+      "gas_station",
+      "bar_and_grill",
+      "storage",
+      "bar",
+      "store",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "service",
+      "establishment"
+    ],
+    "primaryType": "marina",
+    "storedCategory": "beach",
+    "reviews": 730
+  },
+  "Freedom Boat Club - Venice La Guna": {
+    "name": "Freedom Boat Club - Venice La Guna",
+    "types": [
+      "marina",
+      "sports_club",
+      "association_or_organization",
+      "service",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "marina",
+    "storedCategory": "beach",
+    "reviews": 232
+  },
+  "Island Discount Tackle": {
+    "name": "Island Discount Tackle",
+    "types": [
+      "fishing_charter",
+      "marina",
+      "sporting_goods_store",
+      "point_of_interest",
+      "store",
+      "service",
+      "establishment"
+    ],
+    "primaryType": "store",
+    "storedCategory": "beach",
+    "reviews": 159
+  },
+  "Whole Foods Market": {
+    "name": "Whole Foods Market",
+    "types": [
+      "grocery_store",
+      "deli",
+      "health_food_store",
+      "bakery",
+      "food_delivery",
+      "supermarket",
+      "market",
+      "food_store",
+      "food",
+      "health",
+      "point_of_interest",
+      "store",
+      "establishment"
+    ],
+    "primaryType": "grocery_store",
+    "storedCategory": "shopping",
+    "reviews": 2288
+  },
+  "Detwiler's Farm Market": {
+    "name": "Detwiler's Farm Market",
+    "types": [
+      "grocery_store",
+      "butcher_shop",
+      "farmers_market",
+      "ice_cream_shop",
+      "deli",
+      "market",
+      "dessert_shop",
+      "confectionery",
+      "manufacturer",
+      "service",
+      "food_store",
+      "food",
+      "store",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "grocery_store",
+    "storedCategory": "shopping",
+    "reviews": 4693
+  },
+  "Seasons 52": {
+    "name": "Seasons 52",
+    "types": [
+      "steak_house",
+      "wine_bar",
+      "vegan_restaurant",
+      "vegetarian_restaurant",
+      "fine_dining_restaurant",
+      "seafood_restaurant",
+      "meal_takeaway",
+      "bar",
+      "american_restaurant",
+      "restaurant",
+      "point_of_interest",
+      "food",
+      "establishment"
+    ],
+    "primaryType": "american_restaurant",
+    "storedCategory": "food",
+    "reviews": 1902
+  },
+  "The End Zone Sports Grille": {
+    "name": "The End Zone Sports Grille",
+    "types": [
+      "sports_bar",
+      "bar",
+      "restaurant",
+      "food",
+      "point_of_interest",
+      "establishment"
+    ],
+    "primaryType": "sports_bar",
+    "storedCategory": "food",
+    "reviews": 1346
+  },
+  "__primaryTypesPresent": [
+    "adventure_sports_center",
+    "american_restaurant",
+    "amusement_center",
+    "amusement_park",
+    "aquarium",
+    "art_gallery",
+    "art_museum",
+    "association_or_organization",
+    "auto_parts_store",
+    "bakery",
+    "bar",
+    "bar_and_grill",
+    "barbecue_restaurant",
+    "beach",
+    "bed_and_breakfast",
+    "book_store",
+    "botanical_garden",
+    "bowling_alley",
+    "breakfast_restaurant",
+    "brewery",
+    "brewpub",
+    "bridge",
+    "british_restaurant",
+    "buffet_restaurant",
+    "building_materials_store",
+    "cafe",
+    "campground",
+    "camping_cabin",
+    "car_dealer",
+    "cemetery",
+    "chicken_restaurant",
+    "chicken_wings_restaurant",
+    "chinese_restaurant",
+    "church",
+    "city_park",
+    "clothing_store",
+    "coffee_shop",
+    "comedy_club",
+    "condominium_complex",
+    "convenience_store",
+    "cottage",
+    "cultural_center",
+    "department_store",
+    "dessert_shop",
+    "discount_store",
+    "dog_park",
+    "donut_shop",
+    "drugstore",
+    "electronics_store",
+    "extended_stay_hotel",
+    "family_restaurant",
+    "farm",
+    "farmers_market",
+    "fast_food_restaurant",
+    "fishing_charter",
+    "fishing_pier",
+    "flea_market",
+    "food_store",
+    "furniture_store",
+    "garden_center",
+    "general_contractor",
+    "gift_shop",
+    "golf_course",
+    "grocery_store",
+    "hamburger_restaurant",
+    "hardware_store",
+    "hiking_area",
+    "historical_landmark",
+    "home_goods_store",
+    "home_improvement_store",
+    "hotel",
+    "ice_cream_shop",
+    "inn",
+    "italian_restaurant",
+    "japanese_restaurant",
+    "jewelry_store",
+    "liquor_store",
+    "live_music_venue",
+    "lodging",
+    "manufacturer",
+    "marina",
+    "mexican_restaurant",
+    "miniature_golf_course",
+    "mobile_home_park",
+    "motel",
+    "movie_theater",
+    "museum",
+    "national_park",
+    "nature_preserve",
+    "night_club",
+    "non_profit_organization",
+    "observation_deck",
+    "oyster_bar_restaurant",
+    "park",
+    "parking_lot",
+    "performing_arts_theater",
+    "pizza_restaurant",
+    "plumber",
+    "polish_restaurant",
+    "private_guest_room",
+    "pub",
+    "resort_hotel",
+    "restaurant",
+    "rv_park",
+    "sandwich_shop",
+    "school",
+    "seafood_restaurant",
+    "service",
+    "shoe_store",
+    "shopping_mall",
+    "spanish_restaurant",
+    "sporting_goods_store",
+    "sports_activity_location",
+    "sports_bar",
+    "sports_club",
+    "sports_complex",
+    "sportswear_store",
+    "stadium",
+    "state_park",
+    "steak_house",
+    "store",
+    "supermarket",
+    "supplier",
+    "thrift_store",
+    "tour_agency",
+    "tourist_attraction",
+    "travel_agency",
+    "video_arcade",
+    "warehouse_store",
+    "winery",
+    "womens_clothing_store",
+    "yoga_studio",
+    "zoo"
+  ]
+}

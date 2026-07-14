@@ -1,3 +1,54 @@
+## v6.16 - One classifier: primaryType decides, and the junk stops being served
+- ROOT CAUSE: there were TWO classifiers. lib/placeTaxonomy.js wrote every stored
+  wf_inventory.category (via the seeder), while lib/placeCategory.js decided what the LIVE gate
+  showed. They disagreed on 66 of 1,027 real rows. That divergence IS the "wrong list" bug class
+  v6.15 set out to kill — v6.15 fixed the live path and left the stored data speaking the old
+  vocabulary, which is what the Google-429 fallback serves.
+- lib/placeCategory.js is now the ONE classifier. lib/placeTaxonomy.js is a thin adapter that
+  keeps its API (classifyPlace -> {category, tags, via}) and its two load-bearing rules: the
+  sub-filter TAG vocabulary, and `via` PROVENANCE (a category recovered from the NAME is flagged
+  needs_review, never silently trusted).
+- THE RULE: primaryType decides. Google's `types` array order is not meaning — v6.15 resolved by
+  "first type with a strong identity", so EVEN Hotel Sarasota (types start wellness_center/spa/gym)
+  classified as an Activity. primaryType is Google's own answer and it resolves each place
+  correctly: Seasons 52 (has wine_bar) -> american_restaurant -> Food; The End Zone (has restaurant)
+  -> sports_bar -> Nightlife; MarineMax (has marina) -> supplier -> excluded boat dealer;
+  Venice Yacht Club (has storage) -> marina -> kept. primaryType is OPTIONAL: the live Google path
+  never requests it, so live behaviour does not regress.
+- THE GATE WAS ADMITTING THE JUNK. placeAllowed() early-returned true on a CAT_ALLOW type match
+  BEFORE the service veto ran, and "home_goods_store" contains the substring "store" — so a
+  general_contractor matched the Shopping allowlist. Measured against the live inventory: 44 of 48
+  service-typed rows and 18 of 18 residential rows were ADMITTED. A PARKING LOT ("Park Store Go")
+  was being served in Hotels; a car dealership in Things-To-Do. isExcluded() now runs first.
+- A marina is not a beach. The old mapper sent Google's `marina` type straight to the beach
+  category: 79 of the 100 stored "beach" rows were marinas, yacht clubs and a boat DEALERSHIP, and
+  only 21 were beaches. Marinas are now Activities with an "On the water" chip (moved from beach).
+- Owner decisions, encoded: grocery keeps its Food identity but lives in Shopping > Markets, never
+  in "best places to eat" (Publix x20, Wawa x7); a campground is BOTH an outdoor experience and a
+  real place to stay tonight (new secondary_categories column); junk is EXCLUDED, never deleted.
+- Hotels was 35% junk (66 of 191): 50 rows carrying generic `lodging` only (scraped short-term
+  rentals -- "BEAUTIFUL HOUSE NEAR BEACH w/ Private Heated Pool" appears twice, 39 of the 50 have
+  ZERO reviews) plus 16 residences. Stay Tonight was renting them out.
+- TESTED AGAINST REALITY, NOT ASSUMPTIONS (scripts/test-classify.mjs, 56 cases, pinned to REAL rows
+  frozen from production in data/atlas/fixtures-real-types.json). Half are NEGATIVE CONTROLS, and
+  they caught two rules that would have deleted real places: a name-based rental rule flagged
+  Island Sun Inn & Suites; a secondary-type trade veto excluded Hudson's Furniture (994 reviews),
+  DICK'S (291) and Casa Del Mar Beach Resort (465) -- Google tags big-box retailers
+  `manufacturer`/`supplier` and condo-resorts `condominium_complex`. Hudson's type signature is
+  INDISTINGUISHABLE from the contractor it was meant to catch; only primaryType separates them.
+- RESULT: beach 100 -> 46 (beaches only). nightlife 18 -> 37 (bars recovered). hotels 191 -> 133
+  + 40 campgrounds via secondary. 75 excluded (never deleted), 7 ambiguous rentals kept VISIBLE and
+  flagged for a human.
+- OWNER ACTIONS: (1) run supabase/inventory-repair.sql (adds excluded/exclusion_reason/
+  secondary_categories + the wf_inventory_backup_2026_07_14 rollback snapshot); (2) then
+  `node scripts/repair-inventory.mjs --apply` (dry-run by default; refuses to write without the
+  backup; idempotent). (3) SEPARATE, not blocking: anchors=0 and Mote is ABSENT from the inventory
+  entirely -- data/anchors.json already lists it, the anchor-resolution step just never ran.
+- Audit: data/atlas/AUDIT.md. The 590 Atlas cards were extracted programmatically from the session
+  transcript (scripts/atlas-extract.mjs) -- 590/590 Place IDs valid, all 590 join to wf_inventory,
+  so they are a labelled SUBSET, not new places. Per-row, the card is likely wrong 70 times vs 25
+  where it corroborates the classifier: a useful second opinion, not ground truth.
+
 ## v6.12 - Stay Tonight list-view audit fixes (sort, photos, styling, sheet scroll)
 - Audit-driven fixes for the "Explore near you -> Stay Tonight -> Hotels & Stays" list. Four of
   the five audit items shipped; two scroll/lazy pieces are honestly deferred (see the note).

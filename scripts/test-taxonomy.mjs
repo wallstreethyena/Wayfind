@@ -52,9 +52,15 @@ tc("Siesta Beach (real, name-only)", { types: ["point_of_interest", "establishme
   ok("Mote (real): no tags when unclassified", r.tags.length === 0);
 }
 
-// St. Armands Circle: mixed-use. TYPES-ONLY it has `restaurant`, so food wins
-// (historical_landmark is deliberately WEAK, so it is NOT dragged to attractions).
-tc("St. Armands (types-only, mixed-use)", { types: ["shopping_mall", "historical_landmark", "beauty_salon", "historical_place", "park", "restaurant", "food", "point_of_interest", "establishment"], name: "St. Armands Circle" }, "food");
+// St. Armands Circle: mixed-use, TYPES-ONLY (no primaryType).
+// v6.16 CHANGED, deliberately: this used to expect `food`, because the old
+// taxonomy ran its own precedence (FOOD before SHOPPING) and the place carries a
+// `restaurant` type. The LIVE gate always read it as `shopping` (shopping_mall is
+// a specific-shop identity). That disagreement — seeder says food, gate says
+// shopping — IS the bug this unification removes. One classifier now, and it says
+// shopping, which is also the right answer: St. Armands Circle is a shopping
+// destination that contains restaurants, not a restaurant.
+tc("St. Armands (types-only, mixed-use)", { types: ["shopping_mall", "historical_landmark", "beauty_salon", "historical_place", "park", "restaurant", "food", "point_of_interest", "establishment"], name: "St. Armands Circle" }, "shopping", ["malls"]);
 // WITH primaryType the ambiguity resolves — proves the seeder's primaryType mask matters.
 tc("St. Armands (+primaryType shopping_mall)", { types: ["shopping_mall", "historical_landmark", "restaurant", "food"], primaryType: "shopping_mall", name: "St. Armands Circle" }, "shopping", ["malls"]);
 
@@ -63,7 +69,12 @@ tc("resort -> hotels", { types: ["resort_hotel", "lodging"], name: "Longboat Key
 tc("brewery -> nightlife", { types: ["brewery", "bar"], name: "Big Top Brewing" }, "nightlife", ["bars"]);
 tc("mall -> shopping", { types: ["shopping_mall"], name: "Westfield Sarasota Square" }, "shopping", ["malls"]);
 tc("bakery -> food/dessert", { types: ["bakery", "cafe"], name: "Pastry Art" }, "food", ["dessert"]);
-tc("marina -> beach/marinas", { types: ["marina"], name: "Marina Jack" }, "beach", ["marinas"]);
+// v6.16 CHANGED, owner decision: a marina is NOT a beach. The old mapper sent
+// Google's `marina` type straight to the beach category, which is why 79 of the
+// 100 stored "beach" rows were marinas, yacht clubs and a boat DEALERSHIP, and
+// only 21 were beaches. Marinas are now Activities with an on-the-water tag.
+tc("marina -> attractions/marinas (NOT beach)", { types: ["marina"], name: "Marina Jack" }, "attractions", ["marinas"]);
+tc("a real beach is still a beach", { types: ["beach", "natural_feature"], name: "Siesta Beach" }, "beach", ["beaches"]);
 tc("campground -> attractions/outdoors (not hotels)", { types: ["campground", "rv_park"], name: "Myakka Campground" }, "attractions", ["outdoors"]);
 
 // primaryType votes first even when the type list is bare.

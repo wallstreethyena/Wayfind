@@ -1,0 +1,28 @@
+{
+  "source": "/Users/gabrielpereira/.claude/projects/-Users-gabrielpereira/104d5890-47e4-49c9-ae34-595f1f152fe9.jsonl",
+  "rawBytes": 43935,
+  "parsed": 590,
+  "expected": 590,
+  "countOk": true,
+  "structurallyBadRows": 0,
+  "placeIdOccurrencesInRaw": 590,
+  "categories": {
+    "attractions": 129,
+    "beaches": 17,
+    "food": 192,
+    "hotels": 79,
+    "nightlife": 40,
+    "other": 28,
+    "shopping": 105
+  },
+  "unknownCategories": [],
+  "idLengthHistogram": {
+    "27": 590
+  },
+  "malformedIds": 0,
+  "uniqueIds": 590,
+  "duplicateIdGroups": 0,
+  "duplicateIdRows": 0,
+  "samePlaceTwoIdGroups": 10,
+  "noAddressRows": 38
+}
