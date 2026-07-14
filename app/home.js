@@ -81,7 +81,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.11";
+const BUILD_ID = "v6.12";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -3064,7 +3064,11 @@ function PageInner() {
   const [hkSort, setHkSort] = useState("rated");
   const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
-  useEffect(() => { setHkSort((hookDetail && hookDetail.presetSort) || "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  // v6.12: the sheet opens sorted by a REAL option — presetSort "curated" (Stay
+  // Tonight etc.) isn't one of the control's three values, so it fell through
+  // unsorted AND mislabeled the pill as "Closest first". Coerce any non-option
+  // preset to "rated" so the list is actually ordered and the pill matches.
+  useEffect(() => { const _ps = hookDetail && hookDetail.presetSort; setHkSort(["near", "rated", "price"].includes(_ps) ? _ps : "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
   // v4.85: never show "Not enough data" at 17 mi when the sheet's wide fetch
   // already found real places a few miles farther — bump the sheet radius up
   // the ladder until enough places are visible. Manual slider changes win
@@ -6172,15 +6176,15 @@ function PageInner() {
                         return (
                           <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
                             <div style={{ padding: "16px 15px 6px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.7, textTransform: "uppercase", color: "rgba(255,255,255,.4)" }}>Explore near you</div>
+                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
                             </div>
                             <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
                             {_order.map((key) => {
                               const t = EXPLORE_TILES[key];
                               return (
                                 <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 22 }}>
-                                    <NavIcon name={t.icon} size={20} strokeWidth={1.5} color="rgba(255,255,255,.55)" />
+                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
+                                    <NavIcon name={t.icon} size={26} strokeWidth={1.5} color="rgba(255,255,255,.7)" />
                                   </span>
                                   <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
                                   <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>

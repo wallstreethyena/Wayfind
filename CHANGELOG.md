@@ -1,3 +1,36 @@
+## v6.12 - Stay Tonight list-view audit fixes (sort, photos, styling, sheet scroll)
+- Audit-driven fixes for the "Explore near you -> Stay Tonight -> Hotels & Stays" list. Four of
+  the five audit items shipped; two scroll/lazy pieces are honestly deferred (see the note).
+- P4 STYLING (app/home.js): the "Explore near you" eyebrow is now C.accent orange (was muted
+  40% white) to match the other section labels ("Best move right now"), and the row icons are
+  size 26 (was 20) to match the top category-nav icons.
+- P3 SORT (app/home.js + HookDetail.js): "Stay Tonight" opened with presetSort "curated" — not
+  one of the SortControl's three options — so the list rendered unsorted AND the pill mislabeled
+  as "Closest first". Now any non-option preset is coerced to "rated", and "Top rated" sorts by
+  pure star rating desc (tie-break reviews) instead of the old Bayesian-quality-minus-distance
+  blend that stranded a 4.9 at position 9. The distance slider was already wired
+  (RadiusSlider -> onMi -> hkMi -> the mileage filter); it re-filters once the list actually
+  re-derives from the corrected sort.
+- P2b IMAGES on Stay Tonight (lib/hotels.js + lib/ownedHotels.json): owned hotels were created
+  with photo:null, so every card fell back to the pin. Enriched the 77 owned hotels that carry a
+  Google place ID with the photo resource name ALREADY stored in wf_inventory (150/191 hotels
+  have one), and toPlace now builds the photo URL from it (same construction as restToPlace) — no
+  new Google SEARCH call, only the browser <img> fetches the photo. The remaining ~375 unrated
+  owned hotels (no ref) keep the pin, but ranking puts the rated ones on top.
+- P1 GHOST SCROLL — the reproduced Stay-Tonight SHEET (HookDetail.js) is collapsed to a SINGLE
+  scroll: the sheet root scrolls as one unit (overflowY auto + overscroll-behavior:contain so it
+  never chains to the shell behind) and the inner results list no longer has its own overflow:auto
+  — so dragging the header/description now scrolls the whole sheet, not a nested region.
+- DEFERRED, honestly (NOT shipped): (a) the GLOBAL app-shell single-document-scroll — the app has
+  a Map screen that needs a fixed viewport (scrollRef uses overflowY:hidden for screen==="map"),
+  so a blanket single-body-scroll would break the map; the inner-scroll shell is actually correct
+  for a map+list app. Cleaning up the residual body-scroll (the SEO footer below the app) + a
+  sticky category nav is a careful pass to do WITH device verification, not blind. (b) The
+  category/Events lazy-load stall (native loading="lazy" not firing below the inner-scroll fold)
+  is tied to that same architecture; kept lazy to avoid eager-loading billed Google hotel photos.
+- Not verified on a real iPhone (CLI can't reproduce iOS scroll/lazy behavior); build + all 67
+  guardrails pass. Owner to confirm on-device.
+
 ## v6.11 - Mobile experience fixes + version catch-up for the owned-hotels work
 - The mobile PR (was staged as v6.08) rebased onto main and rolled to v6.11. Four fixes:
   - (1) iOS ZOOM ON INPUT FOCUS — a global `input,select,textarea{font-size:16px}` rule
