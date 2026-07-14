@@ -82,99 +82,108 @@ function EventCard({ e, onVenue, ctx }) {
 }
 
 export default function EventsScreen({ ctx }) {
-  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, eventSegmentMeta, dedupeEvents, AreaInsight, Loader } = ctx;
-          const all = events || [];
-          const segs = [];
-          all.forEach((e) => { const m = eventSegmentMeta(e.segment, e.genre); if ((e.segment || e.genre) && !segs.find((s) => s.short === m.short)) segs.push(m); });
-          // Phase 2 count integrity (EVENTS_PIPELINE_DIAGNOSIS.md): every
-          // number a chip shows is computed on the SAME collapsed list the
-          // grid renders for that selection -- the old code counted the
-          // pre-collapse list, so the chip number never had to match the
-          // cards. catBase applies the active category filter first so the
-          // date counts stay honest while a category is selected too.
-          const catBase = eventCat === "all" ? all : all.filter((e) => eventSegmentMeta(e.segment, e.genre).short === eventCat);
-          const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
-          const allCount = dedupeEvents(catBase, true).length;
-          let shown = catBase;
-          if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
-          shown = dedupeEvents(shown, eventDate === "all");
-          const eventDateChips = [];
-          const enow = new Date();
-          for (let i = 0; i < 28; i++) {
-            const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
-            const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-            eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
-          }
-          // Selected chip text is dark-on-orange (#0D1117 on C.accent), the same
-          // pairing the app's primary CTAs use — white-on-orange fails WCAG AA
-          // (2.8:1) and axe rightly flags it now that events render in CI.
-          const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
-          return (
-            <div>
-              <div style={{ paddingTop: 4, marginBottom: 12 }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
-                {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-                <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Concerts, sports, and shows worth building a night around</div>
+  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, EVENT_BUCKETS, ViatorRail } = ctx;
+  const all = events || [];
+  const isTours = eventCat === "tours";
+  // v6.14 — geo distance so "Near me" ties break by proximity.
+  const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
+  // v6.14 — fixed buckets (owner direction): marquee ticketed categories keep
+  // their names; all local/civic events live under Community. A category chip
+  // appears only when it has events; Tours + Near me always show.
+  const catBase = (eventCat === "all" || isTours) ? all : all.filter((e) => eventBucket(e) === eventCat);
+  const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
+  const allCount = dedupeEvents(catBase, true).length;
+  let shown = catBase;
+  if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
+  shown = dedupeEvents(shown, eventDate === "all");
+  // What's coming up, nearest-when first; proximity breaks ties (all local by design).
+  shown = shown.slice().sort((a, b) => (String(a.date || "9999").localeCompare(String(b.date || "9999"))) || (String(a.time || "99").localeCompare(String(b.time || "99"))) || (distMi(a) - distMi(b)));
+  const bucketCounts = {};
+  EVENT_BUCKETS.forEach((bk) => { bucketCounts[bk.key] = all.filter((e) => eventBucket(e) === bk.key).length; });
+  const tours = Array.isArray(eventsTours) ? eventsTours : [];
+  const eventDateChips = [];
+  const enow = new Date();
+  for (let i = 0; i < 28; i++) {
+    const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
+  }
+  const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
+  const catChip = (on) => ({ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: on ? C.adim : C.panel, color: on ? C.accent : C.light, border: `1px solid ${on ? C.accent : C.border}` });
+  return (
+    <div>
+      <div style={{ paddingTop: 4, marginBottom: 12 }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
+        {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
+        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and community happenings near you</div>
+      </div>
+      {/* v6.14 — the ONE fixed category filter. Tours (default) + Near me always
+          show; a bucket chip appears only when it actually has events. */}
+      <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
+        <button onClick={() => setEventCat("tours")} style={catChip(isTours)}>🎟️ Tours</button>
+        <button onClick={() => setEventCat("all")} style={catChip(eventCat === "all")}>📍 Near me</button>
+        {EVENT_BUCKETS.filter((bk) => bucketCounts[bk.key] > 0).map((bk) => (
+          <button key={bk.key} onClick={() => setEventCat(bk.key)} style={catChip(eventCat === bk.key)}>{bk.icon} {bk.short}</button>
+        ))}
+      </div>
+      {/* Date chips apply to events only, not the bookable Tours view. */}
+      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
+        <div style={{ marginBottom: 10 }}>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+            <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
+            {eventDateChips.map((d) => { const count = countFor(d.value); return (
+              <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
+                <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
+                <div style={{ fontSize: 14 }}>{d.day}</div>
+                <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
+              </button>
+            ); })}
+          </div>
+        </div>
+      )}
+      {/* TOURS view — bookable Viator experiences (the tab's default). */}
+      {isTours && (
+        eventsTours === null
+          ? <Loader label="Finding bookable experiences" pad="8px 2px" />
+          : tours.length > 0
+            ? <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}><ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" /><div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div></div>
+            : <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
+                <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
+                <strong style={{ display: "block", color: C.light }}>No bookable tours here right now</strong>
+                <span style={{ fontSize: 13 }}>See what&apos;s actually happening near you instead.</span>
+                <div onClick={() => setEventCat("all")} style={{ marginTop: 12, color: C.accent, fontWeight: 800, cursor: "pointer", fontSize: 13 }}>Events near me →</div>
               </div>
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
-                <div style={{ marginBottom: 10 }}>
-                  {(eventCat !== "all" || eventDate !== "all") && (
-                    <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-                      <button onClick={() => { setEventCat("all"); setEventDate("all"); }} style={{ fontSize: 11, fontWeight: 800, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Show all ✕</button>
-                    </div>
-                  )}
-                  <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-                    <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
-                    {eventDateChips.map((d) => {
-                      const count = countFor(d.value);
-                      return (
-                        <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
-                          <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
-                          <div style={{ fontSize: 14 }}>{d.day}</div>
-                          <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && segs.length > 1 && (
-                <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-                  <button onClick={() => setEventCat("all")} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === "all" ? C.adim : C.panel, color: eventCat === "all" ? C.accent : C.light, border: `1px solid ${eventCat === "all" ? C.accent : C.border}` }}>All</button>
-                  {segs.map((m) => (
-                    <button key={m.short} onClick={() => setEventCat(m.short)} style={{ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: eventCat === m.short ? C.adim : C.panel, color: eventCat === m.short ? C.accent : C.light, border: `1px solid ${eventCat === m.short ? C.accent : C.border}` }}>{m.icon} {m.short}</button>
-                  ))}
-                </div>
-              )}
-              {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-              {!eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Events are not turned on yet. Add a Ticketmaster key in Vercel to switch them on.</div>}
-              {!eventsLoading && !eventsUnavailable && eventsError && (
-                <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
-                  <span style={{ fontSize: 13 }}>Check back in a little while.</span>
-                  <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
-                  <span style={{ fontSize: 13 }}>We're still expanding Wayfind events to your area. Check back soon.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
-                <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-                  <strong style={{ display: "block", color: C.light }}>Nothing on this day</strong>
-                  <span style={{ fontSize: 13 }}>Try another date or tap All.</span>
-                </div>
-              )}
-              {!eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-                  {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
-                </div>
-              )}
-            </div>
-          );
+      )}
+      {/* EVENT views — Near me + the category buckets. */}
+      {!isTours && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
+      {!isTours && !eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the Tours tab above always works. </div>}
+      {!isTours && !eventsLoading && !eventsUnavailable && eventsError && (
+        <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
+          <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
+          <span style={{ fontSize: 13 }}>Check back in a little while.</span>
+          <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
+        </div>
+      )}
+      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
+        <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
+          <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
+          <span style={{ fontSize: 13 }}>We&apos;re still expanding Wayfind events to your area. Check back soon.</span>
+        </div>
+      )}
+      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
+        <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
+          <strong style={{ display: "block", color: C.light }}>Nothing on this day</strong>
+          <span style={{ fontSize: 13 }}>Try another date or tap All.</span>
+        </div>
+      )}
+      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
+          {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
+        </div>
+      )}
+    </div>
+  );
 }
