@@ -128,6 +128,23 @@ ok("WC calendar: July 5 is a match day (card on top)", Hol.worldCupMatchToday(ne
 ok("WC calendar: July 8 is an off day (card mid-page)", !Hol.worldCupMatchToday(new Date(2026, 6, 8, 12)));
 ok("WC calendar: July 19 final is a match day", Hol.worldCupMatchToday(new Date(2026, 6, 19, 12)));
 
+// v6.15 TRUTHFUL CLAIM: "Where to watch" eligibility — a no-signal restaurant
+// (a Brazilian churrascaria with no TVs, the exact live offender) can NEVER
+// enter the list; real bars/sports bars/screens and curated venues do.
+ok("WC watch: no-TV brazilian grill is INELIGIBLE", !Hol.worldCupEligible({ name: "Brasa Brazilian Grill", types: ["brazilian_restaurant", "restaurant", "food"] }));
+ok("WC watch: plain restaurant is INELIGIBLE", !Hol.worldCupEligible({ name: "Garden Bistro", types: ["restaurant", "food"] }));
+ok("WC watch: steakhouse (no bar) is INELIGIBLE", !Hol.worldCupEligible({ name: "Prime Steakhouse", types: ["restaurant"] }));
+ok("WC watch: cafe is INELIGIBLE", !Hol.worldCupEligible({ name: "Orange Blossom Coffee", types: ["coffee_shop", "cafe"] }));
+ok("WC watch: sports bar IS eligible", Hol.worldCupEligible({ name: "Winghouse Sports Bar", types: ["bar"] }));
+ok("WC watch: pub IS eligible", Hol.worldCupEligible({ name: "The Local Pub", types: ["bar", "pub"] }));
+ok("WC watch: brewery IS eligible", Hol.worldCupEligible({ name: "Motorworks Brewing", types: ["bar", "brewery"] }));
+ok("WC watch: brazilian spot WITH a bar IS eligible", Hol.worldCupEligible({ name: "Eskina Brazilian Bar", types: ["restaurant", "bar"] }));
+ok("WC watch: curated venue IS eligible by evidence", Hol.worldCupEligible({ name: "American Social", types: ["restaurant"] }));
+ok("WC fit: cuisine alone scores 0 (no bar/screen boost)", Hol.fitFor("worldcup", { name: "Sabor do Brasil", types: ["restaurant"] }) <= 0);
+ok("WC fit: sports bar outranks a food-first spot", Hol.fitFor("worldcup", { name: "Winghouse Sports Bar", types: ["bar"] }) > Hol.fitFor("worldcup", { name: "Garden Bistro", types: ["restaurant"] }));
+ok("WC content: worldcup exclude drops ineligible venues", Hol.contentFor("worldcup", "World Cup").exclude({ name: "Brasa Brazilian Grill", types: ["brazilian_restaurant"] }) === true);
+ok("WC content: worldcup exclude keeps a real sports bar", Hol.contentFor("worldcup", "World Cup").exclude({ name: "Winghouse Sports Bar", types: ["bar"] }) === false);
+
 ok("gems: Twenty Pho Hour carries verified Michelin award", (Gems.gemFor("Twenty Pho Hour") || {}).award && Gems.gemFor("Twenty Pho Hour").award.label === "MICHELIN Guide");
 ok("gems: prefix match resolves Google-style names", (Gems.gemFor("Domu Orlando") || {}).key === "domu");
 ok("gems: every note is unique", new Set(Gems.GEMS.map((g) => g.note)).size === Gems.GEMS.length);

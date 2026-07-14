@@ -47,4 +47,15 @@ if (!s.includes('const [sortBy, setSortBy] = useState("rated")')) fail("browse s
 // 9. AI insight meta-commentary can never reach the user.
 if (!s.includes("function insightSane(")) fail("insightSane guard missing");
 if (!s.includes("const S = (v) => insightSane(v)")) fail("insight render not routed through insightSane");
-console.log("check-cards: OK — revenue cards protected (location copy, sheet style, wide fetch, crash guards, filter)");
+
+// 10. v6.15 — the Favorites-heart bug class: EVERY <PlaceCard> must pass the
+// `saved` prop so the heart reflects real Favorites membership. A folder card
+// that omits it (Saved.js Liked/Shared) renders an empty heart on a saved
+// place, and tapping then toggles it OFF ("Removed from Favorites"). The prop
+// must also derive from live state (isSaved(...)), never a hardcoded literal.
+for (const m of s.matchAll(/<PlaceCard\b[^>]*?\/?>/g)) {
+  const tag = m[0];
+  if (!/\bsaved[=}]/.test(tag) && !/\bsaved\s/.test(tag)) fail("a <PlaceCard> omits the `saved` prop — the heart won't reflect Favorites (Saved.js folder-card class)");
+  if (/\bsaved(\s|\/|>)/.test(tag) && !/saved=/.test(tag)) fail("a <PlaceCard> hardcodes `saved` (always-on) instead of saved={isSaved(p.id)} — derive from live Favorites");
+}
+console.log("check-cards: OK — revenue cards protected (location copy, sheet style, wide fetch, crash guards, filter, PlaceCard saved-prop)");
