@@ -3,6 +3,7 @@
 // Six sub-states: menu, community, explore, pick, experiences, weather.
 import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
+import { eventWhenLabel } from "../../../lib/eventTime";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
@@ -126,7 +127,7 @@ export default function MenuSheet({ ctx }) {
                               // destination rather than showing a card that goes nowhere.
                               if (!e.dest) return null;
                               const f = formatEventDate(e.date, e.time);
-                              const evRel = (() => { if (!e.date) return null; const ed = new Date(e.date + "T00:00:00"); const t0 = new Date(); t0.setHours(0, 0, 0, 0); const diff = Math.round((ed - t0) / 86400000); if (diff <= 0) return "Tonight"; if (diff === 1) return "Tomorrow"; if (diff <= 6 && (ed.getDay() === 6 || ed.getDay() === 0)) return "This weekend"; return null; })();
+                              const evRel = eventWhenLabel(e); // v6.13: time-aware same-day label
                               const internal = typeof e.dest === "string" && e.dest[0] === "/";
                               return (
                                 <a key={"nbev-" + e.id} href={e.dest} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => setMenuSheet(null)} style={{ display: "block", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>

@@ -7,6 +7,7 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars } from "../kit";
+import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -163,7 +164,7 @@ export default function DetailSheet({ ctx }) {
                   const t0 = new Date(); t0.setHours(0, 0, 0, 0);
                   const diff = d && !isNaN(d) ? Math.round((d - t0) / 86400000) : null;
                   const when = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (detail._event.time || "");
-                  const label = diff == null ? (when || "Event") : diff < 0 ? "Ended" : diff === 0 ? ("Tonight" + (ef.time ? " · " + ef.time : "")) : diff === 1 ? ("Tomorrow" + (ef.time ? " · " + ef.time : "")) : when;
+                  const rel = eventWhenLabel(detail._event); const label = diff != null && diff < 0 ? "Ended" : rel ? (rel + (ef.time ? " · " + ef.time : "")) : (when || "Event"); // v6.13: same-day label reflects the real hour
                   return (<>
                     <span style={{ color: C.border }}>·</span>
                     <span style={{ fontWeight: 800, color: diff != null && diff < 0 ? C.muted : C.accent }}>{label}</span>
