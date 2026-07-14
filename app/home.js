@@ -4747,6 +4747,24 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
+        // v6.11 — "Stay Tonight" reads Wayfind's OWNED lodging-only list FIRST,
+        // ranked by distance from the user: only real bookable hotels (no 55+/
+        // residential leak, stripped at ingest), and thin markets like Parrish
+        // borrow the nearest real hotels (Ellenton/Bradenton) instead of showing
+        // "0 / not enough data". Booking is monetized by the existing Stay22 CTA.
+        // Falls through to the legacy live search only if the owned list is empty.
+        if ((hd.fetchKey || hd.theme) === "stays") {
+          try {
+            const cityQ = locName ? String(locName).split(",")[0].trim() : "";
+            const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&city=${encodeURIComponent(cityQ)}&limit=20`);
+            const hj = await hr.json();
+            if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
+              const hotels = hj.hotels.slice(0, 20);
+              if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: hotels } : cur); loadBlurbs(hotels); }
+              return;
+            }
+          } catch (e) {}
+        }
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
         let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
@@ -4769,7 +4787,7 @@ function PageInner() {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center]);
+  }, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey, hookDetail && hookDetail.places ? 1 : 0, center, locName]);
 
   // Surprise Me: an honest curator. Picks one standout for right now using the
   // signals we actually have: time of day, open status, distance, review quality.
