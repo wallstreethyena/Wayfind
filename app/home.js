@@ -2,6 +2,8 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
+// v6.15: the ONE shared place classifier (labels + the junk gate now agree).
+import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { eventWhenLabel } from "../lib/eventTime";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 // v4.86: every place search flows through the multi-source aggregator
@@ -82,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.14";
+const BUILD_ID = "v6.15";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1137,22 +1139,8 @@ function experienceBadges(p, selectedKey, max, audit) {
 }
 
 // The main Wayfind section a place belongs to, read from its Google types.
-function catOfType(x) {
-  x = (x || "").toLowerCase();
-  const any = (arr) => arr.some((k) => x.includes(k));
-  if (any(["campground", "rv_park"])) return "Activities";
-  if (any(["lodging", "hotel", "motel", "resort", "guest_house", "bed_and_breakfast"])) return "Hotels";
-  if (any(["restaurant", "food", "cafe", "coffee", "bakery", "meal_", "ice_cream", "deli"])) return "Food";
-  if (any(["night_club", "bar", "pub", "brewery", "liquor"])) return "Nightlife";
-  if (any(["tourist", "museum", "park", "art_gallery", "amusement", "aquarium", "zoo", "stadium", "landmark", "historical", "beach", "marina", "natural_feature", "theater", "theatre", "performing_arts", "movie", "cinema", "concert", "bowling", "casino", "attraction"])) return "Activities";
-  if (any(["store", "shopping", "mall", "market", "shop", "boutique"])) return "Shopping";
-  return null;
-}
-function primaryCategory(p) {
-  const ts = (p.types && p.types.length) ? p.types : (p.type ? [p.type.split(" ").join("_")] : []);
-  for (const x of ts) { const c = catOfType(x); if (c) return c; }
-  return null;
-}
+// v6.15: catOfType + primaryCategory now live in lib/placeCategory.js
+// (imported above) so the labels and the junk gate share ONE source of truth.
 
 
 // Top 5 ranking medals: 1 gold, 2 silver, 3 to 5 bronze.
@@ -4388,10 +4376,17 @@ function PageInner() {
           if (sub === "all" && _subs.length) {
             let _second;
             if (cat === "food") { const _h = new Date().getHours(); const _w = _h < 11 ? "breakfast" : _h < 15 ? "lunch" : _h < 21 ? "dinner" : "dessert"; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
+            // v6.15: Shopping "All" pairs the broad query with the markets/flea
+            // query so real destinations like Red Barn Flea Market are fetched.
+            else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
             else { _second = _subs[0].id; }
             const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => []), searchPlaces(cat, _second, ctr, m, vibe).catch(() => [])]);
             const _seen = new Set(); const _out = [];
             _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
+            // v6.15: the markets query also pulls farm/grocery markets — re-gate
+            // the merged pool at "all" so those (a Food identity) stay OUT of the
+            // Shopping "All" list; they remain available under the Markets tab.
+            if (cat === "shopping") return _out.filter((pp) => placeAllowed("shopping", "all", pp));
             return _out;
           }
           return await searchPlaces(cat, sub, ctr, m, vibe);

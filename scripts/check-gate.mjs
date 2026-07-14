@@ -12,6 +12,7 @@ const fail = (m) => { console.error("check-gate: FAIL — " + m); process.exit(1
 // Execute the real module (dependency-free by contract; copied to .mjs the
 // same way check-libs.mjs runs the culture/guide libs).
 const tmp = mkdtempSync(join(tmpdir(), "wf-gate-"));
+copyFileSync(new URL("../lib/placeCategory.js", import.meta.url), join(tmp, "placeCategory.js"));
 copyFileSync(new URL("../lib/placeFilter.js", import.meta.url), join(tmp, "placeFilter.mjs"));
 const { placeAllowed } = await import(join(tmp, "placeFilter.mjs"));
 if (typeof placeAllowed !== "function") fail("placeAllowed not exported from lib/placeFilter.js");
@@ -76,6 +77,17 @@ const MUST_BLOCK = [
   ["beach", "beaches", "Coquina Beach Parking", []],
   ["attractions", "all", "Siesta Key Public Beach Parking", []],
   ["attractions", "all", "Manatee Park & Ride", []],
+  // v6.15 — the shared classifier's cross-category veto. Food/service/outdoor
+  // identities never leak into a discovery list they don't belong to, even when
+  // a generic store/shop/market/park token is present. These are the exact live
+  // offenders the owner caught (bagel/coffee in Shopping, an auto shop in
+  // Shopping, a grocery market leading Shopping "All", a nature-preserve concert
+  // venue in Nightlife).
+  ["shopping", "all", "Detwiler's Farm Market", ["grocery_store", "butcher_shop", "market", "deli", "food_store", "food"]],
+  ["shopping", "all", "Jersey Bagels", ["bagel_shop", "deli", "bakery", "cafe", "food_store", "food", "store"]],
+  ["shopping", "all", "Orange Blossom Coffee", ["coffee_shop", "tea_house", "cafe", "food_store", "food"]],
+  ["shopping", "all", "The Shop", ["auto_parts_store", "car_repair", "service", "store"]],
+  ["nightlife", "all", "Habitat House Concerts", ["live_music_venue", "nature_preserve", "event_venue", "park"]],
 ];
 for (const [cat, sub, name, types] of MUST_BLOCK) {
   if (placeAllowed(cat, sub, { name, types })) fail(`junk passed the gate: [${cat}:${sub}] ${name}`);
@@ -105,7 +117,6 @@ const MUST_PASS = [
   ["nightlife", "all", "Pangea Alchemy Lab", ["bar", "lounge"]],
   ["hotels", "all", "The Westin Sarasota", ["lodging", "hotel"]],
   ["shopping", "all", "Ellenton Premium Outlets", ["shopping_mall"]],
-  ["shopping", "all", "Detwiler's Farm Market", ["grocery_store", "market"]],
   // v4.96 — the flip side: the same B&B IS a legit Stay, and real breakfast
   // restaurants must keep passing the food gate under types-first judgment.
   ["hotels", "all", "Southern Comfort Bed and Breakfast", ["lodging", "bed_and_breakfast"]],
