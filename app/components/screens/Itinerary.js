@@ -37,7 +37,7 @@ export default function ItineraryScreen({ ctx }) {
                         <button onClick={() => removeRes(r.id)} aria-label="Remove reservation" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 15, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}>✕</button>
                       </div>
                       <input defaultValue={r.conf} onBlur={(e) => saveResConf(r.id, e.target.value)} placeholder="Add confirmation # or note"
-                        style={{ width: "100%", boxSizing: "border-box", marginTop: 9, padding: "8px 11px", borderRadius: 10, border: `1px dashed ${r.conf ? C.border : C.accent + "66"}`, background: "transparent", color: C.text, fontSize: 12.5, outline: "none" }} />
+                        style={{ width: "100%", boxSizing: "border-box", marginTop: 9, padding: "8px 11px", borderRadius: 10, border: `1px dashed ${r.conf ? C.border : C.accent + "66"}`, background: "transparent", color: C.text, fontSize: 16, outline: "none" }} />
                     </div>
                   ))}
                   <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.45 }}>Wayfind logs when you head out to book. Your confirmation details stay on this device.</div>
@@ -96,7 +96,7 @@ export default function ItineraryScreen({ ctx }) {
                     {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
                     {editing && (
                       <div style={{ marginTop: 6 }}>
-                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 13, resize: "vertical" }} />
+                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
                         <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
                           <button onClick={() => { if (!requireAuth("Sign in to save trip notes")) return; const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Save note</button>
                           <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Cancel</button>

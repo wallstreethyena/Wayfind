@@ -71,7 +71,7 @@ export default async function SharePage({ params, searchParams }) {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        minHeight: "100dvh",
         background: "#0D1117",
         color: "#F1F5F9",
         display: "flex",

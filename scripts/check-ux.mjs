@@ -14,7 +14,7 @@ if (!page.includes("function addReservation(")) fail("reservation capture missin
 if ((page.match(/addReservation\(/g) || []).length < 3) fail("reservation capture not wired to all outbound booking taps");
 if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation persistence missing");
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
-if (!page.includes("Wayfind \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
+if (!page.includes("Wayfind beta \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");

@@ -1,3 +1,26 @@
+## v6.11 - Mobile experience fixes + version catch-up for the owned-hotels work
+- The mobile PR (was staged as v6.08) rebased onto main and rolled to v6.11. Four fixes:
+  - (1) iOS ZOOM ON INPUT FOCUS — a global `input,select,textarea{font-size:16px}` rule
+    (app/layout.js) PLUS bumping all 10 inline field font-sizes that were below 16 (search bar,
+    both list-name inputs, the four Auth fields, the Community-takes composer, both Itinerary
+    fields). Pinch-zoom stays enabled (user-scalable=no is NOT re-added). Deterministic.
+  - (2) BOTTOM NAV PINNED — the nav is now position:fixed to the viewport bottom, centered to
+    the app column (an earlier body-lock attempt was REVERTED; it floated the nav to the middle).
+    The scroll container reserves matching bottom padding. Needs an on-device check.
+  - (3) BACK RESTORES SCROLL — capture the inner scroller's scrollTop on place-open (keyed by
+    list identity), restore on close via double rAF + sessionStorage; next.config scrollRestoration.
+  - (4) HOME MENU premium treatment — edges + type, killed card fill/shadow, 1px hairlines,
+    uniform quiet icon, 17px titles, near-invisible chevron; the aspirational sublines removed
+    (live-fact sublines deferred to real inventory). Also 100vh -> 100dvh site-wide; footer reads
+    "Wayfind beta · vX.Y" (check-ux updated).
+- VERSION CATCH-UP: the "Stay Tonight" owned-hotels work (lib/hotels.js, lib/ownedHotels.json,
+  app/api/hotels, the app/layout.js body overflowX ghost-scroll fix, and the BookingCTA hover)
+  was pushed straight to main labeled v6.11 but never bumped VERSION/BUILD_ID or added a changelog
+  entry. This bump makes the version marker reflect what is live: Stay Tonight now serves Wayfind's
+  own lodging-only list (residential/55+/mobile-home stripped), distance-ranked with a 45km metro
+  coverage guard, enriched with ratings from wf_inventory + hand-written Wayfind copy, monetized
+  via the existing Stay22 CTA — no live hotel API (Travelpayouts/Hotellook retired).
+
 ## v6.10 - Serve the OWNED inventory when Google 429s (fixes "1 hotel of 191")
 - When the live Google search 429s (quota) or errors on a CATEGORY list, the app now serves
   the list from Wayfind's owned wf_inventory (the 1,027 places already seeded) instead of the

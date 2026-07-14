@@ -29,7 +29,7 @@ export default function AccountSheet({ ctx }) {
             <button onClick={() => { setAccountOpen(false); setScreen("saved"); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", marginBottom: 10, textAlign: "left" }}>❤️ Your saved spots</button>
             <button onClick={() => { setAccountOpen(false); signOutUser(); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.red}`, background: "transparent", color: C.red, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Sign out</button>
             <div style={{ textAlign: "center", marginTop: 12 }}><a href="/privacy" style={{ fontSize: 11.5, color: C.muted, textDecoration: "none" }}>Privacy &amp; disclosures</a></div>
-            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind · {BUILD_ID}</div>
+            <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ textAlign: "center", fontSize: 10.5, color: C.muted, opacity: 0.5, marginTop: 16 }}>Wayfind beta · {BUILD_ID}</div>
             <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 4 }}>© 2026 Wayfind. All rights reserved.</div>
           </div>
         </div>

@@ -65,7 +65,7 @@ function ListView({ snap, shownV }) {
   const stale = isStale(shownV, snap.v);
   const headline = (snap.card && snap.card.hook && Array.isArray(snap.card.hook.lines)) ? snap.card.hook.lines.join(" ") : (list.headline || "");
   return (
-    <main style={{ minHeight: "100vh", background: INK, color: WHITE, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", padding: "0 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <main style={{ minHeight: "100dvh", background: INK, color: WHITE, fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", padding: "0 20px", display: "flex", flexDirection: "column", alignItems: "center" }}>
       <div style={{ width: "100%", maxWidth: 640, paddingBottom: 56 }}>
         {stale ? (
           // The staleness banner: the highest-value line on the page. It turns a
