@@ -4760,7 +4760,13 @@ function PageInner() {
             const hj = await hr.json();
             if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
               const hotels = hj.hotels.slice(0, 20);
-              if (!cancelled) { setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: hotels } : cur); loadBlurbs(hotels); }
+              if (!cancelled) {
+                setHookDetail((cur) => (cur && cur.id === hd.id && !cur.places) ? { ...cur, places: hotels } : cur);
+                // Owned hotels carry Wayfind copy — seed blurbs directly, no
+                // generator/Google call needed for these.
+                setBlurbs((prev) => { const m = { ...prev }; hotels.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
+                try { loadOffers(hotels); } catch (e) {}
+              }
               return;
             }
           } catch (e) {}
