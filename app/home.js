@@ -82,7 +82,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.13";
+const BUILD_ID = "v6.14";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1556,6 +1556,27 @@ function eventSegmentMeta(seg, genre) {
   return { icon: "🎪", iconName: "ticket", short: seg || "Other", color: "#94A3B8" };
 }
 
+// v6.14 — the Events tab's fixed buckets (owner direction): the marquee
+// ticketed categories keep their names; everything else local/civic collapses
+// into "Community" (library programs, markets, chair yoga, family days, film,
+// etc.). Built on eventSegmentMeta so a non-ticketed civic event with no
+// segment still lands in Community rather than a lonely one-off chip.
+const EVENT_BUCKETS = [
+  { key: "concerts", short: "Concerts", icon: "🎵", iconName: "music", color: "#F472B6" },
+  { key: "comedy", short: "Comedy", icon: "😂", iconName: "smile", color: "#FBBF24" },
+  { key: "theater", short: "Theater", icon: "🎭", iconName: "masks", color: "#FF8A3D" },
+  { key: "sports", short: "Sports", icon: "⚾", iconName: "trophy", color: "#38BDF8" },
+  { key: "community", short: "Community", icon: "🏘️", iconName: "users", color: "#22C55E" },
+];
+function eventBucket(e) {
+  const seg = eventSegmentMeta(e && e.segment, e && e.genre).short;
+  if (seg === "Comedy") return "comedy";
+  if (seg === "Concert") return "concerts";
+  if (seg === "Sports") return "sports";
+  if (seg === "Theater") return "theater";
+  return "community"; // Film, Family, Market, Other + every non-ticketed civic source
+}
+
 // v5.4: pick the moon image for the current phase; a clouded moon for overcast nights.
 function moonImgName(date, cloudy) {
   if (cloudy) return "moon-cloud";
@@ -2754,7 +2775,8 @@ function PageInner() {
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsUnavailable, setEventsUnavailable] = useState(false);
   const [eventsError, setEventsError] = useState(false);
-  const [eventCat, setEventCat] = useState("all");
+  const [eventCat, setEventCat] = useState("tours"); // v6.14: Events opens on bookable Tours (owner direction)
+  const [eventsTours, setEventsTours] = useState(null);
   const [eventDate, setEventDate] = useState("all");
   const [mapMode, setMapMode] = useState("places");
   const [mapBrowse, setMapBrowse] = useState(false); // false = neutral Top 10 map, true = category browse
@@ -4597,6 +4619,38 @@ function PageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [browseCat, locName, center && center.lat]);
 
+  // v6.14 — bookable Viator experiences for the Events tab's "Tours" chip
+  // (the tab's default view). City-based, same verified-product source as
+  // the rest of the app; fail-soft to an empty list so the tab never breaks.
+  useEffect(() => {
+    if (screen !== "events") return;
+    let cancelled = false;
+    // Watchdog: the Tours view must never spin forever. If no city has resolved
+    // (reverse-geocode down) and nothing has loaded within 9s, fall to the
+    // graceful "no tours — see events near me" state instead of an endless
+    // loader. In practice the real fetch lands in ~1-2s and this is a no-op.
+    const _watch = setTimeout(() => { if (!cancelled) setEventsTours((cur) => (cur == null ? [] : cur)); }, 9000);
+    (async () => {
+      try {
+        const _m = Culture.resolveMetro(locName);
+        const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
+        // No city resolved yet (reverse-geocode still in flight): stay in the
+        // loading state and let this effect re-fire when locName lands — never
+        // flash "no tours" before we've even asked. Deps include locName.
+        if (!cityQ) return;
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
+        const d = await r.json();
+        const items = (d && Array.isArray(d.items) ? d.items : [])
+          .filter((t) => t.rating != null && t.rating >= 4.3)
+          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
+          .slice(0, 12);
+        if (!cancelled) setEventsTours(items);
+      } catch (e) { if (!cancelled) setEventsTours([]); }
+    })();
+    return () => { cancelled = true; clearTimeout(_watch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, locName]);
+
   // v4.62: real nearby teasers under the intro CTA — proof before the ask.
   const introTeasers = useMemo(() => {
     if (!introOpen) return [];
@@ -5671,6 +5725,7 @@ function PageInner() {
     sharedList, setSharedList,
     // events
     events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, eventSegmentMeta, dedupeEvents, formatEventDate, eventCategory, recurrenceLabel, cleanVenueName, eventCTA, ticketUrl, eventUseImage,
+    eventsTours, eventBucket, EVENT_BUCKETS, // v6.14 Events redesign: Tours chip + Community bucket
     // sheets (G2): drag-to-dismiss handlers shared by every sheet
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet

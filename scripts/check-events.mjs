@@ -34,5 +34,15 @@ for (const f of surfaces) {
   if (!s.includes("eventWhenLabel")) fail(`${f} no longer uses the shared eventWhenLabel helper`);
 }
 
+// v6.14 — Events tab taxonomy: fixed buckets, Tours default, Community catch-all.
+const home = readFileSync("app/home.js", "utf8");
+const ev = readFileSync("app/components/screens/Events.js", "utf8");
+if (!/const \[eventCat, setEventCat\] = useState\("tours"\)/.test(home)) fail("Events tab must default to the Tours chip");
+if (!home.includes("const EVENT_BUCKETS")) fail("EVENT_BUCKETS taxonomy missing");
+for (const b of ["concerts", "comedy", "theater", "sports", "community"]) if (!new RegExp('key: "' + b + '"').test(home)) fail("missing bucket: " + b);
+if (!home.includes('return "community"')) fail("eventBucket must collapse everything else into Community");
+if (!ev.includes("🎟️ Tours") || !ev.includes("📍 Near me")) fail("Events filter row missing Tours/Near me chips");
+if (!ev.includes('ViatorRail title="Bookable experiences near you"')) fail("Tours view must render the Viator rail");
+
 if (failed) process.exit(1);
 console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight')");
