@@ -8,6 +8,7 @@
 // render and the page is byte-identical to the old client-only homepage.
 import { Suspense } from "react";
 import Home from "./home";
+import ProofVeil from "./components/ProofVeil";
 import { rankedFor, whyLine } from "../lib/landing";
 import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
 
@@ -63,8 +64,10 @@ export default function Page() {
       </h1>
       <Home />
       {/* Suspense so the app shell streams immediately; the proof block
-          follows without adding a byte to time-to-first-paint. */}
-      <Suspense fallback={null}><HomeProof /></Suspense>
+          follows without adding a byte to time-to-first-paint. ProofVeil keeps
+          it in the DOM for crawlers but removes it from the interactive view
+          once JS mounts, so it never bleeds in as a "loose footer" (v6.26). */}
+      <Suspense fallback={null}><ProofVeil><HomeProof /></ProofVeil></Suspense>
     </>
   );
 }
