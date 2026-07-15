@@ -81,11 +81,15 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { creatorVideosFor } from "../lib/creatorVideos";
+import { toDisplayScore, pickEligibleByScore } from "../lib/score";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.26";
+const BUILD_ID = "v6.27";
+// v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
+// pre-badge card layout (spec requirement). Inlined at build time.
+const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -6845,8 +6849,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
   const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
   const offer = OFFERS[p.id];
+  // v6.27: Wayfind Score badge (top-right, spec). Invalid/missing wfScore ->
+  // null -> no badge (never zero); killswitch restores the old layout.
+  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
   return (
-    <div onClick={onDetail} style={{ background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div onClick={onDetail} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+      {dispScore != null && <div style={{ position: "absolute", top: 8, right: 8, zIndex: 2 }}><WayfindScoreBadge score={dispScore} /></div>}
       <div style={{ display: "flex" }}>
         <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
@@ -6855,12 +6863,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               ? <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
               : <div style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
             )}
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, paddingRight: 4 }}>{p.name}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, paddingRight: dispScore != null ? 88 : 4 }}>{p.name}</div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
-            {curatedFor(p) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
+            {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
             {(() => {
               const cz = Dining.cuisineLabel(p);
               const isFood = pcat === "Food" || pcat === "Nightlife";

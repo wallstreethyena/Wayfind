@@ -1,3 +1,20 @@
+## v6.27 - Wayfind Score badge: four dynamic bands, one component
+- New WayfindScoreBadge (app/components/kit.js) + band logic in lib/score.js: gap-free
+  inclusive bands - excellent/green 8.5-10, strong/orange 7.9-8.49, fair/yellow 7.0-7.89,
+  low/red below 7.0. Exact boundary behavior locked by scripts/test-score-band.mjs
+  (33 assertions, added to prebuild).
+- Validation at the data boundary: missing/nonnumeric/negative/>10 scores never render
+  (and never render as zero). Badge = dark navy surface, 2px band-colored outline,
+  band-colored pin panel (dark glyph on yellow for contrast), WAYFIND label, big score,
+  small /10. No gradients/shadows/animation. Number always shown - color never the only
+  signal; aria-label carries score + confidence. Keyboard-focusable button.
+- Placement: top-right of PlaceCard (all result/search/category/favorites lists render
+  through it); rank circle stays upper-left; title row reserves padding so long names
+  never collide. Coupons/events untouched (not scored places).
+- "Wayfind pick" pill now suppressed on fair/low (yellow/red) scores per spec; the
+  stricter >=8.5 + high-confidence gate is deferred to the ranking-integrity track.
+- Killswitch: NEXT_PUBLIC_SCORE_BADGE="off" restores the pre-badge layout.
+
 ## v6.17 - Deals live everywhere + per-tab discovery share cards
 - DEALS. lib/coupons.js loads its first 8 verified offers (Discover Sarasota Tours 20% code
   LOCAL thru 7/31, ZooTampa heroes summer, Ringling Free Mondays + Blue Star military, Mote
