@@ -122,6 +122,24 @@ export default function RootLayout({ children }) {
             preceded by a pointerdown that starts this load. Until it
             loads, booking links are plain (functional, just untracked). */}
         <Script id="stay22-linkswap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var loaded=false;function load(){if(loaded)return;loaded=true;window.Stay22=window.Stay22||{};window.Stay22.params={lmaID:'6a4ea3011b2dc5741859a3fc'};var s=document.createElement('script');s.async=1;s.src='https://scripts.stay22.com/letmeallez.js';var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,load,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,load,{passive:true,once:true})});})();` }} />
+        {/* v6.19: Travelpayouts Drive — site-ownership VERIFICATION + affiliate
+            tracking for the Travelpayouts network (marker 550160, project
+            "Gowayfind", account 750791). Travelpayouts' "manual install" method
+            is this script (tp-em.com/NTUwMTYw.js, NTUwMTYw = base64 "550160"),
+            NOT a passive meta tag — it both verifies the site AND enables
+            Travelpayouts' auto-link/tracking. Loaded afterInteractive (NOT
+            interaction-gated like Stay22 above) so Travelpayouts' verification
+            crawler detects it on page load; once verification passes it can be
+            moved behind the same first-interaction gate for perf.
+            ⚠ CONFLICT: Stay22 (above) ALSO auto-rewrites booking links. Leaving
+            both auto-linkers on can double-wrap/fight. After verifying, scope
+            Travelpayouts Drive to tracking-only (disable its auto-linking) in
+            the TP dashboard, OR pick one rewriter — keep our controlled,
+            integrity-gated affiliate wrapper (lib/affiliates.js + lib/monetize.js)
+            as the source of truth.
+            ⚠ PRIVACY: third-party tracker — must be covered by the privacy
+            policy + cookie consent (see the monetization/legal package). */}
+        <Script id="travelpayouts-drive" strategy="afterInteractive" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
         <main id="wf-main" style={{ minHeight: "100%" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real

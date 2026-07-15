@@ -63,10 +63,10 @@ export default function Privacy() {
         <p style={S.p}>We send account emails (confirmation, password reset) through Resend and Supabase. No marketing email without your consent.</p>
 
         <h2 style={S.h2}>Affiliate disclosure</h2>
-        <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence rankings or recommendations: what we feature is chosen on merit, and paid placement, if ever introduced, will be clearly labeled.</p>
+        <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners, and Travelpayouts and its partner brands such as Tiqets, Klook and TicketNetwork) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence our merit-based Wayfind Score. Where a placement is sponsored or commercially promoted, it is clearly labeled as such.</p>
 
         <h2 style={S.h2}>Service providers</h2>
-        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, PostHog for analytics, Resend for email, and Stay22 for booking-link optimization. Each processes only what is needed to provide the service.</p>
+        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, PostHog for analytics, Resend for email, and Stay22 and Travelpayouts for booking-link optimization and affiliate tracking. Stay22 and Travelpayouts are third-party scripts that may set cookies to attribute bookings. [OWNER/COUNSEL: confirm the consent posture for these trackers for EU/UK visitors and document the opt-out mechanism.] Each processes only what is needed to provide the service.</p>
 
         <h2 style={S.h2}>Contact</h2>
         <p style={S.p}>WAYFIND LLC &middot; <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a></p>
