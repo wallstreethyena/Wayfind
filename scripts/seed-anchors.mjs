@@ -43,8 +43,54 @@ const SVC = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
 const miss = [!KEY && "GOOGLE_MAPS_SERVER_KEY", !URL_ && "SUPABASE_URL", !SVC && "SUPABASE_SERVICE_ROLE_KEY"].filter(Boolean);
 if (miss.length) { console.error("seed-anchors: missing env: " + miss.join(", ")); process.exit(1); }
 
+const VIA_NEARBY = process.argv.includes("--nearby"); // resolve via searchNearby (uncapped metric) instead of searchText
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const ANCHOR_MASK = ["places.id", "places.displayName", "places.types", "places.location", "places.rating", "places.userRatingCount", "places.priceLevel", "places.businessStatus", "places.photos"].join(",");
+
+// Infer the Google searchNearby type(s) for an anchor from its category, tags and
+// name. searchNearby matches by TYPE + location (not by name), so we search the
+// anchor's type near the metro and name-match the results. Marquee places rank
+// high by popularity, so this reliably surfaces them; ambiguous cases are flagged.
+function nearbyTypesFor(a) {
+  const n = (a.name || "").toLowerCase();
+  if (a.category === "beach") return ["beach"];
+  if (/\baquarium\b/.test(n)) return ["aquarium"];
+  if (/botanical|\bgardens?\b/.test(n)) return ["botanical_garden"];
+  if (/\bzoo\b|jungle|big cat|habitat|sanctuary|wildlife/.test(n)) return ["zoo", "wildlife_park", "wildlife_refuge", "tourist_attraction"];
+  if ((a.tags || []).includes("museums") || /\bmuseum\b/.test(n)) return ["museum", "art_museum", "history_museum"];
+  if ((a.tags || []).includes("arts") || /performing arts|hall|theat(er|re)/.test(n)) return ["performing_arts_theater", "auditorium", "concert_hall"];
+  if ((a.tags || []).includes("outdoors") || /preserve|park|riverwalk|point|trail/.test(n)) return ["state_park", "national_park", "park", "tourist_attraction"];
+  return ["tourist_attraction"];
+}
+
+// One searchNearby call (different quota metric than searchText → uncapped when
+// SearchText/day is exhausted). Same retry policy; per-day quota still fails fast.
+async function searchNearby(includedTypes, center, radius = 45000) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const r = await fetch("https://places.googleapis.com/v1/places:searchNearby", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Goog-Api-Key": KEY, "X-Goog-FieldMask": ANCHOR_MASK },
+      body: JSON.stringify({ includedTypes, maxResultCount: 20, rankPreference: "POPULARITY", locationRestriction: { circle: { center, radius } } }),
+    });
+    if (r.ok) return (await r.json()).places || [];
+    const body = await r.text();
+    if (r.status === 429 && /per\s*day|PerDay|daily/i.test(body)) throw new DailyQuotaExhausted(body.slice(0, 200));
+    if (![429, 500, 502, 503].includes(r.status)) throw new Error(`searchNearby ${r.status}: ${body.slice(0, 200)}`);
+    await sleep(600 * (attempt + 1));
+  }
+  throw new Error("searchNearby: exhausted retries (transient 429/5xx)");
+}
+
+// Pick the best name-match among a pile of nearby results for one anchor.
+function bestNearbyMatch(anchor, hits) {
+  let best = null, bestScore = -1;
+  for (const p of hits) {
+    const rn = (p.displayName && p.displayName.text) || "";
+    const s = nameMatch(anchor.name, rn);
+    if (s > bestScore) { bestScore = s; best = p; }
+  }
+  return best ? { place: best, match: bestScore } : null;
+}
 
 // Sentinel: the project-wide SearchText PER-DAY quota is exhausted. Retrying is
 // pointless (the window is daily, not a burst), so the caller aborts the whole
@@ -97,15 +143,24 @@ console.log(`seed-anchors: ${anchors.length} anchors for "${METRO}" — ${COMMIT
 const present = await existingIds();
 const nowIso = "2026-07-14T00:00:00.000Z"; // fixed; new Date() is not needed and keeps runs reproducible
 
+console.log(`  resolution: ${VIA_NEARBY ? "searchNearby (by type, uncapped metric)" : "searchText (by name)"}\n`);
 const resolved = [];
 for (const a of anchors) {
   try {
-    const hits = await searchText(`${a.name} ${a.city || ""}`.trim(), CENTER);
-    await sleep(120);
-    const p = hits[0];
+    let p, match;
+    if (VIA_NEARBY) {
+      const hits = await searchNearby(nearbyTypesFor(a), CENTER);
+      await sleep(120);
+      const m = bestNearbyMatch(a, hits);
+      if (m) { p = m.place; match = m.match; }
+    } else {
+      const hits = await searchText(`${a.name} ${a.city || ""}`.trim(), CENTER);
+      await sleep(120);
+      p = hits[0];
+      if (p) match = nameMatch(a.name, (p.displayName && p.displayName.text) || "");
+    }
     if (!p || !p.id) { resolved.push({ a, ok: false, note: "NO Google result" }); continue; }
     const rn = (p.displayName && p.displayName.text) || "?";
-    const match = nameMatch(a.name, rn);
     const operational = !p.businessStatus || p.businessStatus === "OPERATIONAL";
     const built = buildInventoryRow(p, METRO, { anchor: a, nowIso });
     resolved.push({ a, ok: true, place: p, row: built.row, resolvedName: rn, match, operational, status: p.businessStatus || "?", already: present.has(p.id) });
@@ -123,11 +178,19 @@ for (const a of anchors) {
 }
 
 // ── report ───────────────────────────────────────────────────────────────
-const MATCH_MIN = 0.5;
+// searchNearby matches by type, so a generic-type anchor (beach, park) can
+// resolve to the WRONG specific place at a deceptively-high token overlap
+// (Siesta Key Beach → "South Lido Key Beach Park", 67%). Auto-commit therefore
+// demands a NEAR-EXACT match (0.85), and a COLLISION guard: if two anchors
+// resolve to the same place_id, neither is trusted — that is the signal that a
+// generic-type search couldn't distinguish them.
+const MATCH_MIN = 0.85;
+const idCounts = resolved.reduce((m, r) => { if (r.ok && r.place) m[r.place.id] = (m[r.place.id] || 0) + 1; return m; }, {});
 const good = [], flagged = [];
 for (const r of resolved) {
   if (!r.ok) { flagged.push(r); console.log(`  ✗ ${r.a.name} (${r.a.city}) → ${r.note}`); continue; }
-  const warn = !r.operational ? "⚠ NON-OPERATIONAL" : r.match < MATCH_MIN ? `⚠ WEAK NAME MATCH ${(r.match * 100).toFixed(0)}%` : "";
+  const collided = idCounts[r.place.id] > 1;
+  const warn = !r.operational ? "⚠ NON-OPERATIONAL" : collided ? "⚠ COLLISION (2 anchors → same place)" : r.match < MATCH_MIN ? `⚠ WEAK/UNCERTAIN MATCH ${(r.match * 100).toFixed(0)}%` : "";
   (warn ? flagged : good).push(r);
   console.log(`  ${warn ? "⚠" : r.already ? "↻" : "＋"} ${r.a.name.padEnd(38)} → "${r.resolvedName}"  [${r.status}]  match=${(r.match * 100).toFixed(0)}%  → ${r.a.category}${r.a.tags?.length ? "/" + r.a.tags.join(",") : ""}`);
   if (warn) console.log(`      ${warn} — verify: ${gmaps(r.place.id)}`);
