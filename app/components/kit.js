@@ -6,6 +6,7 @@
 // state, no imports from app/home.js. Content guardrails grep the concatenated
 // shell source (scripts/lib/shellSrc.mjs), so moving code here never breaks them.
 import { useEffect, useRef } from "react";
+import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor } from "../../lib/score";
 
 export const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
@@ -241,6 +242,52 @@ export function scoreLabel(wf) {
   else if (wf >= 80) word = "Very good";
   else if (wf >= 70) word = "Good";
   return { s, word };
+}
+
+// ─── Wayfind Score badge (v6.27) ─────────────────────────────────────────────
+// ONE reusable component for the four score bands (lib/score.js decides the
+// band; this only draws). Compact horizontal design: dark navy rounded surface,
+// 2px band-colored outline, band-colored pin panel left, "WAYFIND" label over
+// the big score with a small /10. Color is never the only signal — the number
+// always renders and the accessible name carries the score. Invalid scores
+// never reach here (callers gate on isValidScore); if one does, render nothing.
+export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, size = 1 }) {
+  if (!isValidScore(score)) return null;
+  const band = getScoreBand(score);
+  const bandColor = BAND_COLOR[band];
+  const glyph = pinGlyphColor(band);
+  const s = (n) => Math.round(n * size);
+  const aria = `Wayfind Score ${score.toFixed(1)} out of 10${confidence ? `, ${confidence} confidence` : ""}`;
+  return (
+    <button
+      type="button"
+      className="wayfind-score-badge"
+      data-score-band={band}
+      data-model-version={modelVersion || undefined}
+      aria-label={aria}
+      onClick={onOpen ? (e) => { e.stopPropagation(); onOpen(); } : (e) => e.stopPropagation()}
+      style={{
+        display: "inline-flex", alignItems: "stretch", padding: 0,
+        background: SCORE_TOKENS.bg, border: `2px solid ${bandColor}`,
+        borderRadius: s(10), overflow: "hidden", cursor: onOpen ? "pointer" : "default",
+        lineHeight: 1, textAlign: "left",
+      }}
+    >
+      <span aria-hidden="true" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: s(26), background: bandColor, flexShrink: 0 }}>
+        <svg width={s(14)} height={s(14)} viewBox="0 0 24 24" fill="none" stroke={glyph} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" />
+          <circle cx="12" cy="10" r="2.6" fill={glyph} stroke="none" />
+        </svg>
+      </span>
+      <span style={{ display: "flex", flexDirection: "column", justifyContent: "center", gap: s(1), padding: `${s(4)}px ${s(8)}px ${s(4)}px ${s(7)}px` }}>
+        <span style={{ fontSize: s(7.5), fontWeight: 800, letterSpacing: "0.8px", color: SCORE_TOKENS.muted }}>WAYFIND</span>
+        <span style={{ fontSize: s(15), fontWeight: 800, color: SCORE_TOKENS.text, display: "flex", alignItems: "baseline", gap: s(2) }}>
+          {score.toFixed(1)}
+          <span style={{ fontSize: s(8.5), fontWeight: 700, color: SCORE_TOKENS.muted }}>/10</span>
+        </span>
+      </span>
+    </button>
+  );
 }
 
 export function stars(r) {
