@@ -58,10 +58,14 @@ function placePinSVG(fill, num, numColor) {
 // both live on the overlay pane BELOW every marker, so a tap always hits a pin.
 const MI_TO_M = 1609.344;
 const RING_MI_STEPS = [0.25, 0.5, 1, 2, 5, 10, 25, 50];
+// v6.22 — brand-orange, brighter rings (the muted white rings read as "dull"
+// and vanished at a wide zoom). Warm accent + higher opacity so the distance
+// context pops on the dark map.
+const RING_COLOR = "#F9A03F";
 const RING_STYLES = [
-  { w: 1.5, op: 0.85, fill: 0.03 }, // innermost = the emphasized "close to you" zone
-  { w: 1, op: 0.35, fill: 0 },
-  { w: 1, op: 0.22, fill: 0 },
+  { w: 2, op: 0.95, fill: 0.05 }, // innermost = the emphasized "close to you" zone
+  { w: 1.5, op: 0.55, fill: 0.015 },
+  { w: 1.3, op: 0.36, fill: 0 },
 ];
 function fmtRingMi(mi) {
   const s = mi % 1 === 0 ? String(mi) : String(Number(mi.toFixed(2)));
@@ -288,12 +292,26 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
     if (stateChanged) {
       lastCenterRef.current = stateKey;
+      const a20 = anchorRef.current;
       if (fit && places && places.length > 0) {
         // v4.95 list-map mode: the user's location AND every listed place
         // must be visible at once so it's obvious which is closest.
         if (deviceLoc) bounds.extend(deviceLoc); else if (center) bounds.extend(center);
         map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
         if (places.length === 1) map.setZoom(14);
+      } else if (ringsOnRef.current && a20) {
+        // v6.22 — the main Map defaults to the app's ~20mi radius view (matching
+        // the 17mi default search radius) so the rings expand and everything
+        // around is visible, instead of a tight zoom onto the origin. The user's
+        // own zoom/pan persists (this only fires when the center/data changes).
+        const RM = 20 * MI_TO_M;
+        const dLat = RM / 111320;
+        const dLng = RM / (111320 * Math.max(0.2, Math.cos(a20.lat * Math.PI / 180)));
+        const b20 = new window.google.maps.LatLngBounds(
+          { lat: a20.lat - dLat, lng: a20.lng - dLng },
+          { lat: a20.lat + dLat, lng: a20.lng + dLng },
+        );
+        map.fitBounds(b20, { top: 70, right: 28, bottom: 90, left: 28 });
       } else if (places && places.length > 0) {
         // Always fit to the actual pins, not the search center.
         // This is what fixes the "only 1 pin visible" issue when places are
@@ -340,8 +358,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const c = new window.google.maps.Circle({
         map, center: { lat: anchor.lat, lng: anchor.lng }, radius: rM,
         clickable: false, zIndex: 1,
-        strokeColor: "#FFFFFF", strokeOpacity: st.op, strokeWeight: st.w,
-        fillColor: "#FFFFFF", fillOpacity: st.fill,
+        strokeColor: RING_COLOR, strokeOpacity: st.op, strokeWeight: st.w,
+        fillColor: RING_COLOR, fillOpacity: st.fill,
       });
       circles.push({ c, op: st.op, fill: st.fill });
       const lbl = new Cls({ lat: anchor.lat + rM / 111320, lng: anchor.lng }, fmtRingMi(mi));
@@ -417,21 +435,24 @@ const EVENT_PIN_SVG =
 // Muted Apple-Maps-dark palette (Tripsy reference): deep-navy water, desaturated
 // teal-green land, quiet roads, no business POI or shields — nothing on the base
 // map competes with the Wayfind pins or the white distance rings.
+// v6.22 — richer, less "dull" palette: deeper blue water, a livelier teal-green
+// land, vivid parks/nature (they matter for a discovery app), and brighter road
+// + label legibility. Still dark so the Wayfind pins and orange rings pop.
 const DARK_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#1B3A33" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#AEBFC7" }] },
+  { elementType: "geometry", stylers: [{ color: "#1E4A40" }] },
+  { elementType: "labels.text.fill", stylers: [{ color: "#C6D3DB" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0C151C" }] },
-  { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1B3A33" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#101C28" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#5E7C90" }] },
+  { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1E4A40" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0E2A44" }] },
+  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#7CA0BA" }] },
   { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1E463C" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#2A3B44" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#256F52" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#33474F" }] },
   { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8B9AA6" }] },
-  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#2F424C" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#334754" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9FB0BC" }] },
+  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#3A505A" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#42606E" }] },
   { featureType: "road.highway", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
   { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
   { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
