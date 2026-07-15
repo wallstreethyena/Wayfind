@@ -33,13 +33,16 @@ export async function generateMetadata({ searchParams }) {
   const expires = fmtExpires(c.x);
   const title = `${business}: ${deal} — Wayfind coupon`;
   const desc = `${deal} at ${business}${c.a ? " (" + c.a + ")" : ""}.` + (expires ? ` Valid through ${expires}.` : "") + " Open on Wayfind to claim.";
-  const og = "/api/og/coupon?d=" + encodeURIComponent(d);
+  // v6.32 — owner-designed "Share the savings" card is the share visual; the
+  // specific business / deal / expiry stay in the preview title + description
+  // (and on the landing page), so the art is on-brand and the details are honest.
+  const og = "/cards/coupon-share.png";
   return {
     robots: { index: false, follow: true },
     metadataBase: new URL(SITE),
     title: title.slice(0, 90) + " — Wayfind",
     description: desc,
-    openGraph: { title, description: desc, images: [{ url: og, width: 1200, height: 630 }] },
+    openGraph: { title, description: desc, images: [{ url: og, width: 1758, height: 895 }] },
     twitter: { card: "summary_large_image", title, description: desc, images: [og] },
   };
 }
