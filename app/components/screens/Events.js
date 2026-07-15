@@ -92,7 +92,7 @@ const EVENT_FILTERS = [
   { key: "theater", label: "Theater", icon: "🎭", bucket: "theater" },
   { key: "sports", label: "Sports", icon: "⚾", bucket: "sports" },
   { key: "local", label: "Local events", icon: "🏘️", bucket: "community" },
-  { key: "business", label: "Business events", icon: "💼", bucket: "__business__" },
+  { key: "business", label: "Business events", icon: "💼", bucket: "business" },
 ];
 // The category we land on when the user hasn't picked one: the best-paying
 // category that actually has events (ticketed first), then the local feed.
@@ -104,7 +104,7 @@ export default function EventsScreen({ ctx }) {
   const [filterOpen, setFilterOpen] = useState(false);
   // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
-  const countForFilter = (f) => (f.bucket === "__business__" ? 0 : all.filter((e) => eventBucket(e) === f.bucket).length);
+  const countForFilter = (f) => all.filter((e) => eventBucket(e) === f.bucket).length;
   // Resolve the active filter. A real category the user picked is respected even
   // when empty; the "auto" default (and any legacy tours/all/community value)
   // resolves to the best populated category so the page never lands empty.
@@ -114,8 +114,8 @@ export default function EventsScreen({ ctx }) {
     activeKey = DEFAULT_PRIORITY.find((k) => { const f = EVENT_FILTERS.find((x) => x.key === k); return f && countForFilter(f) > 0; }) || "local";
   }
   const activeFilter = EVENT_FILTERS.find((f) => f.key === activeKey) || EVENT_FILTERS[0];
-  const isBusiness = activeFilter.bucket === "__business__";
-  const catBase = isBusiness ? [] : all.filter((e) => eventBucket(e) === activeFilter.bucket);
+  const isBusiness = activeFilter.key === "business";
+  const catBase = all.filter((e) => eventBucket(e) === activeFilter.bucket);
   const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
   const allCount = dedupeEvents(catBase, true).length;
   let shown = catBase;
@@ -199,38 +199,39 @@ export default function EventsScreen({ ctx }) {
         </div>
       )}
 
-      {/* Business events — a distinct source (RSS/iCal/API). Honest empty state
-          until feeds are configured; never fabricated. */}
-      {isBusiness && businessEmpty}
-
-      {/* Event grid for the selected category. */}
-      {!isBusiness && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-      {!isBusiness && !eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
-      {!isBusiness && !eventsLoading && !eventsUnavailable && eventsError && (
+      {/* Event grid for the selected category (Business events flow through the
+          same path — a distinct source, shown only when its feeds return real
+          events; otherwise the honest empty state below). */}
+      {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
+      {!eventsLoading && eventsUnavailable && !isBusiness && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
+      {!eventsLoading && (eventsUnavailable ? isBusiness : true) && !eventsError && shown.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
+          {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
+        </div>
+      )}
+      {!eventsLoading && !eventsError && shown.length === 0 && (
+        isBusiness
+          ? businessEmpty
+          : eventsUnavailable
+            ? null
+            : all.length === 0
+              ? <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
+                  <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
+                  <span style={{ fontSize: 13 }}>We&apos;re still expanding Wayfind events to your area. Check back soon.</span>
+                </div>
+              : <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
+                  <strong style={{ display: "block", color: C.light }}>Nothing in {activeFilter.label.toLowerCase()} {eventDate === "all" ? "right now" : "on this day"}</strong>
+                  <span style={{ fontSize: 13 }}>Try another category or date — the bookable experiences above are always live.</span>
+                </div>
+      )}
+      {!eventsLoading && eventsError && !isBusiness && (
         <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
           <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
           <span style={{ fontSize: 13 }}>Check back in a little while.</span>
           <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
-        </div>
-      )}
-      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
-        <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
-          <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
-          <span style={{ fontSize: 13 }}>We&apos;re still expanding Wayfind events to your area. Check back soon.</span>
-        </div>
-      )}
-      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
-        <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-          <strong style={{ display: "block", color: C.light }}>Nothing in {activeFilter.label.toLowerCase()} {eventDate === "all" ? "right now" : "on this day"}</strong>
-          <span style={{ fontSize: 13 }}>Try another category or date — the bookable experiences above are always live.</span>
-        </div>
-      )}
-      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-          {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
         </div>
       )}
     </div>

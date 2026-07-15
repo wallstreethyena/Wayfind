@@ -13,6 +13,7 @@ export const runtime = "nodejs";
 
 import { processEvents } from "../../../lib/eventsPipeline.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
+import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 
 function isoNowZ() {
@@ -464,6 +465,30 @@ async function fromLibCal(lat, lng) {
   } catch { return { configured: true, ok: false, events: [] }; }
 }
 
+// --- Business events (v6.21) ------------------------------------------------
+// Local businesses that publish a public calendar (iCal preferred, RSS best-
+// effort). Fail-soft like every other provider, and configured:false when no
+// feed exists yet, so the "unavailable" logic is unaffected until the owner
+// adds the first business. Each feed is geo-fenced to its own coordinates.
+async function fromBusinessFeeds(lat, lng, radius) {
+  const feeds = getBusinessFeeds();
+  if (!feeds.length) return { configured: false, events: [] };
+  const R = Math.max(Number(radius) || 25, 25) + 10; // small buffer past the search radius
+  const near = feeds.filter((f) => haversineMiLocal(lat, lng, Number(f.lat), Number(f.lng)) <= R);
+  if (!near.length) return { configured: true, events: [] };
+  const now = new Date();
+  try {
+    const lists = await Promise.all(near.map(async (f) => {
+      try {
+        const r = await fetch(f.url, { headers: { "User-Agent": "Wayfind/1.0 (+https://www.gowayfind.com)" } });
+        if (!r.ok) return [];
+        return businessEventsFrom(f, await r.text(), now);
+      } catch { return []; }
+    }));
+    return { configured: true, events: [].concat(...lists) };
+  } catch { return { configured: true, ok: false, events: [] }; }
+}
+
 // Phase 1: partial-failure isolation. Each provider runs behind its own
 // deadline; a hung provider yields { timedOut } after `ms` instead of
 // stalling the whole response, and never touches the other providers.
@@ -507,6 +532,7 @@ export async function POST(req) {
       withDeadline("Google (OpenWebNinja)", fromOpenWebNinja(lat, lng, keyword, city)),
       withDeadline("Manatee County Library", fromLibCal(lat, lng)),
       withDeadline("Eventbrite", fromEventbriteOrgs(lat, lng, radius)),
+      withDeadline("Business", fromBusinessFeeds(lat, lng, radius)),
       withDeadline("Local staples", Promise.resolve(localStaplesFor(lat, lng))),
     ]);
 

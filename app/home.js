@@ -84,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.20";
+const BUILD_ID = "v6.21";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1535,6 +1535,7 @@ function eventSegmentMeta(seg, genre) {
   const s = (seg || "").toLowerCase();
   const g = (genre || "").toLowerCase();
   if (g.includes("comedy")) return { icon: "😂", iconName: "smile", short: "Comedy", color: "#FBBF24" };
+  if (s.includes("business")) return { icon: "💼", iconName: "ticket", short: "Business", color: "#A78BFA" };
   if (s.includes("music")) return { icon: "🎵", iconName: "music", short: "Concert", color: "#F472B6" };
   if (s.includes("sport")) return { icon: "⚾", iconName: "trophy", short: "Sports", color: "#38BDF8" };
   if (s.includes("arts") || s.includes("theatre") || s.includes("theater")) return { icon: "🎭", iconName: "masks", short: "Theater", color: "#FF8A3D" };
@@ -1558,6 +1559,7 @@ const EVENT_BUCKETS = [
 ];
 function eventBucket(e) {
   const seg = eventSegmentMeta(e && e.segment, e && e.genre).short;
+  if (seg === "Business") return "business"; // v6.21 — a business's own calendar feed
   if (seg === "Comedy") return "comedy";
   if (seg === "Concert") return "concerts";
   if (seg === "Sports") return "sports";
