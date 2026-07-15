@@ -51,5 +51,21 @@ const redbarn = P(["flea_market", "shopping_mall", "market"], "Red Barn Flea Mar
 if (!placeAllowed("shopping", "all", redbarn)) fail("Red Barn (flea market) SHOULD pass Shopping All");
 if (!placeAllowed("shopping", "markets", redbarn)) fail("Red Barn (flea market) SHOULD pass Shopping Markets");
 
+// ---- v6.28: FAMILY tab — age-targeted, safe, on-theme ----
+const trampoline = P(["amusement_center"], "Elev8 Trampoline Park");
+if (!placeAllowed("family", "kids", trampoline)) fail("a trampoline park SHOULD pass Family > Kids");
+if (placeAllowed("family", "toddlers", trampoline)) fail("a trampoline park must NOT pass Family > Toddlers (unsafe for 1–3)");
+const playground = P(["playground", "park"], "Sunshine Splash Pad & Playground");
+if (!placeAllowed("family", "toddlers", playground)) fail("a playground/splash pad SHOULD pass Family > Toddlers");
+const candy = P(["candy_store", "store"], "Sweet Tooth Candy Shop");
+if (!placeAllowed("family", "kids", candy)) fail("a candy store SHOULD pass Family > Kids");
+const famDiner = P(["restaurant", "family_restaurant", "food"], "The Granary Family Restaurant");
+if (!placeAllowed("family", "adults", famDiner)) fail("a family restaurant SHOULD pass Family > Grown-ups");
+const club = P(["night_club", "bar"], "Pulse Nightclub");
+if (placeAllowed("family", "all", club)) fail("a nightclub must NOT appear in the Family tab");
+if (placeAllowed("family", "kids", club)) fail("a nightclub must NOT appear in Family > Kids");
+if (!placeAllowed("family", "all", P(["zoo"], "Sarasota Jungle Gardens"))) fail("a zoo SHOULD pass Family > All");
+if (!placeAllowed("attractions", "outdoors", P(["beach"], "Coquina Beach"))) fail("a beach SHOULD pass Things to do > Outdoors");
+
 if (failed) process.exit(1);
 console.log("check-categories: OK — classifier + gate agree; no food/service/outdoor leaks across sections (11 classifier + 10 gate fixtures)");
