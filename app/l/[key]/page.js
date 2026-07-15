@@ -57,18 +57,26 @@ export async function generateMetadata({ params, searchParams }) {
     : card
       ? card.desc + (n ? " · " + n + " spots inside" : "") + (loc ? " · " + loc : "")
       : (n ? "Top " + n + " picks" : "A ranked list") + (loc ? " in " + loc : "") + " · Tap to open on Wayfind";
-  let og = "/api/og?kind=list&t=" + encodeURIComponent(t);
-  if (card) og += "&card=" + encodeURIComponent(params.key === "hol-worldcup" ? "worldcup" : params.key);
-  if (wc && rotN) og += "&rot=" + encodeURIComponent(rotN);
-  if (n) og += "&n=" + n;
-  if (loc) og += "&loc=" + encodeURIComponent(loc);
-  if (hk) og += "&hk=" + encodeURIComponent(hk);
+  let og, ogW = 1200, ogH = 630;
+  if (card && card.staticArt) {
+    // Owner-designed finished card — serve the exact PNG, no dynamic overlay.
+    og = card.staticArt;
+    ogW = card.staticW || 1200;
+    ogH = card.staticH || 630;
+  } else {
+    og = "/api/og?kind=list&t=" + encodeURIComponent(t);
+    if (card) og += "&card=" + encodeURIComponent(params.key === "hol-worldcup" ? "worldcup" : params.key);
+    if (wc && rotN) og += "&rot=" + encodeURIComponent(rotN);
+    if (n) og += "&n=" + n;
+    if (loc) og += "&loc=" + encodeURIComponent(loc);
+    if (hk) og += "&hk=" + encodeURIComponent(hk);
+  }
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE),
     title: t + " — Wayfind",
     description: desc,
-    openGraph: { title: t, description: desc, images: [{ url: og, width: 1200, height: 630 }] },
+    openGraph: { title: t, description: desc, images: [{ url: og, width: ogW, height: ogH }] },
     twitter: { card: "summary_large_image", title: t, description: desc, images: [og] },
   };
 }
