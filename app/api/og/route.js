@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
 import { SITE_URL } from "../../../lib/site";
-import { shareCardFor } from "../../../lib/shareCards";
+import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 
 export const runtime = "edge";
 
@@ -27,6 +27,41 @@ export async function GET(req) {
     const col = { position: "absolute", top: 0, right: 0, width: 566, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", paddingRight: 60 };
     const wm = <div style={{ display: "flex", fontSize: 30, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 20 }}>wayfind</div>;
     const cta = (label) => <div style={{ display: "flex", marginTop: 34 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 27, fontWeight: 800, padding: "15px 30px", borderRadius: 999 }}>{label}</div></div>;
+
+    // v6.25 — the World Cup "Watch the game together" card. Bespoke design drawn
+    // in-route (no jpg); the headline/subtext/button come from the rotation index.
+    if (card && card.custom === "worldcup") {
+      const rot = wcRotation(searchParams.get("rot"));
+      const wTitle = String(rot.title).slice(0, 60);
+      const wDesc = String(rot.desc).slice(0, 96);
+      const wCta = String(rot.cta).slice(0, 26);
+      const pin = (x, y, s) => (<div style={{ position: "absolute", left: x, top: y, width: s, height: s, display: "flex" }}><svg width={s} height={s} viewBox="0 0 24 24"><path d="M12 2C7.6 2 4 5.6 4 10c0 5.2 6.9 11.4 7.2 11.7.2.2.5.2.7 0C12.9 21.4 20 15.2 20 10c0-4.4-3.6-8-8-8Z" fill="#F98626" /><circle cx="12" cy="10" r="3" fill="#0B0B0C" /></svg></div>);
+      return new ImageResponse(
+        <div style={{ width: "1200px", height: "630px", display: "flex", backgroundColor: "#0A0A0B", fontFamily: "sans-serif", position: "relative", overflow: "hidden" }}>
+          {/* warm glows */}
+          <div style={{ position: "absolute", top: -160, left: 60, width: 760, height: 760, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,134,38,0.30) 0%, rgba(249,134,38,0) 66%)", display: "flex" }} />
+          {/* LEFT: stadium "screen" + glowing ball + pins arc */}
+          <div style={{ position: "absolute", left: 70, top: 150, width: 470, height: 330, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(160deg, #3a2410 0%, #1a1206 55%, #0d0a05 100%)", border: "1px solid rgba(249,134,38,0.45)", boxShadow: "0 0 80px rgba(249,134,38,0.25)" }}>
+            <div style={{ width: 190, height: 190, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", background: "radial-gradient(circle, rgba(253,182,91,0.9) 0%, rgba(249,134,38,0.55) 45%, rgba(249,134,38,0) 72%)" }}>
+              <svg width="120" height="120" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#12100c" stroke="#FDB65B" strokeWidth="1.4" /><path d="M12 6.5l3 2.2-1.1 3.5h-3.8L9 8.7 12 6.5Z" fill="#FDB65B" /><path d="M12 4v2.5M6.8 8.7 9 8.7M17.2 8.7 15 8.7M9.1 12.2 7.6 15.6M14.9 12.2 16.4 15.6M9.7 17.5h4.6" stroke="#F98626" strokeWidth="1" fill="none" /></svg>
+            </div>
+          </div>
+          {pin(96, 118, 34)}{pin(196, 74, 30)}{pin(320, 60, 30)}{pin(456, 96, 32)}{pin(548, 150, 30)}
+          {/* RIGHT: brand + rotating copy */}
+          <div style={{ position: "absolute", top: 0, right: 0, width: 590, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", paddingRight: 58 }}>
+            <div style={{ display: "flex", fontSize: 32, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 18 }}>wayfind</div>
+            <div style={{ display: "flex", fontSize: wTitle.length > 22 ? 58 : 70, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.03, letterSpacing: -2, maxWidth: 540 }}>{wTitle}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 22 }}>
+              <div style={{ display: "flex", alignItems: "center", backgroundColor: "#F98626", color: "#0A0A0B", fontSize: 24, fontWeight: 800, padding: "9px 20px", borderRadius: 999 }}>World Soccer</div>
+              <div style={{ display: "flex", fontSize: 24, fontWeight: 600, color: "#CBD5E1" }}>{card.subLabel}</div>
+            </div>
+            <div style={{ display: "flex", fontSize: 27, fontWeight: 500, color: "#E2E8F0", marginTop: 22, maxWidth: 500, lineHeight: 1.34 }}>{wDesc}</div>
+            {cta(wCta + " →")}
+          </div>
+        </div>,
+        { width: 1200, height: 630 }
+      );
+    }
 
     if (kind === "place") {
       const name = (searchParams.get("t") || "A great spot").slice(0, 80);

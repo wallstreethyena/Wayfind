@@ -2,7 +2,7 @@ import { cache } from "react";
 import ShareRedirect from "../../ShareRedirect";
 import { SITE_URL } from "../../../lib/site";
 import { getLatestSnapshot, isStale } from "../../../lib/listStore";
-import { shareCardFor } from "../../../lib/shareCards";
+import { shareCardFor, wcRotation } from "../../../lib/shareCards";
 
 const SITE = SITE_URL;
 const INK = "#0A0B0D", WHITE = "#FFFFFF", ORANGE = "#FF6B1A", MUTE = "#6E757D", SOFT = "#AEB6BD", HAIR = "#1E2126";
@@ -44,15 +44,22 @@ export async function generateMetadata({ params, searchParams }) {
   // the per-category discovery card when this key has one: the preview swaps
   // to that tab's artwork and copy (lib/shareCards.js), all still live text.
   const card = shareCardFor(params.key);
-  const t = s(searchParams.t) || (card && card.title) || "Top picks near you";
+  const rotN = s(searchParams.rot);
+  // v6.25 — the World Cup card's copy rotates; the shared link's preview must
+  // match the exact variant chosen at share time (carried in ?rot=).
+  const wc = card && card.custom === "worldcup" ? wcRotation(rotN) : null;
+  const t = (wc && wc.title) || s(searchParams.t) || (card && card.title) || "Top picks near you";
   const n = s(searchParams.n);
   const loc = s(searchParams.loc);
   const hk = s(searchParams.hk);
-  const desc = card
-    ? card.desc + (n ? " · " + n + " spots inside" : "") + (loc ? " · " + loc : "")
-    : (n ? "Top " + n + " picks" : "A ranked list") + (loc ? " in " + loc : "") + " · Tap to open on Wayfind";
+  const desc = wc
+    ? wc.desc
+    : card
+      ? card.desc + (n ? " · " + n + " spots inside" : "") + (loc ? " · " + loc : "")
+      : (n ? "Top " + n + " picks" : "A ranked list") + (loc ? " in " + loc : "") + " · Tap to open on Wayfind";
   let og = "/api/og?kind=list&t=" + encodeURIComponent(t);
-  if (card) og += "&card=" + encodeURIComponent(params.key);
+  if (card) og += "&card=" + encodeURIComponent(params.key === "hol-worldcup" ? "worldcup" : params.key);
+  if (wc && rotN) og += "&rot=" + encodeURIComponent(rotN);
   if (n) og += "&n=" + n;
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (hk) og += "&hk=" + encodeURIComponent(hk);
