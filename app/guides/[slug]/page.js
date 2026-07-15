@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
+import OpenAppCTA from "../../components/OpenAppCTA.js";
 
 export function generateStaticParams() {
   return Object.keys(GUIDES).map((slug) => ({ slug }));
@@ -92,6 +93,7 @@ export default function GuidePage({ params }) {
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>
+      <OpenAppCTA to="/" label="Open Wayfind" />
     </main>
   );
 }

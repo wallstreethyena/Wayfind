@@ -7,6 +7,7 @@ import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
+import OpenAppCTA from "../../components/OpenAppCTA.js";
 
 // v5.04: ISR so the render-time Viator product resolution below stays fresh.
 export const revalidate = 86400;
@@ -119,6 +120,7 @@ export default async function CulturePage({ params }) {
       <p style={{ fontSize: 15, color: "#C9D1D9", marginTop: 26 }}>
         Visiting {c.title}? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{params.metro === "orlando" ? <>, and our <a href="/guides/things-to-do-orlando-not-theme-parks" style={S.footerLink}>non-theme-park Orlando guide</a> covers the days between parks</> : null}.
       </p>
+      <OpenAppCTA to="/" label="Open Wayfind" />
     </main>
   );
 }
