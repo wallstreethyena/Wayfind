@@ -81,25 +81,48 @@ function EventCard({ e, onVenue, ctx }) {
   );
 }
 
+// v6.20 — the ONE events filter (owner direction, image 3 style): a single
+// dropdown pill, not a chip row. Categories only — Concerts is the marquee
+// default; "Local events" merges the old Near me + Community civic feed;
+// "Business events" is a new source (venues that publish an RSS/iCal/API feed),
+// shown with an honest empty state until those feeds are configured.
+const EVENT_FILTERS = [
+  { key: "concerts", label: "Concerts", icon: "🎵", bucket: "concerts" },
+  { key: "comedy", label: "Comedy", icon: "😂", bucket: "comedy" },
+  { key: "theater", label: "Theater", icon: "🎭", bucket: "theater" },
+  { key: "sports", label: "Sports", icon: "⚾", bucket: "sports" },
+  { key: "local", label: "Local events", icon: "🏘️", bucket: "community" },
+  { key: "business", label: "Business events", icon: "💼", bucket: "__business__" },
+];
+// The category we land on when the user hasn't picked one: the best-paying
+// category that actually has events (ticketed first), then the local feed.
+const DEFAULT_PRIORITY = ["concerts", "sports", "comedy", "theater", "local"];
+
 export default function EventsScreen({ ctx }) {
-  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, EVENT_BUCKETS, ViatorRail } = ctx;
+  const { events, eventCat, setEventCat, eventDate, setEventDate, locName, center, submitSearch, eventsLoading, eventsUnavailable, eventsError, loadEvents, openVenue, dedupeEvents, AreaInsight, Loader, eventsTours, eventBucket, ViatorRail } = ctx;
   const all = events || [];
-  const isTours = eventCat === "tours";
-  // v6.14 — geo distance so "Near me" ties break by proximity.
+  const [filterOpen, setFilterOpen] = useState(false);
+  // v6.20 — geo distance so ties break by proximity.
   const distMi = (e) => { if (!center || e == null || e.lat == null || e.lng == null) return Infinity; const R = 3958.8, t = (d) => (d * Math.PI) / 180; const s = Math.sin(t(e.lat - center.lat) / 2) ** 2 + Math.cos(t(center.lat)) * Math.cos(t(e.lat)) * Math.sin(t(e.lng - center.lng) / 2) ** 2; return R * 2 * Math.asin(Math.sqrt(s)); };
-  // v6.14 — fixed buckets (owner direction): marquee ticketed categories keep
-  // their names; all local/civic events live under Community. A category chip
-  // appears only when it has events; Tours + Near me always show.
-  const catBase = (eventCat === "all" || isTours) ? all : all.filter((e) => eventBucket(e) === eventCat);
+  const countForFilter = (f) => (f.bucket === "__business__" ? 0 : all.filter((e) => eventBucket(e) === f.bucket).length);
+  // Resolve the active filter. A real category the user picked is respected even
+  // when empty; the "auto" default (and any legacy tours/all/community value)
+  // resolves to the best populated category so the page never lands empty.
+  const isRealKey = EVENT_FILTERS.some((f) => f.key === eventCat);
+  let activeKey = eventCat;
+  if (!isRealKey) {
+    activeKey = DEFAULT_PRIORITY.find((k) => { const f = EVENT_FILTERS.find((x) => x.key === k); return f && countForFilter(f) > 0; }) || "local";
+  }
+  const activeFilter = EVENT_FILTERS.find((f) => f.key === activeKey) || EVENT_FILTERS[0];
+  const isBusiness = activeFilter.bucket === "__business__";
+  const catBase = isBusiness ? [] : all.filter((e) => eventBucket(e) === activeFilter.bucket);
   const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
   const allCount = dedupeEvents(catBase, true).length;
   let shown = catBase;
   if (eventDate !== "all") shown = shown.filter((e) => e.date === eventDate);
   shown = dedupeEvents(shown, eventDate === "all");
-  // What's coming up, nearest-when first; proximity breaks ties (all local by design).
+  // What's coming up, nearest-when first; proximity breaks ties.
   shown = shown.slice().sort((a, b) => (String(a.date || "9999").localeCompare(String(b.date || "9999"))) || (String(a.time || "99").localeCompare(String(b.time || "99"))) || (distMi(a) - distMi(b)));
-  const bucketCounts = {};
-  EVENT_BUCKETS.forEach((bk) => { bucketCounts[bk.key] = all.filter((e) => eventBucket(e) === bk.key).length; });
   const tours = Array.isArray(eventsTours) ? eventsTours : [];
   const eventDateChips = [];
   const enow = new Date();
@@ -109,25 +132,59 @@ export default function EventsScreen({ ctx }) {
     eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
   }
   const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
-  const catChip = (on) => ({ flexShrink: 0, fontSize: 12.5, fontWeight: 700, padding: "6px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", background: on ? C.adim : C.panel, color: on ? C.accent : C.light, border: `1px solid ${on ? C.accent : C.border}` });
+  const businessEmpty = (
+    <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>💼</div>
+      <strong style={{ display: "block", color: C.light }}>No business events yet</strong>
+      <span style={{ fontSize: 13, lineHeight: 1.5 }}>We&apos;re onboarding local businesses that publish a public calendar (RSS, iCal, or API). When they do, their events show up here — never invented.</span>
+    </div>
+  );
   return (
     <div>
       <div style={{ paddingTop: 4, marginBottom: 12 }}>
         <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>Events near you</div>
         {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
-        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and community happenings near you</div>
+        <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and local happenings near you</div>
       </div>
-      {/* v6.14 — the ONE fixed category filter. Tours (default) + Near me always
-          show; a bucket chip appears only when it actually has events. */}
-      <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 12, WebkitOverflowScrolling: "touch" }}>
-        <button onClick={() => setEventCat("tours")} style={catChip(isTours)}>🎟️ Tours</button>
-        <button onClick={() => setEventCat("all")} style={catChip(eventCat === "all")}>📍 Near me</button>
-        {EVENT_BUCKETS.filter((bk) => bucketCounts[bk.key] > 0).map((bk) => (
-          <button key={bk.key} onClick={() => setEventCat(bk.key)} style={catChip(eventCat === bk.key)}>{bk.icon} {bk.short}</button>
-        ))}
+
+      {/* v6.20 — TOURS RAIL is PERMANENTLY pinned to the top of every filter
+          view (owner direction: revenue stays up top, no toggle). */}
+      {eventsTours === null ? (
+        <Loader label="Finding bookable experiences" pad="6px 2px" />
+      ) : tours.length > 0 ? (
+        <div style={{ marginBottom: 16 }}>
+          <ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" />
+          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
+        </div>
+      ) : null}
+
+      {/* v6.20 — the ONE events filter: a dropdown pill (image-3 style), not a
+          chip row. Categories only; this control is events-page-only. */}
+      <div style={{ position: "relative", marginBottom: 12 }}>
+        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 15px", borderRadius: 999, background: C.panel, border: `1px solid ${C.border}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+          <span style={{ fontSize: 15 }}>{activeFilter.icon}</span>
+          <span>{activeFilter.label}</span>
+          <span style={{ color: C.accent, transform: filterOpen ? "rotate(180deg)" : "none", transition: "transform .18s ease" }}>▾</span>
+        </button>
+        {filterOpen && (
+          <>
+            <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 41, minWidth: 220, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, boxShadow: "0 12px 34px rgba(0,0,0,.5)", overflow: "hidden" }}>
+              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
+                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", padding: "12px 15px", background: on ? C.adim : "transparent", border: "none", borderBottom: `1px solid ${C.border}`, color: on ? C.accent : C.text, fontSize: 14.5, fontWeight: on ? 800 : 600, cursor: "pointer", textAlign: "left" }}>
+                  <span style={{ fontSize: 16 }}>{f.icon}</span>
+                  <span style={{ flex: 1 }}>{f.label}</span>
+                  {f.bucket !== "__business__" && n > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: on ? C.accent : C.muted }}>{n}</span>}
+                  {on && <span style={{ color: C.accent }}>✓</span>}
+                </button>
+              ); })}
+            </div>
+          </>
+        )}
       </div>
-      {/* Date chips apply to events only, not the bookable Tours view. */}
-      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
+
+      {/* Date chips (kept — events-page-only). Hidden for the Business feed. */}
+      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
             <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
@@ -141,23 +198,15 @@ export default function EventsScreen({ ctx }) {
           </div>
         </div>
       )}
-      {/* TOURS view — bookable Viator experiences (the tab's default). */}
-      {isTours && (
-        eventsTours === null
-          ? <Loader label="Finding bookable experiences" pad="8px 2px" />
-          : tours.length > 0
-            ? <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}><ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" /><div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div></div>
-            : <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
-                <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
-                <strong style={{ display: "block", color: C.light }}>No bookable tours here right now</strong>
-                <span style={{ fontSize: 13 }}>See what&apos;s actually happening near you instead.</span>
-                <div onClick={() => setEventCat("all")} style={{ marginTop: 12, color: C.accent, fontWeight: 800, cursor: "pointer", fontSize: 13 }}>Events near me →</div>
-              </div>
-      )}
-      {/* EVENT views — Near me + the category buckets. */}
-      {!isTours && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-      {!isTours && !eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the Tours tab above always works. </div>}
-      {!isTours && !eventsLoading && !eventsUnavailable && eventsError && (
+
+      {/* Business events — a distinct source (RSS/iCal/API). Honest empty state
+          until feeds are configured; never fabricated. */}
+      {isBusiness && businessEmpty}
+
+      {/* Event grid for the selected category. */}
+      {!isBusiness && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
+      {!isBusiness && !eventsLoading && eventsUnavailable && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
+      {!isBusiness && !eventsLoading && !eventsUnavailable && eventsError && (
         <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
           <strong style={{ display: "block", color: C.light }}>No events to show right now</strong>
@@ -165,21 +214,21 @@ export default function EventsScreen({ ctx }) {
           <div onClick={loadEvents} style={{ marginTop: 12, color: C.muted, fontWeight: 700, cursor: "pointer", fontSize: 13 }}>Refresh ↻</div>
         </div>
       )}
-      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
+      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>🎟️</div>
           <strong style={{ display: "block", color: C.light }}>No events in your area yet</strong>
           <span style={{ fontSize: 13 }}>We&apos;re still expanding Wayfind events to your area. Check back soon.</span>
         </div>
       )}
-      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
+      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && shown.length === 0 && (
         <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-          <strong style={{ display: "block", color: C.light }}>Nothing on this day</strong>
-          <span style={{ fontSize: 13 }}>Try another date or tap All.</span>
+          <strong style={{ display: "block", color: C.light }}>Nothing in {activeFilter.label.toLowerCase()} {eventDate === "all" ? "right now" : "on this day"}</strong>
+          <span style={{ fontSize: 13 }}>Try another category or date — the bookable experiences above are always live.</span>
         </div>
       )}
-      {!isTours && !eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
+      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && shown.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
           {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
         </div>
