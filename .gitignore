@@ -12,3 +12,7 @@ playwright-report
 
 # local inventory dump (not committed)
 wf-inventory-list.txt
+
+# index→library promoter: audit + rollback backups (local, not committed)
+.promote-audit/
+.promote-backup/
