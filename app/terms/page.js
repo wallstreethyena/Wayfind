@@ -26,6 +26,12 @@ export default function Terms() {
         <h2 style={h2}>The service</h2>
         <p>Wayfind helps you discover places and events nearby and surfaces ratings, distances, hours, and suggestions to help you decide where to go. Much of this information, including place details, hours, prices, and event listings, comes from third party sources. We work to present it accurately, but we cannot guarantee it is always current or correct. Always confirm critical details, such as hours, prices, availability, and reservations, directly with the venue or provider before you rely on them.</p>
 
+        {/* v6.35 glass-box: rankings-are-opinion clause. [OWNER/COUNSEL] drafted to
+            industry standard (the posture platforms use to characterize rankings as
+            protected editorial opinion) — have counsel confirm before relying on it. */}
+        <h2 style={h2}>Rankings and the Wayfind Score</h2>
+        <p>The Wayfind Score and the order in which places appear in any list are Wayfind&apos;s editorial opinion. They are a subjective judgment produced by our published model — chiefly a place&apos;s third party rating weighted by review volume, together with signals like distance and availability — and are not a statement of objective fact about any business, a certification of quality or safety, or a representation that one place is superior to another for your particular needs. Businesses cannot pay to obtain, raise, or change a Score or a ranking; there is no paid placement. We describe the method in full at <a href="/how-wayfind-ranks" style={a}>how Wayfind ranks</a>. Use the Score as one opinion among your own judgment, and confirm what matters to you directly with the venue.</p>
+
         <h2 style={h2}>Affiliate links and third party transactions</h2>
         <p>Some links in Wayfind, including links to tickets and to tours and experiences, are affiliate links. If you book or buy through them, we may earn a commission at no extra cost to you. Any purchase, booking, or ticket you obtain is a transaction between you and that third party provider, such as a ticketing platform or a tours marketplace, under their terms and policies. Wayfind is not a party to that transaction and is not responsible for the products, services, pricing, fulfillment, cancellations, or refunds of those providers.</p>
 

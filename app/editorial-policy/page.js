@@ -25,7 +25,7 @@ export default function Page() {
       <h2 style={S.h2}>Verification</h2>
       <p style={S.p}>Every guide carries an updated date, which is when its facts — hours, prices, status — were last checked against official listings. Inside the app, hours and open-now status are computed live from current venue data rather than copied from articles.</p>
       <h2 style={S.h2}>Rankings</h2>
-      <p style={S.p}>List order is produced by the same public method the app uses — rating weighted by review volume, distance, and availability — with no ads and no paid placement. Read <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
+      <p style={S.p}>List order and the Wayfind Score are our editorial opinion, produced by the same public method the app uses — a place&apos;s rating weighted by review volume, with distance and availability shaping order — and carrying no ads and no paid placement. The Score is pure merit; anything we earn a commission on is a separate, clearly-labeled layer that never changes it. Read <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
       <h2 style={S.h2}>Affiliate links</h2>
       <p style={S.p}>Some links go to booking partners (for example Viator or hotel sites) and may earn Wayfind a commission at no cost to you. Affiliate potential never changes what we recommend or where it ranks, and pages with partner links say so. If something isn&apos;t worth your money, we say that too.</p>
       <h2 style={S.h2}>Corrections</h2>
