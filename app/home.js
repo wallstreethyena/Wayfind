@@ -84,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.23";
+const BUILD_ID = "v6.24";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -1531,10 +1531,16 @@ async function loadBeachConditions(p) {
 // iconName (v5.55 redesign) is the line-icon key for chrome (badges/section
 // heads); the emoji stays as `icon` for the EventArt tile fallback, which is
 // large decorative content, not chrome.
-function eventSegmentMeta(seg, genre) {
+// v6.23 — comedy is frequently filed by providers under the "Arts & Theatre"
+// segment with a non-"Comedy" genre, so it leaked into Theater. Detect it by
+// genre OR an unambiguous stand-up NAME signal (comedian / stand-up / improv /
+// "comedy club|night|tour"…) — deliberately NOT a bare "comedy" so a play like
+// "The Comedy of Errors" stays Theater.
+const COMEDY_NAME_RX = /\b(comedian|stand[- ]?up|improv|comedy (club|night|show|tour|jam|hour|festival|special|series)|live comedy|night of comedy|open mic|laugh(s| ?fest| ?factory))\b/i;
+function eventSegmentMeta(seg, genre, name) {
   const s = (seg || "").toLowerCase();
   const g = (genre || "").toLowerCase();
-  if (g.includes("comedy")) return { icon: "😂", iconName: "smile", short: "Comedy", color: "#FBBF24" };
+  if (g.includes("comedy") || (name && COMEDY_NAME_RX.test(name))) return { icon: "😂", iconName: "smile", short: "Comedy", color: "#FBBF24" };
   if (s.includes("business")) return { icon: "💼", iconName: "ticket", short: "Business", color: "#A78BFA" };
   if (s.includes("music")) return { icon: "🎵", iconName: "music", short: "Concert", color: "#F472B6" };
   if (s.includes("sport")) return { icon: "⚾", iconName: "trophy", short: "Sports", color: "#38BDF8" };
@@ -1558,7 +1564,7 @@ const EVENT_BUCKETS = [
   { key: "community", short: "Community", icon: "🏘️", iconName: "users", color: "#22C55E" },
 ];
 function eventBucket(e) {
-  const seg = eventSegmentMeta(e && e.segment, e && e.genre).short;
+  const seg = eventSegmentMeta(e && e.segment, e && e.genre, e && e.name).short;
   if (seg === "Business") return "business"; // v6.21 — a business's own calendar feed
   if (seg === "Comedy") return "comedy";
   if (seg === "Concert") return "concerts";
@@ -1827,7 +1833,7 @@ function recurrenceLabel(e) {
 // generic "Event"/"Other" records get a category inferred from the title so the
 // branded tile is on-theme (food, outdoors, nightlife) instead of all identical.
 function eventCategory(e) {
-  const seg = eventSegmentMeta(e && e.segment, e && e.genre);
+  const seg = eventSegmentMeta(e && e.segment, e && e.genre, e && e.name);
   if (seg.short && seg.short !== "Other" && seg.short !== "Event") return seg;
   const t = ((e && e.name) || "").toLowerCase();
   const has = (re) => re.test(t);
@@ -6355,7 +6361,7 @@ function PageInner() {
                     </div>
                     {featured && featured.dest && (() => {
                       const f = formatEventDate(featured.date, featured.time);
-                      const seg = eventSegmentMeta(featured.segment, featured.genre);
+                      const seg = eventSegmentMeta(featured.segment, featured.genre, featured.name);
                       const rel = relLabel(featured);
                       const acc = C.purple;
                       const internal = featured.destKind === "internal";

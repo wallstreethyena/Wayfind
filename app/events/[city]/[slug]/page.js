@@ -12,6 +12,7 @@ import { ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
+import OpenAppCTA from "../../../components/OpenAppCTA.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -213,6 +214,7 @@ export default async function EventPage({ params }) {
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>
+        <OpenAppCTA to="/events" label="Explore events" />
         <a href="/events" style={{ display: "inline-block", marginTop: 20, color: A, fontWeight: 800, fontSize: 13.5, textDecoration: "none" }}>‹ Back to all events</a>
       </div>
     </div>
