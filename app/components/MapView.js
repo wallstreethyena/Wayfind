@@ -98,6 +98,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const circleRef = useRef(null);
+  const haloRef = useRef(null);
   const lastCenterRef = useRef("");
   const anchorRef = useRef(null);
   const ringGenRef = useRef(null);
@@ -227,6 +228,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // keeps this single orange ring; the main Map replaces it with adaptive
     // distance rings (drawn on idle, below), so skip it when rings are on.
     if (circleRef.current) { circleRef.current.setMap(null); circleRef.current = null; }
+    if (haloRef.current) { haloRef.current.setMap(null); haloRef.current = null; }
     if (center && !ringsOnRef.current) {
       circleRef.current = new window.google.maps.Circle({
         map,
@@ -241,20 +243,40 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       });
     }
 
-    // The user's own location, shown as the Wayfind pin.
-    if (deviceLoc) {
-      const pin = new window.google.maps.Marker({
-        position: deviceLoc,
+    // v6.19: ALWAYS mark the ring origin so "my location + radius" is never a
+    // mystery. A real GPS fix gets the classic blue location dot with a soft
+    // accuracy halo; a searched-city center (no GPS granted) gets an orange
+    // center dot so the distance rings visibly radiate from a labeled origin.
+    const originPt = deviceLoc || center;
+    if (originPt && window.google) {
+      const gps = !!deviceLoc;
+      const dotColor = gps ? "#4285F4" : "#F97316";
+      // Soft accuracy halo under the dot.
+      const halo = new window.google.maps.Circle({
         map,
-        zIndex: 999,
-        title: "Your location",
+        center: { lat: originPt.lat, lng: originPt.lng },
+        radius: gps ? 140 : 220,
+        clickable: false,
+        zIndex: 2,
+        strokeColor: dotColor, strokeOpacity: 0.35, strokeWeight: 1,
+        fillColor: dotColor, fillOpacity: 0.12,
+      });
+      haloRef.current = halo;
+      const dot = new window.google.maps.Marker({
+        position: originPt,
+        map,
+        zIndex: 1000,
+        title: gps ? "You're here" : "Search center",
         icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(PIN_SVG),
-          scaledSize: new window.google.maps.Size(30, 40),
-          anchor: new window.google.maps.Point(15, 38),
+          path: window.google.maps.SymbolPath.CIRCLE,
+          scale: 7,
+          fillColor: dotColor,
+          fillOpacity: 1,
+          strokeColor: "#FFFFFF",
+          strokeWeight: 2.5,
         },
       });
-      markersRef.current.push(pin);
+      markersRef.current.push(dot);
     }
 
     // Track center + first-5 place IDs together so we re-fit whenever data changes
