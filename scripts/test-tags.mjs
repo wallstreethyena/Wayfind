@@ -78,7 +78,7 @@ ok("all core discovery categories present" + (_missing.length ? " (missing: " + 
 ok("every category has a valid action", [...Cats.INTENTS, ...Cats.DISCOVER].every((x) => Cats.validAct(x.act)));
 
 ok("home renders exactly six category tiles", Cats.CATEGORY_TILES.length === 6);
-ok("tile ids are the canonical six", ["food","nightlife","attractions","beach","hotels","shopping"].every((id, i) => Cats.CATEGORY_TILES[i] && Cats.CATEGORY_TILES[i].id === id));
+ok("tile ids are the canonical six", ["food","nightlife","attractions","family","hotels","shopping"].every((id, i) => Cats.CATEGORY_TILES[i] && Cats.CATEGORY_TILES[i].id === id)); // v6.28: beach -> family
 
 let _hot = null;
 for (const w of [{ temp: 99, rain: 5 }, { temp: 101 }]) {
