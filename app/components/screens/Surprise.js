@@ -12,13 +12,13 @@ export default function SurpriseScreen({ ctx }) {
           const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
           // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
           const period = (() => { const hr = new Date().getHours(); return hr < 12 ? "Morning" : hr < 17 ? "Afternoon" : "Evening"; })();
-          const sOpen = !!(p && p.openNow === true);
-          const sOpensLater = !!(p && p.openNow === false && p.nextOpen && p.nextOpen.today);
+          const sOpen = !!(p && liveOpen(p) === true);
+          const sOpensLater = !!(p && liveOpen(p) === false && p.nextOpen && p.nextOpen.today);
           const sSub = sOpen ? "Open now, nearby, and worth your time."
             : sOpensLater ? (p.nextOpen.label + " · a strong pick for a little later.")
             : "A top pick nearby, chosen for rating, distance, and fit.";
           // v5.0: state-aware primary action. Never tell someone to drive to a closed place.
-          const openAlt = surprisePool.find((o) => o && o.openNow === true && (!p || o.id !== p.id)) || null;
+          const openAlt = surprisePool.find((o) => o && liveOpen(o) === true && (!p || o.id !== p.id)) || null;
           const goMaps = () => { if (p && p.mapsUrl) openExternal(p.mapsUrl); else if (p) openDetail(p); };
           let primaryLabel = "Take me there →";
           let primaryAction = goMaps;
@@ -94,8 +94,8 @@ export default function SurpriseScreen({ ctx }) {
                   {/* v4.6: backup picks split into Open now and For later so closed spots are labeled, not hidden in prime slots. */}
                   {(() => {
                     const others = surprisePool.filter((o) => o && o.id !== p.id);
-                    const openG = others.filter((o) => o.openNow === true).slice(0, 3);
-                    const laterG = others.filter((o) => o.openNow === false).slice(0, 3);
+                    const openG = others.filter((o) => liveOpen(o) === true).slice(0, 3);
+                    const laterG = others.filter((o) => liveOpen(o) === false).slice(0, 3);
                     if (!openG.length && !laterG.length) return null;
                     return (
                       <div style={{ marginTop: 22, paddingBottom: 8 }}>
