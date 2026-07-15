@@ -169,13 +169,15 @@ export default function EventsScreen({ ctx }) {
         {filterOpen && (
           <>
             <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
-            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 41, minWidth: 220, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, boxShadow: "0 12px 34px rgba(0,0,0,.5)", overflow: "hidden" }}>
-              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
-                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 11, width: "100%", padding: "12px 15px", background: on ? C.adim : "transparent", border: "none", borderBottom: `1px solid ${C.border}`, color: on ? C.accent : C.text, fontSize: 14.5, fontWeight: on ? 800 : 600, cursor: "pointer", textAlign: "left" }}>
-                  <span style={{ fontSize: 16 }}>{f.icon}</span>
+            <style>{"@keyframes wfMenuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}"}</style>
+            {/* iOS-style menu: vibrancy blur, rounded, inset hairline separators. */}
+            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, minWidth: 250, background: "rgba(28,32,40,0.82)", backdropFilter: "blur(22px) saturate(180%)", WebkitBackdropFilter: "blur(22px) saturate(180%)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, boxShadow: "0 18px 48px rgba(0,0,0,.55)", overflow: "hidden", padding: "4px 0", animation: "wfMenuIn .16s cubic-bezier(.32,.72,0,1)" }}>
+              {EVENT_FILTERS.map((f, i) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
+                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "13px 17px", background: on ? "rgba(249,134,38,0.14)" : "transparent", border: "none", borderTop: i === 0 ? "none" : "0.5px solid rgba(255,255,255,0.07)", color: on ? C.accent : "#F2F4F7", fontSize: 16, fontWeight: on ? 700 : 500, letterSpacing: "-0.2px", cursor: "pointer", textAlign: "left" }}>
+                  <span style={{ fontSize: 18 }}>{f.icon}</span>
                   <span style={{ flex: 1 }}>{f.label}</span>
-                  {f.bucket !== "__business__" && n > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: on ? C.accent : C.muted }}>{n}</span>}
-                  {on && <span style={{ color: C.accent }}>✓</span>}
+                  {n > 0 && <span style={{ fontSize: 13, fontWeight: 600, color: on ? C.accent : C.muted }}>{n}</span>}
+                  {on && <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>✓</span>}
                 </button>
               ); })}
             </div>

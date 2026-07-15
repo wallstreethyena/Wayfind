@@ -84,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.22";
+const BUILD_ID = "v6.23";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -5547,6 +5547,25 @@ function PageInner() {
     const url = await buildListShareUrl(places, title);
     shareLink(`Wayfind list: ${title}`, url, () => showToast("Link copied"), `${title}. Help me wayfind it`, () => { try { logEvent("share", null, { kind: "list", n: places.length, title: title || "" }); } catch (e) {} giveawayMark("list:" + (title || "list")); });
   }
+  // v6.23 — share ONE coupon. The recipient's text carries a per-coupon image
+  // (who it's for, how much, when it expires) generated from the same encoded
+  // data the /c landing page and /api/og/coupon image both read.
+  function couponShareUrl(c) {
+    try {
+      const json = JSON.stringify({ b: c.business || "", t: c.title || "", x: c.expires ? String(c.expires).slice(0, 10) : "", c: c.code || "", a: c.area || "", id: c.id || "" });
+      const b64 = btoa(unescape(encodeURIComponent(json))).split("+").join("-").split("/").join("_").split("=").join("");
+      return originUrl("/c?d=" + b64);
+    } catch { return originUrl("/coupons"); }
+  }
+  function shareCoupon(c) {
+    if (!c) return;
+    const url = couponShareUrl(c);
+    const lines = ["🎟️ " + (c.business ? c.business + ": " : "") + (c.title || "A Wayfind deal")];
+    if (c.code) lines.push("Code: " + c.code);
+    if (c.expires) lines.push("Valid through " + String(c.expires).slice(0, 10));
+    lines.push("Grab it on Wayfind:");
+    shareLink((c.business ? c.business + " — " : "") + (c.title || "Wayfind coupon"), url, () => showToast("Link copied"), lines.join("\n"), () => { try { logEvent("coupon_share", null, { id: c.id }); } catch (e) {} });
+  }
 
   if (keyMissing) {
     return (
@@ -5719,7 +5738,7 @@ function PageInner() {
     // surprise
     surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise,
     // coupons
-    cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, walletOpen, setWalletOpen,
+    cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // itinerary

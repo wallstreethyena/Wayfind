@@ -4,7 +4,7 @@ import { C } from "../kit";
 import { COUPONS } from "../../../lib/coupons";
 
 export default function CouponsScreen({ ctx }) {
-  const { cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, logEvent, walletOpen, setWalletOpen, openExternal } = ctx;
+  const { cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, logEvent, walletOpen, setWalletOpen, openExternal } = ctx;
           const _today = new Date().toISOString().slice(0, 10);
           const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
           const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
@@ -22,7 +22,12 @@ export default function CouponsScreen({ ctx }) {
                     {c.details ? <div style={{ fontSize: 13, color: C.light, marginTop: 4, lineHeight: 1.45 }}>{c.details}</div> : null}
                     {c.expires ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5 }}>Ends {String(c.expires).slice(0, 10)}</div> : null}
                   </div>
-                  <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.accent : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.accent : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
+                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <button onClick={() => shareCoupon(c)} aria-label="Share coupon" title="Share this coupon" style={{ width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
+                    </button>
+                    <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.accent : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.accent : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
+                  </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
                   {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
