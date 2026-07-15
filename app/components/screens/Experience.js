@@ -3,6 +3,8 @@
 // PageInner aliases cityFixM as "cityFix" locally; this file calls
 // ctx.cityFixM directly (same function, already flowing through ctx).
 import { C } from "../kit";
+import { shareTextFor } from "../../../lib/shareCards";
+import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel } = ctx;
@@ -18,7 +20,7 @@ export default function ExperienceScreen({ ctx }) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <div onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <button onClick={() => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), "Check this Wayfind list: " + cityFixM(exp.title), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                  <button onClick={() => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), shareTextFor(activeBadge, cityFixM(exp.title)), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
                   {list.some((pp) => pp && pp.lat != null) ? (<button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(list.filter((pp) => pp && pp.lat != null).slice(0, 20)); setScreen("map"); try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>) : null}
                   {(() => { const lk = hookLikes.has("badge-" + activeBadge); return (<button onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFixM(exp.title), label: cityFixM(exp.title) }, list); }} aria-label={lk ? "Saved to lists" : "Save to lists"} title={lk ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: lk ? C.adim : "transparent", border: `1.5px solid ${lk ? C.accent : C.border}`, color: lk ? C.accent : C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill={lk ? C.accent : "none"} stroke={lk ? C.accent : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>); })()}
                 </div>
@@ -29,6 +31,31 @@ export default function ExperienceScreen({ ctx }) {
               </div>
               <div style={{ fontSize: 30, fontWeight: 800, color: C.text, lineHeight: 1.08, letterSpacing: "-0.6px", marginBottom: 10 }}>{cityFixM(exp.title)}</div>
               <div style={{ fontSize: 14.5, color: C.light, lineHeight: 1.55, marginBottom: 8 }}>{exp.lead}</div>
+              {/* v6.17 deals strip: live, verified coupons tagged for this
+                  moment (lib/coupons.js `intents`). Expired deals auto-hide via
+                  couponsForIntent, soonest-ending first. The 🏷️ chip is the
+                  badge mount — swap in the deal-badge logo when the art lands. */}
+              {(() => {
+                const dl = couponsForIntent(activeBadge).slice(0, 3);
+                if (!dl.length) return null;
+                return (
+                  <div style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                      <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🏷️ Local deals on this list</span>
+                      <button onClick={() => { try { logEvent("coupon_strip_all", null, { theme: activeBadge }); } catch (e) {} setScreen("coupons"); }} style={{ background: "transparent", border: "none", color: C.accent, fontSize: 11.5, fontWeight: 800, cursor: "pointer", padding: "4px 0 4px 8px" }}>See all ›</button>
+                    </div>
+                    {dl.map((c, i) => (
+                      <div key={c.id} role="button" tabIndex={0} onClick={() => { try { logEvent("coupon_strip_tap", null, { id: c.id, theme: activeBadge }); } catch (e) {} setScreen("coupons"); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setScreen("coupons"); } }} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "7px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                        <span style={{ minWidth: 0, flex: 1 }}>
+                          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{c.business}</span>
+                          <span style={{ fontSize: 12.5, color: C.light }}> — {c.title}</span>
+                        </span>
+                        {couponEndsLabel(c) ? <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: C.muted }}>{couponEndsLabel(c)}</span> : null}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
               {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
               {!expLoading && momentPicks && momentPicks.badge === activeBadge && (() => {
                 const byId = new Map((expPlaces || []).map((p) => [p.id, p]));
