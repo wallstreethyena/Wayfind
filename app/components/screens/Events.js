@@ -147,8 +147,35 @@ export default function EventsScreen({ ctx }) {
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Bookable tours, concerts, comedy, theater, sports, and local happenings near you</div>
       </div>
 
-      {/* v6.20 — TOURS RAIL is PERMANENTLY pinned to the top of every filter
-          view (owner direction: revenue stays up top, no toggle). */}
+      {/* v6.26 — the events category filter, ABOVE the bookable-experiences
+          rail (owner direction) and styled to match the app's SortControl
+          ("≡ Top rated ▾"): outlined orange pill + sliders icon + chevron. */}
+      <div style={{ position: "relative", marginBottom: 14 }}>
+        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: C.card, border: `1px solid ${C.accent}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+          <span>{activeFilter.label}</span>
+          <span style={{ fontSize: 10, color: C.muted, transform: filterOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"▼"}</span>
+        </button>
+        {filterOpen && (
+          <>
+            <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
+            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Category</div>
+              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
+                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 8px", borderRadius: 10, border: "none", background: on ? "rgba(249,115,22,.12)" : "transparent", cursor: "pointer", textAlign: "left" }}>
+                  <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
+                  <span style={{ fontSize: 16 }}>{f.icon}</span>
+                  <span style={{ flex: 1, fontSize: 13.5, fontWeight: on ? 800 : 600, color: on ? C.text : C.light }}>{f.label}</span>
+                  {n > 0 && <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? C.accent : C.muted }}>{n}</span>}
+                </button>
+              ); })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* v6.20 — the bookable-experiences (Viator) rail; now sits BELOW the
+          category filter (owner direction), still on every filter view. */}
       {eventsTours === null ? (
         <Loader label="Finding bookable experiences" pad="6px 2px" />
       ) : tours.length > 0 ? (
@@ -157,33 +184,6 @@ export default function EventsScreen({ ctx }) {
           <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
         </div>
       ) : null}
-
-      {/* v6.20 — the ONE events filter: a dropdown pill (image-3 style), not a
-          chip row. Categories only; this control is events-page-only. */}
-      <div style={{ position: "relative", marginBottom: 12 }}>
-        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 15px", borderRadius: 999, background: C.panel, border: `1px solid ${C.border}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-          <span style={{ fontSize: 15 }}>{activeFilter.icon}</span>
-          <span>{activeFilter.label}</span>
-          <span style={{ color: C.accent, transform: filterOpen ? "rotate(180deg)" : "none", transition: "transform .18s ease" }}>▾</span>
-        </button>
-        {filterOpen && (
-          <>
-            <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
-            <style>{"@keyframes wfMenuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}"}</style>
-            {/* iOS-style menu: vibrancy blur, rounded, inset hairline separators. */}
-            <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, minWidth: 250, background: "rgba(28,32,40,0.82)", backdropFilter: "blur(22px) saturate(180%)", WebkitBackdropFilter: "blur(22px) saturate(180%)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, boxShadow: "0 18px 48px rgba(0,0,0,.55)", overflow: "hidden", padding: "4px 0", animation: "wfMenuIn .16s cubic-bezier(.32,.72,0,1)" }}>
-              {EVENT_FILTERS.map((f, i) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
-                <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", padding: "13px 17px", background: on ? "rgba(249,134,38,0.14)" : "transparent", border: "none", borderTop: i === 0 ? "none" : "0.5px solid rgba(255,255,255,0.07)", color: on ? C.accent : "#F2F4F7", fontSize: 16, fontWeight: on ? 700 : 500, letterSpacing: "-0.2px", cursor: "pointer", textAlign: "left" }}>
-                  <span style={{ fontSize: 18 }}>{f.icon}</span>
-                  <span style={{ flex: 1 }}>{f.label}</span>
-                  {n > 0 && <span style={{ fontSize: 13, fontWeight: 600, color: on ? C.accent : C.muted }}>{n}</span>}
-                  {on && <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>✓</span>}
-                </button>
-              ); })}
-            </div>
-          </>
-        )}
-      </div>
 
       {/* Date chips (kept — events-page-only). Hidden for the Business feed. */}
       {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
