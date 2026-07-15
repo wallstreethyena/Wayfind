@@ -1,7 +1,7 @@
 "use client";
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 import { Fragment } from "react";
-import { C, sheetBg, sheet, SHEET_EASE } from "../kit";
+import { C, sheetBg, sheet, SHEET_EASE, PlaceScoreChip } from "../kit";
 import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 
@@ -154,11 +154,7 @@ export default function HookDetailSheet({ ctx }) {
                         ); })()}
                         {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5, paddingRight: isFeatured ? 74 : 0 }}>
-                          {p.rating && (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: showWarn ? C.red : (p.rating >= 4.5 ? C.green : "#3F8F4E"), color: "#0D1117", fontWeight: 800, fontSize: 13, padding: "2px 8px", borderRadius: 7 }}>
-                              ★ {p.rating}
-                            </span>
-                          )}
+                          <PlaceScoreChip p={p} size={13} />
                           {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
                           {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
                           {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}

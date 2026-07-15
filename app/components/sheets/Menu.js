@@ -1,7 +1,7 @@
 "use client";
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 // Six sub-states: menu, community, explore, pick, experiences, weather.
-import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon } from "../kit";
+import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon, PlaceScoreChip } from "../kit";
 import { openExternal } from "../../../lib/links";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import { CATEGORIES } from "../../../lib/google";
@@ -105,7 +105,7 @@ export default function MenuSheet({ ctx }) {
                           <div style={{ padding: "11px 13px 13px" }}>
                             <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{p.name}</div>
                             <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
-                              {p.rating != null && <span style={{ fontSize: 12.5, color: "#F59E0B" }}>★ {p.rating}</span>}
+                              <PlaceScoreChip p={p} size={12} />
                               {p.reviews != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.reviews.toLocaleString()} reviews</span>}
                               {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
                               {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span>}
@@ -174,7 +174,7 @@ export default function MenuSheet({ ctx }) {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{rp.name}</div>
                           <div style={{ display: "flex", gap: 6, marginTop: 2, alignItems: "center" }}>
-                            {rp.rating && <span style={{ fontSize: 11, color: "#F59E0B" }}>★ {rp.rating}</span>}
+                            <PlaceScoreChip p={rp} size={11} />
                             {rp.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {rp.distMi.toFixed(1)} mi</span>}
                           </div>
                         </div>
