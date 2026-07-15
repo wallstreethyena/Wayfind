@@ -5,6 +5,7 @@
 import { readFileSync } from "fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 import { mealEligible, hoursSpan } from "../lib/meals.js";
+import { placeAllowed } from "../lib/placeFilter.js";
 const fail = (m) => { console.error("check-meals: FAIL — " + m); process.exit(1); };
 
 const per = (oh, om, ch, cm2, cd) => ({ open: { day: 1, hour: oh, minute: om }, close: { day: cd ?? 1, hour: ch, minute: cm2 } });
@@ -43,4 +44,20 @@ const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + scre
 // application to the slot pool are present.
 if (!page.includes("Meals.mealEligible(label, pp)") || !page.includes("mealOk(sl.label, pp)")) fail("openCurated no longer filters slot candidates through mealEligible");
 if ((page.match(/mealOk\(sl\.label, pp\)/g) || []).length < 2) fail("backfill path missing eligibility check (slot + backfill must both gate through mealOk)");
-console.log("check-meals: OK — 8 fixture suites pass; slot labels are hours-verified promises");
+
+// 9. v6.18 — the BROWSE meal chips (Food > Breakfast/Dessert) gate through
+// placeAllowed, not mealEligible. The live bug: "O'bricks Irish Pub & Martini
+// Bar" ranked #1 under Breakfast in Bradenton. A bar is not a breakfast (or
+// dessert) spot unless it genuinely serves that meal — but it stays under
+// Food·All and Dinner, where a bar & grill belongs.
+const B = (name, types, extra = {}) => ({ name, types, rating: 4.6, reviews: 900, status: "OPERATIONAL", ...extra });
+const obricks = B("O'bricks Irish Pub & Martini Bar", ["bar", "restaurant", "food", "point_of_interest"], { rating: 4.7, reviews: 3061 });
+if (placeAllowed("food", "breakfast", obricks)) fail("browse: a pub/martini bar passed the Breakfast chip");
+if (placeAllowed("food", "dessert", obricks)) fail("browse: a pub/martini bar passed the Dessert chip");
+if (!placeAllowed("food", "all", obricks)) fail("browse: a bar & grill should still pass Food·All");
+if (!placeAllowed("food", "dinner", obricks)) fail("browse: a bar & grill should still pass Dinner");
+if (!placeAllowed("food", "breakfast", B("First Watch", ["breakfast_restaurant", "restaurant", "food"]))) fail("browse: a real breakfast restaurant failed the Breakfast chip");
+if (!placeAllowed("food", "breakfast", B("The Sage Biscuit Café", ["cafe", "restaurant", "food"]))) fail("browse: a café/biscuit breakfast spot failed the Breakfast chip");
+if (!placeAllowed("food", "dessert", B("Kilwins Ice Cream", ["ice_cream_shop", "dessert_shop", "food"]))) fail("browse: an ice-cream shop failed the Dessert chip");
+
+console.log("check-meals: OK — 9 fixture suites pass; slot labels are hours-verified and browse meal chips reject bars");
