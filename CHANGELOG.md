@@ -1,3 +1,28 @@
+## v6.17 - Deals live everywhere + per-tab discovery share cards
+- DEALS. lib/coupons.js loads its first 8 verified offers (Discover Sarasota Tours 20% code
+  LOCAL thru 7/31, ZooTampa heroes summer, Ringling Free Mondays + Blue Star military, Mote
+  military free, Marauders Thirsty Thursday, Agave Taco Tuesday, Sarasota Art Museum Free
+  Second Sundays). Every dated deal has a scheduled deletion robot + weekly Monday audit
+  (registry: project doc wayfind-deals-registry.md). Coupons gain optional `intents` (which
+  moment tabs surface them) and `match` (place-name attach). Expired deals still auto-hide.
+- Moment/experience pages get a deals strip (live, verified, soonest-ending first; taps into
+  the Coupons tab), and place cards show a Deal pill when a curated coupon matches the place
+  by name (same slot as Supabase offer pills; placeholder chip until the badge logo lands).
+- ROOT CAUSE FIX: Supabase `offers` rows could NEVER render — offers.sql speaks
+  offer_title/coupon_code/affiliate_url/expiration_date/city while both consumers in home.js
+  read title/code/url/expires/area. One shared normalizer (normalizeOfferRow in lib/coupons.js)
+  now feeds BOTH the place-card offer map and the Coupons tab merge. Dashboard-entered deals
+  work without a deploy, as originally documented.
+- SHARE CARDS. Each "right place, right moment" tab now shares with its own discovery card:
+  lib/shareCards.js (datenight / nightout / eatnow / hiddengems / outdoors / familyfun) maps
+  each tab to its artwork (public/cards/*.jpg) + eyebrow/title/desc/CTA copy. /api/og lays the
+  LIVE copy over the art (nothing baked into images; gradient keeps the right side text-safe;
+  any art failure falls back to the standard pin-and-road card). /l/[key] passes &card= and
+  card copy; Experience share text uses the card share line. Counts in previews only ever come
+  from the real list length (n param) - no invented claims.
+- Assets: public/cards/ artwork (6 images, ~1.9:1). Config-only extensibility: new category =
+  one row in shareCards.js + one image.
+
 ## v6.16 - One classifier: primaryType decides, and the junk stops being served
 - ROOT CAUSE: there were TWO classifiers. lib/placeTaxonomy.js wrote every stored
   wf_inventory.category (via the seeder), while lib/placeCategory.js decided what the LIVE gate

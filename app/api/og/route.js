@@ -1,18 +1,29 @@
 import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
+import { SITE_URL } from "../../../lib/site";
+import { shareCardFor } from "../../../lib/shareCards";
 
 export const runtime = "edge";
 
 // 1200x630 dynamic share card for a place or a list. The pin+road art is a
 // full-bleed background (art left, text right). Robust fallback on any error so
 // shares never render blank.
+//
+// v6.17: category discovery cards. When ?card=<experience key> names a card in
+// lib/shareCards.js, the background swaps to that category's artwork
+// (public/cards/*.jpg — story left, dark text-safe right, per the master card
+// spec) and the copy is composited live on top: nothing is ever baked into the
+// image. If the art is missing or the fetch fails, satori throws and the
+// existing catch serves the standard pin-and-road card — shares never break.
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const kind = searchParams.get("kind") || "list";
     const O = "#F97316";
     const BG = "#0B0B0C";
-    const bg = <img width={1200} height={630} src={OG_BG} style={{ position: "absolute", top: 0, left: 0 }} />;
+    const card = shareCardFor((searchParams.get("card") || "").slice(0, 24));
+    const bgSrc = card ? SITE_URL + card.art : OG_BG;
+    const bg = <img width={1200} height={630} src={bgSrc} style={{ position: "absolute", top: 0, left: 0, objectFit: "cover" }} />;
     const col = { position: "absolute", top: 0, right: 0, width: 566, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", paddingRight: 60 };
     const wm = <div style={{ display: "flex", fontSize: 30, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 20 }}>wayfind</div>;
     const cta = (label) => <div style={{ display: "flex", marginTop: 34 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 27, fontWeight: 800, padding: "15px 30px", borderRadius: 999 }}>{label}</div></div>;
@@ -74,7 +85,7 @@ export async function GET(req) {
       );
     }
 
-    const title = (searchParams.get("t") || "Find great places near you").slice(0, 90);
+    const title = (searchParams.get("t") || (card && card.title) || "Find great places near you").slice(0, 90);
     const loc = (searchParams.get("loc") || "").slice(0, 60);
     const n = (searchParams.get("n") || "").replace(/[^0-9]/g, "").slice(0, 3);
     const sub = (searchParams.get("sub") || "").slice(0, 100);
@@ -84,13 +95,14 @@ export async function GET(req) {
     return new ImageResponse(
       <div style={{ width: "1200px", height: "630px", display: "flex", backgroundColor: BG, fontFamily: "sans-serif", position: "relative" }}>
         {bg}
+        {card ? <div style={{ position: "absolute", top: 0, right: 0, width: 640, height: 630, backgroundImage: "linear-gradient(to right, rgba(11,11,12,0), rgba(11,11,12,.82) 42%, rgba(11,11,12,.94))" }} /> : <div style={{ display: "none" }} />}
         <div style={col}>
           {wm}
-          {HT ? <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}><div style={{ display: "flex", fontSize: 40 }}>{HT.emoji}</div><div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: HT.text, letterSpacing: 2 }}>{HT.tag}</div></div> : <div style={{ display: "flex" }} />}
+          {card ? <div style={{ display: "flex", fontSize: 23, fontWeight: 800, color: card.accent || O, letterSpacing: 3, marginBottom: 14 }}>{card.eyebrow}</div> : (HT ? <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}><div style={{ display: "flex", fontSize: 40 }}>{HT.emoji}</div><div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: HT.text, letterSpacing: 2 }}>{HT.tag}</div></div> : <div style={{ display: "flex" }} />)}
           <div style={{ display: "flex", fontSize: 68, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, letterSpacing: -2, maxWidth: 540 }}>{title}</div>
           {(n || loc) ? <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 22 }}>{n ? <div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 24, fontWeight: 800, padding: "8px 18px", borderRadius: 999 }}>{n + " spots inside"}</div> : <div style={{ display: "flex" }} />}{loc ? <div style={{ display: "flex", alignItems: "center", color: "#CBD5E1", fontSize: 27, fontWeight: 700 }}>{loc}</div> : <div style={{ display: "flex" }} />}</div> : <div style={{ display: "flex" }} />}
-          <div style={{ display: "flex", fontSize: 26, fontWeight: 500, color: "#94A3B8", marginTop: 18, maxWidth: 500 }}>{sub ? ("Featuring " + sub) : "Hand-picked spots near you, ranked best first."}</div>
-          {cta("Help me wayfind it \u2192")}
+          <div style={{ display: "flex", fontSize: 26, fontWeight: 500, color: card ? "#E2E8F0" : "#94A3B8", marginTop: 18, maxWidth: 500, lineHeight: 1.35 }}>{card ? card.desc : (sub ? ("Featuring " + sub) : "Hand-picked spots near you, ranked best first.")}</div>
+          {cta((card ? card.cta : "Help me wayfind it") + " \u2192")}
         </div>
       </div>,
       { width: 1200, height: 630 }

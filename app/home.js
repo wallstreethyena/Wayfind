@@ -11,7 +11,7 @@ import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareM
 import { searchPlaces } from "../lib/sources";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
-import { COUPONS } from "../lib/coupons";
+import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
 import { HOOK_BANK, pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
 import * as Radius from "../lib/radius";
@@ -84,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.16";
+const BUILD_ID = "v6.17";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -3161,7 +3161,10 @@ function PageInner() {
     _cpnLoadedRef.current = true;
     supabase.from("offers").select("*").then(({ data }) => {
       if (!Array.isArray(data)) return;
-      const rows = data.filter(offerRedeemable).map((o) => { try { if (!o) return null; const title = o.title || o.deal || o.description; if (!title) return null; return { id: "offer:" + (o.id || o.google_place_id || title), business: o.business_name || o.name || "", title: String(title), details: o.title ? (o.description || "") : "", code: o.code || null, url: o.url || null, cta: o.cta || null, expires: o.expires_at || o.expires || null, area: o.area || null }; } catch (e) { return null; } }).filter(Boolean);
+      // v6.17: one shared normalizer (lib/coupons.js) — offers.sql column names
+      // (offer_title/coupon_code/affiliate_url/expiration_date/city) become the
+      // coupon-card shape; the old inline map read fields the table never had.
+      const rows = data.map(normalizeOfferRow).filter(Boolean).filter(offerRedeemable);
       setCpnOffers(rows);
     }, () => {});
   }, [screen]);
@@ -4147,7 +4150,10 @@ function PageInner() {
     try {
       if (!supabase || !Array.isArray(list) || !list.length) return;
       const { data: _rawOffers } = await supabase.from("offers").select("*");
-      const data = (_rawOffers || []).filter(offerRedeemable); // v5.09: undeliverable deals never reach a card
+      // v6.17: offers.sql columns (coupon_code/affiliate_url/offer_title/...) are
+      // normalized ONCE to the app shape - dashboard rows could never render
+      // before this. v5.09 rule unchanged: undeliverable deals never reach a card.
+      const data = (_rawOffers || []).map(normalizeOfferRow).filter(Boolean).filter(offerRedeemable);
       if (!data || !data.length) return;
       const norm = (x) => (x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
       const map = {};
@@ -6825,6 +6831,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
+            {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
             {curatedFor(p) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
             {(() => {
               const cz = Dining.cuisineLabel(p);
