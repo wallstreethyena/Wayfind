@@ -1,6 +1,8 @@
 // Gate: the detail-sheet "Book it" affiliate target (lib/monetize.js bookItTarget)
-// ships DARK, resolves the right provider only when a program is supplied live,
-// never duplicates the Viator CTA, and never wraps non-bookable inventory.
+// ships DARK when no program is supplied, resolves the right provider only when a
+// program is live, never duplicates the Viator CTA, and never wraps non-bookable
+// inventory. Wave-1 Travelpayouts ids are now live in code (verified 2026-07-15);
+// prod stays dark via BookItLink's NEXT_PUBLIC_BOOK_IT master switch.
 import { mkdtempSync, copyFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -19,12 +21,12 @@ const restaurant = { name: "Owen's Fish Camp", types: ["restaurant"] };
 const beach = { name: "Siesta Key Beach", types: ["natural_feature"] };
 const hotel = { name: "The Ritz-Carlton", types: ["lodging"] };
 
-// ── Ships dark: with NO live Travelpayouts program there is no target ──────────
+// ── Ships dark: with NO live Travelpayouts program supplied there is no target ─
 ok(Mz.bookItTarget(attraction, { available: [], city: "Sarasota" }) === null, "no live program → no target (dark)");
 ok(Mz.bookItTarget(attraction, {}) === null, "missing available → no target (dark)");
-// The real production guarantee: no program is live in code (ids unset), and
-// tpDeepLink refuses to build a link — so nothing can render in prod today.
-ok(Tp.isTpProgramLive("tiqets") === false && Tp.isTpProgramLive("klook") === false, "no TP program is live in code (ids unset)");
+// Wave-1 program ids ARE live in code now (dashboard-verified). tpDeepLink builds
+// real tracked links — prod stays dark only via BookItLink's NEXT_PUBLIC_BOOK_IT.
+ok(Tp.isTpProgramLive("tiqets") === true && Tp.isTpProgramLive("klook") === true, "Wave-1 TP programs live in code (ids verified 2026-07-15)");
 
 // ── When a program IS supplied live, a bookable place resolves to it ──────────
 const t = Mz.bookItTarget(attraction, { available: ["tiqets"], city: "Sarasota" });
@@ -42,8 +44,10 @@ ok(Mz.bookItTarget(attraction, { available: ["viator"] }) === null, "viator excl
 ok(Mz.bookItTarget(attraction, { available: ["gyg"] }) === null, "gyg excluded — Viator family");
 ok(Mz.bookItTarget(attraction, { available: ["viator", "tiqets"] })?.provider === "tiqets", "viator filtered out even when mixed with a real TP program");
 
-// ── End-to-end dark: even a real target yields no tracked link until ids exist ─
-ok(Tp.tpDeepLink("tiqets", t.url, "place123") === null, "tpDeepLink is null until program ids exist → the component renders nothing in prod");
+// ── With ids live, a real target now yields a tracked tp.media/r link ─────────
+const tracked = Tp.tpDeepLink("tiqets", t.url, "place123");
+ok(!!tracked, "tpDeepLink builds a tracked link once program ids exist");
+ok(new URL(tracked).origin + new URL(tracked).pathname === "https://tp.media/r", "tracked link uses tp.media/r; prod dark-ness now comes from BookItLink's NEXT_PUBLIC_BOOK_IT switch, not missing ids");
 
 if (fails) { console.error(`test-book-it: ${fails} failure(s)`); process.exit(1); }
-console.log("test-book-it: OK — Book-it ships dark, resolves the right provider when live, never duplicates Viator, never wraps non-bookable places");
+console.log("test-book-it: OK — Book-it resolves the right provider when live, never duplicates Viator, never wraps non-bookable places; Wave-1 ids live, UI gated by NEXT_PUBLIC_BOOK_IT");

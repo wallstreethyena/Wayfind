@@ -1,3 +1,24 @@
+## v6.35 - Travelpayouts programs linked: Tiqets, Klook, TicketNetwork, WeGoTrip (ships dark behind NEXT_PUBLIC_BOOK_IT)
+- Wired the verified tracking IDs for the four approved Travelpayouts programs into
+  lib/travelpayouts.js (from the dashboard Tools -> Links -> "Full link", 2026-07-15):
+  Tiqets campaign_id 89 / p 2074, Klook 137 / 4110, TicketNetwork 72 / 1948,
+  WeGoTrip 150 / 4487.
+- ROOT-CAUSE FIX (attribution): the deep-link builder used 550160 as the account
+  marker, but 550160 is the traffic-SOURCE id (trs); the real account marker is
+  750791. Links now emit the dashboard's exact format
+  https://tp.media/r?campaign_id=<C>&marker=750791&p=<P>&trs=550160&u=<DEST>, so a
+  booking attributes to the account instead of being dropped or mis-credited.
+- Hardened tpDeepLink: rejects non-http(s) destinations (no junk/xss wrap); sub_id
+  sanitized to [A-Za-z0-9_-] and length-capped.
+- Still ships DARK in the UI: BookItLink renders nothing until the owner sets
+  NEXT_PUBLIC_BOOK_IT=on in Vercel. Payout method must also be set
+  (Finance -> Payout methods) before accrued commissions are withdrawable.
+- Tests: test-travelpayouts.mjs rewritten for the live contract + tp.media/r params;
+  test-book-it.mjs updated (Wave-1 ids now live; prod dark-ness comes from the
+  NEXT_PUBLIC_BOOK_IT master switch, not missing ids).
+- TripAdvisor - Experiences: connection request in review as of 2026-07-15; not
+  wired yet (it is the Viator inventory we already earn on).
+
 ## v6.34 - Hours honesty: "Open now" can no longer contradict an empty hours panel
 - ROOT CAUSE (Escape Reality, July 2026): app/api/fsq/search captures Foursquare's
   fetch-time open_now boolean with NO structured hours behind it, and the shared cache
