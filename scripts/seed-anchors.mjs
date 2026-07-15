@@ -116,13 +116,24 @@ async function searchText(q, center) {
   throw new Error("searchText: exhausted retries (transient 429/5xx)");
 }
 
-// Fraction of the anchor's significant name tokens present in the resolved name.
+// Name-match score between an anchor name and a resolved place name — SYMMETRIC.
+// The naive "anchor tokens present in resolved / anchor tokens" penalises an
+// anchor whose official Google name is SHORTER: "Big Cat Habitat and Gulf Coast
+// Sanctuary" resolves to Google's "Big Cat Habitat" and scored only 3/6 = 50%,
+// even though the resolved name is a clean subset of the anchor (a strong match).
+// Taking the max of both directions credits that: a resolved name fully contained
+// in the anchor (or vice-versa) scores 100%. It does NOT loosen the beach cases —
+// "Siesta Key Beach" vs "South Lido Key Beach Park" still shares only key+beach
+// either way (<=67%), so wrong beaches stay flagged.
 const STOP = new Set(["the", "of", "and", "&", "at", "a", "an", "on", "in"]);
 const toks = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((t) => t && !STOP.has(t));
 function nameMatch(anchorName, resolvedName) {
-  const a = toks(anchorName), r = new Set(toks(resolvedName));
-  if (!a.length) return 0;
-  return a.filter((t) => r.has(t)).length / a.length;
+  const a = toks(anchorName), r = toks(resolvedName);
+  if (!a.length || !r.length) return 0;
+  const as = new Set(a), rs = new Set(r);
+  const aInR = a.filter((t) => rs.has(t)).length / a.length; // anchor covered by resolved
+  const rInA = r.filter((t) => as.has(t)).length / r.length; // resolved covered by anchor
+  return Math.max(aInR, rInA);
 }
 
 // metro center (Manatee-Sarasota); anchors use a name+city query so exact center matters little.
@@ -190,7 +201,16 @@ const good = [], flagged = [];
 for (const r of resolved) {
   if (!r.ok) { flagged.push(r); console.log(`  ✗ ${r.a.name} (${r.a.city}) → ${r.note}`); continue; }
   const collided = idCounts[r.place.id] > 1;
-  const warn = !r.operational ? "⚠ NON-OPERATIONAL" : collided ? "⚠ COLLISION (2 anchors → same place)" : r.match < MATCH_MIN ? `⚠ WEAK/UNCERTAIN MATCH ${(r.match * 100).toFixed(0)}%` : "";
+  // searchNearby resolves by TYPE, and every beach shares type=beach, so a named
+  // beach can't be distinguished reliably — proven non-deterministic (the same
+  // anchor resolved to different beaches across runs, and a generic "Public beach"
+  // pin token-matches at 100%). Beaches are NEVER auto-committed via --nearby;
+  // they need the name-precise searchText path (owner's quota bump).
+  const beachViaNearby = VIA_NEARBY && r.a.category === "beach";
+  const warn = !r.operational ? "⚠ NON-OPERATIONAL"
+    : beachViaNearby ? "⚠ BEACH via searchNearby — not reliable, use searchText"
+    : collided ? "⚠ COLLISION (2 anchors → same place)"
+    : r.match < MATCH_MIN ? `⚠ WEAK/UNCERTAIN MATCH ${(r.match * 100).toFixed(0)}%` : "";
   (warn ? flagged : good).push(r);
   console.log(`  ${warn ? "⚠" : r.already ? "↻" : "＋"} ${r.a.name.padEnd(38)} → "${r.resolvedName}"  [${r.status}]  match=${(r.match * 100).toFixed(0)}%  → ${r.a.category}${r.a.tags?.length ? "/" + r.a.tags.join(",") : ""}`);
   if (warn) console.log(`      ${warn} — verify: ${gmaps(r.place.id)}`);
