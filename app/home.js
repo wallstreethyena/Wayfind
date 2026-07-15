@@ -84,7 +84,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.19";
+const BUILD_ID = "v6.20";
 // ─── Affiliate config ────────────────────────────────────────────────────────
 // All affiliate ids/params live in lib/affiliates.js (Viator PID via env,
 // Ticketmaster param as a const there). Nothing is secret; ids appear in
@@ -2763,7 +2763,7 @@ function PageInner() {
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsUnavailable, setEventsUnavailable] = useState(false);
   const [eventsError, setEventsError] = useState(false);
-  const [eventCat, setEventCat] = useState("tours"); // v6.14: Events opens on bookable Tours (owner direction)
+  const [eventCat, setEventCat] = useState("auto"); // v6.20: Events opens on real events (best-paying populated category); Tours rail is permanently pinned on top, not a tab
   const [eventsTours, setEventsTours] = useState(null);
   const [eventDate, setEventDate] = useState("all");
   const [mapMode, setMapMode] = useState("places");
@@ -3620,7 +3620,7 @@ function PageInner() {
     setSub("all");
     setVibe("all");
     setQuery("");
-    setEventCat("all");
+    setEventCat("auto");
     setEventDate("all");
     setBrowseCat(null);
     setMoodPick(null);
@@ -4795,7 +4795,7 @@ function PageInner() {
         if (screen === "events") {
           const sp = new URLSearchParams();
           if (eventDate !== "all") sp.set("date", eventDate);
-          if (eventCat !== "all") sp.set("cat", eventCat);
+          if (eventCat !== "auto") sp.set("cat", eventCat);
           if (sp.toString()) target += "?" + sp.toString();
         }
         const cur = window.location.pathname + window.location.search;
@@ -4825,7 +4825,7 @@ function PageInner() {
           const sp = new URLSearchParams(window.location.search);
           const d = sp.get("date") || "";
           setEventDate(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d : "all");
-          setEventCat((sp.get("cat") || "all").slice(0, 24));
+          setEventCat((sp.get("cat") || "auto").slice(0, 24));
           setScreen("events");
         } else if (scr) {
           setScreen(scr); // Back/Forward onto /map, /coupons, /favorites, /itinerary

@@ -34,15 +34,26 @@ for (const f of surfaces) {
   if (!s.includes("eventWhenLabel")) fail(`${f} no longer uses the shared eventWhenLabel helper`);
 }
 
-// v6.14 — Events tab taxonomy: fixed buckets, Tours default, Community catch-all.
+// v6.20 — Events tab: opens on real events (best-paying populated category, not
+// Tours); the Viator rail is PERMANENTLY pinned on top of every filter; the
+// chip row is replaced by ONE dropdown filter pill housing categories, with
+// "Local events" (Near me + Community merged) and a new "Business events" source
+// carrying an honest empty state.
 const home = readFileSync("app/home.js", "utf8");
 const ev = readFileSync("app/components/screens/Events.js", "utf8");
-if (!/const \[eventCat, setEventCat\] = useState\("tours"\)/.test(home)) fail("Events tab must default to the Tours chip");
+if (!/const \[eventCat, setEventCat\] = useState\("auto"\)/.test(home)) fail("Events tab must default to 'auto' (best populated category), not the Tours tab");
 if (!home.includes("const EVENT_BUCKETS")) fail("EVENT_BUCKETS taxonomy missing");
 for (const b of ["concerts", "comedy", "theater", "sports", "community"]) if (!new RegExp('key: "' + b + '"').test(home)) fail("missing bucket: " + b);
 if (!home.includes('return "community"')) fail("eventBucket must collapse everything else into Community");
-if (!ev.includes("🎟️ Tours") || !ev.includes("📍 Near me")) fail("Events filter row missing Tours/Near me chips");
-if (!ev.includes('ViatorRail title="Bookable experiences near you"')) fail("Tours view must render the Viator rail");
+// The dropdown filter (not chips): every category present, Business + Local.
+if (!ev.includes("const EVENT_FILTERS")) fail("Events must define the EVENT_FILTERS dropdown categories");
+for (const k of ["concerts", "comedy", "theater", "sports", "local", "business"]) if (!new RegExp('key: "' + k + '"').test(ev)) fail("Events filter dropdown missing category: " + k);
+if (!ev.includes('label: "Local events"')) fail("Events must merge Near me + Community into 'Local events'");
+if (!ev.includes('label: "Business events"')) fail("Events must offer the Business events source");
+if (!ev.includes("No business events yet")) fail("Business events must show an honest empty state (never fabricated)");
+if (ev.includes("🎟️ Tours") || ev.includes("📍 Near me")) fail("the old Tours/Near me chip row must be gone (replaced by the dropdown filter)");
+if (!ev.includes('aria-haspopup="listbox"')) fail("the category filter must be a dropdown button, not a chip row");
+if (!ev.includes('ViatorRail title="Bookable experiences near you"')) fail("the Viator tours rail must be pinned on top of the Events view");
 
 if (failed) process.exit(1);
 console.log("check-events: OK — same-day labels reflect the real hour (9:30 AM = 'This morning', not 'Tonight')");
