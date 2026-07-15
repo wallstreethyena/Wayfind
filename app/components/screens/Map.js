@@ -77,7 +77,7 @@ export default function MapScreen({ ctx }) {
                     const mp = mapPreview;
                     const sl = scoreLabel(mp.wfScore);
                     const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
-                    const openList = (view || []).filter((x) => x && x.openNow === true && x.distMi != null);
+                    const openList = (view || []).filter((x) => x && liveOpen(x) === true && x.distMi != null);
                     const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
                     let tag = null;
                     if (closestOpen && closestOpen.id === mp.id) tag = { t: "Closest open spot", c: C.green };

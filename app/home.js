@@ -5,6 +5,9 @@ import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { wcRotation } from "../lib/shareCards";
+// v6.31: THE single source of truth for open/closed. Every surface reads status
+// from here so one venue can never show two statuses at the same instant.
+import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 // v4.86: every place search flows through the multi-source aggregator
@@ -86,7 +89,7 @@ import { toDisplayScore, pickEligibleByScore } from "../lib/score";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.30";
+const BUILD_ID = "v6.31";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -1737,25 +1740,12 @@ function miBetween(aLat, aLng, bLat, bLng) {
 // Recompute open/closed from the stored hours at render time, so the badge is
 // honest about *now* and not the moment we fetched. Falls back to the fetched
 // snapshot when periods are unavailable, so it can never be worse than before.
+// v6.31: liveOpen is now a thin alias over the shared businessStatus module —
+// the SAME computation the map, detail sheet and every card use. It returns the
+// live tri-state (true = open, false = closed, null = hours unavailable),
+// computed from the venue's own hours + timezone, never a stale snapshot.
 function liveOpen(p) {
-  try {
-    const oh = p && p.oh; const off = p && p.utcOffset;
-    if (oh && oh.periods && oh.periods.length && off != null) {
-      const d = new Date(Date.now() + off * 60000);
-      const cur = d.getUTCDay() * 1440 + d.getUTCHours() * 60 + d.getUTCMinutes();
-      for (const per of oh.periods) {
-        const o = per.open; if (!o) continue;
-        const c = per.close; if (!c) return true;
-        const oMin = o.day * 1440 + (o.hour || 0) * 60 + (o.minute || 0);
-        const cMin = c.day * 1440 + (c.hour || 0) * 60 + (c.minute || 0);
-        if (oMin === cMin) return true;
-        if (oMin < cMin) { if (cur >= oMin && cur < cMin) return true; }
-        else { if (cur >= oMin || cur < cMin) return true; }
-      }
-      return false;
-    }
-  } catch {}
-  return p && p.openNow != null ? p.openNow : null;
+  return isOpenNow(p);
 }
 function todayHours(extra) {
   const hrs = extra && Array.isArray(extra.hours) ? extra.hours : null;
@@ -4075,6 +4065,11 @@ function PageInner() {
     if (extra === undefined) {
       setDetailExtra(null);
       extra = await fetchPlaceDetail(p.id);
+      // v6.31: never cache a bare null — that leaves the sheet stuck on
+      // "Loading hours…" forever (null reads as "still fetching"). On a failed
+      // or empty fetch, store a resolved sentinel so the sheet settles into
+      // "Hours not listed" (or the search-time weekday text) instead of spinning.
+      if (!extra) extra = { editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true };
       detailCache.current[p.id] = extra;
     }
     setDetailExtra(extra);
@@ -6314,8 +6309,7 @@ function PageInner() {
                         {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ color: C.light, fontWeight: 600 }}>{cz}</span> : null; })()}
                         <PlaceScoreChip p={p} size={12} />
                         {(() => { const dining = ["Food", "Nightlife"].includes(Ranking.coarseCat(p) || ""); const c = Dining.costForTwo(p); return dining && c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
-                        {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
-                        {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
+                        {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
                         {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
                       {(p.price_level ?? p.priceLevel) != null && <span style={{ color: C.muted }}>{"$".repeat(Math.max(1, Math.min(4, (p.price_level ?? p.priceLevel) || 1)))}</span>}
                       </div>
@@ -6654,8 +6648,7 @@ function PageInner() {
                     <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
                       <PlaceScoreChip p={p} size={12} />
                       {(() => { const c = Dining.costForTwo(p); return c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
-                      {p.openNow === true && <span style={{ color: C.green, fontWeight: 700 }}>Open</span>}
-                      {p.openNow === false && <span style={{ color: C.red, fontWeight: 700 }}>Closed</span>}
+                      {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
                       {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
                     </div>
                   </div>

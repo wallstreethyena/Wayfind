@@ -44,6 +44,17 @@ expect(toDisplayScore(null), null, "null wf → null (never 0)");
 expect(toDisplayScore(undefined), null, "missing wf → null (never 0)");
 expect(toDisplayScore(NaN), null, "NaN wf → null");
 expect(toDisplayScore(120), null, "wf 120 → null (out of range)");
+// v6.31 crash-hardening: the formatter is total over untrusted data. Numeric
+// strings coerce; everything non-numeric resolves to null (→ "Score pending").
+expect(toDisplayScore("85"), 8.5, "numeric string '85' (wf) → 8.5 display");
+expect(toDisplayScore("100"), 10, "numeric string '100' (wf) → 10 display");
+expect(toDisplayScore(""), null, "empty string → null");
+expect(toDisplayScore("   "), null, "whitespace string → null");
+expect(toDisplayScore("abc"), null, "non-numeric string → null");
+expect(toDisplayScore(Infinity), null, "Infinity → null");
+expect(toDisplayScore(-5), null, "negative wf → null");
+expect(toDisplayScore(0), 0, "wf 0 → 0 display (valid, distinct from null)");
+expect(toDisplayScore(89.4), 8.9, "wf 89.4 → 8.9 rounded");
 
 // Every band maps to the correct token.
 expect(BAND_COLOR.excellent, SCORE_TOKENS.green, "excellent → green token");
@@ -63,4 +74,4 @@ expect(pickEligibleByScore(6.0), false, "pick blocked on red");
 expect(pickEligibleByScore(NaN), false, "pick blocked on invalid");
 
 if (fails) { console.error(`test-score-band: ${fails} failure(s)`); process.exit(1); }
-console.log("test-score-band: OK — 8 boundary transitions exact, validation rejects corrupt scores, tokens + pick gate verified (33 assertions)");
+console.log("test-score-band: OK — boundary transitions exact, formatter total over untrusted data (null/NaN/strings/range), tokens + pick gate verified");

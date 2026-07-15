@@ -6,7 +6,7 @@
 // state, no imports from app/home.js. Content guardrails grep the concatenated
 // shell source (scripts/lib/shellSrc.mjs), so moving code here never breaks them.
 import { useEffect, useRef } from "react";
-import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor } from "../../lib/score";
+import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, toDisplayScore } from "../../lib/score";
 
 export const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
@@ -253,13 +253,15 @@ export function scoreLabel(wf) {
 export function PlaceScoreChip({ p, size = 12 }) {
   const s = toDisplayScore(p && p.wfScore);
   if (s == null) {
-    return (p && p.rating) ? <span style={{ color: "#F59E0B", fontSize: size, fontWeight: 700 }}>★ {p.rating}</span> : null;
+    // Honest pending state — never a fabricated number, never the raw Google
+    // star. Missing / invalid / stale score data resolves here safely.
+    return <span aria-label="Wayfind Score pending" style={{ display: "inline-flex", alignItems: "center", color: SCORE_TOKENS.muted, fontSize: size, fontWeight: 700, letterSpacing: 0.2 }}>Score pending</span>;
   }
   const band = getScoreBand(s);
   const col = BAND_COLOR[band];
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: col, color: "#0B0B0C", fontWeight: 800, fontSize: size, padding: "1px 7px 1px 5px", borderRadius: 6, lineHeight: 1.35 }} title={`Wayfind Score ${s.toFixed(1)} / 10`}>
-      <svg width={size - 1} height={size - 1} viewBox="0 0 24 24" fill="none" stroke={pinGlyphColor(band)} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="2.4" fill={pinGlyphColor(band)} stroke="none" /></svg>
+    <span aria-label={`Wayfind Score ${s.toFixed(1)} out of 10`} style={{ display: "inline-flex", alignItems: "center", gap: 3, background: col, color: "#0B0B0C", fontWeight: 800, fontSize: size, padding: "1px 7px 1px 5px", borderRadius: 6, lineHeight: 1.35 }} title={`Wayfind Score ${s.toFixed(1)} / 10`}>
+      <svg width={size - 1} height={size - 1} viewBox="0 0 24 24" fill="none" stroke={pinGlyphColor(band)} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="2.4" fill={pinGlyphColor(band)} stroke="none" /></svg>
       {s.toFixed(1)}
     </span>
   );

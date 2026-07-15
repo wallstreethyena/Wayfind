@@ -7,7 +7,7 @@ import { eventWhenLabel } from "../../../lib/eventTime";
 import { CATEGORIES } from "../../../lib/google";
 
 export default function MenuSheet({ ctx }) {
-  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, locName, pickCat, openSurprise, SheetHero, libraryEvents, primaryCategory, dedupeEvents, foryouEvents, formatEventDate, openVenue, suggested, places, dedupePlaces, openDetail, whyNow, searchRadius, setPendingRadius, setRadiusSheet, setScreen, rollHomePick, homeRolling, homeDiceFace, rollHistory, FallbackImg, INTENTS, intent, setIntent, weather, isNightNow, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather } = ctx;
+  const { menuSheet, setMenuSheet, sheetDragStart, sheetDragMove, sheetDragEnd, locName, pickCat, openSurprise, SheetHero, libraryEvents, primaryCategory, dedupeEvents, foryouEvents, formatEventDate, openVenue, suggested, places, dedupePlaces, openDetail, whyNow, searchRadius, setPendingRadius, setRadiusSheet, setScreen, rollHomePick, homeRolling, homeDiceFace, rollHistory, FallbackImg, INTENTS, intent, setIntent, weather, isNightNow, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather, liveOpen } = ctx;
   return (
         <div style={sheetBg} onClick={() => setMenuSheet(null)}>
           <div style={{ ...sheet, padding: "6px 16px 28px", overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setMenuSheet(null))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -86,7 +86,7 @@ export default function MenuSheet({ ctx }) {
                 {(() => {
                   const src = dedupePlaces([...(suggested || []), ...places]);
                   if (!src.length) return null;
-                  const openFirst = src.filter((p) => p && p.openNow === true);
+                  const openFirst = src.filter((p) => p && liveOpen(p) === true);
                   const base = (openFirst.length >= 2 ? openFirst : src).filter(Boolean);
                   const picks = base.slice(0, 2);
                   if (picks.length === 0) return null;
@@ -98,17 +98,17 @@ export default function MenuSheet({ ctx }) {
                         <div key={"nbpick-" + p.id} onClick={() => { setMenuSheet(null); openDetail(p); }} style={{ marginBottom: 10, border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card }}>
                           <div style={{ position: "relative" }}>
                             <FallbackImg src={p.photo} icon="📍" style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
-                            <div style={{ position: "absolute", top: 9, left: 9, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${(p.openNow === true ? C.green : C.accent)}80`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 9.5, fontWeight: 800, color: p.openNow === true ? C.green : C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{p.openNow === true ? "Open now" : (i === 0 ? "Top pick nearby" : "Also near you")}</span>
-                            </div>
+                            {(() => { const lo = liveOpen(p); return (
+                            <div style={{ position: "absolute", top: 9, left: 9, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${(lo === true ? C.green : C.accent)}80`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}>
+                              <span style={{ fontSize: 9.5, fontWeight: 800, color: lo === true ? C.green : C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{lo === true ? "Open now" : (i === 0 ? "Top pick nearby" : "Also near you")}</span>
+                            </div>); })()}
                           </div>
                           <div style={{ padding: "11px 13px 13px" }}>
                             <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, lineHeight: 1.2 }}>{p.name}</div>
                             <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 6 }}>
                               <PlaceScoreChip p={p} size={12} />
                               {p.reviews != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.reviews.toLocaleString()} reviews</span>}
-                              {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
-                              {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span>}
+                              {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span> : null; })()}
                               {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                             </div>
                             {whyNow(p) && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 7 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
