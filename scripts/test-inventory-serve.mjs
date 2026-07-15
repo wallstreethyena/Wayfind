@@ -3,7 +3,7 @@
 // (New) shape the client renders, and the geo-filter + quality rank. Fixtures
 // match the real wf_inventory row shape (signals.{rating,reviews,priceNum},
 // google_types, status, photo_ref).
-import { invRowToPlace, rankInventory, distMeters } from "../lib/inventoryServe.js";
+import { invRowToPlace, rankInventory, distMeters, VIRTUAL_CATS } from "../lib/inventoryServe.js";
 
 let pass = 0, fail = 0;
 const ok = (n, c) => { c ? pass++ : fail++; if (!c) console.log("FAIL " + n); };
@@ -58,6 +58,20 @@ const rows = [
   ok("distMeters ~111km for 1deg lat", Math.abs(distMeters(27, -82, 28, -82) - 111000) < 2000);
 }
 
+// ── v6.34 VIRTUAL family category: attractions rows through family contracts ──
+// (The July 15 outage: Family 502'd while every physical category served from
+// inventory. Family must serve kid-appropriate attractions, never nightlife.)
+{
+  const fam = VIRTUAL_CATS.family;
+  ok("family virtual category exists and maps to attractions", !!fam && fam.base === "attractions");
+  ok("zoo row passes the family gate", fam.keep({ name: "ZooTampa at Lowry Park", google_types: ["zoo", "tourist_attraction"] }));
+  ok("children's museum passes by name alone", fam.keep({ name: "The Children's Museum of Sarasota", google_types: [] }));
+  ok("trampoline park passes", fam.keep({ name: "Bounce Kingdom Trampoline Park", google_types: ["amusement_center"] }));
+  ok("night club never serves family", !fam.keep({ name: "Neon Nights", google_types: ["night_club"] }));
+  ok("liquor store never serves family", !fam.keep({ name: "ABC Liquor", google_types: ["liquor_store"] }));
+  ok("office park never serves family (park in name is not enough)", !fam.keep({ name: "Regus Office Park", google_types: ["office"] }));
+}
+
 console.log(`\ntest-inventory-serve: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);
-console.log("test-inventory-serve: OK — row->Google-shape mapping, geo gate, closed-drop, quality rank, and n-cap all hold");
+console.log("test-inventory-serve: OK — row->Google-shape mapping, geo gate, closed-drop, quality rank, n-cap, and the family virtual category all hold");

@@ -56,10 +56,20 @@ eq(businessStatus({ oh: { periods: [day(3, 9, 0, 17, 0)] }, utcOffset: null }).s
 eq(isOpenNow({ oh: null, utcOffset: null }), null, "totally missing → null tri-state");
 eq(statusLabel({ oh: null, utcOffset: null }), "Hours unavailable", "unknown label is honest");
 
-// ── 8. Provider snapshot only used as last resort (no structured hours) ────
-eq(businessStatus({ openNow: true }).state, "open", "snapshot true → open");
-eq(businessStatus({ openNow: false }).state, "closed", "snapshot false → closed");
-eq(businessStatus({ openNow: true }).source, "snapshot", "snapshot source tagged");
+// ── 8. Provider snapshot: trusted ONLY while demonstrably fresh (v6.34) ─────
+// The Escape Reality contradiction: a fetch-time fsq open_now boolean survived
+// the shared cache with no structured hours behind it, so the sheet said
+// "Open now" while the hours panel said "Hours not listed for this place."
+// An unverifiable snapshot is an unknown, not a claim.
+eq(businessStatus({ openNow: true }).state, "unknown", "unstamped snapshot never asserts (open)");
+eq(businessStatus({ openNow: false }).state, "unknown", "unstamped snapshot never asserts (closed)");
+eq(isOpenNow({ openNow: true }), null, "unstamped snapshot tri-state is null");
+eq(statusLabel({ openNow: true }), "Hours unavailable", "unstamped snapshot label is honest");
+eq(businessStatus({ openNow: true, hoursAsOf: WED_1700_UTC - 30 * 60000 }, WED_1700_UTC).state, "open", "fresh stamped snapshot (30 min) → open");
+eq(businessStatus({ openNow: true, hoursAsOf: WED_1700_UTC - 30 * 60000 }, WED_1700_UTC).source, "snapshot", "fresh snapshot source tagged");
+eq(businessStatus({ openNow: false, hoursAsOf: WED_1700_UTC - 30 * 60000 }, WED_1700_UTC).state, "closed", "fresh stamped snapshot (false) → closed");
+eq(businessStatus({ openNow: true, hoursAsOf: WED_1700_UTC - 90 * 60000 }, WED_1700_UTC).state, "open", "boundary: exactly SNAPSHOT_TRUST_MS old still trusted");
+eq(businessStatus({ openNow: true, hoursAsOf: WED_1700_UTC - 3 * 3600000 }, WED_1700_UTC).state, "unknown", "aged snapshot (3 h) degrades to unknown");
 
 // ── 9. 24/7 and 24h periods ────────────────────────────────────────────────
 eq(isOpenNow(P([{ open: { day: 0, hour: 0, minute: 0 } }], 0), WED_1700_UTC), true, "24h (no close) always open");

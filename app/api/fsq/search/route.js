@@ -61,6 +61,10 @@ function normalize(p) {
     lat, lng,
     distMi: typeof p.distance === "number" ? p.distance / 1609.34 : null,
     openNow: p.hours && typeof p.hours.open_now === "boolean" ? p.hours.open_now : null,
+    // v6.34: stamp the boolean's capture time. businessStatus trusts an openNow
+    // snapshot only while fresh (SNAPSHOT_TRUST_MS); unstamped booleans never
+    // assert — without this stamp every fsq open_now would read "unknown".
+    hoursAsOf: p.hours && typeof p.hours.open_now === "boolean" ? Date.now() : null,
     nextOpen: null,
     oh: null,
     utcOffset: null,

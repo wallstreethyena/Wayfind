@@ -23,6 +23,13 @@ if (!mealEligible("Breakfast", P("Sunrise Diner", ["restaurant"], [per(7, 0, 14,
 if (!mealEligible("Breakfast", P("Corner Cafe", ["cafe"], null))) fail("hourless cafe failed Breakfast");
 if (mealEligible("Breakfast", P("Prime Steakhouse", ["steak_house", "restaurant"], null))) fail("hourless steakhouse passed Breakfast");
 
+// 3b. v6.34 — the Cafés sub keeps its promise: EXCLUSIVELY cafés.
+if (!placeAllowed("food", "cafes", P("Perq Coffee Bar", ["coffee_shop", "cafe"], null))) fail("Cafés: coffee shop failed the sub it defines");
+if (!placeAllowed("food", "cafes", P("Oscura", ["cafe", "restaurant"], null))) fail("Cafés: café that also serves food failed");
+if (placeAllowed("food", "cafes", P("Olive Garden", ["italian_restaurant", "restaurant"], null))) fail("Cafés: plain restaurant passed");
+if (placeAllowed("food", "cafes", P("Sunrise Diner", ["breakfast_restaurant", "restaurant"], null))) fail("Cafés: breakfast diner passed");
+if (placeAllowed("food", "cafes", P("First Watch", ["breakfast_restaurant", "brunch_restaurant", "restaurant"], null))) fail("Cafés: brunch chain passed");
+
 // 4. Dinner truth: closes 3 PM must fail Dinner.
 if (mealEligible("Dinner", P("Morning Bakery", ["bakery"], [per(6, 0, 15, 0)]))) fail("3 PM closer passed Dinner");
 

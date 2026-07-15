@@ -27,7 +27,7 @@ expect(getScoreBand(0), "low", "0.0 → red");
 
 // Validation at the data boundary — invalid never renders.
 expect(isValidScore(10), true, "10 valid");
-expect(isValidScore(0), true, "0 valid");
+expect(isValidScore(0), false, "0 rejected — a zero means 'unrated', never a real score (v6.34)");
 expect(isValidScore(10.1), false, ">10 rejected");
 expect(isValidScore(-0.1), false, "negative rejected");
 expect(isValidScore(NaN), false, "NaN rejected");
@@ -41,6 +41,7 @@ expect(toDisplayScore(85), 8.5, "wf 85 → 8.5");
 expect(toDisplayScore(79), 7.9, "wf 79 → 7.9");
 expect(toDisplayScore(100), 10, "wf 100 → 10");
 expect(toDisplayScore(null), null, "null wf → null (never 0)");
+expect(toDisplayScore(0), null, "wf 0 → null (unrated must not render as 0.0/10)");
 expect(toDisplayScore(undefined), null, "missing wf → null (never 0)");
 expect(toDisplayScore(NaN), null, "NaN wf → null");
 expect(toDisplayScore(120), null, "wf 120 → null (out of range)");
@@ -53,7 +54,8 @@ expect(toDisplayScore("   "), null, "whitespace string → null");
 expect(toDisplayScore("abc"), null, "non-numeric string → null");
 expect(toDisplayScore(Infinity), null, "Infinity → null");
 expect(toDisplayScore(-5), null, "negative wf → null");
-expect(toDisplayScore(0), 0, "wf 0 → 0 display (valid, distinct from null)");
+// v6.34 contract flip: a wf of 0 is "unrated", never a displayable score —
+// the red 0.0/10 badge bug. (Asserted as toDisplayScore(0) → null above.)
 expect(toDisplayScore(89.4), 8.9, "wf 89.4 → 8.9 rounded");
 
 // Every band maps to the correct token.

@@ -1,3 +1,55 @@
+## v6.34 - Hours honesty: "Open now" can no longer contradict an empty hours panel
+- ROOT CAUSE (Escape Reality, July 2026): app/api/fsq/search captures Foursquare's
+  fetch-time open_now boolean with NO structured hours behind it, and the shared cache
+  serves that row for weeks. lib/businessStatus.js trusted any boolean snapshot as a
+  "last resort", so the sheet asserted a green "Open now" while the hours panel said
+  "Hours not listed for this place."
+- THE RULE: a snapshot only asserts while DEMONSTRABLY FRESH — place.hoursAsOf stamped
+  within SNAPSHOT_TRUST_MS (90 min). Unstamped or aged booleans degrade to the honest
+  "unknown" -> "Hours unavailable", exactly like missing hours. fsq capture now stamps
+  hoursAsOf, so fresh results keep their honest pill.
+- lib/sources.js twin-merge: hours evidence travels TOGETHER (oh + utcOffset + the
+  hoursAsOf stamp with the boolean), never a bare openNow onto a hourless twin.
+- Detail sheet: "Hours from Google." attribution renders only under real hours lines,
+  no longer beneath "Hours not listed".
+- PlaceCard: the Wayfind Score badge moved IN-FLOW into the title row (flex) — the
+  old absolute overlay cleared titles with an 88px magic pad ~17px narrower than
+  the badge itself, so long names and wrapped meta chips rendered under it ("the
+  score sits on top of letters"). In-flow, overlap is impossible by construction.
+- GLOBAL: sources._rank normalizes every merged row's openNow through isOpenNow
+  (stale/unverifiable -> null) and the dayFit open-now nudge decides via isOpenNow —
+  every direct p.openNow reader (filters, sorts, hero logic, map marker colors, LLM
+  payloads) inherits the freshness rule; photo-twin merges and the Maps-JS place
+  mapper now carry/stamp hoursAsOf so fresh signals stay usable.
+- Food > Cafés (owner ask): new sub next to Breakfast — EXCLUSIVELY cafés. The
+  food:cafes SUB_ALLOW contract admits coffee-forward identities only (café/
+  coffee_shop/espresso/roastery/tea room); breakfast diners and plain
+  restaurants fail even when the query returns them. Gate assertions in
+  check-meals lock the promise.
+- Zero-score honesty: an unrated place never renders a red "0.0/10" badge —
+  isValidScore rejects 0 (the Bayesian floor is ~3.5, so 0 only ever means
+  unrated) and sources no longer manufacture a 0 for rating-less rows.
+- Detail sheet keeps the Deal pill's promise: the owner-curated coupon
+  (lib/coupons) renders on the place page with ends-label, details, code and
+  redeem link — Supabase offers still win the slot when present.
+- Desktop sidebar map (owner ask): follows the ACTIVE list (open sheet,
+  in-place category browse, else home feed), frames the ~20mi radius with the
+  main Map's expanding distance rings, and pins only already-loaded
+  cache-served rows — zero extra Google calls.
+- Things-to-do > Beaches (owner ask): dedicated sub chip returns, with the
+  beaches-only contract (attractions:beaches) — a marina is still not a beach.
+- Tours integrity (the Hanoi-rail fix): city rails now declare mode=city with the
+  market's VERIFIED Viator destination id (lib/destinations) + region — a product
+  needs positive regional evidence (destination ref or region in the title) to
+  appear. A Florida feed can never show Hanoi/Naxos/Antigua tours again; per-place
+  attach keeps the v5.83 entity resolver unchanged.
+- Events > Local tours (owner ask): affiliate inventory is a selectable category —
+  the full bookable list owns the main area; the pinned rail hides to avoid doubles.
+- Family browse gets the bookable-tours rail (owner ask), same source and gates.
+- Gates: test-business-status section 8 rewritten to the freshness contract (43
+  assertions, incl. the exact-boundary case); check-hours gains rules 7-9 locking the
+  freshness gate, the fsq stamp, and the twin-merge bundle.
+
 ## v6.33 - "Book it" affiliate link on the place detail sheet (ships dark)
 - Turns the v6.28 Travelpayouts engine into a real, enable-with-one-flag revenue surface.
   New app/components/BookItLink.js renders a labeled "Book it · <brand>" link in the detail
