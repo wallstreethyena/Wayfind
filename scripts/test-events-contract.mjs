@@ -2,7 +2,7 @@
 // Every exclusion rule, the cross-provider dedup rule, partial-failure
 // isolation, count integrity on a mixed fixture, and the timezone
 // pass-through guarantee, all against lib/eventsPipeline.js directly.
-import { processEvents, validateEvent, dedupeAcrossProviders, resolveDestination, isFabricatedSearchUrl } from "../lib/eventsPipeline.js";
+import { processEvents, validateEvent, dedupeAcrossProviders, resolveDestination, isFabricatedSearchUrl, eventValueRank } from "../lib/eventsPipeline.js";
 import { generateStaples, idFromSlug, resolveEventById } from "../lib/eventResolve.js";
 
 let failures = 0;
@@ -138,5 +138,20 @@ const run = (events, provider = "Ticketmaster") => processEvents([{ provider, co
   if (junk !== null) fail("unknown provider prefix should resolve to null");
 }
 
+
+// 9. Value-first ordering (v6.37): high-demand ticketed events (concerts,
+//    comedy, sports) lead; free civic/library programs sink even when sooner.
+//    Fixes "Happening near you" showing library meeting-room events over concerts.
+{
+  const concert = base({ id: "tm_c", name: "Big Concert", date: "2026-07-25", segment: "Music", source: "Ticketmaster", ticketed: true, image: "https://img/x.jpg", price: "$120" });
+  const sports = base({ id: "tm_s", name: "Lightning Game", date: "2026-07-15", segment: "Sports", source: "Ticketmaster", ticketed: true, image: "https://img/s.jpg", price: "$90" });
+  const lib = base({ id: "lib_story", name: "Library Storytime", date: "2026-07-13", venue: "Meeting Room", segment: "Community", source: "Manatee County Library", ticketed: false, civic: true, price: "", url: "" });
+  const { events } = run([lib, sports, concert]);
+  if (events.length !== 3) fail("value-first fixture: expected 3 events, got " + events.length);
+  if (events[events.length - 1].id !== "lib_story") fail("civic/library event must sort LAST under value-first ranking, not first-by-date");
+  if (events[0].id === "lib_story") fail("a sooner civic event must never lead concerts/sports");
+  if (!(eventValueRank(concert) > eventValueRank(lib) && eventValueRank(sports) > eventValueRank(lib))) fail("eventValueRank: ticketed must outrank civic");
+  if (eventValueRank(lib) >= 0) fail("eventValueRank: civic/library should be strongly negative");
+}
 if (failures) process.exit(1);
-console.log("test-events-contract: OK — exclusions, dedup, isolation, counts, tz pass-through, by-id round trip all hold");
+console.log("test-events-contract: OK — exclusions, dedup, isolation, counts, tz pass-through, by-id round trip, value-first ranking all hold");

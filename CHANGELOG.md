@@ -1,3 +1,15 @@
+## v6.37 - "Happening near you" leads with high-demand ticketed events, not free library programs
+- ROOT CAUSE: lib/eventsPipeline.js sorted events purely chronologically, so the
+  soonest events won regardless of value -- tomorrow-morning library/community
+  programs ("Meeting Room" civic feed) filled the cards under the concert hero.
+- FIX: added eventValueRank(e) (pure over segment/source/ticketed/civic) and
+  sorted the pipeline value-first (high-demand ticketed -- concerts, comedy,
+  sports, theatre -- lead; civic/library sink); recency breaks ties. Also keeps
+  civic events OUT of the home "Happening near you" strip (they already have
+  their own libraryEvents surface): app/home.js now filters !e.civic on that strip.
+- Gate: test-events-contract.mjs now asserts a sooner civic event never leads
+  concerts/sports and that eventValueRank strongly demotes civic/library.
+
 ## v6.36 - Fix "Top rated" sort on the mood/experience screen (Date Night, etc.): pure Wayfind Score, not distance-penalized
 - ROOT CAUSE: app/components/screens/Experience.js ranked "Top rated" by wfScore
   minus a distance penalty (up to 30 pts) and an open/closed penalty. On Date

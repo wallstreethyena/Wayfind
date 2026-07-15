@@ -101,7 +101,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.36";
+const BUILD_ID = "v6.37";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -5194,7 +5194,7 @@ function PageInner() {
         const data = await r.json();
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
-          setForyouEvents(evs.slice(0, 8));
+          setForyouEvents(evs.filter((e) => !e.civic).slice(0, 8)); // v6.37: civic/library go to libraryEvents only; the main strip is ticketed/high-demand
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
       } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
