@@ -6,7 +6,7 @@
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
-import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars } from "../kit";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip } from "../kit";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
@@ -154,10 +154,11 @@ export default function DetailSheet({ ctx }) {
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 {(() => { const sl = scoreLabel(detail.wfScore); return sl ? <span style={{ color: C.accent, fontWeight: 800 }}>{sl.s}<span style={{ color: C.muted, fontWeight: 700, fontSize: 11.5 }}> / 10</span></span> : null; })()}
                 {(() => { const a = new Set((placePosts || []).map((x) => x.user_id)).size; if (!a) return null; return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.muted, fontWeight: 700, fontSize: 11 }}>{a} member take{a === 1 ? "" : "s"}{a >= 3 ? " · in score" : ""}</span></>); })()}
-                {detail.rating != null && (<>
+                {detail.reviews > 0 && (<>
                   <span style={{ color: C.border }}>·</span>
-                  <span onClick={() => { if (!(detail.reviews > 0)) return; const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.text, cursor: detail.reviews > 0 ? "pointer" : "default" }}><span style={{ color: "#F59E0B" }}>★</span>{detail.rating}{detail.reviews > 0 && <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ color: C.muted, textDecoration: "none" }}><span style={{ color: C.muted, fontWeight: 600 }}>({detail.reviews.toLocaleString()}) ↗</span></a>}</span>{(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<a href={_ta.url || "https://www.tripadvisor.com"} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href); try { logEvent("ta_out", detail); } catch (er) {} openExternal(_live); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor ↗</a>); })()}
+                  <span onClick={() => { const n = !reviewsOpen; setReviewsOpen(n); if (n) loadFullInsight(detail, detailExtra); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, color: C.muted, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>{detail.reviews.toLocaleString()} review{detail.reviews === 1 ? "" : "s"}</span>
                 </>)}
+                {(() => { const _ta = taInfo[detail.id]; if (!_ta || _ta.none || _ta.rating == null) return null; return (<><span style={{ color: C.border }}>·</span><a href={_ta.url || "https://www.tripadvisor.com"} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href); try { logEvent("ta_out", detail); } catch (er) {} openExternal(_live); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, textDecoration: "none", color: C.muted, fontSize: 12.5, fontWeight: 600 }}><span style={{ color: "#34E0A1", fontWeight: 800 }}>●</span>{_ta.rating}{_ta.reviews ? ` (${_ta.reviews.toLocaleString()})` : ""} on Tripadvisor ↗</a></>); })()}
                 {detail._event ? (() => {
                   const ef = formatEventDate(detail._event.date, detail._event.time);
                   const d = detail._event.date ? new Date(detail._event.date + "T00:00:00") : null;
@@ -380,7 +381,7 @@ export default function DetailSheet({ ctx }) {
                 const hasTickets = /ticket|seatgeek|stubhub|axs|livenation|eventbrite/i.test(url);
                 const place = locName ? locName.split(",")[0] : "you";
                 const why = [];
-                if (detail.rating != null) why.push("★ " + detail.rating + " venue"); else why.push("at " + detail.name);
+                const _sl = scoreLabel(detail.wfScore); why.push(_sl ? _sl.s + "/10 venue" : "at " + detail.name);
                 if (detail.distMi != null) why.push(detail.distMi.toFixed(1) + " mi from " + place);
                 return (
                   <div style={{ border: `1.5px solid ${C.accent}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
@@ -688,7 +689,7 @@ export default function DetailSheet({ ctx }) {
                           <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
                             {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>{cz}</span> : null; })()}
-                            {p.rating != null && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {p.rating}</span>}
+                            <PlaceScoreChip p={p} size={12} />
                             {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
                             {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span>}
                             {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
@@ -710,7 +711,7 @@ export default function DetailSheet({ ctx }) {
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
-                        {p.rating != null && <span style={{ fontSize: 12, color: "#F59E0B" }}>★ {p.rating}</span>}
+                        <PlaceScoreChip p={p} size={12} />
                         {p.openNow === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span>}
                         {p.openNow === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span>}
                         {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}

@@ -245,6 +245,26 @@ export function scoreLabel(wf) {
   return { s, word };
 }
 
+// Compact Wayfind Score chip (v6.30) — the inline form of the score for tight
+// surfaces (map previews, related-place rows, surprise, menus) where the full
+// badge won't fit. GLOBAL RULE: every place shows the Wayfind Score, never the
+// raw Google star. Falls back to the star ONLY when there is no wfScore yet, so
+// a slot is never empty.
+export function PlaceScoreChip({ p, size = 12 }) {
+  const s = toDisplayScore(p && p.wfScore);
+  if (s == null) {
+    return (p && p.rating) ? <span style={{ color: "#F59E0B", fontSize: size, fontWeight: 700 }}>★ {p.rating}</span> : null;
+  }
+  const band = getScoreBand(s);
+  const col = BAND_COLOR[band];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 3, background: col, color: "#0B0B0C", fontWeight: 800, fontSize: size, padding: "1px 7px 1px 5px", borderRadius: 6, lineHeight: 1.35 }} title={`Wayfind Score ${s.toFixed(1)} / 10`}>
+      <svg width={size - 1} height={size - 1} viewBox="0 0 24 24" fill="none" stroke={pinGlyphColor(band)} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="2.4" fill={pinGlyphColor(band)} stroke="none" /></svg>
+      {s.toFixed(1)}
+    </span>
+  );
+}
+
 // ─── Wayfind Score badge (v6.27) ─────────────────────────────────────────────
 // ONE reusable component for the four score bands (lib/score.js decides the
 // band; this only draws). Compact horizontal design: dark navy rounded surface,

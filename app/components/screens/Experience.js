@@ -2,7 +2,7 @@
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // PageInner aliases cityFixM as "cityFix" locally; this file calls
 // ctx.cityFixM directly (same function, already flowing through ctx).
-import { C } from "../kit";
+import { C, PlaceScoreChip } from "../kit";
 import { shareTextFor } from "../../../lib/shareCards";
 import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
 
@@ -68,7 +68,7 @@ export default function ExperienceScreen({ ctx }) {
                       <div key={x.id} onClick={() => openDetail(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                         <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}{x.p.rating ? <span style={{ fontSize: 12, color: "#F59E0B", fontWeight: 700 }}> ★ {x.p.rating}</span> : null}</div>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}<span style={{ marginLeft: 6, display: "inline-flex", verticalAlign: "middle" }}><PlaceScoreChip p={x.p} size={12} /></span></div>
                           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div>
                         </div>
                       </div>
