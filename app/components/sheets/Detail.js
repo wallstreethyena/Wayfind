@@ -14,6 +14,7 @@ import * as Tags from "../../../lib/tags";
 import * as Aff from "../../../lib/affiliates";
 import { supabase } from "../../../lib/supabase";
 import BookingCTA from "../BookingCTA";
+import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
 
 function galleryBtn(side) {
@@ -343,6 +344,8 @@ export default function DetailSheet({ ctx }) {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
                 return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} />;
               })()}
+              {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
+              {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} openExternal={openExternal} />}
 
               {!detail._event && (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>

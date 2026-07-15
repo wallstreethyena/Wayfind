@@ -1,3 +1,20 @@
+## v6.33 - "Book it" affiliate link on the place detail sheet (ships dark)
+- Turns the v6.28 Travelpayouts engine into a real, enable-with-one-flag revenue surface.
+  New app/components/BookItLink.js renders a labeled "Book it · <brand>" link in the detail
+  sheet's booking area for bookable attractions/tours — the Travelpayouts complement to the
+  Viator BookingCTA, which it never duplicates (viator/gyg are excluded).
+- Ships DARK by four gates, all of which must pass to render: NEXT_PUBLIC_BOOK_IT="on"
+  (owner master switch, off by default), a live Travelpayouts program (promo_id/campaign_id
+  set), a bookable-place match, and a valid tracked deep link. In production today it renders
+  nothing — there are no live program ids yet.
+- Decision logic is the pure lib/monetize.js bookItTarget() (lib decides, component draws —
+  same split as lib/score.js → the Wayfind Score badge); unit-tested by scripts/test-book-it.mjs
+  (dark contract, right-provider-when-live, never wraps restaurants/lodging/free places, never
+  duplicates Viator). Every rendered link carries the required "Partner — Wayfind may earn a
+  commission" disclosure and rel="sponsored".
+- Owner activation: paste a program's promo_id/campaign_id into lib/travelpayouts.js, set a
+  payout method, then set NEXT_PUBLIC_BOOK_IT="on" in Vercel.
+
 ## v6.28 - Travelpayouts affiliate engine + national destination map (infra, ships dark)
 - lib/travelpayouts.js: outbound deep-link engine for the Travelpayouts network (one
   account, marker 550160, fronts many travel brands). Every builder returns null until a

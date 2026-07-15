@@ -89,7 +89,7 @@ import { toDisplayScore, pickEligibleByScore } from "../lib/score";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.32";
+const BUILD_ID = "v6.33";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
