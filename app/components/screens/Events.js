@@ -87,6 +87,10 @@ function EventCard({ e, onVenue, ctx }) {
 // "Business events" is a new source (venues that publish an RSS/iCal/API feed),
 // shown with an honest empty state until those feeds are configured.
 const EVENT_FILTERS = [
+  // v6.34 — owner ask: the affiliate inventory gets its own category so
+  // EVERYTHING bookable shows as the main list, not only the pinned rail.
+  // bucket:null — tours are not events; the count/render special-case on key.
+  { key: "tours", label: "Local tours", icon: "🎟️", bucket: null },
   { key: "concerts", label: "Concerts", icon: "🎵", bucket: "concerts" },
   { key: "comedy", label: "Comedy", icon: "😂", bucket: "comedy" },
   { key: "theater", label: "Theater", icon: "🎭", bucket: "theater" },
@@ -115,6 +119,7 @@ export default function EventsScreen({ ctx }) {
   }
   const activeFilter = EVENT_FILTERS.find((f) => f.key === activeKey) || EVENT_FILTERS[0];
   const isBusiness = activeFilter.key === "business";
+  const isTours = activeFilter.key === "tours"; // v6.34 — affiliate list view
   const catBase = all.filter((e) => eventBucket(e) === activeFilter.bucket);
   const countFor = (dateVal) => dedupeEvents(catBase.filter((e) => e.date === dateVal), false).length;
   const allCount = dedupeEvents(catBase, true).length;
@@ -161,7 +166,7 @@ export default function EventsScreen({ ctx }) {
             <div onClick={() => setFilterOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
             <div role="listbox" style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 41, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Category</div>
-              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = countForFilter(f); return (
+              {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = f.key === "tours" ? tours.length : countForFilter(f); return (
                 <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 8px", borderRadius: 10, border: "none", background: on ? "rgba(249,115,22,.12)" : "transparent", cursor: "pointer", textAlign: "left" }}>
                   <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
                   <span style={{ fontSize: 16 }}>{f.icon}</span>
@@ -176,14 +181,25 @@ export default function EventsScreen({ ctx }) {
 
       {/* v6.20 — the bookable-experiences (Viator) rail; now sits BELOW the
           category filter (owner direction), still on every filter view. */}
-      {eventsTours === null ? (
+      {/* v6.34: when the Local-tours CATEGORY is selected, the main area below
+          owns the full affiliate list — don't double-render the pinned rail. */}
+      {!isTours && (eventsTours === null ? (
         <Loader label="Finding bookable experiences" pad="6px 2px" />
       ) : tours.length > 0 ? (
         <div style={{ marginBottom: 16 }}>
           <ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" />
           <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
         </div>
-      ) : null}
+      ) : null)}
+      {isTours && (
+        eventsTours === null ? <Loader label="Finding bookable experiences" pad="8px 2px" /> :
+        tours.length > 0 ? (
+          <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
+            <ViatorRail title="Everything bookable near you" items={tours} theme="events-tours" />
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
+          </div>
+        ) : <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>No bookable tours are loading right now — check back shortly.</div>
+      )}
 
       {/* Date chips (kept — events-page-only). Hidden for the Business feed. */}
       {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
@@ -204,14 +220,14 @@ export default function EventsScreen({ ctx }) {
       {/* Event grid for the selected category (Business events flow through the
           same path — a distinct source, shown only when its feeds return real
           events; otherwise the honest empty state below). */}
-      {eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
-      {!eventsLoading && eventsUnavailable && !isBusiness && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
+      {!isTours && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
+      {!isTours && !eventsLoading && eventsUnavailable && !isBusiness && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
       {!eventsLoading && (eventsUnavailable ? isBusiness : true) && !eventsError && shown.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
           {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
         </div>
       )}
-      {!eventsLoading && !eventsError && shown.length === 0 && (
+      {!isTours && !eventsLoading && !eventsError && shown.length === 0 && (
         isBusiness
           ? businessEmpty
           : eventsUnavailable

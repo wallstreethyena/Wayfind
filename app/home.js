@@ -86,10 +86,22 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore } from "../lib/score";
+import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
 const BUILD = "beta";
-const BUILD_ID = "v6.33";
+
+// v6.34 — CITY-MODE tours verification (the Hanoi-rail fix): every city rail
+// call declares mode=city, its region, and the market's VERIFIED Viator
+// destination id (lib/destinations), so /api/viator/tours filters by
+// destination instead of trusting freetext relevance — a Florida feed can
+// never show Hanoi/Naxos tours again, and correct local products keep flowing.
+function _viatorCityParams(cityQ, center) {
+  let dest = "";
+  try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
+  return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
+}
+const BUILD_ID = "v6.34";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -4541,7 +4553,7 @@ function PageInner() {
         // top photoless multi-source entries (cached lookups), then repaint.
         try {
           const _missing = results.filter((p) => p && !p.photo && /^(fsq|osm|ridb|nps):/.test(String(p.id || ""))).slice(0, 10);
-          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } } } catch (e) {} })).then(() => { if (!_tok.dead) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
+          if (_missing.length) Promise.all(_missing.map(async (p) => { try { const g = await findPlace(p.name, { lat: p.lat, lng: p.lng }); if (g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)))) { p.photo = g.photo; p.photos = g.photos || []; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: stamp travels with the bundle */ } } } catch (e) {} })).then(() => { if (!_tok.dead) setExpPlaces((cur) => (Array.isArray(cur) ? [...cur] : cur)); });
         } catch (e) {}
       } catch {
         if (!_tok.dead) setExpPlaces([]);
@@ -4573,7 +4585,7 @@ function PageInner() {
         const _m = Culture.resolveMetro(locName);
         const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
         const mode = EXPERIENCES[activeBadge].viatorMode || "top";
         const pool = (d && Array.isArray(d.items) ? d.items : []);
@@ -4606,16 +4618,17 @@ function PageInner() {
   }, [activeBadge, expPlaces && expPlaces.length]);
 
   // v4.84: bookable activities on the Things to do browse too — Viator is a
-  // source, not just a booking-link decorator.
+  // source, not just a booking-link decorator. v6.34 (owner ask): the Family
+  // browse gets the same rail.
   useEffect(() => {
-    if (browseCat !== "attractions" || !center) { setBrowseTours(null); return; }
+    if ((browseCat !== "attractions" && browseCat !== "family") || !center) { setBrowseTours(null); return; }
     let cancelled = false;
     (async () => {
       try {
         const _m = Culture.resolveMetro(locName);
         const cityQ = (_m && Culture.CULTURE[_m] && Culture.CULTURE[_m].title) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
         const items = (d && Array.isArray(d.items) ? d.items : [])
           .filter((t) => t.rating != null && t.rating >= 4.5)
@@ -4647,7 +4660,7 @@ function PageInner() {
         // loading state and let this effect re-fire when locName lands — never
         // flash "no tours" before we've even asked. Deps include locName.
         if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20");
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
         const items = (d && Array.isArray(d.items) ? d.items : [])
           .filter((t) => t.rating != null && t.rating >= 4.3)
@@ -5292,6 +5305,9 @@ function PageInner() {
           photo: photoUrl,
           photos: allPhotos,
           openNow: place.regularOpeningHours?.isOpen?.() ?? null,
+          // v6.34: isOpen() is live at THIS instant — stamp it so businessStatus
+          // may trust it inside the snapshot freshness window.
+          hoursAsOf: (place.regularOpeningHours?.isOpen?.() ?? null) != null ? Date.now() : null,
           mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${place.id}`,
           labels: [],
           wfScore: null,
@@ -6057,7 +6073,7 @@ function PageInner() {
                     <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
-                  {browseCat === "attractions" && <ViatorRail title="Bookable tours & activities" items={browseTours} theme="attractions-browse" />}
+                  {(browseCat === "attractions" || browseCat === "family") && <ViatorRail title={browseCat === "family" ? "Bookable family tours & activities" : "Bookable tours & activities"} items={browseTours} theme="attractions-browse" />}
                   {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
@@ -6469,9 +6485,16 @@ function PageInner() {
                       In its place: the in-app map, pinned with what's on screen
                       around the current location. Tap a pin → place detail;
                       Full map → the map tab. */}
-                  {(() => { const _pins = (list || []).filter((p) => p && p.lat != null).slice(0, 20); return (
+                  {(() => { /* v6.34 (owner ask): the sidebar map follows the
+                      ACTIVE list — the open cuisine/moment sheet, the in-place
+                      category browse, else the home feed — and frames the
+                      ~20mi radius with the same expanding distance rings as
+                      the main Map (5/10/15/20 at that zoom). Pins are the
+                      already-loaded, cache-served rows: zero extra fetches. */
+                    const _active = (cuisineSheet && Array.isArray(cuisineSheet.list) && cuisineSheet.list.length ? cuisineSheet.list : null) || (hookDetail && Array.isArray(hookDetail.places) && hookDetail.places.length ? hookDetail.places : null) || (browseCat && Array.isArray(view) && view.length ? view : null) || (list || []);
+                    const _pins = _active.filter((p) => p && p.lat != null).slice(0, 20); return (
                   <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, position: "relative", height: 320, background: C.card }}>
-                    <MapView places={_pins} center={center} deviceLoc={deviceLoc} fit={_pins.length > 0} onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
+                    <MapView places={_pins} center={center} deviceLoc={deviceLoc} rings onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
                     <button onClick={() => { setMapListOverride(null); setScreen("map"); }} style={{ position: "absolute", right: 10, bottom: 10, zIndex: 5, padding: "7px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.4)" }}>Full map ↗</button>
                     {locName ? <div style={{ position: "absolute", left: 10, top: 10, zIndex: 5, padding: "6px 11px", borderRadius: 999, background: "rgba(13,17,23,.82)", backdropFilter: "blur(6px)", color: C.text, fontSize: 12, fontWeight: 700, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName.split(",")[0]}{_pins.length ? ` · ${_pins.length} spots` : ""}</div> : null}
                   </div>
@@ -6829,7 +6852,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
       const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
       if (c) return;
-      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; } _photoBump((x) => x + 1); }
+      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: the freshness stamp travels with the bundle */ } _photoBump((x) => x + 1); }
       else p._noPhoto = true; // remember the miss so we never refetch
     }).catch(() => {});
     return () => { c = true; };
@@ -6851,7 +6874,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
   return (
     <div onClick={onDetail} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
-      {dispScore != null && <div style={{ position: "absolute", top: 12, right: 12, zIndex: 3, filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={dispScore} /></div>}
+      {/* v6.34: the badge lives IN the title row (flex), not floated over it.
+          The old absolute top-right overlay cleared long titles with a magic
+          paddingRight (88px) that was ~17px narrower than the badge, so titles
+          and wrapped meta chips rendered under it — "the score sits on top of
+          letters". In-flow, nothing can ever overlap it. */}
       <div style={{ display: "flex" }}>
         <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
@@ -6860,7 +6887,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               ? <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
               : <div style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
             )}
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, paddingRight: dispScore != null ? 88 : 4 }}>{p.name}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{p.name}</div>
+            {dispScore != null && <div style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={dispScore} /></div>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}

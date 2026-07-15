@@ -7,6 +7,7 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip } from "../kit";
+import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
@@ -206,19 +207,24 @@ export default function DetailSheet({ ctx }) {
                           ? detail.oh.weekdayDescriptions
                           : null);
                     if (lines) {
-                      return lines.map((line, i) => {
-                        const parts = line.split(": ");
-                        return (
-                          <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5, color: C.light, padding: "2px 0" }}>
-                            <span style={{ fontWeight: 600, color: C.text }}>{parts[0]}</span>
-                            <span style={{ textAlign: "right" }}>{parts.slice(1).join(": ")}</span>
-                          </div>
-                        );
-                      });
+                      return (<>
+                        {lines.map((line, i) => {
+                          const parts = line.split(": ");
+                          return (
+                            <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12.5, color: C.light, padding: "2px 0" }}>
+                              <span style={{ fontWeight: 600, color: C.text }}>{parts[0]}</span>
+                              <span style={{ textAlign: "right" }}>{parts.slice(1).join(": ")}</span>
+                            </div>
+                          );
+                        })}
+                        {/* v6.34: attribution renders only under real hours — it used
+                            to sit beneath "Hours not listed" too, crediting Google
+                            for hours we don't have. */}
+                        <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
+                      </>);
                     }
                     return <div style={{ fontSize: 12.5, color: C.muted }}>{detailExtra === null ? "Loading hours…" : "Hours not listed for this place."}</div>;
                   })()}
-                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 8 }}>Hours from Google.</div>
                 </div>
               )}
 
@@ -622,6 +628,28 @@ export default function DetailSheet({ ctx }) {
                   {detailExtra.website && <a href={detailExtra.website} target="_blank" rel="noreferrer" style={{ flex: 1, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 600, textDecoration: "none", textAlign: "center" }}>🌐 Website ↗</a>}
                 </div>
               )}
+
+              {/* v6.34 — owner-curated coupon (lib/coupons): the card's Deal
+                  pill promised a deal; the sheet now keeps that promise.
+                  Renders only when no Supabase offer covers this place
+                  (offers win the slot, same rule as the card pill). */}
+              {detail && !detail._event && !offers[detail.id] && (() => {
+                const cpn = couponForPlaceName(detail.name);
+                if (!cpn || !couponIsLive(cpn)) return null;
+                const ends = couponEndsLabel(cpn);
+                return (
+                  <div style={{ marginBottom: 16, background: C.card, border: `1.5px solid ${C.accent}`, borderRadius: 14, padding: "12px 14px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>🏷️ Deal</span>
+                      {ends && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{ends}</span>}
+                    </div>
+                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{cpn.title}</div>
+                    {cpn.details && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{cpn.details}</div>}
+                    {cpn.url && <a href={cpn.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("offer_redeem", detail, { offer_id: cpn.id, source: "curated" }); } catch (e) {} }} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{cpn.code ? "Show code" : "View deal ↗"}</a>}
+                    {cpn.code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.accent, marginTop: 8, letterSpacing: "0.5px" }}>Code: {cpn.code}</div>}
+                  </div>
+                );
+              })()}
 
               {detail && offers[detail.id] && (() => {
                 const o0 = offers[detail.id];
