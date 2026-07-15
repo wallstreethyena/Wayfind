@@ -12,7 +12,7 @@ export default function ExperienceScreen({ ctx }) {
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-          else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
+          else if (expSort === "rated") list = [...list].sort((a, b) => ((b.wfScore || 0) - (a.wfScore || 0)) || ((b.reviews || 0) - (a.reviews || 0))); // v6.36: Top rated = pure Wayfind Score desc (tie: reviews), matching the badges + home feed. The old distance penalty made a closer 8.9 outrank a farther 9.6; distance has its own "Closest first" sort.
           else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (

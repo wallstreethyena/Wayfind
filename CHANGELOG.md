@@ -1,3 +1,15 @@
+## v6.36 - Fix "Top rated" sort on the mood/experience screen (Date Night, etc.): pure Wayfind Score, not distance-penalized
+- ROOT CAUSE: app/components/screens/Experience.js ranked "Top rated" by wfScore
+  minus a distance penalty (up to 30 pts) and an open/closed penalty. On Date
+  Night that put Oar & Iron (8.9, 6.6 mi -> effective 85.6) above Sofra (9.6,
+  12.9 mi -> effective 84.4), so the badges read out of order and a lower score
+  outranked a higher one under a control literally labeled "Top rated".
+- FIX: "Top rated" now sorts purely by the displayed Wayfind Score descending,
+  tie-broken by review count -- identical to the home feed (app/home.js line
+  ~5630) and to the v6.30 design intent ("Top rated ranks purely by the displayed
+  Wayfind Score"). Distance keeps its own "Closest first" sort; the blended
+  distance-aware rank still powers the default "best fit" ordering (unchanged).
+
 ## v6.35 - Travelpayouts programs linked: Tiqets, Klook, TicketNetwork, WeGoTrip (ships dark behind NEXT_PUBLIC_BOOK_IT)
 - Wired the verified tracking IDs for the four approved Travelpayouts programs into
   lib/travelpayouts.js (from the dashboard Tools -> Links -> "Full link", 2026-07-15):
