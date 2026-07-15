@@ -1,3 +1,23 @@
+## v6.28 - Travelpayouts affiliate engine + national destination map (infra, ships dark)
+- lib/travelpayouts.js: outbound deep-link engine for the Travelpayouts network (one
+  account, marker 550160, fronts many travel brands). Every builder returns null until a
+  program's tracking IDs are set, so nothing renders until it's real — same ships-dark
+  discipline as lib/affiliates.js.
+- lib/destinations.js: Wayfind market → affiliate destination map across Viator/Tiqets/Klook
+  with verified destination ids (Orlando/Tampa/St-Pete + home markets, plus a national
+  top-tourism set). Missing ids degrade to a tracked search URL, never a broken link;
+  coordinate-snapping picks the nearest supported market.
+- lib/monetize.js: bookability + best-expected-value picker + a BOUNDED (cap 8), SORT-ONLY
+  ranking nudge. Hard integrity contract, now test-enforced: the boost is never added to the
+  displayed Wayfind Score/badge; any monetization-influenced placement must carry the
+  "Book it — Partner, Wayfind may earn a commission" label; a capped boost can never lift a
+  lower-merit place past a clearly-better one. Free/non-bookable places get 0.
+- Tests added to prebuild: test-travelpayouts.mjs, test-destinations.mjs (the latter now also
+  asserts the cap ceiling + merit-dominance ordering — the contract was documented but untested).
+- Nothing is wired into the UI yet (no component imports these). The destination-map surface
+  and the sponsored-labeled nudge are a follow-up product decision; this ships only the
+  reviewed, inert engine.
+
 ## v6.17 - Deals live everywhere + per-tab discovery share cards
 - DEALS. lib/coupons.js loads its first 8 verified offers (Discover Sarasota Tours 20% code
   LOCAL thru 7/31, ZooTampa heroes summer, Ringling Free Mondays + Blue Star military, Mote
