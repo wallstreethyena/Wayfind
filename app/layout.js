@@ -111,6 +111,8 @@ export default function RootLayout({ children }) {
             coordinated attempt still fails, switch to DNS TXT (no token-in-page,
             no redirect, no race). */}
         <meta name="impact-site-verification" value="b9afb8d7-5514-4a1c-871b-dbac1a41e2a8" />
+        {/* impact literal-form mirror: some verifiers substring-match the EXACT pasted snippet (single quotes), which JSX cannot render as an attribute. The script body carries it verbatim; DOM parsers ignore script text and use the real meta above. Same GUID — always swapped together. */}
+        <script id="impact-verify-mirror" dangerouslySetInnerHTML={{ __html: "// <meta name='impact-site-verification' value='b9afb8d7-5514-4a1c-871b-dbac1a41e2a8'>" }} />
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
