@@ -55,6 +55,22 @@ function skeletons(googlePlaces) {
   }).filter(Boolean);
 }
 
+// v6.33 — THE GATE. A single server-side switch to throttle paid Google
+// Text Search ("search of words") spend without a redeploy.
+//   WAYFIND_GATE unset / "open"  → normal: cache-first, refresh from Google on a
+//                                  miss (the default; shipping the gate changes
+//                                  nothing until you flip it).
+//   WAYFIND_GATE = "shut"        → cost lockdown: on a cache MISS we do NOT call
+//                                  Google's paid searchText at all. We serve the
+//                                  30-day cache, then your owned inventory, then
+//                                  empty. This "brings the words down" to zero new
+//                                  paid searches while the warmed cache carries the
+//                                  site. Flip it back to "open" any time.
+// Set it in Vercel → Project → Settings → Environment Variables (no code change).
+function gateShut() {
+  return String(process.env.WAYFIND_GATE || "").trim().toLowerCase() === "shut";
+}
+
 async function handleSearch(params) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
@@ -81,6 +97,15 @@ async function handleSearch(params) {
 
   try {
     if (forceErr) { const s = await serveStale(); return s || NextResponse.json({ error: "forced (no stale)", debug: dbg() }, { status: 502 }); }
+    // THE GATE (shut): never pay Google on a miss — lean on the warmed cache and
+    // owned inventory. Serve stale (≤30d) → inventory → empty. Zero new searches.
+    if (gateShut()) {
+      const stale = await serveStale();
+      if (stale) return stale;
+      const inv = params.cat ? await serveFromInventory(params.cat, lat, lng, radius, n) : [];
+      if (inv.length) return NextResponse.json({ places: inv, cached: false, source: "inventory", gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+      return NextResponse.json({ places: [], cached: false, gate: "shut", debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+    }
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELD_MASK },
