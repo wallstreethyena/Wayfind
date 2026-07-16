@@ -1,3 +1,28 @@
+## v6.37 - Order In (Uber Eats), the Wayfind take on every card, honest Tours/water tabs
+- NEW "Order In" home tile replaces the retired Shop Local: a dedicated /order-in
+  page of delivery-worthy restaurants near you, ranked by the Wayfind Score with
+  verified deals floating first — plus per-place "Order on Uber Eats" deep links,
+  an Uber Eats app-download block for new users, and the honest pitch for why you
+  pick the restaurant here (merit) and let the delivery app do the driving.
+  Affiliate ships dark-but-functional: plain deep links today; set
+  NEXT_PUBLIC_UBEREATS_TEMPLATE ({url} placeholder) when the application clears
+  and every click earns with no code change. Same contract for VRBO:
+  NEXT_PUBLIC_VRBO_TEMPLATE lights up the new "Vacation rentals on VRBO" link on
+  lodging detail sheets.
+- THE WAYFIND TAKE: 288 owner-written editorial reviews (Vibe Check / Why Go /
+  Best Move — Central Florida, Sarasota, Tampa, St. Pete, Clearwater, Naples) now
+  render on the place detail sheet. The ~160 KB data module is SERVER-ONLY behind
+  /api/editorial (lib/editorial.js is generated; the sheet fetches one tiny JSON
+  per place), so the client bundle gains zero bytes. scripts/test-editorial.mjs
+  (1,200+ assertions) guards data integrity + name resolution.
+- TOURS BUG (the "Florida Railroad" leak): the attractions:tours contract began
+  /\btour|…/ which matches "tourist_attraction" — the type on nearly EVERY
+  attraction — so the Tours tab admitted railroad museums and worse. The contract
+  now requires real operator signals (tour_agency, boat_tour, "Boat Tours",
+  trolley, sightseeing, jet ski…), and the Tours/On-the-water queries ask Google
+  for guided tours, jet skis, paddleboards and sunset cruises instead of
+  "sightseeing" and "marinas". scripts/test-subfilters.mjs locks the regression.
+
 ## v6.36 - Cache refresh-ahead: every card stays hot, no user ever hits day 31
 - The 30-day cache cliff is gone. A fresh entry becomes "due" at a per-key JITTERED
   age of 20-27 days (deterministic hash — no clock, unit-tested); the search route
