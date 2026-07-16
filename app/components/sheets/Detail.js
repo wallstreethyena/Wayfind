@@ -362,7 +362,7 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && editorial && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 7 }}>📝 The Wayfind take</div>
-                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move]].map(([_lb, _bd]) => (
+                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move], ["Known For", editorial.knownFor], ["Food Move", editorial.foodMove], ["Drink Move", editorial.drinkMove], ["The Story", editorial.story]].filter(([_l, _b]) => _b).map(([_lb, _bd]) => (
                     <div key={_lb} style={{ marginBottom: 7 }}>
                       <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{_lb}: </span>
                       <span style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{_bd}</span>

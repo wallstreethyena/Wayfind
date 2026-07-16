@@ -101,7 +101,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.37";
+const BUILD_ID = "v6.38";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -4405,6 +4405,24 @@ function PageInner() {
         // category runs the broad search plus ONE context-relevant subfilter (meal by
         // time of day for food, first subfilter otherwise) and merges. Any specific
         // subfilter tap is a single search. ~67% fewer searches per load.
+        // v6.38 — the "All is thinner than a sub" fix, universal: every category's
+        // "All" unions the OWNED inventory (free — zero Google spend) so All is a
+        // true superset of its subfilters even in small markets (the Parrish
+        // 3-hotel bug). Hotels use the richer owned-hotel endpoint; every other
+        // category pulls its rows straight from wf_inventory via inv=1.
+        const _invAll = async (m) => {
+          try {
+            if (cat === "hotels") {
+              const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=30`);
+              const hj = await hr.json();
+              return Array.isArray(hj.hotels) ? hj.hotels : [];
+            }
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=30&cat=${encodeURIComponent(cat)}&inv=1`);
+            const j = await r.json();
+            return Array.isArray(j.places) ? j.places : [];
+          } catch (e) { return []; }
+        };
+
         const _subs = (SUBFILTERS[cat] || []).filter((x) => x && x.id && x.id !== "all");
         const _fetchAt = async (m) => {
           if (sub === "all" && _subs.length) {
@@ -4414,7 +4432,7 @@ function PageInner() {
             // query so real destinations like Red Barn Flea Market are fetched.
             else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
             else { _second = _subs[0].id; }
-            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => []), searchPlaces(cat, _second, ctr, m, vibe).catch(() => [])]);
+            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => []), searchPlaces(cat, _second, ctr, m, vibe).catch(() => []), _invAll(m)]); // v6.38: owned inventory joins the union — "All" is a superset everywhere
             const _seen = new Set(); const _out = [];
             _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
             // v6.15: the markets query also pulls farm/grocery markets — re-gate

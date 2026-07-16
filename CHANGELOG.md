@@ -1,3 +1,30 @@
+## v6.38 - "All" is a true superset everywhere, exact Uber Eats store pages, one card system
+- STAYS "ALL" = 3 BUG (universal fix): the v6.15 cost optimization made every
+  category's "All" fire only two Google queries, so "All" could show FEWER
+  places than a single subfilter tap in small markets (Parrish: 3 hotels).
+  Every "All" now ALSO unions the owned inventory — hotels from the owned
+  hotel library, every other category straight from wf_inventory via the new
+  free inv=1 serve — so "All" is a true superset of its subfilters at zero
+  extra Google spend.
+- ORDER IN v2 (owner directive: one mechanism everywhere): the page now uses
+  lib/sources.searchPlaces — the app's real pipeline (Google+FSQ twin-merge,
+  junk gate, quality floor, real wfScore) — and renders the app's card anatomy
+  with PlaceScoreChip. A restaurant scores identically on Order In, Eat Well,
+  and its detail sheet. Verified deals still float first within ranked order.
+- EXACT UBER EATS STORE PAGES: "Order on Uber Eats" now routes through
+  /api/eats/go (the /api/viator/go integrity pattern) — resolves the
+  restaurant's actual store page server-side, caches it 30 days, 302s the
+  user INSIDE the restaurant; any failure falls back to the tracked search,
+  never worse than before.
+- LOOSE FOOTER: app/layout.js main was minHeight:"100%" of an unsized parent —
+  it collapsed to content height and the SEO footer floated mid-viewport.
+  minHeight:"100vh" pins the footer below the first screen on every route.
+- EDITORIAL, ENHANCED: lib/editorial.js regenerated with the owner's
+  publish-ready Atlas cards — Known For / Food Move / Drink Move / Insider
+  Move / Verified Story now render on the detail sheet when present (Asolo,
+  Selby, Lido Beach, Agave Bandido, Anna Maria Oyster Bar, Art Ovation, 1592,
+  Epiphany Cathedral, Barnes & Noble Sarasota).
+
 ## v6.37 - Order In (Uber Eats), the Wayfind take on every card, honest Tours/water tabs
 - NEW "Order In" home tile replaces the retired Shop Local: a dedicated /order-in
   page of delivery-worthy restaurants near you, ranked by the Wayfind Score with

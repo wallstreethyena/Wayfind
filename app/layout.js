@@ -141,7 +141,7 @@ export default function RootLayout({ children }) {
             policy + cookie consent (see the monetization/legal package). */}
         <Script id="travelpayouts-drive" strategy="afterInteractive" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
-        <main id="wf-main" style={{ minHeight: "100%" }}>{children}</main>
+        <main id="wf-main" style={{ minHeight: "100vh" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
