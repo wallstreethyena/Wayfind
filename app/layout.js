@@ -95,7 +95,6 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://lh3.googleusercontent.com" />
         <link rel="preconnect" href="https://places.googleapis.com" />
-        <link rel="preconnect" href="https://maps.googleapis.com" />
         <link rel="preconnect" href="https://api.open-meteo.com" />
         <link rel="preconnect" href="https://scripts.stay22.com" />
         {/* v5.79: Impact.com publisher site-ownership verification for the
@@ -143,7 +142,7 @@ export default function RootLayout({ children }) {
             as the source of truth.
             ⚠ PRIVACY: third-party tracker — must be covered by the privacy
             policy + cookie consent (see the monetization/legal package). */}
-        <Script id="travelpayouts-drive" strategy="afterInteractive" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
+        <Script id="travelpayouts-drive" strategy="lazyOnload" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
         <main id="wf-main" style={{ minHeight: "100vh" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
