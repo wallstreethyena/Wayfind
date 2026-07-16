@@ -1,4 +1,4 @@
-// scripts/test-editorial.mjs — v6.37 offline tests for the editorial notes
+// scripts/test-editorial.mjs — v6.38 offline tests for the editorial notes
 // data + resolver (lib/editorial.js). No network: pure data integrity.
 import E, { editorialFor, editorialNorm, EDITORIAL_COUNT } from "../lib/editorial.js";
 
@@ -32,8 +32,22 @@ ok(editorialFor("Sunroom"), "Sunroom resolves (Central Florida doc)");
 const ring = editorialFor("The Ringling Museum of Art");
 ok(ring && /Ringling/.test(ring.name), "longer Google name prefix-matches The Ringling");
 
+// v6.38 — the enhanced publish-ready Atlas cards carry the deeper fields
+const agave = editorialFor("Agave Bandido");
+ok(agave && /Guacamole/i.test(agave.foodMove || ""), "Agave Bandido carries its Food Move (Guacamole Flight)");
+ok(agave && (agave.drinkMove || "").length >= 20, "Agave Bandido carries a Drink Move");
+const asolo = editorialFor("Asolo Repertory Theatre");
+ok(asolo && (asolo.knownFor || "").length >= 20, "Asolo carries Known For");
+ok(asolo && (asolo.story || "").length >= 20, "Asolo carries its Verified Story");
+const selby = editorialFor("Marie Selby Botanical Gardens");
+ok(selby && (selby.insiderMove || selby.move || "").length >= 20, "Selby carries an Insider Move");
+const artov = editorialFor("Art Ovation Hotel, Autograph Collection");
+ok(artov && (artov.drinkMove || "").length >= 20, "Art Ovation carries a Drink Move (Perspective rooftop)");
+const oyster = editorialFor("Anna Maria Oyster Bar");
+ok(oyster && (oyster.foodMove || "").length >= 20, "AMOB carries a Food Move (oyster sampler)");
+
 // negatives: unknown places return null, never a wrong entry
 ok(editorialFor("Some Nonexistent Diner 9000") === null, "unknown name -> null");
 ok(editorialFor("") === null, "empty name -> null");
 
-console.log(`test-editorial: OK — ${pass} assertions (${keys.length} places, 3-part voice complete, lookup exact+fuzzy)`);
+console.log(`test-editorial: OK — ${pass} assertions (${keys.length} places incl. enhanced Atlas cards, lookup exact+fuzzy)`);

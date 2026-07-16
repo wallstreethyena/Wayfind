@@ -102,6 +102,14 @@ async function handleSearch(params, origin) {
   const n = Math.min(Math.max(Number(params.n) || 20, 1), 20);
   if (!q || !isFinite(lat) || !isFinite(lng)) return NextResponse.json({ error: "bad request" }, { status: 400 });
 
+  // v6.38 — direct owned-inventory serve (inv=1): FREE (no Google call, no
+  // cache write), used by the "All is a superset" union on every category
+  // tab. Serves only rows we already own; can never trigger paid spend.
+  if (String(params.inv || "") === "1") {
+    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, n);
+    return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
+  }
+
   // Round the bias point to ~1km so nearby users share cache entries.
   const k = ["v1", q.toLowerCase(), lat.toFixed(2), lng.toFixed(2), Math.round(radius / 1000), n].join("|");
   const wantDebug = String(params.debug || "") === "1";
