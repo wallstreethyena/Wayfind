@@ -1,4 +1,4 @@
-## v6.35 - Cache refresh-ahead: every card stays hot, no user ever hits day 31
+## v6.36 - Cache refresh-ahead: every card stays hot, no user ever hits day 31
 - The 30-day cache cliff is gone. A fresh entry becomes "due" at a per-key JITTERED
   age of 20-27 days (deterministic hash — no clock, unit-tested); the search route
   serves the still-fresh copy INSTANTLY and fire-and-forgets a poke to a new
@@ -13,6 +13,7 @@
   stay hot whether Google is slow, capped, or a cache entry is aging out.
 - lib/serverCache: refreshAgeFor/refreshDue (pure, jittered) + cget surfaces {ageMs,due}.
   New scripts/test-cache-refresh.mjs (22 offline assertions).
+
 
 ## v6.34 - Hours honesty: "Open now" can no longer contradict an empty hours panel
 - ROOT CAUSE (Escape Reality, July 2026): app/api/fsq/search captures Foursquare's
