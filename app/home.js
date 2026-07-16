@@ -1,6 +1,6 @@
 "use client";
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
-import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces } from "../lib/google";
+import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
@@ -85,7 +85,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
-import { toDisplayScore, pickEligibleByScore } from "../lib/score";
+import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -101,7 +101,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.38";
+const BUILD_ID = "v6.39";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2938,9 +2938,17 @@ function PageInner() {
     // v6.37 — "Order In" opens its dedicated route (a real, shareable URL with
     // Uber Eats CTAs), not a curated list; hand the current center along so the
     // page skips a second location prompt.
+    // v6.39 — "Order In" opens the REAL Food browse on the new Delivery
+    // subfilter (owner directive: same cards, same Score, main-menu
+    // discoverable). The standalone /order-in URL still exists for direct
+    // links; the tile now keeps users in the app's one card system.
     if (kind === "delivery") {
       try { logEvent("orderin_open", null, {}); } catch (e) {}
-      try { const _qs = center ? ("?lat=" + center.lat + "&lng=" + center.lng + (locName ? "&loc=" + encodeURIComponent(locName) : "")) : ""; window.location.assign("/order-in" + _qs); } catch (e) {}
+      try {
+        if (browseCat !== "food") pickBrowse("food");
+        setSub("delivery");
+        setScreen("home");
+      } catch (e) { try { window.location.assign("/order-in"); } catch (e2) {} }
       return;
     }
     const c = CURATED[kind]; if (!c) return;
@@ -2972,7 +2980,7 @@ function PageInner() {
     // owned coverage for this location (e.g. outside the seeded metro).
     if (kind === "stays" && center) {
       try {
-        const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=20`);
+        const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=40`);
         const hj = await hr.json();
         if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
           const owned = hj.hotels;
@@ -4405,21 +4413,43 @@ function PageInner() {
         // category runs the broad search plus ONE context-relevant subfilter (meal by
         // time of day for food, first subfilter otherwise) and merges. Any specific
         // subfilter tap is a single search. ~67% fewer searches per load.
-        // v6.38 — the "All is thinner than a sub" fix, universal: every category's
-        // "All" unions the OWNED inventory (free — zero Google spend) so All is a
-        // true superset of its subfilters even in small markets (the Parrish
-        // 3-hotel bug). Hotels use the richer owned-hotel endpoint; every other
-        // category pulls its rows straight from wf_inventory via inv=1.
+        // v6.39 — the "All is thinner than a sub" fix, universal — now with the
+        // union rows NORMALIZED into the app's card shape. (v6.38 pushed the
+        // Google-shaped inventory rows straight into app-shaped lists, so
+        // Family/All showed nameless, photoless, Score-less cards.) Hotels use
+        // the richer owned-hotel endpoint; every other category pulls rows from
+        // wf_inventory via the free inv=1 serve, then maps name/photo/wfScore/
+        // distance BEFORE the rows ever meet a PlaceCard.
         const _invAll = async (m) => {
           try {
             if (cat === "hotels") {
-              const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=30`);
+              const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&limit=40`);
               const hj = await hr.json();
               return Array.isArray(hj.hotels) ? hj.hotels : [];
             }
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=30&cat=${encodeURIComponent(cat)}&inv=1`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=40&cat=${encodeURIComponent(cat)}&inv=1`);
             const j = await r.json();
-            return Array.isArray(j.places) ? j.places : [];
+            const raw = Array.isArray(j.places) ? j.places : [];
+            return raw.map((x) => {
+              if (!x) return null;
+              if (x.name && !x.displayName) return x; // already app-shaped
+              const _la = x.location && x.location.latitude, _ln = x.location && x.location.longitude;
+              const _ph = x.photos && x.photos[0] && x.photos[0].name;
+              return {
+                id: x.id,
+                name: (x.displayName && x.displayName.text) || x.name || "",
+                lat: _la, lng: _ln,
+                distMi: _la != null ? distMeters(center, { lat: _la, lng: _ln }) / 1609.34 : null,
+                rating: typeof x.rating === "number" ? x.rating : null,
+                reviews: x.userRatingCount || 0,
+                wfScore: wayfindScore(typeof x.rating === "number" ? x.rating : 0, x.userRatingCount || 0),
+                types: Array.isArray(x.types) ? x.types : [],
+                photo: _ph ? "/api/photo?ref=" + encodeURIComponent(_ph) + "&w=640" : null,
+                openNow: null,
+                businessStatus: x.businessStatus || "OPERATIONAL",
+                _wfInventory: true,
+              };
+            }).filter((p) => p && p.name);
           } catch (e) { return []; }
         };
 
@@ -4905,7 +4935,7 @@ function PageInner() {
         if ((hd.fetchKey || hd.theme) === "stays") {
           try {
             const cityQ = locName ? String(locName).split(",")[0].trim() : "";
-            const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&city=${encodeURIComponent(cityQ)}&limit=20`);
+            const hr = await fetch(`/api/hotels?lat=${center.lat}&lng=${center.lng}&city=${encodeURIComponent(cityQ)}&limit=40`);
             const hj = await hr.json();
             if (hj && Array.isArray(hj.hotels) && hj.hotels.length) {
               const hotels = hj.hotels.slice(0, 20);
@@ -6867,6 +6897,7 @@ function ViatorRail({ title, items, theme }) {
 }
 
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
+  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
   // photoless, resolve its Google twin once (findPlace is cached ~8 days) and

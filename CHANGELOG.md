@@ -1,3 +1,25 @@
+## v6.39 - Delivery is a first-class Food tab (real cards), the caps audit lands
+- DELIVERY IN THE MAIN MENU (owner directive): Food gains a "Delivery" subfilter
+  beside Quick bites — delivery spots now render as REAL Wayfind PlaceCards
+  (Score badge, pills, Save/Like, blurbs) inside the site's browse system and
+  its database, not a bespoke page. The Order In home tile opens this tab
+  in-app; /order-in remains as the standalone URL. Every food detail sheet
+  gains an "Order on Uber Eats" action that 302s into the restaurant's exact
+  store page via /api/eats/go.
+- CAPS AUDIT (owner directive — "expand the All search everywhere"): the audit
+  found a constraint CHAIN throttling the inventory union: the search route
+  clamped n to 20 (trimming the v6.38 inventory request), serveFromInventory
+  sliced to 30, and the Stay Tonight fetch asked for only 20 owned hotels.
+  Fixed end-to-end: the free inv=1 serve now allows up to 50 rows, the
+  inventory slice cap is 50, the "All" union requests 40, and Stay Tonight
+  pulls 40 owned hotels. Google per-query page stays 20 (API page max) — the
+  owned-inventory union is the lever that widens results at zero spend.
+- GLOBAL CARD GUARDRAIL (owner directive): a new cardComplete() gate in
+  lib/score.js — PlaceCard's first act is to render NOTHING for any card that
+  cannot say what it is (no name, or a name with zero substance: no rating, no
+  reviews, no photo). Locked by scripts/test-card-gate.mjs in prebuild so no
+  future data source can leak ghost cards like the Family/Activities "All" bug.
+
 ## v6.38 - "All" is a true superset everywhere, exact Uber Eats store pages, one card system
 - STAYS "ALL" = 3 BUG (universal fix): the v6.15 cost optimization made every
   category's "All" fire only two Google queries, so "All" could show FEWER
