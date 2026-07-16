@@ -1,3 +1,20 @@
+## v6.36 - Cache refresh-ahead: every card stays hot, no user ever hits day 31
+- The 30-day cache cliff is gone. A fresh entry becomes "due" at a per-key JITTERED
+  age of 20-27 days (deterministic hash — no clock, unit-tested); the search route
+  serves the still-fresh copy INSTANTLY and fire-and-forgets a poke to a new
+  /api/places/refresh worker that re-fetches Google and resets the 30-day clock.
+- Self-healing + safe: the poke runs in its OWN serverless invocation (full exec
+  time — Next 14.2 has no reliable post-response hook); a dropped poke is retried by
+  the next request; worst case degrades to today's behavior, never worse. The worker
+  only refreshes EXISTING cache entries (can't be weaponized to fetch arbitrary
+  queries) and de-dupes (<=1 Google call per key per 12h) so there's no herd and no
+  spend spike; the jitter spreads refreshes so there's no synchronized day-30 stampede.
+- Read-side completion of "own the candidate set": with the inventory fallback, cards
+  stay hot whether Google is slow, capped, or a cache entry is aging out.
+- lib/serverCache: refreshAgeFor/refreshDue (pure, jittered) + cget surfaces {ageMs,due}.
+  New scripts/test-cache-refresh.mjs (22 offline assertions).
+
+
 ## v6.34 - Hours honesty: "Open now" can no longer contradict an empty hours panel
 - ROOT CAUSE (Escape Reality, July 2026): app/api/fsq/search captures Foursquare's
   fetch-time open_now boolean with NO structured hours behind it, and the shared cache

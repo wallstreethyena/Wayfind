@@ -28,6 +28,28 @@ const FIELD_MASK = [
 // Edge cache: 1 day fresh + 9 days stale-while-revalidate on top of Supabase.
 const EDGE_HEADERS = { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=777600" };
 
+// v6.35 — REFRESH-AHEAD poke. A fresh-but-aging cache hit (cget returns due:true
+// at a jittered 20–27 days) is served to the user INSTANTLY; this fire-and-forget
+// pokes the dedicated /api/places/refresh route — its OWN lambda invocation with
+// full execution time — to re-fetch Google and reset the 30-day clock. Best-effort
+// and self-healing: if a poke is dropped (serverless can freeze after the response),
+// the next request in the window pokes again; the entry never actually reaches 30
+// days. Throttled per key per warm lambda so a burst of hits fires ONE poke, and it
+// can NEVER affect the served response (fully wrapped, never awaited).
+const REFRESH_FIRED = globalThis.__wfRefreshFired || (globalThis.__wfRefreshFired = new Map());
+function pokeRefresh(origin, k, p) {
+  try {
+    if (!origin) return;
+    const now = Date.now();
+    const last = REFRESH_FIRED.get(k);
+    if (last && now - last < 60000) return;              // one poke / key / lambda / 60s
+    if (REFRESH_FIRED.size > 5000) REFRESH_FIRED.clear(); // bound warm-lambda memory
+    REFRESH_FIRED.set(k, now);
+    const u = `${origin}/api/places/refresh?k=${encodeURIComponent(k)}&q=${encodeURIComponent(p.q)}&lat=${p.lat}&lng=${p.lng}&radius=${p.radius}&n=${p.n}`;
+    fetch(u, { headers: { "x-wf-refresh": "1" } }).catch(() => {}); // never awaited
+  } catch (e) { /* refresh is best-effort; a failure here must never touch the response */ }
+}
+
 // Minimal skeleton rows for the PERMANENT place-ID index (Place ID is ToS-legal
 // to keep forever). Our derived coarse category + ranking signals + a name/coords
 // skeleton so tiles can show known places when detail caches are cold.
@@ -71,7 +93,7 @@ function gateShut() {
   return String(process.env.WAYFIND_GATE || "").trim().toLowerCase() === "shut";
 }
 
-async function handleSearch(params) {
+async function handleSearch(params, origin) {
   const serverKey = process.env.GOOGLE_MAPS_SERVER_KEY;
   if (!serverKey) return NextResponse.json({ error: "server key not configured" }, { status: 501 });
   const q = String(params.q || "").slice(0, 120).trim();
@@ -87,7 +109,12 @@ async function handleSearch(params) {
   const dbg = () => wantDebug ? { lastWrite: lastWrite(), memSize: memSize(), supabaseConfigured: cacheConfigured() } : undefined;
 
   const fresh = await cget(k);
-  if (fresh) return NextResponse.json({ places: fresh.v, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+  if (fresh) {
+    // v6.35: serve the still-fresh copy instantly; if it is aging past its
+    // jittered refresh age, poke a background refresh so it never reaches day 30.
+    if (fresh.due) pokeRefresh(origin, k, { q, lat, lng, radius, n });
+    return NextResponse.json({ places: fresh.v, cached: true, debug: dbg() }, { headers: wantDebug ? {} : EDGE_HEADERS });
+  }
 
   const serveStale = async () => {
     // ToS: serve a stale row ONLY within the 30-day age cap.
@@ -191,11 +218,11 @@ export async function GET(req) {
   const u = new URL(req.url);
   const params = Object.fromEntries(u.searchParams);
   if (params.probe === "nearby") return probeNearby(params);
-  return handleSearch(params);
+  return handleSearch(params, u.origin);
 }
 
 export async function POST(req) {
   let body;
   try { body = await req.json(); } catch { return NextResponse.json({ error: "bad request" }, { status: 400 }); }
-  return handleSearch(body);
+  return handleSearch(body, new URL(req.url).origin);
 }
