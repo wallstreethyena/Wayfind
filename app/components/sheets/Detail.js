@@ -262,6 +262,26 @@ export default function DetailSheet({ ctx }) {
                 </>)}
                 <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
+              {(() => { /* v6.39 — "Order on Uber Eats" on food places (exact-store redirect via /api/eats/go, the viator/go pattern). */
+                const _ty = ((detail.types || []).join(" ")).toLowerCase();
+                if (!/restaurant|meal_takeaway|meal_delivery|pizza|sandwich|burger|taco|sushi|bakery|cafe|food/.test(_ty)) return null;
+                if (/lodging|hotel|resort/.test(_ty)) return null;
+                const _qs = new URLSearchParams({ name: detail.name || "", city: locName ? locName.split(",")[0] : "" });
+                if (detail.lat != null) _qs.set("lat", String(detail.lat));
+                if (detail.lng != null) _qs.set("lng", String(detail.lng));
+                return (
+                  <a href={"/api/eats/go?" + _qs.toString()} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("eats_out", detail); } catch (e) {} }}
+                    style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
+                    <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: 9, background: "#06C167", color: "#0D1117", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>U</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Order on Uber Eats</div>
+                      <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Delivery from this kitchen — opens the restaurant's page</div>
+                    </div>
+                    <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+                  </a>
+                );
+              })()}
+
               {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */
                 const _ty = ((detail.types || []).join(" ")).toLowerCase();
                 if (!/lodging|hotel|resort|motel|bed_and_breakfast|guest_house/.test(_ty)) return null;

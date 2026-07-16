@@ -106,7 +106,8 @@ async function handleSearch(params, origin) {
   // cache write), used by the "All is a superset" union on every category
   // tab. Serves only rows we already own; can never trigger paid spend.
   if (String(params.inv || "") === "1") {
-    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, n);
+    const invN = Math.min(Math.max(Number(params.n) || 40, 1), 50); // v6.39: inventory serve is FREE — allow up to 50
+    const inv = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN);
     return NextResponse.json({ places: inv, cached: false, source: "inventory-direct" }, { headers: EDGE_HEADERS });
   }
 

@@ -1,18 +1,14 @@
-// scripts/test-subfilters.mjs — v6.37 regression tests for the Tours /
-// On-the-water contracts (the "Florida Railroad under Tours" bug).
+// scripts/test-subfilters.mjs — v6.39 regression tests for the Tours /
+// On-the-water contracts (the "Florida Railroad under Tours" bug) and the
+// Delivery subfilter (Order In in the main menu).
 //
-// ROOT CAUSE being locked down: SUB_ALLOW regexes run against the Google
-// `types` string, and the old tours pattern began /\btour|…/ — which matches
+// ROOT CAUSE locked down: SUB_ALLOW regexes run against the Google `types`
+// string, and the old tours pattern began /\btour|…/ — which matches
 // "tourist_attraction", the type carried by nearly EVERY generic attraction.
-// So the Tours tab admitted railroad museums and anything else Google tags
-// tourist_attraction. The fixed pattern must match real tour signals
-// (tour_agency, "Boat Tours", trolley, jet ski…) and must NOT match a bare
-// tourist_attraction.
-//
 // Deliberately TEXT-BASED (readFileSync + extract the regex literals), like
 // the check-* guards: lib/google.js imports @googlemaps/js-api-loader and an
 // extensionless ./businessStatus, so importing it from a bare-node test would
-// crash prebuild. Reading the source keeps the assertions import-chain-proof.
+// crash prebuild.
 import { readFileSync } from "fs";
 
 let pass = 0;
@@ -22,7 +18,6 @@ const ok = (c, m) => { if (!c) fail(m); pass++; };
 const pf = readFileSync(new URL("../lib/placeFilter.js", import.meta.url), "utf8");
 const gg = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
 
-// pull a SUB_ALLOW regex literal out of the source and materialize it
 function rxFor(key) {
   const m = pf.match(new RegExp('"' + key + '":\\s*/((?:[^/\\\\]|\\\\.)+)/([a-z]*)'));
   if (!m) fail("SUB_ALLOW contract missing: " + key);
@@ -54,8 +49,15 @@ ok(water.test("marina"), "marinas still match (they belong, just not exclusively
 // ── the queries actually ask Google for the fun stuff ───────────────────────
 const toursQ = gg.match(/id:\s*"tours",\s*label:\s*"Tours",\s*query:\s*"([^"]+)"/);
 const waterQ = gg.match(/id:\s*"marinas",\s*label:\s*"On the water",\s*query:\s*"([^"]+)"/);
-ok(toursQ && /guided/i.test(toursQ[1]) && /boat tours/i.test(toursQ[1]), "tours query asks for guided + boat tours (got: " + (toursQ && toursQ[1]) + ")");
-ok(waterQ && /jet ski/i.test(waterQ[1]) && /paddle/i.test(waterQ[1]) && /sunset/i.test(waterQ[1]), "water query asks for jet ski + paddle + sunset cruises (got: " + (waterQ && waterQ[1]) + ")");
+ok(toursQ && /guided/i.test(toursQ[1]) && /boat tours/i.test(toursQ[1]), "tours query asks for guided + boat tours");
+ok(waterQ && /jet ski/i.test(waterQ[1]) && /paddle/i.test(waterQ[1]) && /sunset/i.test(waterQ[1]), "water query asks for jet ski + paddle + sunset cruises");
 ok(waterQ && !/^marinas/i.test(waterQ[1].trim()), "water query no longer LEADS with marinas");
 
-console.log(`test-subfilters: OK — ${pass} assertions (tours excludes tourist_attraction-only, water sports first-class, queries fixed)`);
+// ── v6.39: Delivery is a first-class Food subfilter (Order In in the menu) ──
+const delQ = gg.match(/id:\s*"delivery",\s*label:\s*"Delivery",\s*query:\s*"([^"]+)"/);
+ok(!!delQ, "food has a Delivery subfilter");
+ok(delQ && /delivery/i.test(delQ[1]) && /takeout/i.test(delQ[1]), "delivery query asks for delivery + takeout (got: " + (delQ && delQ[1]) + ")");
+const foodBlock = (gg.match(/food:\s*\[([\s\S]*?)\]/) || [])[1] || "";
+ok(/quickbites/.test(foodBlock) && /delivery/.test(foodBlock), "Delivery sits in the Food subfilter row with Quick bites");
+
+console.log(`test-subfilters: OK — ${pass} assertions (tours honest, water sports first-class, Delivery in the Food menu)`);
