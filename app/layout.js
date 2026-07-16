@@ -110,7 +110,7 @@ export default function RootLayout({ children }) {
             (a refresh rotates the token and invalidates this one). If a clean,
             coordinated attempt still fails, switch to DNS TXT (no token-in-page,
             no redirect, no race). */}
-        <meta name="impact-site-verification" value="5fc101a8-fdf1-4644-b9f1-b470f5173b7f" />
+        <meta name="impact-site-verification" value="b9afb8d7-5514-4a1c-871b-dbac1a41e2a8" />
         {/* Stay22 LinkSwap: auto-optimizes hotel/activity booking links into
             commission-earning links (Booking, Expedia, Hotels.com, KAYAK, Vrbo,
             GetYourGuide, TripAdvisor). lmaID is the account's live script id.
