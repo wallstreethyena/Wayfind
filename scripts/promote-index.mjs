@@ -29,6 +29,7 @@
 //     --apply                write to wf_inventory (implies --enrich; requires confirm)
 //     --yes "<phrase>"       non-interactive confirmation (must equal the printed phrase)
 //     --restore <file>       re-upsert a backup JSON (rollback); requires confirm
+//     --refresh              re-fetch from Google even if a place is cached
 //
 // IDEMPOTENT: upsert by place_id (merge-duplicates); a rerun promotes only what is
 // still missing and can never create a duplicate. NEVER deletes. NEVER writes a
@@ -45,6 +46,11 @@ import {
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const AUDIT_DIR = join(ROOT, ".promote-audit");
 const BACKUP_DIR = join(ROOT, ".promote-backup");
+// v2: cache the EXPENSIVE half (raw Google Place Details resources) per metro so
+// a --enrich preview and the later --apply — or a re-apply, or the next metro's
+// overlap — never pay Google twice. The cheap half (classify + validate) always
+// re-runs live off the cached resource. --refresh ignores the cache.
+const CACHE_DIR = join(ROOT, ".promote-cache");
 
 // Place Details (New) field mask — EXACTLY the fields extractPlaceFields/buildInventoryRow
 // consume, and no more. Deliberately excludes atmosphere fields (hours/utcOffset):
@@ -55,7 +61,7 @@ const DETAILS_MASK = [
 ].join(",");
 
 function parseArgs(argv) {
-  const a = { metro: "orlando", limit: 500, maxSpend: 25, costPerRecord: 0.017, skipReview: false, enrich: false, apply: false, yes: null, restore: null };
+  const a = { metro: "orlando", limit: 500, maxSpend: 25, costPerRecord: 0.017, skipReview: false, enrich: false, apply: false, yes: null, restore: null, refresh: false };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     if (k === "--metro") a.metro = argv[++i];
@@ -67,6 +73,7 @@ function parseArgs(argv) {
     else if (k === "--apply") { a.apply = true; a.enrich = true; }
     else if (k === "--yes") a.yes = String(argv[++i] ?? "");
     else if (k === "--restore") a.restore = String(argv[++i] ?? "");
+    else if (k === "--refresh") a.refresh = true;
     else if (k === "--help" || k === "-h") a.help = true;
   }
   return a;
@@ -162,7 +169,7 @@ async function upsert(url, service, rows) {
   return written;
 }
 
-function ensureDirs() { for (const d of [AUDIT_DIR, BACKUP_DIR]) if (!existsSync(d)) mkdirSync(d, { recursive: true }); }
+function ensureDirs() { for (const d of [AUDIT_DIR, BACKUP_DIR, CACHE_DIR]) if (!existsSync(d)) mkdirSync(d, { recursive: true }); }
 function appendAudit(file, entry) { try { writeFileSync(file, JSON.stringify(entry) + "\n", { flag: "a" }); } catch (e) { console.warn("  (audit write failed: " + e.message + ")"); } }
 
 function confirm(phrase, presetYes) {
@@ -233,21 +240,30 @@ async function main() {
   }
   if (plan.willEnrich === 0) { hr("Nothing to enrich (missing set is empty or caps are 0)."); return; }
 
-  // ── ENRICH (PAID) ───────────────────────────────────────────────────────────
-  hr(`ENRICHING ${slice.length} place(s) via Google Place Details …`);
+  // ── ENRICH (cached raw resources → paid ONLY on a cache miss) ───────────────
+  const cachePath = join(CACHE_DIR, `enrich-${args.metro}.json`);
+  let cache = {};
+  if (!args.refresh) { try { cache = JSON.parse(readFileSync(cachePath, "utf8")); } catch {} }
+  const cachedInSlice = slice.filter((m) => cache[m.place_id]).length;
+  const toFetch = slice.length - cachedInSlice;
+  hr(`ENRICHING ${slice.length} place(s) — ${cachedInSlice} cached (free), ${toFetch} paid via Google Place Details (~$${(toFetch * args.costPerRecord).toFixed(2)})${args.refresh ? "  [--refresh: ignoring cache]" : ""}`);
   const built = [];
   const enrichFail = [];
+  let paid = 0, hits = 0, dirty = false;
   for (let i = 0; i < slice.length; i++) {
     try {
-      const res = await enrichOne(key, slice[i].place_id);
+      let res = cache[slice[i].place_id];
+      if (res) { hits++; }
+      else { res = await enrichOne(key, slice[i].place_id); paid++; cache[slice[i].place_id] = res; dirty = true; await sleep(60); }
       const b = buildInventoryRow(res, args.metro, { nowIso });
       if (!b.row) { enrichFail.push({ place_id: slice[i].place_id, reason: b.reason }); }
       else built.push(b.row);
-      await sleep(60);
     } catch (e) { enrichFail.push({ place_id: slice[i].place_id, reason: e.message }); }
-    process.stdout.write(`  enriched ${i + 1}/${slice.length}\r`);
+    process.stdout.write(`  processed ${i + 1}/${slice.length} (paid ${paid}, cached ${hits})\r`);
   }
   console.log("");
+  if (dirty) { try { writeFileSync(cachePath, JSON.stringify(cache)); } catch (e) { console.warn("  (cache write failed: " + e.message + ")"); } }
+  console.log(`  enrichment: ${paid} paid Google call(s) (~$${(paid * args.costPerRecord).toFixed(2)}), ${hits} reused from cache → ${cachePath}`);
 
   // reconcile → project → VALIDATE every row → dedupe
   const { rows: recon } = reconcile(built.map((row) => ({ row })));

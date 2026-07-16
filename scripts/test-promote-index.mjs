@@ -131,5 +131,8 @@ ok(/if \(!args\.enrich\)/.test(orch) && /PLAN ONLY/.test(orch), "default mode is
 ok(!/method:\s*["']DELETE["']/.test(orch), "orchestrator performs NO DELETE (upsert-only)");
 ok(/Backup written/.test(orch) && /ROLLBACK/.test(orch), "apply writes a backup and prints rollback");
 ok(/validateInventoryRow/.test(orch), "every row is validated before write");
+ok(/enrich-\$\{args\.metro\}\.json/.test(orch), "raw enrichment is cached per metro (paid only on a cache miss)");
+ok(/--refresh/.test(orch), "cache can be bypassed with --refresh");
+ok(/reused from cache/.test(orch), "run reports paid calls vs cache reuse");
 
 console.log(`test-promote-index: OK — ${pass} assertions (bucketing, missing-set idempotency, cost caps, enrich→validate chain, dedupe, orchestrator guards)`);

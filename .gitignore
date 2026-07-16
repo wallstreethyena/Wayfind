@@ -16,3 +16,6 @@ wf-inventory-list.txt
 # index→library promoter: audit + rollback backups (local, not committed)
 .promote-audit/
 .promote-backup/
+
+# index→library promoter: cached raw enrichment (local, not committed)
+.promote-cache/
