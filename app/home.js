@@ -101,7 +101,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.39";
+const BUILD_ID = "v6.40";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -6368,9 +6368,9 @@ function PageInner() {
                 const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
                 const cityN = locName ? locName.split(",")[0] : "you";
                 const boostBase = (p) => (p._ps != null ? p._ps : (p.wfScore != null ? p.wfScore : 50)) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
-                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).slice(0, 10);
+                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).filter(cardComplete).slice(0, 10);
                 const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
-                const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).slice(0, 10);
+                const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).filter(cardComplete).slice(0, 10);
                 const row = (p, i, n) => (
                   <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                     <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
@@ -6928,6 +6928,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
   // killswitch restores the old layout.
+  // v6.40: a rated card ALWAYS carries the Wayfind Score badge. Rows that
+  // arrived from ANY source (inventory serve, skeleton index, imports) without
+  // a precomputed wfScore get it here from the same formula the ranking uses —
+  // cardComplete above already refused rows with no rating signals at all, so
+  // past this line a Score is always computable and always shown.
+  if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
   return (
     <div onClick={onDetail} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
