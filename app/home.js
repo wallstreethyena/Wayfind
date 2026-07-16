@@ -26,6 +26,7 @@ import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
+import MapPreview from "./components/MapPreview"; // v6.41: FREE sidebar map — the billed Google Map now loads only on the real Map screen
 // G1 (July 2026 decomposition): non-default screens ship in their own chunks.
 // `screen` initializes to "suggested" and these render only on user action, so
 // ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
@@ -101,7 +102,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.40";
+const BUILD_ID = "v6.41";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -6550,7 +6551,7 @@ function PageInner() {
                     const _active = (cuisineSheet && Array.isArray(cuisineSheet.list) && cuisineSheet.list.length ? cuisineSheet.list : null) || (hookDetail && Array.isArray(hookDetail.places) && hookDetail.places.length ? hookDetail.places : null) || (browseCat && Array.isArray(view) && view.length ? view : null) || (list || []);
                     const _pins = _active.filter((p) => p && p.lat != null).slice(0, 20); return (
                   <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, position: "relative", height: 320, background: C.card }}>
-                    <MapView places={_pins} center={center} deviceLoc={deviceLoc} rings onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
+                    <MapPreview places={_pins} center={center} deviceLoc={deviceLoc} onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
                     <button onClick={() => { setMapListOverride(null); setScreen("map"); }} style={{ position: "absolute", right: 10, bottom: 10, zIndex: 5, padding: "7px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.4)" }}>Full map ↗</button>
                     {locName ? <div style={{ position: "absolute", left: 10, top: 10, zIndex: 5, padding: "6px 11px", borderRadius: 999, background: "rgba(13,17,23,.82)", backdropFilter: "blur(6px)", color: C.text, fontSize: 12, fontWeight: 700, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName.split(",")[0]}{_pins.length ? ` · ${_pins.length} spots` : ""}</div> : null}
                   </div>

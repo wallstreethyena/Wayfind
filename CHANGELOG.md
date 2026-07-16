@@ -1,3 +1,20 @@
+## v6.41 - The map bill: paid Google loads now track intent, not page views
+- THE COST INCIDENT (owner-flagged; Google attributed charges to the Maps
+  JavaScript API): the desktop sidebar mounted the REAL Google Map on every
+  home visit — one billed Dynamic Maps load per visitor, map tab or not — and
+  reverse geocoding paid a fresh call each visit for a city name that never
+  changes.
+- SIDEBAR MAP -> FREE PREVIEW: app/components/MapPreview.js draws the same
+  panel with plain DOM — the 5/10/15/20-mile rings, the you-are-here dot, the
+  same tap-a-pin -> place detail — from rows already loaded. Zero Google SDK,
+  zero billed loads. "Full map" still opens the real Map screen, so Dynamic
+  Maps spend now scales with people actually using the map.
+- GEOCODING CACHED: reverseGeocode memoizes by ~1.1km coordinate cell in
+  localStorage for 30 days; repeat visitors and same-session re-locates no
+  longer bill.
+- LOCKED: scripts/test-map-cost.mjs fails any build that re-mounts a billed
+  map surface without user intent or drops the geocode cache.
+
 ## v6.40 - Card integrity: every card has a name AND a Wayfind Score, everywhere
 - THE INCIDENT (owner-reported, July 16): cards rendered nameless on category
   "All" tabs and Score-less under Things to do / across menus. Three data paths
