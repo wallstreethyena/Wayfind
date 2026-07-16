@@ -101,7 +101,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.36";
+const BUILD_ID = "v6.37";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2935,6 +2935,14 @@ function PageInner() {
   // sheet if wanted. (The legacy family/budget EXPERIENCE tiles are separate and
   // untouched — see EXPERIENCES / REVENUE_EXP_KEYS, guarded by check-cards.)
   const openCurated = async (kind, opts = {}) => {
+    // v6.37 — "Order In" opens its dedicated route (a real, shareable URL with
+    // Uber Eats CTAs), not a curated list; hand the current center along so the
+    // page skips a second location prompt.
+    if (kind === "delivery") {
+      try { logEvent("orderin_open", null, {}); } catch (e) {}
+      try { const _qs = center ? ("?lat=" + center.lat + "&lng=" + center.lng + (locName ? "&loc=" + encodeURIComponent(locName) : "")) : ""; window.location.assign("/order-in" + _qs); } catch (e) {}
+      return;
+    }
     const c = CURATED[kind]; if (!c) return;
     const lens = (kind === "bestof" || kind === "today") ? (opts && opts.lens === "gems" ? "gems" : "institutions") : null;
     try { logEvent("curated_open", null, { kind }); } catch (e) {}

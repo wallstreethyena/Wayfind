@@ -7,8 +7,8 @@ let failures = 0;
 const fail = (m) => { console.error("test-explore-menu: FAIL — " + m); failures++; };
 const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) fail(`${m}: got ${JSON.stringify(a)} want ${JSON.stringify(b)}`); };
 
-const DAY = ["today", "food", "shop", "stay", "night"];
-const EVENING = ["today", "night", "food", "shop", "stay"];
+const DAY = ["today", "food", "eat", "stay", "night"];
+const EVENING = ["today", "night", "eat", "food", "stay"];
 
 // A Date at a given local wall-clock (device-tz path: tzOffset omitted).
 const at = (h, m, s = 0) => new Date(2026, 6, 12, h, m, s);

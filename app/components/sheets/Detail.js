@@ -6,6 +6,7 @@
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
+import { useEffect, useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip } from "../kit";
 import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
@@ -116,6 +117,22 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
 
 export default function DetailSheet({ ctx }) {
   const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, liked, disliked, user, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen } = ctx;
+
+  // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
+  // fetched per opened place from /api/editorial so the 288-place data module
+  // stays server-side (zero client-bundle bytes; same pattern as insider).
+  const [editorial, setEditorial] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    setEditorial(null);
+    const nm = detail && !detail._event ? detail.name : null;
+    if (!nm) return;
+    fetch("/api/editorial?name=" + encodeURIComponent(nm))
+      .then((r) => r.json())
+      .then((j) => { if (!dead && j && j.editorial) setEditorial(j.editorial); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [detail && detail.id]);
   // v6.31: open/closed must match the list card exactly — compute live from the
   // hours periods (never the stale cached openNow), so "Open" in the list can't
   // become "Closed" in the sheet.
@@ -245,6 +262,14 @@ export default function DetailSheet({ ctx }) {
                 </>)}
                 <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
               </div>
+              {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */
+                const _ty = ((detail.types || []).join(" ")).toLowerCase();
+                if (!/lodging|hotel|resort|motel|bed_and_breakfast|guest_house/.test(_ty)) return null;
+                const _vu = Aff.vrboUrl(locName);
+                if (!_vu) return null;
+                return <a href={_vu} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("vrbo_out", detail); } catch (e) {} }} style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.accent, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on VRBO ↗</a>;
+              })()}
+
               <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
               {/* Featured creator video (Phase 1): curated UGC social proof, credited to the creator and linked out to their real video. Placed UNGATED here (below the action row, above "Why Wayfind picked this") on purpose so it's prominent — the auto-YouTube strip stays inside "show more" below. This sheet is noindex, so the creator's benefit here is traffic: we keep the referrer (rel="noopener", deliberately NOT "noreferrer") so the visit attributes to Wayfind in their analytics. No JSON-LD here; VideoObject lives only on /trending/[city]. */}
               {!detail._event && (() => {
@@ -333,6 +358,19 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               {/* 3. Insider tip */}
+              {/* v6.37 — the Wayfind take (Vibe Check / Why Go / Best Move), the owner's editorial voice for this exact place. */}
+              {!detail._event && editorial && (
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 7 }}>📝 The Wayfind take</div>
+                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move]].map(([_lb, _bd]) => (
+                    <div key={_lb} style={{ marginBottom: 7 }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{_lb}: </span>
+                      <span style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{_bd}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.gold, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>🔑 Insider intel</div>
