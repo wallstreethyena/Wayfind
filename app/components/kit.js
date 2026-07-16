@@ -7,6 +7,7 @@
 // shell source (scripts/lib/shellSrc.mjs), so moving code here never breaks them.
 import { useEffect, useRef } from "react";
 import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, toDisplayScore } from "../../lib/score";
+import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula — chips self-heal from rating signals when wfScore is missing
 
 export const C = {
   bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
@@ -251,7 +252,13 @@ export function scoreLabel(wf) {
 // raw Google star. Falls back to the star ONLY when there is no wfScore yet, so
 // a slot is never empty.
 export function PlaceScoreChip({ p, size = 12 }) {
-  const s = toDisplayScore(p && p.wfScore);
+  // v6.40: self-healing — a row that arrives without a precomputed wfScore but
+  // WITH real rating signals gets its Score computed right here, with the same
+  // Bayesian formula the ranking uses (lib/google.js wayfindScore — the one
+  // score mechanism, everywhere). "Score pending" is now reserved for rows
+  // with no signals at all, which cardComplete() keeps off cards entirely.
+  let s = toDisplayScore(p && p.wfScore);
+  if (s == null && p && Number(p.rating) > 0) s = toDisplayScore(wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0));
   if (s == null) {
     // Honest pending state — never a fabricated number, never the raw Google
     // star. Missing / invalid / stale score data resolves here safely.

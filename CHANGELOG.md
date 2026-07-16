@@ -1,3 +1,26 @@
+## v6.40 - Card integrity: every card has a name AND a Wayfind Score, everywhere
+- THE INCIDENT (owner-reported, July 16): cards rendered nameless on category
+  "All" tabs and Score-less under Things to do / across menus. Three data paths
+  each leaked rows that were not card-complete: the v6.38 inventory union
+  (Google-shaped rows, fixed in v6.39), the Google-outage inventory fallback,
+  and skeleton place-ID rows — any row without rating signals rendered a card
+  with no Score, which makes users second-guess the whole ranking promise.
+- THE FIX CLASS (global, three layers):
+  1. SERVE GATE — rankInventory never emits a row without real rating signals;
+     unenriched (promoted-but-not-enriched) rows stay server-side until
+     enrichment writes their signals.
+  2. RENDER CONTRACT — lib/score.js cardComplete now requires id + name +
+     rating/review signals (a photo alone no longer qualifies). PlaceCard
+     renders NOTHING for a non-conforming row; the home Food and Things-to-do
+     top-10 rows are gated the same way.
+  3. SCORE SELF-HEAL — PlaceCard and PlaceScoreChip compute a missing wfScore
+     from rating signals with the same Bayesian formula the ranking uses, so a
+     gate-passing card ALWAYS shows a real Score (never "Score pending", never
+     a bare star).
+- THE LESSON, ENCODED: scripts/test-card-gate.mjs locks all three layers in
+  prebuild — a future data source that tries to ship a nameless or Score-less
+  card fails the build, not the user's trust.
+
 ## v6.39 - Delivery is a first-class Food tab (real cards), the caps audit lands
 - DELIVERY IN THE MAIN MENU (owner directive): Food gains a "Delivery" subfilter
   beside Quick bites — delivery spots now render as REAL Wayfind PlaceCards
