@@ -21,9 +21,12 @@ import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore
 const getKey = () => ((process.env["VIATOR_API_KEY"] || "").trim());
 const getPid = () => ((process.env["NEXT_PUBLIC_VIATOR_PID"] || "").trim());
 
-// Warm-instance memory cache: query -> { url, exp }
+// Warm-instance memory cache: query -> { url, exp }. v2: the key is prefixed with
+// RESOLVER_VERSION so a resolver change (like this geo-whitelist) invalidates every
+// stale resolution instead of serving a 24h-old wrong product; TTL dropped to 1h.
 const mem = new Map();
-const TTL = 24 * 3600 * 1000;
+const RESOLVER_VERSION = "v2-geo-whitelist";
+const TTL = 3600 * 1000;
 
 function searchFallback(q) {
   const t = encodeURIComponent(q);
@@ -43,7 +46,7 @@ function regionTokens(region) {
 // the name isolated from the city, not the combined search string).
 async function resolveProduct(searchTerm, name, region, kind, placeId) {
   const tokens = regionTokens(region);
-  const ck = searchTerm + "|" + tokens.join("+") + "|" + (kind || "");
+  const ck = RESOLVER_VERSION + "|" + searchTerm + "|" + tokens.join("+") + "|" + (kind || "");
   const hit = mem.get(ck);
   if (hit && hit.exp > Date.now()) return hit.url;
   const KEY = getKey();
@@ -128,13 +131,11 @@ export async function GET(req) {
   const region = searchParams.get("region") || city;
   const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
   const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || ("q:" + q.toLowerCase());
-  const url = (await resolveProduct(term, q, region, kind, placeId)) || searchFallback(term);
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: url,
-      // Edge-cache the redirect a day per unique query; browsers don't cache it.
-      "Cache-Control": "public, s-maxage=86400, max-age=0",
-    },
-  });
+  const resolved = await resolveProduct(term, q, region, kind, placeId);
+  const url = resolved || searchFallback(term);
+  // v2: split the edge cache by outcome. A confirmed product is stable (1h); a search
+  // fallback caches only briefly (60s) so a wrong fallback never sticks and a fix (or
+  // a newly-eligible product) propagates fast. Browsers don't cache the 302.
+  const cache = resolved ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
+  return new Response(null, { status: 302, headers: { Location: url, "Cache-Control": cache } });
 }
