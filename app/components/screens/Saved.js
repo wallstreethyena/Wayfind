@@ -13,7 +13,7 @@ export default function SavedScreen({ ctx }) {
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingTop: 4 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Saved</div>
-              <button onClick={() => { if (!requireAuth("Sign in to create lists")) return; setNewListOpen(true); }} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
+              <button onClick={() => { if (!requireAuth("Sign up free to build a list and open it from any device.")) return; setNewListOpen(true); }} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
             </div>
             {supabase && !user && (
               <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16, cursor: "pointer" }}>

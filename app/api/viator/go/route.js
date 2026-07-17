@@ -66,7 +66,13 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
       body: JSON.stringify({
         searchTerm,
         currency: "USD",
-        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 3 } }],
+        // Phase 2a: pool 3 -> 10. The geo-gated resolver (#196) only redirects to
+        // a product that clears the hard invariant; with a top-3 pool the real
+        // venue product for Mote/Selby/Ca' d'Zan sits below Viator's generic city
+        // tours, so it never entered the candidate set and every CTA fell back to
+        // search. A wider pool lets the venue product surface; the resolver still
+        // default-denies, so a bigger pool can only add correct hits, never wrong ones.
+        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: 10 } }],
       }),
     });
     if (!res.ok) {

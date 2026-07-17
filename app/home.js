@@ -3218,7 +3218,7 @@ function PageInner() {
     }, () => {});
   }, [screen]);
   function toggleSaveCoupon(c) {
-    if (!requireAuth("Sign in to save coupons")) return;
+    if (!requireAuth("Sign up free to pocket this deal — and every one you find next.")) return;
     if (!c || !c.id) return;
     const next = { ...savedCoupons };
     if (next[c.id]) { delete next[c.id]; svFolderDelete("Coupons", "coupon:" + c.id); }
@@ -3316,11 +3316,15 @@ function PageInner() {
   // still in flight (authReady false), we neither block nor allow — a
   // returning signed-in user's very first tap must not be wrongly told to
   // sign in just because the session hasn't resolved yet.
+  // The sign-in gate STAYS (a signed-out tap on like/save opens this) — but every
+  // prompt leads with the VALUE of a free account, not the wall. Concise, witty,
+  // benefit-first (owner rule, 2026-07-17): the message tells the user what they
+  // GAIN by signing up in that exact context, so the wall reads as an offer.
   function requireAuth(msg) {
     if (user) return true;
     if (!authReady) return false;
     setAuthOpen(true);
-    showToast(msg || "Sign in to save");
+    showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
   }
 
@@ -3899,7 +3903,7 @@ function PageInner() {
     if (supabase && user && id) supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", id).eq("list_name", listName).then(() => {}, () => {});
   }
   function addShared(p) {
-    if (!requireAuth("Sign in to save shared places")) return;
+    if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
@@ -3908,7 +3912,7 @@ function PageInner() {
   }
   function toggleLike(e, p) {
     e.stopPropagation();
-    if (!requireAuth("Sign in to like places")) return;
+    if (!requireAuth("Like it? Sign up free — Wayfind learns your taste and remembers it.")) return;
     const wasLiked = !!liked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -3933,7 +3937,7 @@ function PageInner() {
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
-    if (!requireAuth("Sign in to save your preferences")) return;
+    if (!requireAuth("Sign up free — tell us your no-thanks and we'll stop showing them.")) return;
     const wasDis = !!disliked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -3950,7 +3954,7 @@ function PageInner() {
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
   }
   function toggleHookLike(hookId) {
-    if (!requireAuth("Sign in to save")) return;
+    if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
     const next = new Set(hookLikes);
     if (next.has(hookId)) next.delete(hookId);
     else next.add(hookId);
@@ -5531,7 +5535,7 @@ function PageInner() {
   }
 
   function saveToList(listId) {
-    if (!requireAuth("Sign in to save")) return;
+    if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
     if (!saveTarget) return;
     const target = saveTarget;
     const existing = lists[listId];
@@ -5547,7 +5551,7 @@ function PageInner() {
   }
   // One-tap save straight to Favorites from a card heart.
   function quickSaveFavorite(p) {
-    if (!requireAuth("Sign in to save favorites")) return;
+    if (!requireAuth("Sign up free — your favorites, saved and synced to every device.")) return;
     if (!p) return;
     const fav = lists.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
     const has = fav.places.some((x) => x.id === p.id);
@@ -5571,7 +5575,7 @@ function PageInner() {
   }
   // Save a whole curated hook list as its own list under Favorites.
   function saveHookList(hook, places) {
-    if (!requireAuth("Sign in to save lists")) return;
+    if (!requireAuth("Sign up free to save this somewhere you'll actually find it later.")) return;
     if (!hook || !places || !places.length) return;
     const key = "hook_" + hook.id;
     const existed = !!lists[key];
@@ -5583,7 +5587,7 @@ function PageInner() {
   }
   // Heart on a recommendation card: like it AND save the full list to Favorites.
   function onHookHeart(hookId) {
-    if (!requireAuth("Sign in to save")) return;
+    if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
     toggleHookLike(hookId);
     const h = (hookCards || []).find((x) => x.id === hookId);
     if (!h) return;
@@ -5594,7 +5598,7 @@ function PageInner() {
   const isSaved = (id) => Object.values(lists).some((l) => l.places.some((p) => p.id === id));
 
   function createList() {
-    if (!requireAuth("Sign in to create lists")) return;
+    if (!requireAuth("Sign up free to build a list and open it from any device.")) return;
     const name = newName.trim();
     if (!name) return;
     const id = "list_" + Date.now();
@@ -5602,13 +5606,13 @@ function PageInner() {
     setNewName(""); setNewEmoji("⭐"); setNewListOpen(false);
   }
   function deleteList(id) {
-    if (!requireAuth("Sign in to manage lists")) return;
+    if (!requireAuth("Sign up free to keep your lists tidy — on every device.")) return;
     if (id === "favorites") return;
     setLists((prev) => { const next = { ...prev }; delete next[id]; return next; });
     setActiveList(null);
   }
   function renameList() {
-    if (!requireAuth("Sign in to manage lists")) return;
+    if (!requireAuth("Sign up free to keep your lists tidy — on every device.")) return;
     const name = newName.trim();
     if (!name || !renamingList) return;
     setLists((prev) => prev[renamingList] ? { ...prev, [renamingList]: { ...prev[renamingList], name } } : prev);
@@ -6875,7 +6879,7 @@ function PageInner() {
               <span style={{ fontSize: 22 }}>{lists[listMenu].emoji}</span>
               <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{lists[listMenu].name}</span>
             </div>
-            {[{ label: "Open", run: () => { const id = listMenu; setListMenu(null); setActiveList(id); } }, { label: "Share", run: () => { const l = lists[listMenu]; setListMenu(null); shareList(l.places, l.name); } }, { label: "Rename", run: () => { if (!requireAuth("Sign in to manage lists")) return; openRename(listMenu); } }].map((a) => (
+            {[{ label: "Open", run: () => { const id = listMenu; setListMenu(null); setActiveList(id); } }, { label: "Share", run: () => { const l = lists[listMenu]; setListMenu(null); shareList(l.places, l.name); } }, { label: "Rename", run: () => { if (!requireAuth("Sign up free to keep your lists tidy — on every device.")) return; openRename(listMenu); } }].map((a) => (
               <button key={a.label} onClick={a.run} style={{ width: "100%", textAlign: "left", padding: "14px 14px", marginBottom: 8, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer" }}>{a.label}</button>
             ))}
             {listMenu !== "favorites" && (
