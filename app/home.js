@@ -1809,12 +1809,15 @@ function normEvtKey(e) {
   return n + "|" + v;
 }
 // Collapse recurring events (same title + venue) into one card. When a single
-// date is selected we keep them separate; otherwise merge and surface the days.
+// date is selected we keep them separate BY SHOWTIME — otherwise two distinct
+// showtimes of one show at one venue on that day (e.g. Hamilton 2pm + 8pm) would
+// collapse to one card and the later showing would vanish (B12). Without a date
+// selected we merge across days and surface the day list.
 function dedupeEvents(list, mergeDates) {
   const groups = new Map();
   (list || []).forEach((e) => {
     if (!e) return;
-    const k = mergeDates ? normEvtKey(e) : normEvtKey(e) + "|" + (e.date || "");
+    const k = mergeDates ? normEvtKey(e) : normEvtKey(e) + "|" + (e.date || "") + "|" + (e.time || "");
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(e);
   });
