@@ -85,6 +85,18 @@ for (const file of ["supabase/schema.sql", "supabase-schema.sql"]) {
       fail(`${file}: no "auth.uid() = user_id" policy found near the ${table} table — writes may not be owner-gated server-side`);
     }
   }
+  // 4b. S1 (2026-07-17 audit): the presence check above is not enough — a
+  //     permissive "for select using (true)" READ policy alongside the owner
+  //     write policy re-opens the exact leak the owner closed live (anon could
+  //     read every user's rows). Forbid it on every user-identity table so the
+  //     committed bootstrap can never reintroduce it. shared_lists / offers keep
+  //     their intentional public read (share-by-code) and are NOT listed here.
+  for (const table of ["saved_places", "likes", "profiles", "follows"]) {
+    const re = new RegExp("on\\s+(?:public\\.)?" + table + "\\s+for\\s+select\\s+using\\s*\\(\\s*true\\s*\\)", "i");
+    if (re.test(sql)) {
+      fail(`${file}: "${table}" has a public-read policy (for select using (true)) — this re-opens the S1 leak; reads must be owner-scoped (auth.uid() = user_id) or dropped`);
+    }
+  }
 }
 
-console.log("check-favorites-auth: OK — requireAuth() gates all 12 core write paths + itinerary/list triggers; RLS requires auth.uid() = user_id on saved_places/likes in every schema file");
+console.log("check-favorites-auth: OK — requireAuth() gates all 12 core write paths + itinerary/list triggers; RLS requires auth.uid() = user_id on saved_places/likes and forbids public reads on user-identity tables in every schema file");
