@@ -24,7 +24,9 @@ const searchUrl = (name, city) => "https://www.ubereats.com/search?diningMode=DE
 // cannot confirm a store. Only CONFIRMED stores are written to the durable cache
 // (a transient Uber block must never negative-cache a real store for 30 days).
 async function resolveStore(name, city, lat, lng) {
-  const k = "eatsgo|v1|" + norm(name) + "|" + norm(city);
+  // B8: include a coarse ~1km geo bucket so two locations of the same chain in one
+  // city don't collide on a single cached store (shares the key with /api/eats/go).
+  const k = "eatsgo|v1|" + norm(name) + "|" + norm(city) + "|" + (isFinite(lat) ? (+lat).toFixed(2) : "") + "," + (isFinite(lng) ? (+lng).toFixed(2) : "");
   const hit = mem.get(k);
   if (hit && hit.exp > Date.now()) return hit.url;
   try {
@@ -49,17 +51,20 @@ async function resolveStore(name, city, lat, lng) {
     });
     if (!r.ok) { mem.set(k, { url: null, exp: Date.now() + MISS_TTL }); return null; }
     const html = await r.text();
+    // B1: ok=true (green "Order on Uber Eats") requires a real name-token match, not
+    // just "Uber returned some store". The old `matched || first` marked ANY result
+    // verified, so a restaurant not on Uber Eats could still show the confirmed CTA
+    // and 302 to a different store. No token match -> null -> the card stays "Find".
     const toks = norm(name).split(" ").filter((w) => w.length >= 4);
-    let first = null, matched = null;
+    let matched = null;
     const re = /href="(\/store\/[^"?#]+)/g;
     let m;
     while ((m = re.exec(html))) {
       const href = m[1];
-      if (!first) first = href;
       const slug = norm(decodeURIComponent(href));
       if (toks.length && toks.some((t) => slug.indexOf(t) >= 0)) { matched = href; break; }
     }
-    const best = matched || first;
+    const best = matched;
     const url = best ? "https://www.ubereats.com" + best : null;
     mem.set(k, { url, exp: Date.now() + (url ? OK_TTL : MISS_TTL) });
     try { if (url) await cset(k, url, 30 * DAY); } catch (e) {}
