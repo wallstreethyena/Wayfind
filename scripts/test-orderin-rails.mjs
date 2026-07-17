@@ -86,6 +86,11 @@ ok(/Powered by Uber Eats/.test(page), "Powered by Uber Eats branding present");
 ok(/Wayfind Featured/.test(page), "the Wayfind Featured badge renders");
 ok(/\/api\/eats\/go\?/.test(page), "every CTA routes through the attributed /api/eats/go");
 ok(/Find on Uber Eats/.test(page), "unverified cards soften to Find on Uber Eats (honesty rule)");
+// Honesty default: the green "Order" is gated on eatsOk===true (CONFIRMED), so
+// unchecked cards (eatsOk===undefined -- only <=24 heads get verified) fall to
+// "Find", never a fake-verified "Order". Guards against re-inverting to `===false`.
+ok(/eatsOk\[p\.id\] === true \? "Order on Uber Eats/.test(page),
+  "the green Order CTA is gated on eatsOk===true (verified), so unchecked cards default to Find");
 ok(/missingGuaranteed\(/.test(page) && /findPlace\(/.test(page),
   "missing owner picks are resolved so every curated brand gets its card");
 

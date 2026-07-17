@@ -153,12 +153,17 @@ export default function OrderInClient() {
           {p.reviews ? <span> ({Number(p.reviews).toLocaleString()})</span> : null}
         </div>
         {p._deal && <div style={{ marginTop: 4, fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 6, padding: "2px 6px", alignSelf: "flex-start" }}>🏷️ {p._deal.title}</div>}
+        {/* Honesty: only a card CONFIRMED on Uber Eats (eatsOk===true) earns the
+            green "Order" (implies verified availability). Unchecked cards
+            (eatsOk===undefined -- only <=24 heads get verified) and not-found
+            cards (===false) both show the neutral "Find" search CTA. Never
+            imply verification we didn't do. */}
         <a
-          href={eatsGoHref(p, city)} target="_blank" rel="noreferrer" aria-label={"Order " + p.name + " on Uber Eats"}
+          href={eatsGoHref(p, city)} target="_blank" rel="noreferrer" aria-label={(eatsOk[p.id] === true ? "Order " : "Find ") + p.name + " on Uber Eats"}
           style={{ marginTop: "auto", paddingTop: 8 }}
         >
-          <span style={{ display: "block", background: eatsOk[p.id] === false ? "transparent" : "#06C167", border: eatsOk[p.id] === false ? `1.5px solid ${C.border}` : "1.5px solid #06C167", color: eatsOk[p.id] === false ? C.light : "#0D1117", borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 900, textAlign: "center" }}>
-            {eatsOk[p.id] === false ? "Find on Uber Eats ↗" : "Order on Uber Eats ↗"}
+          <span style={{ display: "block", background: eatsOk[p.id] === true ? "#06C167" : "transparent", border: eatsOk[p.id] === true ? "1.5px solid #06C167" : `1.5px solid ${C.border}`, color: eatsOk[p.id] === true ? "#0D1117" : C.light, borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 900, textAlign: "center" }}>
+            {eatsOk[p.id] === true ? "Order on Uber Eats ↗" : "Find on Uber Eats ↗"}
           </span>
         </a>
       </div>
