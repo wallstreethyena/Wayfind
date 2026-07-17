@@ -27,7 +27,7 @@ export default function AuthSheet({ ctx }) {
             <button onClick={() => setAuthOpen(false)} aria-label="Close" style={{ position: "absolute", top: 10, right: 10, width: 44, height: 44, borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 17, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>✕</button>
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div id="wf-auth-title" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
-            <div id="wf-auth-desc" style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Save your spots so they follow you across devices.</div>
+            <div id="wf-auth-desc" style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>{authMode === "signup" ? "Free, about 20 seconds. Save your spots, sync them to every device, and Wayfind sharpens to your taste." : "Welcome back — your spots and lists are right where you left them."}</div>
 
             {!isStandalone && (
               <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
