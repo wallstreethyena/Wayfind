@@ -70,6 +70,9 @@ ok(missing.some((x) => x.name === "Bellabrava"), "absent owner picks are reporte
 ok(nearestMetro(27.58, -82.42) === "sarasota", "Parrish resolves to the Sarasota curation");
 ok(nearestMetro(28.54, -81.38) === "orlando" && nearestMetro(40.7, -74.0) === null,
   "Orlando resolves; New York gets no curation (organic only)");
+// A2: true-distance (haversine, miles) metric with a ~75mi coverage radius.
+ok(nearestMetro(28.7, -82.3) === "tampa", "a point ~50mi from Tampa still resolves (within the 75mi coverage)");
+ok(nearestMetro(25.76, -80.19) === null, "Miami is >75mi from every covered metro -> no curation");
 ok(isFeaturedLocal("Bellabrava", "stpete") === true && isFeaturedLocal("McDonald's", "stpete") === false,
   "featured = curated LOCALS only; chains never featured");
 ok(isChainBrand("Starbucks — Kennedy & Dakota") && isChainBrand("Crumbl Cookies"), "chain matcher catches branches");
