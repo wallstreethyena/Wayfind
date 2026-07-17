@@ -68,5 +68,14 @@ if (!toursSrc.includes("resolveVerifiedMany")) fail("/api/viator/tours no longer
 if (!goSrc.includes("resolveVerified")) fail("/api/viator/go no longer calls the scored resolver (resolveVerified)");
 if (/results\.find\(\(?r\)? *=> *r *&& *r\.productUrl *&& *regionOk/.test(goSrc)) fail("the old first-region-match shortcut reappeared in /api/viator/go");
 
+// 4. FTC parity: the commission disclosure MUST render whenever the primary CTA
+// renders an earning link. They drifted once — an earning "Search Viator"
+// tracked-search fallback showed with NO proximate disclosure. Both now derive
+// from the one bookingTargets() predicate (gate on the same `tu`), and the
+// disclosure carries the full required commission text.
+if (!/function bookingTargets\(/.test(bookingCTA)) fail("BookingCTA.js must derive the CTA + disclosure from one bookingTargets() predicate (FTC parity)");
+if (!/variant === "disclosure"[\s\S]{0,340}targets\.tu/.test(bookingCTA)) fail("the disclosure variant must gate on the shared targets.tu — an earning CTA must never render without its disclosure");
+if (!/at no extra cost to you\. It never changes our scores or rankings/.test(bookingCTA)) fail("the commission disclosure is missing the required 'at no extra cost … never changes our scores or rankings' text");
+
 if (failures) process.exit(1);
-console.log("check-booking-cta: OK — BookingCTA.js is the sole render contract, threshold lives in one place, both routes call the scored resolver");
+console.log("check-booking-cta: OK — sole render contract, one threshold, both routes call the resolver, disclosure has FTC parity with the earning CTA");
