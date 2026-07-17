@@ -104,13 +104,13 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || fallbackHref; try { logEvent("tour", detail); } catch (er) {} openExternal(live); }}
         href={fallbackHref}
         target="_blank"
-        rel="noreferrer"
+        rel="sponsored noopener"
         style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}
       >
         <span style={{ fontSize: 18 }}>🎟️</span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
-          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator</div>
+          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator — Wayfind may earn a commission</div>
         </div>
         <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
       </a>

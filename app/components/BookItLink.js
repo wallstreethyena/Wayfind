@@ -21,7 +21,7 @@ import { TP_PROGRAMS, isTpProgramLive, tpDeepLink } from "../../lib/travelpayout
 // Inlined at build time (NEXT_PUBLIC_*). Unset → dark; owner sets "on" to enable.
 const BOOK_IT_ON = process.env.NEXT_PUBLIC_BOOK_IT === "on";
 
-export default function BookItLink({ detail, city, logEvent, openExternal }) {
+export default function BookItLink({ detail, city, logEvent, openExternal, addReservation }) {
   if (!BOOK_IT_ON || !detail) return null;
   const live = Object.keys(TP_PROGRAMS).filter(isTpProgramLive);
   const target = bookItTarget(detail, { available: live, city });
@@ -39,6 +39,8 @@ export default function BookItLink({ detail, city, logEvent, openExternal }) {
         e.preventDefault();
         const liveHref = (e.currentTarget && e.currentTarget.href) || href;
         try { if (logEvent) logEvent("book_it_out", detail, { provider: target.provider }); } catch (er) {}
+        // Capture the outbound booking tap in reservation history, like BookingCTA does.
+        try { if (addReservation) addReservation("book", detail, brand, liveHref); } catch (er) {}
         open(liveHref);
       }}
       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}
