@@ -2,10 +2,11 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only.
 import { C } from "../kit";
 import { COUPONS } from "../../../lib/coupons";
+import { siteTodayStr } from "../../../lib/siteTime";
 
 export default function CouponsScreen({ ctx }) {
   const { cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, logEvent, walletOpen, setWalletOpen, openExternal } = ctx;
-          const _today = new Date().toISOString().slice(0, 10);
+          const _today = siteTodayStr(); // C1: venue-local day, not UTC (lib/siteTime)
           const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
           const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
           const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
