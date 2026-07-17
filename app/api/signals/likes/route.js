@@ -12,8 +12,16 @@
 // double-count; max() is the honest floor.
 export const runtime = "nodejs";
 
-const mem = new Map(); // warm-instance: idsKey -> { counts, exp }
-const TTL = 10 * 60 * 1000;
+import { aggregateLikeSignals } from "../../../../lib/memberSignals.js";
+
+// Curator Boost: the owner's like weight + identity are SERVER env ONLY — never
+// hardcoded (public repo), never client-supplied. Missing owner id -> every like
+// weight 1 (feature simply off). No query param can influence the weight.
+const OWNER_ID = () => String(process.env.WF_OWNER_USER_ID || "").trim();
+const OWNER_WEIGHT = () => Math.max(1, parseInt(process.env.WF_OWNER_LIKE_WEIGHT || "50", 10) || 50);
+
+const mem = new Map(); // warm-instance: idsKey -> { counts, owner, exp }
+const TTL = 60 * 1000; // 60s so an owner like/unlike propagates fast (matches s-maxage)
 
 function sb() {
   const raw = String(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\/+$/, "");
@@ -24,29 +32,29 @@ function sb() {
 
 export async function GET(req) {
   const s = sb();
-  if (!s) return Response.json({ counts: {} });
+  if (!s) return Response.json({ counts: {}, owner: {} });
   const { searchParams } = new URL(req.url);
+  // ONLY the place-id allow-list + a cache-bust flag come from the client. Owner id
+  // + weight never do. fresh=1 (the owner's post-tap refetch) skips BOTH caches so
+  // the chip flips within ~1s; everyone else stays on the 60s cache.
   const ids = String(searchParams.get("ids") || "").split(",").map((x) => x.trim()).filter(Boolean).slice(0, 50);
-  if (!ids.length) return Response.json({ counts: {} });
+  if (!ids.length) return Response.json({ counts: {}, owner: {} });
+  const fresh = searchParams.get("fresh") === "1";
   const ck = ids.slice().sort().join(",");
   const hit = mem.get(ck);
-  if (hit && hit.exp > Date.now()) return Response.json({ counts: hit.counts }, { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } });
+  if (!fresh && hit && hit.exp > Date.now()) return Response.json({ counts: hit.counts, owner: hit.owner || {} }, { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=600" } });
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}` };
   const inList = "in.(" + ids.map((x) => '"' + x.replace(/"/g, "") + '"').join(",") + ")";
   try {
     const [r1, r2] = await Promise.all([
-      fetch(`${s.url}/rest/v1/likes?place_id=${encodeURIComponent(inList)}&select=place_id&limit=5000`, { headers: h, cache: "no-store" }),
+      fetch(`${s.url}/rest/v1/likes?place_id=${encodeURIComponent(inList)}&select=place_id,user_id&limit=5000`, { headers: h, cache: "no-store" }),
       fetch(`${s.url}/rest/v1/events?action=eq.like&place_id=${encodeURIComponent(inList)}&select=place_id,device_id&limit=5000`, { headers: h, cache: "no-store" }),
     ]);
-    const members = {}; const devices = {};
-    if (r1.ok) for (const row of await r1.json()) { if (row.place_id) members[row.place_id] = (members[row.place_id] || 0) + 1; }
-    if (r2.ok) for (const row of await r2.json()) { if (row.place_id) { (devices[row.place_id] = devices[row.place_id] || new Set()).add(row.device_id || "?"); } }
-    const counts = {};
-    for (const id of ids) {
-      const n = Math.max(members[id] || 0, devices[id] ? devices[id].size : 0);
-      if (n > 0) counts[id] = n;
-    }
-    mem.set(ck, { counts, exp: Date.now() + TTL });
-    return Response.json({ counts }, { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } });
-  } catch (e) { return Response.json({ counts: {} }); }
+    const likeRows = r1.ok ? await r1.json() : [];
+    const deviceRows = r2.ok ? await r2.json() : [];
+    // The owner weight + curator picks are applied HERE, in the one aggregate.
+    const { counts, owner } = aggregateLikeSignals(likeRows, deviceRows, OWNER_ID(), OWNER_WEIGHT(), ids);
+    if (!fresh) mem.set(ck, { counts, owner, exp: Date.now() + TTL });
+    return Response.json({ counts, owner }, { headers: { "Cache-Control": fresh ? "no-store" : "public, s-maxage=60, stale-while-revalidate=600" } });
+  } catch (e) { return Response.json({ counts: {}, owner: {} }); }
 }

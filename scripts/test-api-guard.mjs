@@ -65,5 +65,9 @@ ok(/"\/api\/viator\/tours"/.test(mw), "middleware matcher includes /api/viator/t
 ok(/"\/api\/viator\/go"/.test(mw), "middleware matcher includes /api/viator/go");
 ok(/NAV_302_ROUTES[\s\S]*\/api\/viator\/go/.test(mw), "middleware treats /api/viator/go as a rate-limit-only GET-302 nav route");
 
+// Curator Boost: /api/signals/likes is a same-origin XHR reading likes/events via
+// service-role → full guard (no SSR caller).
+ok(/"\/api\/signals\/likes"/.test(mw), "middleware matcher includes /api/signals/likes (full guard)");
+
 if (fails) { console.error(`test-api-guard: ${fails} failure(s)`); process.exit(1); }
 console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; eats + viator proxies guarded (go routes=rate-limit-only)");
