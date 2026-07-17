@@ -2945,11 +2945,13 @@ function PageInner() {
     // links; the tile now keeps users in the app's one card system.
     if (kind === "delivery") {
       try { logEvent("orderin_open", null, {}); } catch (e) {}
-      try {
-        if (browseCat !== "food") pickBrowse("food");
-        setSub("delivery");
-        setScreen("home");
-      } catch (e) { try { window.location.assign("/order-in"); } catch (e2) {} }
+      // v6.42 — the inline Delivery subfilter renders a BLANK home even where
+      // delivery inventory EXISTS (verified live in Parrish, FL: the /order-in
+      // page there lists plenty of restaurants with "Order on Uber Eats" CTAs).
+      // The inline render path is broken, not the data. Route the tile to the
+      // /order-in page that works — same engine, same Wayfind Score, the Uber
+      // Eats CTA on every card. Restores the reliable pre-v6.39 behavior.
+      window.location.assign("/order-in");
       return;
     }
     const c = CURATED[kind]; if (!c) return;
