@@ -209,7 +209,11 @@ async function fetchMemberSignals(sb, list) {
 }
 function withMemberSignal(list, sig) {
   if (!sig) return list;
-  return (list || []).map((p) => { const g = p && sig[p.id]; if (!g) return p; const d = Ranking.memberDelta(g); return { ...p, wfScore: +(((p.wfScore || 0) + d).toFixed(2)), _members: g }; });
+  // B14: only nudge a REAL base score. Coercing a null base via (p.wfScore || 0)
+  // turned member likes into a tiny positive (~0.6-1.2 on the 0-100 scale) -> a red
+  // "0.1/10" badge that also defeated the wfScore==null "Score pending" self-heal.
+  // A null base stays null (Score pending self-heals from rating or shows pending).
+  return (list || []).map((p) => { const g = p && sig[p.id]; if (!g) return p; const d = Ranking.memberDelta(g); return { ...p, wfScore: p.wfScore != null ? +((p.wfScore + d).toFixed(2)) : p.wfScore, _members: g }; });
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
