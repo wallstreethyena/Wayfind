@@ -2755,6 +2755,12 @@ function PageInner() {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
+  // A1: persist the app's RESOLVED location (gated on a real locName, so the
+  // initial default is never written) so direct-entry surfaces like /order-in
+  // inherit the SAME metro instead of re-geolocating or defaulting to Orlando.
+  useEffect(() => {
+    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName })); } catch (e) {}
+  }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
   const cityNow = locName ? locName.split(",")[0] : "you";
   CITY_NOW = cityNow;

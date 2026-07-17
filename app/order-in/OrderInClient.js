@@ -38,13 +38,20 @@ export default function OrderInClient() {
   const [err, setErr] = useState(false);
   const [eatsOk, setEatsOk] = useState({}); // id -> true|false (verified on Uber Eats)
 
-  // Location: URL params (handed off by the home tile) → geolocation → default.
+  // Location: URL params (handed off by the home tile) → the app's last-known
+  // location (wf_center, persisted by home.js) → geolocation → default. A1: a
+  // direct/bookmarked visit inherits the SAME metro as the rest of the app
+  // instead of re-geolocating (or falling to the Orlando default).
   useEffect(() => {
     try {
       const u = new URL(window.location.href);
       const lat = parseFloat(u.searchParams.get("lat")), lng = parseFloat(u.searchParams.get("lng"));
       const loc = u.searchParams.get("loc") || "";
       if (isFinite(lat) && isFinite(lng)) { setCenter({ lat, lng, loc }); return; }
+    } catch (e) {}
+    try {
+      const saved = JSON.parse(localStorage.getItem("wf_center") || "null");
+      if (saved && isFinite(saved.lat) && isFinite(saved.lng)) { setCenter({ lat: saved.lat, lng: saved.lng, loc: saved.loc || "" }); return; }
     } catch (e) {}
     let done = false;
     try {
