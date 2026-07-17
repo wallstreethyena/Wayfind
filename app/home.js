@@ -203,7 +203,8 @@ async function fetchMemberSignals(sb, list) {
       for (const k in m) out[k] = { authors: Object.keys(m[k].seen).length, warnAuthors: Object.keys(m[k].warnSeen).length };
     }
     const lc = lRes && lRes.counts ? lRes.counts : null;
-    if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; }
+    const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
+    if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
     return Object.keys(out).length ? out : null;
   } catch (e) { return null; }
 }
@@ -7060,6 +7061,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
             {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
+            {/* Curator Boost: glass-box honesty — the owner's editorial pick is visible. Display-only; the like weight already did the ranking nudge, this adds nothing to the score. */}
+            {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ fontSize: 11, fontWeight: 800, color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", padding: "2px 8px", borderRadius: 999 }}>⭐ Curator's pick</span>}
             {(() => {
               const cz = Dining.cuisineLabel(p);
               const isFood = pcat === "Food" || pcat === "Nightlife";
