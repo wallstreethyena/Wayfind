@@ -87,6 +87,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
+import { frontPageEvents } from "../lib/frontEvents";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -956,7 +957,7 @@ const EXPERIENCES = {
   brunch: { icon: "🥞", label: "Brunch", title: "Weekend Brunch", mood: true, lead: "Weekend-morning worthy: brunch plates, pastries and patio coffee.", queries: [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery pastries coffee" }], filter: (p) => (p.rating || 0) >= 4.3 },
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
-  localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
+  localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
   featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
   bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
@@ -2945,11 +2946,13 @@ function PageInner() {
     // links; the tile now keeps users in the app's one card system.
     if (kind === "delivery") {
       try { logEvent("orderin_open", null, {}); } catch (e) {}
-      try {
-        if (browseCat !== "food") pickBrowse("food");
-        setSub("delivery");
-        setScreen("home");
-      } catch (e) { try { window.location.assign("/order-in"); } catch (e2) {} }
+      // v6.42 — the inline Delivery subfilter renders a BLANK home even where
+      // delivery inventory EXISTS (verified live in Parrish, FL: the /order-in
+      // page there lists plenty of restaurants with "Order on Uber Eats" CTAs).
+      // The inline render path is broken, not the data. Route the tile to the
+      // /order-in page that works — same engine, same Wayfind Score, the Uber
+      // Eats CTA on every card. Restores the reliable pre-v6.39 behavior.
+      window.location.assign("/order-in");
       return;
     }
     const c = CURATED[kind]; if (!c) return;
@@ -5251,7 +5254,11 @@ function PageInner() {
         const data = await r.json();
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
-          setForyouEvents(evs.slice(0, 8));
+          // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
+          // programs — ticketed categories only (lib/frontEvents; locked by
+          // scripts/test-front-events.mjs). They still live on the Events tab
+          // under "Local events". Depth 24 so the priority rail has inventory.
+          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
       } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
@@ -5684,7 +5691,7 @@ function PageInner() {
     // v6.30 (owner): "Top rated" ranks purely by the displayed Wayfind Score,
     // highest first, so the badges read in order — the score IS the model
     // output. Distance has its own "Closest first" sort; reviews break ties.
-    viewBase = _distFiltered.sort((a, b) => ((b.wfScore || 0) - (a.wfScore || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+    viewBase = _distFiltered.sort(Ranking.byTopRated); // v6.42: THE shared Top-rated comparator (locked by test-top-rated)
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
@@ -5712,7 +5719,7 @@ function PageInner() {
               <div style={{ fontSize: 12.5, color: C.muted }}>
                 {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
                 <span style={{ color: C.accent, fontWeight: 700 }}>
-                  {sortBy === "near" ? "nearest first" : "ranked by fit"}
+                  {sortBy === "near" ? "nearest first" : sortBy === "rated" ? "Wayfind Score, best to worst" : "ranked by fit"}
                 </span>
               </div>
               {searchLabel && (
@@ -6095,7 +6102,7 @@ function PageInner() {
           // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
           const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
           const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
-          const feedListS = sortBy === "rated" ? feedList0P.slice().sort((a, b) => ((b.wfScore || 0) - (a.wfScore || 0)) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
+          const feedListS = sortBy === "rated" ? feedList0P.slice().sort(Ranking.byTopRated) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
           const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
           const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
@@ -6425,9 +6432,12 @@ function PageInner() {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
-                const withImg = usable.filter((e) => e.image);
-                const featured = (withImg.length ? withImg : usable).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"))[0];
-                const rest = evs.filter((e) => e && (!featured || e.id !== featured.id)).slice(0, 24);
+                // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
+                // runs sports -> comedy -> theater -> concerts; community NEVER
+                // appears here (lib/frontEvents, locked by test-front-events).
+                const fp = frontPageEvents(usable, eventBucket);
+                const featured = fp.featured;
+                const rest = fp.rest.slice(0, 24);
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -6897,6 +6907,21 @@ function ViatorRail({ title, items, theme }) {
   );
 }
 
+// v6.42 (owner): bookable Activities cards carry the PAID booking link at card
+// level — the same verified /api/viator/go gate the Detail sheet uses (exact
+// product with attribution, or the tracked pid search; every click attributed).
+// Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
+// test-card-booking.mjs enforces the match so the surfaces never drift.
+const CARD_BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+function cardBookingHref(p) {
+  try {
+    const parts = String(p.address || "").split(",").map((x) => x.trim());
+    const city = parts.length >= 3 ? parts[1] : "";
+    const q = p.name + (city ? " " + city : "");
+    return "/api/viator/go?q=" + encodeURIComponent(q) + "&city=" + encodeURIComponent(city) + "&kind=" + encodeURIComponent(placeKind(p) || "") + "&placeId=" + encodeURIComponent(p.id || "");
+  } catch (e) { return "/api/viator/go?q=" + encodeURIComponent((p && p.name) || ""); }
+}
+
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
@@ -6990,6 +7015,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+            {CARD_BOOKABLE_KINDS.includes(placeKind(p)) && (
+              <a href={cardBookingHref(p)} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Tickets & tours ↗"}</a>
+            )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
               <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>

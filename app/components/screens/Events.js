@@ -195,14 +195,33 @@ export default function EventsScreen({ ctx }) {
         eventsTours === null ? <Loader label="Finding bookable experiences" pad="8px 2px" /> :
         tours.length > 0 ? (
           <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-            <ViatorRail title="Everything bookable near you" items={tours} theme="events-tours" />
+            {/* v6.42 (owner): the Local-tours category owns the page — the FULL
+                bookable list, every card a paid affiliate link. The old render
+                repainted the same 3-card rail and zeroed the date chips, which
+                read as "nothing appears" (reproduced live). */}
+            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Everything bookable near you · {tours.length}</span>
+              <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+              {tours.map((t) => (
+                <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
+                  {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : null}
+                  <div style={{ padding: "9px 11px" }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${Number(t.reviews).toLocaleString()})` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+                    <div style={{ marginTop: 8, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{t.fromPrice ? `Book from $${t.fromPrice}` : "Book now"} ↗</div>
+                  </div>
+                </a>
+              ))}
+            </div>
             <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
           </div>
         ) : <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>No bookable tours are loading right now — check back shortly.</div>
       )}
 
       {/* Date chips (kept — events-page-only). Hidden for the Business feed. */}
-      {!isBusiness && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
+      {!isBusiness && !isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
             <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>

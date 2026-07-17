@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 import { Fragment } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, PlaceScoreChip } from "../kit";
+import { byTopRated } from "../../../lib/ranking";
 import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 
@@ -28,9 +29,9 @@ export default function HookDetailSheet({ ctx }) {
         // Safety net: no theme should ever render the same place twice.
         themePlaces = themePlaces.filter((p, i, a) => p && p.id && a.findIndex((x) => x && x.id === p.id) === i);
         if (hkSort === "near") themePlaces = themePlaces.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-        // v6.12: Top rated = highest star rating first (tie-break by review count).
+        // v6.12: Top rated = the displayed Wayfind Score, best to worst (shared byTopRated).
         // Was a Bayesian-quality-minus-distance blend that stranded a 4.9 below 4.4s.
-        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort((a, b) => ((b.rating || 0) - (a.rating || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+        else if (hkSort === "rated") themePlaces = themePlaces.slice().sort(byTopRated); // v6.42: Wayfind Score order — never raw stars; the badge IS the order
         else if (hkSort === "price") themePlaces = themePlaces.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
         if (hkMi < 60) themePlaces = themePlaces.filter((p) => p.distMi == null || p.distMi <= hkMi);
         if (hkDeals) themePlaces = themePlaces.filter((p) => offers[p.id]);
