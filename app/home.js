@@ -13,6 +13,7 @@ import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareM
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
+import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
@@ -3435,23 +3436,27 @@ function PageInner() {
     let cancelled = false;
     (async () => {
       try {
+        // F1: reconcile favorites against a BASE snapshot (the id-set at last
+        // sync) so a favorite removed on ANOTHER device is not resurrected by
+        // this device's push-up. Fetch remote first, then 3-way merge — see
+        // lib/syncReconcile.reconcileIds. (likes/disliked/shared below still use
+        // the legacy union push-up; same reconciler applies as a follow-up.)
         const favPlaces = (lists.favorites && lists.favorites.places) || [];
-        if (favPlaces.length) {
-          await supabase.from("saved_places").upsert(
-            favPlaces.map((p) => ({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" })),
-            { onConflict: "user_id,place_id,list_name", ignoreDuplicates: true }
-          );
-        }
-      } catch {}
-      try {
         const { data: saved } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Favorites");
         if (!cancelled && saved) {
-          const remote = saved.map((r) => r.place).filter(Boolean);
+          const remotePlaces = saved.map((r) => r.place).filter((p) => p && p.id);
+          let favBase = []; try { favBase = JSON.parse(localStorage.getItem("wf_fav_base") || "[]"); } catch {}
+          const rec = reconcileIds(favBase, favPlaces.map((p) => p.id), remotePlaces.map((p) => p.id));
+          if (rec.deleteRemote.length) { try { await supabase.from("saved_places").delete().eq("user_id", user.id).eq("list_name", "Favorites").in("place_id", rec.deleteRemote); } catch {} }
+          const pushSet = new Set(rec.pushUp);
+          const toPush = favPlaces.filter((p) => pushSet.has(p.id));
+          if (toPush.length) { try { await supabase.from("saved_places").upsert(toPush.map((p) => ({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" })), { onConflict: "user_id,place_id,list_name", ignoreDuplicates: true }); } catch {} }
+          const pool = {}; [...remotePlaces, ...favPlaces].forEach((p) => { if (p && p.id) pool[p.id] = p; });
+          const keptPlaces = rec.keep.map((id) => pool[id]).filter(Boolean);
+          try { localStorage.setItem("wf_fav_base", JSON.stringify(rec.keep)); } catch {}
           setLists((prev) => {
             const fav = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
-            const byId = {};
-            [...fav.places, ...remote].forEach((p) => { if (p && p.id) byId[p.id] = p; });
-            return { ...prev, favorites: { ...fav, places: Object.values(byId) } };
+            return { ...prev, favorites: { ...fav, places: keptPlaces } };
           });
         }
         const { data: dbLikes } = await supabase.from("likes").select("place_id").eq("user_id", user.id);
