@@ -2164,7 +2164,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
               </div>
 
               {/* ── Bottom: hook text + detail + CTA ── */}
-              <div onClick={() => onOpen && onOpen(h)} style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 13px" }}>
+              <div onClick={() => onOpen && onOpen(h)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${h.name || h.title || "place"}`} style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "10px 12px 13px" }}>
                 <div style={{ fontSize: 19, fontWeight: 800, color: "#fff", lineHeight: 1.25, marginBottom: 7, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                   {renderHookText(h.hook, h.highlightWord, acc)}
                 </div>
@@ -2582,7 +2582,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
   const _gseed = String(h.id || h.label || "").split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const _glow = [{ p: { bottom: 0, right: 0 }, at: "bottom right" }, { p: { top: 0, left: 0 }, at: "top left" }, { p: { top: 0, right: 0 }, at: "top right" }, { p: { bottom: 0, left: 0 }, at: "bottom left" }][_gseed % 4];
   return (
-    <div onClick={() => onOpen && onOpen(h)} style={{ position: "relative", height: 163, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+    <div onClick={() => onOpen && onOpen(h)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${h.name || h.title || "place"}`} style={{ position: "relative", height: 163, borderRadius: 18, overflow: "hidden", marginBottom: 14, cursor: "pointer", boxShadow: liked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
       {h.brand
         ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
         : tiles.length >= 2
@@ -5745,7 +5745,7 @@ function PageInner() {
         const badgeText = open === true ? "Open now · top pick" : "Top pick nearby";
         return (
           <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
-            <div onClick={() => openDetail(exHero)} style={{ cursor: "pointer" }}>
+            <div onClick={() => openDetail(exHero)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${exHero.name || "featured place"}`} style={{ cursor: "pointer" }}>
               <div style={{ position: "relative" }}>
                 <FallbackImg src={exHero.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
                 <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
@@ -6380,7 +6380,7 @@ function PageInner() {
                 const todoPool = dedupePlaces((homeTodo || []).filter((p) => { const c = Ranking.coarseCat(p) || primaryCategory(p); return c !== "Food" && c !== "Nightlife" && c !== "Hotels"; }), true);
                 const todo10 = Ranking.rankByConditions(todoPool, condCtx, boostBase).filter(cardComplete).slice(0, 10);
                 const row = (p, i, n) => (
-                  <div key={p.id} onClick={() => openDetail(p)} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                  <div key={p.id} onClick={() => openDetail(p)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                     <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
                     <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -6730,7 +6730,7 @@ function PageInner() {
               </div>
               <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>{list.length > 0 ? (cs.sub || ("The best " + cs.label.toLowerCase() + " spots loaded nearby, ranked by quality, distance and time.")) : (cs.title ? "Nothing loaded for this yet. Give the area a moment to finish loading, then try again." : "No " + cs.label.toLowerCase() + " spots loaded nearby yet. Try searching this cuisine.")}</div>
               {list.map((p, i) => (
-                <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+                <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
                   <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
                   <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -6788,7 +6788,7 @@ function PageInner() {
               <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
             </div>
             {Object.values(lists).map((l) => (
-              <div key={l.id} onClick={() => saveToList(l.id)} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 8, cursor: "pointer" }}>
+              <div key={l.id} onClick={() => saveToList(l.id)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Save to ${l.name || "list"}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 8, cursor: "pointer" }}>
                 <span style={{ fontSize: 26 }}>{l.emoji}</span>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{l.name}</div>
@@ -6965,7 +6965,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
   return (
-    <div onClick={onDetail} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
           The old absolute top-right overlay cleared long titles with a magic
           paddingRight (88px) that was ~17px narrower than the badge, so titles
