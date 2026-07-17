@@ -10,7 +10,12 @@
 // to Content-Security-Policy and remove this note.
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com",
+  // tp-em.com = Travelpayouts "Drive" verification + tracking script (app/layout.js,
+  // v6.19). It loads the script from tp-em.com AND beacons to tp-em.com/collect*, so
+  // it needs BOTH script-src and connect-src. It was the ONLY origin firing CSP
+  // reports in Report-Only (verified live 2026-07-15 on the home route) — i.e. the
+  // one thing that would break on the enforce-flip. Same class as scripts.stay22.com.
+  "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
@@ -20,7 +25,7 @@ const CSP_REPORT_ONLY = [
   // event images (s1.ticketm.net, proven live), and the Viator partner
   // image CDNs used by the booking-CTA tour cards.
   "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com",
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com",
   "worker-src 'self' blob:",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
