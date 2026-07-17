@@ -235,8 +235,13 @@ export function offerLabel(o) {
 export { priceGlyphs } from "../../lib/dining.js";
 
 export function scoreLabel(wf) {
-  if (wf == null) return null;
-  const s = (wf / 10).toFixed(1);
+  // B15: derive the display score through toDisplayScore (0-100 -> 0-10, and null
+  // for null / 0 / negative / invalid) so scoreLabel agrees with the badge's
+  // "Score pending" edge instead of rendering "0.0" or "-0.0" on a degenerate wf.
+  // The word bands still read the 0-100 wfScore.
+  const d = toDisplayScore(wf);
+  if (d == null) return null;
+  const s = d.toFixed(1);
   let word = "Fair";
   if (wf >= 95) word = "Exceptional";
   else if (wf >= 90) word = "Excellent";
