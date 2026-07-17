@@ -3,6 +3,7 @@
 // PageInner aliases cityFixM as "cityFix" locally; this file calls
 // ctx.cityFixM directly (same function, already flowing through ctx).
 import { C, PlaceScoreChip } from "../kit";
+import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
 import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
 
@@ -12,7 +13,7 @@ export default function ExperienceScreen({ ctx }) {
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
           if (expSort === "near") list = [...list].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
-          else if (expSort === "rated") list = [...list].sort((a, b) => (((b.wfScore || 0) - ((b.distMi || 0) <= 4 ? 0 : Math.min(30, ((b.distMi || 0) - 4) * 1.3)) + (b.openNow === false ? -8 : 0)) - ((a.wfScore || 0) - ((a.distMi || 0) <= 4 ? 0 : Math.min(30, ((a.distMi || 0) - 4) * 1.3)) + (a.openNow === false ? -8 : 0))) || ((b.reviews || 0) - (a.reviews || 0)));
+          else if (expSort === "rated") list = [...list].sort(byTopRated); // v6.42 (owner, PERMANENT): Top rated = displayed Wayfind Score ONLY. The old distance penalty (-1.3/mi past 4, cap 30) is REMOVED — it made 9.4 sit above 9.8 ("Top Rated Near You", Parrish repro)
           else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
           return (

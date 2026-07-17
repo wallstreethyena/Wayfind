@@ -956,7 +956,7 @@ const EXPERIENCES = {
   brunch: { icon: "🥞", label: "Brunch", title: "Weekend Brunch", mood: true, lead: "Weekend-morning worthy: brunch plates, pastries and patio coffee.", queries: [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery pastries coffee" }], filter: (p) => (p.rating || 0) >= 4.3 },
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
-  localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by fit.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
+  localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
   featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
   bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
@@ -5686,7 +5686,7 @@ function PageInner() {
     // v6.30 (owner): "Top rated" ranks purely by the displayed Wayfind Score,
     // highest first, so the badges read in order — the score IS the model
     // output. Distance has its own "Closest first" sort; reviews break ties.
-    viewBase = _distFiltered.sort((a, b) => ((b.wfScore || 0) - (a.wfScore || 0)) || ((b.reviews || 0) - (a.reviews || 0)));
+    viewBase = _distFiltered.sort(Ranking.byTopRated); // v6.42: THE shared Top-rated comparator (locked by test-top-rated)
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
@@ -5714,7 +5714,7 @@ function PageInner() {
               <div style={{ fontSize: 12.5, color: C.muted }}>
                 {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
                 <span style={{ color: C.accent, fontWeight: 700 }}>
-                  {sortBy === "near" ? "nearest first" : "ranked by fit"}
+                  {sortBy === "near" ? "nearest first" : sortBy === "rated" ? "Wayfind Score, best to worst" : "ranked by fit"}
                 </span>
               </div>
               {searchLabel && (
@@ -6097,7 +6097,7 @@ function PageInner() {
           // 20 miles may outrank them. Sparse areas (fewer than 5 close) exempt.
           const _nearCount = feedList0.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
           const feedList0P = _nearCount >= 5 ? feedList0.slice().sort((a, b) => (((a.distMi != null && a.distMi > 20) ? 1 : 0) - ((b.distMi != null && b.distMi > 20) ? 1 : 0))) : feedList0;
-          const feedListS = sortBy === "rated" ? feedList0P.slice().sort((a, b) => ((b.wfScore || 0) - (a.wfScore || 0)) || ((b.reviews || 0) - (a.reviews || 0))) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
+          const feedListS = sortBy === "rated" ? feedList0P.slice().sort(Ranking.byTopRated) : sortBy === "price" ? feedList0P.slice().sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0))) : feedList0P;
           const feedListN = sortBy === "near" ? feedListS.filter((p) => p && (sliderMi >= 60 || p.distMi == null || p.distMi <= sliderMi)) : feedListS;
           const feedList = dealsOnly ? feedListN.filter((p) => offers[p.id]) : feedListN;
           // Trust fix (v4.3): closed places no longer hold the top slots. Sort by the
