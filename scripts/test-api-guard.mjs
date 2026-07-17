@@ -1,6 +1,7 @@
 // Gate: the paid-API guard allows legit same-origin browser calls and blocks
 // curl/scrapers/cross-site, and the per-IP rate limiter trips on burst abuse.
 import { isSameOrigin, rateLimitHit, RL_LIMIT, guardPaidRoute } from "../lib/apiGuard.js";
+import { readFileSync } from "fs";
 
 const H = (o) => ({ get: (k) => (k.toLowerCase() in o ? o[k.toLowerCase()] : null) });
 let fails = 0;
@@ -41,5 +42,20 @@ ok(internal === null, "internal secret bypasses the gate (for our SSR calls)");
 const internalBad = guardPaidRoute({ headers: H({ "x-wf-internal": "wrong" }) }, { internalSecret: "s3cret" });
 ok(internalBad && internalBad.status === 403, "wrong internal secret does NOT bypass");
 
+// ── B2: rateLimitOnly — /api/eats/go NAVIGATIONS skip the same-origin block but keep rate-limiting ──
+const goNav = guardPaidRoute({ headers: H({ "sec-fetch-site": "none", "x-forwarded-for": "7.7.7.1" }) }, { rateLimitOnly: true });
+ok(goNav === null, "rateLimitOnly: a direct/nav request (Sec-Fetch-Site none) is NOT 403'd (never breaks the redirect)");
+const goCross = guardPaidRoute({ headers: H({ "sec-fetch-site": "cross-site", "x-forwarded-for": "7.7.7.2" }) }, { rateLimitOnly: true });
+ok(goCross === null, "rateLimitOnly: skips the same-origin block (nav-safe)");
+let goTripped = null;
+for (let i = 0; i < RL_LIMIT + 5; i++) goTripped = guardPaidRoute({ headers: H({ "x-forwarded-for": "7.7.7.3" }) }, { rateLimitOnly: true });
+ok(goTripped && goTripped.status === 429, "rateLimitOnly still 429s a burst from one IP (caps scrape abuse)");
+
+// ── B2: the middleware wires both eats routes; /api/eats/go is rate-limit-only ──
+const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
+ok(/"\/api\/eats\/check"/.test(mw), "middleware matcher includes /api/eats/check (full guard)");
+ok(/"\/api\/eats\/go"/.test(mw), "middleware matcher includes /api/eats/go");
+ok(/rateLimitOnly/.test(mw) && /"\/api\/eats\/go"/.test(mw), "middleware passes rateLimitOnly for /api/eats/go");
+
 if (fails) { console.error(`test-api-guard: ${fails} failure(s)`); process.exit(1); }
-console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works");
+console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; eats routes guarded (go=rate-limit-only)");
