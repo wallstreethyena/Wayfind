@@ -88,5 +88,7 @@ ok(/\/api\/eats\/go\?/.test(page), "every CTA routes through the attributed /api
 ok(/Find on Uber Eats/.test(page), "unverified cards soften to Find on Uber Eats (honesty rule)");
 ok(/missingGuaranteed\(/.test(page) && /findPlace\(/.test(page),
   "missing owner picks are resolved so every curated brand gets its card");
+ok(/findPlace\(g\.name[^\n]*\{ lat: METROS\[metroKey\]\.lat, lng: METROS\[metroKey\]\.lng \}/.test(page),
+  "guaranteed brands resolve at the METRO center — a cross-metro user never loses the Featured strip");
 
 console.log(`test-orderin-rails: OK — ${pass} assertions (fixed rail order, owner-brand buckets, tiering, guaranteed cards, UE honesty wiring)`);

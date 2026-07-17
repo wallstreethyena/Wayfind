@@ -74,7 +74,11 @@ export default function OrderInClient() {
           const missing = missingGuaranteed(merged, metroKey).slice(0, 20);
           const resolved = await Promise.all(missing.map(async (g) => {
             try {
-              const f = await findPlace(g.name + " " + METROS[metroKey].label, { lat: center.lat, lng: center.lng });
+              // v6.42.1 — resolve against the METRO's center, not the user's:
+              // a Parrish user with the Tampa curation was cross-metro, so the
+              // location-biased lookup returned nothing and every guaranteed
+              // card dropped silently (found in live verification).
+              const f = await findPlace(g.name + " " + METROS[metroKey].label, { lat: METROS[metroKey].lat, lng: METROS[metroKey].lng });
               if (!f || !f.name) return null;
               return {
                 id: f.id || "gp:" + g.name, name: f.name, lat: f.lat, lng: f.lng,
