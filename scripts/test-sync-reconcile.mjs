@@ -68,4 +68,15 @@ w(/saved_places"\)\.delete\(\)[\s\S]{0,120}rec\.deleteRemote/.test(home), "favor
 w(!/const favPlaces = \(lists\.favorites && lists\.favorites\.places\) \|\| \[\];\s*\n\s*if \(favPlaces\.length\) \{\s*\n\s*await supabase\.from\("saved_places"\)\.upsert\(/.test(home),
   "the old unconditional favorites push-up (resurrection source) is removed");
 
-console.log(`test-sync-reconcile: OK — ${pass} assertions (A-deletes -> B never resurrects; offline adds survive; first-sync migrates; home.js wired)`);
+// F1 extended — likes / disliked / shared reconcile the same way (shared helper + base each).
+w(/const reconcileColl = async/.test(home), "a shared reconcileColl helper reconciles the item-store collections");
+w(/localStorage\.setItem\("wf_liked_items"[\s\S]{0,4}|baseKey: "wf_liked_base"/.test(home) && /"wf_liked_base"/.test(home), "likes reconcile against wf_liked_base");
+w(/"wf_disliked_base"/.test(home), "disliked reconcile against wf_disliked_base");
+w(/"wf_shared_base"/.test(home), "shared reconcile against wf_shared_base");
+w(/reconcileColl\(\{ table: "likes"/.test(home) && /reconcileColl\(\{ table: "saved_places", listName: "Disliked"/.test(home) && /reconcileColl\(\{ table: "saved_places", listName: "Shared"/.test(home),
+  "all three item collections (likes/disliked/shared) go through the reconciler");
+// The old unconditional re-push loops (upload every local id not on the server) are gone.
+w(!/const srvL = new Set\(\(likeRows/.test(home) && !/const srvD = new Set/.test(home) && !/const srvS = new Set/.test(home),
+  "the old unconditional likes/disliked/shared re-push loops (resurrection source) are removed");
+
+console.log(`test-sync-reconcile: OK — ${pass} assertions (A-deletes -> B never resurrects; offline adds survive; first-sync migrates; favorites + likes/disliked/shared wired)`);

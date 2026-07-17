@@ -3472,27 +3472,38 @@ function PageInner() {
             return { ...prev, favorites: { ...fav, places: keptPlaces } };
           });
         }
-        const { data: dbLikes } = await supabase.from("likes").select("place_id").eq("user_id", user.id);
-        if (!cancelled && dbLikes) {
-          setLiked((prev) => { const next = { ...prev }; dbLikes.forEach((r) => { next[r.place_id] = true; }); return next; });
-        }
+        // F1 (extended): likes / disliked / shared reconcile against a BASE snapshot
+        // exactly like favorites, so a removal on another device is not resurrected by
+        // this device's push-up (the old union-pull + unconditional re-push below did
+        // exactly that). Each is an id-keyed item store {place,ts}; reconcileIds runs
+        // the 3-way merge (lib/syncReconcile). rowPlace(r) -> the place object.
+        const reconcileColl = async ({ table, listName, storeKey, baseKey, setItems, setBool, rows, rowPlace }) => {
+          if (cancelled || !rows) return;
+          let local = {}; try { local = JSON.parse(localStorage.getItem(storeKey) || "{}"); } catch {}
+          const remote = {}; rows.forEach((r) => { const p = rowPlace(r); if (p && p.id) remote[p.id] = p; });
+          let base = []; try { base = JSON.parse(localStorage.getItem(baseKey) || "[]"); } catch {}
+          const rec = reconcileIds(base, Object.keys(local), Object.keys(remote));
+          if (rec.deleteRemote.length) {
+            try { let q = supabase.from(table).delete().eq("user_id", user.id).in("place_id", rec.deleteRemote); if (listName) q = q.eq("list_name", listName); await q; } catch {}
+          }
+          const toPush = rec.pushUp.map((id) => local[id] && local[id].place).filter((p) => p && p.id);
+          if (toPush.length) {
+            try { await supabase.from(table).upsert(toPush.map((p) => (listName ? { user_id: user.id, place_id: p.id, place: p, list_name: listName } : { user_id: user.id, place_id: p.id, place: p })), { onConflict: listName ? "user_id,place_id,list_name" : "user_id,place_id", ignoreDuplicates: true }); } catch {}
+          }
+          const next = {};
+          rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
+          try { localStorage.setItem(storeKey, JSON.stringify(next)); localStorage.setItem(baseKey, JSON.stringify(rec.keep)); } catch {}
+          if (!cancelled) {
+            if (setItems) setItems(next);
+            if (setBool) setBool(Object.fromEntries(rec.keep.map((id) => [id, true])));
+          }
+        };
         const { data: likeRows } = await supabase.from("likes").select("place_id, place").eq("user_id", user.id);
-        if (!cancelled && likeRows) { let curL = {}; try { curL = JSON.parse(localStorage.getItem("wf_liked_items") || "{}"); } catch {} likeRows.forEach((r, i) => { if (r.place && r.place_id && !curL[r.place_id]) curL[r.place_id] = { place: r.place, ts: Date.now() - i }; }); try { localStorage.setItem("wf_liked_items", JSON.stringify(curL)); } catch {} setLikedItems(curL); }
+        await reconcileColl({ table: "likes", listName: null, storeKey: "wf_liked_items", baseKey: "wf_liked_base", setItems: setLikedItems, setBool: setLiked, rows: likeRows, rowPlace: (r) => (r.place && r.place.id ? r.place : (r.place_id ? { id: r.place_id } : null)) });
         const { data: disRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Disliked");
-        if (!cancelled && disRows) { let curD = {}; try { curD = JSON.parse(localStorage.getItem("wf_disliked_items") || "{}"); } catch {} disRows.forEach((r, i) => { if (r.place && r.place.id && !curD[r.place.id]) curD[r.place.id] = { place: r.place, ts: Date.now() - i }; }); try { localStorage.setItem("wf_disliked_items", JSON.stringify(curD)); } catch {} setDislikedItems(curD); }
+        await reconcileColl({ table: "saved_places", listName: "Disliked", storeKey: "wf_disliked_items", baseKey: "wf_disliked_base", setItems: setDislikedItems, setBool: null, rows: disRows, rowPlace: (r) => r.place });
         const { data: shrRows } = await supabase.from("saved_places").select("place").eq("user_id", user.id).eq("list_name", "Shared");
-        if (!cancelled && shrRows) { let curS = {}; try { curS = JSON.parse(localStorage.getItem("wf_shared_items") || "{}"); } catch {} shrRows.forEach((r, i) => { if (r.place && r.place.id && !curS[r.place.id]) curS[r.place.id] = { place: r.place, ts: Date.now() - i }; }); try { localStorage.setItem("wf_shared_items", JSON.stringify(curS)); } catch {} setSharedItems(curS); }
-        try {
-          const srvL = new Set((likeRows || []).map((r) => r.place_id));
-          const lL = JSON.parse(localStorage.getItem("wf_liked_items") || "{}");
-          Object.keys(lL).forEach((id) => { const pl = lL[id] && lL[id].place; if (pl && pl.id && !srvL.has(id)) supabase.from("likes").upsert({ user_id: user.id, place_id: pl.id, place: pl }, { onConflict: "user_id,place_id" }).then(() => {}, () => {}); });
-          const srvD = new Set((disRows || []).map((r) => r.place && r.place.id));
-          const lD = JSON.parse(localStorage.getItem("wf_disliked_items") || "{}");
-          Object.keys(lD).forEach((id) => { const pl = lD[id] && lD[id].place; if (pl && pl.id && !srvD.has(id)) supabase.from("saved_places").upsert({ user_id: user.id, place_id: pl.id, place: pl, list_name: "Disliked" }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {}); });
-          const srvS = new Set((shrRows || []).map((r) => r.place && r.place.id));
-          const lS = JSON.parse(localStorage.getItem("wf_shared_items") || "{}");
-          Object.keys(lS).forEach((id) => { const pl = lS[id] && lS[id].place; if (pl && pl.id && !srvS.has(id)) supabase.from("saved_places").upsert({ user_id: user.id, place_id: pl.id, place: pl, list_name: "Shared" }, { onConflict: "user_id,place_id,list_name" }).then(() => {}, () => {}); });
-        } catch {}
+        await reconcileColl({ table: "saved_places", listName: "Shared", storeKey: "wf_shared_items", baseKey: "wf_shared_base", setItems: setSharedItems, setBool: null, rows: shrRows, rowPlace: (r) => r.place });
       } catch {}
     })();
     return () => { cancelled = true; };
