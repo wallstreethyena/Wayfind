@@ -19,24 +19,29 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
   if (offer) fail("generic area tour rendered a CTA for Bradenton Riverwalk: " + JSON.stringify(offer));
 }
 
-// 2. The same place against a product that actually names it -> a live
-//    offer pointing at the correct product.
+// 2. A DISTINCTIVE place against a generic area tour + a product that names both
+//    the place AND its region -> a live offer at the correct product. (v2: the
+//    kept product must positively confirm geography — real Viator product URLs
+//    carry the destination, e.g. /tours/Bradenton/... — and the place name must
+//    have a distinctive token. "Bradenton Riverwalk" no longer qualifies: both
+//    "bradenton" (city) and "riverwalk" (generic) are non-distinctive, so it
+//    correctly resolves to nothing; a distinctive place is used here instead.)
 {
-  const place = { name: "Bradenton Riverwalk" };
+  const place = { name: "Robinson Preserve" };
   const products = [
     { title: "Bradenton Area Highlights Tour", productUrl: "https://www.viator.com/tours/x1", productCode: "X1" },
-    { title: "Historic Bradenton Riverwalk Walking Tour", productUrl: "https://www.viator.com/tours/x2", productCode: "X2" },
+    { title: "Robinson Preserve Kayak Eco Tour in Bradenton", productUrl: "https://www.viator.com/tours/Bradenton/x2", productCode: "X2" },
   ];
   const offer = resolveVerified(place, products, { region: "Bradenton, Tampa Bay", kind: "waterfront" });
-  if (!offer) fail("genuine Riverwalk-specific product did not clear the bar");
-  else if (offer.status !== STATUS.LIVE) fail("genuine Riverwalk-specific product not marked live: " + offer.status);
+  if (!offer) fail("genuine venue-specific, geo-confirmed product did not clear the bar");
+  else if (offer.status !== STATUS.LIVE) fail("genuine venue-specific product not marked live: " + offer.status);
   else if (offer.productCode !== "X2") fail("wrong product won: " + offer.productCode);
 }
 
 // 3. Delisted: identical evidence to a passing offer, but no longer
 //    bookable -> must suppress regardless of confidence.
 {
-  const good = buildVerifiedOffer({ placeId: "p1", productUrl: "https://www.viator.com/tours/x2", commissionable: true, bookableNow: true, confidence: 0.9, evidence: { entityMatch: 1 } });
+  const good = buildVerifiedOffer({ placeId: "p1", productUrl: "https://www.viator.com/tours/x2", commissionable: true, bookableNow: true, confidence: 0.9, evidence: { entityMatch: 1, geoConfirmed: true } });
   if (good.status !== STATUS.LIVE) fail("sanity: well-evidenced offer should be live before delisting");
   const delisted = buildVerifiedOffer({ ...good, bookableNow: false });
   if (delisted.status !== STATUS.SUPPRESSED) fail("delisted (bookableNow:false) offer was not suppressed");
@@ -49,7 +54,7 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
 //    its own, not just nudge the score.
 {
   const place = { name: "Cortez Fishing Village" };
-  const product = { title: "Cortez Fishing Village Food & Culture Walking Tour", productUrl: "https://www.viator.com/tours/y1", productCode: "Y1" };
+  const product = { title: "Cortez Fishing Village Food & Culture Walking Tour", productUrl: "https://www.viator.com/tours/Bradenton/y1", productCode: "Y1" };
   const specific = scoreCandidate(place, product, { region: "Bradenton, Tampa Bay", kind: "museum", fanoutCount: 1 });
   const genericBundle = scoreCandidate(place, product, { region: "Bradenton, Tampa Bay", kind: "museum", fanoutCount: 60 });
   if (specific.evidence.entityMatch !== genericBundle.evidence.entityMatch) fail("fan-out changed entity match, it should only change specificity");
@@ -75,7 +80,7 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
 //    against ITS OWN history, never borrowed from a neighboring candidate.
 {
   const place = { name: "Cortez Fishing Village" };
-  const specificProduct = { title: "Cortez Fishing Village Food & Culture Walking Tour", productUrl: "https://www.viator.com/tours/y1", productCode: "Y1" };
+  const specificProduct = { title: "Cortez Fishing Village Food & Culture Walking Tour", productUrl: "https://www.viator.com/tours/Bradenton/y1", productCode: "Y1" };
   const bundleProduct = { title: "Bradenton Area Highlights Tour", productUrl: "https://www.viator.com/tours/x1", productCode: "X1" };
   const offers = resolveVerifiedMany(place, [bundleProduct, specificProduct], {
     region: "Bradenton, Tampa Bay",
@@ -109,21 +114,22 @@ const fail = (m) => { console.error("test-booking-resolver: FAIL — " + m); fai
   if (!resolveVerified(place, [localOrigin], { region: "Siesta Key,Sarasota", kind: "beach" })) fail("a local-origin trip naming the region was wrongly gated");
 }
 
-// 6. v5.97 RECALL: a genuine product whose title is a SHORTER form of a long place
-//    name must resolve live. "Mote Aquarium" for "Mote Marine Laboratory & Aquarium"
-//    matched 2 of 4 distinctive tokens -> the old em=hits/total=0.5 fell to 0.675
-//    conf and wrongly suppressed a real, commissionable match. It must be live now,
-//    WITHOUT re-opening any false positive above (those all still suppress).
+// 6. RECALL: a genuine product that names the venue's DISTINCTIVE tokens (its
+//    proper name, not just a generic category word) resolves live. v2 note: the
+//    GENERIC set now excludes category words (aquarium/gardens/museum) from
+//    entity credit, so a product must share >=2 distinctive tokens (or a full
+//    match) to clear 0.72 — a bare one-generic-word title ("Aquarium Admission")
+//    correctly suppresses. Real Viator titles carry the venue name, so this holds.
 {
   const mote = { name: "Mote Marine Laboratory & Aquarium" };
-  const moteProduct = { title: "Mote Aquarium General Admission Ticket", productUrl: "https://www.viator.com/tours/m1", productCode: "M1" };
+  const moteProduct = { title: "Mote Marine Aquarium Admission Ticket", productUrl: "https://www.viator.com/tours/Sarasota/m1", productCode: "M1" };
   const moteOffer = resolveVerified(mote, [moteProduct], { region: "Sarasota", kind: "wildlife" });
-  if (!moteOffer || moteOffer.status !== STATUS.LIVE) fail("genuine short-form match (Mote Aquarium) wrongly suppressed — recall regression");
+  if (!moteOffer || moteOffer.status !== STATUS.LIVE) fail("genuine venue-named match (Mote Marine Aquarium) wrongly suppressed — recall regression");
 
   const selby = { name: "Marie Selby Botanical Gardens" };
-  const selbyProduct = { title: "Selby Gardens Admission", productUrl: "https://www.viator.com/tours/s1", productCode: "S1" };
+  const selbyProduct = { title: "Marie Selby Gardens Admission", productUrl: "https://www.viator.com/tours/Sarasota/s1", productCode: "S1" };
   const selbyOffer = resolveVerified(selby, [selbyProduct], { region: "Sarasota", kind: "nature" });
-  if (!selbyOffer || selbyOffer.status !== STATUS.LIVE) fail("genuine short-form match (Selby Gardens) wrongly suppressed — recall regression");
+  if (!selbyOffer || selbyOffer.status !== STATUS.LIVE) fail("genuine venue-named match (Marie Selby Gardens) wrongly suppressed — recall regression");
 
   // Precision guard for the recall change: a SINGLE generic token of a long name is
   // NOT enough — a product that shares only one weak token must still suppress.

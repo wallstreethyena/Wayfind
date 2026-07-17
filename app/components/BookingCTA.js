@@ -55,7 +55,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
         style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
       >
-        {tk ? "Tickets & tours ↗" : "Check rates ↗"}
+        {verifiedUrl ? "Tickets & tours ↗" : (goFallback ? "Search Viator ↗" : "Check rates ↗")}
       </a>
     );
   }
@@ -117,10 +117,10 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         rel="sponsored noopener"
         style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}
       >
-        <span style={{ fontSize: 18 }}>🎟️</span>
+        <span style={{ fontSize: 18 }}>🔎</span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Find tours & experiences</div>
-          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Tickets and guided tours nearby, via Viator — Wayfind may earn a commission</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Search Viator ↗</div>
+          <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>No verified product for this place — search Viator for tickets &amp; tours nearby</div>
         </div>
         <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
       </a>

@@ -6941,17 +6941,22 @@ function ViatorRail({ title, items, theme }) {
 // product with attribution, or the tracked pid search; every click attributed).
 // Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
 // test-card-booking.mjs enforces the match so the surfaces never drift.
-// The place-card "Tickets & tours" CTA gates on Aff.isTicketyPlace(p) (TICKETY
-// place types only), matching the Detail sheet's ticketsUrl() gate, so the paid
-// CTA never renders on free parks/beaches/scenic/waterfront (replaces the prior
-// broad placeKind allowlist that leaked the CTA onto free inventory).
+// The place card can't confirm a VERIFIED Viator product at build time (no per-card
+// precompute), so it must NOT show a verified-sounding "Tickets & tours" — that's the
+// booking-integrity over-promise. It renders the honest generic "Search Viator ↗"
+// (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
+// parks/beaches). The /go route still upgrades to the exact product at click time when
+// one clears the geo-gated resolver; otherwise it's an honest Viator search.
 function cardBookingHref(p) {
+  // v2 (booking-integrity): build the /api/viator/go URL through lib/affiliates so
+  // the go-URL is constructed in exactly ONE place (the resolver + attribution live
+  // there); nothing else in the app hand-rolls a Viator URL. The route still does the
+  // verified-or-honest-search resolution at click time.
   try {
     const parts = String(p.address || "").split(",").map((x) => x.trim());
     const city = parts.length >= 3 ? parts[1] : "";
-    const q = p.name + (city ? " " + city : "");
-    return "/api/viator/go?q=" + encodeURIComponent(q) + "&city=" + encodeURIComponent(city) + "&kind=" + encodeURIComponent(placeKind(p) || "") + "&placeId=" + encodeURIComponent(p.id || "");
-  } catch (e) { return "/api/viator/go?q=" + encodeURIComponent((p && p.name) || ""); }
+    return Aff.experienceGoUrl(p.name, city, placeKind(p) || "", p.id || "") || "";
+  } catch (e) { return Aff.experienceGoUrl((p && p.name) || "") || ""; }
 }
 
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
@@ -7048,7 +7053,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {Aff.isTicketyPlace(p) && (
-              <a href={cardBookingHref(p)} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Tickets & tours ↗"}</a>
+              <a href={cardBookingHref(p)} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Search Viator ↗"}</a>
             )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
