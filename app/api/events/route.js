@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 // or erroring never touches another provider's events. "unavailable" is
 // only true when NO provider is configured at all.
 
-import { processEvents } from "../../../lib/eventsPipeline.js";
+import { processEvents, siteTodayStr } from "../../../lib/eventsPipeline.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
@@ -20,7 +20,10 @@ function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
 }
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  // Venue-local (US Eastern) calendar day, not the server's UTC day -- otherwise the
+  // stale-cache `upcoming()` filter drops tonight's events after ~8 PM ET. See
+  // siteTodayStr in lib/eventsPipeline.js.
+  return siteTodayStr();
 }
 
 // v4.87 — full Discovery API breadth. A single date-sorted query skews to
