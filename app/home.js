@@ -87,6 +87,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
+import { frontPageEvents } from "../lib/frontEvents";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -5253,7 +5254,11 @@ function PageInner() {
         const data = await r.json();
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
-          setForyouEvents(evs.slice(0, 8));
+          // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community
+          // programs — ticketed categories only (lib/frontEvents; locked by
+          // scripts/test-front-events.mjs). They still live on the Events tab
+          // under "Local events". Depth 24 so the priority rail has inventory.
+          setForyouEvents(frontPageEvents(evs, eventBucket).usable.slice(0, 24));
           setLibraryEvents(evs.filter((e) => e.civic).slice(0, 6));
         }
       } catch { if (!cancelled) { setForyouEvents([]); setLibraryEvents([]); } }
@@ -6427,9 +6432,12 @@ function PageInner() {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
-                const withImg = usable.filter((e) => e.image);
-                const featured = (withImg.length ? withImg : usable).slice().sort((a, b) => (a.date || "9999").localeCompare(b.date || "9999"))[0];
-                const rest = evs.filter((e) => e && (!featured || e.id !== featured.id)).slice(0, 24);
+                // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
+                // runs sports -> comedy -> theater -> concerts; community NEVER
+                // appears here (lib/frontEvents, locked by test-front-events).
+                const fp = frontPageEvents(usable, eventBucket);
+                const featured = fp.featured;
+                const rest = fp.rest.slice(0, 24);
                 return (
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
