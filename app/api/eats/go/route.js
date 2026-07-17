@@ -31,7 +31,9 @@ function searchUrl(name, city) {
 }
 
 async function resolveStore(name, city, lat, lng) {
-  const k = "eatsgo|v1|" + norm(name) + "|" + norm(city);
+  // B8: include a coarse ~1km geo bucket so two locations of the same chain in one
+  // city (e.g. two Orlando Starbucks) don't collide on a single cached store URL.
+  const k = "eatsgo|v1|" + norm(name) + "|" + norm(city) + "|" + (isFinite(lat) ? (+lat).toFixed(2) : "") + "," + (isFinite(lng) ? (+lng).toFixed(2) : "");
   const hit = mem.get(k);
   if (hit && hit.exp > Date.now()) return hit.url;
   try {
@@ -56,19 +58,21 @@ async function resolveStore(name, city, lat, lng) {
     });
     if (!r.ok) return null;
     const html = await r.text();
-    // Prefer the first store link sharing a distinctive (≥4-char) name token;
-    // fall back to the first store link at all (Uber already ranked by query).
+    // B1: a store counts as "this restaurant" ONLY if its slug shares a distinctive
+    // (>=4-char) name token. The old `matched || first` promoted Uber's first result
+    // even with NO name match, so an unverified card could 302 to a DIFFERENT
+    // restaurant. No token match now -> null -> the GET falls back to the honest
+    // tracked search page, never a guessed store.
     const toks = norm(name).split(" ").filter((w) => w.length >= 4);
-    let first = null, matched = null;
+    let matched = null;
     const re = /href="(\/store\/[^"?#]+)/g;
     let m;
     while ((m = re.exec(html))) {
       const href = m[1];
-      if (!first) first = href;
       const slug = norm(decodeURIComponent(href));
       if (toks.length && toks.some((t) => slug.indexOf(t) >= 0)) { matched = href; break; }
     }
-    const best = matched || first;
+    const best = matched;
     if (!best) return null;
     const url = "https://www.ubereats.com" + best;
     mem.set(k, { url, exp: Date.now() + TTL });
