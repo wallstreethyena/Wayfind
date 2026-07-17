@@ -26,7 +26,17 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const topItem = hasTours ? viaTours[placeId].items[0] : null;
 
   if (variant === "primary") {
-    const tk = (hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+    // v6.42 (owner): a bookable-kind place ALWAYS offers a prominent booking
+    // action. Verified product when one cleared the default-deny gate;
+    // otherwise the SAME honest tracked-search href the list fallback uses
+    // (the server may still resolve an exact product at click time — never a
+    // guessed product link). Kinds identical to the card gate + the sheet's
+    // tour-fetch gate; scripts/test-sheet-booking.mjs enforces the match.
+    const BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+    const _bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
+    const verifiedUrl = (hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+    const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind)) ? Aff.experienceGoUrl(detail.name, _bcity, kind, placeId) : null;
+    const tk = verifiedUrl || goFallback;
     const tu = tk || Aff.hotelUrl(detail);
     if (!tu) return null;
     return (
@@ -38,7 +48,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           e.preventDefault();
           const live = (e.currentTarget && e.currentTarget.href) || tu; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
           try { logEvent(tk ? "tickets_out" : "hotel_out", detail); } catch (er) {}
-          try { addReservation(tk ? "tickets" : "hotel", detail, tk ? "Viator" : "Stay22", live); } catch (er) {}
+          try { if (verifiedUrl || !tk) addReservation(tk ? "tickets" : "hotel", detail, tk ? "Viator" : "Stay22", live); } catch (er) {} // search-fallback clicks are not reservations
           openExternal(live);
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
