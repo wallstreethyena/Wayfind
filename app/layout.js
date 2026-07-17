@@ -3,6 +3,7 @@ import { SITE_URL } from "../lib/site";
 import { GUIDES } from "../lib/guides";
 import { CULTURE } from "../lib/culture";
 import PostHogProvider from "./components/PostHogProvider";
+import SentryClient from "./components/SentryClient";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -58,6 +59,12 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#0D1117", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+        {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
+            'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
+            client SDK finishes loading; SentryClient replays this queue on load,
+            then sets __wfSentryReady so this shim stands down (no double capture). */}
+        <script dangerouslySetInnerHTML={{ __html: "(function(){if(window.__wfSentryInit)return;window.__wfSentryInit=1;window.__wfSentryQueue=[];function p(e){try{if(window.__wfSentryReady)return;var q=window.__wfSentryQueue;if(q&&q.length<30)q.push(e)}catch(_){}}window.addEventListener('error',function(v){p({t:Date.now(),error:(v&&v.error)||null,message:v&&v.message,filename:v&&v.filename,lineno:v&&v.lineno})});window.addEventListener('unhandledrejection',function(v){p({t:Date.now(),reason:v&&v.reason,unhandledrejection:1})})})();" }} />
+        <SentryClient />
         <PostHogProvider>
         {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
             is visually hidden until focused, then appears top-left. */}
