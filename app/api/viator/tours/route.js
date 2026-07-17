@@ -80,7 +80,11 @@ export async function GET(req) {
       body: JSON.stringify({
         searchTerm: q,
         currency: "USD",
-        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count } }],
+        // Phase 2a: decouple the SEARCH fanout from the DISPLAY count. Fetch at
+        // least 10 candidates so a real venue product below Viator's generic
+        // city tours can still be resolved; the display slice below stays
+        // verified.slice(0, count) so the caller's requested count is unchanged.
+        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: Math.max(count, 10) } }],
       }),
     });
     if (!res.ok) {
