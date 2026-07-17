@@ -6912,7 +6912,10 @@ function ViatorRail({ title, items, theme }) {
 // product with attribution, or the tracked pid search; every click attributed).
 // Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
 // test-card-booking.mjs enforces the match so the surfaces never drift.
-const CARD_BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+// The place-card "Tickets & tours" CTA gates on Aff.isTicketyPlace(p) (TICKETY
+// place types only), matching the Detail sheet's ticketsUrl() gate, so the paid
+// CTA never renders on free parks/beaches/scenic/waterfront (replaces the prior
+// broad placeKind allowlist that leaked the CTA onto free inventory).
 function cardBookingHref(p) {
   try {
     const parts = String(p.address || "").split(",").map((x) => x.trim());
@@ -7015,8 +7018,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
-            {CARD_BOOKABLE_KINDS.includes(placeKind(p)) && (
-              <a href={cardBookingHref(p)} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Tickets & tours ↗"}</a>
+            {Aff.isTicketyPlace(p) && (
+              <a href={cardBookingHref(p)} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Tickets & tours ↗"}</a>
             )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
