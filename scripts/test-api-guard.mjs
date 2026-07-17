@@ -57,5 +57,13 @@ ok(/"\/api\/eats\/check"/.test(mw), "middleware matcher includes /api/eats/check
 ok(/"\/api\/eats\/go"/.test(mw), "middleware matcher includes /api/eats/go");
 ok(/rateLimitOnly/.test(mw) && /"\/api\/eats\/go"/.test(mw), "middleware passes rateLimitOnly for /api/eats/go");
 
+// ── 2026-07-17 audit: the Viator proxies are guarded too ──
+// /api/viator/tours = same-origin XHR hitting the metered Viator API + a
+// service-role Supabase write → full guard. /api/viator/go = GET-302 nav → rate-
+// limit only (like /api/eats/go). Both were completely unguarded before.
+ok(/"\/api\/viator\/tours"/.test(mw), "middleware matcher includes /api/viator/tours (full guard)");
+ok(/"\/api\/viator\/go"/.test(mw), "middleware matcher includes /api/viator/go");
+ok(/NAV_302_ROUTES[\s\S]*\/api\/viator\/go/.test(mw), "middleware treats /api/viator/go as a rate-limit-only GET-302 nav route");
+
 if (fails) { console.error(`test-api-guard: ${fails} failure(s)`); process.exit(1); }
-console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; eats routes guarded (go=rate-limit-only)");
+console.log("test-api-guard: OK — same-origin gate allows real browsers + blocks scrapers/cross-site; per-IP rate limit trips on burst; internal-secret bypass works; eats + viator proxies guarded (go routes=rate-limit-only)");

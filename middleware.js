@@ -18,6 +18,14 @@ import { guardPaidRoute } from "./lib/apiGuard";
 // a same-origin 403 would break a legitimate click-through in browsers that strip
 // both Sec-Fetch-Site and Referer, so it gets rate-limit only (rateLimitOnly).
 //
+// Viator (2026-07-17 audit): /api/viator/tours is a same-origin XHR (app/home.js)
+// that hits the metered Viator Partner API AND writes Supabase via service-role
+// (persistOffer) — same amplification shape, so full guard. /api/viator/go is a
+// GET 302 the browser navigates to (culture "Book this experience" links, card
+// CTAs), so rate-limit only, exactly like /api/eats/go. Neither has a server-side
+// (SSR) caller — home.js fetches /tours client-side, and /go is only ever a link
+// the browser follows — so guarding them cannot break an SSR page.
+//
 // DELIBERATELY EXCLUDED: /api/events — it has a legitimate server-side (SSR)
 // caller (app/events/[city]/[slug]/page.js) with no browser headers; gating it
 // needs an internal-secret exemption (tracked follow-up), so it stays open here
@@ -33,10 +41,19 @@ export const config = {
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
+    "/api/viator/tours",
+    "/api/viator/go",
   ],
 };
 
+// GET-302 navigations the browser follows in a new tab: a same-origin 403 would
+// break a legitimate click-through (some browsers strip both Sec-Fetch-Site and
+// Referer on a fresh nav), so these get the per-IP rate limit WITHOUT the
+// same-origin block. All other matched routes get the full guard.
+const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go"]);
+
 export function middleware(req) {
-  const rateLimitOnly = req.nextUrl && req.nextUrl.pathname === "/api/eats/go";
+  const path = req.nextUrl && req.nextUrl.pathname;
+  const rateLimitOnly = NAV_302_ROUTES.has(path);
   return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
 }
