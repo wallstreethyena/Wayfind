@@ -6897,6 +6897,21 @@ function ViatorRail({ title, items, theme }) {
   );
 }
 
+// v6.42 (owner): bookable Activities cards carry the PAID booking link at card
+// level — the same verified /api/viator/go gate the Detail sheet uses (exact
+// product with attribution, or the tracked pid search; every click attributed).
+// Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
+// test-card-booking.mjs enforces the match so the surfaces never drift.
+const CARD_BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+function cardBookingHref(p) {
+  try {
+    const parts = String(p.address || "").split(",").map((x) => x.trim());
+    const city = parts.length >= 3 ? parts[1] : "";
+    const q = p.name + (city ? " " + city : "");
+    return "/api/viator/go?q=" + encodeURIComponent(q) + "&city=" + encodeURIComponent(city) + "&kind=" + encodeURIComponent(placeKind(p) || "") + "&placeId=" + encodeURIComponent(p.id || "");
+  } catch (e) { return "/api/viator/go?q=" + encodeURIComponent((p && p.name) || ""); }
+}
+
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
@@ -6990,6 +7005,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+            {CARD_BOOKABLE_KINDS.includes(placeKind(p)) && (
+              <a href={cardBookingHref(p)} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Tickets & tours ↗"}</a>
+            )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
               <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>
