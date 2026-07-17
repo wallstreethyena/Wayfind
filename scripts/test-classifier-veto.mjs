@@ -33,4 +33,10 @@ ok(primaryCategory(mk("City Zoo", ["zoo", "veterinary_care"])) != null, "zoo has
 ok(primaryCategory(mk("Bayfront Marina", ["marina", "storage"])) != null, "marina has a real primaryCategory -> identity-protected");
 ok(primaryCategory(mk("Gulf Coast Lot", ["parking"])) == null, "a bare-parking place has NO primaryCategory -> vetoed");
 
-console.log(`test-classifier-veto: OK — ${pass} assertions (vetoes before allow; parking/adult-in-family closed; zoo/marina protected)`);
+// ── SF2: health/tobacco services must not lead Shopping via the broad "store" token ──
+ok(placeAllowed("shopping", "all", mk("Corner Rx", ["drugstore", "store"])) === false, "SF2: a drugstore does not lead Shopping");
+ok(placeAllowed("shopping", "all", mk("Smoke Spot", ["tobacco_store"])) === false, "SF2: a tobacco store does not lead Shopping");
+ok(placeAllowed("shopping", "all", mk("Macy S", ["department_store"])) === true, "a real department store is still Shopping (no over-veto)");
+ok(placeAllowed("shopping", "all", mk("Book Nook", ["book_store"])) === true, "a bookstore is still Shopping");
+
+console.log(`test-classifier-veto: OK — ${pass} assertions (vetoes before allow; parking/adult-in-family/drugstore closed; zoo/marina/dept-store protected)`);
