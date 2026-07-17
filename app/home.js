@@ -6167,15 +6167,51 @@ function PageInner() {
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {(browseCat === "attractions" || browseCat === "family") && <ViatorRail title={browseCat === "family" ? "Bookable family tours & activities" : "Bookable tours & activities"} items={browseTours} theme="attractions-browse" />}
-                  {loading ? <Loader label="Finding the best spots" pad="14px 2px" /> : view.length === 0 ? (
+                  {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
+                      skeletons so the feed visibly COMPLETES instead of a spinner over a
+                      list that silently shrinks (Family 60->13 mid-render read as frozen). */}
+                  {loading ? (
+                    <div style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="wf-skeleton" style={{ height: 96, borderRadius: 16, marginBottom: 12 }} aria-hidden="true" />
+                      ))}
+                    </div>
+                  ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
                       <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
                       <span style={{ fontSize: 13 }}>Try another category or widen your area.</span>
                     </div>
-                  ) : view.map((p, i) => (
-                    <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
-                  ))}
+                  ) : (
+                    <>
+                      {view.map((p, i) => (
+                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+                      ))}
+                      {/* End-of-feed honesty: name the count + the city so a short list reads
+                          as complete, not broken. When sparse (<8) offer a real next step —
+                          relax the sub-filter if one is on, else widen the search radius. */}
+                      {(() => {
+                        const _lbl = ((Cats.CATEGORY_TILES.find((t) => t.id === browseCat) || {}).label || "").toLowerCase();
+                        const _city = locName ? locName.split(",")[0] : "you";
+                        const _canRelax = sub && sub !== "all";
+                        const _mi = Math.min(Math.round((sliderMi || DEFAULT_RADIUS_MI) + 15), 75);
+                        const _widen = () => { autoRadiusRef.current = false; setSliderMi(_mi); setSearchRadius(Math.round(_mi * 1609.34)); };
+                        const _relax = () => setSub("all");
+                        const _act = _canRelax ? _relax : _widen;
+                        return (
+                          <div style={{ textAlign: "center", padding: "16px 16px 6px", color: C.muted, fontSize: 13, lineHeight: 1.5 }}>
+                            <div>That's all {view.length} {_lbl ? _lbl + " " : ""}{view.length === 1 ? "spot" : "spots"} near {_city}{locApprox ? " (approximate location)" : ""}.</div>
+                            {view.length < 8 && (
+                              <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
+                                style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
+                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "Search a wider area (" + _mi + " mi) ↗"}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </>
+                  )}
                 </div>
               )}
               {/* v6.21: the single hero is now the experience hero below (random themed curated list, the shareable anchor). The old place hero was removed to keep one hero. */}
