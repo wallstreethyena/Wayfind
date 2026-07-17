@@ -61,8 +61,9 @@ const W = 50;
 {
   const route = read("app/api/signals/likes/route.js");
   ok(/process\.env\.WF_OWNER_USER_ID/.test(route) && /process\.env\.WF_OWNER_LIKE_WEIGHT/.test(route), "owner id + weight come from process.env");
-  const params = route.match(/searchParams\.get\("([^"]+)"\)/g) || [];
-  ok(params.length > 0 && params.every((p) => p.includes('"ids"')), "the route reads ONLY the ids query param from the client: " + JSON.stringify(params));
+  const params = (route.match(/searchParams\.get\("([^"]+)"\)/g) || []).map((p) => (p.match(/"([^"]+)"/) || [])[1]);
+  const ALLOWED = new Set(["ids", "fresh"]); // ids = allow-list, fresh = cache-bust flag; NEVER owner/weight
+  ok(params.length > 0 && params.every((p) => ALLOWED.has(p)), "the route reads ONLY safe client params (ids, fresh) — never owner/weight: " + JSON.stringify(params));
   // No hardcoded owner identity anywhere in the signal path (public repo). Uses
   // GENERIC UUID/email patterns so this test never contains the real values either.
   const signalSrc = route + read("lib/memberSignals.js");
@@ -75,4 +76,20 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   ok(!/affiliate|viator|verifiedOffers|bookingResolver/i.test(read(f)), `${f} must not import/touch any affiliate module`);
 }
 
-console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated)`);
+// 8. CHIP — display-only, server-derived; ownerPick=false can NEVER render it.
+{
+  const home = read("app/home.js");
+  ok(/const CURATOR_CHIP_LABEL = "/.test(home), "the chip label lives in ONE constant (one-line rename)");
+  ok(/p\._members && p\._members\.ownerPick && <span/.test(home), "the chip is gated SOLELY on the server's _members.ownerPick (false -> renders nothing)");
+  ok(/>\{CURATOR_CHIP_LABEL\}</.test(home), "the chip renders the label constant");
+  ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
+  ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
+  const i = home.indexOf("function refreshOwnerPick(");
+  const rop = home.slice(i, i + 900);
+  ok(/ownerPick/.test(rop) && !/wfScore/.test(rop), "the real-time refetch patches ownerPick ONLY, never wfScore (chip/rank timing decoupled — no mid-scroll re-sort)");
+}
+
+// 9. fresh=1 is a cache flag only — it cannot influence the weight/owner (env-only).
+ok(/searchParams\.get\("fresh"\)/.test(read("app/api/signals/likes/route.js")), "the route honors the fresh cache-bust flag (owner id/weight stay env-only)");
+
+console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; chip display-only + real-time via fresh refetch, no re-sort)`);

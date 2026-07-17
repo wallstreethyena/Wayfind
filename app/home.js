@@ -169,6 +169,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
     </div>
   );
 }
+// Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
+const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
 function FeaturedTag({ name }) {
   if (!(featuredBoost(name) > 0)) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
@@ -3911,6 +3913,24 @@ function PageInner() {
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
+  // Curator Boost real-time chip: after a like/unlike write LANDS, refetch the
+  // server's ownerPick for THIS place (cache-busting fresh=1) and patch it into
+  // the visible feed so the OWNER sees the chip appear/disappear within ~1s. The
+  // client never learns or decides owner status — it renders whatever ownerPick
+  // the server returns. Chip ONLY: wfScore/rank are untouched, so nothing re-sorts
+  // mid-scroll (the 50x ranking effect lands on the next feed load, by design).
+  async function refreshOwnerPick(placeId) {
+    if (!placeId) return;
+    try {
+      const r = await fetch("/api/signals/likes?ids=" + encodeURIComponent(placeId) + "&fresh=1");
+      if (!r.ok) return;
+      const d = await r.json();
+      const ownerPick = !!(d && d.owner && d.owner[placeId]);
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? { ...pl, _members: { ...(pl._members || { authors: 0, warnAuthors: 0 }), ownerPick } } : pl));
+      setPlaces(patch);
+      setExpPlaces(patch);
+    } catch (e) {}
+  }
   function toggleLike(e, p) {
     e.stopPropagation();
     if (!requireAuth("Like it? Sign up free — Wayfind learns your taste and remembers it.")) return;
@@ -3929,9 +3949,9 @@ function PageInner() {
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (supabase && user) {
       if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => {}, () => {});
+        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
       } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => {}, () => {});
+        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -7046,6 +7066,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
+      {/* Curator Boost chip — overlaid on the image corner (top-left, clear of the
+          top-right score badge), same gold visual system as the Featured badge.
+          Display-only, gated SOLELY on the server's ownerPick; the client never
+          decides owner status, so ownerPick=false can never render it. */}
+      {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
       <div style={{ display: "flex" }}>
         <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
@@ -7061,8 +7086,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
             {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ fontSize: 11, fontWeight: 700, color: "#F97316", background: "rgba(249,115,22,.15)", padding: "2px 8px", borderRadius: 8 }}>★ Wayfind pick</span>}
-            {/* Curator Boost: glass-box honesty — the owner's editorial pick is visible. Display-only; the like weight already did the ranking nudge, this adds nothing to the score. */}
-            {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ fontSize: 11, fontWeight: 800, color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", padding: "2px 8px", borderRadius: 999 }}>⭐ Curator's pick</span>}
             {(() => {
               const cz = Dining.cuisineLabel(p);
               const isFood = pcat === "Food" || pcat === "Nightlife";
