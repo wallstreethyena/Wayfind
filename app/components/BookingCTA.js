@@ -19,11 +19,34 @@ function hasVerifiedTours(viaTours, placeId) {
   return !!(vt && !vt.loading && Array.isArray(vt.items) && vt.items.length > 0);
 }
 
+// The bookable-place kinds that always warrant a booking action. Module-scope
+// so the primary CTA and the commission disclosure derive from ONE source and
+// can never drift — they did once, and an earning "Search Viator" rendered with
+// NO disclosure (an FTC gap). scripts/test-sheet-booking.mjs keeps this list
+// byte-identical to the card-chip + sheet tour-fetch gates.
+const BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+
+// The single predicate for "this place shows a monetized booking CTA." Returns
+// the resolved hrefs; `tu` is truthy exactly when SOME earning link renders (a
+// verified Viator product, the honest tracked Viator search for a bookable
+// kind, or a Stay22 hotel link). The primary button AND the disclosure line
+// both read this, so a commission link can never appear without its disclosure.
+function bookingTargets(detail, kind, topItem, locName) {
+  const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
+  const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+  const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
+  const tk = verifiedUrl || goFallback;
+  const tu = tk || Aff.hotelUrl(detail);
+  return { verifiedUrl, goFallback, tk, tu };
+}
+
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback }) {
   if (!detail) return null;
   const placeId = detail.id;
   const hasTours = hasVerifiedTours(viaTours, placeId);
   const topItem = hasTours ? viaTours[placeId].items[0] : null;
+  // One predicate drives both the primary earning CTA and its disclosure.
+  const targets = bookingTargets(detail, kind, topItem, locName);
 
   if (variant === "primary") {
     // v6.42 (owner): a bookable-kind place ALWAYS offers a prominent booking
@@ -32,12 +55,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // (the server may still resolve an exact product at click time — never a
     // guessed product link). Kinds identical to the card gate + the sheet's
     // tour-fetch gate; scripts/test-sheet-booking.mjs enforces the match.
-    const BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
-    const _bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
-    const verifiedUrl = (hasTours && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
-    const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind)) ? Aff.experienceGoUrl(detail.name, _bcity, kind, placeId) : null;
-    const tk = verifiedUrl || goFallback;
-    const tu = tk || Aff.hotelUrl(detail);
+    const { verifiedUrl, goFallback, tk, tu } = targets;
     if (!tu) return null;
     return (
       <a
@@ -61,9 +79,12 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   }
 
   if (variant === "disclosure") {
-    const show = (hasTours && Aff.ticketsUrl(detail)) || Aff.hotelUrl(detail);
-    if (!show) return null;
-    return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission from partner links</div>;
+    // FTC: the disclosure renders whenever the primary CTA renders an earning
+    // link — both gate on the SAME targets.tu, so a commission link can never
+    // show undisclosed (previously this used a narrower gate that missed the
+    // "Search Viator" tracked-search fallback — the dominant earning case).
+    if (!targets.tu) return null;
+    return <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>;
   }
 
   if (variant === "list") {
