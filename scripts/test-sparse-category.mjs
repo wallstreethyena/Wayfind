@@ -21,7 +21,7 @@ ok(/Array\.from\(\{ length: 5 \}\)[^]{0,200}wf-skeleton/.test(home), "the skelet
 // (a) end-of-feed honesty line + sparse next step.
 ok(home.includes("That's all "), "browse feed shows an end-of-feed 'That's all N …' line so a short list reads as complete");
 ok(/view\.length < 8/.test(home), "the widen/relax next step is gated on a sparse (<8) result count");
-ok(home.includes("Search a wider area"), "sparse feed offers a widen-the-radius action");
+ok(/const _widen = \(\) =>/.test(home) && /_mi \+ " mi/.test(home), "sparse feed offers a widen-the-radius action (mechanic pinned, not the marketing copy)");
 ok(home.includes("Show all ") && /setSub\("all"\)/.test(home), "sparse feed offers a relax-the-filter action when a sub-filter is active");
 
 // (c) name the city + disclose approximate/out-of-coverage location.

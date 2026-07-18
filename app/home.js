@@ -169,6 +169,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
     </div>
   );
 }
+// Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
+const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
 function FeaturedTag({ name }) {
   if (!(featuredBoost(name) > 0)) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
@@ -203,7 +205,8 @@ async function fetchMemberSignals(sb, list) {
       for (const k in m) out[k] = { authors: Object.keys(m[k].seen).length, warnAuthors: Object.keys(m[k].warnSeen).length };
     }
     const lc = lRes && lRes.counts ? lRes.counts : null;
-    if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; }
+    const lo = lRes && lRes.owner ? lRes.owner : null; // Curator Boost: which places the owner picked (display-only chip; the weight is already in the count)
+    if (lc) for (const k in lc) { if (!out[k]) out[k] = { authors: 0, warnAuthors: 0 }; out[k].likes = lc[k]; if (lo && lo[k]) out[k].ownerPick = true; }
     return Object.keys(out).length ? out : null;
   } catch (e) { return null; }
 }
@@ -3910,6 +3913,24 @@ function PageInner() {
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
+  // Curator Boost real-time chip: after a like/unlike write LANDS, refetch the
+  // server's ownerPick for THIS place (cache-busting fresh=1) and patch it into
+  // the visible feed so the OWNER sees the chip appear/disappear within ~1s. The
+  // client never learns or decides owner status — it renders whatever ownerPick
+  // the server returns. Chip ONLY: wfScore/rank are untouched, so nothing re-sorts
+  // mid-scroll (the 50x ranking effect lands on the next feed load, by design).
+  async function refreshOwnerPick(placeId) {
+    if (!placeId) return;
+    try {
+      const r = await fetch("/api/signals/likes?ids=" + encodeURIComponent(placeId) + "&fresh=1");
+      if (!r.ok) return;
+      const d = await r.json();
+      const ownerPick = !!(d && d.owner && d.owner[placeId]);
+      const patch = (cur) => (cur || []).map((pl) => (pl && pl.id === placeId ? { ...pl, _members: { ...(pl._members || { authors: 0, warnAuthors: 0 }), ownerPick } } : pl));
+      setPlaces(patch);
+      setExpPlaces(patch);
+    } catch (e) {}
+  }
   function toggleLike(e, p) {
     e.stopPropagation();
     if (!requireAuth("Like it? Sign up free — Wayfind learns your taste and remembers it.")) return;
@@ -3928,9 +3949,9 @@ function PageInner() {
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (supabase && user) {
       if (wasLiked) {
-        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => {}, () => {});
+        supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
       } else {
-        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => {}, () => {});
+        supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }).then(() => refreshOwnerPick(p.id), () => {});
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -5808,7 +5829,7 @@ function PageInner() {
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
           <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
-          <span style={{ fontSize: 13 }}>We're still adding spots in your area. Try another category nearby.</span>
+          <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
         </div>
       )}
       {restView.slice(0, 3).map((p, i) => (
@@ -6151,12 +6172,133 @@ function PageInner() {
               <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 780 : undefined }}>
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
               <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+              {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
+              {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16 }}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
+                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
+                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
+                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
+                  </div>
+                </div>
+              )}
+              {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
+                const evs = dedupeEvents(foryouEvents, true);
+                const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
+                const usable = evs.filter((e) => e && e.dest);
+                // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
+                // runs sports -> comedy -> theater -> concerts; community NEVER
+                // appears here (lib/frontEvents, locked by test-front-events).
+                const fp = frontPageEvents(usable, eventBucket);
+                const featured = fp.featured;
+                const rest = fp.rest.slice(0, 24);
+                return (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
+                    </div>
+                    {featured && featured.dest && (() => {
+                      const f = formatEventDate(featured.date, featured.time);
+                      const seg = eventSegmentMeta(featured.segment, featured.genre, featured.name);
+                      const rel = relLabel(featured);
+                      const acc = C.purple;
+                      const internal = featured.destKind === "internal";
+                      const href = internal ? featured.dest : ticketUrl(featured.dest);
+                      const tix = internal && featured.url ? ticketUrl(featured.url) : null;
+                      // Phase 2 card semantics: the hero is ONE semantic link to
+                      // the event's resolved destination; the tickets action is a
+                      // separate sibling control layered on top, never nested.
+                      return (
+                        <div style={{ position: "relative", marginBottom: 10 }}>
+                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: 176, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
+                            <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
+                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
+                            <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
+                            <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                              <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                                <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
+                              </div>
+                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} /><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
+                            </div>
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 52px" }}>
+                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
+                            </div>
+                          </a>
+                          <div style={{ position: "absolute", bottom: 14, left: 14, display: "flex", gap: 8 }}>
+                            {tix
+                              ? <a href={tix} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "cta" }); } catch (e2) {} }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", textDecoration: "none" }}>Get tickets →</a>
+                              : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    {rest.length > 0 && (
+                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                        {rest.filter((e) => e && e.dest).map((e) => {
+                          const f = formatEventDate(e.date, e.time);
+                          const evRel = relLabel(e);
+                          const internal = e.destKind === "internal";
+                          return (
+                            <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "foryou_rail" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, width: 150, flexShrink: 0, scrollSnapAlign: "start", textDecoration: "none" }}>
+                              <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}>{e.name}</div>
+                              <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+                      {!browseCat && (suggested && suggested.length > 0) && (() => {
+                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
+                        // The 3:33 PM reorder is computed in a post-mount effect
+                        // (menuOrder), never in this render body — hydration-safe.
+                        // "Today's Best" opens the consolidated openCurated("today").
+                        const _order = menuOrder;
+                        // v6.08 (PR-C): premium treatment — edges + type, not tinted boxes.
+                        // One hairline of edge light on the container, 1px row dividers, a
+                        // uniform quiet icon, a near-invisible chevron. The aspirational
+                        // marketing sublines are REMOVED; the live-fact sublines the owner
+                        // wants ("47 open now") are DEFERRED until PR-B seeds a real
+                        // inventory — computing counts off the current bugged candidate set
+                        // would be a confident-but-false number, the exact thing the
+                        // candidate-set fix exists to eliminate.
+                        return (
+                          <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
+                            <div style={{ padding: "16px 15px 6px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
+                            </div>
+                            <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
+                            {_order.map((key) => {
+                              const t = EXPLORE_TILES[key];
+                              return (
+                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
+                                    <NavIcon name={t.icon} size={26} strokeWidth={1.5} color="rgba(255,255,255,.7)" />
+                                  </span>
+                                  <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
+                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+                                  </span>
+                                </button>
+                              );
+                            })}
+                            <div style={{ padding: "14px 15px 16px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
+                          </div>
+                        );
+                      })()}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>Put Wayfind on your home screen</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap. Opens like an app." : "Tap Share, then Add to Home Screen."}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap to tonight's plan — opens like an app." : "Tap Share, then Add to Home Screen."}</div>
                   </div>
                   {deferredPrompt && <button onClick={() => { try { deferredPrompt.prompt(); logEvent("a2hs_install"); } catch (e) {} setA2hs(false); }} style={{ flexShrink: 0, padding: "8px 14px", background: C.accent, border: "none", borderRadius: 10, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Install</button>}
                   <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>✕</button>
@@ -6184,7 +6326,7 @@ function PageInner() {
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
                       <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category or widen your area.</span>
+                      <span style={{ fontSize: 13 }}>Try another category — or widen your search; the best spots are often a few miles out.</span>
                     </div>
                   ) : (
                     <>
@@ -6208,7 +6350,7 @@ function PageInner() {
                             {view.length < 8 && (
                               <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
                                 style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
-                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "Search a wider area (" + _mi + " mi) ↗"}
+                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "See more great spots — " + _mi + " mi out ↗"}
                               </div>
                             )}
                           </div>
@@ -6328,8 +6470,8 @@ function PageInner() {
                       </div>
                     )}
                     {heroPlace && (<>
-                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
-                                            {gwPop && (giveawayLive() || giveawaySoon()) && (
+                      {/* "Best move right now" section removed (owner 2026-07-17). The giveaway / World Cup / holiday promo cards below are separate features and stay. */}
+                      {gwPop && (giveawayLive() || giveawaySoon()) && (
                         <div onClick={() => gwPopClose("x")} style={{ position: "fixed", inset: 0, zIndex: 88, background: "rgba(0,0,0,.62)", backdropFilter: "blur(3px)", WebkitBackdropFilter: "blur(3px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 18 }}>
                           <div ref={gwPopDlgRef} role="dialog" aria-modal="true" aria-label="Wayfind giveaway" tabIndex={-1} onClick={(e) => e.stopPropagation()} style={{ outline: "none", width: "100%", maxWidth: 400, borderRadius: 20, padding: "18px 17px 16px", background: "linear-gradient(135deg, #1B1405 0%, #2A1F08 60%, #1B1405 100%)", border: "1px solid rgba(232,184,75,.55)", boxShadow: "0 24px 60px rgba(0,0,0,.6)", position: "relative", overflow: "hidden" }}>
                             <style>{"@keyframes wfGold{0%,100%{opacity:.5}50%{opacity:1}}"}</style>
@@ -6392,47 +6534,8 @@ function PageInner() {
                         </div>
                       ); })()}
                       
-                      {/* "Your Next Move" hidden per request — change false to true to bring it back */}
-                      {false && <HookSolo h={heroHook} place={heroPlace} hideLike onOpen={openHook} onShare={() => shareHook(heroHook, heroPlace)} />}
+                      {/* "Best move right now" hero body removed (owner 2026-07-17); it was already disabled. heroHook kept (harmless, unused). */}
                     </>)}
-                      {(() => {
-                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
-                        // The 3:33 PM reorder is computed in a post-mount effect
-                        // (menuOrder), never in this render body — hydration-safe.
-                        // "Today's Best" opens the consolidated openCurated("today").
-                        const _order = menuOrder;
-                        // v6.08 (PR-C): premium treatment — edges + type, not tinted boxes.
-                        // One hairline of edge light on the container, 1px row dividers, a
-                        // uniform quiet icon, a near-invisible chevron. The aspirational
-                        // marketing sublines are REMOVED; the live-fact sublines the owner
-                        // wants ("47 open now") are DEFERRED until PR-B seeds a real
-                        // inventory — computing counts off the current bugged candidate set
-                        // would be a confident-but-false number, the exact thing the
-                        // candidate-set fix exists to eliminate.
-                        return (
-                          <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-                            <div style={{ padding: "16px 15px 6px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
-                            </div>
-                            <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
-                            {_order.map((key) => {
-                              const t = EXPLORE_TILES[key];
-                              return (
-                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
-                                    <NavIcon name={t.icon} size={26} strokeWidth={1.5} color="rgba(255,255,255,.7)" />
-                                  </span>
-                                  <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                                  </span>
-                                </button>
-                              );
-                            })}
-                            <div style={{ padding: "14px 15px 16px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
-                          </div>
-                        );
-                      })()}
                     {/* v5.66: the "More ways to explore" image cards + the Take-a-chance card are now folded into the single iOS-style list menu above — destinations + analytics preserved, no photos. */}
                   </div>
                 );
@@ -6485,88 +6588,6 @@ function PageInner() {
                   {card("Best places to eat nearby", "Ranked by what is worth your time: ratings, distance, price, weather and time of day.", food10, food10Open, () => setFood10Open((v) => !v))}
                   {card("Best things to do today", "Too many options? Start here. We narrow today's local things to do into a short list worth your time.", todo10, top10Open, () => setTop10Open((v) => !v))}
                 </>);
-              })()}
-              {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
-                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
-                  </div>
-                </div>
-              )}
-              {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
-                const evs = dedupeEvents(foryouEvents, true);
-                const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
-                const usable = evs.filter((e) => e && e.dest);
-                // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
-                // runs sports -> comedy -> theater -> concerts; community NEVER
-                // appears here (lib/frontEvents, locked by test-front-events).
-                const fp = frontPageEvents(usable, eventBucket);
-                const featured = fp.featured;
-                const rest = fp.rest.slice(0, 24);
-                return (
-                  <div style={{ marginBottom: 16 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
-                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
-                    </div>
-                    {featured && featured.dest && (() => {
-                      const f = formatEventDate(featured.date, featured.time);
-                      const seg = eventSegmentMeta(featured.segment, featured.genre, featured.name);
-                      const rel = relLabel(featured);
-                      const acc = C.purple;
-                      const internal = featured.destKind === "internal";
-                      const href = internal ? featured.dest : ticketUrl(featured.dest);
-                      const tix = internal && featured.url ? ticketUrl(featured.url) : null;
-                      // Phase 2 card semantics: the hero is ONE semantic link to
-                      // the event's resolved destination; the tickets action is a
-                      // separate sibling control layered on top, never nested.
-                      return (
-                        <div style={{ position: "relative", marginBottom: 10 }}>
-                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: 176, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
-                            <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
-                            <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                              <div style={{ display: "inline-flex", alignItems: "center", background: rel ? acc : "rgba(0,0,0,.6)", border: `1px solid ${rel ? acc : "rgba(255,255,255,.25)"}`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                                <span style={{ fontSize: 10.5, fontWeight: 800, color: rel ? "#0D1117" : "#fff", letterSpacing: "0.4px", textTransform: "uppercase" }}>{rel || (f.wd + " " + f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</span>
-                              </div>
-                              {(featured.segment || featured.genre) && <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "rgba(0,0,0,.6)", border: `1px solid ${seg.color}77`, borderRadius: 999, padding: "4px 10px", backdropFilter: "blur(4px)" }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} /><span style={{ fontSize: 9, fontWeight: 800, color: seg.color, textTransform: "uppercase", letterSpacing: "0.8px" }}>{seg.short}</span></div>}
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 52px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{featured.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {cleanVenueName(featured.venue) || featured.city || "Nearby"}{featured.price ? " · " + featured.price : ""}</div>
-                            </div>
-                          </a>
-                          <div style={{ position: "absolute", bottom: 14, left: 14, display: "flex", gap: 8 }}>
-                            {tix
-                              ? <a href={tix} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "cta" }); } catch (e2) {} }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", textDecoration: "none" }}>Get tickets →</a>
-                              : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                    {rest.length > 0 && (
-                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                        {rest.filter((e) => e && e.dest).map((e) => {
-                          const f = formatEventDate(e.date, e.time);
-                          const evRel = relLabel(e);
-                          const internal = e.destKind === "internal";
-                          return (
-                            <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "foryou_rail" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, width: 150, flexShrink: 0, scrollSnapAlign: "start", textDecoration: "none" }}>
-                              <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}>{e.name}</div>
-                              <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                            </a>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
               })()}
               {/* v5.35 hydration: the moment phrase ("Friday evening") comes
                   from post-mount state — the SSR'd shell can be up to an hour
@@ -7045,6 +7066,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
+      {/* Curator Boost chip — overlaid on the image corner (top-left, clear of the
+          top-right score badge), same gold visual system as the Featured badge.
+          Display-only, gated SOLELY on the server's ownerPick; the client never
+          decides owner status, so ownerPick=false can never render it. */}
+      {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
       <div style={{ display: "flex" }}>
         <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>

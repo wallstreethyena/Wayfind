@@ -18,7 +18,7 @@ export default function SavedScreen({ ctx }) {
             {supabase && !user && (
               <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16, cursor: "pointer" }}>
                 <span style={{ fontSize: 17 }}>☁️</span>
-                <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.35 }}>Sign in to save your lists across devices.</div>
+                <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.35 }}>Sign up free — your lists, saved and synced to every device.</div>
                 <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
               </div>
             )}
@@ -69,7 +69,7 @@ export default function SavedScreen({ ctx }) {
           </div>
         )}
         {sysFolder && (() => {
-          const cfg = { liked: { name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems, empty: "Tap the thumbs up on any place and it lands here, newest first." }, disliked: { name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems, empty: "Places you thumbs down collect here, so you can revisit them or change your mind." }, shared: { name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems, empty: "Anything you share gets gathered here automatically." } }[sysFolder];
+          const cfg = { liked: { name: "Liked", emoji: "\uD83D\uDC4D", items: likedItems, empty: "Like a place and it lands here \u2014 sign up free to keep your taste on every device." }, disliked: { name: "Disliked", emoji: "\uD83D\uDC4E", items: dislikedItems, empty: "Thumbs-down a place and it collects here \u2014 revisit or change your mind anytime." }, shared: { name: "Shared", emoji: "\uD83D\uDCE4", items: sharedItems, empty: "Every place you share gathers here \u2014 sign up free to keep them on every device." } }[sysFolder];
           if (!cfg) return null;
           const arr = Object.values(cfg.items || {}).filter((x) => x && x.place && x.place.id).sort((a, b) => (b.ts || 0) - (a.ts || 0));
           return (

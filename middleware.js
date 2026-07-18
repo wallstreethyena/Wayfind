@@ -43,6 +43,10 @@ export const config = {
     "/api/eats/go",
     "/api/viator/tours",
     "/api/viator/go",
+    // Curator Boost: /api/signals/likes is a same-origin XHR (fetchMemberSignals
+    // in app/home.js) that reads likes/events via the service role. No SSR caller,
+    // so full same-origin guard — stops cross-site scraping of the aggregate.
+    "/api/signals/likes",
   ],
 };
 
