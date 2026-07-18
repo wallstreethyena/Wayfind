@@ -19,6 +19,11 @@
 -- ============================================================
 
 create index if not exists events_created_idx on public.events (created_at);
+-- Composite index for per-device time-window scans (retention / new-vs-
+-- returning). Without it the planner walked events_created_idx and filtered
+-- device_id row-by-row — measured 7.3M buffer hits / 7.7s for one retention
+-- call; with it the same call is ~180ms.
+create index if not exists events_device_created_idx on public.events (device_id, created_at);
 
 -- Affiliate / outbound partner click actions (kept in ONE place server-side;
 -- lib/commandCenter/eventMap.js mirrors this list for the UI legend).
@@ -229,6 +234,9 @@ $$;
 -- ------------------------------------------------------------
 -- 9) Device retention by first-seen day: D1 / D7 / D30 returns.
 -- ------------------------------------------------------------
+-- Single-pass (v1.1): the correlated-EXISTS version measured 7.7s on live data
+-- and tripped the API's 8s budget; one LEFT JOIN + boolean aggregation runs in
+-- tens of milliseconds on the same data.
 create or replace function public.wf_cc_retention(_from timestamptz, _to timestamptz, _tz text default 'America/New_York')
 returns table(day date, new_devices bigint, d1 bigint, d7 bigint, d30 bigint)
 language sql stable security definer set search_path = public as $$
@@ -238,18 +246,21 @@ language sql stable security definer set search_path = public as $$
   ), cohort as (
     select device_id, first_at, (first_at at time zone public.wf_cc_tz(_tz))::date as day
     from firsts where first_at >= _from and first_at < _to
+  ), rets as (
+    select c.day, c.device_id,
+      bool_or(e.created_at < c.first_at + interval '2 day') as r1,
+      bool_or(e.created_at < c.first_at + interval '8 day') as r7,
+      bool_or(e.created_at < c.first_at + interval '31 day') as r30
+    from cohort c
+    left join public.events e
+      on e.device_id = c.device_id and e.created_at >= c.first_at + interval '1 day'
+    group by c.day, c.device_id
   )
-  select c.day, count(distinct c.device_id) as new_devices,
-    count(distinct c.device_id) filter (where exists (
-      select 1 from public.events e where e.device_id = c.device_id
-        and e.created_at >= c.first_at + interval '1 day' and e.created_at < c.first_at + interval '2 day')) as d1,
-    count(distinct c.device_id) filter (where exists (
-      select 1 from public.events e where e.device_id = c.device_id
-        and e.created_at >= c.first_at + interval '1 day' and e.created_at < c.first_at + interval '8 day')) as d7,
-    count(distinct c.device_id) filter (where exists (
-      select 1 from public.events e where e.device_id = c.device_id
-        and e.created_at >= c.first_at + interval '1 day' and e.created_at < c.first_at + interval '31 day')) as d30
-  from cohort c group by c.day order by c.day
+  select day, count(*) as new_devices,
+         count(*) filter (where r1) as d1,
+         count(*) filter (where r7) as d7,
+         count(*) filter (where r30) as d30
+  from rets group by day order by day
 $$;
 
 -- ------------------------------------------------------------
@@ -367,5 +378,6 @@ $lock$;
 --   drop function if exists public.wf_cc_tz(text);
 --   drop function if exists public.wf_cc_engage_actions();
 --   drop function if exists public.wf_cc_out_actions();
+--   drop index if exists public.events_device_created_idx;
 --   drop index if exists public.events_created_idx;
 -- ============================================================
