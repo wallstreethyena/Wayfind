@@ -600,6 +600,25 @@ function RetentionSection({ auth, range }) {
           <CohortGrid rows={cohortRows} />
         </Frame>
       </Card>
+      <div style={{ height: 12 }} />
+      <Two>
+        <Card>
+          <Frame title="Recent signups — owner eyes only" def={dget(d, "piiNote", "Contains account emails.")}
+            source={dget(d, "recentSignups.source")}>
+            <DataTable caption="Recent signups"
+              columns={["Email", "Signed up", "Confirmed", "Last active"]}
+              rows={(dget(d, "recentSignups.data", null) || []).map((r) => [r.email, String(r.created_at || "").slice(0, 16).replace("T", " "), r.confirmed ? "✓" : "—", r.last_active ? String(r.last_active).slice(0, 16).replace("T", " ") : "never"])} />
+          </Frame>
+        </Card>
+        <Card>
+          <Frame title="Recent shares — who shared what" def="Sharer attribution: account email when the sharer was signed in, otherwise a truncated anonymous device prefix. Share DESTINATION (which app was picked) is never revealed by the OS share sheet — per-channel share buttons are the phase-2 path to that."
+            source={dget(d, "recentShares.source")}>
+            <DataTable caption="Recent shares"
+              columns={["When", "Who", "Shared", "Kind"]}
+              rows={(dget(d, "recentShares.data", null) || []).map((r) => [String(r.created_at || "").slice(5, 16).replace("T", " "), r.who, r.shared_what, r.kind || "—"])} />
+          </Frame>
+        </Card>
+      </Two>
     </Section>
   );
 }

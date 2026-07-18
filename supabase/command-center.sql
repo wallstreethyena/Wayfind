@@ -11,8 +11,11 @@
 --     service_role — these are reachable exclusively from server code holding
 --     SUPABASE_SERVICE_ROLE_KEY (the /api/command-center routes). A browser
 --     with the anon key gets "permission denied" by construction.
---   • Nothing row-level ever leaves: no device_id, no user_id, no emails —
---     aggregates only. Search terms are length-capped and email-masked.
+--   • Row-level identity stays out of every function EXCEPT the two
+--     owner-eyes-only panels in section 12 (recent signups / recent shares —
+--     explicit owner decision 2026-07-18). Everything else is aggregates
+--     only: no device_id, no user_id, no emails; search terms are
+--     length-capped and email-masked.
 --
 -- Timezone: "a day" is a SITE-LOCAL (US Eastern) day, matching
 -- lib/siteTime.js — never a UTC day (the 8 PM ET rollover bug class).
@@ -310,7 +313,41 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ------------------------------------------------------------
--- 12) Lab Core Web Vitals — latest PageSpeed cron run per URL + 7-day trend.
+-- 12) OWNER-EYES-ONLY identity panels (explicit owner decision 2026-07-18,
+--     amending the v1 "no PII" posture for exactly these two functions):
+--     recent signups w/ emails + recent shares w/ sharer attribution.
+--     Same server-only EXECUTE lock as everything else; anonymous sharers
+--     are shown as a truncated device prefix, never the full id.
+-- ------------------------------------------------------------
+create index if not exists events_user_created_idx on public.events (user_id, created_at) where user_id is not null;
+
+create or replace function public.wf_cc_recent_signups(_limit int default 50)
+returns table(email text, created_at timestamptz, confirmed boolean, last_sign_in timestamptz, last_active timestamptz)
+language sql stable security definer set search_path = public as $$
+  select u.email, u.created_at, u.email_confirmed_at is not null as confirmed, u.last_sign_in_at,
+         (select max(e.created_at) from public.events e where e.user_id = u.id) as last_active
+  from auth.users u
+  where coalesce(u.is_anonymous, false) = false
+  order by u.created_at desc
+  limit least(greatest(coalesce(_limit, 50), 1), 200)
+$$;
+
+create or replace function public.wf_cc_recent_shares(_limit int default 30)
+returns table(created_at timestamptz, who text, shared_what text, kind text)
+language sql stable security definer set search_path = public as $$
+  select e.created_at,
+         coalesce(u.email, 'anonymous · ' || left(coalesce(e.device_id, '?'), 8)) as who,
+         coalesce(nullif(e.place_name, ''), e.meta->>'kind', '?') as shared_what,
+         e.meta->>'kind' as kind
+  from public.events e
+  left join auth.users u on u.id = e.user_id
+  where e.action = 'share'
+  order by e.created_at desc
+  limit least(greatest(coalesce(_limit, 30), 1), 200)
+$$;
+
+-- ------------------------------------------------------------
+-- 13) Lab Core Web Vitals — latest PageSpeed cron run per URL + 7-day trend.
 -- ------------------------------------------------------------
 create or replace function public.wf_cc_lab_cwv()
 returns table(url text, strategy text, runs_7d bigint, last_run timestamptz,
@@ -353,7 +390,9 @@ begin
     'wf_cc_retention(timestamptz,timestamptz,text)',
     'wf_cc_cohorts_weekly(int,text)',
     'wf_cc_new_returning(timestamptz,timestamptz,text)',
-    'wf_cc_lab_cwv()'
+    'wf_cc_lab_cwv()',
+    'wf_cc_recent_signups(int)',
+    'wf_cc_recent_shares(int)'
   ] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', fn);
     execute format('grant execute on function public.%s to service_role', fn);
@@ -363,6 +402,9 @@ $lock$;
 
 -- ============================================================
 -- ROLLBACK (run to remove everything this file added):
+--   drop function if exists public.wf_cc_recent_shares(int);
+--   drop function if exists public.wf_cc_recent_signups(int);
+--   drop index if exists public.events_user_created_idx;
 --   drop function if exists public.wf_cc_lab_cwv();
 --   drop function if exists public.wf_cc_new_returning(timestamptz,timestamptz,text);
 --   drop function if exists public.wf_cc_cohorts_weekly(int,text);

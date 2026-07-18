@@ -7,8 +7,10 @@
 //   • requireOwner() runs BEFORE any provider call. 401/403/503 carry no data.
 //   • Every number in a response sits next to a `source` block (connected /
 //     not_configured / error + fetchedAt + confidence + exact nextStep).
-//   • Providers are queried server-side only; no credential, user row, email,
-//     device id, or score internal ever enters this response.
+//   • Providers are queried server-side only; no credential, device id, or
+//     score internal ever enters a response. Account emails appear in EXACTLY
+//     one place — the retention panel's owner-eyes-only signup/share tables
+//     (explicit owner decision 2026-07-18) — and nowhere else.
 //   • All day boundaries are site-local (America/New_York) via
 //     lib/commandCenter/time.js — never UTC days.
 
@@ -200,15 +202,19 @@ async function places(range) {
 
 async function retention(range, now) {
   const since30 = new Date(now.getTime() - 30 * 86400000);
-  const [signupSeries, totals, ret, cohorts, nvr] = await Promise.all([
+  const [signupSeries, totals, ret, cohorts, nvr, recentSignups, recentShares] = await Promise.all([
     fp.signups(range.from, range.to),
     fp.userTotals(),
     fp.retention(since30, now),
     fp.cohortsWeekly(8),
     fp.newReturning(range.from, range.to),
+    fp.recentSignups(50),
+    fp.recentShares(30),
   ]);
   return {
     signups: signupSeries, totals, retention: ret, cohorts, newVsReturning: nvr,
+    recentSignups, recentShares,
+    piiNote: "Owner-eyes only: these two tables contain account emails — the one deliberate exception to the dashboard's no-PII rule (owner decision 2026-07-18).",
     definitionNote: "Retention is device-based (anonymous device ids; larger honest sample). The weekly cohort table is account-based: signed-in activity by weeks since signup. Neither counts bots out — no bot filter exists in the current SDK config.",
   };
 }
