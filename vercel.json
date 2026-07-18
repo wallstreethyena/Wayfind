@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/audit-feeds",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/experiences",
+      "schedule": "0 10 * * *"
     }
   ]
 }

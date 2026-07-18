@@ -46,7 +46,7 @@ ok(resolveVerified(place("Robinson Preserve", "rob"), [prod("Robinson Preserve K
 // ── Isolation: affiliate/booking never touches Score or placement ─────────────
 for (const f of ["lib/score.js", "lib/ranking.js"]) {
   const src = readFileSync(join(ROOT, f), "utf8");
-  ok(!/verifiedOffers|bookingResolver/.test(src), `${f} must NOT import verifiedOffers/bookingResolver (affiliate must never reach Score/placement)`);
+  ok(!/verifiedOffers|bookingResolver|experiencesData|experiencesServe|experiencesEngine/.test(src), `${f} must NOT import verifiedOffers/bookingResolver/experiences* (affiliate must never reach Score/placement)`);
 }
 
 // ── Isolation: only lib/affiliates.js builds the /go URL; no UI hand-rolls a product URL ──
