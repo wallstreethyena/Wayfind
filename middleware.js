@@ -47,6 +47,12 @@ export const config = {
     // in app/home.js) that reads likes/events via the service role. No SSR caller,
     // so full same-origin guard — stops cross-site scraping of the aggregate.
     "/api/signals/likes",
+    // Experiences v3: /api/experiences is a same-origin XHR (the Things-to-Do
+    // rail in app/home.js) reading cached wf_experiences via the service role.
+    // This is ANTI-SCRAPING, not a cost gate (no metered upstream — it's a
+    // Supabase read); full same-origin guard keeps the affiliate catalog from
+    // being harvested off our origin.
+    "/api/experiences",
   ],
 };
 

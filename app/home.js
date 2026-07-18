@@ -78,6 +78,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
+import { DISPLAY_CHIPS } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
@@ -6313,6 +6314,7 @@ function PageInner() {
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {(browseCat === "attractions" || browseCat === "family") && <ViatorRail title={browseCat === "family" ? "Bookable family tours & activities" : "Bookable tours & activities"} items={browseTours} theme="attractions-browse" />}
+                  {browseCat === "attractions" && <ExperienceCategoryRail metro={locName ? locName.split(",")[0] : undefined} lat={center && center.lat} lng={center && center.lng} logEvent={logEvent} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
@@ -6974,6 +6976,114 @@ function SwipeRow({ children, onDelete }) {
 // v4.84 — the shared bookable-activities rail (Viator products). Used on the
 // viator-flagged vibes and the Things to do browse. Links carry partner
 // attribution from the API; taps go through openExternal (PWA-safe).
+// v6.44 (Experiences v3): the table-backed, categorised Viator rail for Things
+// to Do. Reads cached wf_experiences through the same-origin-guarded
+// /api/experiences — a DB read, so the distance rungs reach 90/120mi with NO
+// per-mile Google Places cost (unlike the place-search radius, which stays 60mi
+// to protect against the Places bill). Ships DARK (renders null) until the
+// migration + cron populate the table. Every card href is pid-wrapped through
+// lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
+// disclosure proximate to the earning cards — test-experiences-v3 locks both.
+// Default 30mi = the user's home market only (honest "near you"); the rungs
+// widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
+// names its market (t.city) so a widened, multi-market view never shows a
+// far-away tour with no location cue — the same honesty bar as the browse feed.
+const EXP_MI_RUNGS = [30, 60, 90, 120];
+function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
+  const [cat, setCat] = useState("all");
+  const [mi, setMi] = useState(30);
+  const [st, setSt] = useState({ items: [], chipCounts: {}, hasMore: false, dark: null });
+  const [busy, setBusy] = useState(true);
+  const [more, setMore] = useState(false);
+  const pageRef = useRef(0);
+  const log = (a, x) => { try { logEvent && logEvent(a, null, x); } catch (e) {} };
+  const qstr = (p) => {
+    const q = new URLSearchParams();
+    if (metro) q.set("metro", metro);
+    if (typeof lat === "number" && typeof lng === "number") { q.set("lat", String(lat)); q.set("lng", String(lng)); q.set("mi", String(mi)); }
+    q.set("cat", cat); q.set("limit", "12"); q.set("page", String(p));
+    return q.toString();
+  };
+
+  useEffect(() => {
+    let dead = false; setBusy(true); pageRef.current = 0;
+    fetch("/api/experiences?" + qstr(0)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+      if (dead) return;
+      if (!res || res.dark) { setSt({ items: [], chipCounts: {}, hasMore: false, dark: true }); setBusy(false); return; }
+      setSt({ items: res.items || [], chipCounts: res.chipCounts || {}, hasMore: !!res.hasMore, dark: false }); setBusy(false);
+    });
+    return () => { dead = true; };
+  }, [cat, mi, metro, lat, lng]);
+
+  const loadMore = () => {
+    if (more) return; setMore(true);
+    const next = pageRef.current + 1;
+    fetch("/api/experiences?" + qstr(next)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+      pageRef.current = next; setMore(false);
+      if (res && !res.dark) setSt((s) => ({ ...s, items: [...s.items, ...(res.items || [])], hasMore: !!res.hasMore }));
+    });
+    log("exp_load_more", { cat, mi });
+  };
+
+  if (st.dark) return null; // ships dark until the table is populated
+
+  const chips = DISPLAY_CHIPS.filter((c) => c.key === "all" || (st.chipCounts[c.key] || 0) > 0);
+  return (
+    <div style={{ margin: "4px 0 18px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Bookable experiences</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+      </div>
+      <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, marginBottom: 4 }}>
+        {chips.map((c) => {
+          const on = c.key === cat;
+          return (
+            <button key={c.key} onClick={() => { setCat(c.key); log("exp_chip", { cat: c.key }); }} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", fontSize: 12.5, fontWeight: 700, border: `1px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.text }}>
+              <span aria-hidden="true">{c.icon}</span>{c.label}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center" }}>
+        <span style={{ fontSize: 11, color: C.muted }}>Within</span>
+        {EXP_MI_RUNGS.map((m) => (
+          <button key={m} onClick={() => setMi(m)} style={{ padding: "4px 10px", borderRadius: 999, cursor: "pointer", fontSize: 11.5, fontWeight: 700, border: `1px solid ${mi === m ? C.accent : C.border}`, background: mi === m ? C.adim : "transparent", color: mi === m ? C.accent : C.muted }}>{m} mi</button>
+        ))}
+      </div>
+      {busy && !st.items.length ? (
+        <div aria-busy="true" style={{ display: "flex", gap: 10, overflowX: "auto" }}>
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="wf-skeleton" style={{ flex: "0 0 200px", height: 150, borderRadius: 12 }} aria-hidden="true" />
+          ))}
+        </div>
+      ) : st.items.length === 0 ? (
+        <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>No bookable experiences in this category near you yet.</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
+          {st.items.map((t) => {
+            const href = Aff.viatorDirectUrl(t.url) || t.url;
+            return (
+              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+                {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
+                {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{t.rating ? `★ ${t.rating}` : "New"}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+      {st.hasMore ? (
+        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
+      ) : null}
+    </div>
+  );
+}
+
 function ViatorRail({ title, items, theme }) {
   if (!Array.isArray(items) || !items.length) return null;
   return (
@@ -6993,6 +7103,7 @@ function ViatorRail({ title, items, theme }) {
           </a>
         ))}
       </div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
   );
 }
