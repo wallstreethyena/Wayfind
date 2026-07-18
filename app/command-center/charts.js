@@ -112,6 +112,8 @@ export function DefTip({ text }) {
 }
 
 // Source freshness badge — connected / not connected / error, with fetch time.
+// Ellipsizes instead of spilling out of its tile (full text stays on hover
+// via title); the dot never shrinks.
 export function SourceBadge({ source }) {
   if (!source) return null;
   const ok = source.connected;
@@ -119,10 +121,12 @@ export function SourceBadge({ source }) {
   const label = ok ? source.name : `${source.name}: ${source.reason === "error" ? "error" : "not connected"}`;
   const t = source.fetchedAt ? new Date(source.fetchedAt) : null;
   const time = t ? t.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : null;
+  const text = `${label}${time ? ` · ${time}` : ""}${source.confidence && source.confidence !== "measured" ? ` · ${source.confidence}` : ""}`;
   return (
-    <span title={source.nextStep || source.note || ""} style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 10.5, color: C.muted, whiteSpace: "nowrap" }}>
-      <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 99, background: col, display: "inline-block" }} />
-      {label}{time ? ` · ${time}` : ""}{source.confidence && source.confidence !== "measured" ? ` · ${source.confidence}` : ""}
+    <span title={`${text}${source.nextStep ? ` — ${source.nextStep}` : source.note ? ` — ${source.note}` : ""}`}
+      style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, color: C.muted, minWidth: 0, maxWidth: "100%" }}>
+      <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 99, background: col, display: "inline-block", flexShrink: 0 }} />
+      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{text}</span>
     </span>
   );
 }
@@ -201,9 +205,9 @@ export function StatTile({ label, value, sub, deltas, def, source, spark, goodWh
         <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, letterSpacing: "0.2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
         <DefTip text={def} />
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "4px 0 2px" }}>
-        <span style={{ fontSize: hero ? 34 : 24, fontWeight: 800, color: C.text, letterSpacing: "-0.5px", lineHeight: 1.05 }}>{value}</span>
-        {sub ? <span style={{ fontSize: 11.5, color: C.muted }}>{sub}</span> : null}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 8, margin: "4px 0 2px", minWidth: 0 }}>
+        <span style={{ fontSize: hero ? 34 : 24, fontWeight: 800, color: C.text, letterSpacing: "-0.5px", lineHeight: 1.05, flexShrink: 0 }}>{value}</span>
+        {sub ? <span title={typeof sub === "string" ? sub : undefined} style={{ fontSize: 11.5, color: C.muted, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{sub}</span> : null}
       </div>
       {spark && spark.length > 1 ? <Sparkline data={spark} /> : null}
       {deltas && deltas.length ? (
@@ -236,7 +240,10 @@ export function LineChart({ series, xLabels, height = 180, yFmt = fmtNum, area =
   // series: [{name, color, values:[...]}] — same length as xLabels.
   const ref = useRef(null);
   const [hover, setHover] = useState(null); // index
-  const W = 720, H = height, padL = 40, padR = 14, padT = 12, padB = 22;
+  const showEndLabels = series.length >= 2 && series.length <= 4;
+  // When direct end-labels render, the right padding RESERVES their room —
+  // a label may never overflow the SVG edge (measure-first rule).
+  const W = 720, H = height, padL = 40, padR = showEndLabels ? 62 : 14, padT = 12, padB = 22;
   const n = xLabels.length;
   const max = Math.max(1, ...series.flatMap((s) => s.values.map((v) => Number(v) || 0)));
   const ticks = ticksFor(max);
@@ -256,8 +263,6 @@ export function LineChart({ series, xLabels, height = 180, yFmt = fmtNum, area =
     else if (e.key === "ArrowLeft") { setHover((h) => Math.max(0, (h == null ? n - 1 : h - 1))); e.preventDefault(); }
     else if (e.key === "Escape") setHover(null);
   };
-  const showEndLabels = series.length >= 2 && series.length <= 4;
-
   return (
     <div style={{ position: "relative" }}>
       <svg ref={ref} viewBox={`0 0 ${W} ${H}`} role="img" aria-label="line chart (table view available)" tabIndex={0}
@@ -282,8 +287,8 @@ export function LineChart({ series, xLabels, height = 180, yFmt = fmtNum, area =
               <path d={dLine} fill="none" stroke={s.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
               {hover != null && <circle cx={x(hover)} cy={y(s.values[hover])} r="4.5" fill={s.color} stroke={SURFACE} strokeWidth="2" />}
               {showEndLabels && n > 0 && (
-                <text x={W - padR + 2} y={y(s.values[n - 1]) + 3.5 + (si === 1 && Math.abs(y(series[0].values[n - 1]) - y(s.values[n - 1])) < 10 ? 11 : 0)}
-                  textAnchor="start" fontSize="9.5" fontWeight="700" fill={C.light} fontFamily={FONT}>{s.name.slice(0, 10)}</text>
+                <text x={W - padR + 5} y={y(s.values[n - 1]) + 3.5 + (si === 1 && Math.abs(y(series[0].values[n - 1]) - y(s.values[n - 1])) < 10 ? 11 : 0)}
+                  textAnchor="start" fontSize="9.5" fontWeight="700" fill={C.light} fontFamily={FONT}>{s.name.slice(0, 9)}</text>
               )}
             </g>
           );
