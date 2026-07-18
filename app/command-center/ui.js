@@ -267,9 +267,12 @@ function OverviewSection({ auth, range }) {
 }
 
 function TrafficSection({ auth, range }) {
+  // HOOKS RULE: every hook in this component runs before ANY conditional
+  // return — an early error-return above a useMemo changes the hook count
+  // between renders and crashes React ("Rendered fewer hooks than expected").
+  // Locked by test-command-center.mjs (hooks-before-guard grep).
   const p = usePanel("traffic", auth, range, { refreshMs: 60000 });
   const d = dget(p.data, "data", null);
-  if (p.error) return <Section id="traffic" title="Traffic & acquisition"><PanelError {...p} reload={p.reload} /></Section>;
 
   const phDaily = dget(d, "daily.posthog.data", null);
   const fpDaily = dget(d, "daily.firstParty.data", null) || [];
@@ -297,6 +300,8 @@ function TrafficSection({ auth, range }) {
   }, [d]);
 
   const minuteLabels = (phMin || fpMin).map((r) => String(r.minute || "").slice(11, 16));
+
+  if (p.error) return <Section id="traffic" title="Traffic & acquisition"><PanelError {...p} reload={p.reload} /></Section>;
 
   return (
     <Section id="traffic" title="Traffic & acquisition" loading={p.loading && !p.data}
@@ -543,9 +548,9 @@ function PlacesSection({ auth, range }) {
 }
 
 function RetentionSection({ auth, range }) {
+  // HOOKS RULE: all hooks before any conditional return (see TrafficSection).
   const p = usePanel("retention", auth, range);
   const d = dget(p.data, "data", null);
-  if (p.error) return <Section id="retention" title="Signups & retention"><PanelError {...p} reload={p.reload} /></Section>;
   const totals = dget(d, "totals.data", {}) || {};
   const signups = dget(d, "signups.data", null) || [];
   const ret = dget(d, "retention.data", null) || [];
@@ -559,6 +564,7 @@ function RetentionSection({ auth, range }) {
     }
     return [...by.values()].sort((a, b) => String(a.week_start).localeCompare(String(b.week_start)));
   }, [d]);
+  if (p.error) return <Section id="retention" title="Signups & retention"><PanelError {...p} reload={p.reload} /></Section>;
   return (
     <Section id="retention" title="Signups & retention" loading={p.loading && !p.data} sub={dget(d, "definitionNote", "")}>
       <Grid min={160}>

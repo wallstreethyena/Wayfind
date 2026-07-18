@@ -230,6 +230,29 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     ok(!/SERVICE_ROLE|PERSONAL_API_KEY|AUTH_TOKEN|ACCESS_TOKEN/.test(src), `client: ${name} references no server secrets`);
   }
   ok(/robots:\s*\{\s*index:\s*false/.test(page), "page: /command-center is noindexed");
+  // React hooks rule (regression: unlock crashed with "Rendered fewer hooks
+  // than expected"): inside every component function of ui.js, NO hook call
+  // (useX / usePanel) may appear after a `return` statement — an early
+  // error-return above a hook changes the hook count between renders.
+  {
+    // Split on top-level component declarations (function / export default function).
+    const chunks = code(ui).split(/\n(?:export default )?function /).slice(1);
+    for (const chunk of chunks) {
+      const name = (chunk.match(/^(\w+)/) || [])[1] || "?";
+      if (!/^[A-Z]/.test(name)) continue; // components only
+      // Component-top-level statements in this file are 2-space indented;
+      // returns inside nested callbacks/JSX sit deeper and are ignored.
+      const lines = chunk.split("\n");
+      let guardSeen = null;
+      for (const line of lines) {
+        if (/^  (if \([^\n]*\) )?return[\s(;]/.test(line)) { guardSeen = guardSeen || line.trim().slice(0, 60); continue; }
+        if (guardSeen && /^  (const|let|var)?[^=\n]*=?\s*\buse[A-Z]\w*\s*\(/.test(line)) {
+          fail(`hooks: <${name}> calls a hook after top-level '${guardSeen}' (conditional-hooks crash)`);
+          break;
+        }
+      }
+    }
+  }
   const sitemap = read("app/sitemap.js");
   ok(!/command-center/.test(sitemap), "sitemap: /command-center is not listed");
   const example = read(".env.local.example");
