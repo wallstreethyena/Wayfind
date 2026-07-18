@@ -45,6 +45,7 @@ ok(isSellingOut(["LIKELY_TO_SELL_OUT"]) === true && isSellingOut(["FREE_CANCELLA
 ok(rankExperiences([{ rating: 4, reviews: 10 }, { rating: 5, reviews: 100 }, { rating: 4.5, reviews: 5 }])[0].rating === 5, "rank is rating-first (5-star/100-review wins)");
 ok(Math.round(milesBetween({ lat: 27.336, lng: -82.531 }, { lat: 28.538, lng: -81.379 })) > 60, "Sarasota->Orlando > 60mi (rung excludes at 60, includes at 120)");
 ok(destsWithin({ lat: 27.336, lng: -82.531 }, 15).length >= 1, "a tight radius still returns the home market (never empty)");
+ok(destsWithin({ lat: 27.336, lng: -82.531 }, 30).length === 1, "the 30mi DEFAULT = Sarasota's home market only (honest 'near you'; widening is explicit)");
 ok(destsWithin({ lat: 27.336, lng: -82.531 }, 120).includes("663"), "120mi radius from Sarasota reaches Orlando");
 
 // ── 5. Chips: All + 11 catalogs + a demand chip (hide-empty is a render step) ─
@@ -74,6 +75,8 @@ const home = read("app/home.js");
 if (/experiencesData|EXPERIENCE_RAIL|_expItems/.test(home)) {
   ok(home.includes("at no extra cost to you. It never changes our scores or rankings"), "the experiences rail renders the required FTC commission disclosure (proximate to the earning cards)");
   ok(/viatorDirectUrl\s*\(/.test(home), "experience card hrefs are pid-wrapped via viatorDirectUrl (never the raw product_url)");
+  ok(/t\.city/.test(home), "each experience card names its market (t.city) — a widened, multi-market view never shows a far tour without a location cue");
+  ok(/useState\(30\)/.test(home), "the rail defaults to the 30mi home-market view (near = near); the rungs widen explicitly");
   ok(!/VIATOR_API_KEY|SERVICE_ROLE_KEY/.test(home), "no server secret is referenced in the client bundle");
 } else {
   console.log("   (experiences rail not yet wired into app/home.js — UI assertions deferred)");

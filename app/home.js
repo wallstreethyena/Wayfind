@@ -6984,10 +6984,14 @@ function SwipeRow({ children, onDelete }) {
 // migration + cron populate the table. Every card href is pid-wrapped through
 // lib/affiliates.viatorDirectUrl, and the section carries the FTC commission
 // disclosure proximate to the earning cards — test-experiences-v3 locks both.
-const EXP_MI_RUNGS = [60, 90, 120];
+// Default 30mi = the user's home market only (honest "near you"); the rungs
+// widen EXPLICITLY (60→90→120 reaches Orlando from Sarasota). Every card also
+// names its market (t.city) so a widened, multi-market view never shows a
+// far-away tour with no location cue — the same honesty bar as the browse feed.
+const EXP_MI_RUNGS = [30, 60, 90, 120];
 function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
   const [cat, setCat] = useState("all");
-  const [mi, setMi] = useState(60);
+  const [mi, setMi] = useState(30);
   const [st, setSt] = useState({ items: [], chipCounts: {}, hasMore: false, dark: null });
   const [busy, setBusy] = useState(true);
   const [more, setMore] = useState(false);
@@ -7064,7 +7068,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
                 {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                  <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{t.rating ? `★ ${t.rating}` : "New"}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
+                  <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>{t.rating ? `★ ${t.rating}` : "New"}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
                 </div>
               </a>
             );
