@@ -41,10 +41,44 @@ const CSP_REPORT_ONLY = [
   "report-uri /api/csp-report",
 ].join("; ");
 
+// Command Center build stamp (v6.42): computed ONCE at build time, exposed to
+// server code via env. WF_CC_BUILD_INFO walks app/, lib/, scripts/ for an
+// operational files/lines snapshot (context, not a vanity metric); ~1500 small
+// files (<200ms) and never throws — a failure only means the Ops panel shows
+// "after next deploy". No effect on client bundles (read server-side only).
+const ccBuildInfo = (() => {
+  try {
+    const fs = require("fs");
+    const path = require("path");
+    const exts = { ".js": "JavaScript", ".mjs": "JavaScript", ".jsx": "JavaScript", ".ts": "TypeScript", ".css": "CSS", ".sql": "SQL", ".md": "Markdown", ".json": "JSON" };
+    let files = 0, lines = 0;
+    const byExt = {};
+    const walk = (dir) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (e.name === "node_modules" || e.name.startsWith(".")) continue;
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) { walk(p); continue; }
+        const label = exts[path.extname(e.name)];
+        if (!label) continue;
+        files += 1;
+        const n = fs.readFileSync(p, "utf8").split("\n").length;
+        lines += n;
+        byExt[label] = (byExt[label] || 0) + n;
+      }
+    };
+    for (const d of ["app", "lib", "scripts"]) { try { walk(path.join(__dirname, d)); } catch {} }
+    return JSON.stringify({ files, lines, byExt, scannedDirs: ["app", "lib", "scripts"] });
+  } catch { return ""; }
+})();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
+  env: {
+    WF_CC_BUILD_TIME: new Date().toISOString(),
+    WF_CC_BUILD_INFO: ccBuildInfo,
+  },
   // v6.08 (PR-C): opt into Next's scroll-position restoration across real route
   // changes. NOTE: the home app opens places in client-side sheets, not route
   // changes, so this flag alone does little there — the actual back-restores-
