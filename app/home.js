@@ -5829,7 +5829,7 @@ function PageInner() {
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
           <strong style={{ display: "block", color: C.light }}>Nothing here yet</strong>
-          <span style={{ fontSize: 13 }}>We're still adding spots in your area. Try another category nearby.</span>
+          <span style={{ fontSize: 13 }}>We're adding great spots near you. Try another category, or search a bigger city nearby for the full list.</span>
         </div>
       )}
       {restView.slice(0, 3).map((p, i) => (
@@ -6298,7 +6298,7 @@ function PageInner() {
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>Put Wayfind on your home screen</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap. Opens like an app." : "Tap Share, then Add to Home Screen."}</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>{deferredPrompt ? "One tap to tonight's plan — opens like an app." : "Tap Share, then Add to Home Screen."}</div>
                   </div>
                   {deferredPrompt && <button onClick={() => { try { deferredPrompt.prompt(); logEvent("a2hs_install"); } catch (e) {} setA2hs(false); }} style={{ flexShrink: 0, padding: "8px 14px", background: C.accent, border: "none", borderRadius: 10, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Install</button>}
                   <button onClick={() => { setA2hs(false); try { localStorage.setItem("wf_a2hs_dismissed", "1"); logEvent("a2hs_dismiss"); } catch (e) {} }} aria-label="Dismiss" style={{ flexShrink: 0, width: 30, height: 30, background: "transparent", border: "none", color: C.muted, fontSize: 16, cursor: "pointer" }}>✕</button>
@@ -6326,7 +6326,7 @@ function PageInner() {
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>
                       <strong style={{ display: "block", color: C.light }}>Nothing here right now</strong>
-                      <span style={{ fontSize: 13 }}>Try another category or widen your area.</span>
+                      <span style={{ fontSize: 13 }}>Try another category — or widen your search; the best spots are often a few miles out.</span>
                     </div>
                   ) : (
                     <>
@@ -6350,7 +6350,7 @@ function PageInner() {
                             {view.length < 8 && (
                               <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
                                 style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
-                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "Search a wider area (" + _mi + " mi) ↗"}
+                                {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "See more great spots — " + _mi + " mi out ↗"}
                               </div>
                             )}
                           </div>
