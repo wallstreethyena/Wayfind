@@ -8,6 +8,8 @@
 // "csp-violation" line each in the Vercel function logs). After SEVEN DAYS
 // of production traffic with zero same-origin violations, rename the header
 // to Content-Security-Policy and remove this note.
+const { withSentryConfig } = require("@sentry/nextjs");
+
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
   // tp-em.com = Travelpayouts "Drive" verification + tracking script (app/layout.js,
@@ -25,7 +27,8 @@ const CSP_REPORT_ONLY = [
   // event images (s1.ticketm.net, proven live), and the Viator partner
   // image CDNs used by the booking-CTA tour cards.
   "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com",
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com",
+  // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io",
   "worker-src 'self' blob:",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
@@ -47,7 +50,8 @@ const nextConfig = {
   // changes, so this flag alone does little there — the actual back-restores-
   // scroll fix is the sessionStorage capture/restore on the inner scroll
   // container in app/home.js. This covers genuine navigations (e.g. /places).
-  experimental: { scrollRestoration: true },
+  // instrumentationHook: enables instrumentation.js (server+edge Sentry init) on Next 14.
+  experimental: { scrollRestoration: true, instrumentationHook: true },
   async headers() {
     return [
       {
@@ -94,4 +98,14 @@ const nextConfig = {
     ];
   },
 };
-module.exports = nextConfig;
+// withSentryConfig auto-instruments the SERVER + EDGE runtimes for error
+// capture. There is deliberately NO sentry.client.config.js, so the browser SDK
+// is NOT injected into first-load — it loads lazily from app/components/
+// SentryClient.js instead, keeping the 325KB bundle ceiling enforced.
+module.exports = withSentryConfig(nextConfig, {
+  silent: true,
+  disableLogger: true,            // tree-shake Sentry's debug logging from the bundle
+  widenClientFileUpload: false,
+  sourcemaps: { disable: true },  // source-map upload deferred (needs SENTRY_AUTH_TOKEN) — follow-up
+  // no tunnelRoute — beacons go direct to the CSP-allowlisted ingest host
+});
