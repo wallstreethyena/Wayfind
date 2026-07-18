@@ -215,7 +215,7 @@ async function retention(range, now) {
     signups: signupSeries, totals, retention: ret, cohorts, newVsReturning: nvr,
     recentSignups, recentShares,
     piiNote: "Owner-eyes only: these two tables contain account emails — the one deliberate exception to the dashboard's no-PII rule (owner decision 2026-07-18).",
-    definitionNote: "Retention is device-based (anonymous device ids; larger honest sample). The weekly cohort table is account-based: signed-in activity by weeks since signup. Neither counts bots out — no bot filter exists in the current SDK config.",
+    definitionNote: "Retention is device-based (anonymous device ids; larger honest sample). The weekly cohort table is account-based: signed-in activity by weeks since signup. Internal traffic — the owner's accounts and every device that ever signed in as them — is excluded from all first-party numbers (server-side list). No bot filter exists in the current SDK config.",
   };
 }
 

@@ -494,41 +494,55 @@ export function Funnel({ steps }) {
 
 // ── cohort grid (weekly) ────────────────────────────────────────────────────
 export function CohortGrid({ rows }) {
-  // rows: [{week_start, new_users, cells: [{offset, active}]}]
+  // rows: [{week_start, new_users, cells: [{offset, active}]}].
+  // Readability rules (owner feedback): a week that has HAPPENED with no
+  // activity is an explicit 0% — a dash is reserved for weeks that haven't
+  // arrived yet. Column heads read "Signup wk / +1 wk / +2 wk", not W0/W1.
   if (!rows || !rows.length) return <EmptyNote>No signup cohorts yet — the table fills as accounts age week over week.</EmptyNote>;
-  const maxOffset = Math.max(...rows.map((r) => Math.max(0, ...r.cells.map((c) => c.offset))), 0);
-  const shade = (rate) => rate == null ? "transparent" : `rgba(249,115,22,${0.12 + Math.min(0.75, rate * 0.75)})`; // single-hue sequential
+  const weeksSince = (weekStart) => Math.max(0, Math.floor((Date.now() - Date.parse(String(weekStart) + "T12:00:00Z")) / 604800000));
+  const maxOffset = Math.max(...rows.map((r) => weeksSince(r.week_start)), ...rows.map((r) => Math.max(0, ...r.cells.map((c) => c.offset))), 0);
+  const shade = (rate) => rate == null || rate === 0 ? "transparent" : `rgba(249,115,22,${0.12 + Math.min(0.75, rate * 0.75)})`; // single-hue sequential
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ borderCollapse: "separate", borderSpacing: 2, fontSize: 11.5, fontVariantNumeric: "tabular-nums" }}>
         <caption style={{ position: "absolute", left: -9999 }}>Weekly signup cohorts — share of each cohort active by weeks since signup</caption>
         <thead>
           <tr>
-            <th scope="col" style={{ textAlign: "left", color: C.muted, fontSize: 10.5, padding: "4px 8px" }}>Signup week</th>
-            <th scope="col" style={{ color: C.muted, fontSize: 10.5, padding: "4px 8px" }}>Size</th>
-            {Array.from({ length: maxOffset + 1 }, (_, i) => <th key={i} scope="col" style={{ color: C.muted, fontSize: 10.5, padding: "4px 6px" }}>W{i}</th>)}
+            <th scope="col" style={{ textAlign: "left", color: C.muted, fontSize: 10.5, padding: "4px 8px" }}>Signed up week of</th>
+            <th scope="col" style={{ color: C.muted, fontSize: 10.5, padding: "4px 8px" }}>People</th>
+            {Array.from({ length: maxOffset + 1 }, (_, i) => <th key={i} scope="col" style={{ color: C.muted, fontSize: 10.5, padding: "4px 6px", whiteSpace: "nowrap" }}>{i === 0 ? "Signup wk" : `+${i} wk`}</th>)}
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.week_start}>
-              <th scope="row" style={{ textAlign: "left", color: C.text, fontWeight: 700, padding: "4px 8px", whiteSpace: "nowrap" }}>{r.week_start}</th>
-              <td style={{ color: C.light, textAlign: "center", padding: "4px 8px" }}>{r.new_users}</td>
-              {Array.from({ length: maxOffset + 1 }, (_, o) => {
-                const cell = r.cells.find((c) => c.offset === o);
-                const rate = cell && r.new_users > 0 ? cell.active / r.new_users : null;
-                return (
-                  <td key={o} title={cell ? `${cell.active}/${r.new_users} active in week ${o}` : "no data"}
-                    style={{ background: shade(rate), color: rate != null && rate > 0.55 ? "#0D1117" : C.light, textAlign: "center", minWidth: 34, padding: "4px 6px", borderRadius: 4 }}>
-                    {rate == null ? "–" : fmtPct(rate)}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
+          {rows.map((r) => {
+            const elapsed = weeksSince(r.week_start);
+            return (
+              <tr key={r.week_start}>
+                <th scope="row" style={{ textAlign: "left", color: C.text, fontWeight: 700, padding: "4px 8px", whiteSpace: "nowrap" }}>{r.week_start}</th>
+                <td style={{ color: C.light, textAlign: "center", padding: "4px 8px" }}>{r.new_users}</td>
+                {Array.from({ length: maxOffset + 1 }, (_, o) => {
+                  const future = o > elapsed;
+                  const cell = r.cells.find((c) => c.offset === o);
+                  const rate = future ? null : r.new_users > 0 ? (cell ? cell.active : 0) / r.new_users : null;
+                  const label = future ? "–" : fmtPct(rate);
+                  const title = future
+                    ? `Week ${o === 0 ? "of signup" : "+" + o} hasn't happened yet for this group`
+                    : `${cell ? cell.active : 0} of ${r.new_users} were active ${o === 0 ? "during their signup week" : o + " week(s) after signing up"}${o === elapsed ? " (current week, still counting)" : ""}`;
+                  return (
+                    <td key={o} title={title}
+                      style={{ background: shade(rate), color: rate != null && rate > 0.55 ? "#0D1117" : future ? C.muted : C.light, textAlign: "center", minWidth: 40, padding: "4px 6px", borderRadius: 4 }}>
+                      {label}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 4 }}>Cell = share of that signup week's accounts with signed-in activity in week N after signup. Darker = higher.</div>
+      <div style={{ fontSize: 10.5, color: C.muted, marginTop: 4, lineHeight: 1.5 }}>
+        Read a row left to right: of the people who signed up that week, what share did anything (signed in) during their signup week, one week later, two weeks later… 0% = nobody returned that week · – = that week hasn't arrived yet. Darker orange = more of them came back. Hover any cell for the plain-English version.
+      </div>
     </div>
   );
 }

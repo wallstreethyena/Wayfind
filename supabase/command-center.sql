@@ -1,21 +1,26 @@
 -- ============================================================
--- Wayfind Command Center — read-only aggregate RPCs (v1)
+-- Wayfind Command Center — read-only aggregate RPCs (v1.2)
 -- ============================================================
--- ADDITIVE ONLY: creates functions + one index. No table changes, no data
--- changes, no policy changes. Rollback = the DROP block at the bottom.
+-- ADDITIVE ONLY: functions + three indexes + one settings table. No changes
+-- to existing tables or policies. Rollback = the DROP block at the bottom.
+-- This file mirrors what is APPLIED to the live DB via migrations; the only
+-- divergence is the exclude_emails seed (kept out of the public repo — see
+-- the settings section).
 --
 -- Security model:
 --   • Every function is SECURITY DEFINER with a pinned search_path, so it can
 --     aggregate tables that RLS hides from clients (events, auth.users).
 --   • EXECUTE is REVOKED from PUBLIC/anon/authenticated and granted ONLY to
---     service_role — these are reachable exclusively from server code holding
+--     service_role — reachable exclusively from server code holding
 --     SUPABASE_SERVICE_ROLE_KEY (the /api/command-center routes). A browser
 --     with the anon key gets "permission denied" by construction.
 --   • Row-level identity stays out of every function EXCEPT the two
---     owner-eyes-only panels in section 12 (recent signups / recent shares —
---     explicit owner decision 2026-07-18). Everything else is aggregates
---     only: no device_id, no user_id, no emails; search terms are
---     length-capped and email-masked.
+--     owner-eyes-only panels (recent signups / recent shares — explicit owner
+--     decision 2026-07-18). Everything else is aggregates only: no device_id,
+--     no user_id, no emails; search terms are length-capped + email-masked.
+--   • INTERNAL-TRAFFIC EXCLUSION (owner request 2026-07-18): accounts listed
+--     in wf_cc_settings('exclude_emails') — and every device that has EVER
+--     emitted an event as one of them — are excluded from all metrics.
 --
 -- Timezone: "a day" is a SITE-LOCAL (US Eastern) day, matching
 -- lib/siteTime.js — never a UTC day (the 8 PM ET rollover bug class).
@@ -27,6 +32,34 @@ create index if not exists events_created_idx on public.events (created_at);
 -- device_id row-by-row — measured 7.3M buffer hits / 7.7s for one retention
 -- call; with it the same call is ~180ms.
 create index if not exists events_device_created_idx on public.events (device_id, created_at);
+create index if not exists events_user_created_idx on public.events (user_id, created_at) where user_id is not null;
+
+-- ------------------------------------------------------------
+-- Settings + internal-traffic exclusion.
+-- The exclude_emails SEED IS NOT IN THIS PUBLIC FILE — it was applied
+-- directly to the DB (migration `..._internal_traffic_exclusion`). To edit
+-- the list, run in the Supabase SQL editor:
+--   insert into public.wf_cc_settings (k, v)
+--   values ('exclude_emails', '["owner@example.com"]'::jsonb)
+--   on conflict (k) do update set v = excluded.v;
+-- ------------------------------------------------------------
+create table if not exists public.wf_cc_settings (k text primary key, v jsonb not null);
+alter table public.wf_cc_settings enable row level security; -- no policies: service-role only
+
+create or replace function public.wf_cc_excluded_users()
+returns setof uuid language sql stable security definer set search_path = public as $$
+  select u.id from auth.users u
+  where lower(u.email) in (
+    select lower(jsonb_array_elements_text(s.v)) from public.wf_cc_settings s where s.k = 'exclude_emails'
+  )
+$$;
+
+-- Any device that EVER emitted an event as an excluded account = internal.
+create or replace function public.wf_cc_excluded_devices()
+returns setof text language sql stable security definer set search_path = public as $$
+  select distinct e.device_id from public.events e
+  where e.user_id in (select public.wf_cc_excluded_users()) and e.device_id is not null
+$$;
 
 -- Affiliate / outbound partner click actions (kept in ONE place server-side;
 -- lib/commandCenter/eventMap.js mirrors this list for the UI legend).
@@ -52,6 +85,8 @@ language sql stable security definer set search_path = public as $$
   with w as (
     select action, device_id, user_id from public.events
     where created_at >= _from and created_at < _to
+      and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
+      and (user_id is null or user_id not in (select public.wf_cc_excluded_users()))
   )
   select m.metric, m.n from (
     select 'sessions'::text as metric, count(*) filter (where action = 'session') as n from w
@@ -93,6 +128,8 @@ language sql stable security definer set search_path = public as $$
          count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or action = any(public.wf_cc_out_actions())) as engaged_devices
   from public.events
   where created_at >= _from and created_at < _to
+    and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
+    and (user_id is null or user_id not in (select public.wf_cc_excluded_users()))
   group by 1 order by 1
 $$;
 
@@ -107,6 +144,7 @@ language sql stable security definer set search_path = public as $$
          count(*) as events
   from public.events
   where created_at >= _from and created_at < _to
+    and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
   group by 1 order by 1
 $$;
 
@@ -122,6 +160,7 @@ language sql stable security definer set search_path = public as $$
   from public.events
   where created_at >= _from and created_at < _to
     and place_id is not null and place_id <> ''
+    and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
     and case _bucket
           when 'view' then action in ('detail_open','event_open')
           when 'save' then action = 'save'
@@ -159,6 +198,7 @@ language sql stable security definer set search_path = public as $$
       end as k
     from public.events
     where created_at >= _from and created_at < _to
+      and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
       and case _kind
         when 'screen' then action = 'screen_view'
         when 'category' then action = 'result_count_shown'
@@ -187,6 +227,7 @@ language sql stable security definer set search_path = public as $$
   with w as (
     select action, device_id from public.events
     where created_at >= _from and created_at < _to and device_id is not null
+      and device_id not in (select public.wf_cc_excluded_devices())
   )
   select s.step, s.ord, s.devices from (
     select 'Visited'::text as step, 1 as ord, count(distinct device_id) as devices
@@ -215,6 +256,7 @@ language sql stable security definer set search_path = public as $$
   select (created_at at time zone public.wf_cc_tz(_tz))::date as day, count(*) as signups
   from auth.users
   where created_at >= _from and created_at < _to and coalesce(is_anonymous, false) = false
+    and id not in (select public.wf_cc_excluded_users())
   group by 1 order by 1
 $$;
 
@@ -224,28 +266,31 @@ $$;
 create or replace function public.wf_cc_user_totals()
 returns table(metric text, n bigint)
 language sql stable security definer set search_path = public as $$
-  select 'total_users'::text, count(*)::bigint from auth.users where coalesce(is_anonymous,false) = false
-  union all select 'confirmed_users', count(*)::bigint from auth.users where email_confirmed_at is not null
-  union all select 'users_with_saves', count(distinct user_id)::bigint from public.saved_places
-  union all select 'users_with_likes', count(distinct user_id)::bigint from public.likes
-  union all select 'users_with_comments', count(distinct user_id)::bigint from public.comments where user_id is not null
-  union all select 'users_active_ever', count(distinct user_id)::bigint from public.events where user_id is not null
-  union all select 'saved_places_total', count(*)::bigint from public.saved_places
+  with ex as (select public.wf_cc_excluded_users() as id)
+  select 'total_users'::text, count(*)::bigint from auth.users where coalesce(is_anonymous,false) = false and id not in (select id from ex)
+  union all select 'confirmed_users', count(*)::bigint from auth.users where email_confirmed_at is not null and id not in (select id from ex)
+  union all select 'users_with_saves', count(distinct user_id)::bigint from public.saved_places where user_id not in (select id from ex)
+  union all select 'users_with_likes', count(distinct user_id)::bigint from public.likes where user_id not in (select id from ex)
+  union all select 'users_with_comments', count(distinct user_id)::bigint from public.comments where user_id is not null and user_id not in (select id from ex)
+  union all select 'users_active_ever', count(distinct user_id)::bigint from public.events where user_id is not null and user_id not in (select id from ex)
+  union all select 'saved_places_total', count(*)::bigint from public.saved_places where user_id not in (select id from ex)
   union all select 'shared_lists_total', count(*)::bigint from public.shared_lists
 $$;
 
 -- ------------------------------------------------------------
 -- 9) Device retention by first-seen day: D1 / D7 / D30 returns.
+-- Single-pass (v1.1): the correlated-EXISTS version measured 7.7s on live
+-- data; one LEFT JOIN + boolean aggregation with the composite index is
+-- ~180ms on the same data.
 -- ------------------------------------------------------------
--- Single-pass (v1.1): the correlated-EXISTS version measured 7.7s on live data
--- and tripped the API's 8s budget; one LEFT JOIN + boolean aggregation runs in
--- tens of milliseconds on the same data.
 create or replace function public.wf_cc_retention(_from timestamptz, _to timestamptz, _tz text default 'America/New_York')
 returns table(day date, new_devices bigint, d1 bigint, d7 bigint, d30 bigint)
 language sql stable security definer set search_path = public as $$
   with firsts as (
     select device_id, min(created_at) as first_at
-    from public.events where device_id is not null group by device_id
+    from public.events where device_id is not null
+      and device_id not in (select public.wf_cc_excluded_devices())
+    group by device_id
   ), cohort as (
     select device_id, first_at, (first_at at time zone public.wf_cc_tz(_tz))::date as day
     from firsts where first_at >= _from and first_at < _to
@@ -276,6 +321,7 @@ language sql stable security definer set search_path = public as $$
     select id, date_trunc('week', created_at at time zone public.wf_cc_tz(_tz))::date as wk
     from auth.users
     where coalesce(is_anonymous,false) = false
+      and id not in (select public.wf_cc_excluded_users())
       and created_at >= now() - make_interval(weeks => least(greatest(coalesce(_weeks,8),1),26))
   ), sizes as (
     select wk, count(*) as new_users from u group by wk
@@ -299,7 +345,9 @@ returns table(day date, new_devices bigint, returning_devices bigint)
 language sql stable security definer set search_path = public as $$
   with firsts as (
     select device_id, min(created_at) as first_at
-    from public.events where device_id is not null group by device_id
+    from public.events where device_id is not null
+      and device_id not in (select public.wf_cc_excluded_devices())
+    group by device_id
   ), act as (
     select e.device_id, (e.created_at at time zone public.wf_cc_tz(_tz))::date as day, min(f.first_at) as first_at
     from public.events e join firsts f on f.device_id = e.device_id
@@ -317,10 +365,9 @@ $$;
 --     amending the v1 "no PII" posture for exactly these two functions):
 --     recent signups w/ emails + recent shares w/ sharer attribution.
 --     Same server-only EXECUTE lock as everything else; anonymous sharers
---     are shown as a truncated device prefix, never the full id.
+--     are shown as a truncated device prefix, never the full id. Internal
+--     (excluded) accounts/devices do not appear.
 -- ------------------------------------------------------------
-create index if not exists events_user_created_idx on public.events (user_id, created_at) where user_id is not null;
-
 create or replace function public.wf_cc_recent_signups(_limit int default 50)
 returns table(email text, created_at timestamptz, confirmed boolean, last_sign_in timestamptz, last_active timestamptz)
 language sql stable security definer set search_path = public as $$
@@ -328,6 +375,7 @@ language sql stable security definer set search_path = public as $$
          (select max(e.created_at) from public.events e where e.user_id = u.id) as last_active
   from auth.users u
   where coalesce(u.is_anonymous, false) = false
+    and u.id not in (select public.wf_cc_excluded_users())
   order by u.created_at desc
   limit least(greatest(coalesce(_limit, 50), 1), 200)
 $$;
@@ -342,6 +390,8 @@ language sql stable security definer set search_path = public as $$
   from public.events e
   left join auth.users u on u.id = e.user_id
   where e.action = 'share'
+    and (e.device_id is null or e.device_id not in (select public.wf_cc_excluded_devices()))
+    and (e.user_id is null or e.user_id not in (select public.wf_cc_excluded_users()))
   order by e.created_at desc
   limit least(greatest(coalesce(_limit, 30), 1), 200)
 $$;
@@ -379,6 +429,7 @@ declare fn text;
 begin
   foreach fn in array array[
     'wf_cc_out_actions()','wf_cc_engage_actions()','wf_cc_tz(text)',
+    'wf_cc_excluded_users()','wf_cc_excluded_devices()',
     'wf_cc_kpis(timestamptz,timestamptz)',
     'wf_cc_daily(timestamptz,timestamptz,text)',
     'wf_cc_minutes(timestamptz,timestamptz)',
@@ -404,7 +455,6 @@ $lock$;
 -- ROLLBACK (run to remove everything this file added):
 --   drop function if exists public.wf_cc_recent_shares(int);
 --   drop function if exists public.wf_cc_recent_signups(int);
---   drop index if exists public.events_user_created_idx;
 --   drop function if exists public.wf_cc_lab_cwv();
 --   drop function if exists public.wf_cc_new_returning(timestamptz,timestamptz,text);
 --   drop function if exists public.wf_cc_cohorts_weekly(int,text);
@@ -417,9 +467,13 @@ $lock$;
 --   drop function if exists public.wf_cc_minutes(timestamptz,timestamptz);
 --   drop function if exists public.wf_cc_daily(timestamptz,timestamptz,text);
 --   drop function if exists public.wf_cc_kpis(timestamptz,timestamptz);
+--   drop function if exists public.wf_cc_excluded_devices();
+--   drop function if exists public.wf_cc_excluded_users();
 --   drop function if exists public.wf_cc_tz(text);
 --   drop function if exists public.wf_cc_engage_actions();
 --   drop function if exists public.wf_cc_out_actions();
+--   drop table if exists public.wf_cc_settings;
+--   drop index if exists public.events_user_created_idx;
 --   drop index if exists public.events_device_created_idx;
 --   drop index if exists public.events_created_idx;
 -- ============================================================
