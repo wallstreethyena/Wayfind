@@ -19,7 +19,7 @@ import { rangeFor, comparisonsFor, delta, dayList, dayStr, zonedDayStart, zonedP
 import { computeAlerts, MIN_BASELINE_DAYS } from "../lib/commandCenter/alerts.js";
 import { srcMissing, srcOk, srcError, jsonNoStore } from "../lib/commandCenter/respond.js";
 import { memTTL } from "../lib/commandCenter/cache.js";
-import { OUT_ACTIONS, ENGAGE_ACTIONS, EVENT_MAP, KPI_DEFS } from "../lib/commandCenter/eventMap.js";
+import { OUT_ACTIONS, ENGAGE_ACTIONS, BROWSE_ACTIONS, EVENT_MAP, KPI_DEFS } from "../lib/commandCenter/eventMap.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-command-center: FAIL — " + m); failures++; };
@@ -200,6 +200,9 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   const sqlEng = arr("wf_cc_engage_actions");
   ok(sqlOut && sqlOut.join("|") === OUT_ACTIONS.join("|"), "lockstep: SQL out-action list === eventMap.OUT_ACTIONS");
   ok(sqlEng && sqlEng.join("|") === ENGAGE_ACTIONS.join("|"), "lockstep: SQL engage-action list === eventMap.ENGAGE_ACTIONS");
+  const sqlBrowse = arr("wf_cc_browse_actions");
+  ok(sqlBrowse && sqlBrowse.join("|") === BROWSE_ACTIONS.join("|"), "lockstep: SQL browse-action list === eventMap.BROWSE_ACTIONS (funnel step 2 + discovery rate share one list)");
+  ok(/no_result_city/.test(sql) && /regexp_replace\(coalesce\(meta->>'loc',''\), '\^\[\^,\]\*\[0-9\]/.test(sql.replace(/\\/g, "")) || /\[0-9\]\[\^,\]\*,/.test(sql), "privacy: no-result locations strip street-address segments to city level");
   const created = [...sql.matchAll(/create or replace function public\.(wf_cc_\w+)\(/g)].map((m) => m[1]);
   const locked = [...sql.matchAll(/'(wf_cc_\w+)\(/g)].map((m) => m[1]);
   for (const fn of created) ok(locked.includes(fn), `lockstep: ${fn} is in the revoke/grant lock list (server-only EXECUTE)`);
@@ -264,6 +267,14 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(/POSTHOG_PERSONAL_API_KEY/.test(audit) && /SENTRY_AUTH_TOKEN/.test(audit), "env: Command Center keys registered in envAudit OPTIONAL");
   const srcFiles = ["lib/commandCenter/sources/posthog.js", "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/vercel.js"];
   for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)), `source: ${f} has an explicit not-configured path`);
+  // Alerts email cron: fail-closed auth, fail-soft capability, one shared gatherer.
+  const cron = code(read("app/api/cron/cc-alerts/route.js"));
+  ok(/CRON_SECRET/.test(cron) && /status:\s*401/.test(cron) && cron.indexOf("401") < cron.indexOf("RESEND_API_KEY"), "cron: cc-alerts is fail-closed on CRON_SECRET before any work");
+  ok(/gatherAlerts/.test(cron) && /gatherAlerts/.test(read("app/api/command-center/[panel]/route.js")), "cron: panel and mailer share ONE alert gatherer (no drift)");
+  ok(/idle: true/.test(cron), "cron: missing Resend config is an idle response, not an error");
+  ok(!/searchParams\.get\(["']key["']\)/.test(cron), "cron: no query-param secrets");
+  const vj = JSON.parse(read("vercel.json"));
+  ok(vj.crons.some((c) => c.path === "/api/cron/cc-alerts"), "cron: cc-alerts is registered in vercel.json");
   const fpSrc = read("lib/commandCenter/sources/firstParty.js");
   ok(/wf_cc_/.test(fpSrc) && !/from\("events"\)|rest\/v1\/events\?/.test(fpSrc), "source: first-party reads go through wf_cc_* aggregate RPCs only (no raw event rows)");
 }

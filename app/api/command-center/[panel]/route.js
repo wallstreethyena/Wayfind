@@ -20,9 +20,9 @@ export const maxDuration = 30;
 
 import { requireOwner } from "../../../../lib/commandCenter/auth.js";
 import { jsonNoStore } from "../../../../lib/commandCenter/respond.js";
-import { rangeFor, comparisonsFor, zonedParts, zonedDayStart } from "../../../../lib/commandCenter/time.js";
+import { rangeFor, comparisonsFor } from "../../../../lib/commandCenter/time.js";
 import { EVENT_MAP, KPI_DEFS } from "../../../../lib/commandCenter/eventMap.js";
-import { computeAlerts } from "../../../../lib/commandCenter/alerts.js";
+import { gatherAlerts } from "../../../../lib/commandCenter/alertsRun.js";
 import * as fp from "../../../../lib/commandCenter/sources/firstParty.js";
 import * as ph from "../../../../lib/commandCenter/sources/posthog.js";
 import { tpStats } from "../../../../lib/commandCenter/sources/travelpayouts.js";
@@ -134,33 +134,41 @@ async function traffic(range) {
 }
 
 async function journey(range) {
-  const [funnel, searches, noResults, screens, categories, curated, shareKinds, kpis, nvr] = await Promise.all([
+  const [funnel, searches, noResults, noResultCities, screens, categories, curated, shareKinds, kpis, nvr, tta, coverage, daily] = await Promise.all([
     fp.funnel(range.from, range.to),
     fp.breakdown(range.from, range.to, "search", 12),
     fp.breakdown(range.from, range.to, "no_result", 12),
+    fp.breakdown(range.from, range.to, "no_result_city", 12),
     fp.breakdown(range.from, range.to, "screen", 12),
     fp.breakdown(range.from, range.to, "category", 12),
     fp.breakdown(range.from, range.to, "curated", 10),
     fp.breakdown(range.from, range.to, "share_kind", 10),
     fp.kpis(range.from, range.to),
     fp.newReturning(range.from, range.to),
+    fp.timeToAction(range.from, range.to),
+    fp.scoreCoverage(),
+    fp.daily(range.from, range.to),
   ]);
   const k = kpis.data || {};
   const rate = (a, b) => (b > 0 ? a / b : null);
   return {
-    funnel, searches, noResults, screens, categories, curated, shareKinds,
+    funnel, searches, noResults, noResultCities, screens, categories, curated, shareKinds,
     rates: {
       source: kpis.source,
       data: {
+        discovery_success: rate(k.open_devices, k.browse_devices),
         save_rate: rate(k.saves, k.detail_opens),
         share_rate: rate(k.shares, k.detail_opens),
         directions_rate: rate(k.directions, k.detail_opens),
         out_click_rate: rate(k.out_clicks, k.detail_opens),
         engage_rate: rate(k.engaged_devices, k.active_devices),
         no_result_rate: rate(k.no_result_searches, (k.searches || 0) + (k.no_result_searches || 0)),
-        denominators: { detail_opens: k.detail_opens || 0, active_devices: k.active_devices || 0, searches: (k.searches || 0) + (k.no_result_searches || 0) },
+        denominators: { detail_opens: k.detail_opens || 0, active_devices: k.active_devices || 0, searches: (k.searches || 0) + (k.no_result_searches || 0), browse_devices: k.browse_devices || 0 },
       },
     },
+    timeToAction: tta,
+    scoreCoverage: coverage,
+    dailyDiscovery: { source: daily.source, data: (daily.data || []).map((d) => ({ day: d.day, browse: Number(d.browse_devices) || 0, open: Number(d.open_devices) || 0 })) },
     newVsReturning: nvr,
     eventMap: EVENT_MAP,
   };
@@ -261,54 +269,9 @@ async function ops() {
   };
 }
 
+// Panel + the cc-alerts email cron share ONE gatherer (lib/…/alertsRun.js).
 async function alertsPanel(now) {
-  const p = zonedParts(now);
-  const dayStart = zonedDayStart(p);
-  const fractionOfDay = Math.max(0.02, (now - dayStart) / 86400000);
-  const hist14From = new Date(dayStart.getTime() - 14 * 86400000);
-  const cfg = ph.posthogConfigured();
-  const miss = () => Promise.resolve(ph.posthogMissing());
-  const week = new Date(now.getTime() - 7 * 86400000);
-
-  const [dailyHist, todayK, signupHist, signupToday, cwvField, lab, err24, sentry, syn, deploys, tpToday] = await Promise.all([
-    fp.daily(hist14From, dayStart),
-    fp.kpis(dayStart, now),
-    fp.signups(hist14From, dayStart),
-    fp.signups(dayStart, now),
-    cfg ? ph.webVitalsField(week, now) : miss(),
-    labCWV(),
-    cfg ? ph.errorCount24h() : miss(),
-    sentryIssues(),
-    selfCheck(),
-    deploymentsList(),
-    tpStats(dayStart, now),
-  ]);
-
-  const k = todayK.data || {};
-  const signupDays = new Map((signupHist.data || []).map((r) => [r.day, Number(r.signups) || 0]));
-  const signupHistory = (dailyHist.data || []).map((d) => ({ day: d.day, signups: signupDays.get(d.day) || 0 }));
-
-  const sources = [
-    todayK.source, cwvField.source, lab.source, err24.source, sentry.source, syn.source, deploys.source, tpToday.source,
-  ].filter(Boolean);
-
-  const alerts = computeAlerts({
-    fractionOfDay,
-    dailyHistory: dailyHist.data || [],
-    today: { devices: k.active_devices, sessions: k.sessions, out_clicks: k.out_clicks, searches: k.searches, no_result_searches: k.no_result_searches },
-    signupsHistory: signupHistory,
-    signupsToday: (signupToday.data || []).reduce((a, x) => a + Number(x.signups || 0), 0),
-    webVitalsField: cwvField.data,
-    labCwv: lab.data,
-    errors24h: err24.data && err24.data[0],
-    sentryUnresolved: sentry.data ? sentry.data.unresolved_24h : null,
-    synthetic: syn.data,
-    deployments: deploys.data,
-    sources,
-    tpRevenue: tpToday.data,
-    tpRevenueHistory: null, // needs daily provider imports (phase 2)
-  });
-  return { alerts, baselineNote: "Baselines are medians of the last complete days (time-of-day adjusted). Rules stay silent until 7 days of history and minimum volume exist — no false alarms off tiny numbers.", sources };
+  return gatherAlerts(now);
 }
 
 export async function GET(req, ctx) {

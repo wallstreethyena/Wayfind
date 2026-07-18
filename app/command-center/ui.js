@@ -245,6 +245,16 @@ function OverviewSection({ auth, range }) {
         <StatTile label="Page views" def={defs.page_views} value={phC ? fmtNum(phC.pageviews) : "–"}
           deltas={phC ? phDeltas("pageviews") : undefined}
           source={phC ? dget(d, "posthog.source") : dget(d, "posthog.source") || undefined} />
+        <StatTile label="Discovery success" def={defs.discovery_success}
+          value={fpK.browse_devices > 0 ? fmtPct((fpK.open_devices || 0) / fpK.browse_devices, 1) : "–"}
+          sub={`${fmtNum(fpK.open_devices)} of ${fmtNum(fpK.browse_devices)} browsers`}
+          deltas={fpComps.map((c) => {
+            const pb = dget(c, "kpis.browse_devices"), po = dget(c, "kpis.open_devices");
+            const prev = pb > 0 ? po / pb : null;
+            const cur = fpK.browse_devices > 0 ? (fpK.open_devices || 0) / fpK.browse_devices : null;
+            return { delta: deltaOf(cur, prev), label: COMP_SHORT[c.key] || c.label };
+          })}
+          source={dget(d, "firstParty.source")} />
         <StatTile label="Screen views" def={defs.screen_views} value={fmtNum(fpK.screen_views)} deltas={compDeltas("screen_views")} source={dget(d, "firstParty.source")} />
         <StatTile label="Signups" def={defs.signups} value={fmtNum(dget(d, "signups.current"))} deltas={signupComps}
           sub={`total ${fmtNum(dget(d, "signups.totals.data.total_users"))}`} source={dget(d, "signups.source")} />
@@ -429,11 +439,16 @@ function TrafficSection({ auth, range }) {
 }
 
 function JourneySection({ auth, range }) {
+  // HOOKS RULE: no hooks below the error guard (see TrafficSection).
   const p = usePanel("journey", auth, range);
   const d = dget(p.data, "data", null);
   if (p.error) return <Section id="journey" title="User journey & engagement"><PanelError {...p} reload={p.reload} /></Section>;
   const rates = dget(d, "rates.data", {}) || {};
   const den = rates.denominators || {};
+  const tta = dget(d, "timeToAction.data", null);
+  const cov = dget(d, "scoreCoverage.data", null);
+  const discDaily = dget(d, "dailyDiscovery.data", null) || [];
+  const fmtSecs = (s) => s == null ? "–" : Number(s) >= 90 ? Math.round(s / 6) / 10 + "m" : Math.round(s) + "s";
   return (
     <Section id="journey" title="User journey & engagement" loading={p.loading && !p.data}
       sub="The real Wayfind journey from first-party events (distinct devices per step; a device can enter mid-funnel).">
@@ -448,6 +463,8 @@ function JourneySection({ auth, range }) {
         <Card>
           <div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 8 }}>Engagement rates <DefTip text="Rates against their honest denominators, shown beside each. Small denominators mean noisy rates — judge with the count." /></div>
           <Grid min={130}>
+            <StatTile label="Discovery success" value={fmtPct(rates.discovery_success, 1)} sub={`of ${fmtNum(den.browse_devices)} browsers`} def="Browsing/searching devices that opened at least one place — the core product-health rate." />
+            <StatTile label="Time to first action" value={tta ? fmtSecs(tta.median_s) : "–"} sub={tta && tta.p75_s != null ? `p75 ${fmtSecs(tta.p75_s)} · n=${fmtNum(tta.devices_measured)}` : "no actions in window"} def="Median seconds from a device's first event to its first meaningful action (open/save/share/directions/partner click)." />
             <StatTile label="Save rate" value={fmtPct(rates.save_rate, 1)} sub={`of ${fmtNum(den.detail_opens)} opens`} def="Saves ÷ place-detail opens in window." />
             <StatTile label="Share rate" value={fmtPct(rates.share_rate, 1)} sub={`of ${fmtNum(den.detail_opens)} opens`} def="Shares ÷ place-detail opens." />
             <StatTile label="Directions rate" value={fmtPct(rates.directions_rate, 1)} sub={`of ${fmtNum(den.detail_opens)} opens`} def="Directions clicks ÷ place-detail opens." />
@@ -467,10 +484,35 @@ function JourneySection({ auth, range }) {
           </Frame>
         </Card>
         <Card>
-          <Frame title="Searches with no useful result" def="Category · location combos that hit the empty state (places_none) — the sharpest coverage-gap signal." source={dget(d, "noResults.source")}
+          <Frame title="Searches with no useful result" def="Category · location combos that hit the empty state (places_none) — the sharpest coverage-gap signal. Locations are collapsed to city level (street addresses are stripped server-side)." source={dget(d, "noResults.source")}
             columns={["Category · area", "Count"]} rows={(dget(d, "noResults.data", null) || []).map((r) => [r.k, r.n])}>
             <HBarList color={STATUS.serious} items={(dget(d, "noResults.data", null) || []).map((r) => ({ label: r.k, value: r.n }))} />
           </Frame>
+        </Card>
+        <Card>
+          <Frame title="Coverage gaps by area — your expansion map" def="Areas where people wanted Wayfind and got an empty state, ranked. Each row is demand you haven't served yet. City-level only." source={dget(d, "noResultCities.source")}
+            columns={["Area", "Empty results", "Devices"]} rows={(dget(d, "noResultCities.data", null) || []).map((r) => [r.k, r.n, r.devices])}>
+            <HBarList color={CAT[3]} items={(dget(d, "noResultCities.data", null) || []).map((r) => ({ label: r.k, value: r.n, secondary: `${r.devices} devices` }))} />
+          </Frame>
+        </Card>
+        <Card>
+          <Frame title="Discovery success by day" def="Devices that browsed vs devices that opened a place, per day — the gap is your relevance problem." source={dget(d, "dailyDiscovery.source")}
+            columns={["Day", "Browsed", "Opened"]} rows={discDaily.map((r) => [r.day, r.browse, r.open])}>
+            {discDaily.length ? (
+              <LineChart height={150} xLabels={discDaily.map((r) => r.day)}
+                series={[
+                  { name: "browsed", color: CAT[0], values: discDaily.map((r) => r.browse) },
+                  { name: "opened", color: CAT[1], values: discDaily.map((r) => r.open) },
+                ]} />
+            ) : <EmptyNote>No browse activity in this window.</EmptyNote>}
+          </Frame>
+          <div style={{ height: 12 }} />
+          <div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 8 }}>Catalog quality <DefTip text={dget(p.data, "data.eventMap.category_selected.definition", "")} /></div>
+          <Grid min={120}>
+            <StatTile label="Scoreable places" value={cov && cov.inventory_total > 0 ? fmtPct(cov.scoreable / cov.inventory_total, 1) : "–"} sub={cov ? `${fmtNum(cov.scoreable)} of ${fmtNum(cov.inventory_total)}` : undefined} def="Inventory places with rating signals — the rest show 'Score pending'." source={dget(d, "scoreCoverage.source")} />
+            <StatTile label="Editorialized" value={cov && cov.inventory_total > 0 ? fmtPct(cov.with_editorial / cov.inventory_total, 1) : "–"} sub={cov ? `${fmtNum(cov.with_editorial)} places` : undefined} def="Places with an editorial line written." />
+            <StatTile label="Needs review" goodWhenUp={false} value={cov ? fmtNum(cov.needs_review) : "–"} def="Inventory rows flagged needs_review." />
+          </Grid>
         </Card>
         <Card>
           <Frame title="Most-used screens" def="In-app screen views by screen name." source={dget(d, "screens.source")}

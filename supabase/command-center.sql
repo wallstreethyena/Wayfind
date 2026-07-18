@@ -72,6 +72,12 @@ create or replace function public.wf_cc_engage_actions()
 returns text[] language sql immutable as
 $$ select array['save','like','share','directions','coupon_save','user_comment'] $$;
 
+-- Browse/search actions — ONE list feeding funnel step 2 AND the discovery-
+-- success rate (browse_devices -> open_devices).
+create or replace function public.wf_cc_browse_actions()
+returns text[] language sql immutable as
+$$ select array['result_count_shown','search','intent_chip','curated_open','mood_tile','map_pin_selected','discovery_tile','hero_tap'] $$;
+
 create or replace function public.wf_cc_tz(_tz text)
 returns text language sql immutable as
 $$ select case when _tz in ('America/New_York','UTC') then _tz else 'America/New_York' end $$;
@@ -102,16 +108,21 @@ language sql stable security definer set search_path = public as $$
     union all select 'out_clicks', count(*) filter (where action = any(public.wf_cc_out_actions())) from w
     union all select 'engaged_devices', count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or action = any(public.wf_cc_out_actions())) from w
     union all select 'signed_in_devices', count(distinct device_id) filter (where user_id is not null) from w
+    union all select 'browse_devices', count(distinct device_id) filter (where action = any(public.wf_cc_browse_actions())) from w
+    union all select 'open_devices', count(distinct device_id) filter (where action in ('detail_open','event_open')) from w
   ) m
 $$;
 
 -- ------------------------------------------------------------
 -- 2) Daily series (site-local days).
 -- ------------------------------------------------------------
+-- NOTE: changing this function's OUT columns requires `drop function` first
+-- (applied migration did so); create-or-replace alone cannot change the type.
 create or replace function public.wf_cc_daily(_from timestamptz, _to timestamptz, _tz text default 'America/New_York')
 returns table(day date, devices bigint, sessions bigint, screen_views bigint, detail_opens bigint,
               saves bigint, likes bigint, shares bigint, directions bigint, out_clicks bigint,
-              searches bigint, no_results bigint, engaged_devices bigint)
+              searches bigint, no_results bigint, engaged_devices bigint,
+              browse_devices bigint, open_devices bigint)
 language sql stable security definer set search_path = public as $$
   select (created_at at time zone public.wf_cc_tz(_tz))::date as day,
          count(distinct device_id) as devices,
@@ -125,7 +136,9 @@ language sql stable security definer set search_path = public as $$
          count(*) filter (where action = any(public.wf_cc_out_actions())) as out_clicks,
          count(*) filter (where action = 'search') as searches,
          count(*) filter (where action = 'places_none') as no_results,
-         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or action = any(public.wf_cc_out_actions())) as engaged_devices
+         count(distinct device_id) filter (where action = any(public.wf_cc_engage_actions()) or action = any(public.wf_cc_out_actions())) as engaged_devices,
+         count(distinct device_id) filter (where action = any(public.wf_cc_browse_actions())) as browse_devices,
+         count(distinct device_id) filter (where action in ('detail_open','event_open')) as open_devices
   from public.events
   where created_at >= _from and created_at < _to
     and (device_id is null or device_id not in (select public.wf_cc_excluded_devices()))
@@ -189,7 +202,11 @@ language sql stable security definer set search_path = public as $$
         when 'category'   then nullif(meta->>'cat','')
         when 'search'     then case when (meta->>'q') ~ '@' then '[contains email — hidden]'
                                     else left(lower(trim(meta->>'q')), 80) end
-        when 'no_result'  then coalesce(nullif(meta->>'cat',''),'?') || ' · ' || coalesce(nullif(meta->>'loc',''),'?')
+        -- Locations can carry precise street addresses (observed live); any
+        -- leading comma-segment containing a digit is stripped to city level.
+        when 'no_result'  then coalesce(nullif(meta->>'cat',''),'?') || ' · ' ||
+                               coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
+        when 'no_result_city' then coalesce(nullif(regexp_replace(coalesce(meta->>'loc',''), '^[^,]*[0-9][^,]*,\\s*', ''),''),'(unknown area)')
         when 'referrer'   then coalesce(nullif(lower(split_part(regexp_replace(meta->>'ref','^https?://',''),'/',1)),''),'(direct/none)')
         when 'share_kind' then nullif(meta->>'kind','')
         when 'curated'    then nullif(meta->>'kind','')
@@ -204,6 +221,7 @@ language sql stable security definer set search_path = public as $$
         when 'category' then action = 'result_count_shown'
         when 'search' then action = 'search' and nullif(trim(meta->>'q'),'') is not null
         when 'no_result' then action = 'places_none'
+        when 'no_result_city' then action = 'places_none'
         when 'referrer' then action = 'session'
         when 'share_kind' then action = 'share'
         when 'curated' then action = 'curated_open'
@@ -234,7 +252,7 @@ language sql stable security definer set search_path = public as $$
       from w where action in ('session','screen_view')
     union all
     select 'Browsed or searched', 2, count(distinct device_id)
-      from w where action in ('result_count_shown','search','intent_chip','curated_open','mood_tile','map_pin_selected','discovery_tile','hero_tap')
+      from w where action = any(public.wf_cc_browse_actions())
     union all
     select 'Opened a place', 3, count(distinct device_id)
       from w where action in ('detail_open','event_open')
@@ -360,6 +378,47 @@ language sql stable security definer set search_path = public as $$
   from act group by day order by day
 $$;
 
+
+-- ------------------------------------------------------------
+-- 11b) Time to first meaningful action — per device in window, seconds from
+--      its first event to its first open/engage/partner action (medians).
+-- ------------------------------------------------------------
+create or replace function public.wf_cc_time_to_action(_from timestamptz, _to timestamptz)
+returns table(devices_measured bigint, median_s numeric, p75_s numeric)
+language sql stable security definer set search_path = public as $$
+  with per_device as (
+    select device_id,
+           min(created_at) as t0,
+           min(created_at) filter (where action in ('detail_open','event_open')
+                                      or action = any(public.wf_cc_engage_actions())
+                                      or action = any(public.wf_cc_out_actions())) as t1
+    from public.events
+    where created_at >= _from and created_at < _to and device_id is not null
+      and device_id not in (select public.wf_cc_excluded_devices())
+    group by device_id
+  ), deltas as (
+    select extract(epoch from (t1 - t0)) as s from per_device where t1 is not null and t1 > t0
+  )
+  select count(*)::bigint,
+         round(percentile_cont(0.5) within group (order by s)::numeric, 1),
+         round(percentile_cont(0.75) within group (order by s)::numeric, 1)
+  from deltas
+$$;
+
+-- ------------------------------------------------------------
+-- 11c) Inventory/score coverage — how much of the catalog is scoreable
+--      (has rating signals) and editorialized. Product-quality context.
+-- ------------------------------------------------------------
+create or replace function public.wf_cc_score_coverage()
+returns table(metric text, n bigint)
+language sql stable security definer set search_path = public as $$
+  select 'inventory_total'::text, count(*)::bigint from public.wf_inventory
+  union all select 'inventory_active', count(*)::bigint from public.wf_inventory where coalesce(status,'active') not in ('removed','rejected','inactive')
+  union all select 'scoreable', count(*)::bigint from public.wf_inventory where signals is not null and nullif(signals->>'rating','') is not null
+  union all select 'with_editorial', count(*)::bigint from public.wf_inventory where nullif(editorial,'') is not null
+  union all select 'needs_review', count(*)::bigint from public.wf_inventory where needs_review is true
+$$;
+
 -- ------------------------------------------------------------
 -- 12) OWNER-EYES-ONLY identity panels (explicit owner decision 2026-07-18,
 --     amending the v1 "no PII" posture for exactly these two functions):
@@ -428,7 +487,7 @@ do $lock$
 declare fn text;
 begin
   foreach fn in array array[
-    'wf_cc_out_actions()','wf_cc_engage_actions()','wf_cc_tz(text)',
+    'wf_cc_out_actions()','wf_cc_engage_actions()','wf_cc_browse_actions()','wf_cc_tz(text)',
     'wf_cc_excluded_users()','wf_cc_excluded_devices()',
     'wf_cc_kpis(timestamptz,timestamptz)',
     'wf_cc_daily(timestamptz,timestamptz,text)',
@@ -441,6 +500,8 @@ begin
     'wf_cc_retention(timestamptz,timestamptz,text)',
     'wf_cc_cohorts_weekly(int,text)',
     'wf_cc_new_returning(timestamptz,timestamptz,text)',
+    'wf_cc_time_to_action(timestamptz,timestamptz)',
+    'wf_cc_score_coverage()',
     'wf_cc_lab_cwv()',
     'wf_cc_recent_signups(int)',
     'wf_cc_recent_shares(int)'
@@ -456,6 +517,9 @@ $lock$;
 --   drop function if exists public.wf_cc_recent_shares(int);
 --   drop function if exists public.wf_cc_recent_signups(int);
 --   drop function if exists public.wf_cc_lab_cwv();
+--   drop function if exists public.wf_cc_score_coverage();
+--   drop function if exists public.wf_cc_time_to_action(timestamptz,timestamptz);
+--   drop function if exists public.wf_cc_browse_actions();
 --   drop function if exists public.wf_cc_new_returning(timestamptz,timestamptz,text);
 --   drop function if exists public.wf_cc_cohorts_weekly(int,text);
 --   drop function if exists public.wf_cc_retention(timestamptz,timestamptz,text);
