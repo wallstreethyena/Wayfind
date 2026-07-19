@@ -127,7 +127,7 @@ export default function DetailSheet({ ctx }) {
     setEditorial(null);
     const nm = detail && !detail._event ? detail.name : null;
     if (!nm) return;
-    fetch("/api/editorial?name=" + encodeURIComponent(nm))
+    fetch("/api/editorial?name=" + encodeURIComponent(nm) + (detail.id ? "&id=" + encodeURIComponent(detail.id) : "")) // v6.42: pass place_id so a richer Atlas card (when one exists) wins over the name-keyed note
       .then((r) => r.json())
       .then((j) => { if (!dead && j && j.editorial) setEditorial(j.editorial); })
       .catch(() => {});
@@ -382,7 +382,7 @@ export default function DetailSheet({ ctx }) {
               {!detail._event && editorial && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 7 }}>📝 The Wayfind take</div>
-                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move], ["Known For", editorial.knownFor], ["Food Move", editorial.foodMove], ["Drink Move", editorial.drinkMove], ["The Story", editorial.story]].filter(([_l, _b]) => _b).map(([_lb, _bd]) => (
+                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move], ["Known For", editorial.knownFor], ["Food Move", editorial.foodMove], ["Drink Move", editorial.drinkMove], ["The Story", editorial.story], ["Best For", editorial.bestFor], ["Insider Move", editorial.insiderMove], ["Why It Stands Out", editorial.proof], ["Good to Know", editorial.goodToKnow], ["Fun Fact", editorial.funFact], ["Heads Up", editorial.watchOut]].filter(([_l, _b]) => _b).map(([_lb, _bd]) => (
                     <div key={_lb} style={{ marginBottom: 7 }}>
                       <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{_lb}: </span>
                       <span style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{_bd}</span>
