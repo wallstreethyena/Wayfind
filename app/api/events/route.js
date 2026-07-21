@@ -69,8 +69,16 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
       const vloc = venue && venue.location ? venue.location : null;
       let img = null;
       if (Array.isArray(e.images) && e.images.length) {
-        const wide = e.images.filter((i) => i.ratio === "16_9").sort((a, b) => (b.width || 0) - (a.width || 0));
-        img = (wide[0] || e.images[0]).url;
+        // v6.43 LCP: this used to sort widest-FIRST and take [0], which shipped
+        // Ticketmaster's 2048x1152 / ~503KB JPEG into a hero slot that is 388px
+        // wide on mobile and ~780px on desktop — a 5x oversized download that
+        // measured as the mobile LCP element at 8.4s on a throttled connection.
+        // Take the SMALLEST 16:9 variant that still covers the slot at ~2x DPR
+        // (1024x576 is ~168KB, a 67% saving with no visible quality loss at
+        // these sizes); fall back to the largest available if none reach it.
+        const HERO_MIN_W = 1024;
+        const wide = e.images.filter((i) => i.ratio === "16_9").sort((a, b) => (a.width || 0) - (b.width || 0));
+        img = (wide.find((i) => (i.width || 0) >= HERO_MIN_W) || wide[wide.length - 1] || e.images[0]).url;
       }
       const cls = Array.isArray(e.classifications) && e.classifications[0] ? e.classifications[0] : null;
       const seg = cls && cls.segment ? cls.segment.name : "";
