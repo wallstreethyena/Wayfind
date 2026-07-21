@@ -25,6 +25,12 @@ for (const tok of ["TYPE", "TARGET", "MOTION"]) {
 }
 
 const layout = readFileSync(join(root, "app/layout.js"), "utf8");
+// Owner styling calls (2026-07-21): the page is BLACK and the category menu
+// lettering is WHITE. Both shipped as explicit owner direction — do not drift.
+if (!kit.includes('bg: "#040810"')) fail("C.bg must stay the logo master black #040810 (owner call 2026-07-21)");
+if (!layout.includes('background: "#040810"')) fail("layout body must stay the logo master black #040810 (owner call 2026-07-21)");
+if (!home.includes('on ? C.accent : "#FFFFFF"')) fail("CategoryMenu idle lettering must stay white (owner call 2026-07-21)");
+
 if (!layout.includes("prefers-reduced-motion")) fail("layout.js lost the global prefers-reduced-motion guard");
 if (!layout.includes("wf-skeleton")) fail("layout.js lost the image-loading skeleton style (Phase 3)");
 

@@ -90,6 +90,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
+import TodaysBest from "./components/TodaysBest";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -150,8 +151,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#A9B4C7"} size={26} />
-            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#A9B4C7", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} />
+            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -6019,13 +6020,16 @@ function PageInner({ initialEvents = null }) {
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
       <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}`}</style>
       {/* Header */}
-      <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
+      <div style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <span onClick={openSuggested} style={{ position: "relative", display: "inline-block", cursor: "pointer" }}>
-              <img src="/wordmark.png?v=3" alt="wayfind" style={{ height: 34, width: "auto", display: "block" }} />
-              <span style={{ position: "absolute", left: LOGO_PIN.left, top: LOGO_PIN.top, pointerEvents: "none" }}><GlowPin size={LOGO_PIN.size} /></span>
+            {/* Official master logo (public/brand/wayfind-logo.png; pin baked in, no
+                GlowPin overlay). 2x header derivative per the brand README — the 1MB
+                master at 30px would undo the LCP work. The header band below is the
+                logo's own baked #040810, so logo and background are one color. */}
+            <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
+              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 30, width: "auto", display: "block" }} />
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
@@ -6363,44 +6367,8 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 );
               })()}
-                      {!browseCat && (suggested && suggested.length > 0) && (() => {
-                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
-                        // The 3:33 PM reorder is computed in a post-mount effect
-                        // (menuOrder), never in this render body — hydration-safe.
-                        // "Today's Best" opens the consolidated openCurated("today").
-                        const _order = menuOrder;
-                        // v6.08 (PR-C): premium treatment — edges + type, not tinted boxes.
-                        // One hairline of edge light on the container, 1px row dividers, a
-                        // uniform quiet icon, a near-invisible chevron. The aspirational
-                        // marketing sublines are REMOVED; the live-fact sublines the owner
-                        // wants ("47 open now") are DEFERRED until PR-B seeds a real
-                        // inventory — computing counts off the current bugged candidate set
-                        // would be a confident-but-false number, the exact thing the
-                        // candidate-set fix exists to eliminate.
-                        return (
-                          <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-                            <div style={{ padding: "16px 15px 6px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
-                            </div>
-                            <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
-                            {_order.map((key) => {
-                              const t = EXPLORE_TILES[key];
-                              return (
-                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
-                                    <NavIcon name={t.icon} size={26} strokeWidth={1.5} color="rgba(255,255,255,.7)" />
-                                  </span>
-                                  <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                                  </span>
-                                </button>
-                              );
-                            })}
-                            <div style={{ padding: "14px 15px 16px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
-                          </div>
-                        );
-                      })()}
+                      {/* Owner call (2026-07-21): the Explore-near-you list is replaced by the Today's Best accordion — best-of-the-best per engine-served category via wf_best_picks (wf_trends boost seam in lib/todaysBest). openCurated destinations stay reachable from search + category surfaces. */}
+                      {!browseCat && <TodaysBest center={center} weather={weather} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
