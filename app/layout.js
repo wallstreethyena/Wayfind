@@ -66,6 +66,18 @@ export default function RootLayout({ children }) {
             mismatch is simply ignored. Fail-soft: any error leaves the app on
             its normal fetch path. radius 25 matches the client call exactly. */}
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:c.lat,lng:c.lng,radius:25,city:c.loc})}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}}catch(e){}})();" }} />
+        {/* #240 Best Move primer: warm the wf_best_picks answer and the hero
+            photo BEFORE hydration. Same shape as the events primer above:
+            same wf_center read, same DEFAULT_CENTER fallback (lock test pins
+            the coords in sync). This primer feeds NO state — the client makes
+            its own weather-aware call once — it exists to start the LCP image
+            (hero photo, w=800, ref shape validated like /api/photo does)
+            during the hydration dead time. Measured before this fix: LCP 10.5s
+            = 3.0s discovery delay + 7.4s of oversized w=1200 download. The
+            anon key is NEXT_PUBLIC (already in every client bundle). */}
+        {process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? (
+          <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393};var d=new Date();var k=" + JSON.stringify(String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY).trim()) + ";fetch(" + JSON.stringify(String(process.env.NEXT_PUBLIC_SUPABASE_URL).trim().replace(/\/+$/, "")) + "+'/rest/v1/rpc/wf_best_picks',{method:'POST',headers:{'Content-Type':'application/json',apikey:k,Authorization:'Bearer '+k},body:JSON.stringify({p_lat:c.lat,p_lng:c.lng,p_local_hour:d.getHours()+d.getMinutes()/60,p_temp:null,p_condition:null,p_radius_mi:25,p_limit:6})}).then(function(r){return r.ok?r.json():null}).then(function(j){try{var f=j&&j[0]&&j[0].photo_ref;if(f&&/^places\\/[A-Za-z0-9_-]+\\/photos\\/[A-Za-z0-9_-]+$/.test(f)){var i=new Image();i.fetchPriority='high';i.src='/api/photo?ref='+encodeURIComponent(f)+'&w=800'}}catch(e){}}).catch(function(){})}catch(e){}})();" }} />
+        ) : null}
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,

@@ -92,5 +92,21 @@ ok(/import BestMove from "\.\/components\/BestMove"/.test(home), "home.js import
 ok(home.includes("fetchBestPicks({"), "home.js calls the engine adapter");
 ok(/\{!browseCat \? \(\s*<BestMove/.test(home), "Best Move stands down when a category is being browsed");
 
+// LCP contract (perf/best-move-lcp): measured 10.5s LCP on 2026-07-21 came
+// from a w=1200 hero + a fetch that could not start until hydration. Pin all
+// three halves of the fix.
+ok(ui.includes("pickPhotoUrl(hero.photo_ref, 800)"), "hero photo is w=800, matching the primer");
+ok(!/pickPhotoUrl\([^)]*,\s*(1[2-9]\d\d|[2-9]\d{3})\)/.test(ui), "no photo call above w=800 (the 10.5s-LCP regression)");
+const layout = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+const bmPrime = layout.slice(layout.indexOf("wf_best_picks"));
+ok(layout.includes("/rest/v1/rpc/wf_best_picks"), "layout primer fires the engine call pre-hydration");
+ok(bmPrime.includes("27.5689") && bmPrime.includes("-82.4393"), "primer fallback coords stay in sync with DEFAULT_CENTER");
+ok(bmPrime.includes("&w=800"), "primer warms the SAME w=800 URL the hero renders (cache hit, not a second download)");
+ok(/\\\/photos\\\//.test(bmPrime) || /photos/.test(bmPrime), "primer validates the photo ref shape before preloading");
+// one fetch per center; weather is awaited via ref, never a dep (the #233 swap sin)
+const bmEffect = home.slice(home.indexOf("ONE call to the wf_best_picks"), home.indexOf("Suggested for Me:"));
+ok(bmEffect.includes("weatherRef"), "effect waits for weather via a ref");
+ok(/\}, \[screen, center\]\);/.test(bmEffect), "effect deps are [screen, center] only — no weather-triggered refetch/swap");
+
 console.log(`test-best-move: ${n - fail}/${n} passed`);
 if (fail) process.exit(1);

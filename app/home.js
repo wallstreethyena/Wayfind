@@ -5207,27 +5207,36 @@ function PageInner({ initialEvents = null }) {
     return () => { cancelled = true; };
   }, [center]);
 
-  // #232 Best Move: one call to the wf_best_picks engine per center/weather
-  // change. The first run fires without weather (the engine treats null as
-  // "no signal"), then re-runs once when the first reading lands so the
-  // ranking sharpens; it never blocks the first paint. Fails soft to [] —
-  // the section renders nothing and the rails below carry the page.
+  // #232 Best Move: ONE call to the wf_best_picks engine per center. The
+  // effect waits up to 1.2s for the first weather reading (usually ~300ms)
+  // so the one call is weather-aware — it does NOT refetch when weather
+  // updates later, because a second answer can change the hero under the
+  // reader (the #233 swap sin; v1 of this effect had exactly that bug).
+  // weatherRef (not a dep) lets the wait loop see the reading land without
+  // re-running the effect. Fails soft to [] — the section renders nothing
+  // and the rails below carry the page. The layout.js primer that pre-warms
+  // the hero image feeds NO state here; this is the only picks source.
+  const weatherRef = useRef(null);
+  weatherRef.current = weather;
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
     (async () => {
+      for (let i = 0; i < 12 && !weatherRef.current && !cancelled; i++) await new Promise((r) => setTimeout(r, 100));
+      if (cancelled) return;
+      const w = weatherRef.current;
       const d = new Date();
       const res = await fetchBestPicks({
         lat: center.lat, lng: center.lng,
         localHour: d.getHours() + d.getMinutes() / 60,
-        tempF: weather && weather.temp != null ? weather.temp : null,
-        condition: weather && weather.label ? weather.label : null,
+        tempF: w && w.temp != null ? w.temp : null,
+        condition: w && w.label ? w.label : null,
       });
       if (!cancelled) setBestMove({ picks: res.picks, loading: false, usedFallback: res.usedFallback, fallbackLabel: res.fallbackLabel || null });
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, weather && weather.temp, weather && weather.label]);
+  }, [screen, center]);
 
   // Suggested for Me: one intelligent feed that blends categories using the
   // signals we honestly have now: time of day, today's weather, and what you
