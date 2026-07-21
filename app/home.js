@@ -4571,9 +4571,16 @@ function PageInner() {
                 _wfInventory: true,
               };
             }).filter((p) => p && p.name);
-          } catch (e) { return []; }
+          } catch (e) { _fetchErrs++; return []; }
         };
 
+        // v6.43 no-result diagnosis: every Google/inventory call below swallows
+        // its own failure into an empty array, so an API error (quota, key
+        // restriction, network) has been INDISTINGUISHABLE from "there is
+        // genuinely nothing here". That ambiguity is why the places_none data
+        // could not tell a coverage gap from an outage. Count the swallowed
+        // failures so the event can say which one it was.
+        let _fetchErrs = 0;
         const _subs = (SUBFILTERS[cat] || []).filter((x) => x && x.id && x.id !== "all");
         const _fetchAt = async (m) => {
           if (sub === "all" && _subs.length) {
@@ -4583,7 +4590,7 @@ function PageInner() {
             // query so real destinations like Red Barn Flea Market are fetched.
             else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
             else { _second = _subs[0].id; }
-            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => []), searchPlaces(cat, _second, ctr, m, vibe).catch(() => []), _invAll(m)]); // v6.38: owned inventory joins the union — "All" is a superset everywhere
+            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), searchPlaces(cat, _second, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), _invAll(m)]); // v6.38: owned inventory joins the union — "All" is a superset everywhere
             const _seen = new Set(); const _out = [];
             _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
             // v6.15: the markets query also pulls farm/grocery markets — re-gate
@@ -4609,7 +4616,24 @@ function PageInner() {
           }
         }
         if (!cancelled && _usedM > _startM) { autoRadiusRef.current = true; setSliderMi(Math.round(_usedM / 1609.34)); setSearchRadius(_usedM); }
-        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, { loc: locName || "", cat, lat: center.lat, lng: center.lng }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
+        if (!cancelled) { setPlaces(results); loadBlurbs(results); try { logEvent("result_count_shown", null, { count: (results || []).length, cat, sub }); } catch (e) {} if (!results || results.length === 0) logEvent("places_none", null, {
+            loc: locName || "", cat, lat: center.lat, lng: center.lng,
+            // v6.43 no-result diagnosis. The original payload was {loc,cat,lat,lng},
+            // which could not answer the two questions that decide the fix:
+            //   "did the search already widen and STILL find nothing?"  -> radiusMi/widened
+            //   "was it empty, or did the API just fail quietly?"        -> fetchErrs
+            // Without these, a coverage gap and an outage look identical.
+            sub: sub || "all",
+            radiusMi: Math.round(_usedM / 1609.34),      // radius actually searched, AFTER auto-widening
+            startRadiusMi: Math.round(_startM / 1609.34),
+            widened: _usedM > _startM,                   // did the 17->30->45->60 ladder run?
+            fetchErrs: _fetchErrs,                       // >0 means calls FAILED, not "nothing here"
+            vibe: vibe || null,
+            // locName drives the display string; when it is empty the reverse
+            // geocode had not resolved. 46% of no-result events carry an empty
+            // loc, so whether that correlates with fetch failures matters.
+            locState: locName ? "resolved" : "pending",
+          }); fetchMemberSignals(supabase, results).then((sig) => { if (!cancelled && sig) setPlaces((cur) => withMemberSignal(cur, sig)); }); }
       } catch (e) {
         if (!cancelled) { setErr("We couldn't load spots right now. Try again in a moment."); setPlaces([]); }
       } finally {
