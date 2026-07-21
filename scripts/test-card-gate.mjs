@@ -47,8 +47,11 @@ ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*if \(!cardComplete\(p\)\) return n
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");
-ok(/=== "Food"\), condCtx, boostBase\)\.filter\(cardComplete\)\.slice\(0, 10\)/.test(home),
-  "the home Food top-10 row list is gated by cardComplete");
+// v6.46 (owner): the client-ranked food top-10 was replaced by the engine-
+// backed BestNearby card (wf_best_picks already serves complete rows). If
+// the client-ranked list ever returns, it must return WITH its gate.
+ok(!/=== "Food"\), condCtx, boostBase\)/.test(home) || /=== "Food"\), condCtx, boostBase\)\.filter\(cardComplete\)/.test(home),
+  "if the client-ranked food top-10 ever returns, it must return WITH its cardComplete gate");
 // v6.45 (owner): the "Best things to do today" card is retired from the home
 // page, so its gate went with it. The food top-10 gate above still stands;
 // this assertion now pins that the retired list does not quietly return

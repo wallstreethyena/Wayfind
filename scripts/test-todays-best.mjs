@@ -46,7 +46,22 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // "Best places to eat nearby" sits under the events card instead. The
 // component, lib, and engines stay in the repo for when it returns.
 ok(!/<TodaysBest /.test(home), "the accordion is unmounted (owner call)");
-ok(/Best places to eat nearby/.test(home), "the best-places-to-eat card renders in its place");
+ok(/<BestNearby center=\{center\} weather=\{weather\}/.test(home), "the combined BestNearby card is mounted with live center + weather (v6.46)");
+
+// v6.46: the combined card's own contract
+const bn = readFileSync(new URL("../app/components/BestNearby.js", import.meta.url), "utf8");
+ok(bn.includes("Best places to eat nearby") && bn.includes("Top things to do"), "both menus live in the ONE card");
+ok(bn.includes('fetchTodaysBest({ ...base, category: "food"') && bn.includes("fetchThingsToDo({"), "eat rides wf_best_picks(food); things-to-do rides wf_things_to_do — the day's engines, no client re-ranking");
+ok(bn.includes('CARD_BG = "#0B0E15"'), "card is the owner's almost-black, one step lighter than the page");
+ok(/r\.selling_out \? <SellingFast \/> : null/.test(bn), "Selling-fast badge renders ONLY on the engine's flag (Viator's own signal)");
+ok(bn.includes("affiliate links; Wayfind may earn a commission"), "affiliate disclosure renders with the tours");
+ok(bn.includes("PlaceScoreChip"), "numbers are the Wayfind Score chip");
+ok(!/rating\.toFixed/.test(bn) && !/reviews\.toLocaleString/.test(bn), "no google-star composition");
+ok(bn.includes('data === "loading"') && bn.includes("wf-sk"), "reserved-geometry loading rows");
+ok(bn.includes("Nothing strong here right now"), "honest empty state");
+const lib2 = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
+ok(lib2.includes('supabase.rpc("wf_things_to_do"'), "lib calls the real merge engine");
+ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
 ok(!/card\("Best things to do today"/.test(home), "the best-things-to-do-today CARD is gone (the curated sheet of the same name stays — engines kept)");
 ok(!/Explore near you<\/div>/.test(home), "the old Explore-near-you list menu is gone");
 ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engines kept, not deleted");
