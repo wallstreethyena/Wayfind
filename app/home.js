@@ -2889,8 +2889,6 @@ function PageInner({ initialEvents = null }) {
   // instead of the URL being unknown until a client fetch resolves ~11s in.
   // null => no server events (fail-soft) => skeleton, exactly as before.
   const [foryouEvents, setForyouEvents] = useState(initialEvents);
-  // one-shot: true only while the server seed is still untouched.
-  const ssrEventSeedRef = useRef(!!initialEvents);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
@@ -5393,21 +5391,24 @@ function PageInner({ initialEvents = null }) {
   // hides the strip and never blocks the picks.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
-    // v6.43: the server already fetched this exact query for DEFAULT_CENTER and
-    // seeded it into state, so the first paint has real events. Skip the
-    // duplicate round trip. The moment `center` moves off the default (stored
-    // location, geolocation, a city switch) this falls through and re-fetches
-    // for real — the seed is a head start, never a lock-in.
-    if (ssrEventSeedRef.current) {
-      ssrEventSeedRef.current = false;
-      if (center.lat === DEFAULT_CENTER.lat && center.lng === DEFAULT_CENTER.lng) return;
-    }
+    // #219 primer consume: an inline script in app/layout.js starts this exact
+    // fetch BEFORE hydration, using the SAME wf_center -> DEFAULT_CENTER
+    // resolution this client uses — so on the common path the response is
+    // already in flight ~2-3s before this effect can even run. VALUE-matched to
+    // the live center and one-shot: any mismatch (URL center, geolocation moved,
+    // a city switch) falls through to a normal fetch. The primer is only ever a
+    // head start, never wrong content — which is what the reverted #218 seed
+    // got wrong (it painted DEFAULT_CENTER events, then swapped).
+    const _prime = (typeof window !== "undefined" && window.__wfEvPrime) || null;
+    if (_prime) { try { delete window.__wfEvPrime; } catch (e) {} }
+    const _primeOk = !!(_prime && _prime.p && Math.abs(_prime.lat - center.lat) < 5e-4 && Math.abs(_prime.lng - center.lng) < 5e-4);
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: center.lat, lng: center.lng, radius: 25, city: locName }) });
-        if (!r.ok) { if (!cancelled) setForyouEvents([]); return; }
-        const data = await r.json();
+        const data = _primeOk
+          ? await _prime.p
+          : await fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: center.lat, lng: center.lng, radius: 25, city: locName }) }).then((r) => (r.ok ? r.json() : null));
+        if (!data) { if (!cancelled) setForyouEvents([]); return; }
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
           // v6.42 (owner, PERMANENT): the front page NEVER shows civic/community

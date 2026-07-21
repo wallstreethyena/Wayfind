@@ -59,6 +59,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#0D1117", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+        {/* #219 events primer: start the home events fetch BEFORE hydration.
+            Reads the SAME wf_center the app uses (fallback = DEFAULT_CENTER in
+            app/home.js — the lock test pins the coords in sync). Coords ride on
+            window.__wfEvPrime so home.js can VALUE-match before consuming; a
+            mismatch is simply ignored. Fail-soft: any error leaves the app on
+            its normal fetch path. radius 25 matches the client call exactly. */}
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:c.lat,lng:c.lng,radius:25,city:c.loc})}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}}catch(e){}})();" }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,
