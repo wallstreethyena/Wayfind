@@ -90,8 +90,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
-import BestMove from "./components/BestMove";
-import { fetchBestPicks } from "../lib/bestMove";
+import TodaysBest from "./components/TodaysBest";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -138,13 +137,8 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, mono }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
-  // mono (owner call, 2026-07-21): the front-page menu renders WHITE with
-  // slightly larger icons, one row, no label above it. Every other surface
-  // (map, itinerary, explore) keeps the standard gray-blue treatment.
-  const idle = mono ? "#FFFFFF" : "#A9B4C7";
-  const iconSize = mono ? 29 : 26;
   return (
     <div style={{ marginBottom: 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : "4px 2px 8px" }}>
       {heading && (
@@ -157,8 +151,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, mono })
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : idle} size={iconSize} />
-            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : idle, textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} />
+            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -2887,12 +2881,6 @@ function PageInner({ initialEvents = null }) {
   const [mapDrawer, setMapDrawer] = useState(false);
   const [eventPreview, setEventPreview] = useState(null);
   const [weather, setWeather] = useState(null);
-  // #232: the Best Move engine's answer. picks:null = not asked yet (skeleton).
-  const [bestMove, setBestMove] = useState({ picks: null, loading: true, usedFallback: false, fallbackLabel: null });
-  // The LLM "why this, why now" lines. settled flips exactly once per picks
-  // set — when the endpoint answers OR after 2.5s — and the cards' reserved
-  // why-slots fill on that flip (one-shot; no text ever replaces other text).
-  const [bestWhy, setBestWhy] = useState({ lines: {}, settled: false });
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5216,78 +5204,6 @@ function PageInner({ initialEvents = null }) {
     return () => { cancelled = true; };
   }, [center]);
 
-  // #232 Best Move: ONE call to the wf_best_picks engine per center. The
-  // effect waits up to 1.2s for the first weather reading (usually ~300ms)
-  // so the one call is weather-aware — it does NOT refetch when weather
-  // updates later, because a second answer can change the hero under the
-  // reader (the #233 swap sin; v1 of this effect had exactly that bug).
-  // weatherRef (not a dep) lets the wait loop see the reading land without
-  // re-running the effect. Fails soft to [] — the section renders nothing
-  // and the rails below carry the page. The layout.js primer that pre-warms
-  // the hero image feeds NO state here; this is the only picks source.
-  const weatherRef = useRef(null);
-  weatherRef.current = weather;
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      for (let i = 0; i < 12 && !weatherRef.current && !cancelled; i++) await new Promise((r) => setTimeout(r, 100));
-      if (cancelled) return;
-      const w = weatherRef.current;
-      const d = new Date();
-      const res = await fetchBestPicks({
-        lat: center.lat, lng: center.lng,
-        localHour: d.getHours() + d.getMinutes() / 60,
-        tempF: w && w.temp != null ? w.temp : null,
-        condition: w && w.label ? w.label : null,
-      });
-      if (!cancelled) setBestMove({ picks: res.picks, loading: false, usedFallback: res.usedFallback, fallbackLabel: res.fallbackLabel || null });
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // Why-lines for the picks above. One POST per picks set; the 2.5s timer
-  // guarantees the cards' reserved slots settle (with the engine's own
-  // reasons) even if the model is slow or the key is absent. Late responses
-  // after the timer are dropped — settling twice would swap text (#233).
-  useEffect(() => {
-    const picks = bestMove.picks;
-    if (!Array.isArray(picks) || !picks.length) return;
-    let done = false;
-    setBestWhy({ lines: {}, settled: false });
-    const settle = (lines) => { if (!done) { done = true; setBestWhy({ lines: lines || {}, settled: true }); } };
-    const timer = setTimeout(() => settle({}), 2500);
-    (async () => {
-      try {
-        const w = weatherRef.current;
-        const d = new Date();
-        const r = await fetch("/api/bestmove/why", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            picks: picks.slice(0, 6),
-            ctx: {
-              localHour: d.getHours() + d.getMinutes() / 60,
-              tempF: w && w.temp != null ? w.temp : null,
-              condition: w && w.label ? w.label : null,
-              minsToSunset: w && w.sunsetMs ? Math.round((w.sunsetMs - Date.now()) / 60000) : null,
-              city: locName ? locName.split(",")[0] : "",
-            },
-          }),
-        });
-        const j = r.ok ? await r.json() : null;
-        clearTimeout(timer);
-        settle(j && j.why ? j.why : {});
-      } catch (e) {
-        clearTimeout(timer);
-        settle({});
-      }
-    })();
-    return () => { done = true; clearTimeout(timer); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bestMove.picks]);
-
   // Suggested for Me: one intelligent feed that blends categories using the
   // signals we honestly have now: time of day, today's weather, and what you
   // have saved. It gets smarter as more signals come online.
@@ -6104,14 +6020,14 @@ function PageInner({ initialEvents = null }) {
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
       <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}`}</style>
       {/* Header */}
-      <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
+      <div style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            {/* Official master logo (public/brand/wayfind-logo.png, wordmark +
-                pin baked in — no GlowPin overlay needed). Rendered from a 2x
-                header derivative cut from that master (10KB, per the brand
-                README) because the 1MB master at 30px would undo the LCP work. */}
+            {/* Official master logo (public/brand/wayfind-logo.png; pin baked in, no
+                GlowPin overlay). 2x header derivative per the brand README — the 1MB
+                master at 30px would undo the LCP work. The header band below is the
+                logo's own baked #040810, so logo and background are one color. */}
             <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
               <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 30, width: "auto", display: "block" }} />
             </span>
@@ -6128,6 +6044,7 @@ function PageInner({ initialEvents = null }) {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
+            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}><Icon name="sparkles" size={17} color={C.accent} /></button>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
@@ -6215,11 +6132,8 @@ function PageInner({ initialEvents = null }) {
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
-          {/* Owner call (2026-07-21): the dice/Take-a-chance button is gone from
-              beside the search box; the star (Find my vibe) lives here instead.
-              Its old header spot is removed so there is exactly one. */}
-          <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_star" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon name="sparkles" size={17} color={C.accent} />
+          <button onClick={() => { try { logEvent("dice_card", null, { src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Take a chance" title="Take a chance" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <NavIcon name="shuffle" size={17} color={C.accent} />
           </button>
         </div>
         )}
@@ -6363,26 +6277,8 @@ function PageInner({ initialEvents = null }) {
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
-              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system.
-                  Owner iteration (2026-07-21 evening): the menu sits ABOVE the Best Move
-                  section — white, bigger icons, one row, no "Browse all" label. The chips
-                  row and the browse slot are gone. */}
-              <CategoryMenu mono activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
-              {!browseCat && (
-                <BestMove
-                  picks={bestMove.picks || []}
-                  loading={bestMove.loading}
-                  usedFallback={bestMove.usedFallback}
-                  fallbackLabel={bestMove.fallbackLabel}
-                  weather={weather}
-                  events={foryouEvents || []}
-                  savedIds={liked}
-                  why={bestWhy.lines}
-                  whySettled={bestWhy.settled}
-                  onSave={(p) => toggleLike({ stopPropagation: () => {} }, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating ?? null, reviews: p.reviews ?? null })}
-                  onLog={(action, p) => { try { logEvent(action, p && p.place_id ? { id: p.place_id, name: p.name } : null); } catch (e) {} }}
-                />
-              )}
+              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
+              <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
                   geometry so the swap below is shift-free. Deliberately NOT
@@ -6471,7 +6367,8 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 );
               })()}
-              {/* Owner call (2026-07-21): the "Explore near you" list menu (Today's Best / Night Out / Order In / …) is gone from the front page. The curated engines behind it are untouched — those destinations stay reachable via openCurated from search and category surfaces, and wf_best_picks-driven surfaces take over the front page. */}
+                      {/* Owner call (2026-07-21): the Explore-near-you list is replaced by the Today's Best accordion — best-of-the-best per engine-served category via wf_best_picks (wf_trends boost seam in lib/todaysBest). openCurated destinations stay reachable from search + category surfaces. */}
+                      {!browseCat && <TodaysBest center={center} weather={weather} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
