@@ -138,8 +138,13 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, mono }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
+  // mono (owner call, 2026-07-21): the front-page menu renders WHITE with
+  // slightly larger icons, one row, no label above it. Every other surface
+  // (map, itinerary, explore) keeps the standard gray-blue treatment.
+  const idle = mono ? "#FFFFFF" : "#A9B4C7";
+  const iconSize = mono ? 29 : 26;
   return (
     <div style={{ marginBottom: 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : "4px 2px 8px" }}>
       {heading && (
@@ -152,8 +157,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing }) {
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#A9B4C7"} size={26} />
-            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#A9B4C7", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : idle} size={iconSize} />
+            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : idle, textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -2884,6 +2889,10 @@ function PageInner({ initialEvents = null }) {
   const [weather, setWeather] = useState(null);
   // #232: the Best Move engine's answer. picks:null = not asked yet (skeleton).
   const [bestMove, setBestMove] = useState({ picks: null, loading: true, usedFallback: false, fallbackLabel: null });
+  // The LLM "why this, why now" lines. settled flips exactly once per picks
+  // set — when the endpoint answers OR after 2.5s — and the cards' reserved
+  // why-slots fill on that flip (one-shot; no text ever replaces other text).
+  const [bestWhy, setBestWhy] = useState({ lines: {}, settled: false });
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5238,6 +5247,47 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // Why-lines for the picks above. One POST per picks set; the 2.5s timer
+  // guarantees the cards' reserved slots settle (with the engine's own
+  // reasons) even if the model is slow or the key is absent. Late responses
+  // after the timer are dropped — settling twice would swap text (#233).
+  useEffect(() => {
+    const picks = bestMove.picks;
+    if (!Array.isArray(picks) || !picks.length) return;
+    let done = false;
+    setBestWhy({ lines: {}, settled: false });
+    const settle = (lines) => { if (!done) { done = true; setBestWhy({ lines: lines || {}, settled: true }); } };
+    const timer = setTimeout(() => settle({}), 2500);
+    (async () => {
+      try {
+        const w = weatherRef.current;
+        const d = new Date();
+        const r = await fetch("/api/bestmove/why", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            picks: picks.slice(0, 6),
+            ctx: {
+              localHour: d.getHours() + d.getMinutes() / 60,
+              tempF: w && w.temp != null ? w.temp : null,
+              condition: w && w.label ? w.label : null,
+              minsToSunset: w && w.sunsetMs ? Math.round((w.sunsetMs - Date.now()) / 60000) : null,
+              city: locName ? locName.split(",")[0] : "",
+            },
+          }),
+        });
+        const j = r.ok ? await r.json() : null;
+        clearTimeout(timer);
+        settle(j && j.why ? j.why : {});
+      } catch (e) {
+        clearTimeout(timer);
+        settle({});
+      }
+    })();
+    return () => { done = true; clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bestMove.picks]);
+
   // Suggested for Me: one intelligent feed that blends categories using the
   // signals we honestly have now: time of day, today's weather, and what you
   // have saved. It gets smarter as more signals come online.
@@ -6058,9 +6108,12 @@ function PageInner({ initialEvents = null }) {
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            <span onClick={openSuggested} style={{ position: "relative", display: "inline-block", cursor: "pointer" }}>
-              <img src="/wordmark.png?v=3" alt="wayfind" style={{ height: 34, width: "auto", display: "block" }} />
-              <span style={{ position: "absolute", left: LOGO_PIN.left, top: LOGO_PIN.top, pointerEvents: "none" }}><GlowPin size={LOGO_PIN.size} /></span>
+            {/* Official master logo (public/brand/wayfind-logo.png, wordmark +
+                pin baked in — no GlowPin overlay needed). Rendered from a 2x
+                header derivative cut from that master (10KB, per the brand
+                README) because the 1MB master at 30px would undo the LCP work. */}
+            <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
+              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 30, width: "auto", display: "block" }} />
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
@@ -6075,7 +6128,6 @@ function PageInner({ initialEvents = null }) {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
-            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}><Icon name="sparkles" size={17} color={C.accent} /></button>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
@@ -6163,8 +6215,11 @@ function PageInner({ initialEvents = null }) {
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
-          <button onClick={() => { try { logEvent("dice_card", null, { src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Take a chance" title="Take a chance" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <NavIcon name="shuffle" size={17} color={C.accent} />
+          {/* Owner call (2026-07-21): the dice/Take-a-chance button is gone from
+              beside the search box; the star (Find my vibe) lives here instead.
+              Its old header spot is removed so there is exactly one. */}
+          <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_star" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
         )}
@@ -6309,10 +6364,11 @@ function PageInner({ initialEvents = null }) {
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system.
-                  #232: on the front page it renders inside BestMove's "Browse all" slot so the
-                  mockup's order (H1 → chips → browse → hero) holds; with a category active the
-                  plain menu returns and the Best Move grid stands down. */}
-              {!browseCat ? (
+                  Owner iteration (2026-07-21 evening): the menu sits ABOVE the Best Move
+                  section — white, bigger icons, one row, no "Browse all" label. The chips
+                  row and the browse slot are gone. */}
+              <CategoryMenu mono activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+              {!browseCat && (
                 <BestMove
                   picks={bestMove.picks || []}
                   loading={bestMove.loading}
@@ -6321,13 +6377,11 @@ function PageInner({ initialEvents = null }) {
                   weather={weather}
                   events={foryouEvents || []}
                   savedIds={liked}
-                  browse={<CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />}
-                  onChip={(id) => { try { logEvent("bestmove_chip", null, { chip: id, src: "home" }); } catch (e) {} if (id === "food") pickBrowse("food"); else if (id === "datenight") openExperience("datenight"); else if (id === "family") openExperience("family"); else if (id === "surprise") openSurprise(); }}
+                  why={bestWhy.lines}
+                  whySettled={bestWhy.settled}
                   onSave={(p) => toggleLike({ stopPropagation: () => {} }, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating ?? null, reviews: p.reviews ?? null })}
                   onLog={(action, p) => { try { logEvent(action, p && p.place_id ? { id: p.place_id, name: p.name } : null); } catch (e) {} }}
                 />
-              ) : (
-                <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               )}
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
@@ -6417,44 +6471,7 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 );
               })()}
-                      {!browseCat && (suggested && suggested.length > 0) && (() => {
-                        // v5.84 (B-spec): 5 tiles, benefit copy (no live claims).
-                        // The 3:33 PM reorder is computed in a post-mount effect
-                        // (menuOrder), never in this render body — hydration-safe.
-                        // "Today's Best" opens the consolidated openCurated("today").
-                        const _order = menuOrder;
-                        // v6.08 (PR-C): premium treatment — edges + type, not tinted boxes.
-                        // One hairline of edge light on the container, 1px row dividers, a
-                        // uniform quiet icon, a near-invisible chevron. The aspirational
-                        // marketing sublines are REMOVED; the live-fact sublines the owner
-                        // wants ("47 open now") are DEFERRED until PR-B seeds a real
-                        // inventory — computing counts off the current bugged candidate set
-                        // would be a confident-but-false number, the exact thing the
-                        // candidate-set fix exists to eliminate.
-                        return (
-                          <div style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-                            <div style={{ padding: "16px 15px 6px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent }}>Explore near you</div>
-                            </div>
-                            <style>{".wf-mrow{transition:background .12s ease-out}.wf-mrow:active{background:rgba(255,255,255,.05)}@media(hover:hover){.wf-mrow:hover{background:rgba(255,255,255,.03)}}"}</style>
-                            {_order.map((key) => {
-                              const t = EXPLORE_TILES[key];
-                              return (
-                                <button key={key} className="wf-mrow" onClick={(e) => { e.stopPropagation(); try { openCurated(t.kind); } catch (er) {} }} style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "18px 15px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
-                                    <NavIcon name={t.icon} size={26} strokeWidth={1.5} color="rgba(255,255,255,.7)" />
-                                  </span>
-                                  <span style={{ flex: 1, minWidth: 0, fontSize: 17, fontWeight: 600, color: "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{t.label}</span>
-                                  <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.25)", display: "inline-flex" }}>
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6" /></svg>
-                                  </span>
-                                </button>
-                              );
-                            })}
-                            <div style={{ padding: "14px 15px 16px", fontSize: 11.5, color: C.muted, lineHeight: 1.4 }}>Every list is ranked for you, with no ads and no paid placement.</div>
-                          </div>
-                        );
-                      })()}
+              {/* Owner call (2026-07-21): the "Explore near you" list menu (Today's Best / Night Out / Order In / …) is gone from the front page. The curated engines behind it are untouched — those destinations stay reachable via openCurated from search and category surfaces, and wf_best_picks-driven surfaces take over the front page. */}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />

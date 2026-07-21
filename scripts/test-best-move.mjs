@@ -90,7 +90,39 @@ ok(!/toISOString\(\)\.slice/.test(ui), "no UTC date slicing (the ~8PM-ET bug)");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/import BestMove from "\.\/components\/BestMove"/.test(home), "home.js imports BestMove");
 ok(home.includes("fetchBestPicks({"), "home.js calls the engine adapter");
-ok(/\{!browseCat \? \(\s*<BestMove/.test(home), "Best Move stands down when a category is being browsed");
+ok(/\{!browseCat && \(\s*<BestMove/.test(home), "Best Move stands down when a category is being browsed");
+
+// v2 (owner iteration 2026-07-21 evening) — the streamlined front page:
+// no chips row, no browse slot, Wayfind Score only, LLM why-lines, no
+// Explore-near-you menu, black page.
+ok(!ui.includes("CHIPS") && !ui.includes("Surprise me") && !ui.includes("Date night"), "chips row is gone from the section");
+ok(!ui.includes("browse") || !/\{browse\}/.test(ui), "browse slot is gone from the section");
+ok(/<CategoryMenu mono /.test(home), "front-page menu renders mono (white, bigger icons) above the section");
+ok(ui.includes("PlaceScoreChip"), "numbers are the Wayfind Score chip (one Bayesian formula, honest pending state)");
+// (engine-supplied reasons[] may themselves contain a ★ — that text is the
+// engine's, allowed; what's banned is US composing rating-star strings.)
+ok(!/toFixed\(1\)\s*\+\s*" ?★/.test(ui) && !/reviews\.toLocaleString/.test(ui) && !/rating\.toFixed/.test(ui), "the raw Google star and review count are not rendered");
+ok(ui.includes("WhySlot") && ui.includes("minHeight"), "why-lines land in reserved-geometry slots");
+ok(ui.includes("settled") && /settled && !llm/.test(ui), "why slot fills once: LLM line or the engine reason, never a swap");
+ok(home.includes('"/api/bestmove/why"'), "home.js fetches the why-lines");
+ok(/setTimeout\(\(\) => settle\(\{\}\), 2500\)/.test(home), "why-lines settle within 2.5s no matter what");
+ok(!/Explore near you<\/div>/.test(home), "the Explore-near-you list menu is gone from the front page");
+ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "the curated engines behind it are kept, not deleted");
+ok(!/aria-label="Take a chance"/.test(home), "the dice button beside search is gone");
+ok(/src: "search_star"/.test(home), "the star (Find my vibe) button lives beside search");
+ok((home.match(/aria-label="Find my vibe"/g) || []).length === 1, "exactly one Find-my-vibe button");
+ok(home.includes('/brand/wayfind-logo-header.png'), "header renders the official master-derived logo");
+ok(!home.includes("wordmark.png"), "the old text wordmark is gone from the header");
+const kit = readFileSync(new URL("../app/components/kit.js", import.meta.url), "utf8");
+const layoutSrc = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+ok(kit.includes('bg: "#08090c"') && layoutSrc.includes('background: "#08090c"'), "page background is black (owner call)");
+
+// the why endpoint keeps the honesty spine
+const whySrc = readFileSync(new URL("../app/api/bestmove/why/route.js", import.meta.url), "utf8");
+ok(whySrc.includes("NEVER invent"), "why prompt bans invented facts");
+ok(/no crowd levels, no wait times, no parking, no prices/.test(whySrc), "why prompt bans the unsourced-signal list");
+ok(whySrc.includes("SWAP TEST"), "why prompt keeps the swap test");
+ok(whySrc.includes('why: {} }, { status: 200 }'), "why endpoint fails soft — cards fall back to engine reasons");
 
 // LCP contract (perf/best-move-lcp): measured 10.5s LCP on 2026-07-21 came
 // from a w=1200 hero + a fetch that could not start until hydration. Pin all
