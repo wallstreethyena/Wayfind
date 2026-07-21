@@ -3869,12 +3869,46 @@ function PageInner() {
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
-    import("web-vitals").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+    import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+      // The ATTRIBUTION build. Same metrics, same event name, same base
+      // properties as before (the command-center panel keeps reading them) —
+      // plus the debug fields that say WHICH element/shift is responsible, so a
+      // bad p75 is actionable instead of just a number.
+      // ONLY primitives cross this boundary: `attribution` also carries DOM
+      // nodes and PerformanceEntry objects (lcpEntry, largestShiftEntry,
+      // navigationEntry, entries[]) which must never be handed to
+      // posthog.capture — they serialize to junk or blow the payload.
+      const num = (v) => Math.round(Number(v) || 0);
+      const str = (v, n) => (v == null ? null : String(v).slice(0, n));
       const send = (m) => {
         try {
           if (!window.posthog) return;
           const ctx = window.__WF_CTX || {};
-          window.posthog.capture("web_vitals", { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID });
+          const a = m.attribution || {};
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          if (m.name === "LCP") {
+            // the four sub-parts sum to LCP — they say whether to fix the server,
+            // the discovery of the image, its download, or the render that follows.
+            props.lcp_target = str(a.target, 300);
+            props.lcp_url = str(a.url, 300);
+            props.lcp_ttfb = num(a.timeToFirstByte);
+            props.lcp_resource_load_delay = num(a.resourceLoadDelay);
+            props.lcp_resource_load_duration = num(a.resourceLoadDuration);
+            props.lcp_element_render_delay = num(a.elementRenderDelay);
+          } else if (m.name === "CLS") {
+            props.cls_target = str(a.largestShiftTarget, 300);
+            props.cls_largest_shift = num((a.largestShiftValue || 0) * 1000);
+            props.cls_shift_time = num(a.largestShiftTime);
+            props.cls_load_state = str(a.loadState, 40);
+          } else if (m.name === "INP") {
+            props.inp_target = str(a.interactionTarget, 300);
+            props.inp_type = str(a.interactionType, 40);
+            props.inp_input_delay = num(a.inputDelay);
+            props.inp_processing = num(a.processingDuration);
+            props.inp_presentation = num(a.presentationDelay);
+            props.inp_load_state = str(a.loadState, 40);
+          }
+          window.posthog.capture("web_vitals", props);
         } catch (e) {}
       };
       [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
