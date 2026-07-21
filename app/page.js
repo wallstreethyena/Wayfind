@@ -14,6 +14,51 @@ import { TOWN_HUBS, TOWN_PROFILES } from "../lib/culture";
 
 export const revalidate = 3600;
 
+// v6.43 LCP: the "Happening near you" hero image is the largest thing on the
+// mobile first screen (68,178px^2). It used to be fetched entirely client-side,
+// so its URL was not even KNOWN until /api/events resolved — measured on
+// production at resourceLoadDelay 11,342ms, elementRenderDelay 9ms. Its
+// fetchpriority="high" was decorative: you cannot prioritise an element that
+// does not exist yet.
+//
+// So the events come from the server now, into the initial HTML, where the
+// preload scanner can see the <img> immediately.
+//
+// WHY THIS IS FREE:
+//  - /api/events is Ticketmaster/SeatGeek/etc — NOT the paid Google Places API.
+//    This does not re-open the v6.41 "billed loads on every page view" incident;
+//    scripts/test-map-cost.mjs still guards that separately.
+//  - `revalidate = 3600` means this runs at REGENERATION, roughly once an hour,
+//    not per request. TTFB (measured ~120ms) is unchanged. Deliberately NOT
+//    using headers() to derive the origin the way the city pages do — that
+//    opts the route into dynamic rendering and would put a live aggregation on
+//    the critical path of every single visit.
+//  - DEFAULT_CENTER (Parrish, FL) is exactly what the client itself assumes on
+//    its first render, so the server HTML matches what the client would compute
+//    before geolocation resolves. Not a guess: the same query.
+//
+// Fail-soft: any error returns null, the client seeds `foryouEvents` to null,
+// the skeleton shows, and behaviour is byte-identical to before this change.
+const CANON = process.env.NEXT_PUBLIC_SITE_URL || "https://www.gowayfind.com";
+const SSR_EVENTS_CENTER = { lat: 27.5689, lng: -82.4393, city: "Parrish, FL" }; // == DEFAULT_CENTER in app/home.js
+
+async function initialEventsForFirstPaint() {
+  try {
+    const r = await fetch(`${CANON}/api/events`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lat: SSR_EVENTS_CENTER.lat, lng: SSR_EVENTS_CENTER.lng, city: SSR_EVENTS_CENTER.city, radius: 25 }),
+      next: { revalidate: 3600 },
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    const evs = (data && Array.isArray(data.events) ? data.events : []).filter((e) => e && e.dest);
+    return evs.length ? evs.slice(0, 24) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 const S = {
   wrap: { maxWidth: 760, margin: "0 auto", padding: "26px 18px 6px", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#F97316" },
@@ -53,7 +98,8 @@ async function HomeProof() {
   );
 }
 
-export default function Page() {
+export default async function Page() {
+  const initialEvents = await initialEventsForFirstPaint();
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
@@ -62,7 +108,7 @@ export default function Page() {
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do near you, right now
       </h1>
-      <Home />
+      <Home initialEvents={initialEvents} />
       {/* Suspense so the app shell streams immediately; the proof block
           follows without adding a byte to time-to-first-paint. ProofVeil keeps
           it in the DOM for crawlers but removes it from the interactive view

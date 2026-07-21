@@ -2671,7 +2671,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 // when the user came from a "Worth the drive?" hook. Captures yes/no, then
 // reveals the live community tally.
 
-function PageInner() {
+function PageInner({ initialEvents = null }) {
   const [screen, setScreen] = useState("suggested");
   const [cat, setCat] = useState("food");
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
@@ -2884,7 +2884,13 @@ function PageInner() {
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
   const [intent, setIntent] = useState(null);
-  const [foryouEvents, setForyouEvents] = useState(null);
+  // v6.43 LCP: seeded from the SERVER (app/page.js) so the rail's hero image
+  // is in the initial HTML and the preload scanner can start it immediately,
+  // instead of the URL being unknown until a client fetch resolves ~11s in.
+  // null => no server events (fail-soft) => skeleton, exactly as before.
+  const [foryouEvents, setForyouEvents] = useState(initialEvents);
+  // one-shot: true only while the server seed is still untouched.
+  const ssrEventSeedRef = useRef(!!initialEvents);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
@@ -5387,6 +5393,15 @@ function PageInner() {
   // hides the strip and never blocks the picks.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
+    // v6.43: the server already fetched this exact query for DEFAULT_CENTER and
+    // seeded it into state, so the first paint has real events. Skip the
+    // duplicate round trip. The moment `center` moves off the default (stored
+    // location, geolocation, a city switch) this falls through and re-fetches
+    // for real — the seed is a head start, never a lock-in.
+    if (ssrEventSeedRef.current) {
+      ssrEventSeedRef.current = false;
+      if (center.lat === DEFAULT_CENTER.lat && center.lng === DEFAULT_CENTER.lng) return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -7369,10 +7384,10 @@ const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{backgr
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page() {
+export default function Page({ initialEvents = null }) {
   return (
     <ErrorBoundary>
-      <PageInner />
+      <PageInner initialEvents={initialEvents} />
     </ErrorBoundary>
   );
 }
