@@ -90,6 +90,13 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
+// Wayfind Picks rail (issue #228): the recommendation engines built for V2, mounted
+// into the REAL homepage instead of the parallel /v2/* routes they shipped at.
+// Both are pure and score on real signals only (category priority, proximity,
+// on-sale status, how soon it starts) — no fabricated popularity.
+import { rankLivePicks } from "../lib/livePicks";
+import { rankSports } from "../lib/sportsRail";
+import { siteTodayStr } from "../lib/siteTime";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -6291,6 +6298,76 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 </div>
               )}
+              {/* ── Wayfind Picks (issue #228) ───────────────────────────────
+                  The V2 recommendation engines, mounted on the REAL homepage.
+                  Reuses foryouEvents that is ALREADY loaded — no extra fetch, no
+                  extra API spend. rankLivePicks puts the best CONCERT first (its
+                  category priority is concerts > festivals > comedy > broadway >
+                  shows); rankSports supplies the best game beneath it. Both score
+                  on proximity + on-sale + how soon it starts. Cancelled events are
+                  excluded by the engines.
+                  ADDITIVE: the existing "Happening near you" hero below is
+                  untouched, so lib/frontEvents and test-front-events still hold. */}
+              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+                let picks = [];
+                try {
+                  const ctxLp = { center, todayStr: siteTodayStr() };
+                  const lp = rankLivePicks(foryouEvents, ctxLp);
+                  const sp = rankSports(foryouEvents, ctxLp);
+                  // hero = best concert/show, then the best game, then the next
+                  // two live picks. Deduped so one event can't fill two cards.
+                  const seen = new Set();
+                  for (const e of [lp.hero, sp.cards[0], ...lp.rail.slice(0, 2)]) {
+                    if (e && e.dest && e.id && !seen.has(e.id)) { seen.add(e.id); picks.push(e); }
+                  }
+                } catch (e) { picks = []; }
+                if (picks.length < 2) return null;  // not enough to be worth a rail
+                const why = (e) => {
+                  // the reason line is composed ONLY from signals we actually hold
+                  const bits = [];
+                  if (e.distanceMi != null) bits.push(e.distanceMi <= 10 ? "Short drive" : `${Math.round(e.distanceMi)} mi away`);
+                  if (e.date === siteTodayStr()) bits.push("Starts today");
+                  else if (e.date) bits.push(eventWhenLabel(e) || "");
+                  if (e.price || (e.status || "").toLowerCase() === "onsale") bits.push("Still on sale");
+                  return bits.filter(Boolean).slice(0, 3).join(" · ");
+                };
+                return (
+                  <div style={{ marginBottom: 18 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}>
+                        <Icon name="spark" size={16} color={C.accent} />Wayfind Picks
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>Chosen from {foryouEvents.length} nearby</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginBottom: 9 }}>The best of what&apos;s on near you right now — swipe for more.</div>
+                    <div tabIndex={0} role="region" aria-label="Wayfind Picks near you"
+                      style={{ display: "flex", gap: 11, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 5, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                      {picks.map((e, i) => {
+                        const internal = e.destKind === "internal";
+                        const reason = why(e);
+                        return (
+                          <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })}
+                            onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "wayfind_picks" }); } catch (e2) {} }}
+                            style={{ flex: "0 0 84%", scrollSnapAlign: "start", position: "relative", display: "block", height: 188, borderRadius: 18, overflow: "hidden", textDecoration: "none", boxShadow: i === 0 ? `0 0 0 1.5px ${C.accent}55, 0 8px 26px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+                            <EventHeroBg image={e.image} acc={i === 0 ? C.accent : C.purple} venue={cleanVenueName(e.venue) || e.venue} near={center} />
+                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 52%, rgba(0,0,0,.92) 100%)" }} />
+                            {i === 0 ? (
+                              <div style={{ position: "absolute", top: 11, left: 11, display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 999, background: C.accent, border: `1px solid ${C.accent}` }}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: "#0D1117", letterSpacing: .4, textTransform: "uppercase" }}>Top pick near you</span>
+                              </div>
+                            ) : null}
+                            <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
+                              <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>{e.name}</div>
+                              {e.venue ? <div style={{ marginTop: 3, fontSize: 12, color: "#C9D1D9" }}>{cleanVenueName(e.venue) || e.venue}</div> : null}
+                              {reason ? <div style={{ marginTop: 5, fontSize: 11.5, fontWeight: 700, color: C.accent }}>{reason}</div> : null}
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
