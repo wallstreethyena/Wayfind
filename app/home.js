@@ -2118,6 +2118,33 @@ function renderHookText(text, highlightWord, color) {
 // Each tile is a full photo background with dark overlay + bold editorial
 // typography. The hook's accent word glows in the tile's color. Matches the
 // visual style of premium discovery apps.
+// The first screen must never look empty. Before v6.43 the "Happening near you"
+// rail was gated on `suggested !== null` — a CLIENT-SIDE Google Places search —
+// so on a throttled phone the whole area rendered NOTHING for ~6 seconds while
+// the user stared at a blank feed. The rail no longer waits on Places: it shows
+// this skeleton the moment the page paints, swaps to real events when they
+// arrive, and Places results fill in independently afterwards.
+//
+// Geometry is reserved from the SAME constants the live rail uses (EV_HERO_H /
+// EV_RAIL_MIN_H), so the skeleton -> events swap changes no layout and adds no
+// CLS. The heading is real text, not a grey box, so the section announces what
+// is coming instead of looking broken.
+function EventsRailSkeleton() {
+  return (
+    <div style={{ marginBottom: 16, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Finding events near you">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+        <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
+      </div>
+      <div className="wf-sk" aria-hidden="true" style={{ height: EV_HERO_H, borderRadius: 18, marginBottom: 10 }} />
+      <div aria-hidden="true" style={{ display: "flex", gap: 8, minHeight: EV_RAIL_MIN_H, paddingBottom: 4, overflow: "hidden" }}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="wf-sk" style={{ width: 150, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+        ))}
+      </div>
+    </div>
+  );
+}
 function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, isDesktop }) {
   if (!hooks || hooks.length === 0) return null;
   const shown = hooks.slice(0, 5); // show the spread of hooks, stacked full-width on mobile
@@ -6209,8 +6236,13 @@ function PageInner() {
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
               <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
-              {!browseCat && !isDesktop && suggested !== null && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16 }}>
+              {/* LOADING: events not back yet. Reserves the rail's exact
+                  geometry so the swap below is shift-free. Deliberately NOT
+                  gated on `suggested` — the first screen must never be blank
+                  while a Places search runs. */}
+              {!browseCat && !isDesktop && foryouEvents === null && <EventsRailSkeleton />}
+              {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -6220,7 +6252,7 @@ function PageInner() {
                   </div>
                 </div>
               )}
-              {!browseCat && !isDesktop && suggested !== null && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
@@ -6231,7 +6263,7 @@ function PageInner() {
                 const featured = fp.featured;
                 const rest = fp.rest.slice(0, 24);
                 return (
-                  <div style={{ marginBottom: 16 }}>
+                  <div style={{ marginBottom: 16, minHeight: EV_SECTION_MIN_H }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                       <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
@@ -6249,7 +6281,7 @@ function PageInner() {
                       // separate sibling control layered on top, never nested.
                       return (
                         <div style={{ position: "relative", marginBottom: 10 }}>
-                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: 176, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
+                          <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                             <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
@@ -6273,7 +6305,7 @@ function PageInner() {
                       );
                     })()}
                     {rest.length > 0 && (
-                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", minHeight: EV_RAIL_MIN_H, paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.filter((e) => e && e.dest).map((e) => {
                           const f = formatEventDate(e.date, e.time);
                           const evRel = relLabel(e);
@@ -7296,7 +7328,20 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // the shift cannot happen. The 900px breakpoint MUST stay in lockstep with the
 // old `vw >= 900` — scripts/test-layout-shift.mjs enforces that.
 const WF_DESKTOP_BP = 900;
-const WF_LAYOUT_CSS = `.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:flex;gap:32px;align-items:flex-start;width:100%;max-width:1240px;margin:0 auto}.wf-col-main{max-width:780px}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
+// The events rail reserves its real geometry BEFORE the data lands, so the
+// skeleton and the loaded rail occupy identical space and the swap cannot shift
+// anything. Both the skeleton and the live rail read these same constants —
+// that is the whole point; do not hardcode either number twice.
+const EV_HERO_H = 176;   // the featured hero <a> height
+const EV_RAIL_MIN_H = 96; // min height of the horizontal card scroller (cards are w:150)
+// ALL THREE rail states (loading / empty / populated) reserve this same floor.
+// Measured 2026-07-21: without it, a sparse market where events resolve to []
+// collapsed the ~312px skeleton into a ~130px empty state and yanked the feed
+// 200px upward — one 0.1281 shift, worse than the entire desktop CLS budget.
+// Reserving on the LOADING state alone is not enough; the state it swaps INTO
+// has to agree, or the reservation just relocates the shift.
+const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
+const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:flex;gap:32px;align-items:flex-start;width:100%;max-width:1240px;margin:0 auto}.wf-col-main{max-width:780px}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
