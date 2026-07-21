@@ -123,7 +123,11 @@ export default function BestMove({ picks, loading, usedFallback, fallbackLabel, 
     ...((hero.reasons || []).slice(0, 3).map((r) => ({ icon: /★|rated|favorite/i.test(r) ? "trophy" : "sparkles", text: r }))),
   ].slice(0, 3) : [];
 
-  const heroImg = hero ? pickPhotoUrl(hero.photo_ref, 1200) : null;
+  // w=800 (not more): the hero card renders ~370-400 CSS px wide, so 800 covers
+  // 2x DPR. Measured 2026-07-21: w=1200 spent 7.4s of a 10.5s LCP on download
+  // alone at 1.6Mbps. MUST match the layout.js primer width so its pre-warmed
+  // bytes are a cache hit, not a second download.
+  const heroImg = hero ? pickPhotoUrl(hero.photo_ref, 800) : null;
 
   return (
     <section aria-label="Your best move right now" style={{ margin: "4px 0 18px" }}>
