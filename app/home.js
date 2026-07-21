@@ -90,6 +90,8 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
+import BestMove from "./components/BestMove";
+import { fetchBestPicks } from "../lib/bestMove";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -2880,6 +2882,8 @@ function PageInner({ initialEvents = null }) {
   const [mapDrawer, setMapDrawer] = useState(false);
   const [eventPreview, setEventPreview] = useState(null);
   const [weather, setWeather] = useState(null);
+  // #232: the Best Move engine's answer. picks:null = not asked yet (skeleton).
+  const [bestMove, setBestMove] = useState({ picks: null, loading: true, usedFallback: false, fallbackLabel: null });
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5203,6 +5207,28 @@ function PageInner({ initialEvents = null }) {
     return () => { cancelled = true; };
   }, [center]);
 
+  // #232 Best Move: one call to the wf_best_picks engine per center/weather
+  // change. The first run fires without weather (the engine treats null as
+  // "no signal"), then re-runs once when the first reading lands so the
+  // ranking sharpens; it never blocks the first paint. Fails soft to [] —
+  // the section renders nothing and the rails below carry the page.
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      const d = new Date();
+      const res = await fetchBestPicks({
+        lat: center.lat, lng: center.lng,
+        localHour: d.getHours() + d.getMinutes() / 60,
+        tempF: weather && weather.temp != null ? weather.temp : null,
+        condition: weather && weather.label ? weather.label : null,
+      });
+      if (!cancelled) setBestMove({ picks: res.picks, loading: false, usedFallback: res.usedFallback, fallbackLabel: res.fallbackLabel || null });
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, weather && weather.temp, weather && weather.label]);
+
   // Suggested for Me: one intelligent feed that blends categories using the
   // signals we honestly have now: time of day, today's weather, and what you
   // have saved. It gets smarter as more signals come online.
@@ -6273,8 +6299,27 @@ function PageInner({ initialEvents = null }) {
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
-              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
-              <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system.
+                  #232: on the front page it renders inside BestMove's "Browse all" slot so the
+                  mockup's order (H1 → chips → browse → hero) holds; with a category active the
+                  plain menu returns and the Best Move grid stands down. */}
+              {!browseCat ? (
+                <BestMove
+                  picks={bestMove.picks || []}
+                  loading={bestMove.loading}
+                  usedFallback={bestMove.usedFallback}
+                  fallbackLabel={bestMove.fallbackLabel}
+                  weather={weather}
+                  events={foryouEvents || []}
+                  savedIds={liked}
+                  browse={<CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />}
+                  onChip={(id) => { try { logEvent("bestmove_chip", null, { chip: id, src: "home" }); } catch (e) {} if (id === "food") pickBrowse("food"); else if (id === "datenight") openExperience("datenight"); else if (id === "family") openExperience("family"); else if (id === "surprise") openSurprise(); }}
+                  onSave={(p) => toggleLike({ stopPropagation: () => {} }, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating ?? null, reviews: p.reviews ?? null })}
+                  onLog={(action, p) => { try { logEvent(action, p && p.place_id ? { id: p.place_id, name: p.name } : null); } catch (e) {} }}
+                />
+              ) : (
+                <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+              )}
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
                   geometry so the swap below is shift-free. Deliberately NOT
