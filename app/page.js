@@ -99,7 +99,14 @@ async function HomeProof() {
 }
 
 export default async function Page() {
-  const initialEvents = await initialEventsForFirstPaint();
+  // v6.43 REVERT of the #218 seed (owner-reported bug): seeding events for
+  // DEFAULT_CENTER made "Happening near you" paint PARRISH's events first, then
+  // visibly swap to the visitor's real location a few seconds later. Content
+  // changing under the reader is worse than a slower LCP, so the seed is off.
+  // The image right-sizing from #218 (503KB -> 168KB) is untouched and still wins.
+  // Re-enabling this requires the server and client to agree on ONE location and
+  // ONE featured event first — see issue #219.
+  const initialEvents = null;
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
