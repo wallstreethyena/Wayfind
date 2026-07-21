@@ -83,6 +83,11 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
       const cls = Array.isArray(e.classifications) && e.classifications[0] ? e.classifications[0] : null;
       const seg = cls && cls.segment ? cls.segment.name : "";
       const genre = cls && cls.genre ? cls.genre.name : "";
+      // v6.43 Sports rail (§2): the SPORT is in `genre` (Baseball/Football/...), but the
+      // LEAGUE (MLB vs NCAA baseball, NFL vs College) is only in subGenre. Without it
+      // lib/sportsRail.leagueOf() degrades to the sport name — honest, but imprecise.
+      // Additive: nothing reads this field yet except the v2 rail.
+      const subGenre = cls && cls.subGenre ? cls.subGenre.name : "";
       let price = null;
       if (Array.isArray(e.priceRanges) && e.priceRanges.length) {
         const pr = e.priceRanges[0];
@@ -91,6 +96,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
       }
       return {
         id: "tm_" + e.id, name: e.name || "", date: dates.localDate || "", time: dates.localTime || "",
+        subGenre,
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
         lat: vloc && vloc.latitude != null ? Number(vloc.latitude) : null,
         lng: vloc && vloc.longitude != null ? Number(vloc.longitude) : null,
