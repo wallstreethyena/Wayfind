@@ -112,7 +112,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.42";
+const BUILD_ID = "v6.43";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -505,7 +505,7 @@ function setCachedInsight(id, data) {
 // collapse to their single best branch; brand searches pass false and keep all.
 function normName(s) {
   let t = String(s || "").toLowerCase();
-  const cut = t.search(/\s[-\u2013\u2014|]\s/);
+  const cut = t.search(/\s[-\u2013—|]\s/);
   if (cut > 0) t = t.slice(0, cut);
   return t.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
@@ -712,7 +712,7 @@ const WAYFIND_NOTES = {
     { text: "Ask about the private tour: a 6-passenger boat for a 1 or 2 hour ride, which is the move for a family or small group who want the guide to themselves. Coast Guard approved, and the operation has been featured on National Geographic, Discovery, and America's Got Talent.", },
   ],
   "wild bills airboat tours": [
-    { text: "Same as Wild Bill's Airboat Tours in Inverness \u2014 world-famous airboat rides on the Withlacoochee, great reviews since 1980, about 50 minutes north of Orlando. Gators, herons, cypress, and a baby-gator handling moment for the kids. Reservations preferred.", url: "https://www.wbairboats.com", label: "Book your tour" },
+    { text: "Same as Wild Bill's Airboat Tours in Inverness — world-famous airboat rides on the Withlacoochee, great reviews since 1980, about 50 minutes north of Orlando. Gators, herons, cypress, and a baby-gator handling moment for the kids. Reservations preferred.", url: "https://www.wbairboats.com", label: "Book your tour" },
   ],
   "pirates dinner adventure": [
     { text: "The big Orlando dinner show that actually earns the hype: an interactive pirate spectacular on a full-size ship with acrobatics, sword fights, and a story you get pulled into, just off International Drive at 6400 Carrier Drive. Admission includes the meal (the Port of Call Feast, with vegetarian, vegan, and kids' options) and the live show. Fully enclosed and air-conditioned, ADA accessible, casual dress. Reserve ahead, especially in peak season.", url: "https://www.piratesdinneradventure.com", label: "Reservations & showtimes" },
@@ -724,7 +724,7 @@ const WAYFIND_NOTES = {
     { text: "The upside-down building on International Drive is Professor Wonder's lab: over 100 hands-on exhibits across multiple floors, from an astronaut trainer to a hurricane simulator, genuine family fun for all ages. Don't miss the Outta Control Magic Comedy Dinner Show while you're there. Their printed flyer runs a $2-off-tickets coupon valid for up to 6 people; grab one before you go.", url: "https://www.wonderworksonline.com/orlando/", label: "Visit WonderWorks" },
   ],
   "safari wilderness": [
-    { text: "This is the one almost no visitor knows about, and locals guard it: a 260-acre private ranch near Lakeland where you ride out among free-roaming herds \u2014 zebra, cheetah, water buffalo, giant tortoise \u2014 with no crowds and no lines. Fodor's named it a Top 10 safari in the entire U.S. Reserve ahead; tours are deliberately kept small and sell out, which is exactly why the experience stays this good.", url: "https://www.safariwilderness.com", label: "Reserve online (required in advance)" },
+    { text: "This is the one almost no visitor knows about, and locals guard it: a 260-acre private ranch near Lakeland where you ride out among free-roaming herds — zebra, cheetah, water buffalo, giant tortoise — with no crowds and no lines. Fodor's named it a Top 10 safari in the entire U.S. Reserve ahead; tours are deliberately kept small and sell out, which is exactly why the experience stays this good.", url: "https://www.safariwilderness.com", label: "Reserve online (required in advance)" },
     { text: "Pick your ride and it changes the whole day: the custom covered truck for close feeding encounters, a camel-back expedition (the only one outside Africa), kayak safari past lemur island where you hand-feed ring-tailed lemurs, or ATV across the ranch. Each tour runs about 1 to 1.5 hours.", },
     { text: "Worth the drive from Parrish, roughly an hour north. Add the Premium Cheetah Encounter if you want a 30-minute hands-on session; it books by special request only.", },
   ],
@@ -734,43 +734,43 @@ const WAYFIND_NOTES = {
     { text: "Stack on encounters only offered with a full safari: sloth, otter feeding, red river hog, pygmy hippo, monkey. Reserve in advance, it's required, and it's about an hour from Parrish toward Dade City.", },
   ],
   "safari wilderness ranch": [
-    { text: "Same place as Safari Wilderness \u2014 the 260-acre exotic-game ranch near Lakeland, Fodor's Top 10 safari in the U.S. Ride among the herds by truck, camel, kayak, or ATV. Small groups, advance reservations required.", url: "https://www.safariwilderness.com", label: "Reserve online" },
+    { text: "Same place as Safari Wilderness — the 260-acre exotic-game ranch near Lakeland, Fodor's Top 10 safari in the U.S. Ride among the herds by truck, camel, kayak, or ATV. Small groups, advance reservations required.", url: "https://www.safariwilderness.com", label: "Reserve online" },
   ],
   // Entries are strings, or { text, url, label } when a tip has a working
   // link. Owner-vouched links only; community Tips stay plain text.
   // Umbrella resort pages (where tourists actually land) route to the parks.
   "walt disney world": [
-    { text: "Nightly fireworks run inside the individual parks, not resort-wide: Happily Ever After at Magic Kingdom, Luminous at EPCOT, and Fantasmic! at Hollywood Studios on select nights. Open each park's page in Wayfind for its note, and check today's official calendar for exact times \u2014 they change with the season.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park hours & showtimes" },
+    { text: "Nightly fireworks run inside the individual parks, not resort-wide: Happily Ever After at Magic Kingdom, Luminous at EPCOT, and Fantasmic! at Hollywood Studios on select nights. Open each park's page in Wayfind for its note, and check today's official calendar for exact times — they change with the season.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park hours & showtimes" },
   ],
   "universal orlando resort": [
-    { text: "The nighttime shows live inside each park: CineSational on the Universal Studios lagoon and the Celestial Park finale at Epic Universe. Exact times vary by night \u2014 today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+    { text: "The nighttime shows live inside each park: CineSational on the Universal Studios lagoon and the Celestial Park finale at Epic Universe. Exact times vary by night — today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
   ],
   "magic kingdom park": [
-    { text: "Happily Ever After fireworks light the castle most nights \u2014 start time changes with the season, so check today's official schedule before you plan dinner.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+    { text: "Happily Ever After fireworks light the castle most nights — start time changes with the season, so check today's official schedule before you plan dinner.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
   ],
   "epcot": [
-    { text: "Luminous \u2014 The Symphony of Us runs over World Showcase Lagoon most nights. Times shift by season; the official calendar has today's showtime.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+    { text: "Luminous — The Symphony of Us runs over World Showcase Lagoon most nights. Times shift by season; the official calendar has today's showtime.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
   ],
   "disney's hollywood studios": [
-    { text: "Fantasmic! runs select nights and fills up \u2014 check today's schedule and line up early or book the dining package.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+    { text: "Fantasmic! runs select nights and fills up — check today's schedule and line up early or book the dining package.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
   ],
   "universal studios florida": [
-    { text: "CineSational: A Symphonic Spectacular closes most nights on the lagoon \u2014 showtime varies, check today's hours.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+    { text: "CineSational: A Symphonic Spectacular closes most nights on the lagoon — showtime varies, check today's hours.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
   ],
   "universal epic universe": [
-    { text: "Celestial Park hosts the park's nighttime finale \u2014 times vary by night; today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
+    { text: "Celestial Park hosts the park's nighttime finale — times vary by night; today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
   ],
   "hilton grand vacations club parc soleil": [
     { text: "The pool chair and cabana reservation instructions in the welcome letter are often broken. The system that actually works is the resort's own Recreation Team page on Eventbrite, run by the rec staff, free to book.", url: "https://www.eventbrite.com/o/parc-soleil-recreation-team-34192772609", label: "Open chair & cabana reservations" },
     "Reservation slots drop on a rolling basis, usually the morning of. If the page shows nothing yet, the day's slots have not been posted; check back early or search Eventbrite for Parc Soleil Recreation Team.",
     "Chairs tend to book out about three days ahead, matching the typical three-night owner stay, so reserve the day before your check-in for the dates you want.",
-    "Owner tip: for the Disney fireworks, ask for Tower 100 rooms 11423, 11424, or 11425 \u2014 they face Disney directly. Northwest-facing high floors in Tower 200 also carry the fireworks line.",
+    "Owner tip: for the Disney fireworks, ask for Tower 100 rooms 11423, 11424, or 11425 — they face Disney directly. Northwest-facing high floors in Tower 200 also carry the fireworks line.",
   ],
   "disney's animal kingdom": [
-    { text: "The one Disney park with no fireworks \u2014 the animals come first. Evening entertainment and hours change often, so check today's official calendar before you plan the night.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
+    { text: "The one Disney park with no fireworks — the animals come first. Evening entertainment and hours change often, so check today's official calendar before you plan the night.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
   ],
   "seaworld orlando": [
-    { text: "Ignite fireworks play over the lagoon on summer and select nights \u2014 confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
+    { text: "Ignite fireworks play over the lagoon on summer and select nights — confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
     "Sharks Underwater Grill is the meal worth planning around: full service beside the shark tank. Reserve in the SeaWorld app the morning you visit; walk-ins rarely clear on busy days.",
     "Eating two or more meals? The All-Day Dining Deal usually beats paying per meal at the quick-service spots. It does not cover Sharks Underwater Grill, so pair the deal for lunch with Sharks for dinner.",
     "Quick-service pecking order from regulars: Voyager's Smokehouse first, Seafire Grill second.",
@@ -1073,7 +1073,7 @@ function composeMoment(sel, city) {
   if (has("rainy")) { spec.indoorOnly = true; if (base === "entertainment") spec.extraKeyword = ((spec.extraKeyword || "") + " indoor").trim(); }
   const names = { family: "Family day", romantic: "Date night", friends: "Fun with friends", bestof: "Best of", gem: "Local gems", nature: "Time outside", budget: "Big fun, small budget", entertainment: "Things to do" };
   spec.title = (has("visitors") || base === "bestof") ? ("Best of " + city) : (names[base] + " near " + city);
-  spec.body = ["Your curated list is ready \u2014 ranked for right now", has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null, has("rainy") ? "indoor picks" : null].filter(Boolean).join(" \u00b7 ");
+  spec.body = ["Your curated list is ready — ranked for right now", has("twohrs") ? "open now, close by" : null, has("drive") ? "worth the drive" : null, has("fifty") ? "easy on the wallet" : null, has("rainy") ? "indoor picks" : null].filter(Boolean).join(" · ");
   return spec;
 }
 const REVENUE_EXP_KEYS = ["family", "entertainment", "stays", "shows", "budget"];
@@ -1366,7 +1366,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
               </div>
             );
           })}
-          {notes.say ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 9 }}><span style={{ fontWeight: 800, color: "#8ED6C4" }}>Talk local: </span><span style={{ fontWeight: 800, color: "#FFFFFF" }}>{"\u201C"}{notes.say.phrase}{"\u201D"}</span> {"\u2014"} {notes.say.meaning}</div> : null}
+          {notes.say ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 9 }}><span style={{ fontWeight: 800, color: "#8ED6C4" }}>Talk local: </span><span style={{ fontWeight: 800, color: "#FFFFFF" }}>{"\u201C"}{notes.say.phrase}{"\u201D"}</span> {"—"} {notes.say.meaning}</div> : null}
           {notes.mistake ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>Rookie mistake: </span>{notes.mistake}</div> : null}
           {isTown && tn && tn.one ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>⭐ The one thing: </span>{tn.one}</div> : null}
         </div>
@@ -2152,6 +2152,79 @@ function EventsRailSkeleton() {
     </div>
   );
 }
+// Today's Best (issue #232) — the FIRST hero card on the homepage.
+//
+// Viator activities via /api/experiences, which reads the cached wf_experiences
+// table (lib/experiencesServe). That route deliberately avoids every Viator file
+// CLAUDE.md locks — no bookingResolver, no viatorServer, no affiliates builders
+// touched here. The outbound link uses the already-exported Aff.viatorDirectUrl.
+//
+// A DB read, not a metered Google call, and the route is cached
+// (s-maxage=300) — so this does not re-open the v6.41 per-page-view spend issue.
+//
+// BEACHES ARE DEFERRED, NOT FORGOTTEN: lib/marine.js scores conditions at
+// coordinates it is handed, and there is no nearest-beach lookup in the codebase
+// yet (owner is building one). When it lands, the beach becomes a second slice
+// here — feeding that beach's lat/lng into getBeachConditions and keeping its
+// NWS safety gate, which must still withhold the card when the water is unsafe.
+function TodaysBestRail({ center }) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    if (!center) return;
+    let dead = false;
+    const q = new URLSearchParams();
+    q.set("lat", String(center.lat)); q.set("lng", String(center.lng)); q.set("mi", "60");
+    q.set("cat", "all"); q.set("limit", "8");
+    fetch("/api/experiences?" + q.toString())
+      .then((r) => (r.ok ? r.json() : null), () => null)
+      .then((res) => { if (!dead) setItems(res && !res.dark && Array.isArray(res.items) ? res.items : []); });
+    return () => { dead = true; };
+  }, [center]);
+
+  // Nothing worth showing -> render nothing. A thin rail is worse than no rail.
+  if (!items || items.length < 2) return null;
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Icon name="spark" size={16} color={C.accent} />Today&apos;s Best
+        </div>
+        <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>Bookable now</span>
+      </div>
+      <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginBottom: 9 }}>Top-rated things to book near you — swipe for more.</div>
+      <div tabIndex={0} role="region" aria-label="Today's Best near you"
+        style={{ display: "flex", gap: 11, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 5, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {items.slice(0, 8).map((t, i) => {
+          const href = Aff.viatorDirectUrl(t.url) || t.url;
+          // every fact below is rendered ONLY when the row actually carries it
+          const facts = [];
+          if (typeof t.rating === "number") facts.push(`${t.rating.toFixed(1)}\u2605${t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}`);
+          if (t.duration) facts.push(t.duration);
+          return (
+            <a key={t.code || i} href={href} target="_blank" rel="noreferrer"
+              onClick={() => { try { logEvent("tour_card_out", null, { code: t.code, src: "todays_best" }); } catch (e) {} }}
+              style={{ flex: "0 0 84%", scrollSnapAlign: "start", position: "relative", display: "block", height: 188, borderRadius: 18, overflow: "hidden", textDecoration: "none", boxShadow: i === 0 ? `0 0 0 1.5px ${C.accent}55, 0 8px 26px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+              {t.image ? <img src={t.image} alt="" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                       : <div style={{ position: "absolute", inset: 0, background: "linear-gradient(140deg,#2A2118,#0D1117 74%)" }} />}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 52%, rgba(0,0,0,.92) 100%)" }} />
+              {i === 0 ? (
+                <div style={{ position: "absolute", top: 11, left: 11, display: "inline-flex", padding: "4px 10px", borderRadius: 999, background: C.accent }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: "#0D1117", letterSpacing: .4, textTransform: "uppercase" }}>Today&apos;s best</span>
+                </div>
+              ) : null}
+              <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>{t.title}</div>
+                {facts.length ? <div style={{ marginTop: 4, fontSize: 12, color: "#C9D1D9" }}>{facts.join(" \u00b7 ")}</div> : null}
+                {typeof t.fromPrice === "number" ? <div style={{ marginTop: 4, fontSize: 11.5, fontWeight: 800, color: C.accent }}>{`From $${Math.round(t.fromPrice)}`}</div> : null}
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, isDesktop }) {
   if (!hooks || hooks.length === 0) return null;
   const shown = hooks.slice(0, 5); // show the spread of hooks, stacked full-width on mobile
@@ -2849,7 +2922,7 @@ function PageInner({ initialEvents = null }) {
     try {
       if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
         const r = await DeviceOrientationEvent.requestPermission();
-        if (r !== "granted") { showToast("Compass blocked \u2014 allow Motion & Orientation in Safari settings"); return; }
+        if (r !== "granted") { showToast("Compass blocked — allow Motion & Orientation in Safari settings"); return; }
       }
       let got = false;
       const h = (e) => {
@@ -2900,6 +2973,32 @@ function PageInner({ initialEvents = null }) {
   const ssrEventSeedRef = useRef(!!initialEvents);
   const [libraryEvents, setLibraryEvents] = useState([]); // curated civic/library events for the local-community hero card
   const [shareCopied, setShareCopied] = useState(false);
+  // Moment rail (#230): the local hour, post-mount only (hydration-safe), and
+  // the two cheap aux feeds the rail needs. Beach conditions proxy Open-Meteo
+  // (free) and /api/viator/tours is server-cached for an hour — neither is a
+  // paid Google call, so the v6.41 cost rule holds. One fetch per location.
+  const [dayHour, setDayHour] = useState(null);
+  useEffect(() => {
+    const tick = () => setDayHour(new Date().getHours());
+    tick();
+    const t = setInterval(tick, 15 * 60 * 1000);
+    return () => clearInterval(t);
+  }, []);
+  const [momentAux, setMomentAux] = useState({ beach: null, tours: null });
+  useEffect(() => {
+    if (!center) return;
+    let off = false;
+    const town = locName ? locName.split(",")[0] : "";
+    (async () => {
+      const grab = async (u) => { try { const r = await fetch(u); return r.ok ? await r.json() : null; } catch (e) { return null; } };
+      const [beach, tours] = await Promise.all([
+        grab(`/api/beach/conditions?lat=${center.lat}&lng=${center.lng}`),
+        town ? grab("/api/viator/tours?q=" + encodeURIComponent("best things to do " + town) + "&count=3" + _viatorCityParams(town, center)) : Promise.resolve(null),
+      ]);
+      if (!off) setMomentAux({ beach, tours: tours && Array.isArray(tours.items) ? tours.items : [] });
+    })();
+    return () => { off = true; };
+  }, [center, locName]);
   const [beachCond, setBeachCond] = useState(null);
   const [beachCondLoading, setBeachCondLoading] = useState(false);
   const [allExpOpen, setAllExpOpen] = useState(false);
@@ -2961,12 +3060,12 @@ function PageInner({ initialEvents = null }) {
     } catch (e) { showToast("Could not load " + hol.name + " picks"); }
   };
   // v5.7x (home-menu consolidation): six tiles, one action model. Every
-  // CURATED entry carries a `rank` comparator \u2014 food/nightlife/experiences/
+  // CURATED entry carries a `rank` comparator — food/nightlife/experiences/
   // shopping keep the original wfScore sort explicit (DEFAULT_RANK, byte-
   // identical behavior); stays ranks by rating (tie-break reviews); bestof
-  // ranks by rating*log(reviews) ("institutions" \u2014 high rating AND high
+  // ranks by rating*log(reviews) ("institutions" — high rating AND high
   // review volume). bestof's "Hidden gems" lens (toggled inside the opened
-  // sheet) inverts that to GEMS_RANK \u2014 high rating, LOW review volume.
+  // sheet) inverts that to GEMS_RANK — high rating, LOW review volume.
   // presetSort:"curated" tells the opened sheet (hkSort effect) to keep this
   // exact order instead of re-running its own generic "rated" formula.
   const DEFAULT_RANK = (a, b) => (b.wfScore || 0) - (a.wfScore || 0);
@@ -2981,14 +3080,14 @@ function PageInner({ initialEvents = null }) {
     // Supports the "Hidden gems" lens (opts.lens==="gems") from the retired
     // Best-of tile. Phase 2 adds live events + Parrish curation.
     today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", slots: [{ label: "Top experiences", n: 4, q: "top attractions tours and things to do" }, { label: "Theme parks", n: 2, q: "theme parks" }, { label: "Shows & theater", n: 2, q: "shows theater live entertainment" }, { label: "Local favorites", n: 2, q: "top rated attractions and local favorites" }], rank: DEFAULT_RANK },
-    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
+    food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now — ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
     // v5.7x: entertainment + shows fold into experiences — the shows/theater
     // query joins the slot mix, nothing about the destination is deleted.
-    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now \u2014 parks, attractions, tours, and shows \u2014 ranked by fit. Attraction pages include bookable tours.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Shows & theater", n: 2, q: "shows theater dinner show live entertainment" }, { label: "Top experiences", n: 5, q: "top attractions tours and things to do" }], rank: DEFAULT_RANK },
-    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark \u2014 ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }], rank: DEFAULT_RANK },
+    experiences: { title: "Top 10 Experiences", emoji: "\uD83C\uDFA2", lead: "The strongest experiences around you right now — parks, attractions, tours, and shows — ranked by fit. Attraction pages include bookable tours.", slots: [{ label: "Theme parks", n: 2, q: "theme parks" }, { label: "Movies", n: 1, q: "movie theaters" }, { label: "Shows & theater", n: 2, q: "shows theater dinner show live entertainment" }, { label: "Top experiences", n: 5, q: "top attractions tours and things to do" }], rank: DEFAULT_RANK },
+    nightlife: { title: "Top 10 Nightlife", emoji: "\uD83C\uDF78", lead: "Your best moves after dark — ranked by vibe, crowd, reviews, distance, value, and whether it's actually worth your night. From drinks-first bars to live music, lounges, and late-night bites, Wayfind cuts through the noise so you don't waste the evening.", presetMi: 15, slots: [{ label: "Bars & lounges", n: 5, q: "best bars and lounges" }, { label: "Live music", n: 3, q: "live music venues" }, { label: "Late-night eats", n: 2, q: "late night food" }], rank: DEFAULT_RANK },
     shopping: { title: "Top 10 Shopping", emoji: "\uD83D\uDECD\uFE0F", lead: "Where locals and visitors actually spend: the malls, outlets, and boutiques that rate best near you, ranked by the Wayfind Score.", slots: [{ label: "Shopping", n: 10, q: "best shopping malls outlets and boutiques" }], rank: DEFAULT_RANK },
-    stays: { title: "Hotels & Stays", emoji: "\uD83C\uDFE8", lead: "Places to stay near you, ranked by rating \u2014 resorts, boutique hotels, and easy overnights.", slots: [{ label: "Hotels & stays", n: 10, q: "best hotels resorts lodging" }], rank: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0), presetSort: "curated" },
-    bestof: { title: "Best of " + cityNow, emoji: "\uD83C\uDFC6", lead: "The local institutions people here name among the best \u2014 ranked by rating and how many people agree.", slots: [{ label: "Institutions", n: 10, q: "top rated restaurants attractions and shops" }], rank: (a, b) => bestOfScore(b) - bestOfScore(a), presetSort: "curated" },
+    stays: { title: "Hotels & Stays", emoji: "\uD83C\uDFE8", lead: "Places to stay near you, ranked by rating — resorts, boutique hotels, and easy overnights.", slots: [{ label: "Hotels & stays", n: 10, q: "best hotels resorts lodging" }], rank: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0), presetSort: "curated" },
+    bestof: { title: "Best of " + cityNow, emoji: "\uD83C\uDFC6", lead: "The local institutions people here name among the best — ranked by rating and how many people agree.", slots: [{ label: "Institutions", n: 10, q: "top rated restaurants attractions and shops" }], rank: (a, b) => bestOfScore(b) - bestOfScore(a), presetSort: "curated" },
   };
   // v5.84 (B-spec): the Family/Budget filter chips were removed from the home
   // menu (they were the two non-working controls). No visible chip row replaces
@@ -3106,7 +3205,7 @@ function PageInner({ initialEvents = null }) {
         places2 = bk.places;
         sections2 = bk.sections.length > 1 ? bk.sections : sections2;
         title2 = c.title.replace(" near you", town ? " near " + town : " near you");
-        body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance \u2014 every pick is labeled by how far it really is. " : "") + c.lead;
+        body2 = (town ? town + " is a smaller market, so this ranks the best within honest driving distance — every pick is labeled by how far it really is. " : "") + c.lead;
       }
       // v4.85: a thin market opens at the SMALLEST radius that actually shows the
       // list (17 → 30 → 45 → 60) instead of jumping straight to 60.
@@ -3405,12 +3504,12 @@ function PageInner({ initialEvents = null }) {
   async function passwordAuth() {
     if (!supabase || !authEmail || !authPassword) return;
     const fixed = fixEmailTypos(authEmail);
-    if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
+    if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email — check it and tap again."); return; }
     setAuthSending(true);
     try {
       const creds = { email: authEmail.trim(), password: authPassword };
       // v5.05: signup goes through OUR server route (admin-created, email
-      // pre-confirmed) \u2014 live testing caught Supabase's mailer 500ing on
+      // pre-confirmed) — live testing caught Supabase's mailer 500ing on
       // "Error sending confirmation email", which silently blocked ALL
       // signups. Server-side creation removes the email dependency entirely;
       // the user is signed in with their password immediately after. If the
@@ -3419,14 +3518,14 @@ function PageInner({ initialEvents = null }) {
         let viaRoute = false;
         try {
           const r = await fetch("/api/auth/signup", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(creds) });
-          if (r.status === 409) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); setAuthSending(false); return; }
+          if (r.status === 409) { setAuthMode("signin"); showToast("This email already has an account — sign in below."); setAuthSending(false); return; }
           if (r.ok) viaRoute = true;
           else if (r.status !== 501) { const d = await r.json().catch(() => ({})); showToast("Could not create account" + (d && d.error ? ": " + d.error : "")); setAuthSending(false); return; }
         } catch (e) {}
         if (viaRoute) {
           const res = await supabase.auth.signInWithPassword(creds);
-          if (res.error) showToast("Account created \u2014 now sign in: " + res.error.message);
-          else { showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+          if (res.error) showToast("Account created — now sign in: " + res.error.message);
+          else { showToast("Account created — you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
           setAuthSending(false); return;
         }
       }
@@ -3443,8 +3542,8 @@ function PageInner({ initialEvents = null }) {
       }
       if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
       else if (res.data && res.data.session) { showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
-      else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
-      else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
+      else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account — sign in below."); }
+      else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app — that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
     setAuthSending(false);
   }
@@ -6298,30 +6397,35 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 </div>
               )}
-              {/* ── Wayfind Picks (issue #228) ───────────────────────────────
-                  The V2 recommendation engines, mounted on the REAL homepage.
-                  Reuses foryouEvents that is ALREADY loaded — no extra fetch, no
-                  extra API spend. rankLivePicks puts the best CONCERT first (its
-                  category priority is concerts > festivals > comedy > broadway >
-                  shows); rankSports supplies the best game beneath it. Both score
-                  on proximity + on-sale + how soon it starts. Cancelled events are
-                  excluded by the engines.
+              {!browseCat && !isDesktop ? <TodaysBestRail center={center} /> : null}
+              {/* ── Wayfind Picks (issue #228) → the moment rail (#230) ─────────
+                  One swipeable rail that answers "why is Wayfind showing me
+                  this?" for the exact moment: 5–11am leads with the best
+                  breakfast nearby (reusing the already-loaded `suggested` feed
+                  — zero new spend); a beach-day card when live marine
+                  conditions clear; the top bookable activities near you; and
+                  tonight's strongest tickets via rankLivePicks/rankSports,
+                  exactly as #228 shipped them. Every card is a shareable LIST
+                  of options, not a single place, and every reason line is
+                  composed only from signals we actually hold.
                   ADDITIVE: the existing "Happening near you" hero below is
                   untouched, so lib/frontEvents and test-front-events still hold. */}
-              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
-                let picks = [];
+              {!browseCat && !isDesktop && (() => {
+                const town = locName ? locName.split(",")[0] : "";
+                const where = town ? "near " + town : "near you";
+                const dayPart = dayHour == null ? null : dayHour < 5 ? "late night" : dayHour < 11 ? "morning" : dayHour < 17 ? "afternoon" : "evening";
+
+                // tonight's tickets — the engines decide the order (#228, unchanged)
+                let eventPicks = [];
                 try {
                   const ctxLp = { center, todayStr: siteTodayStr() };
-                  const lp = rankLivePicks(foryouEvents, ctxLp);
-                  const sp = rankSports(foryouEvents, ctxLp);
-                  // hero = best concert/show, then the best game, then the next
-                  // two live picks. Deduped so one event can't fill two cards.
+                  const lp = rankLivePicks(foryouEvents || [], ctxLp);
+                  const sp = rankSports(foryouEvents || [], ctxLp);
                   const seen = new Set();
                   for (const e of [lp.hero, sp.cards[0], ...lp.rail.slice(0, 2)]) {
-                    if (e && e.dest && e.id && !seen.has(e.id)) { seen.add(e.id); picks.push(e); }
+                    if (e && e.dest && e.id && !seen.has(e.id)) { seen.add(e.id); eventPicks.push(e); }
                   }
-                } catch (e) { picks = []; }
-                if (picks.length < 2) return null;  // not enough to be worth a rail
+                } catch (e) { eventPicks = []; }
                 const why = (e) => {
                   // the reason line is composed ONLY from signals we actually hold
                   const bits = [];
@@ -6331,31 +6435,137 @@ function PageInner({ initialEvents = null }) {
                   if (e.price || (e.status || "").toLowerCase() === "onsale") bits.push("Still on sale");
                   return bits.filter(Boolean).slice(0, 3).join(" · ");
                 };
+
+                // 5–11am: the best breakfast nearby, from data already on screen
+                let breakfast = null;
+                if (dayHour != null && dayHour >= 5 && dayHour < 11 && Array.isArray(suggested) && suggested.length) {
+                  const morningy = (p) => {
+                    const t = ((p.type || "") + " " + (Array.isArray(p.types) ? p.types.join(" ") : "")).toLowerCase();
+                    return /cafe|coffee|breakfast|brunch|bakery|donut|bagel|diner/.test(t);
+                  };
+                  const rows = suggested.filter((p) => p && p.name && morningy(p)).slice(0, 4);
+                  if (rows.length >= 2) breakfast = rows;
+                }
+                const beach = momentAux.beach && momentAux.beach.show ? momentAux.beach : null;
+                const tours = (Array.isArray(momentAux.tours) ? momentAux.tours : []).filter((t) => t && t.title && t.url).slice(0, 3);
+
+                // assemble — the moment decides the order
+                let picks = [];
+                if (breakfast) picks.push({ kind: "breakfast", rows: breakfast });
+                if (beach) picks.push({ kind: "beach", beach });
+                for (const t of tours) picks.push({ kind: "tour", t });
+                for (const e of eventPicks) picks.push({ kind: "event", e });
+                if (dayHour != null && dayHour >= 17) picks = [...picks.filter((x) => x.kind === "event"), ...picks.filter((x) => x.kind === "tour" || x.kind === "beach")];
+                picks = picks.slice(0, 6);
+                if (picks.length < 2) return null;  // not enough to be worth a rail
+
+                const cardShare = (title, lines, key, url) => {
+                  const text = title + "\n" + lines.filter(Boolean).slice(0, 4).map((l, ix) => (ix + 1) + ". " + l).join("\n") + "\nPicked by Wayfind:";
+                  shareLink(title, url || listShareUrl(key, title, 0, locName, key), () => showToast("Link copied"), text, () => { try { logEvent("share", null, { kind: "moment", card: key }); } catch (er) {} });
+                };
+                const shareDot = (onTap) => (
+                  <button onClick={(ev) => { ev.preventDefault(); ev.stopPropagation(); onTap(); }} aria-label="Share" title="Share" style={{ position: "absolute", top: 10, right: 10, width: 34, height: 34, borderRadius: "50%", background: "rgba(0,0,0,.35)", border: "1px solid rgba(255,255,255,.3)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)", zIndex: 2 }}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
+                  </button>
+                );
+                const cardSty = (i) => ({ flex: "0 0 84%", scrollSnapAlign: "start", position: "relative", display: "block", height: 188, borderRadius: 18, overflow: "hidden", textDecoration: "none", boxShadow: i === 0 ? `0 0 0 1.5px ${C.accent}55, 0 8px 26px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" });
+                const kicker = (label, bg) => (
+                  <div style={{ position: "absolute", top: 11, left: 11, display: "inline-flex", alignItems: "center", padding: "4px 10px", borderRadius: 999, background: bg || C.accent }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: "#0D1117", letterSpacing: .4, textTransform: "uppercase" }}>{label}</span>
+                  </div>
+                );
+                const scrim = <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.55) 48%, rgba(0,0,0,.92) 100%)" }} />;
+
                 return (
                   <div style={{ marginBottom: 18 }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}>
                         <Icon name="spark" size={16} color={C.accent} />Wayfind Picks
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>Chosen from {foryouEvents.length} nearby</span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{dayPart ? "For your " + dayPart : "For right now"}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginBottom: 9 }}>The best of what&apos;s on near you right now — swipe for more.</div>
+                    <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginBottom: 9 }}>{(dayPart ? "It’s " + dayPart + " " + where : "Right now " + where) + " — each card says why it’s here, and every one is a list you can share. No ads, no paid placement."}</div>
                     <div tabIndex={0} role="region" aria-label="Wayfind Picks near you"
                       style={{ display: "flex", gap: 11, overflowX: "auto", scrollSnapType: "x mandatory", paddingBottom: 5, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                      {picks.map((e, i) => {
+                      {picks.map((slide, i) => {
+                        if (slide.kind === "breakfast") {
+                          const rows = slide.rows;
+                          const title = "Best breakfast " + where;
+                          const lines = rows.map((p) => p.name + (p.rating ? " (" + p.rating + "★)" : ""));
+                          return (
+                            <div key="mk-breakfast" role="link" tabIndex={0} onKeyDown={KB_CLICK}
+                              onClick={() => { try { logEvent("moment_card", null, { card: "breakfast" }); } catch (e2) {} submitSearch("best breakfast", { miles: 15 }); }}
+                              style={{ ...cardSty(i), cursor: "pointer" }}>
+                              <EventHeroBg image={rows[0].photo || null} acc={C.accent} venue={rows[0].name} near={center} />
+                              {scrim}
+                              {kicker("Fuel the morning")}
+                              {shareDot(() => cardShare(title, lines, "breakfast"))}
+                              <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
+                                <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>{title}</div>
+                                <div style={{ marginTop: 4 }}>
+                                  {rows.slice(0, 3).map((p) => (
+                                    <div key={p.id || p.name} style={{ fontSize: 12, color: "#E6EDF3", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                      {p.name}{p.rating ? " · " + p.rating + "★" : ""}{p.reviews ? " (" + p.reviews + ")" : ""}
+                                    </div>
+                                  ))}
+                                </div>
+                                <div style={{ marginTop: 5, fontSize: 11.5, fontWeight: 700, color: C.accent }}>Ranked by rating, review depth and distance — tap for the full list</div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (slide.kind === "beach") {
+                          const b = slide.beach;
+                          const bName = b.name || b.beach || (town ? town + " beaches" : "The beach");
+                          const title = "It’s a beach day " + where;
+                          return (
+                            <div key="mk-beach" role="link" tabIndex={0} onKeyDown={KB_CLICK}
+                              onClick={() => { try { logEvent("moment_card", null, { card: "beach" }); } catch (e2) {} submitSearch("beach", { miles: 20 }); }}
+                              style={{ ...cardSty(i), cursor: "pointer" }}>
+                              <EventHeroBg image={null} acc={C.purple} venue={(bName + " " + town).trim()} near={center} />
+                              {scrim}
+                              {kicker("Beach day")}
+                              {shareDot(() => cardShare(title, [bName, "Live marine conditions look good right now"], "beach"))}
+                              <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
+                                <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>{title}</div>
+                                <div style={{ marginTop: 3, fontSize: 12, color: "#C9D1D9" }}>{bName}</div>
+                                <div style={{ marginTop: 5, fontSize: 11.5, fontWeight: 700, color: C.accent }}>Live marine conditions check out — tap for the best spots on the water</div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (slide.kind === "tour") {
+                          const t = slide.t;
+                          const meta = [t.rating ? t.rating + "★" + (t.reviews ? " from " + t.reviews + " travelers" : "") : null, t.fromPrice ? "from $" + t.fromPrice : null, t.duration || null].filter(Boolean).join(" · ");
+                          return (
+                            <a key={"mk-tour-" + (t.code || i)} href={t.url} target="_blank" rel="noreferrer"
+                              onClick={() => { try { logEvent("moment_card", null, { card: "tour", code: t.code || "" }); } catch (e2) {} }}
+                              style={cardSty(i)}>
+                              {t.image
+                                ? <img src={t.image} alt="" loading="lazy" decoding="async" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                                : <EventHeroBg image={null} acc={C.purple} venue={t.title} near={center} />}
+                              {scrim}
+                              {kicker("Book it", "#E8D5A4")}
+                              {shareDot(() => cardShare(t.title, [meta], "tours", t.url))}
+                              <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
+                                <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                                {meta ? <div style={{ marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.accent }}>{meta}</div> : null}
+                                <div style={{ marginTop: 3, fontSize: 11.5, color: "#C9D1D9" }}>A top bookable activity {where} — reserve in a couple of taps</div>
+                              </div>
+                            </a>
+                          );
+                        }
+                        const e = slide.e;
                         const internal = e.destKind === "internal";
                         const reason = why(e);
                         return (
                           <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })}
                             onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "wayfind_picks" }); } catch (e2) {} }}
-                            style={{ flex: "0 0 84%", scrollSnapAlign: "start", position: "relative", display: "block", height: 188, borderRadius: 18, overflow: "hidden", textDecoration: "none", boxShadow: i === 0 ? `0 0 0 1.5px ${C.accent}55, 0 8px 26px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)" }}>
+                            style={cardSty(i)}>
                             <EventHeroBg image={e.image} acc={i === 0 ? C.accent : C.purple} venue={cleanVenueName(e.venue) || e.venue} near={center} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,.55) 52%, rgba(0,0,0,.92) 100%)" }} />
-                            {i === 0 ? (
-                              <div style={{ position: "absolute", top: 11, left: 11, display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 999, background: C.accent, border: `1px solid ${C.accent}` }}>
-                                <span style={{ fontSize: 10, fontWeight: 800, color: "#0D1117", letterSpacing: .4, textTransform: "uppercase" }}>Top pick near you</span>
-                              </div>
-                            ) : null}
+                            {scrim}
+                            {i === 0 ? kicker("Top pick near you") : kicker("On " + (dayPart === "evening" ? "tonight" : "soon"), "#C9D1D9")}
+                            {shareDot(() => cardShare(e.name, [cleanVenueName(e.venue) || "", reason], "tonight", internal ? undefined : ticketUrl(e.dest)))}
                             <div style={{ position: "absolute", left: 13, right: 13, bottom: 11 }}>
                               <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.25 }}>{e.name}</div>
                               {e.venue ? <div style={{ marginTop: 3, fontSize: 12, color: "#C9D1D9" }}>{cleanVenueName(e.venue) || e.venue}</div> : null}
