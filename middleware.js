@@ -53,6 +53,10 @@ export const config = {
     // Supabase read); full same-origin guard keeps the affiliate catalog from
     // being harvested off our origin.
     "/api/experiences",
+    // Beach Intelligence (§0): /api/beach/conditions is a same-origin XHR that
+    // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
+    // cost gate — every upstream is free — but the assembled view is ours.
+    "/api/beach/conditions",
   ],
 };
 
