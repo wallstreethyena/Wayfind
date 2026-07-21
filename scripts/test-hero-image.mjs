@@ -58,10 +58,14 @@ ok(pick([{ ratio: "16_9", width: 640, url: "SMALL" }]) === "SMALL", "when nothin
 ok(pick([{ ratio: "1_1", width: 100, url: "ONLY" }]) === "ONLY", "must fall back to images[0] when no 16:9 variant exists");
 
 // ---- 2. events reach the initial HTML ------------------------------------
-ok(/async function initialEventsForFirstPaint/.test(page), "app/page.js no longer server-fetches events — the hero URL goes back to being unknown until a client fetch resolves");
-ok(/<Home initialEvents=\{initialEvents\} \/>/.test(page), "initialEvents is not passed to <Home>");
-ok(/export default async function Page/.test(page), "app/page.js must be async to await the events fetch");
-ok(/useState\(initialEvents\)/.test(home), "foryouEvents must be seeded from the server prop, not reset to null on the client");
+// v6.43: the SEED IS DISABLED ON PURPOSE. It made the homepage paint
+// DEFAULT_CENTER's events and then visibly swap to the visitor's real location
+// (owner-reported). The guard now asserts the seed stays OFF until the server
+// and client agree on one location and one featured event (issue #219).
+ok(/const initialEvents = null;/.test(page),
+  "the SSR events seed is back on — it makes Happening-near-you swap content under the reader. Re-enable only once server and client agree on one location (#219).");
+ok(/<Home initialEvents=\{initialEvents\} \/>/.test(page), "the initialEvents prop must stay wired so re-enabling is a one-line change");
+ok(/useState\(initialEvents\)/.test(home), "foryouEvents must still accept the prop");
 
 // TTFB protection: deriving the origin from headers() opts the route into
 // dynamic rendering, which would put a live aggregation on the critical path of
