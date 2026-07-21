@@ -52,13 +52,13 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#08090c",
+  themeColor: "#0D1117",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
-      <body style={{ margin: 0, background: "#08090c", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+      <body style={{ margin: 0, background: "#0D1117", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
         {/* #219 events primer: start the home events fetch BEFORE hydration.
             Reads the SAME wf_center the app uses (fallback = DEFAULT_CENTER in
             app/home.js — the lock test pins the coords in sync). Coords ride on
@@ -66,18 +66,6 @@ export default function RootLayout({ children }) {
             mismatch is simply ignored. Fail-soft: any error leaves the app on
             its normal fetch path. radius 25 matches the client call exactly. */}
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lat:c.lat,lng:c.lng,radius:25,city:c.loc})}).then(function(r){return r.ok?r.json():null}).catch(function(){return null})}}catch(e){}})();" }} />
-        {/* #240 Best Move primer: warm the wf_best_picks answer and the hero
-            photo BEFORE hydration. Same shape as the events primer above:
-            same wf_center read, same DEFAULT_CENTER fallback (lock test pins
-            the coords in sync). This primer feeds NO state — the client makes
-            its own weather-aware call once — it exists to start the LCP image
-            (hero photo, w=800, ref shape validated like /api/photo does)
-            during the hydration dead time. Measured before this fix: LCP 10.5s
-            = 3.0s discovery delay + 7.4s of oversized w=1200 download. The
-            anon key is NEXT_PUBLIC (already in every client bundle). */}
-        {process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? (
-          <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393};var d=new Date();var k=" + JSON.stringify(String(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY).trim()) + ";fetch(" + JSON.stringify(String(process.env.NEXT_PUBLIC_SUPABASE_URL).trim().replace(/\/+$/, "")) + "+'/rest/v1/rpc/wf_best_picks',{method:'POST',headers:{'Content-Type':'application/json',apikey:k,Authorization:'Bearer '+k},body:JSON.stringify({p_lat:c.lat,p_lng:c.lng,p_local_hour:d.getHours()+d.getMinutes()/60,p_temp:null,p_condition:null,p_radius_mi:25,p_limit:6})}).then(function(r){return r.ok?r.json():null}).then(function(j){try{var f=j&&j[0]&&j[0].photo_ref;if(f&&/^places\\/[A-Za-z0-9_-]+\\/photos\\/[A-Za-z0-9_-]+$/.test(f)){var i=new Image();i.fetchPriority='high';i.src='/api/photo?ref='+encodeURIComponent(f)+'&w=800'}}catch(e){}}).catch(function(){})}catch(e){}})();" }} />
-        ) : null}
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy
             client SDK finishes loading; SentryClient replays this queue on load,
@@ -175,7 +163,7 @@ export default function RootLayout({ children }) {
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Find great things to do near you, right now." }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png" }] }) }} />
-        <footer style={{ background: "#08090c", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+        <footer style={{ background: "#0D1117", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
             <p style={{ fontSize: 12.5, color: "#94A3B8", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>

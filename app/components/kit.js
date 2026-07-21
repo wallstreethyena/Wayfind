@@ -10,7 +10,7 @@ import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, to
 import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula — chips self-heal from rating signals when wfScore is missing
 
 export const C = {
-  bg: "#08090c", panel: "#161B22", card: "#1C2230", border: "#2D3748",
+  bg: "#0D1117", panel: "#161B22", card: "#1C2230", border: "#2D3748",
   accent: "#F97316", adim: "rgba(249,115,22,.15)", blue: "#38BDF8", green: "#22C55E",
   red: "#EF4444", purple: "#FF8A3D", pink: "#F472B6", gold: "#FBBF24",
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
