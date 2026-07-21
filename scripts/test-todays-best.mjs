@@ -42,8 +42,12 @@ ok(ui.includes("Nothing strong in this category right now"), "empty sections say
 ok(ui.includes('data === "loading"') && ui.includes("wf-sk"), "reserved-geometry loading rows");
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/import TodaysBest from "\.\/components\/TodaysBest"/.test(home), "home.js imports the accordion");
-ok(/<TodaysBest center=\{center\} weather=\{weather\}/.test(home), "accordion mounted with live center + weather");
+// Owner call (2026-07-21, later): the accordion is RETIRED from the page —
+// "Best places to eat nearby" sits under the events card instead. The
+// component, lib, and engines stay in the repo for when it returns.
+ok(!/<TodaysBest /.test(home), "the accordion is unmounted (owner call)");
+ok(/Best places to eat nearby/.test(home), "the best-places-to-eat card renders in its place");
+ok(!/card\("Best things to do today"/.test(home), "the best-things-to-do-today CARD is gone (the curated sheet of the same name stays — engines kept)");
 ok(!/Explore near you<\/div>/.test(home), "the old Explore-near-you list menu is gone");
 ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engines kept, not deleted");
 
