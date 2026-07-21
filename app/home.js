@@ -4866,12 +4866,16 @@ function PageInner({ initialEvents = null }) {
         // loading state and let this effect re-fire when locName lands — never
         // flash "no tours" before we've even asked. Deps include locName.
         if (!cityQ) return;
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
+        // v6.44 (owner): the FULL verified local inventory — no 12-item slice,
+        // no 4.3 floor. Order: Viator's own likely-to-sell-out flag first
+        // (real API signal, never computed by us), then best-to-worst by the
+        // same Bayesian confidence the Wayfind Score uses — a 4.9 from a
+        // handful of reviews cannot outrank a proven 4.7 with thousands.
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=60" + _viatorCityParams(cityQ, center));
         const d = await r.json();
+        const _bayes = (t) => { const v = t.reviews || 0, m = 60, C0 = 3.9; return t.rating != null ? (v / (v + m)) * t.rating + (m / (v + m)) * C0 : 0; };
         const items = (d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.3)
-          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
-          .slice(0, 12);
+          .sort((a, b) => ((b.sellingFast ? 1 : 0) - (a.sellingFast ? 1 : 0)) || (_bayes(b) - _bayes(a)) || ((b.reviews || 0) - (a.reviews || 0)));
         if (!cancelled) setEventsTours(items);
       } catch (e) { if (!cancelled) setEventsTours([]); }
     })();

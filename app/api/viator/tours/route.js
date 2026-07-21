@@ -45,7 +45,11 @@ export async function GET(req) {
   const regionTokens = region.toLowerCase().split(/[,\s]+/).map((x) => x.trim()).filter((x) => x.length >= 4);
   // v4.84: cap raised 6 -> 20 so the vibe rails can rank top-rated and
   // hidden-gem products client-side from a real pool, not a 6-item sliver.
-  const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), 20);
+  // v6.44 (owner): the Events tab wants the FULL local inventory, not a
+  // 20-item sliver. City mode may request up to 60 (paginated upstream);
+  // per-place resolution keeps the old 20 ceiling.
+  const modePeek = (searchParams.get("mode") || "").trim();
+  const count = Math.min(Math.max(parseInt(searchParams.get("count") || "3", 10) || 3, 1), modePeek === "city" ? 60 : 20);
   // v6.34 — CITY MODE for the rails. The old rails passed no region at all and
   // trusted freetext relevance ("the query itself is the region") — Viator's
   // freetext returned Hanoi/Naxos/Antigua products into a Florida feed. City
@@ -84,7 +88,7 @@ export async function GET(req) {
         // least 10 candidates so a real venue product below Viator's generic
         // city tours can still be resolved; the display slice below stays
         // verified.slice(0, count) so the caller's requested count is unchanged.
-        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: Math.max(count, 10) } }],
+        searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 1, count: Math.min(Math.max(count, 10), 50) } }],
       }),
     });
     if (!res.ok) {
@@ -92,7 +96,26 @@ export async function GET(req) {
       return Response.json({ items: [] });
     }
     const data = await res.json();
-    const results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
+    let results = data && data.products && Array.isArray(data.products.results) ? data.products.results : [];
+    // v6.44: freetext pages cap at 50 — when the caller wants more (city mode
+    // 60), pull one follow-up page. Fail-soft: a bad second page just means
+    // fewer items, never an error.
+    if (count > 50 && results.length === 50) {
+      try {
+        const res2 = await fetch("https://api.viator.com/partner/search/freetext", {
+          method: "POST",
+          signal: ctrl.signal,
+          headers: { "exp-api-key": KEY, "Accept": "application/json;version=2.0", "Accept-Language": "en-US", "Content-Type": "application/json" },
+          body: JSON.stringify({ searchTerm: q, currency: "USD", searchTypes: [{ searchType: "PRODUCTS", pagination: { start: 51, count: 50 } }] }),
+        });
+        if (res2.ok) {
+          const d2 = await res2.json();
+          const more = d2 && d2.products && Array.isArray(d2.products.results) ? d2.products.results : [];
+          const seen = new Set(results.map((r) => r && (r.productCode || r.productUrl)));
+          results = results.concat(more.filter((r) => r && !seen.has(r.productCode || r.productUrl)));
+        }
+      } catch (e) {}
+    }
     const candidates = results.filter((r) => r && r.productUrl && r.title);
 
     // Per-candidate fan-out: how many OTHER distinct places has each product
@@ -130,6 +153,10 @@ export async function GET(req) {
         reviews: r.reviews && typeof r.reviews.totalReviews === "number" ? r.reviews.totalReviews : null,
         fromPrice: (() => { try { const p = r.pricing && r.pricing.summary && r.pricing.summary.fromPrice; return typeof p === "number" ? Math.round(p) : null; } catch { return null; } })(),
         duration: (() => { try { const d = r.duration && (r.duration.fixedDurationInMinutes || r.duration.variableDurationToMinutes); if (!d) return null; return d >= 60 ? Math.round(d / 60) + "h" : d + "m"; } catch { return null; } })(),
+        // v6.44: Viator's OWN demand flag, passed through verbatim — the
+        // "Selling fast" badge and sort boost ride ONLY on this. We never
+        // compute or guess demand (ticket demand is on the no-source list).
+        sellingFast: Array.isArray(r.flags) && r.flags.includes("LIKELY_TO_SELL_OUT"),
         confidence: offer.confidence,
       };
     });

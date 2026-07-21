@@ -205,7 +205,10 @@ export default function EventsScreen({ ctx }) {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
               {tours.map((t) => (
-                <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
+                <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+                  {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
+                      through by the API route (t.sellingFast) — never a computed guess. */}
+                  {t.sellingFast ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
                   {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : null}
                   <div style={{ padding: "9px 11px" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>

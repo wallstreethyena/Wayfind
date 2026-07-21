@@ -18,7 +18,9 @@ ok(go.includes("pagination: { start: 1, count: 10 }"), "/go resolver search requ
 ok(!go.includes("pagination: { start: 1, count: 3 }"), "/go old 3-candidate pool is gone");
 
 const tours = readFileSync(new URL("../app/api/viator/tours/route.js", import.meta.url), "utf8");
-ok(tours.includes("pagination: { start: 1, count: Math.max(count, 10) }"), "/tours search fanout decoupled from the display count (>=10)");
+// v6.44: same >=10 fanout guarantee, now also clamped to Viator's 50-per-page
+// upstream limit (city mode paginates past it with a second request).
+ok(tours.includes("pagination: { start: 1, count: Math.min(Math.max(count, 10), 50) }"), "/tours search fanout decoupled from the display count (>=10, upstream-page clamped)");
 ok(!/pagination: \{ start: 1, count \}/.test(tours), "/tours old display-coupled fanout is gone");
 ok(tours.includes("verified.slice(0, count)"), "/tours display slice still honors the caller's count");
 
