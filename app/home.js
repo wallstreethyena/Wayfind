@@ -2134,7 +2134,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
           <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
         </div>
       )}
-      <div style={{ margin: isDesktop ? "0 -12px 14px" : "0 0 14px", gap: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none", ...(isDesktop ? { display: "flex", flexWrap: "wrap", overflowX: "visible", paddingLeft: 12, paddingRight: 12 } : { display: "block" }) }}>
+      <div className="wf-hooks" style={{ gap: 12, paddingBottom: 4, WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
         {shown.map((h) => {
           const isLiked = liked.has(h.id);
           const acc = h.accent || C.accent;
@@ -2143,9 +2143,10 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
           return (
             <div
               key={h.id}
+              className="wf-hook-card"
               onClick={() => onOpen && onOpen(h)}
               style={{
-                flexShrink: 0, width: isDesktop ? 290 : "100%", height: isDesktop ? 185 : 152,
+                flexShrink: 0,
                 scrollSnapAlign: "start", borderRadius: 18,
                 overflow: "hidden", position: "relative", cursor: "pointer",
                 boxShadow: isLiked ? `0 0 0 2.5px ${acc}, 0 8px 28px rgba(0,0,0,.5)` : "0 4px 20px rgba(0,0,0,.4)",
@@ -3869,12 +3870,46 @@ function PageInner() {
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
-    import("web-vitals").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+    import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
+      // The ATTRIBUTION build. Same metrics, same event name, same base
+      // properties as before (the command-center panel keeps reading them) —
+      // plus the debug fields that say WHICH element/shift is responsible, so a
+      // bad p75 is actionable instead of just a number.
+      // ONLY primitives cross this boundary: `attribution` also carries DOM
+      // nodes and PerformanceEntry objects (lcpEntry, largestShiftEntry,
+      // navigationEntry, entries[]) which must never be handed to
+      // posthog.capture — they serialize to junk or blow the payload.
+      const num = (v) => Math.round(Number(v) || 0);
+      const str = (v, n) => (v == null ? null : String(v).slice(0, n));
       const send = (m) => {
         try {
           if (!window.posthog) return;
           const ctx = window.__WF_CTX || {};
-          window.posthog.capture("web_vitals", { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID });
+          const a = m.attribution || {};
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          if (m.name === "LCP") {
+            // the four sub-parts sum to LCP — they say whether to fix the server,
+            // the discovery of the image, its download, or the render that follows.
+            props.lcp_target = str(a.target, 300);
+            props.lcp_url = str(a.url, 300);
+            props.lcp_ttfb = num(a.timeToFirstByte);
+            props.lcp_resource_load_delay = num(a.resourceLoadDelay);
+            props.lcp_resource_load_duration = num(a.resourceLoadDuration);
+            props.lcp_element_render_delay = num(a.elementRenderDelay);
+          } else if (m.name === "CLS") {
+            props.cls_target = str(a.largestShiftTarget, 300);
+            props.cls_largest_shift = num((a.largestShiftValue || 0) * 1000);
+            props.cls_shift_time = num(a.largestShiftTime);
+            props.cls_load_state = str(a.loadState, 40);
+          } else if (m.name === "INP") {
+            props.inp_target = str(a.interactionTarget, 300);
+            props.inp_type = str(a.interactionType, 40);
+            props.inp_input_delay = num(a.inputDelay);
+            props.inp_processing = num(a.processingDuration);
+            props.inp_presentation = num(a.presentationDelay);
+            props.inp_load_state = str(a.loadState, 40);
+          }
+          window.posthog.capture("web_vitals", props);
         } catch (e) {}
       };
       [onLCP, onCLS, onINP, onTTFB, onFCP].forEach((f) => { try { f(send); } catch (e) {} });
@@ -5914,8 +5949,8 @@ function PageInner() {
 
   return (
     <div style={shell}>
-    <div style={{ ...wrap, maxWidth: isDesktop ? 1280 : 480 }}>
-      <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}`}</style>
+    <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
+      <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}`}</style>
       {/* Header */}
       <div style={{ background: C.panel, borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -6063,7 +6098,7 @@ function PageInner() {
       {/* Body */}
       <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(64px + env(safe-area-inset-bottom))" }}>
         <>
-            {screen === "explore" && <div style={{ maxWidth: isDesktop ? 760 : undefined, margin: isDesktop ? "0 auto" : undefined }}>{exploreList}</div>}
+            {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
@@ -6168,9 +6203,9 @@ function PageInner() {
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
           return (
-            <div style={isDesktop ? { display: "flex", gap: 32, alignItems: "flex-start", width: "100%", maxWidth: 1240, margin: "0 auto" } : {}}>
+            <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
-              <div style={{ flex: 1, minWidth: 0, maxWidth: isDesktop ? 780 : undefined }}>
+              <div className="wf-col-main">
               {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
               <CategoryMenu activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
@@ -7248,6 +7283,20 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
 }
 
 const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(249,115,22,.3)", borderRadius: 999, padding: "5px 11px" };
+// Responsive layout, in CSS instead of JS state.
+//
+// It used to live in `const [vw, setVw] = useState(0)` + `isDesktop = vw >= 900`.
+// vw starts at 0, so the server HTML and the FIRST CLIENT PAINT were always the
+// MOBILE layout; the effect then measured the real width and re-rendered desktop.
+// On a 1440px viewport that snapped the shell 480px -> 1280px at ~514ms and threw
+// every child 800px sideways — one shift worth 0.4938, i.e. 99.8% of a 0.4947 CLS.
+//
+// Media queries are evaluated by the browser before first paint, at the real
+// width, on the server-rendered HTML. There is no "wrong" frame to correct, so
+// the shift cannot happen. The 900px breakpoint MUST stay in lockstep with the
+// old `vw >= 900` — scripts/test-layout-shift.mjs enforces that.
+const WF_DESKTOP_BP = 900;
+const WF_LAYOUT_CSS = `.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:flex;gap:32px;align-items:flex-start;width:100%;max-width:1240px;margin:0 auto}.wf-col-main{max-width:780px}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
