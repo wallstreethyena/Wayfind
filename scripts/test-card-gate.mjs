@@ -49,8 +49,12 @@ ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindSco
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");
 ok(/=== "Food"\), condCtx, boostBase\)\.filter\(cardComplete\)\.slice\(0, 10\)/.test(home),
   "the home Food top-10 row list is gated by cardComplete");
-ok(/rankByConditions\(todoPool, condCtx, boostBase\)\.filter\(cardComplete\)\.slice\(0, 10\)/.test(home),
-  "the home Things-to-do top-10 row list is gated by cardComplete");
+// v6.45 (owner): the "Best things to do today" card is retired from the home
+// page, so its gate went with it. The food top-10 gate above still stands;
+// this assertion now pins that the retired list does not quietly return
+// WITHOUT its cardComplete gate.
+ok(!/rankByConditions\(todoPool/.test(home) || /rankByConditions\(todoPool, condCtx, boostBase\)\.filter\(cardComplete\)/.test(home),
+  "if the Things-to-do top-10 ever returns, it must return WITH its cardComplete gate");
 
 const kit = readFileSync(new URL("../app/components/kit.js", import.meta.url), "utf8");
 ok(/import \{ wayfindScore \} from "\.\.\/\.\.\/lib\/google"/.test(kit), "kit.js imports the ONE score formula (wayfindScore)");
