@@ -78,9 +78,9 @@ export default async function BeachesPage({ params }) {
       <header style={{ position: "relative", height: 300, overflow: "hidden" }}>
         {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
-        <div style={{ position: "relative", maxWidth: 680, margin: "0 auto", padding: "24px 20px 0" }}>
-          <a href="/" style={{ display: "inline-block" }}><img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 34, width: "auto" }} /></a>
-        </div>
+        {/* Owner: no logo box over the hero photo — the brand lives in the
+            footer line and the share card. Just a quiet home link. */}
+        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 15, fontWeight: 800, color: "rgba(241,245,249,.92)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>wayfind<span style={{ color: "#F97316" }}>.</span></a>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: C.gold }}>The definitive ranking</div>
@@ -95,7 +95,8 @@ export default async function BeachesPage({ params }) {
 
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
-            <li key={b.id} style={{ display: "flex", gap: 14, padding: "16px 0", borderTop: "1px solid " + C.border, alignItems: "flex-start" }}>
+            <li key={b.id} style={{ borderTop: "1px solid " + C.border }}>
+              <a href={"/p/" + encodeURIComponent(b.id)} style={{ display: "flex", gap: 14, padding: "16px 0", alignItems: "flex-start", textDecoration: "none", color: "inherit" }}>
               <div style={{ width: 30, flexShrink: 0, textAlign: "center", paddingTop: 2 }}>
                 {i < 3
                   ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={MEDAL[i]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-label={"Rank " + (i + 1)}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
@@ -110,6 +111,8 @@ export default async function BeachesPage({ params }) {
                 <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{beachWhy(b, meta.short)}</p>
                 {b.editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{b.editorial}</p> : null}
               </div>
+              <span aria-hidden="true" style={{ alignSelf: "center", color: "rgba(255,255,255,.3)", fontSize: 18, flexShrink: 0 }}>›</span>
+              </a>
             </li>
           ))}
         </ol>

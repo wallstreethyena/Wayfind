@@ -100,10 +100,13 @@ ok(home.includes("const EV_HERO_H = 208"), "hero height is the owner's taller ca
 // v6.50 hero swiper: slide 2 is the best-rated REAL beach within 20 mi
 ok(/wf-hero-swipe/.test(home) && /scrollSnapType: "x mandatory"/.test(home), 'hero is a native scroll-snap swiper');
 ok(/wf_nearest_beaches", \{ p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60/.test(home), 'beach slide: BEST beach regardless of distance (radius 60)');
-ok(/_bb\(b\) - _bb\(a\)/.test(home), 'beach slide ranks by the Bayesian score, proximity only as tiebreak');
+ok(/setBestBeach\(rankBeaches\(rows\)\[0\]/.test(home), 'beach slide uses the ONE shared ranking (lib/beaches) — identical to the page');
 ok(/window\.location\.assign\("\/best-beaches\/"/.test(home), 'beach slide opens the shareable ranking page');
 ok(/\{bestBeach && \(/.test(home), 'no beach in range = no second slide, never a filler card');
-ok(/width: bestBeach \? "93%" : "100%"/.test(home), 'peek affordance only when a second slide exists');
+ok(/width: "93%" \/\* date-night \+ family slides always follow \*\//.test(home), 'slide 1 always peeks — date-night and family slides always follow');
+ok(/datenight_hero_open/.test(home) && /family_hero_open/.test(home), 'date-night + family hero slides exist');
+ok(/window\.location\.assign\("\/date-night\?lat="/.test(home) && /window\.location\.assign\("\/family\?lat="/.test(home), 'both slides open their destination pages with the live location');
+ok(/src: "search_dice3d"/.test(home) && /wfDice3d/.test(home) && /prefers-reduced-motion/.test(home.slice(home.indexOf("wfDice3d") - 200, home.indexOf("wfDice3d") + 900)), 'the 3D dice spins with glow and respects reduced motion');
 // the restructured Things-to-do page
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
 ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");

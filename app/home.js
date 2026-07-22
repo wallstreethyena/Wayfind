@@ -90,6 +90,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
+import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import { MARKETS, marketForLocation } from "../lib/destinations";
@@ -5177,11 +5178,9 @@ function PageInner({ initialEvents = null }) {
           rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
-        // owner: the BEST beach, regardless of distance — review-weighted
-        // Bayesian order (the Score's math), proximity only as a tiebreak
-        const _bb = (b) => { const v = b.reviews || 0, m = 60, C0 = 3.9; return b.rating != null ? (v / (v + m)) * b.rating + (m / (v + m)) * C0 : 0; };
-        rows.sort((a, b) => (_bb(b) - _bb(a)) || (a.distance_mi - b.distance_mi));
-        setBestBeach(rows[0] || null);
+        // owner: the BEST beach, regardless of distance — the ONE shared
+        // ranking (lib/beaches rankBeaches), identical to /best-beaches.
+        setBestBeach(rankBeaches(rows)[0] || null);
       } catch (e) { if (!cancelled) setBestBeach(null); }
     })();
     return () => { cancelled = true; };
@@ -6165,8 +6164,18 @@ function PageInner({ initialEvents = null }) {
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
-          <button onClick={() => { try { logEvent("dice_card", null, { src: "home_menu" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Take a chance" title="Take a chance" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-            <NavIcon name="shuffle" size={17} color={C.accent} />
+          {/* Owner (2026-07-21): a 3D spinning dice with a subtle glow — the
+              "don't know where to go? roll it" affordance. Spin and glow are
+              disabled under prefers-reduced-motion. Same roll action. */}
+          <button onClick={() => { try { logEvent("dice_card", null, { src: "search_dice3d" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Roll the dice — let Wayfind pick for you" title="Don't know where to go? Roll the dice" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+            <style>{`@keyframes wfDice3d{0%{transform:rotateX(-20deg) rotateY(0)}100%{transform:rotateX(-20deg) rotateY(360deg)}}@keyframes wfDiceGlow{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.22)}50%{box-shadow:0 0 16px rgba(249,115,22,.5)}}.wf-d3w{animation:wfDiceGlow 3.4s ease-in-out infinite;border-radius:999px}.wf-d3{transform-style:preserve-3d;animation:wfDice3d 7.5s linear infinite}@media(prefers-reduced-motion:reduce){.wf-d3{animation:none;transform:rotateX(-20deg) rotateY(-30deg)}.wf-d3w{animation:none}}
+.wf-d3 .f{position:absolute;width:17px;height:17px;border-radius:4px;background:linear-gradient(145deg,#FF8A3D,#F97316);display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;padding:3px;box-sizing:border-box}.wf-d3 .f i{width:3px;height:3px;border-radius:2px;background:#0D1117;display:block}`}</style>
+            <span className="wf-d3w" style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden="true" />
+            <span className="wf-d3" style={{ position: "relative", width: 17, height: 17, display: "inline-block" }} aria-hidden="true">
+              <span className="f" style={{ transform: "translateZ(8.5px)" }}><i /><i /><i /><i /><i /></span>
+              <span className="f" style={{ transform: "rotateY(90deg) translateZ(8.5px)" }}><i /><i /></span>
+              <span className="f" style={{ transform: "rotateX(90deg) translateZ(8.5px)" }}><i /><i /><i /></span>
+            </span>
           </button>
         </div>
         )}
@@ -6361,7 +6370,7 @@ function PageInner({ initialEvents = null }) {
                         {/* v6.50 (owner): slide 2 is the best-rated beach within 20 mi (real
                             inventory + signals; none in range = one slide). Slide 1 narrows
                             to 93% so the beach edge peeks — the swipe affordance. */}
-                        <div style={{ position: "relative", flexShrink: 0, width: bestBeach ? "93%" : "100%", scrollSnapAlign: "start" }}>
+                        <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
@@ -6399,6 +6408,31 @@ function PageInner({ initialEvents = null }) {
                             </div>
                           </div>
                         )}
+                        {/* v6.52 (owner): slides 3+4 — date night and family, each the
+                            best of the town for that intent, opening the luxury ranked
+                            pages built on the /best-beaches standard. Owned card art. */}
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src="/cards/date-night.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                            <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
+                          </div>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{(() => { const h = new Date().getHours() + new Date().getMinutes() / 60; return h >= 5 && h < 10.5 ? "Morning date, decided" : h < 14 ? "Lunch date, decided" : h < 18 ? "Afternoon date, decided" : "Tonight, decided"; })()}</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The best of {locName ? locName.split(",")[0] : "your town"}, picked for two ›</div>
+                          </div>
+                        </div>
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src="/cards/family-fun.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(34,197,94,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                            <NavIcon name="family" size={12} strokeWidth={2} color="#22C55E" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#22C55E", letterSpacing: "0.4px", textTransform: "uppercase" }}>Family</span>
+                          </div>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Memories for life, nearby</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
+                          </div>
+                        </div>
                         </div>
                       );
                     })()}
