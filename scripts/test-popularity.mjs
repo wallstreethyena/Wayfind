@@ -37,5 +37,13 @@ ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not
 const vj = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
 ok((vj.crons || []).some((c) => c.path === "/api/cron/popularity" && /\*\/6/.test(c.schedule)), "cron runs every 6 hours");
 
+// v6.57: Wikimedia calls must carry the descriptive User-Agent (their API
+// policy — datacenter IPs without it are rejected; the 0/50 first harvest).
+{
+  const lp = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
+  ok(lp.includes('"user-agent": "WayfindBot/1.0'), "wikipedia fetcher lost its User-Agent — prod harvests silently zero out");
+  ok((lp.match(/WIKI_UA\)/g) || []).length >= 2, "both wikimedia calls (search + pageviews) must carry the UA");
+}
+
 console.log(`test-popularity: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
