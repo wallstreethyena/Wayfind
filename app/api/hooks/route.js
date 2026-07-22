@@ -2,6 +2,7 @@
 // data-grounded discovery hooks from real nearby place data.
 // Each hook is tied to a real place and includes a themed "detail sheet" body.
 import { aiKey } from "../../../lib/aiKey";
+import { cget, cset } from "../../../lib/serverCache";
 
 export async function POST(req) {
   try {
@@ -12,6 +13,12 @@ export async function POST(req) {
     const city = (locName || "your area").split(",")[0];
     const h = Number(hour) || new Date().getHours();
     const timeLabel = h < 11 ? "morning" : h < 15 ? "afternoon" : h < 21 ? "evening" : "late night";
+    // v6.55 shared pool: same area + same daypart + same top places = same
+    // hooks for every visitor, 4h TTL (a daypart). Weather wetness is in the
+    // key because the prompt pivots on it; temperature alone is not.
+    const ckey = "hooks1|" + city.toLowerCase() + "|" + timeLabel + "|" + (weather && weather.wet ? "wet" : "dry") + "|" + places.slice(0, 6).map((p) => p.id || p.name).sort().join(",").slice(0, 180);
+    const hit = await cget(ckey);
+    if (hit && hit.v && Array.isArray(hit.v)) return Response.json({ hooks: hit.v, cached: true });
     const weatherLine = weather ? `${weather.temp}°F, ${weather.label}` : "";
 
     // Separate local (≤15 miles) and far places.
@@ -116,6 +123,7 @@ Return a JSON array of exactly 8 objects:
     hooks = hooks.filter((h) => h.id && h.hook && h.placeId && validIds.has(h.placeId));
 
     console.log(`[wayfind hooks] Generated ${hooks.length} for ${city}`);
+    try { if (hooks && hooks.length) await cset(ckey, hooks, 4 * 3600000); } catch (e) {}
     return Response.json({ hooks });
   } catch (e) {
     console.error("[wayfind hooks error]", e?.message);
