@@ -140,6 +140,52 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
+// v6.61 (owner build order #7): coverage. Wayfind is live around three FL
+// metros; more than 75 mi from all of them we NEVER show another city's data —
+// we say so honestly and capture interest so coverage grows where users are.
+const WF_COVERAGE_METROS = [{ lat: 27.4, lng: -82.55 }, { lat: 27.85, lng: -82.6 }, { lat: 28.54, lng: -81.38 }];
+function milesBetween(a, b) {
+  const R = 3958.8, rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+function outOfCoverage(center) {
+  if (!center || !isFinite(center.lat)) return false; // unknown location -> let the normal feed try
+  return WF_COVERAGE_METROS.every((m) => milesBetween(center, m) > 75);
+}
+function CoverageWaitlist({ center, locName, C, supabase }) {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("idle"); // idle | saving | done | err
+  const city = (locName ? locName.split(",")[0] : "your area") || "your area";
+  const submit = async (e) => {
+    e.preventDefault();
+    const v = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setState("err"); return; }
+    setState("saving");
+    try {
+      if (supabase) { const { error } = await supabase.from("wf_waitlist").insert({ email: v, city, lat: center ? center.lat : null, lng: center ? center.lng : null }); if (error) throw error; }
+      setState("done");
+    } catch (er) { setState("err"); }
+  };
+  return (
+    <div style={{ textAlign: "center", padding: "40px 22px 60px", maxWidth: 460, margin: "0 auto" }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Wayfind isn&apos;t live in {city} yet</div>
+      <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.55, margin: "0 0 18px" }}>We&apos;re built for the Gulf Coast and Orlando right now, and expanding. We won&apos;t show you another city&apos;s picks pretending they&apos;re yours — that&apos;s not how Wayfind works. Leave your email and we&apos;ll tell you the day {city} goes live.</p>
+      {state === "done" ? (
+        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.green }}>You&apos;re on the list. We&apos;ll be in touch when {city} is live. ✓</div>
+      ) : (
+        <form onSubmit={submit} style={{ display: "flex", gap: 8, maxWidth: 380, margin: "0 auto" }}>
+          <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); if (state === "err") setState("idle"); }} placeholder="you@email.com" aria-label="Email" style={{ flex: 1, minHeight: 44, borderRadius: 11, border: `1px solid ${state === "err" ? "#B33A2B" : C.border}`, background: C.card, color: C.text, fontSize: 15, padding: "0 14px" }} />
+          <button type="submit" disabled={state === "saving"} style={{ minHeight: 44, padding: "0 18px", borderRadius: 11, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>{state === "saving" ? "…" : "Notify me"}</button>
+        </form>
+      )}
+      {state === "err" ? <div style={{ fontSize: 12.5, color: "#E06A5A", marginTop: 8 }}>Enter a valid email and we&apos;ll add you.</div> : null}
+    </div>
+  );
+}
+
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
@@ -6440,7 +6486,10 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {screen === "suggested" && (() => {
+        {screen === "suggested" && outOfCoverage(center) && (
+          <CoverageWaitlist center={center} locName={locName} C={C} supabase={supabase} />
+        )}
+        {screen === "suggested" && !outOfCoverage(center) && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
