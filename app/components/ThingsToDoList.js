@@ -23,7 +23,10 @@ const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : 
 const CAT_LABEL = { beach: "Beach day", attractions: "Things to do", food: "Food" };
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
-function Card({ r, first, rank, onOpenPlace, onLog }) {
+// Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
+const confColor = (n) => (n >= 500 ? "#22C55E" : n >= 100 ? "#FBBF24" : "#94A3B8");
+
+function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
   const isTour = r.kind === "experience";
   const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
   const open = () => {
@@ -52,31 +55,37 @@ function Card({ r, first, rank, onOpenPlace, onLog }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{r.title}</div>
           {ds != null && <div style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={ds} /></div>}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>
-          {r.reviews > 0 ? <span><span style={{ color: C.green }}>●</span> {Number(r.reviews).toLocaleString()} reviews</span> : null}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 12, color: C.muted, flexWrap: "wrap" }}>
+          {r.reviews > 0 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}><span style={{ width: 7, height: 7, borderRadius: "50%", background: confColor(r.reviews), flexShrink: 0 }} /> {Number(r.reviews).toLocaleString()} reviews</span> : null}
           {isTour ? (
             <>
-              {r.price_from != null ? <span style={{ color: C.green, fontWeight: 700 }}>from ${r.price_from}</span> : null}
+              {r.price_from != null ? <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>from ${r.price_from}</span> : null}
               {fmtDur(r.duration_min) ? <span>· {fmtDur(r.duration_min)}</span> : null}
             </>
           ) : (
-            <>
-              {isFinite(r.distance_mi) ? <span>· {r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}
-              {CAT_LABEL[r.category] ? <span>· {CAT_LABEL[r.category]}</span> : null}
-            </>
+            <>{isFinite(r.distance_mi) ? <span>· {r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}</>
           )}
         </div>
-        {isTour ? <div style={{ marginTop: 9, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</div> : null}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
+          {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
+        </div>
+        {blurb ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{blurb}</div> : null}
+        <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
+          {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
+          {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}
+          {onShare ? <span role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); onShare(r); } }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>↗ Share</span> : null}
+        </div>
       </div>
     </div>
   );
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
   return isTour
     ? <a href={r.booking_url} target="_blank" rel="noreferrer" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
-    : <button onClick={open} className="wf-ttd-focus" style={style}>{body}</button>;
+    : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 
-export default function ThingsToDoList({ center, weather, onOpenPlace, onLog }) {
+export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare }) {
   const [list, setList] = useState(null); // null = loading
   useEffect(() => {
     if (!center) return;
@@ -92,6 +101,9 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog }) 
         limit: 20,
       });
       if (!dead) setList(rows);
+      // Standard-card blurbs for PLACE rows (the same shared AI pool the
+      // other feeds use — cached 30d sitewide; tours have no blurb source).
+      try { if (!dead && loadBlurbs) loadBlurbs((rows || []).filter((x) => x.kind !== "experience").slice(0, 8).map((x) => ({ id: x.id, name: x.title, rating: x.rating, reviews: x.reviews }))); } catch (e) {}
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,7 +124,7 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog }) 
         </>
       ) : shown.length ? (
         <>
-          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} onOpenPlace={onOpenPlace} onLog={onLog} />)}
+          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} />)}
           {hasTours ? <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Some links are affiliate links; it never changes our rankings.</div> : null}
         </>
       ) : (
