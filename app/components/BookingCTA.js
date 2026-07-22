@@ -34,7 +34,12 @@ const BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach"
 function bookingTargets(detail, kind, topItem, locName) {
   const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
   const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
-  const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
+  // v6.60 (owner, Coquina->Mumbai bug): the fallback must ALSO clear
+  // isTicketyPlace. BOOKABLE_KINDS includes beach/nature/scenic/waterfront for
+  // legit tours, but a BEACH or natural feature is never bookable — without
+  // this gate its geo-less "Search Viator" defaulted to Viator's featured
+  // cities (Mumbai/Dubai). isTicketyPlace already knows this; now the CTA asks.
+  const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
   const tk = verifiedUrl || goFallback;
   const tu = tk || Aff.hotelUrl(detail);
   return { verifiedUrl, goFallback, tk, tu };
@@ -125,10 +130,10 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       );
     }
     if (suppressFallback) return null;
-    // No verified product for this place -- the honest fallback is a
-    // tracked SEARCH page, never a guessed product. See lib/affiliates.js
-    // experienceGoUrl and its server-side resolver (never fabricates a
-    // "found a match" when nothing cleared the confidence bar).
+    // No verified product for this place -- the honest fallback is a tracked
+    // SEARCH page, never a guessed product. But ONLY for genuinely bookable
+    // inventory: a beach/natural feature is gated out (the Coquina->Mumbai fix).
+    if (!Aff.isTicketyPlace(detail)) return null;
     const fallbackHref = Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "", kind, placeId);
     return (
       <a

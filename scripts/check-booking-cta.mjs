@@ -77,5 +77,12 @@ if (!/function bookingTargets\(/.test(bookingCTA)) fail("BookingCTA.js must deri
 if (!/variant === "disclosure"[\s\S]{0,340}targets\.tu/.test(bookingCTA)) fail("the disclosure variant must gate on the shared targets.tu — an earning CTA must never render without its disclosure");
 if (!/at no extra cost to you\. It never changes our scores or rankings/.test(bookingCTA)) fail("the commission disclosure is missing the required 'at no extra cost … never changes our scores or rankings' text");
 
+// v6.60 (owner, Coquina->Mumbai): a beach / natural feature must NEVER get a
+// Viator CTA. Both fallback paths in BookingCTA must gate on isTicketyPlace —
+// which already knows beaches aren't bookable. Without this the geo-less
+// "Search Viator" fallback defaulted to Viator's featured cities (Mumbai).
+if (!/BOOKABLE_KINDS\.includes\(kind\) && Aff\.isTicketyPlace\(detail\)/.test(bookingCTA)) fail("the primary/goFallback CTA must also clear Aff.isTicketyPlace — else beaches leak a wrong-geo Viator search");
+if (!/if \(!Aff\.isTicketyPlace\(detail\)\) return null;/.test(bookingCTA)) fail("the list-variant Search-Viator fallback must return null for non-tickety places (beaches)");
+
 if (failures) process.exit(1);
 console.log("check-booking-cta: OK — sole render contract, one threshold, both routes call the resolver, disclosure has FTC parity with the earning CTA");
