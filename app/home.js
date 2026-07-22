@@ -7307,7 +7307,7 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 150; // v6.49 fit-the-fold (owner): was 176   // the featured hero <a> height
+const EV_HERO_H = 192; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
 const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []

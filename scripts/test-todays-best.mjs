@@ -89,7 +89,7 @@ ok(bn.includes("videoPlaces") && /PLATFORM\[pl\]/.test(bn), "platform chips come
 ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
 ok(/hasCreatorVideo\(pp\)/.test(home), "trend places are exactly the video-linked ones");
 ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
-ok(home.includes("const EV_HERO_H = 150"), "fit-the-fold: shorter event hero");
+ok(home.includes("const EV_HERO_H = 192"), "hero height is the owner's taller call (v6.50) — fold trims elsewhere keep the stack on one screen");
 // the restructured Things-to-do page
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
 ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");
