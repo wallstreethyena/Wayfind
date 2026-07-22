@@ -19,4 +19,11 @@ if (!home.includes("[screen, center, wetTick, intent]")) fail("Suggested builder
 if (!home.includes("wetRef.current; // ref, not state")) fail("builder no longer reads wetness from the ref");
 if (!home.includes("!!w.wet !== wetRef.current")) fail("wet/dry flip detection missing from the weather effect");
 
-console.log("check-cwv: OK — hourly rotation, env key, storage, thresholds, no secrets in code, single-build feed");
+// v6.55 single-flight locks: six loadBlurbs call sites must share ONE offers
+// scan and never double-generate or clobber each other's lines.
+if (!home.includes("fetchOffersOnce")) fail("offers single-flight gone — every loadBlurbs call runs a full offers table scan again");
+if ((home.match(/from\("offers"\)\.select\("\*"\)/g) || []).length !== 1) fail("more than one offers table scan site — the single-flight must be the only reader");
+if (!home.includes("blurbsInFlight")) fail("blurb in-flight dedupe gone — overlapping sections double-generate the same AI lines");
+if (!home.includes("setBlurbs((prev) => ({ ...prev, ...seeded }))")) fail("blurb seeding replaces instead of merging — a late caller wipes every other section's lines");
+
+console.log("check-cwv: OK — hourly rotation, env key, storage, thresholds, no secrets in code, single-build feed, single-flight offers");
