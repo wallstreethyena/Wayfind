@@ -89,6 +89,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
+import { signalWeights as tasteSignals, applyLocalTaste } from "../lib/taste";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
@@ -3933,6 +3934,25 @@ function PageInner({ initialEvents = null }) {
     const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
     setSignals(next);
     saveSignals(next);
+    recordTaste(action, p);
+  }
+
+  // THE TASTE MODEL (owner, 2026-07-22) — Phase 1: LEARN ONLY, no ranking change.
+  // Projects an explicit signal into a decayed, PER-USER preference vector.
+  // Always updates the first-party local vector (legal, respects deletion);
+  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
+  // never pooled, never another user's). 'open' is local-only (mild + high
+  // volume); the strong verbs persist. Never touches the Wayfind Score.
+  function recordTaste(action, p) {
+    try {
+      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
+      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
+      const sig = tasteSignals(action, place);
+      if (!sig.length) return;
+      const now = Date.now();
+      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
+      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
+    } catch (e) {}
   }
   // Pooled, anonymous engagement log. One fire-and-forget row per action into a
   // shared Supabase "events" table — this is the proprietary signal Google can't
@@ -4022,6 +4042,7 @@ function PageInner({ initialEvents = null }) {
   function addShared(p) {
     if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
+    try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
@@ -5857,6 +5878,7 @@ function PageInner({ initialEvents = null }) {
     setLists((prev) => {
       const f = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
       const h = f.places.some((x) => x.id === p.id);
+      if (!h) { try { recordSignal(p, "save"); } catch (e) {} }
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
