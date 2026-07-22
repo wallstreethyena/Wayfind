@@ -19,6 +19,7 @@
 import { useState, useRef } from "react";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 
@@ -67,7 +68,7 @@ const SellingFast = () => (
 
 const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach day · high UV", poor: "Not a beach day", unsafe: "Beach advisories active", too_far: null };
 
-export default function BestNearby({ center, weather, events, onOpenPlace, onLog }) {
+export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
   const [open, setOpen] = useState(null); // "eat" | "todo" | "trends"
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
@@ -150,11 +151,36 @@ export default function BestNearby({ center, weather, events, onOpenPlace, onLog
   const SECTIONS = [
     { id: "eat", label: "Best places to eat nearby", sub: "Ranked for this exact hour", icon: "food" },
     { id: "todo", label: "Top things to do", sub: "Tours, beaches and attractions, one list", icon: "attractions" },
-    { id: "trends", label: "Local trends", sub: "Your area, right now", icon: "map" },
+    { id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" },
   ];
 
   const trendsBody = (d) => (
     <>
+      {(videoPlaces || []).length ? (
+        <div style={{ padding: "6px 2px 4px" }}>
+          <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 2 }}>Creators are posting about these</div>
+          {(videoPlaces || []).map(({ p, videos }, i) => (
+            <button key={p.id} onClick={() => openPlace(p)} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", textAlign: "left", padding: "7px 0", minHeight: TARGET, background: "transparent", border: "none", borderTop: i ? "1px solid rgba(255,255,255,.05)" : "none", cursor: "pointer" }}>
+              <Medal i={i} />
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 2, flexWrap: "wrap" }}>
+                  {[...new Set(videos.map((v) => v.platform))].slice(0, 3).map((pl) => PLATFORM[pl] ? (
+                    <span key={pl} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10.5, fontWeight: 800, color: PLATFORM[pl].color }}>
+                      <span style={{ width: 6, height: 6, borderRadius: 3, background: PLATFORM[pl].color, display: "inline-block" }} />{PLATFORM[pl].label}
+                    </span>
+                  ) : null)}
+                  {videos[0] && videos[0].creator ? <span style={{ fontSize: 11, color: C.muted }}>{videos[0].creator}</span> : null}
+                  <PlaceScoreChip p={p} size={11.5} />
+                </div>
+              </div>
+              <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div style={{ padding: "8px 2px 2px", fontSize: 12.5, color: C.muted }}>No creator videos linked near you yet — they appear here the moment one is.</div>
+      )}
       {d.report ? (
         <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, padding: "8px 2px 4px", borderTop: "1px solid rgba(255,255,255,.06)" }}>{d.report}</div>
       ) : null}
@@ -184,14 +210,12 @@ export default function BestNearby({ center, weather, events, onOpenPlace, onLog
           ))}
         </div>
       ) : null}
-      {!d.report && !d.beach && !d.todays.length ? (
-        <div style={{ padding: "8px 2px 10px", fontSize: 12.5, color: C.muted }}>Quiet out there right now — no events on today's calendar and no beach within 20 miles.</div>
-      ) : null}
+      
     </>
   );
 
   return (
-    <section aria-label="Best nearby" style={{ background: CARD_BG, border: `1px solid ${C.border}`, borderRadius: 16, padding: "4px 14px", marginBottom: 16, boxShadow: SHADOW.card }}>
+    <section aria-label="Best nearby" style={{ background: CARD_BG, border: `1px solid ${C.border}`, borderRadius: 16, padding: "2px 14px", marginBottom: 10, boxShadow: SHADOW.card }}>
       <style>{`.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
       {SECTIONS.map((sdef, si) => {
         const isOpen = open === sdef.id;
@@ -199,7 +223,7 @@ export default function BestNearby({ center, weather, events, onOpenPlace, onLog
         const list = Array.isArray(data) ? data : [];
         return (
           <div key={sdef.id}>
-            <button onClick={() => toggle(sdef.id)} aria-expanded={isOpen} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: si ? "1px solid rgba(255,255,255,.07)" : "none", padding: "14px 0", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+            <button onClick={() => toggle(sdef.id)} aria-expanded={isOpen} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: si ? "1px solid rgba(255,255,255,.07)" : "none", padding: "11px 0", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
               <NavIcon name={sdef.icon} size={24} strokeWidth={1.6} color={isOpen ? C.accent : "#FFFFFF"} />
               <span style={{ flex: 1, minWidth: 0 }}>
                 <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: isOpen ? C.accent : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
