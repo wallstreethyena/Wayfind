@@ -2928,6 +2928,7 @@ function PageInner({ initialEvents = null }) {
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
+  const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
@@ -5247,6 +5248,28 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.58 (owner): the date-night card wears the area's best date-worthy
+  // photo — same floor the date-night list rides on (4.4/150+), art only as
+  // fallback. One lazy fetch per center, identical shape to the family card.
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const best = j.places
+          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
+          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.4 && x.reviews >= 150)
+          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
+        if (best) setDateHeroImg(best.ref);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
   // gating: only renders with >=2 real signal sources and a photo.
   useEffect(() => {
@@ -5255,7 +5278,10 @@ function PageInner({ initialEvents = null }) {
     (async () => {
       try {
         const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
-        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 2);
+        // >=1 real source until the owner's paid keys land (wikipedia pageviews
+        // alone is a true attention signal); the fallback line only ever claims
+        // what the source count can prove.
+        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
         // The owner's drive rule applies here too: rank order only.
         cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
         const pick = cand[0] || null;
@@ -6545,8 +6571,8 @@ function PageInner({ initialEvents = null }) {
                         {/* v6.52 (owner): slides 3+4 — date night and family, each the
                             best of the town for that intent, opening the luxury ranked
                             pages built on the /best-beaches standard. Owned card art. */}
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/date-night.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src={dateHeroImg ? "/api/photo?ref=" + encodeURIComponent(dateHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
@@ -6579,7 +6605,7 @@ function PageInner({ initialEvents = null }) {
                             </div>
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                               <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || (buzzPick.sources_count > 1 ? "Drawing attention across " + buzzPick.sources_count + " signals this week ›" : "More people are looking this up than usual ›")}</div>
                             </div>
                           </div>
                         )}

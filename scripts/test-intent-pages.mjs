@@ -63,5 +63,11 @@ ok(!bb.includes("w=1200"), "beach page hero respects the w=800 LCP cap too");
   ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
 }
 
+// v6.58 (owner): the date-night card wears the area's best real photo too —
+// same continuity contract as family.
+ok(home.includes("dateHeroImg ?"), "date-night card lost its real-photo hero (art must be fallback only)");
+ok(home.includes('(dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")'), "the date-night card no longer hands its photo to the landing page");
+ok(/rating >= 4\.4 && x\.reviews >= 150/.test(home), "date-night card photo must come from the SAME floor the date-night list rides on");
+
 console.log(`test-intent-pages: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
