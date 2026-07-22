@@ -6,6 +6,7 @@
 export const runtime = "nodejs";
 
 import { getBeachConditions, getBeachLiteConditions } from "../../../../lib/marine";
+import { getRedTide } from "../../../../lib/redTide";
 
 export async function GET(req) {
   try {
@@ -18,8 +19,10 @@ export async function GET(req) {
     // v6.54 lite mode: per-beach ranking chips — temp/waves/wind only, two
     // keyless upstreams instead of four. Same edge cache.
     if (searchParams.get("mode") === "lite") {
-      const lite = await getBeachLiteConditions(lat, lng);
-      return j(lite || { none: true }, 900);
+      // v6.55: FWC red tide rides along (keyless, 6h-revalidated upstream).
+      // null = no sample within the cap → the chip simply doesn't render.
+      const [lite, redTide] = await Promise.all([getBeachLiteConditions(lat, lng), getRedTide(lat, lng)]);
+      return j({ ...(lite || { none: true }), redTide: redTide || null }, 900);
     }
     const out = await getBeachConditions(lat, lng, Number.isFinite(dist) ? dist : null);
     return j(out, 900);
