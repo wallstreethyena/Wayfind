@@ -10,6 +10,7 @@ const INTENTS = {
   "date-night": { art: "/cards/date-night.jpg", accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
   family: { art: "/cards/family-fun.jpg", accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
   trending: { art: "/cards/family-fun.jpg", accent: "#FF6B6B", eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now." },
+  "hidden-gems": { art: "/cards/date-night.jpg", accent: "#A78BFA", eyebrow: "Hidden gems", line1: "Hidden gems", promise: "The spots locals keep to themselves — loved, not overrun." },
 };
 
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
