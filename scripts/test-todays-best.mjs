@@ -71,7 +71,7 @@ ok(/if \(i > 2\) return/.test(bn), "medals stop at rank 3");
 ok(bn.includes("onOpenPlace") && /onOpenPlace\(p\)/.test(bn), "rows hand the place to the app's own detail opener");
 ok(/onOpenPlace=\{\(p\) => openDetail\(p, "bestnearby"\)\}/.test(home), "home wires BestNearby rows to openDetail (our card, not Google)");
 // Local trends: real sources only
-ok(bn.includes("Local trends"), "the Local trends menu exists");
+ok(bn.includes("SHOW_TRENDS = false") && bn.includes("Local trends"), "Local trends is flagged OFF (owner) with all machinery kept");
 ok(/p_radius_mi: 20/.test(bn), "beach counts as near only within 20 miles (owner definition)");
 ok(bn.includes('"/api/local/report"'), "the daily brief comes from the guarded report endpoint");
 ok(/e\.date === today/.test(bn), "the today list is date-gated via siteTime, not a guess");
@@ -89,10 +89,12 @@ ok(bn.includes("videoPlaces") && /PLATFORM\[pl\]/.test(bn), "platform chips come
 ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
 ok(/hasCreatorVideo\(pp\)/.test(home), "trend places are exactly the video-linked ones");
 ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
-ok(home.includes("const EV_HERO_H = 192"), "hero height is the owner's taller call (v6.50) — fold trims elsewhere keep the stack on one screen");
+ok(home.includes("const EV_HERO_H = 208"), "hero height is the owner's taller call (v6.51)");
 // v6.50 hero swiper: slide 2 is the best-rated REAL beach within 20 mi
 ok(/wf-hero-swipe/.test(home) && /scrollSnapType: "x mandatory"/.test(home), 'hero is a native scroll-snap swiper');
-ok(/wf_nearest_beaches", \{ p_lat: center.lat, p_lng: center.lng, p_radius_mi: 20/.test(home), 'beach slide sources wf_nearest_beaches within 20 mi');
+ok(/wf_nearest_beaches", \{ p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60/.test(home), 'beach slide: BEST beach regardless of distance (radius 60)');
+ok(/_bb\(b\) - _bb\(a\)/.test(home), 'beach slide ranks by the Bayesian score, proximity only as tiebreak');
+ok(/window\.location\.assign\("\/best-beaches\/"/.test(home), 'beach slide opens the shareable ranking page');
 ok(/\{bestBeach && \(/.test(home), 'no beach in range = no second slide, never a filler card');
 ok(/width: bestBeach \? "93%" : "100%"/.test(home), 'peek affordance only when a second slide exists');
 // the restructured Things-to-do page
