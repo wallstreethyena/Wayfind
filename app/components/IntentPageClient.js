@@ -41,7 +41,7 @@ export default function IntentPageClient({ intent }) {
           return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
         } catch (e) { return []; }
       }));
-      if (!dead) setRows(rankRows(results.flat(), def.floor));
+      if (!dead) setRows(rankRows(results.flat(), def.floor, { origin: { lat: loc.lat, lng: loc.lng }, penalty: def.distancePenalty || null }));
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,7 +61,7 @@ export default function IntentPageClient({ intent }) {
       titleTop={def.title(h, loc.city)}
       titleBottom={loc.city}
       subtitle={def.sub(loc.city)}
-      heroImg={def.art}
+      heroImg={def.heroFromList && rows && rows[0] && rows[0].photoRef ? "/api/photo?ref=" + encodeURIComponent(rows[0].photoRef) + "&w=1200" : def.art}
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
     >
@@ -79,7 +79,7 @@ export default function IntentPageClient({ intent }) {
               img={r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=240" : null}
               title={r.name}
               score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
-              why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews"}
+              why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
               editorial={r.editorial} />
           ))}
         </ol>

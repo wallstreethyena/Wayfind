@@ -2886,6 +2886,10 @@ function PageInner({ initialEvents = null }) {
   // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
   // (owner's 'near'). null = none in range; the swiper then has one slide.
   const [bestBeach, setBestBeach] = useState(null);
+  // v6.53 (owner): the family hero card wears the area's own most
+  // captivating photo — the top proven family place's picture (rating x
+  // depth heuristic), never stock art unless nothing qualifies yet.
+  const [familyHeroImg, setFamilyHeroImg] = useState(null);
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5164,6 +5168,27 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.53: one lazy fetch for the family card photo (top family place by
+  // rating x review depth from our guarded search; fail-soft to brand art).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("family theme park attractions things to do kids") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=attractions");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const best = j.places
+          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
+          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.5 && x.reviews >= 500)
+          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
+        if (best) setFamilyHeroImg("/api/photo?ref=" + encodeURIComponent(best.ref) + "&w=800");
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   useEffect(() => {
@@ -6423,7 +6448,7 @@ function PageInner({ initialEvents = null }) {
                           </div>
                         </div>
                         <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/family-fun.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src={familyHeroImg || "/cards/family-fun.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(34,197,94,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <NavIcon name="family" size={12} strokeWidth={2} color="#22C55E" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#22C55E", letterSpacing: "0.4px", textTransform: "uppercase" }}>Family</span>
