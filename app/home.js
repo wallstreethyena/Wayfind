@@ -2886,6 +2886,21 @@ function PageInner({ initialEvents = null }) {
   // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
   // (owner's 'near'). null = none in range; the swiper then has one slide.
   const [bestBeach, setBestBeach] = useState(null);
+  // v6.53 (owner): closing a detail you arrived at from another Wayfind page
+  // (/best-beaches, /date-night, city pages…) returns you THERE, not to the
+  // homepage. ShareRedirect records the origin; this watcher fires on every
+  // close path (X, backdrop, swipe) — the global fix for the lost-user trap.
+  const _prevDetailRef = useRef(null);
+  useEffect(() => {
+    const had = _prevDetailRef.current;
+    _prevDetailRef.current = detail;
+    if (had && !detail) {
+      try {
+        const back = sessionStorage.getItem("wf_return_to");
+        if (back) { sessionStorage.removeItem("wf_return_to"); window.location.assign(back); }
+      } catch (e) {}
+    }
+  }, [detail]);
   // v6.53 (owner): the family hero card wears the area's own most
   // captivating photo — the top proven family place's picture (rating x
   // depth heuristic), never stock art unless nothing qualifies yet.
@@ -6101,7 +6116,6 @@ function PageInner({ initialEvents = null }) {
                 <span style={{ fontSize: 9, color: C.muted, transform: wxOpen ? "rotate(180deg)" : "none", transition: "transform .25s ease", marginLeft: 1 }}>▼</span>
               </button>
             )}
-            <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "header" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", marginRight: 7 }}><Icon name="sparkles" size={17} color={C.accent} /></button>
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
@@ -6189,18 +6203,10 @@ function PageInner({ initialEvents = null }) {
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
-          {/* Owner (2026-07-21): a 3D spinning dice with a subtle glow — the
-              "don't know where to go? roll it" affordance. Spin and glow are
-              disabled under prefers-reduced-motion. Same roll action. */}
-          <button onClick={() => { try { logEvent("dice_card", null, { src: "search_dice3d" }); } catch (e) {} setMenuSheet("pick"); }} aria-label="Roll the dice — let Wayfind pick for you" title="Don't know where to go? Roll the dice" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-            <style>{`@keyframes wfDice3d{0%{transform:rotateX(-20deg) rotateY(0)}100%{transform:rotateX(-20deg) rotateY(360deg)}}@keyframes wfDiceGlow{0%,100%{box-shadow:0 0 8px rgba(249,115,22,.22)}50%{box-shadow:0 0 16px rgba(249,115,22,.5)}}.wf-d3w{animation:wfDiceGlow 3.4s ease-in-out infinite;border-radius:999px}.wf-d3{transform-style:preserve-3d;animation:wfDice3d 7.5s linear infinite}@media(prefers-reduced-motion:reduce){.wf-d3{animation:none;transform:rotateX(-20deg) rotateY(-30deg)}.wf-d3w{animation:none}}
-.wf-d3 .f{position:absolute;width:17px;height:17px;border-radius:4px;background:linear-gradient(145deg,#FF8A3D,#F97316);display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap;padding:3px;box-sizing:border-box}.wf-d3 .f i{width:3px;height:3px;border-radius:2px;background:#0D1117;display:block}`}</style>
-            <span className="wf-d3w" style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden="true" />
-            <span className="wf-d3" style={{ position: "relative", width: 17, height: 17, display: "inline-block" }} aria-hidden="true">
-              <span className="f" style={{ transform: "translateZ(8.5px)" }}><i /><i /><i /><i /><i /></span>
-              <span className="f" style={{ transform: "rotateY(90deg) translateZ(8.5px)" }}><i /><i /></span>
-              <span className="f" style={{ transform: "rotateX(90deg) translateZ(8.5px)" }}><i /><i /><i /></span>
-            </span>
+          {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
+              beside search; the dice experiment is retired. */}
+          <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
         )}

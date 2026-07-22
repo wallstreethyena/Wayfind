@@ -106,7 +106,11 @@ ok(/\{bestBeach && \(/.test(home), 'no beach in range = no second slide, never a
 ok(/width: "93%" \/\* date-night \+ family slides always follow \*\//.test(home), 'slide 1 always peeks — date-night and family slides always follow');
 ok(/datenight_hero_open/.test(home) && /family_hero_open/.test(home), 'date-night + family hero slides exist');
 ok(/window\.location\.assign\("\/date-night\?lat="/.test(home) && /window\.location\.assign\("\/family\?lat="/.test(home), 'both slides open their destination pages with the live location');
-ok(/src: "search_dice3d"/.test(home) && /wfDice3d/.test(home) && /prefers-reduced-motion/.test(home.slice(home.indexOf("wfDice3d") - 200, home.indexOf("wfDice3d") + 900)), 'the 3D dice spins with glow and respects reduced motion');
+ok(/src: "search_sparkle"/.test(home) && !/wfDice3d/.test(home), 'the sparkle lives beside search; the dice is retired (owner)');
+ok((home.match(/aria-label="Find my vibe"/g) || []).length === 1, 'exactly one Find-my-vibe button');
+ok(/wf_return_to/.test(home) && /sessionStorage.getItem\("wf_return_to"\)/.test(home), 'closing a detail returns to the referring Wayfind page (global fix)');
+const sr = readFileSync(new URL("../app/ShareRedirect.js", import.meta.url), "utf8");
+ok(/u.origin === window.location.origin/.test(sr) && /wf_return_to/.test(sr), 'ShareRedirect records ONLY same-origin non-home referrers — back can never eject off-site');
 // the restructured Things-to-do page
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
 ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");
