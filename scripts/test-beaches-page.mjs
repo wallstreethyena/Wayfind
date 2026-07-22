@@ -65,7 +65,7 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 // v6.55 "Make it a beach day" — the revenue rail's honesty contract.
 {
   const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-  ok(src.includes("SUPABASE_SERVICE_ROLE_KEY") && !src.includes('"use client"'), "tours read must stay server-only — the service key must never reach a client component");
+  ok(src.includes("NEXT_PUBLIC_SUPABASE_ANON_KEY") && !src.includes('"use client"') && src.includes("wf_experiences"), "tours read runs server-side with the ANON key (available at build; wf_experiences has anon SELECT) — the service key is absent at prerender");
   ok(src.includes("href={t.product_url}") && !/viatorApiProductUrl|product_code\}`/.test(src), "tour links render product_url VERBATIM (its mcid+pid intact) — never rebuilt from product_code");
   ok(src.includes('rel="noreferrer nofollow sponsored"'), "affiliate links must carry nofollow+sponsored — this is an INDEXED page");
   ok(src.includes("tours.length >= 2"), "the section hides below 2 tours — never a lonely ad");
