@@ -10,7 +10,7 @@ import { toDisplayScore } from "../../../lib/score";
 import { wayfindScore as wfTourScore } from "../../../lib/google";
 import { viatorDirectUrl } from "../../../lib/affiliates";
 import { SITE_URL } from "../../../lib/site";
-import BeachPageClient, { BeachLiveChips, BackControl } from "./parts";
+import BeachPageClient, { BackControl } from "./parts";
 
 export const revalidate = 3600;
 
@@ -204,41 +204,40 @@ export default async function BeachesPage({ params }) {
 
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
-            <li key={b.id} style={{ borderTop: "1px solid " + C.border }}>
-              <a href={"/p/" + encodeURIComponent(b.id)} style={{ display: "flex", gap: 14, padding: "16px 0", alignItems: "flex-start", textDecoration: "none", color: "inherit" }}>
-              <div style={{ width: 30, flexShrink: 0, textAlign: "center", paddingTop: 2 }}>
-                {i < 3
-                  ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={MEDAL[i]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-label={"Rank " + (i + 1)}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
-                  : <span style={{ fontSize: 14, fontWeight: 800, color: C.muted }}>{i + 1}</span>}
-              </div>
-              {b.photo_ref ? <img src={"/api/photo?ref=" + encodeURIComponent(b.photo_ref) + "&w=240"} alt="" loading="lazy" style={{ width: 72, height: 72, borderRadius: 12, objectFit: "cover", flexShrink: 0, border: "1px solid " + C.border }} /> : null}
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 17, fontWeight: 750 }}>{b.name}</span>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: C.green }}>{toDisplayScore(b.wf)}</span>
+            <li key={b.id} style={{ margin: "14px 0 0" }}>
+              {/* v6.60 (owner): image-forward — the photo IS the card (it is
+                  what sells). Name, Score and Best-for ride the image; one hook
+                  line below; everything else collapses. Live water conditions
+                  moved OFF the list (they live in the detail sheet). */}
+              <a href={"/p/" + encodeURIComponent(b.id)} style={{ display: "block", borderRadius: 16, overflow: "hidden", border: "1px solid " + C.border, background: C.card, textDecoration: "none", color: "inherit" }}>
+                <div style={{ position: "relative", aspectRatio: "16 / 10", background: "#10141d" }}>
+                  {b.photo_ref ? <img src={"/api/photo?ref=" + encodeURIComponent(b.photo_ref) + "&w=640"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,0) 40%, rgba(4,8,16,.5) 66%, rgba(4,8,16,.92) 100%)" }} />
+                  <div style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(4,8,16,.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {i < 3
+                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MEDAL[i]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-label={"Rank " + (i + 1)}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
+                      : <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{i + 1}</span>}
+                  </div>
+                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "14px 15px 13px" }}>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 21, fontWeight: 800, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,.75)", letterSpacing: "-0.4px" }}>{b.name}</span>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: C.green, textShadow: "0 1px 5px rgba(0,0,0,.7)" }}>{toDisplayScore(b.wf)}</span>
+                    </div>
+                    {(() => { const bf = (BEST_FOR[params.metro] || {})[b.id] || null; return bf ? <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.92)", marginTop: 3, textShadow: "0 1px 5px rgba(0,0,0,.75)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</div> : null; })()}
+                  </div>
                 </div>
-                {(() => { const ed = editorials[b.id]; const bf = (BEST_FOR[params.metro] || {})[b.id] || null; if (ed) return (<>
-                  {/* v6.58 (owner): decision-first card — Best for / one vivid
-                      "why it ranks" line / one "know before" line; the depth
-                      (full why + Plan-it + sources) collapses behind
-                      "How we verified this". Fewer words on a phone screen,
-                      same transparency one tap away. */}
-                  {bf ? <p style={{ fontSize: 12.5, margin: "4px 0 0", color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</p> : null}
-                  {ed.knownFor ? <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: "4px 0 0" }}>{ed.knownFor}</p> : null}
-                  {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{firstSentence(ed.watchOut || ed.goodToKnow)}</p> : null}
-                  <details style={{ margin: "6px 0 0" }}>
-                    <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
-                    {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
-                    {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Plan it: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
-                    {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
-                  </details>
-                </>); return (<>
-                  {bf ? <p style={{ fontSize: 12.5, margin: "4px 0 0", color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</p> : null}
-                  <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{beachWhy(b, meta.short)}</p>
-                </>); })()}
-                <BeachLiveChips id={b.id} lat={b.lat} lng={b.lng} />
-              </div>
-              <span aria-hidden="true" style={{ alignSelf: "center", color: "rgba(255,255,255,.3)", fontSize: 18, flexShrink: 0 }}>›</span>
+                {(() => { const ed = editorials[b.id];
+                  if (!ed) return (<div style={{ padding: "11px 15px 13px" }}><p style={{ fontSize: 12.5, color: "rgba(241,245,249,.82)", lineHeight: 1.5, margin: 0 }}>{beachWhy(b, meta.short)}</p></div>);
+                  return (<div style={{ padding: "11px 15px 13px" }}>
+                    {ed.knownFor ? <p style={{ fontSize: 13, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: 0 }}>{ed.knownFor}</p> : null}
+                    <details style={{ margin: "8px 0 0" }}>
+                      <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
+                      {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
+                      {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
+                      {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
+                    </details>
+                  </div>);
+                })()}
               </a>
               {i === 2 && beaches.length > 3 ? (
                 <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", margin: "4px 0 16px" }}>
