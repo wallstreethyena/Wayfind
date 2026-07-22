@@ -34,7 +34,10 @@ ok(ticketHref({ url: "N/A" }) === null, "junk ticket url yields null — never a
 ok(ticketHref({ url: "not a url" }) === null, "malformed ticket url yields null");
 {
   const h = ticketHref({ url: "https://www.ticketmaster.com/e/1" });
-  ok(typeof h === "string" && h.indexOf("https://www.ticketmaster.com/e/1") === 0, "a real ticket url passes through (affiliate-wrapped)");
+  // Ticketmaster now routes through the Impact redirect (ticketmaster.evyy.net/c/7475855),
+  // carrying the real destination URL-encoded in `u` — never a bare ticketmaster.com href.
+  ok(typeof h === "string" && h.indexOf("https://ticketmaster.evyy.net/c/7475855/") === 0, "a real TM url becomes an Impact redirect (evyy.net/c/7475855)");
+  ok(h.includes("u=https%3A%2F%2Fwww.ticketmaster.com%2Fe%2F1"), "the real ticketmaster.com destination is URL-encoded inside the redirect's `u`");
 }
 ok(ticketHref({ ticketUrl: "https://frrm.org/ride" }) != null, "reads the ticketUrl field too");
 

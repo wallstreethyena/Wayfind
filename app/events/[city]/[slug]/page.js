@@ -176,7 +176,7 @@ export default async function EventPage({ params }) {
   const cancelled = /cancelled|canceled|postponed/i.test(e.status || "");
   const where = [e.venue, e.city].filter(Boolean).join(", ");
   const mapsUrl = where ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((e.venue || "") + " " + (e.city || ""))}` : null;
-  const external = e.url ? ticketOutUrl(e.url) : null;
+  const external = e.url ? ticketOutUrl(e.url, "event") : null;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
