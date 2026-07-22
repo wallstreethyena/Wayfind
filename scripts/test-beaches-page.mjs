@@ -58,5 +58,17 @@ const og = readFileSync(new URL("../app/api/og/beaches/route.js", import.meta.ur
 ok(og.includes("BEACH_SHARE_PHOTO"), "share card uses the curated best picture");
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 
+
+// v6.55 "Make it a beach day" — the revenue rail's honesty contract.
+{
+  const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
+  ok(src.includes("SUPABASE_SERVICE_ROLE_KEY") && !src.includes('"use client"'), "tours read must stay server-only — the service key must never reach a client component");
+  ok(src.includes("t.product_url") && !/viator\.com\/tours\/[^\"]*\$\{/.test(src), "tour links must be Viator's OWN product_url — we never build one (booking integrity)");
+  ok(src.includes('rel="noreferrer nofollow sponsored"'), "affiliate links must carry nofollow+sponsored — this is an INDEXED page");
+  ok(src.includes("tours.length >= 2"), "the section hides below 2 tours — never a lonely ad");
+  ok(src.includes("may earn a commission"), "the disclosure line is required");
+  ok(src.includes("wfTourScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
+}
+
 console.log(`test-beaches-page: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
