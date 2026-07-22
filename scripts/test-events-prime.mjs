@@ -49,4 +49,12 @@ ok(/if \(!data\) \{ if \(!cancelled\) setForyouEvents\(\[\]\); return; \}/.test(
 ok(/const initialEvents = null;/.test(page), "the SSR events seed is back on — that is the content swap the owner reported. The primer replaces it; both together repaint twice.");
 ok(!/ssrEventSeedRef/.test(home), "dead ssrEventSeedRef code resurfaced");
 
-console.log(`test-events-prime: OK — ${passed} assertions (primer starts pre-hydration with the client's own location resolution; value-matched one-shot consume; falls through on mismatch; seed stays dead)`);
+// ---- 4. HERO PHOTO PRE-WARM (v6.55) ---------------------------------------
+// The LCP image can't start downloading until hydration renders the <img> —
+// unless the primer, which already has the events JSON pre-hydration, starts
+// the download itself. It must warm the FIRST event carrying an image (the
+// top slide), swallow all errors, and pass the payload through unchanged.
+ok(/new Image\(\);pi\.fetchPriority='high';pi\.src=im;break/.test(layout), "the primer no longer pre-warms the hero photo — LCP waits for hydration again");
+ok(/\}catch\(e\)\{\}return d\}/.test(layout), "the pre-warm must fail soft AND return the payload unchanged — the consumer awaits this promise");
+
+console.log(`test-events-prime: OK — ${passed} assertions (primer starts pre-hydration with the client's own location resolution; value-matched one-shot consume; falls through on mismatch; seed stays dead; hero photo pre-warmed)`);
