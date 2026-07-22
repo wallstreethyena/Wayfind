@@ -121,12 +121,25 @@ const nextConfig = {
   // deployment URL is permanently redirected to the canonical domain, same
   // path and query. Old links to stale deployments bounce to production
   // instead of showing users a frozen old build.
+  //
+  // v6.61 fix: EXCLUDE /api/cron/* and /api/hooks from that bounce. Vercel's
+  // own cron scheduler (and third-party webhook callers) invoke the
+  // deployment's *.vercel.app URL directly and do not follow redirects, so
+  // this rule was silently swallowing every cron invocation -- all 7 jobs,
+  // zero runs, ever (wf_place_popularity and cwv_runs both empty). Deployment
+  // Protection was blocking them first; once that was bypassed via
+  // VERCEL_AUTOMATION_BYPASS_SECRET, THIS redirect became the new dead end
+  // (308 to the bare canonical origin instead of reaching the handler).
+  // These paths already carry their own auth (CRON_SECRET, checked fail-closed
+  // in every app/api/cron/*/route.js) so excluding them here does not reopen
+  // the stale-URL problem this redirect exists to close -- they are
+  // machine-only endpoints that are never linked, shared, or indexed.
   async redirects() {
     return [
       {
-        source: "/:path*",
+        source: "/:path((?!api/cron|api/hooks).*)",
         has: [{ type: "host", value: "(?<sub>.*)\\.vercel\\.app" }],
-        destination: "https://www.gowayfind.com/:path*",
+        destination: "https://www.gowayfind.com/:path",
         permanent: true,
       },
     ];
