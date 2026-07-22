@@ -35,13 +35,26 @@ export async function GET(req) {
   const out = { surfaces: 0, updated: 0, skipped_no_better: 0 };
   const rows = [];
   for (const [metro, c] of Object.entries(CENTROIDS)) {
+    // buzz surface: today's trending pick
     const { data } = await db.rpc("wf_buzz_picks", { p_lat: c.lat, p_lng: c.lng, p_radius_mi: 25, p_max: 1 });
     const pick = Array.isArray(data) && data[0];
-    if (!pick) continue;
-    out.surfaces++;
-    const best = pickBestPhoto(await photosOf(pick.place_id, gkey));
-    if (!best) { out.skipped_no_better++; continue; }
-    rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: best.ref, chosen_at: new Date().toISOString(), reason: best.reason });
+    if (pick) {
+      out.surfaces++;
+      const best = pickBestPhoto(await photosOf(pick.place_id, gkey));
+      if (best) rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: best.ref, chosen_at: new Date().toISOString(), reason: best.reason });
+      else out.skipped_no_better++;
+    }
+    // family surface (v6.57, owner: the daily image run feeds the SHARE cards
+    // too): the metro's proven family-grade top attraction (same floor the
+    // family list rides on: 4.5+/500+).
+    const { data: fam } = await db.rpc("wf_best_picks", { p_lat: c.lat, p_lng: c.lng, p_local_hour: 12, p_radius_mi: 30, p_limit: 8, p_category: "things_to_do" });
+    const fpick = (Array.isArray(fam) ? fam : []).find((r) => (r.rating || 0) >= 4.5 && (r.reviews || 0) >= 500);
+    if (fpick) {
+      out.surfaces++;
+      const best = pickBestPhoto(await photosOf(fpick.place_id, gkey));
+      if (best) rows.push({ surface: "family", key: metro, place_id: fpick.place_id, photo_ref: best.ref, chosen_at: new Date().toISOString(), reason: best.reason });
+      else out.skipped_no_better++;
+    }
   }
   if (rows.length) {
     const { error } = await db.from("wf_hero_images").upsert(rows, { onConflict: "surface,key" });
