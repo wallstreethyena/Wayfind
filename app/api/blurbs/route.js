@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 import { aiKey } from "../../../lib/aiKey";
 import { CURATED } from "../../../lib/curated";
+import { cget, cset, DAY } from "../../../lib/serverCache";
 
 // v6.01 — EVIDENCE-FIRST place blurbs. The card already shows the name, star rating,
 // review count, distance, price, and open/closed status, so those are NOT fed to the
@@ -25,7 +26,6 @@ export async function POST(req) {
   try {
     const { places, city } = await req.json();
     const key = aiKey();
-    if (!key) return Response.json({ unavailable: true, blurbs: {} }, { status: 200 });
     if (!Array.isArray(places) || !places.length) return Response.json({ blurbs: {} }, { status: 200 });
 
     // Feed ONLY evidence the card doesn't already show. Deliberately NO rating /
@@ -46,6 +46,23 @@ export async function POST(req) {
     }
     if (!list.length) return Response.json({ blurbs: {} }, { status: 200 });
 
+    // v6.55 shared cache: every user's generation feeds ONE pool (same
+    // wf_places_cache table the search/events routes use). A line is written
+    // once per place per 30 days for the WHOLE site instead of once per
+    // device (the client's localStorage cache only helps repeat visitors).
+    // A model OMISSION is cached too ('' for 3 days) — an honest blank must
+    // not re-bill Anthropic on every fresh device that scrolls past it.
+    const cachedBlurbs = {};
+    const need = [];
+    for (const p of list) {
+      const hit = await cget("blurb1|" + p.id);
+      if (hit && typeof hit.v === "string") { if (hit.v) cachedBlurbs[p.id] = hit.v; continue; }
+      need.push(p);
+    }
+    if (!need.length) return Response.json({ blurbs: cachedBlurbs, cached: true }, { status: 200 });
+    // No key: the shared pool still serves what it has (no invention, no spend).
+    if (!key) return Response.json({ unavailable: true, blurbs: cachedBlurbs }, { status: 200 });
+
     const system =
       "You write one-line place recommendations for Wayfind, an independent Gulf Coast discovery app (no ads, ranked on real reviews). " +
       "THE JOB: for each place, tell someone who has never heard of it WHY it is worth their time, in 16 words or fewer, using a concrete place-specific fact. A verdict, not a description. " +
@@ -63,7 +80,7 @@ export async function POST(req) {
         model: "claude-haiku-4-5",
         max_tokens: 900,
         system,
-        messages: [{ role: "user", content: `City: ${city || ""}\nPlaces:\n${JSON.stringify(list)}` }],
+        messages: [{ role: "user", content: `City: ${city || ""}\nPlaces:\n${JSON.stringify(need)}` }],
       }),
     };
 
@@ -74,14 +91,21 @@ export async function POST(req) {
       if (![429, 500, 502, 503, 529].includes(r.status)) break;
       await new Promise((res) => setTimeout(res, 400 * (attempt + 1)));
     }
-    if (!r || !r.ok) return Response.json({ error: true, blurbs: {} }, { status: 200 });
+    if (!r || !r.ok) return Response.json({ error: true, blurbs: cachedBlurbs }, { status: 200 });
 
     const data = await r.json();
     let text = (data?.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
     text = text.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
     let blurbs = {};
     try { blurbs = JSON.parse(text); } catch { blurbs = {}; }
-    return Response.json({ blurbs }, { status: 200 });
+    // Feed the shared pool: real lines for 30 days, honest omissions for 3.
+    try {
+      for (const p of need) {
+        const line = typeof blurbs[p.id] === "string" ? blurbs[p.id].trim() : "";
+        await cset("blurb1|" + p.id, line, line ? 30 * DAY : 3 * DAY);
+      }
+    } catch (e) {}
+    return Response.json({ blurbs: { ...cachedBlurbs, ...blurbs } }, { status: 200 });
   } catch (e) {
     return Response.json({ error: true, blurbs: {} }, { status: 200 });
   }
