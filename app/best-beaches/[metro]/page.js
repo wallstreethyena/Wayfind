@@ -8,7 +8,6 @@ import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../../..
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
 import { wayfindScore as wfTourScore } from "../../../lib/google";
-import { viatorDirectUrl } from "../../../lib/affiliates";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 
@@ -259,7 +258,7 @@ export default async function BeachesPage({ params }) {
             <p style={{ fontSize: 12, color: C.muted, margin: "4px 0 12px" }}>Bookable on-the-water experiences near these beaches — ranked by the same Score.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {tours.map((t) => (
-                <a key={t.product_code} href={viatorDirectUrl(t.product_url) || t.product_url} target="_blank" rel="noreferrer nofollow sponsored" style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+                <a key={t.product_code} href={t.product_url} target="_blank" rel="noreferrer nofollow sponsored" style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
                   {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 92, background: "#10141d" }} />}
                   <div style={{ padding: "9px 11px 11px" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 750, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>

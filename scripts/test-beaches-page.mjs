@@ -66,7 +66,7 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 {
   const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
   ok(src.includes("SUPABASE_SERVICE_ROLE_KEY") && !src.includes('"use client"'), "tours read must stay server-only — the service key must never reach a client component");
-  ok(src.includes("viatorDirectUrl(t.product_url) || t.product_url") && !/viator\.com\/tours\/[^\"]*\$\{/.test(src), "tour links must be Viator's OWN product_url through the ONE tracking wrapper — never hand-built, never unattributed");
+  ok(src.includes("href={t.product_url}") && !/viatorApiProductUrl|product_code\}`/.test(src), "tour links render product_url VERBATIM (its mcid+pid intact) — never rebuilt from product_code");
   ok(src.includes('rel="noreferrer nofollow sponsored"'), "affiliate links must carry nofollow+sponsored — this is an INDEXED page");
   ok(src.includes("tours.length >= 2"), "the section hides below 2 tours — never a lonely ad");
   ok(src.includes("may earn a commission"), "the disclosure line is required");
