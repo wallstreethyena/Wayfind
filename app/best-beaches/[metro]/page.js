@@ -72,12 +72,15 @@ const METRO_TOUR_CITIES = { "manatee-sarasota": ["Sarasota"], tampa: ["Tampa", "
 const WATERY = "beach|dolphin|kayak|snorkel|boat|sail|paddle|jet ski|parasail|cruise|water|manatee|sunset";
 async function toursFor(metro) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
-  const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+  // v6.61: anon key (wf_experiences has anon SELECT) — the service key is NOT
+  // present at build/prerender, which silently baked EMPTY tours into these
+  // ISR pages. Anon is available at build; the tours now actually render.
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   const cities = METRO_TOUR_CITIES[metro];
-  if (!url || !svc || !cities) return [];
+  if (!url || !anon || !cities) return [];
   try {
     const r = await fetch(url + "/rest/v1/wf_experiences?select=product_code,title,city,rating,reviews,from_price,image,product_url&city=in.(" + cities.map((c) => '"' + c + '"').join(",") + ")&order=reviews.desc&limit=60", {
-      headers: { apikey: svc, Authorization: "Bearer " + svc },
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 21600 },
     });
     if (!r.ok) return [];
