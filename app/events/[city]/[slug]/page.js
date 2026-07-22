@@ -155,7 +155,9 @@ async function EventListPage({ params }) {
                     <div style={{ fontSize: 14.5, fontWeight: 700, color: "#F1F5F9", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
                     <div style={{ fontSize: 12.5, color: "#94A3B8", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{fmtDay(e.date)}{e.time ? " · " + e.time.slice(0, 5) : ""}{e.venue ? " · " + e.venue : ""}</div>
                   </div>
-                  <span style={{ color: A, fontSize: 15, fontWeight: 800 }}>›</span>
+                  {e.ticketed
+                    ? <span style={{ flexShrink: 0, background: A, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>Get tickets ↗</span>
+                    : <span style={{ color: A, fontSize: 15, fontWeight: 800 }}>›</span>}
                 </a>
               );
             })}

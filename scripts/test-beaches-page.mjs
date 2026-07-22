@@ -69,6 +69,14 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("may earn a commission"), "the disclosure line is required");
   ok(src.includes("wfTourScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
 }
+// v6.55b Stay lane: the house hotel pattern, honestly.
+{
+  const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
+  ok(src.includes("booking.com/searchresults.html?ss="), "the stay lane lost the plain-Booking pattern Stay22 LinkSwap monetizes");
+  ok(src.includes("Stay near {beaches[0].name}"), "the stay card must anchor on the REAL #1 beach, never an invented hotel claim");
+  ok(!/best hotel|top hotel/i.test(src), "no invented hotel superlatives on this page");
+}
+
 
 console.log(`test-beaches-page: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

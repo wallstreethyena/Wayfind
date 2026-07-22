@@ -8,6 +8,9 @@ import SentryClient from "./components/SentryClient";
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: { canonical: "/" },
+  // GSC (owner-approved #4): paste the Search Console token into the
+  // GOOGLE_SITE_VERIFICATION env var on Vercel — no code change needed.
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   title: "Wayfind — Find the Best Things to Do Near You, Right Now",
   description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
   manifest: "/manifest.webmanifest",
