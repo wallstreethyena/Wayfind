@@ -90,6 +90,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
+import BestNearby from "./components/BestNearby";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -6032,7 +6033,7 @@ function PageInner({ initialEvents = null }) {
                 master at 30px would undo the LCP work. The header band below is the
                 logo's own baked #040810, so logo and background are one color. */}
             <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
-              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 40, width: "auto", display: "block" }} />
+              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 48, width: "auto", display: "block" }} />
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
@@ -6370,51 +6371,13 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 );
               })()}
-                      {/* Owner call (2026-07-21, later): the Today's Best accordion is retired from the page (component + engines kept in repo); "Best places to eat nearby" sits here instead, directly under the events card. */}
-              {/* v6.25→v6.45 (owner): 'Best places to eat nearby' moved DIRECTLY under the events card; the 'Best things to do today' card is gone. Data-driven off the current location, so a searched city gets its own top 10 automatically. */}
-              {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
-                const areaPool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
-                const cityN = locName ? locName.split(",")[0] : "you";
-                const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
-                const food10 = Ranking.rankByConditions(areaPool.filter((p) => (Ranking.coarseCat(p) || primaryCategory(p)) === "Food"), condCtx, boostBase).filter(cardComplete).slice(0, 10);
-                const row = (p, i, n) => (
-                  <div key={p.id} onClick={() => openDetail(p)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < n - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                    <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
-                    <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2, fontSize: 11.5 }}>
-                        {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ color: C.light, fontWeight: 600 }}>{cz}</span> : null; })()}
-                        <PlaceScoreChip p={p} size={12} />
-                        {(() => { const dining = ["Food", "Nightlife"].includes(Ranking.coarseCat(p) || ""); const c = Dining.costForTwo(p); return dining && c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
-                        {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
-                        {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
-                      {(p.price_level ?? p.priceLevel) != null && <span style={{ color: C.muted }}>{"$".repeat(Math.max(1, Math.min(4, (p.price_level ?? p.priceLevel) || 1)))}</span>}
-                      </div>
-                    </div>
-                    <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
-                  </div>
-                );
-                const card = (title, sub, list, open, onToggle) => (list.length >= 3 ? (
-                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "13px 14px", marginBottom: 16 }}>
-                    <div onClick={onToggle} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, cursor: "pointer" }}>
-                      <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{title}</div>
-                        <div style={{ fontSize: 11.5, color: C.muted, marginTop: 2, lineHeight: 1.3 }}>{sub}{(() => { const avg = Dining.avgCostForTwo(list); return avg ? <span title={avg.explain} aria-label={avg.text + ". " + avg.explain} style={{ color: C.green, fontWeight: 700 }}>{"  ·  " + avg.text}</span> : null; })()}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
-                        <span style={{ fontSize: 11, color: C.muted, fontWeight: 700, whiteSpace: "nowrap" }}>Top {list.length}</span>
-                        <span style={{ fontSize: 15, color: C.muted, display: "inline-block", transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}>▾</span>
-                      </div>
-                    </div>
-                    {open && <div style={{ marginTop: 8 }}>{list.map((p, i) => row(p, i, list.length))}</div>}
-                  </div>
-                ) : null);
-                return (<>
-                  {card("Best places to eat nearby", "Ranked by what is worth your time: ratings, distance, price, weather and time of day.", food10, food10Open, () => setFood10Open((v) => !v))}
-                </>);
-              })()}
+                      {/* v6.46 (owner): ONE near-black expandable card under the events
+                          card — "Best places to eat nearby" + "Top things to do", both on
+                          the day's engines (wf_best_picks food / wf_things_to_do: Viator
+                          tours + attractions + beaches ranked together). Replaces the
+                          client-ranked v6.25 food card; the Today's Best accordion stays
+                          retired (component + engines in repo). */}
+                      {!browseCat && <BestNearby center={center} weather={weather} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />

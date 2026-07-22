@@ -22,7 +22,13 @@ ok(/\bKB_CLICK\b/.test(home) && home.includes("from \"./components/kit\""), "hom
 // Every place-opening (and the save-to-list) div carries the keyboard affordance.
 ok(has("<div onClick={onDetail}"), "PlaceCard is keyboard-operable (role/tabIndex/onKeyDown)");
 ok(has("onClick={() => openDetail(exHero)}"), "featured hero is keyboard-operable");
-ok(has("onClick={() => openDetail(p)}"), "'see more' place rows are keyboard-operable");
+// v6.46: the top-10 div-rows this pinned were replaced by BestNearby, whose
+// rows are NATIVE <button>/<a> elements (keyboard-operable by construction —
+// asserted below). If clickable div place-rows ever return to home.js, they
+// must return with the full role/tabIndex/KB_CLICK triple.
+const bn = readFileSync(new URL("../app/components/BestNearby.js", import.meta.url), "utf8");
+ok(/<a href=\{href\}[^>]*>/.test(bn.replace(/\n/g, " ")) && /<button onClick=\{onClick\}/.test(bn.replace(/\n/g, " ")), "BestNearby rows are native button/anchor elements");
+ok(!/onClick=\{\(\) => openDetail\(p\)\}(?![^\n]*role="button")/.test(home), "no clickable place div-row without the keyboard triple");
 ok(home.includes("setCuisineSheet(null); openDetail(p); }} " + AFF), "cuisine-sheet rows are keyboard-operable");
 ok(has("onClick={() => saveToList(l.id)}"), "save-to-list rows are keyboard-operable");
 // Both hook/mood tile variants (compact + full) call onOpen(h) — both must be operable.
