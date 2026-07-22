@@ -52,3 +52,12 @@ const countParam = (url, name) => [...new URL(url).searchParams.keys()].filter((
 
 if (failures) process.exit(1);
 console.log("test-affiliates: OK — pid/mcid/medium exactly once, values consistent, passthroughs safe");
+
+// v6.53 (owner report): beaches NEVER show Viator, even with tourist_attraction
+const { isTicketyPlace } = await import("../lib/affiliates.js");
+const _ok = (c, m) => { if (!c) { console.error("FAIL:", m); process.exit(1); } };
+_ok(isTicketyPlace({ types: ["zoo", "tourist_attraction"] }) === true, "zoo stays tickety");
+_ok(isTicketyPlace({ types: ["beach", "tourist_attraction"] }) === false, "beach-typed place never tickety");
+_ok(isTicketyPlace({ types: ["natural_feature", "tourist_attraction"] }) === false, "natural features never tickety");
+_ok(isTicketyPlace({ types: ["tourist_attraction"], category: "beach" }) === false, "beach-categorized place never tickety");
+console.log("test-affiliates: beach-gate cases OK");

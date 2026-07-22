@@ -51,7 +51,8 @@ export async function generateMetadata({ params }) {
   if (!meta) return { title: "Beaches — Wayfind" };
   const beaches = await beachesFor(params.metro);
   const top3 = beaches.slice(0, 3).map((b) => b.name).join("|");
-  const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3);
+  const totalReviews = beaches.reduce((a, b) => a + (b.reviews || 0), 0);
+  const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3) + "&n=" + beaches.length + "&rv=" + totalReviews;
   const title = "The best beaches — " + meta.label + " | Wayfind";
   const description = "Every beach near " + meta.short + ", ranked by the Wayfind Score: rating strength × review depth. No ads, no paid placement.";
   return {
