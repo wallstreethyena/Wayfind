@@ -13,7 +13,7 @@ export async function GET(req) {
     const lat = parseFloat(searchParams.get("lat"));
     const lng = parseFloat(searchParams.get("lng"));
     const distRaw = searchParams.get("dist"); // miles to nearest beach (geo/client supplies)
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return j({ show: false });
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return j({ show: false }, 900);
     const dist = distRaw != null && distRaw !== "" ? parseFloat(distRaw) : null;
     // v6.54 lite mode: per-beach ranking chips — temp/waves/wind only, two
     // keyless upstreams instead of four. Same edge cache.
@@ -24,7 +24,7 @@ export async function GET(req) {
     const out = await getBeachConditions(lat, lng, Number.isFinite(dist) ? dist : null);
     return j(out, 900);
   } catch {
-    return j({ show: false });
+    return j({ show: false }, 120); // brief shield — upstream blips must not stampede the function
   }
 }
 
