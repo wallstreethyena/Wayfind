@@ -7,9 +7,9 @@
 import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
-import { wayfindScore as wfTourScore } from "../../../lib/google";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
+import TourStrip from "../../components/TourStrip";
 
 export const revalidate = 3600;
 
@@ -60,38 +60,6 @@ async function beachesFor(metro) {
         rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
         reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : 0,
       }))).slice(0, 12);
-  } catch (e) { return []; }
-}
-
-// "Make it a beach day" (owner liberty, 2026-07-22): the ONE revenue surface
-// on these SEO pages. Server-only read (service role never reaches the client)
-// of the SAME wf_experiences table the app rails use; water-themed only; the
-// product_url is Viator's OWN link (the booking-integrity rule — we never
-// build one). Fails soft to no section.
-const METRO_TOUR_CITIES = { "manatee-sarasota": ["Sarasota"], tampa: ["Tampa", "St. Petersburg", "Clearwater"], orlando: ["Orlando"] };
-const WATERY = "beach|dolphin|kayak|snorkel|boat|sail|paddle|jet ski|parasail|cruise|water|manatee|sunset";
-async function toursFor(metro) {
-  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
-  // v6.61: anon key (wf_experiences has anon SELECT) — the service key is NOT
-  // present at build/prerender, which silently baked EMPTY tours into these
-  // ISR pages. Anon is available at build; the tours now actually render.
-  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
-  const cities = METRO_TOUR_CITIES[metro];
-  if (!url || !anon || !cities) return [];
-  try {
-    const r = await fetch(url + "/rest/v1/wf_experiences?select=product_code,title,city,rating,reviews,from_price,image,product_url&city=in.(" + cities.map((c) => '"' + c + '"').join(",") + ")&order=reviews.desc&limit=60&_cv=2", {
-      headers: { apikey: anon, Authorization: "Bearer " + anon },
-      next: { revalidate: 21600 },
-    });
-    if (!r.ok) return [];
-    const rows = await r.json();
-    const rx = new RegExp(WATERY, "i");
-    const seen = new Set();
-    return (Array.isArray(rows) ? rows : [])
-      .filter((t) => t && t.product_url && rx.test(t.title || ""))
-      .filter((t) => { const k = (t.title || "").toLowerCase().slice(0, 40); if (seen.has(k)) return false; seen.add(k); return true; })
-      .sort((a, b) => wfTourScore(b.rating || 0, b.reviews || 0) - wfTourScore(a.rating || 0, a.reviews || 0))
-      .slice(0, 4);
   } catch (e) { return []; }
 }
 
@@ -146,7 +114,6 @@ export default async function BeachesPage({ params }) {
   if (!meta) return <main style={{ background: C.bg, color: C.muted, minHeight: "100vh", padding: 40 }}>No such beach group.</main>;
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
-  const tours = await toursFor(params.metro);
   const heroPhoto = BEACH_SHARE_PHOTO[params.metro];
   const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=800" : null;
 
@@ -252,31 +219,7 @@ export default async function BeachesPage({ params }) {
           ))}
         </ol>
 
-        {tours.length >= 2 ? (
-          <section style={{ marginTop: 30 }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-              <h2 style={{ fontSize: 19, fontWeight: 800, letterSpacing: "-0.4px", margin: 0 }}>Make it a beach day</h2>
-              <span style={{ fontSize: 10, color: C.muted }}>via Viator</span>
-            </div>
-            <p style={{ fontSize: 12, color: C.muted, margin: "4px 0 12px" }}>Bookable on-the-water experiences near these beaches — ranked by the same Score.</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {tours.map((t) => (
-                <a key={t.product_code} href={t.product_url} target="_blank" rel="noreferrer nofollow sponsored" style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-                  {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 92, background: "#10141d" }} />}
-                  <div style={{ padding: "9px 11px 11px" }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 750, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                      {t.rating > 0 && t.reviews > 0 ? <span style={{ fontSize: 13, fontWeight: 800, color: C.green }}>{toDisplayScore(wfTourScore(t.rating, t.reviews))}</span> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                      <span style={{ fontSize: 11, color: C.muted }}>{t.from_price != null ? "from $" + t.from_price : ""}</span>
-                    </div>
-                    <div style={{ marginTop: 8, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontSize: 11, fontWeight: 800 }}>Book ↗</div>
-                  </div>
-                </a>
-              ))}
-            </div>
-            <p style={{ fontSize: 10, color: C.muted, marginTop: 8, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</p>
-          </section>
-        ) : null}
+        <TourStrip lat={CENTROID[params.metro] ? CENTROID[params.metro].lat : 27.4} lng={CENTROID[params.metro] ? CENTROID[params.metro].lng : -82.55} title="Make it a beach day" subtitle="Bookable on-the-water experiences near these beaches — ranked by the same Score." waterOnly />
 
         {beaches[0] ? (
           /* Stay lane (owner-approved #1): the house hotel pattern — a PLAIN
