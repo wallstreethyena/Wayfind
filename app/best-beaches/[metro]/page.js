@@ -94,8 +94,26 @@ export default async function BeachesPage({ params }) {
   const heroPhoto = BEACH_SHARE_PHOTO[params.metro];
   const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=800" : null;
 
+  // Structured data (v6.55 SEO sweep) — same house pattern as lib/landing.js:
+  // Breadcrumb + ItemList(Beach) + FAQ, every number the real metric or omitted.
+  const pageUrl = SITE_URL + "/best-beaches/" + params.metro;
+  const ld = [
+    { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Best beaches — " + meta.label, item: pageUrl },
+    ] },
+  ];
+  if (beaches.length) {
+    ld.push({ "@context": "https://schema.org", "@type": "ItemList", name: "The best beaches — " + meta.label, numberOfItems: beaches.length, itemListElement: beaches.map((b, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Beach", name: b.name, geo: b.lat != null ? { "@type": "GeoCoordinates", latitude: b.lat, longitude: b.lng } : undefined, aggregateRating: b.rating != null && b.reviews >= 15 ? { "@type": "AggregateRating", ratingValue: b.rating, reviewCount: b.reviews } : undefined } })) });
+    ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
+      { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", based on the Wayfind Score — rating strength × review depth, no ads, no paid placement." } },
+      { "@type": "Question", name: "How does Wayfind rank beaches?", acceptedAnswer: { "@type": "Answer", text: "One Bayesian formula weighs each beach's rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. The method is published in full at " + SITE_URL + "/how-wayfind-ranks." } },
+    ] });
+  }
+
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       {/* Hero — the group's most beautiful photo (curated by eye), few words */}
       <header style={{ position: "relative", height: 300, overflow: "hidden" }}>
         {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}

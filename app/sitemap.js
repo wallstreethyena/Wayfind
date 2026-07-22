@@ -1,5 +1,6 @@
 // v4.16 — sitemap for the indexable SEO layer.
 import { GUIDES } from "../lib/guides";
+import { BEACH_METROS } from "../lib/beaches";
 import { TOWN_HUBS } from "../lib/culture";
 import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
@@ -22,7 +23,10 @@ export default async function sitemap() {
   // v5.96 — durable place pages: the /places hub + one page per indexed place
   // (SAME source as generateStaticParams, so the sets can't drift). Empty with no
   // env (local build); the deploy fills it from wf_place_ids.
+  // v6.55 — the flagship ranked beach pages (indexable + unique OG card,
+  // but absent from the sitemap until the discoverability audit caught it).
+  const bestBeaches = Object.keys(BEACH_METROS).map((m) => ({ url: `${SITE_URL}/best-beaches/${m}`, lastModified: now }));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url, lastModified: now }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...places];
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...bestBeaches, ...places];
 }

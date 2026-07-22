@@ -1,9 +1,14 @@
 // v5.29 — E-E-A-T foundation (SEO audit July 2026): a real, named "who is
 // behind this" page. Every claim here must stay true; nothing aspirational.
+const _t = "About Wayfind · Who we are and how we work";
+const _d = "Wayfind is a local discovery engine built in Florida by Gabriel Pereira and WAYFIND LLC. Live rankings from real review data — no ads, no paid placement.";
+const _og = "https://www.gowayfind.com/api/og?t=" + encodeURIComponent("Who is behind Wayfind");
 export const metadata = {
-  title: "About Wayfind · Who we are and how we work",
-  description: "Wayfind is a local discovery engine built in Florida by Gabriel Pereira and WAYFIND LLC. Live rankings from real review data — no ads, no paid placement.",
+  title: _t,
+  description: _d,
   alternates: { canonical: "https://www.gowayfind.com/about" },
+  openGraph: { title: _t, description: _d, url: "https://www.gowayfind.com/about", siteName: "Wayfind", images: [{ url: _og, width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: _t, description: _d, images: [_og] },
 };
 
 const S = {

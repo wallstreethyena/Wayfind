@@ -3,9 +3,12 @@
 import { GUIDES } from "../../lib/guides";
 import { SITE_URL } from "../../lib/site";
 
+const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
   title: "Florida Travel Guides | Wayfind",
   description: "Honest, local-written guides to Orlando, Sarasota, and Tampa Bay: where to eat, what's worth booking, and the mistakes to skip.",
+  openGraph: { title: "Florida Travel Guides", description: "Honest, local-written guides to Orlando, Sarasota, and Tampa Bay: where to eat, what's worth booking, and the mistakes to skip.", url: SITE_URL + "/guides", siteName: "Wayfind", images: [{ url: _ogGuides, width: 1200, height: 630 }] },
+  twitter: { card: "summary_large_image", title: "Florida Travel Guides", images: [_ogGuides] },
   alternates: { canonical: SITE_URL + "/guides" },
 };
 
