@@ -2883,6 +2883,11 @@ function PageInner({ initialEvents = null }) {
   const [mapDrawer, setMapDrawer] = useState(false);
   const [eventPreview, setEventPreview] = useState(null);
   const [weather, setWeather] = useState(null);
+  // v6.55 perf: the Suggested builder must NOT re-run (3 Google searches +
+  // blurbs) every time the weather object resolves. It reads wetness from
+  // this ref and only rebuilds when the wet/dry VERDICT actually flips.
+  const wetRef = useRef(false);
+  const [wetTick, setWetTick] = useState(0);
   // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
   // (owner's 'near'). null = none in range; the swiper then has one slide.
   const [bestBeach, setBestBeach] = useState(null);
@@ -5270,6 +5275,8 @@ function PageInner({ initialEvents = null }) {
               } catch (e) { return []; }
             })(),
           });
+          // Only a wet/dry VERDICT flip rebuilds the Suggested feed (see wetRef).
+          if (!cancelled && !!w.wet !== wetRef.current) { wetRef.current = !!w.wet; setWetTick((t) => t + 1); }
         }
       } catch { if (!cancelled) setWeather(null); }
     })();
@@ -5286,7 +5293,7 @@ function PageInner({ initialEvents = null }) {
       setSuggestedLoading(true);
       try {
         const h = new Date().getHours();
-        const wet = !!(weather && weather.wet);
+        const wet = wetRef.current; // ref, not state — resolving weather must not double-bill the feed
         // Serve a recent cached feed for this area + time so we do not re-bill
         // Google every time the user returns to Home or nudges a filter.
         const bucket = h < 11 ? "m" : h < 16 ? "l" : h < 21 ? "d" : "n";
@@ -5365,7 +5372,7 @@ function PageInner({ initialEvents = null }) {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, weather, intent]);
+  }, [screen, center, wetTick, intent]);
 
   // v1.1: fetch a small "things to do" set for the home area so the Top 10 things
   // to do card shows real attractions, not the food feed. Cached ~24h per area,
@@ -6425,7 +6432,7 @@ function PageInner({ initialEvents = null }) {
                         </div>
                         {bestBeach && (
                           <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro || "manatee-sarasota")); } catch (e2) {} }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                            {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                            {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                             <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(45,212,191,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                               <NavIcon name="beach" size={12} strokeWidth={2} color="#2DD4BF" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", letterSpacing: "0.4px", textTransform: "uppercase" }}>Beach day</span>
@@ -7221,7 +7228,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
             return (
               <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
                 {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
-                {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
+                {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
                   {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
@@ -7251,7 +7258,7 @@ function ViatorRail({ title, items, theme }) {
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
         {items.map((t) => (
           <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-            {t.image ? <img src={t.image} alt="" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
+            {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
               <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${t.reviews.toLocaleString()})` : ""}{t.fromPrice ? ` · from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
