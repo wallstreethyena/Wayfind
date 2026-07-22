@@ -36,5 +36,15 @@ for (const p of walk(join(root, "app"))) {
 ok((home.match(/PlaceScoreChip p=\{\{ rating: t\.rating, reviews: t\.reviews \}\}/g) || []).length >= 2, "Viator tiles lost the house PlaceScoreChip");
 ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(home), "raw Google-star lead is back on Viator tiles");
 
+// Things to Do rows wear the EXACT standard card shell (owner, 2026-07-22):
+// photo-left 96px, medal rank ring, WayfindScoreBadge in the title row.
+{
+  const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
+  ok(ttd.includes("WayfindScoreBadge score={ds}"), "TTD rows lost the standard WayfindScoreBadge");
+  ok(ttd.includes("width: 96, alignSelf: \"stretch\", minHeight: 96"), "TTD rows lost the standard 96px photo-left column");
+  ok(ttd.includes("medalColor(rank)"), "TTD rows lost the standard medal rank ring");
+  ok(!ttd.includes('aspectRatio: "16 / 9"'), "the oversized 16:9 photo-top shell is back on Things to Do");
+}
+
 console.log(`test-brand: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
