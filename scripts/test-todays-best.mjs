@@ -61,6 +61,13 @@ ok(bn.includes('data === "loading"') && bn.includes("wf-sk"), "reserved-geometry
 ok(bn.includes("Nothing strong here right now"), "honest empty state");
 const lib2 = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 ok(lib2.includes('supabase.rpc("wf_things_to_do"'), "lib calls the real merge engine");
+// Owner: menus read best-to-worst by the VISIBLE Wayfind Score
+import("../lib/todaysBest.js").then((m2) => {
+  const rows = [{ name: "A", rating: 4.6, reviews: 5000 }, { name: "B", rating: 4.9, reviews: 12 }, { name: "C", rating: 4.8, reviews: 2000 }];
+  const o = m2.byVisibleScore(rows).map((r) => r.name).join("");
+  if (o !== "CAB") { console.error("FAIL: byVisibleScore orders by review-weighted score (got " + o + ")"); process.exit(1); }
+});
+ok(lib2.includes("byVisibleScore(dedupeBrands(data))") && lib2.includes("byVisibleScore((Array.isArray(data)"), "both menus sort by the visible Score, best to worst");
 ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
 
 // ── v6.47 (owner batch 3) ────────────────────────────────────────────────────
