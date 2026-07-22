@@ -7,6 +7,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
+import { BackControl } from "../best-beaches/[metro]/parts";
 import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
@@ -89,6 +90,7 @@ export default function IntentPageClient({ intent }) {
 
   return (
     <RankedExperiencePage
+      topLeft={<BackControl fallback="/" />}
       eyebrow={def.eyebrow}
       titleTop={def.title(h, loc.city)}
       titleBottom={loc.city}
