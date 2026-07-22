@@ -11,11 +11,24 @@ import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 
+const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+
 export default function IntentPageClient({ intent }) {
   const def = INTENT_PAGES[intent];
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
+
+  // THE CONTINUITY RULE (owner, 2026-07-22): the photo you clicked is the
+  // photo you land on. The card passes its own photoRef via ?img= and the
+  // hero NEVER repaints to a different image. Without the param (shared
+  // links), heroFromList pages hold the dark shell until the list's own
+  // photo is known — never another card's art in between.
+  const passedRef = useMemo(() => {
+    const v = sp.get("img") || "";
+    return PHOTO_REF.test(v) ? v : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loc = useMemo(() => {
     let lat = parseFloat(sp.get("lat")), lng = parseFloat(sp.get("lng"));
@@ -61,7 +74,9 @@ export default function IntentPageClient({ intent }) {
       titleTop={def.title(h, loc.city)}
       titleBottom={loc.city}
       subtitle={def.sub(loc.city)}
-      heroImg={def.heroFromList && rows && rows[0] && rows[0].photoRef ? "/api/photo?ref=" + encodeURIComponent(rows[0].photoRef) + "&w=1200" : def.art}
+      heroImg={passedRef ? "/api/photo?ref=" + encodeURIComponent(passedRef) + "&w=800"
+        : def.heroFromList ? (rows && rows[0] && rows[0].photoRef ? "/api/photo?ref=" + encodeURIComponent(rows[0].photoRef) + "&w=800" : null)
+        : def.art}
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
     >

@@ -92,7 +92,7 @@ export default async function BeachesPage({ params }) {
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
   const heroPhoto = BEACH_SHARE_PHOTO[params.metro];
-  const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=1200" : null;
+  const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=800" : null;
 
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
