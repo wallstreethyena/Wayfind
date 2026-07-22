@@ -124,6 +124,18 @@ ok(!/card\("Best things to do today"/.test(home), "the best-things-to-do-today C
 ok(!/Explore near you<\/div>/.test(home), "the old Explore-near-you list menu is gone");
 ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engines kept, not deleted");
 
+// v6.56 (owner, 2026-07-22 — supersedes the v6.46 no-rail rule): a PERMANENT
+// bookable-experiences rail on Things to do — trending on All, themed per
+// sub-menu — and the affiliate key on EVERY tour link.
+ok(/const SUB_TO_EXP = \{ all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme"/.test(home), "the sub-menu -> experience-catalog mapping drifted");
+ok(/browseCat === "attractions" && center && <BookableExpRail sub=\{sub \|\| "all"\}/.test(home), "the permanent bookable rail left Things to do");
+ok(/Aff\.viatorDirectUrl\(t\.url\) \|\| t\.url/.test(home), "rail hrefs lost the affiliate wrapper");
+ok(ttd.includes("viatorDirectUrl(r.booking_url) || r.booking_url"), "TTD tour cards lost the affiliate wrapper — unattributed bookings earn nothing");
+ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook line");
+const tb = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
+ok(tb.includes('.eq("verified", true).in("place_id", ids)'), "fetchThingsToDo lost the one-call verified-hook join");
+ok(!/editorial_hook = /.test(tb.replace('r.editorial_hook = h','')) , "hooks attach only from verified rows");
+
 // THE EDITORIAL RULE (docs/editorial-standard.md): the mapper is the ONE
 // shape; the route holds the precedence; ranking pages branch on it.
 import("../lib/editorialRule.js").then((er) => {
