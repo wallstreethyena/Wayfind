@@ -7,7 +7,7 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { useEffect, useState } from "react";
-import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip } from "../kit";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
@@ -38,9 +38,10 @@ function InfoChip({ label, value }) {
   );
 }
 
-function compass(deg) {
-  const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-  return dirs[Math.round((((deg % 360) + 360) % 360) / 22.5) % 16];
+// v6.57: short "Jul 20"-style date for a water-quality/red-tide sample
+// timestamp — same formatting rule as the Best Beaches page's BeachLiveChips.
+function fmtBeachDay(d) {
+  try { return new Date(d).toLocaleDateString([], { month: "short", day: "numeric" }); } catch { return d; }
 }
 
 // v4.52: AI insight text guard. The insight model occasionally returns meta
@@ -731,26 +732,33 @@ export default function DetailSheet({ ctx }) {
 
               {isBeach(detail) && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF", marginBottom: 8 }}>🏖️ Beach conditions</div>
-                  {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind and water…</div>}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF" }}>🏖️ Beach conditions</div>
+                    {/* v6.57: the same "Trending" flame as the card (kit.js's
+                        TRENDING_POPULARITY_THRESHOLD keeps the bar identical). */}
+                    {!beachCondLoading && beachCond && beachCond.popularityPct != null && beachCond.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
+                    )}
+                  </div>
+                  {beachCondLoading && <div style={{ fontSize: 13, color: C.muted }}>Checking wind, water and water quality…</div>}
+                  {/* v6.57: water quality (wf_beach_water) + red tide (FWC) now ride
+                      along with wind/wave/water-temp — previously this panel was
+                      wind/wave only via two raw client Open-Meteo calls; see
+                      loadBeachConditions (home.js) for the root-cause fix. Both
+                      DB-keyed signals (water quality, popularity) resolve by
+                      place_id alone, so they still show up even when the place
+                      was opened from a list with no lat/lng (e.g. ThingsToDoList). */}
                   {!beachCondLoading && beachCond && (() => {
                     const bc = beachCond;
-                    const dir = bc.windDir != null ? compass(bc.windDir) : null;
-                    const opp = bc.windDir != null ? compass((bc.windDir + 180) % 360) : null;
-                    let shore = null;
-                    if (bc.windDir != null && bc.waveDir != null) {
-                      let diff = Math.abs(bc.windDir - bc.waveDir) % 360;
-                      if (diff > 180) diff = 360 - diff;
-                      shore = diff <= 60 ? "onshore" : diff >= 120 ? "offshore" : "cross";
-                    }
-                    const waveFt = bc.waveHeight != null ? (bc.waveHeight * 3.281).toFixed(1) : null;
-                    const hasAny = bc.wind != null || shore || waveFt;
+                    const wq = bc.water ? (bc.water.advisory ? { t: "Advisory — check before swimming", c: C.red } : bc.water.result === "Good" ? { t: "Good", c: C.green } : bc.water.result === "Moderate" ? { t: "Moderate", c: "#E8B84B" } : { t: "Poor", c: C.red }) : null;
+                    const hasAny = bc.wind != null || bc.waveHeight != null || bc.waterTemp != null || wq || bc.redTide;
                     return (
                       <div>
-                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.gust ? " (gusts " + bc.gust + ")" : ""}{dir ? " from the " + dir : ""}</div>}
-                        {shore && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🧭 {shore === "onshore" ? "Blowing in off the water" : shore === "offshore" ? "Blowing out toward the water" : "Blowing along the beach"}</div>}
-                        {waveFt && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {waveFt} ft{bc.wavePeriod != null ? ", " + Math.round(bc.wavePeriod) + "s apart" : ""}</div>}
-                        {dir && <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, marginTop: 4 }}>Tent tip: the wind comes from the {dir}, so set your tent or windbreak with the opening facing the {opp}, away from the wind.</div>}
+                        {bc.waterTemp != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌡️ Water {Math.round(bc.waterTemp)}°F</div>}
+                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.windDir ? " from the " + bc.windDir : ""}</div>}
+                        {bc.waveHeight != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {bc.waveHeight} ft</div>}
+                        {wq && <div style={{ fontSize: 13.5, fontWeight: 700, color: wq.c, marginBottom: 6 }}>🧪 Water quality: {wq.t}{bc.water.sampled_at ? " · tested " + fmtBeachDay(bc.water.sampled_at) : ""}</div>}
+                        {bc.redTide && <div style={{ fontSize: 13.5, fontWeight: 700, color: bc.redTide.tone === "bad" ? C.red : bc.redTide.tone === "warn" ? "#E8B84B" : C.green, marginBottom: 6 }}>🔬 Red tide: {bc.redTide.label}{bc.redTide.mi != null ? " · " + bc.redTide.mi + " mi away" : ""}</div>}
                         {!hasAny && <div style={{ fontSize: 13, color: C.muted }}>Live conditions are not available for this spot right now.</div>}
                       </div>
                     );
