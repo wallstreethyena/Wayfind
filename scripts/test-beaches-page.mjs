@@ -88,7 +88,7 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
   ok(src.includes("Know before you go:"), "the one practical line is gone");
   const rep = readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8");
-  ok(rep.includes("topLeft || null") && rep.includes("fontSize: 21, fontWeight: 800"), "hero shell lost the back-control slot or the bigger wordmark");
+  ok(rep.includes("topLeft || null") && rep.includes("fontSize: 23, fontWeight: 800"), "hero shell lost the back-control slot or the bigger wordmark");
   const icx = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icx.includes('topLeft={<BackControl fallback="/" />}'), "family/date-night lost their back button");
 }
