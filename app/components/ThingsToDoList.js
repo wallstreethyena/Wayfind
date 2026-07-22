@@ -17,6 +17,7 @@ import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { viatorDirectUrl } from "../../lib/affiliates.js";
+import { isUndercoverLink, OFFER_BADGE } from "../../lib/offers.js";
 
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
 const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
@@ -29,6 +30,11 @@ const confColor = (n) => (n >= 500 ? "#22C55E" : n >= 100 ? "#FBBF24" : "#94A3B8
 
 function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
   const isTour = r.kind === "experience";
+  // A UT ticket offer is an experience row whose booking_url is a CJ/Undercover
+  // affiliate link. It renders in the same shell but badges honestly ("Discount
+  // tickets · Undercover Tourist") and its link is used VERBATIM — never passed
+  // through viatorDirectUrl (that's a Viator-only wrapper).
+  const isUt = isTour && isUndercoverLink(r.booking_url);
   const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
   const open = () => {
     if (isTour) return; // anchor handles it
@@ -73,7 +79,7 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
           )}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>{isUt ? OFFER_BADGE : isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
           {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
         </div>
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
@@ -81,7 +87,7 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
             blurb renders only when no verified hook exists. */}
         {r.editorial_hook ? <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div> : blurb ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{blurb}</div> : null}
         <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
-          {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
+          {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>{isUt ? "Get tickets ↗" : "Book ↗"}</span> : null}
           {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}
           {onShare ? <span role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); onShare(r); } }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>↗ Share</span> : null}
         </div>
@@ -90,7 +96,7 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
   );
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
   return isTour
-    ? <a href={viatorDirectUrl(r.booking_url) || r.booking_url} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
+    ? <a href={isUt ? r.booking_url : (viatorDirectUrl(r.booking_url) || r.booking_url)} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title, provider: isUt ? "undercover_tourist" : "viator" }); } catch (e) {} }}>{body}</a>
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 

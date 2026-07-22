@@ -78,6 +78,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
+import { isUndercoverLink, OFFER_BADGE } from "../lib/offers";
 import { DISPLAY_CHIPS } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
@@ -7506,14 +7507,18 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url) || t.url;
+            // v6.63: Undercover Tourist ticket offers (CJ affiliate) ride this
+            // same rail. Their link is a CJ deep link used VERBATIM — never
+            // through viatorDirectUrl (Viator-only) — and they badge honestly.
+            const isUt = t.provider === "undercover_tourist" || isUndercoverLink(t.url);
+            const href = isUt ? t.url : (Aff.viatorDirectUrl(t.url) || t.url);
             return (
-              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code, provider: isUt ? "undercover_tourist" : "viator" }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
                 {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
                 {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
+                  {isUt ? <div style={{ fontSize: 9.5, fontWeight: 800, color: "#7DD3A8", marginTop: 4, letterSpacing: ".2px" }}>{OFFER_BADGE}</div> : t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
                   {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
                       exactly like place cards — green /10, then the honest meta. */}
                   <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
