@@ -30,11 +30,22 @@ ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is carried 
 // hero-from-list + card photo
 ok(INTENT_PAGES.family.heroFromList === true, "family hero comes from the list's own best photo");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
-ok(ic.includes("def.heroFromList && rows && rows[0] && rows[0].photoRef"), "page hero swaps to the top pick's photo");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(home.includes("familyHeroImg ||"), "family card wears the area's best family photo, art only as fallback");
+ok(home.includes("familyHeroImg ?"), "family card wears the area's best family photo, art only as fallback");
 ok(/rating >= 4\.5 && x\.reviews >= 500/.test(home), "card photo comes from a PROVEN family place (same floor as the list)");
+
+// THE CONTINUITY RULE (owner, 2026-07-22): the photo you clicked is the photo
+// you land on — the hero never flashes a different image first.
+ok(ic.includes("THE CONTINUITY RULE"), "the rule is stated where the hero is built");
+ok(ic.includes('sp.get("img")'), "landing page accepts the clicked card's own photoRef (?img=)");
+ok(ic.includes("PHOTO_REF.test(v)"), "the passed ref is validated against the strict places-photo pattern");
+ok(/passedRef \? "\/api\/photo\?ref=" \+ encodeURIComponent\(passedRef\) \+ "&w=800"/.test(ic), "a passed photo wins and is never repainted");
+ok(/def\.heroFromList \? \(rows && rows\[0\] && rows\[0\]\.photoRef[\s\S]+?: null\)/.test(ic), "heroFromList with no passed photo holds the dark shell — NEVER another card's art");
+ok(!ic.includes("w=1200"), "intent heroes respect the w=800 LCP cap");
+ok(home.includes('(familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) : "")'), "the family card hands its photo to the landing page");
+const bb = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
+ok(!bb.includes("w=1200"), "beach page hero respects the w=800 LCP cap too");
 
 console.log(`test-intent-pages: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
