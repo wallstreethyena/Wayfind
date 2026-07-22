@@ -370,28 +370,45 @@ export default function DetailSheet({ ctx }) {
                 );
               })()}
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
-              <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
-                {insightLoading && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
-                    <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
-                    Reading the reviews
+              {/* v6.60 (owner, brand integrity — the Ryan's Coffee House bug):
+                  "Why Wayfind picked this" is a Wayfind OPINION. It renders ONLY
+                  when we actually have one — a review-grounded insight or a
+                  curated editorial. It must NEVER stamp that header over generic
+                  filler ("A highly reviewed nearby option..."). When there is no
+                  real opinion the block is omitted; the neutral Google summary
+                  still renders below, clearly sourced. */}
+              {(() => {
+                if (insightLoading) return (
+                  <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
+                      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
+                      Reading the reviews
+                    </div>
                   </div>
-                )}
-                {!insightLoading && (() => {
-                  const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                  const S = (v) => insightSane(v);
-                  const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
-                  let why = ins ? S(ins.why) : "";
-                  if (!why && ins) {
-                    const goWhen = S(ins.goWhen) || S(ins.bestTime);
-                    const skipIf = S(ins.skipIf);
-                    why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
-                  }
-                  if (!why) why = detail.rating != null && detail.rating >= 4.3 ? "A highly reviewed nearby option with a strong rating." : "Worth a look while you are nearby.";
-                  return <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{why}</div>;
-                })()}
-              </div>
+                );
+                const ins = insight && !insight.error && !insight.unavailable ? insight : null;
+                const S = (v) => insightSane(v);
+                const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
+                let why = ins ? S(ins.why) : "";
+                if (!why && ins) {
+                  const goWhen = S(ins.goWhen) || S(ins.bestTime);
+                  const skipIf = S(ins.skipIf);
+                  why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
+                }
+                // A REAL, review-grounded opinion only — no filler, ever. The
+                // curated editorial has its own surface (the Wayfind-take rail);
+                // the Google summary renders neutrally below. So this block is
+                // strictly the insight, shown only when it actually grounded.
+                const body = why;
+                if (!body) return null;
+                return (
+                  <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
+                    <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{body}</div>
+                  </div>
+                );
+              })()}
               {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
