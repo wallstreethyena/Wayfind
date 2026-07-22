@@ -148,10 +148,13 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     else { const u = directionsUrl(p); if (u) { try { window.open(u, "_blank", "noopener"); } catch (e) {} } }
   };
 
+  // Owner (2026-07-21, late): Local trends is OFF for now — vertical budget
+  // goes to the taller hero. All trends machinery stays; flip to bring back.
+  const SHOW_TRENDS = false;
   const SECTIONS = [
     { id: "eat", label: "Best places to eat nearby", sub: "Ranked for this exact hour", icon: "food" },
     { id: "todo", label: "Top things to do", sub: "Tours, beaches and attractions, one list", icon: "attractions" },
-    { id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" },
+    ...(SHOW_TRENDS ? [{ id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" }] : []),
   ];
 
   const trendsBody = (d) => (

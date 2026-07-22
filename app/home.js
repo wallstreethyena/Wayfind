@@ -141,7 +141,7 @@ function iconForPlace(p) {
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
-    <div style={{ marginBottom: tight ? 0 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "4px 2px 0" : "4px 2px 8px") }}>
+    <div style={{ marginBottom: tight ? 10 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
       {heading && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
           <GlowPin size={22} />
@@ -5170,14 +5170,17 @@ function PageInner({ initialEvents = null }) {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 20, p_max: 3 });
+        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60, p_max: 8 });
         if (cancelled) return;
         const rows = (Array.isArray(data) ? data : []).map((b) => ({
-          id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref,
+          id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref, metro: b.metro,
           rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
-        rows.sort((a, b) => ((b.rating ?? 0) - (a.rating ?? 0)) || ((b.reviews ?? 0) - (a.reviews ?? 0)) || (a.distance_mi - b.distance_mi));
+        // owner: the BEST beach, regardless of distance — review-weighted
+        // Bayesian order (the Score's math), proximity only as a tiebreak
+        const _bb = (b) => { const v = b.reviews || 0, m = 60, C0 = 3.9; return b.rating != null ? (v / (v + m)) * b.rating + (m / (v + m)) * C0 : 0; };
+        rows.sort((a, b) => (_bb(b) - _bb(a)) || (a.distance_mi - b.distance_mi));
         setBestBeach(rows[0] || null);
       } catch (e) { if (!cancelled) setBestBeach(null); }
     })();
@@ -6197,7 +6200,7 @@ function PageInner({ initialEvents = null }) {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "12px 12px calc(64px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(64px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
@@ -6381,7 +6384,7 @@ function PageInner({ initialEvents = null }) {
                           </div>
                         </div>
                         {bestBeach && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id }); } catch (e2) {} openDetail({ id: bestBeach.id, name: bestBeach.name, lat: bestBeach.lat, lng: bestBeach.lng, rating: bestBeach.rating, reviews: bestBeach.reviews }, "beach_hero"); }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro || "manatee-sarasota")); } catch (e2) {} }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
                             {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                             <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(45,212,191,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
@@ -7353,7 +7356,7 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 192; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
+const EV_HERO_H = 208; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
 const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
