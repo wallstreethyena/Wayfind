@@ -2927,6 +2927,7 @@ function PageInner({ initialEvents = null }) {
   // captivating photo — the top proven family place's picture (rating x
   // depth heuristic), never stock art unless nothing qualifies yet.
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
+  const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
   const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
@@ -5322,6 +5323,27 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
+  // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const best = j.places
+          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
+          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.6 && x.reviews >= 60 && x.reviews <= 3000)
+          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
+        if (best) setGemHeroImg(best.ref);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   useEffect(() => {
@@ -6613,6 +6635,18 @@ function PageInner({ initialEvents = null }) {
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                             <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Memories for life, nearby</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
+                          </div>
+                        </div>
+                        {/* v6.60 HIDDEN GEMS SLIDE — loved, not overrun. */}
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/hidden-gems?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (gemHeroImg ? "&img=" + encodeURIComponent(gemHeroImg) : "")); } catch (e2) {} }} aria-label="Hidden gems near you" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src={gemHeroImg ? "/api/photo?ref=" + encodeURIComponent(gemHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(167,139,250,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                            <span style={{ fontSize: 11 }}>💎</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#A78BFA", letterSpacing: "0.4px", textTransform: "uppercase" }}>Hidden gems</span>
+                          </div>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Loved, not overrun</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The spots locals keep to themselves in {locName ? locName.split(",")[0] : "your town"} ›</div>
                           </div>
                         </div>
                         {/* v6.56 THE BUZZ SLIDE — "Trending near you" from real
