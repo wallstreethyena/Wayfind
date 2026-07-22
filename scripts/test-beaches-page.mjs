@@ -22,6 +22,8 @@ const ranked = rankBeaches([
 ]);
 ok(ranked[0].name !== "B", "a 5.0 from a handful never outranks proven depth (Bayesian)");
 ok(ranked.every((b, i) => b.rank === i + 1), "ranks are 1..n");
+const dd = rankBeaches([{ name: "Ben T Davis Beach", rating: 4.2, reviews: 1863 }, { name: "Ben T Davis beach", rating: 4.2, reviews: 656 }]);
+ok(dd.length === 1 && dd[0].reviews === 1863, "same-name rows collapse to the strongest (case-insensitive)");
 const why = beachWhy(ranked[0], "Sarasota");
 ok(/\/10/.test(why) && /reviews/.test(why), "why-line speaks the metric");
 ok(!/sand|water|crowd|clear|beautiful/i.test(why), "why-line never invents physical claims");
