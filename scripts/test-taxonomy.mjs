@@ -75,6 +75,17 @@ tc("bakery -> food/dessert", { types: ["bakery", "cafe"], name: "Pastry Art" }, 
 // only 21 were beaches. Marinas are now Activities with an on-the-water tag.
 tc("marina -> attractions/marinas (NOT beach)", { types: ["marina"], name: "Marina Jack" }, "attractions", ["marinas"]);
 tc("a real beach is still a beach", { types: ["beach", "natural_feature"], name: "Siesta Beach" }, "beach", ["beaches"]);
+// GUARD (Orlando "Beach Day" hero bug): an inland PARK with a `playground` type
+// and no beach type, merely named "...Beach...", is NOT a beach. West Beach Park
+// (Orlando's only "beach" in inventory) was surfacing under the home beach hero.
+// It is a real park -> Activities, never the beach list.
+tc("West Beach Park (park+playground, NOT a beach)", { types: ["park", "playground", "point_of_interest", "establishment"], primaryType: "park", name: "West Beach Park" }, "attractions", ["outdoors", "family"]);
+ok("West Beach Park is not tagged beaches", !classifyPlace(["park", "playground", "point_of_interest", "establishment"], "park", "West Beach Park").tags.includes("beaches"));
+// NO REGRESSION: genuine Gulf beaches that Google types only as `park` (no beach
+// type) and that carry NO `playground` are still beaches by name.
+tc("Coquina Beach (park-typed, still a beach)", { types: ["park", "point_of_interest", "establishment"], primaryType: "park", name: "Coquina Beach" }, "beach", ["beaches"]);
+tc("Turtle Beach Park (park-typed, still a beach)", { types: ["park", "point_of_interest", "establishment"], primaryType: "park", name: "Turtle Beach Park" }, "beach", ["beaches"]);
+tc("Manatee Beach Park (park-typed, still a beach)", { types: ["park", "point_of_interest", "establishment"], primaryType: "park", name: "Manatee Beach Park" }, "beach", ["beaches"]);
 tc("campground -> attractions/outdoors (not hotels)", { types: ["campground", "rv_park"], name: "Myakka Campground" }, "attractions", ["outdoors"]);
 
 // primaryType votes first even when the type list is bare.

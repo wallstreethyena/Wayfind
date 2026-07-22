@@ -8,7 +8,10 @@ import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../lib/b
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
-ok(Object.keys(BEACH_METROS).length === 3, "three metro groups");
+// COASTAL metros only — Orlando is inland and was removed (its only inventory
+// "beach", West Beach Park, is an inland lake PARK, not sand; see lib/beaches).
+ok(Object.keys(BEACH_METROS).length === 2, "two coastal metro groups");
+ok(!("orlando" in BEACH_METROS) && !("orlando" in BEACH_SHARE_PHOTO), "inland Orlando is not a beach metro (no park-as-beach)");
 for (const k of Object.keys(BEACH_METROS)) {
   const p = BEACH_SHARE_PHOTO[k];
   ok(p && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(p.photo_ref), k + ": curated share photo is a real Google resource ref");
