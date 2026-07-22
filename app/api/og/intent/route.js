@@ -9,6 +9,7 @@ export const runtime = "edge";
 const INTENTS = {
   "date-night": { art: "/cards/date-night.jpg", accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
   family: { art: "/cards/family-fun.jpg", accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
+  trending: { art: "/cards/family-fun.jpg", accent: "#FF6B6B", eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now." },
 };
 
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
