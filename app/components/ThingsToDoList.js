@@ -33,7 +33,12 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
   const open = () => {
     if (isTour) return; // anchor handles it
     try { onLog && onLog("ttd_detail", { id: r.id, name: r.title }); } catch (e) {}
-    onOpenPlace && onOpenPlace({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) });
+    // v6.57: pass `category` through so isBeach(detail) (home.js) can identify
+    // a beach row without lat/lng/types — wf_things_to_do's rows carry no
+    // coordinates, so the detail sheet's water-quality/popularity signals
+    // (keyed by place_id alone) still resolve even though live wind/wave/red
+    // tide (which need coordinates) won't for places opened from this list.
+    onOpenPlace && onOpenPlace({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640), category: r.category });
   };
   // v6.56 (owner): EXACTLY the standard Wayfind card shell — photo-left 96px,
   // rank ring (medal colors), title row carrying the WayfindScoreBadge in-flow,

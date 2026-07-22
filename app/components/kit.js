@@ -54,6 +54,11 @@ export const FOCUS = { outline: `2px solid ${C.accent}`, outlineOffset: "2px" };
 // orange+champagne pairing is FLAGGED FOR OWNER REVIEW — do not spread
 // champagne into general chrome without that decision.
 export const CHAMPAGNE = { base: "#E8C97A", deep: "#B98A2F", dim: "rgba(232,201,122,.14)" };
+// v6.57: the "🔥 Trending" flame renders when a place's tier2_popularity
+// percent-rank (wf_place_popularity_scored, metro-relative) clears this bar.
+// Shared by PlaceCard (home.js) and DetailSheet so the threshold can't drift
+// between the card and the sheet for the same place.
+export const TRENDING_POPULARITY_THRESHOLD = 0.75;
 // 44×44px minimum interactive target (design standard, stricter than WCAG).
 export const TARGET = 44;
 
