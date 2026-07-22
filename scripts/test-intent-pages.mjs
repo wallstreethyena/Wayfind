@@ -47,5 +47,21 @@ ok(home.includes('(familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) :
 const bb = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
 ok(!bb.includes("w=1200"), "beach page hero respects the w=800 LCP cap too");
 
+// v6.56 (owner): brand dedupe + Wayfind-editorial-only rows + the hidden
+// verification span.
+{
+  const a = { id: "m1", name: "Melt N Dip", rating: 4.9, reviews: 5200, lat: 27.5, lng: -82.52 };
+  const b = { id: "m2", name: "Melt N Dip", rating: 4.9, reviews: 2000, lat: 27.5, lng: -82.53 };
+  const c = { id: "x1", name: "Big Cat Habitat", rating: 4.6, reviews: 4400, lat: 27.5, lng: -82.54 };
+  const out = rankRows([a, b, c], { rating: 4.5, reviews: 500 }, { origin: { lat: 27.5, lng: -82.5 }, penalty: null });
+  ok(out.filter((r) => r.name === "Melt N Dip").length === 1, "one card per brand — duplicate branches collapse");
+  ok(out.some((r) => r.id === "m1"), "the best-ranked branch is the one kept");
+  const icSrc = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
+  ok(icSrc.includes('.eq("verified", true).in("place_id"'), "intent rows fetch VERIFIED Wayfind hooks in one call");
+  ok(icSrc.includes("editorial={r.editorial_hook || null}") && !icSrc.includes("editorial={r.editorial}"), "rows render Wayfind editorial or nothing — never Google summary text");
+  const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
+  ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
+}
+
 console.log(`test-intent-pages: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
