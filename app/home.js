@@ -91,6 +91,7 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import BestNearby from "./components/BestNearby";
+import ThingsToDoList from "./components/ThingsToDoList";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -151,8 +152,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} />
-            <span style={{ fontSize: 11, fontWeight: on ? 800 : 600, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.1px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} strokeWidth={1.4} />
+            <span style={{ fontSize: 11, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -5894,7 +5895,7 @@ function PageInner({ initialEvents = null }) {
       {!loading && (
         <div style={{ padding: "0 2px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, paddingBottom: 4 }}>
-            <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
+            {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
           </div>
         </div>
       )}
@@ -6033,7 +6034,7 @@ function PageInner({ initialEvents = null }) {
                 master at 30px would undo the LCP work. The header band below is the
                 logo's own baked #040810, so logo and background are one color. */}
             <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
-              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 48, width: "auto", display: "block" }} />
+              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 56, width: "auto", display: "block" }} />
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
@@ -6377,7 +6378,7 @@ function PageInner({ initialEvents = null }) {
                           tours + attractions + beaches ranked together). Replaces the
                           client-ranked v6.25 food card; the Today's Best accordion stays
                           retired (component + engines in repo). */}
-                      {!browseCat && <BestNearby center={center} weather={weather} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+                      {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -6394,11 +6395,15 @@ function PageInner({ initialEvents = null }) {
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
                     <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
-                    <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />
+                    {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
-                  {(browseCat === "attractions" || browseCat === "family") && <ViatorRail title={browseCat === "family" ? "Bookable family tours & activities" : "Bookable tours & activities"} items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && <ExperienceCategoryRail metro={locName ? locName.split(",")[0] : undefined} lat={center && center.lat} lng={center && center.lng} logEvent={logEvent} />}
+                  {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
+                      list (wf_things_to_do) — the stacked Viator rail + Bookable
+                      Experiences chips are gone from this page; tours interleave and
+                      earn their rank. Family keeps its bookable rail. */}
+                  {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
+                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}

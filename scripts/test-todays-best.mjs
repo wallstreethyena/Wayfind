@@ -51,7 +51,7 @@ ok(/<BestNearby center=\{center\} weather=\{weather\}/.test(home), "the combined
 // v6.46: the combined card's own contract
 const bn = readFileSync(new URL("../app/components/BestNearby.js", import.meta.url), "utf8");
 ok(bn.includes("Best places to eat nearby") && bn.includes("Top things to do"), "both menus live in the ONE card");
-ok(bn.includes('fetchTodaysBest({ ...base, category: "food"') && bn.includes("fetchThingsToDo({"), "eat rides wf_best_picks(food); things-to-do rides wf_things_to_do — the day's engines, no client re-ranking");
+ok(bn.includes('category: "food"') && bn.includes("fetchTodaysBest") && bn.includes("fetchThingsToDo"), "eat rides wf_best_picks(food); things-to-do rides wf_things_to_do — the day's engines, no client re-ranking");
 ok(bn.includes('CARD_BG = "#0B0E15"'), "card is the owner's almost-black, one step lighter than the page");
 ok(/r\.selling_out \? <SellingFast \/> : null/.test(bn), "Selling-fast badge renders ONLY on the engine's flag (Viator's own signal)");
 ok(bn.includes("affiliate links; Wayfind may earn a commission"), "affiliate disclosure renders with the tours");
@@ -62,6 +62,34 @@ ok(bn.includes("Nothing strong here right now"), "honest empty state");
 const lib2 = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 ok(lib2.includes('supabase.rpc("wf_things_to_do"'), "lib calls the real merge engine");
 ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
+
+// ── v6.47 (owner batch 3) ────────────────────────────────────────────────────
+// medals: top-3 trophies, champagne/silver/bronze — never past rank 3
+ok(/MEDAL = \[CHAMPAGNE\.base, "#C7CCD6", "#B8804A"\]/.test(bn), "top-3 medals are the premium champagne/silver/bronze set");
+ok(/if \(i > 2\) return/.test(bn), "medals stop at rank 3");
+// rows open OUR detail sheet, never a Google tab
+ok(bn.includes("onOpenPlace") && /onOpenPlace\(p\)/.test(bn), "rows hand the place to the app's own detail opener");
+ok(/onOpenPlace=\{\(p\) => openDetail\(p, "bestnearby"\)\}/.test(home), "home wires BestNearby rows to openDetail (our card, not Google)");
+// Local trends: real sources only
+ok(bn.includes("Local trends"), "the Local trends menu exists");
+ok(/p_radius_mi: 20/.test(bn), "beach counts as near only within 20 miles (owner definition)");
+ok(bn.includes('"/api/local/report"'), "the daily brief comes from the guarded report endpoint");
+ok(/e\.date === today/.test(bn), "the today list is date-gated via siteTime, not a guess");
+const reportSrc = readFileSync(new URL("../app/api/local/report/route.js", import.meta.url), "utf8");
+ok(reportSrc.includes("USE ONLY the facts given"), "report prompt is grounded");
+ok(/no crowd levels, no 'buzz', no trends/.test(reportSrc), "report prompt bans the unsourced-signal list");
+ok(reportSrc.includes("Do not use the word 'trending'"), "report never claims to measure trending");
+const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
+ok(mw.includes('"/api/local/report"'), "report endpoint is IN the middleware guard matcher (the /api/bestmove/why lesson)");
+// the restructured Things-to-do page
+const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
+ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");
+ok(/r\.selling_out \?/.test(ttd), "tour badge rides only the engine flag");
+ok(ttd.includes("affiliate links; it never changes our rankings"), "one disclosure line, list bottom");
+ok(!/TABS\.map/.test(ttd), "the list has NO internal tab row — the menu sub-tabs are the one filter row");
+ok(/browseCat === "attractions" && \(sub === "all" \|\| !sub\) && <ThingsToDoList/.test(home), "attractions 'All' view IS the ranked list; sub-picks return the classic feed");
+ok(!/browseCat === "attractions" \|\| browseCat === "family"\) && <ViatorRail/.test(home), "the stacked Viator rail is gone from attractions");
+ok(!/browseCat === "attractions" && <ExperienceCategoryRail/.test(home), "the Bookable Experiences chip section is gone from attractions");
 ok(!/card\("Best things to do today"/.test(home), "the best-things-to-do-today CARD is gone (the curated sheet of the same name stays — engines kept)");
 ok(!/Explore near you<\/div>/.test(home), "the old Explore-near-you list menu is gone");
 ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engines kept, not deleted");
