@@ -79,7 +79,7 @@ async function toursFor(metro) {
   const cities = METRO_TOUR_CITIES[metro];
   if (!url || !anon || !cities) return [];
   try {
-    const r = await fetch(url + "/rest/v1/wf_experiences?select=product_code,title,city,rating,reviews,from_price,image,product_url&city=in.(" + cities.map((c) => '"' + c + '"').join(",") + ")&order=reviews.desc&limit=60", {
+    const r = await fetch(url + "/rest/v1/wf_experiences?select=product_code,title,city,rating,reviews,from_price,image,product_url&city=in.(" + cities.map((c) => '"' + c + '"').join(",") + ")&order=reviews.desc&limit=60&_cv=2", {
       headers: { apikey: anon, Authorization: "Bearer " + anon },
       next: { revalidate: 21600 },
     });
