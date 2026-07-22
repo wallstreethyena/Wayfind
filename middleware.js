@@ -39,6 +39,8 @@ export const config = {
     "/api/insight",
     "/api/blurbs",
     "/api/local/report",
+    // Buzz hero (v6.56): metered Anthropic proxy for the trending why-line.
+    "/api/buzz/why",
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
