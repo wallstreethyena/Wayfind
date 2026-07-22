@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
 import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
+import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 
@@ -54,7 +55,17 @@ export default function IntentPageClient({ intent }) {
           return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
         } catch (e) { return []; }
       }));
-      if (!dead) setRows(rankRows(results.flat(), def.floor, { origin: { lat: loc.lat, lng: loc.lng }, penalty: def.distancePenalty || null }));
+      const ranked = rankRows(results.flat(), def.floor, { origin: { lat: loc.lat, lng: loc.lng }, penalty: def.distancePenalty || null });
+      // v6.56 (owner): the line under each row is WAYFIND editorial (verified
+      // wf_editorial hooks, one anon in() call) — never Google's summary text.
+      try {
+        if (supabase && ranked.length) {
+          const { data: eds } = await supabase.from("wf_editorial").select("place_id,hook").eq("verified", true).in("place_id", ranked.map((r) => r.id));
+          const byId = new Map((eds || []).map((e) => [e.place_id, e.hook]));
+          for (const r of ranked) r.editorial_hook = byId.get(r.id) || null;
+        }
+      } catch (e) {}
+      if (!dead) setRows(ranked);
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,7 +106,7 @@ export default function IntentPageClient({ intent }) {
               title={r.name}
               score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
               why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
-              editorial={r.editorial} />
+              editorial={r.editorial_hook || null} />
           ))}
         </ol>
       ) : (
