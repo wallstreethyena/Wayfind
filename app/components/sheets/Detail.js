@@ -6,7 +6,7 @@
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
@@ -112,6 +112,49 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// The Wayfind take — a peek-carousel of labeled cards (owner, 2026-07-22).
+// One aspect per card; the next peeks in and the dots track the swipe, so the
+// reader always sees there is more and what it is. Body is near-white and
+// regular-weight for readability.
+function WayfindTakeRail({ editorial }) {
+  const railRef = useRef(null);
+  const [active, setActive] = useState(0);
+  const SPEC = [
+    ["why", "Why go", "🧭", C.accent], ["knownFor", "Known for", "⭐", C.gold],
+    ["insiderMove", "Insider move", "🔑", C.gold], ["proof", "Why it stands out", "💎", C.green],
+    ["goodToKnow", "Good to know", "💡", "#7DD3FC"], ["watchOut", "Heads up", "⚠️", "#E8B84B"],
+    ["bestFor", "Best for", "🎯", C.accent], ["move", "Best move", "✨", C.accent],
+    ["foodMove", "Food move", "🍽️", C.gold], ["drinkMove", "Drink move", "🍸", C.gold],
+    ["story", "The story", "📖", "#7DD3FC"], ["vibe", "Vibe check", "🎭", C.accent],
+    ["funFact", "Fun fact", "💡", C.gold],
+  ];
+  const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] })).filter((x) => x.body);
+  if (!items.length) return null;
+  const multi = items.length > 1;
+  const onScroll = () => { const el = railRef.current; if (!el) return; const w = el.clientWidth * 0.86 + 10; setActive(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w)))); };
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9 }}>
+        <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>📝 The Wayfind take</div>
+        {multi ? <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{active + 1} / {items.length} · Swipe →</div> : null}
+      </div>
+      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: multi ? 2 : 0 }}>
+        {items.map((it) => (
+          <div key={it.label} style={{ flex: multi ? "0 0 86%" : "0 0 100%", scrollSnapAlign: "start", background: "linear-gradient(155deg, rgba(255,255,255,.045), rgba(11,14,21,.5))", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", minHeight: 96, boxSizing: "border-box" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: it.color, marginBottom: 8 }}><span>{it.icon}</span>{it.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 400, color: "#E6EDF3", lineHeight: 1.55 }}>{it.body}</div>
+          </div>
+        ))}
+      </div>
+      {multi ? (
+        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 9 }}>
+          {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 16 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.22)", transition: "width .2s ease, background .2s ease" }} />))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -379,18 +422,15 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               {/* 3. Insider tip */}
-              {/* v6.37 — the Wayfind take (Vibe Check / Why Go / Best Move), the owner's editorial voice for this exact place. */}
-              {!detail._event && editorial && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 7 }}>📝 The Wayfind take</div>
-                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move], ["Known For", editorial.knownFor], ["Food Move", editorial.foodMove], ["Drink Move", editorial.drinkMove], ["The Story", editorial.story], ["Best For", editorial.bestFor], ["Insider Move", editorial.insiderMove], ["Why It Stands Out", editorial.proof], ["Good to Know", editorial.goodToKnow], ["Fun Fact", editorial.funFact], ["Heads Up", editorial.watchOut]].filter(([_l, _b]) => _b).map(([_lb, _bd]) => (
-                    <div key={_lb} style={{ marginBottom: 7 }}>
-                      <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{_lb}: </span>
-                      <span style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{_bd}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* v6.60 (owner) — the Wayfind take as a PEEK-CAROUSEL of labeled
+                  cards: the swipe-one-at-a-time feel, but the next card peeks in
+                  and every card wears its label, so nothing is hidden. Order:
+                  Why go -> Known for -> Insider move -> Why it stands out ->
+                  Good to know -> Heads up (remaining aspects appended so nothing
+                  is dropped). Body is near-white, 14px, REGULAR weight — larger
+                  and lighter than the label, the readability fix the owner asked
+                  for. */}
+              {!detail._event && editorial ? <WayfindTakeRail editorial={editorial} /> : null}
 
               {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
