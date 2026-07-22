@@ -518,12 +518,15 @@ function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
   ]).catch(() => ({ provider, configured: true, ok: false, events: [], ms: Date.now() - started }));
 }
 
-export async function POST(req) {
-  // v5.90: shared cache. Events are time-sensitive, so we ALWAYS prefer a fresh
-  // aggregation and only fall back to the cache when the live providers come back
-  // empty (e.g. SerpApi hit its cap). On any cache serve we FILTER OUT past events
-  // (never show an event whose date has passed) — that date filter is the
-  // freshness guard, so the TTL can be generous (21 days).
+// v5.90: shared cache. Events are time-sensitive, so we ALWAYS prefer a fresh
+// aggregation and only fall back to the cache when the live providers come back
+// empty (e.g. SerpApi hit its cap). On any cache serve we FILTER OUT past events
+// (never show an event whose date has passed) — that date filter is the
+// freshness guard, so the TTL can be generous (21 days).
+// v6.55: the aggregation body is shared between POST (interactive/keyworded,
+// always fresh) and GET (the LCP-critical primer/default-feed call, which the
+// CDN may cache for 15 min per rounded center — see GET below).
+async function aggregateEvents({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();
   const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || e.date >= todayStr));
@@ -532,13 +535,12 @@ export async function POST(req) {
     const s = await cget(evK, { staleMs: 30 * DAY });
     if (!s) return null;
     const up = upcoming(s.v);
-    return up.length ? Response.json({ events: up, cached: true, stale: true, sources: [], counts: {}, health: [] }, { status: 200 }) : null;
+    return up.length ? { events: up, cached: true, stale: true, sources: [], counts: {}, health: [] } : null;
   };
   try {
-    const { lat, lng, keyword, radius, city } = await req.json();
-    if (lat == null || lng == null) return Response.json({ events: [] }, { status: 200 });
+    if (lat == null || lng == null) return { events: [] };
     evK = "ev1|" + Number(lat).toFixed(2) + "|" + Number(lng).toFixed(2) + "|" + (radius || 25) + "|" + String(city || "").toLowerCase().slice(0, 40) + "|" + String(keyword || "").toLowerCase().slice(0, 40);
-    if (keyword === "__forceErr__") { const s = await staleEvents(); return s || Response.json({ events: [] }, { status: 200 }); } // test hook
+    if (keyword === "__forceErr__") { const s = await staleEvents(); return s || { events: [] }; } // test hook
 
     const results = await Promise.all([
       withDeadline("Ticketmaster", fromTicketmaster(lat, lng, radius, keyword)),
@@ -554,7 +556,7 @@ export async function POST(req) {
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;
-    if (configuredCount === 0) { const s = await staleEvents(); return s || Response.json({ unavailable: true, events: [], sources: [] }, { status: 200 }); }
+    if (configuredCount === 0) { const s = await staleEvents(); return s || { unavailable: true, events: [], sources: [] }; }
 
     const { events, usableCount, health, excludedByReason } = processEvents(results, { lat, lng, radius, city });
 
@@ -567,12 +569,40 @@ export async function POST(req) {
     const counts = {};
     for (const e of events) counts[e.source] = (counts[e.source] || 0) + 1;
     // Fresh aggregation with events -> cache it (dates included) for the fallback, then return.
-    if (events.length) { await cset(evK, events, 21 * DAY); return Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 }); }
+    if (events.length) { await cset(evK, events, 21 * DAY); return { events, usableCount, sources, counts, health: health.filter((h) => h.configured) }; }
     // Live returned nothing (providers limited/failed) -> serve cached UPCOMING events.
     const s = await staleEvents();
-    return s || Response.json({ events, usableCount, sources, counts, health: health.filter((h) => h.configured) }, { status: 200 });
+    return s || { events, usableCount, sources, counts, health: health.filter((h) => h.configured) };
   } catch (e) {
     const s = await staleEvents();
-    return s || Response.json({ error: true, events: [] }, { status: 200 });
+    return s || { error: true, events: [] };
   }
+}
+
+export async function POST(req) {
+  try {
+    const body = await req.json();
+    return Response.json(await aggregateEvents(body || {}), { status: 200 });
+  } catch (e) {
+    return Response.json({ error: true, events: [] }, { status: 200 });
+  }
+}
+
+// v6.55 perf: the edge-cacheable twin for the DEFAULT feed only (no keyword —
+// the test hook and interactive searches stay on POST, always fresh). Callers
+// round coords to 2dp (~1.1 km — the SAME granularity the server cache key
+// already used), so nearby visitors share one CDN entry and a cold homepage
+// gets its LCP-critical events without a function invocation. Past-event
+// safety holds: 15 min s-maxage can never resurrect a finished event because
+// the payload is date-filtered and TTL << a day.
+export async function GET(req) {
+  const sp = new URL(req.url).searchParams;
+  const lat = parseFloat(sp.get("lat")), lng = parseFloat(sp.get("lng"));
+  const radius = Math.max(1, Math.min(100, parseInt(sp.get("radius") || "25", 10) || 25));
+  const city = String(sp.get("city") || "").slice(0, 40);
+  const payload = await aggregateEvents({ lat: isFinite(lat) ? lat : null, lng: isFinite(lng) ? lng : null, keyword: null, radius, city });
+  return Response.json(payload, {
+    status: 200,
+    headers: { "cache-control": "public, s-maxage=900, stale-while-revalidate=3600" },
+  });
 }
