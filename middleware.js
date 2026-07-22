@@ -38,6 +38,7 @@ export const config = {
     "/api/moment/picks",
     "/api/insight",
     "/api/blurbs",
+    "/api/local/report",
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
