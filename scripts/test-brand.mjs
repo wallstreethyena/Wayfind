@@ -13,7 +13,8 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // THE LOGO (owner, 2026-07-22): the header wears the OFFICIAL asset — not a
 // text lookalike — because the header bg IS the logo's baked #040810. This is
 // the ONE sanctioned in-app raster placement; it must never shrink or wrap.
-ok(home.includes('src="/brand/wayfind-logo-header.png"') && /height: 34, width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the OFFICIAL logo (or its shrink protection)");
+// 42.5px = the owner's default (2026-07-22: "25% bigger, make that the default").
+ok(home.includes('src="/brand/wayfind-logo-header.png"') && /height: 42\.5, width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the OFFICIAL logo at its default 42.5px (or its shrink protection)");
 ok((home.match(/brand\/wayfind-logo/g) || []).length === 1, "the raster logo may appear exactly ONCE in home.js — the header");
 
 for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
