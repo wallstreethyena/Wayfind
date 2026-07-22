@@ -80,6 +80,9 @@ export function BeachLiveChips({ id, lat, lng }) {
       {lite && isFinite(lite.windMph) ? <Chip label="Wind" value={lite.windMph + " mph " + (lite.windDir || "")} /> : null}
       {lite && isFinite(lite.waveHeightFt) ? <Chip label="Waves" value={lite.waveHeightFt + " ft"} /> : null}
       {wq ? <Chip label={"Water quality" + (stale ? " (last known)" : "")} value={wq.t + " · tested " + fmtDay(water.sampled_at)} tone={wq.c} /> : null}
+      {/* FWC red tide (v6.55): FWC's own category, with sample date + distance.
+          No sample within 10 mi → no chip. Never a guess. */}
+      {lite && lite.redTide ? <Chip label="Red tide" value={lite.redTide.label + (lite.redTide.sampledAt ? " · tested " + fmtDay(lite.redTide.sampledAt) : "") + " · " + lite.redTide.mi + " mi"} tone={lite.redTide.tone === "bad" ? C.red : lite.redTide.tone === "warn" ? "#E8B84B" : C.green} /> : null}
     </div>
   );
 }
