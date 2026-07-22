@@ -124,5 +124,17 @@ ok(!/card\("Best things to do today"/.test(home), "the best-things-to-do-today C
 ok(!/Explore near you<\/div>/.test(home), "the old Explore-near-you list menu is gone");
 ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engines kept, not deleted");
 
+// THE EDITORIAL RULE (docs/editorial-standard.md): the mapper is the ONE
+// shape; the route holds the precedence; ranking pages branch on it.
+import("../lib/editorialRule.js").then((er) => {
+  const m = er.mapWfEditorial({ verified: true, hook: "H", why_here: "W", local_tip: "T", know_before: "K", best_time: "B", facts: [{ claim: "C", source: "https://mote.org/x" }] });
+  if (!(m && m.knownFor === "H" && m.why === "W" && m.insiderMove === "T" && m.watchOut === "K" && m.goodToKnow === "B" && m.proof === "C" && m.sources[0] === "mote.org")) { console.error("FAIL: wf_editorial field map"); process.exit(1); }
+  if (er.mapWfEditorial({ verified: false, hook: "x" }) !== null) { console.error("FAIL: unverified rows must map to null"); process.exit(1); }
+  if (!er.GOOGLE_NUMBER_PROSE.test("4.8★ across 6,058 reviews")) { console.error("FAIL: lint pattern"); process.exit(1); }
+});
+const edRoute = readFileSync(new URL("../app/api/editorial/route.js", import.meta.url), "utf8");
+ok(edRoute.indexOf("CARD_BY_ID.has(id)") < edRoute.indexOf("await wfEditorialFor("), "precedence: Atlas card beats the fleet row (hand curation wins)");
+ok(edRoute.includes("s-maxage=3600"), "fleet rows surface within the hour (not a day)");
+
 console.log(`test-todays-best: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

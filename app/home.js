@@ -6096,12 +6096,12 @@ function PageInner({ initialEvents = null }) {
         {screen !== "map" && (
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-            {/* Official master logo (public/brand/wayfind-logo.png; pin baked in, no
-                GlowPin overlay). 2x header derivative per the brand README — the 1MB
-                master at 30px would undo the LCP work. The header band below is the
-                logo's own baked #040810, so logo and background are one color. */}
-            <span onClick={openSuggested} style={{ display: "inline-block", cursor: "pointer" }}>
-              <img src="/brand/wayfind-logo-header.png" alt="wayfind" style={{ height: 56, width: "auto", display: "block" }} />
+            {/* v6.54 (spec 4): code wordmark — the orange dot is the TITTLE of the
+                i (the PNG master bakes the pin after the d, which reads as a
+                period). ~35px, +35% over the previous render. The PNG stays
+                canonical for OG cards where it sits on its own dark band. */}
+            <span onClick={openSuggested} style={{ display: "inline-flex", alignItems: "baseline", cursor: "pointer", fontSize: 35, fontWeight: 800, letterSpacing: "-1.2px", color: "#FFFFFF", lineHeight: 1 }} aria-label="wayfind">
+              way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "-0.14em", width: "0.22em", height: "0.22em", borderRadius: "50%", background: C.accent, boxShadow: "0 0 8px rgba(249,115,22,.55)" }} /></span></span>nd
             </span>
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>

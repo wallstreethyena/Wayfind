@@ -16,6 +16,7 @@
 import { NextResponse } from "next/server";
 import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
+import { mapWfEditorial } from "../../../lib/editorialRule";
 
 export const dynamic = "force-dynamic";
 
@@ -38,10 +39,35 @@ function cardToEditorial(c) {
   };
 }
 
+// v6.54: the fleet writes wf_editorial continuously — cache one hour (was a
+// day), long SWR, so new verified rows surface without a deploy.
+const HEADERS_LIVE = { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=604800" };
+
+async function wfEditorialFor(id) {
+  const base = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!base || !anon || !id) return null;
+  try {
+    const r = await fetch(base + "/rest/v1/wf_editorial?place_id=eq." + encodeURIComponent(id) + "&verified=is.true&limit=1", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      next: { revalidate: 3600 },
+    });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    return mapWfEditorial(Array.isArray(rows) ? rows[0] : null);
+  } catch { return null; }
+}
+
 export async function GET(req) {
   const u = new URL(req.url);
   const id = String(u.searchParams.get("id") || "").trim();
+  // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
   if (id && CARD_BY_ID.has(id)) return NextResponse.json({ editorial: cardToEditorial(CARD_BY_ID.get(id)) }, { headers: HEADERS });
+  // Tier 2: the research fleet's verified card (wf_editorial), same shape.
+  if (id) {
+    const fleet = await wfEditorialFor(id);
+    if (fleet) return NextResponse.json({ editorial: fleet, sources: fleet.sources || [] }, { headers: HEADERS_LIVE });
+  }
   const name = String(u.searchParams.get("name") || "").slice(0, 140).trim();
   if (!name) return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
   const e = editorialFor(name);

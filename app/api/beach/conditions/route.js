@@ -5,7 +5,7 @@
 // Fails soft: any error → {show:false}, so the section simply hides and never errors the page.
 export const runtime = "nodejs";
 
-import { getBeachConditions } from "../../../../lib/marine";
+import { getBeachConditions, getBeachLiteConditions } from "../../../../lib/marine";
 
 export async function GET(req) {
   try {
@@ -15,6 +15,12 @@ export async function GET(req) {
     const distRaw = searchParams.get("dist"); // miles to nearest beach (geo/client supplies)
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) return j({ show: false });
     const dist = distRaw != null && distRaw !== "" ? parseFloat(distRaw) : null;
+    // v6.54 lite mode: per-beach ranking chips — temp/waves/wind only, two
+    // keyless upstreams instead of four. Same edge cache.
+    if (searchParams.get("mode") === "lite") {
+      const lite = await getBeachLiteConditions(lat, lng);
+      return j(lite || { none: true }, 900);
+    }
     const out = await getBeachConditions(lat, lng, Number.isFinite(dist) ? dist : null);
     return j(out, 900);
   } catch {
