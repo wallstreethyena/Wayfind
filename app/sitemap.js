@@ -2,7 +2,6 @@
 import { GUIDES } from "../lib/guides";
 import { BEACH_METROS } from "../lib/beaches";
 import { EVENT_WINDOWS } from "../lib/eventsList";
-import { LANDING_CITIES } from "../lib/landing";
 import { TOWN_HUBS } from "../lib/culture";
 import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
