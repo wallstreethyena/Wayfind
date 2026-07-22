@@ -2928,6 +2928,7 @@ function PageInner({ initialEvents = null }) {
   // depth heuristic), never stock art unless nothing qualifies yet.
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
   const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
+  const [homeExp, setHomeExp] = useState(null); // v6.61 #3: one bookable card near the homepage top
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
   const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
@@ -5344,6 +5345,26 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
+  // traffic surface had no bookable inventory. Top selling-out (else top-
+  // reviewed) experience for the area; product_url rendered VERBATIM (pid).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
+        const r = await fetch("/api/experiences?" + q.toString());
+        const j = r.ok ? await r.json() : null;
+        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
+        const best = items.sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))[0] || null;
+        if (!cancelled) setHomeExp(best);
+      } catch (e) { if (!cancelled) setHomeExp(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   useEffect(() => {
@@ -6693,6 +6714,23 @@ function PageInner({ initialEvents = null }) {
                           tours + attractions + beaches ranked together). Replaces the
                           client-ranked v6.25 food card; the Today's Best accordion stays
                           retired (component + engines in repo). */}
+                      {!browseCat && homeExp && (
+                        <a href={homeExp.url} target="_blank" rel="noopener sponsored nofollow" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || homeExp.url; try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code }); } catch (er) {} openExternal(_live); }} style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14 }}>
+                          <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
+                            <img src={homeExp.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: 999, padding: "2px 7px" }}>🔥 Selling out</span> : null}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.accent, marginBottom: 4 }}>✨ Make a day of it</div>
+                            <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
+                              {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
+                              {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
+                              <span style={{ marginLeft: "auto", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
+                            </div>
+                          </div>
+                        </a>
+                      )}
                       {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
