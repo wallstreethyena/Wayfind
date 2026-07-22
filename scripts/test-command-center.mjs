@@ -175,6 +175,29 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(!cwv.find((a) => a.id === "cwv_LCP_desktop"), "alerts: <20 samples never alerts (noise floor)");
 }
 {
+  // Data freshness watchdog: catches a cron that returns 200 but writes nothing.
+  const neverWritten = computeAlerts({ fractionOfDay: 0.5, dailyHistory: [], dataFreshness: [
+    { pipeline: "cwv", last_success: null, hours_since: null },
+    { pipeline: "popularity", last_success: "2026-07-22T10:00:00Z", hours_since: 2 },
+    { pipeline: "beach_water", last_success: "2026-07-20T12:00:00Z", hours_since: 48 },
+  ] });
+  ok(neverWritten.find((a) => a.id === "stale_cwv" && a.severity === "warn" && a.current === "never"), "alerts: a pipeline with no row ever written fires 'never stored'");
+  ok(!neverWritten.find((a) => a.id === "stale_popularity"), "alerts: popularity within its ~9h cadence stays silent");
+  ok(!neverWritten.find((a) => a.id === "stale_beach_water"), "alerts: beach water within its ~120h cadence stays silent");
+  const stale = computeAlerts({ fractionOfDay: 0.5, dailyHistory: [], dataFreshness: [
+    { pipeline: "cwv", last_success: "2026-07-22T02:00:00Z", hours_since: 6 },
+    { pipeline: "beach_water", last_success: "2026-06-01T00:00:00Z", hours_since: 240 },
+  ] });
+  ok(stale.find((a) => a.id === "stale_cwv" && /6\.0h ago/.test(stale.find((a) => a.id === "stale_cwv").current)), "alerts: cwv stale past its ~3h cadence fires with hours-ago detail");
+  ok(stale.find((a) => a.id === "stale_beach_water"), "alerts: beach water stale past its ~120h cadence fires");
+  const healthy = computeAlerts({ fractionOfDay: 0.5, dailyHistory: [], dataFreshness: [
+    { pipeline: "cwv", last_success: "2026-07-22T15:00:00Z", hours_since: 1 },
+    { pipeline: "popularity", last_success: "2026-07-22T13:00:00Z", hours_since: 3 },
+    { pipeline: "beach_water", last_success: "2026-07-19T12:00:00Z", hours_since: 96 },
+  ] });
+  ok(!healthy.find((a) => a.id && a.id.startsWith("stale_")), "alerts: all pipelines within cadence -> no freshness alerts");
+}
+{
   const dep = computeAlerts({ fractionOfDay: 0.1, dailyHistory: [], deployments: [{ state: "ERROR", target: "production", ref: "main", sha: "abc1234" }] });
   ok(dep.find((a) => a.id === "deploy_failed" && a.severity === "critical"), "alerts: failed production deploy is critical");
   const site = computeAlerts({ fractionOfDay: 0.1, dailyHistory: [], synthetic: { checks: [{ key: "home", label: "Homepage", ok: false, status: 0, ms: 6000, error: "timeout" }] } });
