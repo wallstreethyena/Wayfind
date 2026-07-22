@@ -5170,7 +5170,7 @@ function PageInner({ initialEvents = null }) {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60, p_max: 8 });
+        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60, p_max: 40 }); // p_max caps by DISTANCE upstream — keep it wide so the Bayesian re-rank below truly ignores proximity (verified live: 8 hid Coquina from Parrish)
         if (cancelled) return;
         const rows = (Array.isArray(data) ? data : []).map((b) => ({
           id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref, metro: b.metro,
