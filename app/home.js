@@ -6542,7 +6542,7 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}
