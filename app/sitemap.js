@@ -1,6 +1,8 @@
 // v4.16 — sitemap for the indexable SEO layer.
 import { GUIDES } from "../lib/guides";
 import { BEACH_METROS } from "../lib/beaches";
+import { EVENT_WINDOWS } from "../lib/eventsList";
+import { LANDING_CITIES } from "../lib/landing";
 import { TOWN_HUBS } from "../lib/culture";
 import { CULTURE } from "../lib/culture";
 import { SITE_URL } from "../lib/site";
@@ -26,7 +28,11 @@ export default async function sitemap() {
   // v6.55 — the flagship ranked beach pages (indexable + unique OG card,
   // but absent from the sitemap until the discoverability audit caught it).
   const bestBeaches = Object.keys(BEACH_METROS).map((m) => ({ url: `${SITE_URL}/best-beaches/${m}`, lastModified: now }));
+  // v6.55 — the evergreen event WINDOW lists (this-weekend/tonight/this-month
+  // per landing city): stable URLs, SSR'd real inventory, Event schema. The
+  // dated event-detail pages stay noindexed and out of the sitemap forever.
+  const eventWindows = Object.keys(LANDING_CITIES).flatMap((c) => Object.keys(EVENT_WINDOWS).map((w) => ({ url: `${SITE_URL}/events/${c}/${w}`, lastModified: now })));
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url, lastModified: now }));
-  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...bestBeaches, ...places];
+  return [...core, ...guides, ...culture, ...landing, ...hubs, ...trending, ...bestBeaches, ...eventWindows, ...places];
 }
