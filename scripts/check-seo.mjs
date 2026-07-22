@@ -125,6 +125,18 @@ for (const [f, marker] of uniqueOg) {
   if (!src.includes(marker)) fail(f + " lost its page-unique share card (" + marker + ") — the global share-card rule");
 }
 
+// 9b. events indexing policy (owner, 2026-07-22): the evergreen WINDOW LISTS
+//     (this-weekend/tonight/this-month per city) are indexed + sitemapped —
+//     SSR'd real inventory with Event schema. Dated event DETAIL pages stay
+//     noindexed FOREVER (infinite, rotting inventory), and the SSR list fetch
+//     must ride the cacheable GET twin so crawlers can't trigger live
+//     provider aggregations.
+const evSlug = readFileSync(join(root, "app", "events", "[city]", "[slug]", "page.js"), "utf8");
+if (!/WINDOW LISTS enter the index/.test(evSlug) || !evSlug.includes("robots: { index: true, follow: true }")) fail("event window lists lost their indexability");
+if (!evSlug.includes("infinite, dated inventory")) fail("event DETAIL pages must stay noindexed — dated inventory rots in the index");
+if (!evSlug.includes("/api/events?lat=") || evSlug.includes('method: "POST"')) fail("event list SSR must use the cacheable GET twin, never a live POST per crawl hit");
+if (!sm.includes("EVENT_WINDOWS")) fail("sitemap missing the event window lists");
+
 // 10. discoverability locks (v6.55 audit): the flagship beach pages are in
 //     the sitemap, carry structured data, and the site declares SearchAction.
 if (!sm.includes("BEACH_METROS") || !sm.includes("/best-beaches/")) fail("sitemap missing the /best-beaches flagship pages");

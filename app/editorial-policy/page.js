@@ -1,7 +1,7 @@
 // v5.29 — E-E-A-T foundation (SEO audit July 2026). This page is a promise;
 // keep every sentence true of the actual process.
 export const metadata = {
-  title: "Editorial policy · Wayfind",
+  title: "Editorial policy | Wayfind",
   description: "How Wayfind researches, verifies, and corrects its guides and rankings — and how affiliate links are handled.",
   alternates: { canonical: "https://www.gowayfind.com/editorial-policy" },
 };

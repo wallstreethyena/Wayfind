@@ -32,11 +32,10 @@ async function fetchCityEvents(citySlug) {
     const host = h.get("x-forwarded-host") || h.get("host");
     const proto = h.get("x-forwarded-proto") || (host && host.startsWith("localhost") ? "http" : "https");
     const base = host ? `${proto}://${host}` : CANON;
-    const r = await fetch(`${base}/api/events`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ lat: city.lat, lng: city.lng, city: `${city.name}, ${city.state}`, radius: 60 }),
-      cache: "no-store",
+    // v6.55: the cacheable GET twin (indexable pages must never let crawl
+    // traffic trigger live provider aggregations — the edge answers repeats).
+    const r = await fetch(`${base}/api/events?lat=${city.lat.toFixed(2)}&lng=${city.lng.toFixed(2)}&radius=60&city=${encodeURIComponent(city.name + ", " + city.state)}`, {
+      next: { revalidate: 900 },
     });
     if (!r.ok) return { city, events: [] };
     const data = await r.json();
@@ -67,13 +66,18 @@ export async function generateMetadata({ params }) {
     const city = LANDING_CITIES[params.city];
     if (!city) return { title: "Events · Wayfind", robots: { index: false, follow: true } };
     const win = EVENT_WINDOWS[params.slug];
-    const title = `Events ${win.title} in ${city.name}, ${city.state} · Wayfind`;
+    const title = `Events ${win.title} in ${city.name}, ${city.state} | Wayfind`;
     const description = `Concerts, games, festivals and things to do ${win.label.toLowerCase()} in ${city.name}, ${city.state} — real, bookable events ranked by Wayfind.`;
+    const ogImg = `${CANON}/api/og?t=${encodeURIComponent("Events " + win.title + " in " + city.name)}&loc=${encodeURIComponent(city.name + ", " + city.state)}`;
     return {
       title, description,
       alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
-      openGraph: { title, description, url: `${CANON}/events/${params.city}/${params.slug}`, type: "website" },
-      robots: { index: false, follow: true }, // noindex until the owner opens event pages to the crawl budget (dated inventory); the URLs are durable + shareable now
+      openGraph: { title, description, url: `${CANON}/events/${params.city}/${params.slug}`, type: "website", images: [{ url: ogImg, width: 1200, height: 630 }] },
+      twitter: { card: "summary_large_image", title, description, images: [ogImg] },
+      // v6.55 (owner, 2026-07-22): the evergreen WINDOW LISTS enter the index —
+      // stable URLs, SSR'd real inventory, ItemList+Event schema. Dated event
+      // DETAIL pages stay noindexed below (infinite, rotting inventory).
+      robots: { index: true, follow: true },
     };
   }
   const e = await getEvent(params);

@@ -8,7 +8,7 @@
 // below is drafted to industry standard — have counsel confirm before relying on it.
 const _ogRanks = "https://www.gowayfind.com/api/og?t=" + encodeURIComponent("How Wayfind ranks — the full method, published");
 export const metadata = {
-  title: "How Wayfind ranks places · Wayfind",
+  title: "How Wayfind ranks places | Wayfind",
   description: "The exact method behind every Wayfind list, published in full: the Wayfind Score is our editorial opinion — a rating weighted by review volume, on a documented model — with no ads and no paid placement, ever.",
   openGraph: { title: "How Wayfind ranks places", description: "The exact method behind every list, published in full — no ads, no paid placement, ever.", url: "https://www.gowayfind.com/how-wayfind-ranks", siteName: "Wayfind", images: [{ url: _ogRanks, width: 1200, height: 630 }] },
   twitter: { card: "summary_large_image", title: "How Wayfind ranks places", images: [_ogRanks] },
