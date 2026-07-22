@@ -2133,7 +2133,7 @@ function renderHookText(text, highlightWord, color) {
 // is coming instead of looking broken.
 function EventsRailSkeleton() {
   return (
-    <div style={{ marginBottom: 16, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Finding events near you">
+    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Finding events near you">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
@@ -6291,7 +6291,7 @@ function PageInner({ initialEvents = null }) {
                   while a Places search runs. */}
               {!browseCat && !isDesktop && foryouEvents === null && <EventsRailSkeleton />}
               {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "14px 15px", marginBottom: 16, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
+                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px", marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -6312,7 +6312,7 @@ function PageInner({ initialEvents = null }) {
                 const featured = fp.featured;
                 const rest = fp.rest.slice(0, 24);
                 return (
-                  <div style={{ marginBottom: 16, minHeight: EV_SECTION_MIN_H }}>
+                  <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                       <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
@@ -6378,7 +6378,7 @@ function PageInner({ initialEvents = null }) {
                           tours + attractions + beaches ranked together). Replaces the
                           client-ranked v6.25 food card; the Today's Best accordion stays
                           retired (component + engines in repo). */}
-                      {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+                      {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
@@ -7307,8 +7307,8 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 176;   // the featured hero <a> height
-const EV_RAIL_MIN_H = 96; // min height of the horizontal card scroller (cards are w:150)
+const EV_HERO_H = 150; // v6.49 fit-the-fold (owner): was 176   // the featured hero <a> height
+const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed

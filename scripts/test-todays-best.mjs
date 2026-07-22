@@ -81,6 +81,15 @@ ok(/no crowd levels, no 'buzz', no trends/.test(reportSrc), "report prompt bans 
 ok(reportSrc.includes("Do not use the word 'trending'"), "report never claims to measure trending");
 const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
 ok(mw.includes('"/api/local/report"'), "report endpoint is IN the middleware guard matcher (the /api/bestmove/why lesson)");
+// v6.49: Local trends leads with creator videos — REAL linked social videos
+// only (the curated creatorVideos set), ranked by the Score. No view-count
+// or engagement claims anywhere; "trending" = a creator actually posted.
+ok(bn.includes("Creators are posting about these"), "video block header present");
+ok(bn.includes("videoPlaces") && /PLATFORM\[pl\]/.test(bn), "platform chips come from the curated video set");
+ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
+ok(/hasCreatorVideo\(pp\)/.test(home), "trend places are exactly the video-linked ones");
+ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
+ok(home.includes("const EV_HERO_H = 150"), "fit-the-fold: shorter event hero");
 // the restructured Things-to-do page
 const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.meta.url), "utf8");
 ok(ttd.includes("Wayfind Pick") && /first && !isTour/.test(ttd), "rank-1 place wears the Wayfind Pick badge");
