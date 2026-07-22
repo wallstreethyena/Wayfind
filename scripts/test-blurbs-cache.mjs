@@ -18,3 +18,13 @@ ok(src.includes("THE SWAP TEST"), "the swap test left the system prompt");
 
 console.log(`test-blurbs-cache: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
+
+// v6.55b — the pool extends to /api/insight (per place+mode+kind) and
+// /api/hooks (per area+daypart+wetness+top places).
+const ins = readFileSync(new URL("../app/api/insight/route.js", import.meta.url), "utf8");
+ok(ins.includes('"insight1|"') && ins.includes("await cget(ckey)"), "insight lost its shared pool");
+ok(/kind === "event" \? 3 \* DAY : 14 \* DAY/.test(ins), "insight TTLs drifted (events 3d, places 14d)");
+ok(/!parsed\.error && !parsed\.unavailable/.test(ins), "insight must never cache an error/unavailable body");
+const hk = readFileSync(new URL("../app/api/hooks/route.js", import.meta.url), "utf8");
+ok(hk.includes('"hooks1|"') && hk.includes("weather && weather.wet"), "hooks pool key lost city/daypart/wetness");
+ok(hk.includes("4 * 3600000"), "hooks TTL drifted from one daypart (4h)");

@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 import { aiKey } from "../../../lib/aiKey";
+import { cget, cset, DAY } from "../../../lib/serverCache";
 
 // Generates a grounded "Wayfind AI" take on a single place using Claude Haiku.
 // Two modes keep cost down: "compact" runs on open and returns just enough for
@@ -12,6 +13,13 @@ export async function POST(req) {
     if (!key) return Response.json({ unavailable: true }, { status: 200 });
     const mode = p.mode === "full" ? "full" : "compact";
     const kind = p.kind === "event" ? "event" : p.kind === "attraction" ? "attraction" : "dining";
+    // v6.55 shared pool (same wf_places_cache table as blurbs/search/events):
+    // one generation per place+mode+kind sitewide. No place id in this payload,
+    // so identity = normalized name+city. Events get a short TTL (their
+    // arrival/parking guidance rots fastest); places get 14 days.
+    const ckey = "insight1|" + String(p.name || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim() + "|" + String(p.city || "").toLowerCase().slice(0, 30) + "|" + mode + "|" + kind;
+    const hit = p.name ? await cget(ckey) : null;
+    if (hit && hit.v && typeof hit.v === "object") return Response.json({ ...hit.v, cached: true }, { status: 200 });
     const mustTryDesc = kind === "dining" ? "specific dishes or drinks reviewers repeatedly name" : kind === "event" ? "things reviewers say help when attending an event here (arrival timing, parking, nearby stops)" : "specific things reviewers say not to miss (rides, areas, shows, or signature items)";
     const _dining = kind === "dining";
     const exNouns = _dining ? "the actual dish, the patio, the bartender, the view, the crowd, the wait" : kind === "event" ? "the act, the stage, the crowd, arrival timing, parking, the wait" : "the view, the setting, the exhibit or show, the walk, the crowd, the wait";
@@ -107,6 +115,7 @@ export async function POST(req) {
     // (editorial + real review text) actually contain that evidence. Belt-and-
     // suspenders on top of the prompt's honesty rule, which silently failed.
     parsed = scrubUngroundedGeo(parsed, factsText);
+    try { if (p.name && parsed && !parsed.error && !parsed.unavailable) await cset(ckey, parsed, kind === "event" ? 3 * DAY : 14 * DAY); } catch (e) {}
     return Response.json(parsed, { status: 200 });
   } catch (e) {
     return Response.json({ error: true }, { status: 200 });
