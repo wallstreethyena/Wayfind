@@ -11,5 +11,6 @@ ok(s.includes("href={t.product_url}") && !/viatorApiProductUrl|product_code\}`/.
 ok(/\/pid=\/\.test\(t\.product_url\)/.test(s), "a tour without pid= in its product_url does not ship — no unattributed link");
 ok(s.includes('rel="noopener sponsored nofollow"'), "affiliate rel on the ranking-page cards");
 ok(s.includes("never changes our rankings"), "commission disclosure present");
+ok(/const LANDING_TOUR_CITIES = \{ sarasota:/.test(s), "the tour-city map is keyed by resolveMetro output (sarasota|tampa|orlando), not the beach slug — the key-mismatch bug that silently emptied every ranking page");
 console.log(`test-landing-tours: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
