@@ -14,7 +14,12 @@ const fail = (m) => { console.error("check-canon: FAIL — " + m); process.exit(
 if (!page.includes('const CANON_ORIGIN = "https://www.gowayfind.com"')) fail("CANON_ORIGIN missing");
 if (page.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain literal reappeared");
 if (!page.includes("return CANON_ORIGIN + path")) fail("share links not pinned to canonical origin");
-if (!cfg.includes("vercel") || !cfg.includes('type: "host"') || !cfg.includes("https://www.gowayfind.com/:path*") || !cfg.includes("permanent: true")) fail("host redirect for *.vercel.app missing from next.config.js");
+if (!cfg.includes("vercel") || !cfg.includes('type: "host"') || !cfg.includes("https://www.gowayfind.com/:path") || !cfg.includes("permanent: true")) fail("host redirect for *.vercel.app missing from next.config.js");
+// v6.61: cron/webhook paths are deliberately excluded from the canonical-domain
+// bounce -- Vercel's own scheduler hits *.vercel.app directly and never
+// follows redirects, so without this exclusion every cron job silently never
+// runs (this is exactly what happened: 7 jobs, 0 runs, ever). Lock it in place.
+if (!cfg.includes("api/cron") || !cfg.includes("api/hooks")) fail("cron/hooks exclusion missing from the *.vercel.app redirect -- this silently breaks every cron job again");
 const walk = (dir, out = []) => { for (const f of readdirSync(dir)) { const p = join(dir, f); if (statSync(p).isDirectory()) walk(p, out); else if (/\.(js|mjs|jsx)$/.test(f)) out.push(p); } return out; };
 for (const base of ["app", "lib"]) {
   for (const file of walk(new URL("../" + base, import.meta.url).pathname)) {
