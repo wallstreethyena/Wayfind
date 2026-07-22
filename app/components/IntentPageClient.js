@@ -74,7 +74,15 @@ export default function IntentPageClient({ intent }) {
   if (!def) return null;
   const h = new Date().getHours() + new Date().getMinutes() / 60;
   const share = async () => {
-    const url = window.location.href;
+    // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real
+    // photoRef, so every recipient's unfurl shows the actual top place —
+    // never generic art (owner, 2026-07-22).
+    let url = window.location.href;
+    try {
+      const u = new URL(url);
+      const heroRef = passedRef || (rows && rows[0] && rows[0].photoRef) || null;
+      if (heroRef && !u.searchParams.get("img")) { u.searchParams.set("img", heroRef); url = u.toString(); }
+    } catch (e) {}
     try { if (navigator.share) { await navigator.share({ title: def.eyebrow + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
