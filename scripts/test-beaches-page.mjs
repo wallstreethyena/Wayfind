@@ -33,8 +33,20 @@ ok(page.includes("wf_nearest_beaches"), "page reads the real beach engine");
 ok(page.includes("generateStaticParams"), "three pages prerender (shareable, fast)");
 ok(page.includes("/api/og/beaches?metro="), "OG share card wired into metadata");
 const parts = readFileSync(new URL("../app/best-beaches/[metro]/parts.js", import.meta.url), "utf8");
-ok(/rip current\|beach hazard/i.test(parts), "rip-current status reads the NWS alert feed verbatim");
-ok(parts.includes('"no advisories"') && !/["']safe["']/i.test(parts), "absence of advisories is never phrased as 'safe'");
+// spec v6.54: rip-current and UV chips are REMOVED (product decision);
+// every beach row carries its OWN live chips + Healthy-Beaches water quality
+ok(!/rip current/i.test(parts) && !/uvIndexMax/.test(parts), "rip-current and UV render nowhere");
+ok(parts.includes("BeachLiveChips") && parts.includes("mode=lite"), "each beach fetches its own water temp + wind + waves");
+ok(parts.includes("wf_beach_water") && parts.includes("Advisory — check before swimming"), "water quality chip reads the Healthy-Beaches table, advisory-first");
+ok(parts.includes("last known"), "stale readings say so");
+ok(parts.includes("tested "), "every water reading shows its freshness");
+ok(parts.includes("BackControl") && parts.includes("window.history.back()"), "sticky back control: history first, our fallback second");
+const pageSrc2 = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
+ok(pageSrc2.includes("<BeachLiveChips id={b.id}"), "chips render per ROW — never the number-one beach's values on others");
+// THE RULE: verified editorial replaces the metric sentence (core law)
+ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified wf_editorial rows replace the metric prose");
+ok(pageSrc2.includes("Plan it:"), "know_before + best_time render as the Plan-it line");
+ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
 ok(parts.includes("navigator.share"), "native share with clipboard fallback");
 // the inlined formula must never drift from lib/google's wayfindScore

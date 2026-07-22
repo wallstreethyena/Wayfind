@@ -5,9 +5,10 @@
 // Bayesian formula); why-lines explain the rank, never invent sand or surf.
 // Live water conditions render client-side for the #1 beach only (compact).
 import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../../../lib/beaches";
+import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
 import { SITE_URL } from "../../../lib/site";
-import BeachPageClient from "./parts";
+import BeachPageClient, { BeachLiveChips, BackControl } from "./parts";
 
 export const revalidate = 3600;
 
@@ -16,6 +17,25 @@ const CENTROID = {
   tampa: { lat: 27.85, lng: -82.6 },
   orlando: { lat: 28.54, lng: -81.38 },
 };
+
+// THE RULE (docs/editorial-standard.md): verified fleet editorial replaces
+// metric prose wherever it exists. One REST in() call for the whole page.
+async function editorialsFor(ids) {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!url || !anon || !ids.length) return {};
+  try {
+    const r = await fetch(url + "/rest/v1/wf_editorial?verified=is.true&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      next: { revalidate: 3600 },
+    });
+    if (!r.ok) return {};
+    const rows = await r.json();
+    const out = {};
+    for (const row of Array.isArray(rows) ? rows : []) { const m = mapWfEditorial(row); if (m) out[row.place_id] = m; }
+    return out;
+  } catch (e) { return {}; }
+}
 
 async function beachesFor(metro) {
   const c = CENTROID[metro];
@@ -70,6 +90,7 @@ export default async function BeachesPage({ params }) {
   const meta = BEACH_METROS[params.metro];
   if (!meta) return <main style={{ background: C.bg, color: C.muted, minHeight: "100vh", padding: 40 }}>No such beach group.</main>;
   const beaches = await beachesFor(params.metro);
+  const editorials = await editorialsFor(beaches.map((b) => b.id));
   const heroPhoto = BEACH_SHARE_PHOTO[params.metro];
   const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=1200" : null;
 
@@ -81,6 +102,7 @@ export default async function BeachesPage({ params }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
         {/* Owner: no logo box over the hero photo — the brand lives in the
             footer line and the share card. Just a quiet home link. */}
+        <BackControl fallback="/" />
         <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 15, fontWeight: 800, color: "rgba(241,245,249,.92)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>wayfind<span style={{ color: "#F97316" }}>.</span></a>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
@@ -109,8 +131,16 @@ export default async function BeachesPage({ params }) {
                   <span style={{ fontSize: 17, fontWeight: 750 }}>{b.name}</span>
                   <span style={{ fontSize: 14, fontWeight: 800, color: C.green }}>{toDisplayScore(b.wf)}</span>
                 </div>
-                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{beachWhy(b, meta.short)}</p>
-                {b.editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{b.editorial}</p> : null}
+                {(() => { const ed = editorials[b.id]; if (ed) return (<>
+                  {ed.knownFor ? <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: "4px 0 0" }}>{ed.knownFor}</p> : null}
+                  {ed.why ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "5px 0 0" }}>{ed.why}</p> : null}
+                  {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Plan it: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
+                  {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
+                </>); return (<>
+                  <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{beachWhy(b, meta.short)}</p>
+                  {b.editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{b.editorial}</p> : null}
+                </>); })()}
+                <BeachLiveChips id={b.id} lat={b.lat} lng={b.lng} />
               </div>
               <span aria-hidden="true" style={{ alignSelf: "center", color: "rgba(255,255,255,.3)", fontSize: 18, flexShrink: 0 }}>›</span>
               </a>
