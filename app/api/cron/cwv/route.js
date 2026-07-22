@@ -35,9 +35,21 @@ export async function GET(req) {
   const idx = new Date().getUTCHours() % pages.length;
   const target = manual && manual.startsWith(SITE_URL) ? manual : pages[idx];
 
+  // v6.63 fix: the PSI API rejects this call with a 400 "invalid argument" on
+  // EVERY run (confirmed live via a manual dashboard trigger + the new logging
+  // above) -- `audits` is a dynamic map keyed by whichever Lighthouse audit ran
+  // (e.g. "largest-contentful-paint"), not a fixed schema property, and
+  // Google's partial-response `fields` selector can only project declared
+  // schema fields, not arbitrary map keys. `lighthouseResult/audits/<audit-id>/...`
+  // was never valid, on any deployment -- this had nothing to do with the
+  // cron/redirect/deployment-protection issue fixed earlier today; the job
+  // was reaching PSI fine and PSI was rejecting every single request. Fix:
+  // stop at the "audits" property itself (a real schema field) and pull the
+  // individual numericValues out of the full map client-side below, same as
+  // the code already does with a[k].numericValue.
   const psi = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(target)
     + "&strategy=mobile&category=performance&key=" + encodeURIComponent(KEY)
-    + "&fields=" + encodeURIComponent("lighthouseResult/categories/performance/score,lighthouseResult/audits/largest-contentful-paint/numericValue,lighthouseResult/audits/cumulative-layout-shift/numericValue,lighthouseResult/audits/total-blocking-time/numericValue,lighthouseResult/audits/server-response-time/numericValue");
+    + "&fields=" + encodeURIComponent("lighthouseResult/categories/performance/score,lighthouseResult/audits");
 
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 50000);
@@ -52,7 +64,7 @@ export async function GET(req) {
       // shows up in Vercel's runtime logs instead of vanishing into a silent
       // {ok:false} 200.
       let psiBody = "";
-      try { psiBody = (await res.text()).slice(0, 500); } catch (e) {}
+      try { psiBody = (await res.text()).slice(0, 1500); } catch (e) {}
       try { console.error(JSON.stringify({ tag: "cwv_cron", ok: false, stage: "psi_fetch", target, psiStatus: res.status, psiBody })); } catch (e) {}
       return Response.json({ ok: false, target, psiStatus: res.status, psiBody });
     }
