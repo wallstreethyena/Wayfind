@@ -9,7 +9,8 @@ const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 const cfg = INTENT_PAGES.family.distancePenalty;
 ok(cfg && cfg.freeMi === 17 && cfg.per === 5 && cfg.deduct === 0.2, "family decay is the owner's exact rule (17mi free, -0.2/5mi)");
-ok(!INTENT_PAGES["date-night"].distancePenalty, "date-night has NO distance decay — the rule is family-only");
+const dcfg = INTENT_PAGES["date-night"].distancePenalty;
+ok(dcfg && dcfg.freeMi === 17 && dcfg.per === 5 && dcfg.deduct === 0.2, "date-night carries the SAME distance rule (owner follow-up)");
 ok(distanceDeduction(17, cfg) === 0, "17 mi exactly: no deduction");
 ok(Math.abs(distanceDeduction(18, cfg) - 0.2) < 1e-9, "18 mi: first block bites (-0.2)");
 ok(Math.abs(distanceDeduction(22.1, cfg) - 0.4) < 1e-9, "22.1 mi: second block (-0.4)");
@@ -23,7 +24,7 @@ const far = { id: "b", name: "Far", rating: 4.8, reviews: 5000, lat: 27.5, lng: 
 const ranked = rankRows([near, far], { rating: 4.5, reviews: 500 }, { origin, penalty: cfg });
 ok(ranked[0].id === "a", "a 4.8 thirty miles out ranks below a 4.6 nearby (family rule)");
 const unranked = rankRows([near, far], { rating: 4.5, reviews: 500 }, { origin, penalty: null });
-ok(unranked[0].id === "b", "without the rule (date-night), pure quality order holds");
+ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (the rule is opt-in per list)");
 ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is carried on the row for the why-line");
 
 // hero-from-list + card photo
