@@ -104,8 +104,9 @@ export async function generateMetadata({ params }) {
   const top3 = beaches.slice(0, 3).map((b) => b.name).join("|");
   const totalReviews = beaches.reduce((a, b) => a + (b.reviews || 0), 0);
   const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3) + "&n=" + beaches.length + "&rv=" + totalReviews;
-  const title = "The best beaches — " + meta.label + " | Wayfind";
-  const description = "Every beach near " + meta.short + ", ranked by the Wayfind Score: rating strength × review depth. No ads, no paid placement.";
+  const near = NEAR_LABEL[params.metro] || meta.label;
+  const title = "The Best Beaches Near " + near + " | Wayfind";
+  const description = "Not every 4.8-star beach is equal. The beaches near " + meta.short + " actually worth your time — ranked by rating strength, review depth, and what each beach is genuinely best for. No paid placement.";
   return {
     title, description,
     alternates: { canonical: SITE_URL + "/best-beaches/" + params.metro },
@@ -113,6 +114,27 @@ export async function generateMetadata({ params }) {
     twitter: { card: "summary_large_image", title, description, images: [og] },
   };
 }
+
+// v6.58 (owner editorial rewrite): decision-first. Search-language labels,
+// and the owner-approved best-for calls (manatee-sarasota only; a label only
+// renders when that beach is actually present and serving).
+const NEAR_LABEL = { "manatee-sarasota": "Sarasota & Anna Maria Island", tampa: "Tampa Bay", orlando: "Orlando" };
+const BEST_FOR = {
+  "manatee-sarasota": {
+    "ChIJjfu2YPBBw4gRo41o9hwHfmg": "The softest sand — quartz so fine it squeaks",
+    "ChIJFy96TuUPw4gRr3IUjLXDXfM": "A quiet escape at the island's north tip",
+    "ChIJg7BBe7URw4gRIQTacN1Cla8": "Families — lifeguards 365 days a year",
+    "ChIJ1-Da3XpZw4gRyPAkVf4SSAo": "Shells and shark teeth",
+    "ChIJ5eLMVXE9w4gR15l0tMZGkMY": "A full, easy beach day on Anna Maria Island",
+  },
+};
+const QUICK_LABEL = {
+  "ChIJjfu2YPBBw4gRo41o9hwHfmg": "Best sand",
+  "ChIJFy96TuUPw4gRr3IUjLXDXfM": "Best quiet escape",
+  "ChIJg7BBe7URw4gRIQTacN1Cla8": "Best for families",
+  "ChIJ1-Da3XpZw4gRyPAkVf4SSAo": "Best for shells and shark teeth",
+};
+const firstSentence = (t) => { const m = String(t || "").match(/^.*?[.!?](\s|$)/); return m ? m[0].trim() : (t || null); };
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
@@ -153,17 +175,31 @@ export default async function BeachesPage({ params }) {
         {/* Owner: no logo box over the hero photo — the brand lives in the
             footer line and the share card. Just a quiet home link. */}
         <BackControl fallback="/" />
-        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 15, fontWeight: 800, color: "rgba(241,245,249,.92)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "-0.14em", width: "0.24em", height: "0.24em", borderRadius: "50%", background: "#F97316" }} /></span></span>nd</a>
+        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 21, fontWeight: 800, color: "rgba(241,245,249,.95)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "-0.14em", width: "0.24em", height: "0.24em", borderRadius: "50%", background: "#F97316" }} /></span></span>nd</a>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: C.gold }}>The definitive ranking</div>
-            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)" }}>The best beaches<br />{meta.label}</h1>
-            <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.85)", margin: 0, maxWidth: 430 }}>Ranked by the Wayfind Score — rating strength × review depth, one formula, no ads, no paid placement.</p>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: C.gold }}>The definitive beach ranking</div>
+            <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.08, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)" }}>The Best Beaches Near {NEAR_LABEL[params.metro] || meta.label}</h1>
+            <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.88)", margin: 0, maxWidth: 460 }}>Not every 4.8-star beach is equal. These are the beaches actually worth your time — ranked by rating strength, review depth, and what each is genuinely best for.</p>
+            <p style={{ fontSize: 12, color: "rgba(241,245,249,.7)", margin: "6px 0 0" }}>No paid placement. No sponsored rankings. Just the beach that fits your day.</p>
           </div>
         </div>
       </header>
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
+        {beaches.length ? (
+          <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", marginTop: 4 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Looking for a quick answer?</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <div style={{ fontSize: 12.5, color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best overall:</span> {beaches[0].name}</div>
+              {beaches.filter((b) => QUICK_LABEL[b.id]).map((b) => (
+                <div key={b.id} style={{ fontSize: 12.5, color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>{QUICK_LABEL[b.id]}:</span> {b.name}</div>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>Explore the full ranking below.</div>
+          </section>
+        ) : null}
+
         <BeachPageClient topBeach={beaches[0] ? { id: beaches[0].id, name: beaches[0].name, lat: beaches[0].lat, lng: beaches[0].lng } : null} metro={params.metro} label={meta.label} />
 
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
@@ -181,19 +217,36 @@ export default async function BeachesPage({ params }) {
                   <span style={{ fontSize: 17, fontWeight: 750 }}>{b.name}</span>
                   <span style={{ fontSize: 14, fontWeight: 800, color: C.green }}>{toDisplayScore(b.wf)}</span>
                 </div>
-                {(() => { const ed = editorials[b.id]; if (ed) return (<>
+                {(() => { const ed = editorials[b.id]; const bf = (BEST_FOR[params.metro] || {})[b.id] || null; if (ed) return (<>
+                  {/* v6.58 (owner): decision-first card — Best for / one vivid
+                      "why it ranks" line / one "know before" line; the depth
+                      (full why + Plan-it + sources) collapses behind
+                      "How we verified this". Fewer words on a phone screen,
+                      same transparency one tap away. */}
+                  {bf ? <p style={{ fontSize: 12.5, margin: "4px 0 0", color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</p> : null}
                   {ed.knownFor ? <p style={{ fontSize: 12.5, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: "4px 0 0" }}>{ed.knownFor}</p> : null}
-                  {ed.why ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "5px 0 0" }}>{ed.why}</p> : null}
-                  {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Plan it: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
-                  {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
+                  {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{firstSentence(ed.watchOut || ed.goodToKnow)}</p> : null}
+                  <details style={{ margin: "6px 0 0" }}>
+                    <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
+                    {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
+                    {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Plan it: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
+                    {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
+                  </details>
                 </>); return (<>
+                  {bf ? <p style={{ fontSize: 12.5, margin: "4px 0 0", color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</p> : null}
                   <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{beachWhy(b, meta.short)}</p>
-                  {b.editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{b.editorial}</p> : null}
                 </>); })()}
                 <BeachLiveChips id={b.id} lat={b.lat} lng={b.lng} />
               </div>
               <span aria-hidden="true" style={{ alignSelf: "center", color: "rgba(255,255,255,.3)", fontSize: 18, flexShrink: 0 }}>›</span>
               </a>
+              {i === 2 && beaches.length > 3 ? (
+                <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", margin: "4px 0 16px" }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 800, marginBottom: 6 }}>Why Wayfind ranked them this way</div>
+                  <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.82)", lineHeight: 1.55, margin: 0 }}>A perfect rating from a handful of people should not outrank a great beach backed by thousands. The Wayfind Score weighs rating quality against review depth, then pairs the number with what each beach is actually best for. Rankings are never bought, and partner links never affect placement.</p>
+                  <a href="/how-wayfind-ranks" style={{ display: "inline-block", marginTop: 8, fontSize: 12, fontWeight: 800, color: C.gold, textDecoration: "none" }}>See how Wayfind ranks places →</a>
+                </section>
+              ) : null}
             </li>
           ))}
         </ol>
@@ -233,7 +286,7 @@ export default async function BeachesPage({ params }) {
             <span aria-hidden="true" style={{ fontSize: 20 }}>🏨</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: "block", fontSize: 14, fontWeight: 800 }}>Stay near {beaches[0].name}</span>
-              <span style={{ display: "block", fontSize: 11.5, color: C.muted, marginTop: 2 }}>Compare rates by the #1-ranked beach — wake up already there.</span>
+              <span style={{ display: "block", fontSize: 11.5, color: C.muted, marginTop: 2 }}>Partner stay option — it does not affect this ranking.</span>
             </span>
             <span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Check rates ↗</span>
           </a>

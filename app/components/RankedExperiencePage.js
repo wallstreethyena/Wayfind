@@ -36,13 +36,14 @@ export function RankedRow({ i, href, img, title, score, why, editorial }) {
   );
 }
 
-export default function RankedExperiencePage({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, children, footNote }) {
+export default function RankedExperiencePage({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, children, footNote, topLeft }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <header style={{ position: "relative", height: 300, overflow: "hidden" }}>
         {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
-        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 15, fontWeight: 800, color: "rgba(241,245,249,.92)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "-0.14em", width: "0.24em", height: "0.24em", borderRadius: "50%", background: C.accent }} /></span></span>nd</a>
+        {topLeft || null}
+        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", fontSize: 21, fontWeight: 800, color: "rgba(241,245,249,.95)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "-0.14em", width: "0.24em", height: "0.24em", borderRadius: "50%", background: C.accent }} /></span></span>nd</a>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: accent || C.gold }}>{eyebrow}</div>
