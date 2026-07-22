@@ -87,7 +87,7 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
@@ -1522,6 +1522,10 @@ function formatEventDate(dateStr, timeStr) {
 // Compass label from degrees (direction the wind/waves come FROM).
 function isBeach(p) {
   if (!p) return false;
+  // v6.57: wf_things_to_do rows (ThingsToDoList) carry a verified `category`
+  // straight from the ranking engine — trust it directly, no name-sniffing
+  // needed (and no types[]/name is even guaranteed on that minimal object).
+  if (p.category === "beach") return true;
   // v5.75 (accuracy): an override { noWater:true } stops an inland place named
   // "Beach ___" (e.g. "Beach Bum Burgers") from getting a surf/wind conditions
   // panel. A real beach TYPE still qualifies regardless of name.
@@ -1535,27 +1539,39 @@ function isBeach(p) {
   const n = (p.name || "").toLowerCase();
   return !isVenue && n.includes("beach");
 }
-// Keyless wind + marine conditions for a beach point, from Open-Meteo. Fail-soft.
+// v6.57: beach conditions for the detail sheet — wind/waves/water-temp + red
+// tide from the shared server proxy (lib/marine.js's getBeachLiteConditions,
+// the SAME endpoint the Best Beaches page's BeachLiveChips uses — one call
+// instead of two raw client-side Open-Meteo hits, and it adds water temp +
+// red tide for free), plus water quality (wf_beach_water) and a popularity
+// read (wf_place_popularity_scored), both keyed by place_id alone so they
+// still work when lat/lng aren't available (e.g. opened from ThingsToDoList,
+// whose wf_things_to_do rows carry no coordinates). Every source fails soft.
 async function loadBeachConditions(p) {
-  const out = { wind: null, windDir: null, gust: null, waveHeight: null, waveDir: null, wavePeriod: null };
+  const out = { wind: null, windDir: null, waveHeight: null, waterTemp: null, redTide: null, water: null, popularityPct: null };
+  if (p && p.lat != null && p.lng != null) {
+    try {
+      const r = await fetch(`/api/beach/conditions?mode=lite&lat=${p.lat}&lng=${p.lng}`);
+      const j = r.ok ? await r.json() : null;
+      if (j && !j.none) {
+        out.wind = j.windMph != null ? j.windMph : null;
+        out.windDir = j.windDir || null; // already a compass label, e.g. "NE"
+        out.waveHeight = j.waveHeightFt != null ? j.waveHeightFt : null; // already feet
+        out.waterTemp = j.waterTempF != null ? j.waterTempF : null;
+        out.redTide = j.redTide || null;
+      }
+    } catch {}
+  }
   try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${p.lat}&longitude=${p.lng}&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=mph&timezone=auto&forecast_days=1`);
-    const d = await r.json();
-    const c = d && d.current;
-    if (c) {
-      out.wind = c.wind_speed_10m != null ? Math.round(c.wind_speed_10m) : null;
-      out.windDir = c.wind_direction_10m != null ? c.wind_direction_10m : null;
-      out.gust = c.wind_gusts_10m != null ? Math.round(c.wind_gusts_10m) : null;
+    if (supabase && p && p.id) {
+      const { data } = await supabase.from("wf_beach_water").select("result,advisory,sampled_at").eq("beach_place_id", p.id).limit(1);
+      if (data && data[0]) out.water = data[0];
     }
   } catch {}
   try {
-    const r2 = await fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${p.lat}&longitude=${p.lng}&current=wave_height,wave_direction,wave_period&timezone=auto`);
-    const d2 = await r2.json();
-    const c2 = d2 && d2.current;
-    if (c2) {
-      out.waveHeight = c2.wave_height != null ? c2.wave_height : null;
-      out.waveDir = c2.wave_direction != null ? c2.wave_direction : null;
-      out.wavePeriod = c2.wave_period != null ? c2.wave_period : null;
+    if (supabase && p && p.id) {
+      const { data } = await supabase.from("wf_place_popularity_scored").select("tier2_popularity").eq("place_id", p.id).limit(1);
+      if (data && data[0]) out.popularityPct = data[0].tier2_popularity;
     }
   } catch {}
   return out;
@@ -2923,6 +2939,7 @@ function PageInner({ initialEvents = null }) {
   const [shareCopied, setShareCopied] = useState(false);
   const [beachCond, setBeachCond] = useState(null);
   const [beachCondLoading, setBeachCondLoading] = useState(false);
+  const [beachSignals, setBeachSignals] = useState({}); // v6.57: batched water-quality + popularity, keyed by place_id — see effect near `restView`
   const [allExpOpen, setAllExpOpen] = useState(false);
   const recentRef = useRef([]);
   const [blurbs, setBlurbs] = useState({});
@@ -5521,9 +5538,12 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
-  // When the opened place is a beach, pull live wind + wave conditions.
+  // When the opened place is a beach, pull live wind + wave conditions (plus
+  // water quality/red tide/popularity — see loadBeachConditions). Gated only
+  // on isBeach, not on lat/lng: the DB-keyed signals (water quality,
+  // popularity) still work by place_id alone when coordinates aren't present.
   useEffect(() => {
-    if (!detail || !isBeach(detail) || detail.lat == null || detail.lng == null) { setBeachCond(null); setBeachCondLoading(false); return; }
+    if (!detail || !isBeach(detail)) { setBeachCond(null); setBeachCondLoading(false); return; }
     let cancelled = false;
     setBeachCond(null);
     setBeachCondLoading(true);
@@ -5961,6 +5981,32 @@ function PageInner({ initialEvents = null }) {
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
 
+  // v6.57: one batched read of water quality + popularity for every beach
+  // card currently on screen, instead of a fetch per card. Both signals are
+  // DB-backed (wf_beach_water / wf_place_popularity_scored) and safely
+  // batchable via .in(); live wind/wave/red-tide stay in the detail sheet
+  // only (those are single-point upstream APIs with no batch mode).
+  const _beachIds = Array.from(new Set(view.filter((p) => p && p.id && isBeach(p)).map((p) => p.id))).slice(0, 80);
+  useEffect(() => {
+    if (!_beachIds.length || !supabase) return;
+    let dead = false;
+    (async () => {
+      try {
+        const [{ data: wq }, { data: pop }] = await Promise.all([
+          supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", _beachIds),
+          supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", _beachIds),
+        ]);
+        if (dead) return;
+        const next = {};
+        (wq || []).forEach((r) => { next[r.beach_place_id] = { ...(next[r.beach_place_id] || {}), water: { result: r.result, advisory: r.advisory, sampled_at: r.sampled_at } }; });
+        (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
+        setBeachSignals((prev) => ({ ...prev, ...next }));
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_beachIds.join(",")]);
+
 
   const exploreList = (
     <>
@@ -6033,7 +6079,7 @@ function PageInner({ initialEvents = null }) {
         </div>
       )}
       {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
       ))}
       {restView.length > 3 && hookCards.length > 0 && (
         <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
@@ -6047,7 +6093,7 @@ function PageInner({ initialEvents = null }) {
         </>
       )}
       {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
       ))}
       {!loading && restView.length > visibleCount && (
         <div style={{ padding: "2px 2px 10px" }}>
@@ -6562,7 +6608,7 @@ function PageInner({ initialEvents = null }) {
                   ) : (
                     <>
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
                       ))}
                       {/* End-of-feed honesty: name the count + the city so a short list reads
                           as complete, not broken. When sparse (<8) offer a real next step —
@@ -7374,7 +7420,7 @@ function cardBookingHref(p) {
   } catch (e) { return Aff.experienceGoUrl((p && p.name) || "") || ""; }
 }
 
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -7470,6 +7516,22 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             {(() => { const lo = liveOpen(p); /* v4.67: hours-computed, never stale cache */ return lo != null ? <span style={{ fontSize: 11, fontWeight: 600, color: lo ? C.green : C.red }}>{lo ? "Open" : "Closed"}</span> : null; })()}
             {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
           </div>
+          {/* v6.57: beach signals — a "Trending" flame from the popularity cron
+              (wf_place_popularity_scored) and a water-quality read
+              (wf_beach_water), both batched once per screen (see the
+              `beachSignals` effect near `restView`) rather than per card. */}
+          {isBeach(p) && beachSignal && (beachSignal.popularityPct != null || beachSignal.water) && (
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
+              {beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
+              )}
+              {beachSignal.water && (() => {
+                const w = beachSignal.water;
+                const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
+                return wq ? <span style={{ fontSize: 11, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
+              })()}
+            </div>
+          )}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
