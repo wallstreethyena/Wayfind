@@ -13,8 +13,8 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // THE LOGO (owner, 2026-07-22): the header wears the OFFICIAL asset — not a
 // text lookalike — because the header bg IS the logo's baked #040810. This is
 // the ONE sanctioned in-app raster placement; it must never shrink or wrap.
-// 42.5px = the owner's default (2026-07-22: "25% bigger, make that the default").
-ok(home.includes('src="/brand/wayfind-logo-header.png"') && /height: 42\.5, width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the OFFICIAL logo at its default 42.5px (or its shrink protection)");
+// 46.75px = 42.5 +10% (owner, 2026-07-22 evening: "10% bigger").
+ok(home.includes('src="/brand/wayfind-logo-header.png"') && /height: 46\.75, width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the OFFICIAL logo at its 46.75px default (or its shrink protection)");
 ok((home.match(/brand\/wayfind-logo/g) || []).length === 1, "the raster logo may appear exactly ONCE in home.js — the header");
 
 for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
@@ -45,6 +45,7 @@ ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(home), "raw Google-star lead
   ok(ttd.includes("medalColor(rank)"), "TTD rows lost the standard medal rank ring");
   ok(!ttd.includes('aspectRatio: "16 / 9"'), "the oversized 16:9 photo-top shell is back on Things to Do");
 }
+ok(!/top: "-0\.14em"/.test(readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8")) && !/top: "-0\.14em"/.test(readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8")), "the hero tittle dot floated too high (-0.14em) — it must sit ON the i (owner fix)");
 
 console.log(`test-brand: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

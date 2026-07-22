@@ -6253,7 +6253,7 @@ function PageInner({ initialEvents = null }) {
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <img src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 42.5, width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
+            <img src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 46.75, width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
