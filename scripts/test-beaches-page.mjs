@@ -42,10 +42,13 @@ ok(parts.includes("last known"), "stale readings say so");
 ok(parts.includes("tested "), "every water reading shows its freshness");
 ok(parts.includes("BackControl") && parts.includes("window.history.back()"), "sticky back control: history first, our fallback second");
 const pageSrc2 = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-ok(pageSrc2.includes("<BeachLiveChips id={b.id}"), "chips render per ROW — never the number-one beach's values on others");
+ok(!pageSrc2.includes("<BeachLiveChips"), "v6.60 (owner): live water chips are OFF the list — the beach photo sells, chips live in the detail sheet");
 // THE RULE: verified editorial replaces the metric sentence (core law)
 ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified wf_editorial rows replace the metric prose");
-ok(pageSrc2.includes("Plan it:"), "know_before + best_time render as the Plan-it line");
+ok(pageSrc2.includes("Know before you go:") && pageSrc2.includes("How we verified this"), "know_before folds into the concise 'Know before you go' line inside the verify collapse");
+  ok(pageSrc2.includes('aspectRatio: "16 / 10"') && pageSrc2.includes("w=640"), "the beach card is image-forward — a large photo, not a 72px thumbnail");
+  ok(/fontSize: 21, fontWeight: 800, color: "#fff"/.test(pageSrc2), "name rides the image at hero size");
+
 ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
 ok(parts.includes("navigator.share"), "native share with clipboard fallback");
