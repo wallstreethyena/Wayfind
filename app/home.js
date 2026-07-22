@@ -127,7 +127,7 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 // param and reaches the DOM.
 function ticketUrl(url) {
   const s = safeUrl(url);
-  return s ? safeUrl(Aff.ticketOutUrl(s)) : null;
+  return s ? safeUrl(Aff.ticketOutUrl(s, "home")) : null;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
