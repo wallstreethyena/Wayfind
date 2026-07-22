@@ -5480,7 +5480,7 @@ function PageInner({ initialEvents = null }) {
       try {
         const data = _primeOk
           ? await _prime.p
-          : await fetch("/api/events", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: center.lat, lng: center.lng, radius: 25, city: locName }) }).then((r) => (r.ok ? r.json() : null));
+          : await fetch("/api/events?lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=25&city=" + encodeURIComponent(locName || "")).then((r) => (r.ok ? r.json() : null)); // GET = CDN-cacheable (2dp — the server cache key's own granularity)
         if (!data) { if (!cancelled) setForyouEvents([]); return; }
         const evs = ((data && data.events) || []).filter((e) => e && e.dest);
         if (!cancelled) {
