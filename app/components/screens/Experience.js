@@ -94,24 +94,26 @@ export default function ExperienceScreen({ ctx }) {
                 </div>
               )}
               {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
+                // Owner (2026-07-21): "the photo tip needs to be easier to
+                // understand" — plain words, one action each, no jargon.
                 const h = new Date().getHours();
                 let light;
-                if (h < 8) light = "Early light is soft and golden. Keep the sun to one side of your subject and shoot toward the open sky, not into the sun.";
-                else if (h < 11) light = "Morning sun sits in the east. Stand with the sun behind you or to your left so faces are evenly lit and shadows stay short.";
-                else if (h < 15) light = "Midday sun is high and harsh. Find open shade or a covered spot, keep the sun behind you, and avoid overhead noon shadows on faces.";
-                else if (h < 18) light = "Afternoon sun moves to the west and softens. Side light works well; angle your subject so light skims across them.";
-                else if (h < 20) light = "Golden hour. Put the sun behind your subject for a warm rim glow, then tap to focus and raise exposure so faces do not go dark.";
-                else light = "After sunset, light is low. Use railings or a ledge to steady the shot, and frame against city lights or the sky.";
+                if (h < 8) light = "Soft morning light right now. Keep the sun off to one side — never shoot straight into it.";
+                else if (h < 11) light = "Put the sun behind you, so faces come out bright and even.";
+                else if (h < 15) light = "Harsh midday sun right now. Step into shade — no squinting, no hard shadows.";
+                else if (h < 18) light = "Good light right now. Let the sun hit your subject from the side, not from behind you.";
+                else if (h < 20) light = "Golden hour — the best light of the day. Put the sun behind them, then tap their face on screen so it brightens.";
+                else light = "It's dark. Rest your phone on something steady, and use the city lights or sky as the background.";
                 return (
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.pink, marginBottom: 8 }}>📸 Photo tips for right now</div>
-                    <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5, marginBottom: 8 }}>{light}</div>
-                    <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.55 }}>
-                      <div style={{ marginBottom: 4 }}>🎯 Framing: put the subject on a third, not dead center, and use a doorway, archway, or branches in front as a natural frame.</div>
-                      <div style={{ marginBottom: 4 }}>🧍 Poses: shoot a candid walking or looking-away shot rather than a straight-on stare, turn shoulders slightly off camera, and keep hands busy.</div>
-                      <div>📐 Lines: line up paths, railings, or shorelines so they lead toward the subject, and get low for a taller, more dramatic look.</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.pink, marginBottom: 8 }}>📸 Get the shot — right now</div>
+                    <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.5, marginBottom: 8, fontWeight: 600 }}>{light}</div>
+                    <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.6 }}>
+                      <div style={{ marginBottom: 4 }}>🎯 Don't center them — place your subject a little off to one side.</div>
+                      <div style={{ marginBottom: 4 }}>🚶 Skip the stiff pose. Have them walk, laugh, or look away from the camera.</div>
+                      <div>📐 Crouch down — a low angle makes people and places look bigger.</div>
                     </div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>General photography guidance based on the current time, not specific to each spot.</div>
+                    <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>General tips based on the time of day — not specific to each spot.</div>
                   </div>
                 );
               })()}
