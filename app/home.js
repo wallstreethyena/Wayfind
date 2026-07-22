@@ -2882,6 +2882,9 @@ function PageInner({ initialEvents = null }) {
   const [mapDrawer, setMapDrawer] = useState(false);
   const [eventPreview, setEventPreview] = useState(null);
   const [weather, setWeather] = useState(null);
+  // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
+  // (owner's 'near'). null = none in range; the swiper then has one slide.
+  const [bestBeach, setBestBeach] = useState(null);
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5160,6 +5163,28 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
+  // of the three nearest inside 20 mi. Fails soft to no slide.
+  useEffect(() => {
+    if (screen !== "suggested" || !center || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 20, p_max: 3 });
+        if (cancelled) return;
+        const rows = (Array.isArray(data) ? data : []).map((b) => ({
+          id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref,
+          rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
+          reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
+        })).filter((b) => b.name);
+        rows.sort((a, b) => ((b.rating ?? 0) - (a.rating ?? 0)) || ((b.reviews ?? 0) - (a.reviews ?? 0)) || (a.distance_mi - b.distance_mi));
+        setBestBeach(rows[0] || null);
+      } catch (e) { if (!cancelled) setBestBeach(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // Live local weather from the free, keyless Open-Meteo API. Drives the
   // greeting chip and nudges the Suggested feed. Fails soft to no weather.
   useEffect(() => {
@@ -6329,7 +6354,11 @@ function PageInner({ initialEvents = null }) {
                       // the event's resolved destination; the tickets action is a
                       // separate sibling control layered on top, never nested.
                       return (
-                        <div style={{ position: "relative", marginBottom: 10 }}>
+                        <div className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", marginBottom: 10 }}>
+                        {/* v6.50 (owner): slide 2 is the best-rated beach within 20 mi (real
+                            inventory + signals; none in range = one slide). Slide 1 narrows
+                            to 93% so the beach edge peeks — the swipe affordance. */}
+                        <div style={{ position: "relative", flexShrink: 0, width: bestBeach ? "93%" : "100%", scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
@@ -6350,6 +6379,23 @@ function PageInner({ initialEvents = null }) {
                               ? <a href={tix} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "cta" }); } catch (e2) {} }} style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", textDecoration: "none" }}>Get tickets →</a>
                               : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
                           </div>
+                        </div>
+                        {bestBeach && (
+                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id }); } catch (e2) {} openDetail({ id: bestBeach.id, name: bestBeach.name, lat: bestBeach.lat, lng: bestBeach.lng, rating: bestBeach.rating, reviews: bestBeach.reviews }, "beach_hero"); }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                            {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(45,212,191,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                              <NavIcon name="beach" size={12} strokeWidth={2} color="#2DD4BF" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", letterSpacing: "0.4px", textTransform: "uppercase" }}>Beach day</span>
+                            </div>
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{bestBeach.name}</div>
+                              <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>
+                                <span>{bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away</span>
+                                <PlaceScoreChip p={{ rating: bestBeach.rating, reviews: bestBeach.reviews }} size={12.5} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         </div>
                       );
                     })()}
@@ -7307,7 +7353,7 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 150; // v6.49 fit-the-fold (owner): was 176   // the featured hero <a> height
+const EV_HERO_H = 192; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
 const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
