@@ -102,4 +102,35 @@ if (!page.includes("Finding the best options for")) fail("contextual loading cop
 if (!page.includes("ranked by real reviews, not ads")) fail("loading factors sub-line missing");
 if (!lay.includes("decides what\u2019s actually worth your time") && !lay.includes("decides what's actually worth your time")) fail("decision-language value proposition missing from layout");
 
-console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, sitemap clean");
+// 9. THE SHARE-CARD RULE (owner, 2026-07-22, global): every page that sets
+//    openGraph ships images with it (Next replaces the whole block — a
+//    manual openGraph without images means NO preview image at all), and
+//    the flagship surfaces point at their own unique OG endpoint.
+for (const p of pages) {
+  const src = readFileSync(p, "utf8");
+  if (/openGraph\s*:/.test(src) && !/images\s*:/.test(src) && !src.includes("socialMeta(")) fail(p.replace(root + "/", "") + " sets openGraph without images — the share preview goes blank (route through socialMeta or add images)");
+}
+const uniqueOg = [
+  ["app/best-beaches/[metro]/page.js", "/api/og/beaches"],
+  ["app/family/page.js", "/api/og/intent"],
+  ["app/date-night/page.js", "/api/og/intent"],
+  ["app/guides/[slug]/page.js", "/api/og?t="],
+  ["app/culture/[metro]/page.js", "/api/og?t="],
+  ["app/florida/[town]/page.js", "/api/og?t="],
+  ["app/about/page.js", "/api/og?t="],
+  ["app/how-wayfind-ranks/page.js", "/api/og?t="],
+];
+for (const [f, marker] of uniqueOg) {
+  const src = readFileSync(join(root, ...f.split("/")), "utf8");
+  if (!src.includes(marker)) fail(f + " lost its page-unique share card (" + marker + ") — the global share-card rule");
+}
+
+// 10. discoverability locks (v6.55 audit): the flagship beach pages are in
+//     the sitemap, carry structured data, and the site declares SearchAction.
+if (!sm.includes("BEACH_METROS") || !sm.includes("/best-beaches/")) fail("sitemap missing the /best-beaches flagship pages");
+const bbPage = readFileSync(join(root, "app", "best-beaches", "[metro]", "page.js"), "utf8");
+if (!bbPage.includes("application/ld+json") || !bbPage.includes('"@type": "ItemList"')) fail("/best-beaches lost its ItemList structured data");
+if (!bbPage.includes('"@type": "FAQPage"')) fail("/best-beaches lost its FAQ structured data");
+if (!lay.includes("SearchAction")) fail("layout WebSite JSON-LD lost its SearchAction (sitelinks searchbox)");
+
+console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean");

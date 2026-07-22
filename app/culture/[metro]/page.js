@@ -22,7 +22,9 @@ export function generateMetadata({ params }) {
   const url = `${SITE_URL}/culture/${params.metro}`;
   const title = `What ${c.title} Is Known For: Food, Sayings & Must-Do Experiences`;
   const description = `What to eat in ${c.title}, the experiences not to miss, how locals talk, and the one etiquette rule visitors should know.`;
-  return { title: `${title} | Wayfind`, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article" } };
+  // THE SHARE-CARD RULE: a card unique to this page, never the homepage art.
+  const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent("What " + c.title + " is known for")}&loc=${encodeURIComponent(c.title)}`;
+  return { title: `${title} | Wayfind`, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", title, description, images: [ogImg] } };
 }
 
 const S = {

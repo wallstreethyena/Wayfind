@@ -22,7 +22,9 @@ export function generateMetadata({ params }) {
   const url = `${SITE_URL}/florida/${params.town}`;
   const title = `Things to Do in ${t.title}, Florida (${new Date().getFullYear()}) — An Honest Local Guide`;
   const description = `${t.tag}. What ${t.title} actually is, what's worth your time, and the top-rated places right now — ranked by real reviews, no ads, no paid placement.`;
-  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article" } };
+  // THE SHARE-CARD RULE: a card unique to this page, never the homepage art.
+  const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent("Things to do in " + t.title + ", Florida")}&loc=${encodeURIComponent(t.title)}`;
+  return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] }, twitter: { card: "summary_large_image", title, description, images: [ogImg] } };
 }
 
 const S = {

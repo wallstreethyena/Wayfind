@@ -4,7 +4,7 @@
 // [OWNER/COUNSEL: …] are policy decisions that must be made by the owner
 // or reviewed by counsel before this page is treated as final. This page
 // is a disclosure document, not legal advice.
-export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures - Wayfind" };
+export const metadata = { alternates: { canonical: "https://www.gowayfind.com/privacy" }, title: "Privacy & Disclosures - Wayfind", description: "What Wayfind collects, what it never sells, and how affiliate links are disclosed — in plain language." };
 
 const S = {
   page: { background: "#0D1117", color: "#E6EDF3", minHeight: "100dvh", padding: "40px 20px 80px", fontFamily: "system-ui, -apple-system, sans-serif" },

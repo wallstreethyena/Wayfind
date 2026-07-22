@@ -17,11 +17,15 @@ export function generateMetadata({ params }) {
   const g = GUIDES[params.slug];
   if (!g) return { title: "Guide not found" };
   const url = `${SITE_URL}/guides/${params.slug}`;
+  // THE SHARE-CARD RULE (owner, 2026-07-22): every page shares a card that is
+  // unique to that page — never the generic homepage art.
+  const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent(g.title)}`;
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
     alternates: { canonical: url },
-    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article" },
+    openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: ogImg, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [ogImg] },
   };
 }
 
