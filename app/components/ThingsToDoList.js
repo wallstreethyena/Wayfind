@@ -69,7 +69,7 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
               {fmtDur(r.duration_min) ? <span>· {fmtDur(r.duration_min)}</span> : null}
             </>
           ) : (
-            <>{isFinite(r.distance_mi) ? <span>· {r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}</>
+            <>{isFinite(r.distance_mi) ? <span>· {r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi{r.drive_deduction ? " — ranked lower for the drive (−" + r.drive_deduction.toFixed(1) + ")" : ""}</span> : null}</>
           )}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>

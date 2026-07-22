@@ -2926,6 +2926,10 @@ function PageInner({ initialEvents = null }) {
   // captivating photo — the top proven family place's picture (rating x
   // depth heuristic), never stock art unless nothing qualifies yet.
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
+  // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
+  // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
+  const [buzzPick, setBuzzPick] = useState(null);
+  const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5243,6 +5247,34 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
+  // gating: only renders with >=2 real signal sources and a photo.
+  useEffect(() => {
+    if (screen !== "suggested" || !center || !supabase) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
+        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 2);
+        // The owner's drive rule applies here too: rank order only.
+        cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
+        const pick = cand[0] || null;
+        if (cancelled) return;
+        setBuzzPick(pick);
+        setBuzzWhy(null);
+        if (pick) {
+          try {
+            const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: pick.place_id, name: pick.name, category: pick.category, city: locName ? locName.split(",")[0] : "", rating: pick.rating, reviews: pick.reviews, popularity: pick.popularity, sources_count: pick.sources_count, by_source: pick.by_source, freshest: pick.freshest }) });
+            const j = r.ok ? await r.json() : null;
+            if (!cancelled && j && j.line) setBuzzWhy(j.line);
+          } catch (e) {}
+        }
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   useEffect(() => {
@@ -6535,6 +6567,22 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
                           </div>
                         </div>
+                        {/* v6.56 THE BUZZ SLIDE — "Trending near you" from real
+                            popularity signals; never "busiest" (no door counts).
+                            Absent until the popularity engine has rows. */}
+                        {buzzPick && (
+                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("buzz_hero_open", null, { id: buzzPick.place_id }); } catch (e2) {} try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {} }} aria-label={"Trending near you: " + buzzPick.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                            <img src={"/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(255,107,107,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                              <span style={{ fontSize: 11 }}>🔥</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#FF6B6B", letterSpacing: "0.4px", textTransform: "uppercase" }}>Trending near you</span>
+                            </div>
+                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")}</div>
+                            </div>
+                          </div>
+                        )}
                         </div>
                       );
                     })()}
