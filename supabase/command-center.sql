@@ -481,6 +481,27 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ------------------------------------------------------------
+-- 14) Data freshness — last successful write per background pipeline, so the
+-- Command Center can catch "cron ran, returned 200, wrote nothing" silently-
+-- empty failures that a plain HTTP/exception check would never see.
+-- ------------------------------------------------------------
+create or replace function public.wf_cc_data_freshness()
+returns table(pipeline text, last_success timestamptz, hours_since numeric)
+language sql stable security definer set search_path = public as $$
+  select 'cwv' as pipeline, max(run_at) as last_success,
+         round(extract(epoch from (now() - max(run_at))) / 3600.0, 1) as hours_since
+  from public.cwv_runs
+  union all
+  select 'popularity', max(fetched_at),
+         round(extract(epoch from (now() - max(fetched_at))) / 3600.0, 1)
+  from public.wf_place_popularity
+  union all
+  select 'beach_water', max(fetched_at),
+         round(extract(epoch from (now() - max(fetched_at))) / 3600.0, 1)
+  from public.wf_beach_water
+$$;
+
+-- ------------------------------------------------------------
 -- Lock down: server-only execution.
 -- ------------------------------------------------------------
 do $lock$
@@ -504,7 +525,8 @@ begin
     'wf_cc_score_coverage()',
     'wf_cc_lab_cwv()',
     'wf_cc_recent_signups(int)',
-    'wf_cc_recent_shares(int)'
+    'wf_cc_recent_shares(int)',
+    'wf_cc_data_freshness()'
   ] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', fn);
     execute format('grant execute on function public.%s to service_role', fn);
@@ -514,6 +536,7 @@ $lock$;
 
 -- ============================================================
 -- ROLLBACK (run to remove everything this file added):
+--   drop function if exists public.wf_cc_data_freshness();
 --   drop function if exists public.wf_cc_recent_shares(int);
 --   drop function if exists public.wf_cc_recent_signups(int);
 --   drop function if exists public.wf_cc_lab_cwv();
