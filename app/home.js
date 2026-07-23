@@ -2189,7 +2189,7 @@ function generateHooks(places, locName) {
   const foodTop = localByScore.find((p) => (primaryCategory(p) || "") === "Food");
   const nightTop = localByScore.find((p) => (primaryCategory(p) || "") === "Nightlife");
   if (foodTop && nightTop) hooks.push({
-    id: "itinerary", accent: "#C9A961", emoji: "🗺️", label: "Tonight's plan", highlightWord: "tonight",
+    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "tonight",
     hook: `Quick local itinerary for tonight`,
     detail: `${foodTop.name} for dinner → ${nightTop.name} for drinks`,
     cta: "See both →", action: { type: "detail", place: foodTop },
@@ -2197,7 +2197,7 @@ function generateHooks(places, locName) {
 
   // Wayfind Picks — the flagship branded entry into the curated picks sheet.
   if (byScore.length >= 5) hooks.push({
-    id: "top5", accent: "#C9A961", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "top 10",
+    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "top 10",
     hook: `The top 10 picks near ${city} right now`,
     detail: byScore.slice(0, 3).map((p) => p.name).join("  ·  "),
     theme: "best", placeId: byScore[0].id,
