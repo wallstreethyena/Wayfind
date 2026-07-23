@@ -6641,7 +6641,7 @@ function PageInner({ initialEvents = null }) {
             effect deps) so the alert card swaps to the unlock card immediately —
             no lingering. */}
         {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
-          <CityGate center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} />
+          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} />
         )}
         {/* Signed-in users ALWAYS get the feed — even outside our core area (the
             gate returns 'unlock', and the live-search feed works anywhere). Only
