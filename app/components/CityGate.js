@@ -15,7 +15,7 @@ import { useEffect, useRef, useState } from "react";
 import { C, CHAMPAGNE } from "./kit";
 import { supabase } from "../../lib/supabase";
 
-export default function CityGate({ status, center, city, user, onSignUp }) {
+export default function CityGate({ status, center, city, user, onSignUp, onUnlocked }) {
   // SINGLE SOURCE OF TRUTH: home.js already resolves wf_gate_status and passes it
   // in. We do NOT re-fetch here — that double round-trip is what made the card
   // linger. The card now appears/disappears atomically with home's fast lookup.
@@ -41,10 +41,17 @@ export default function CityGate({ status, center, city, user, onSignUp }) {
       });
     } catch (e) {}
     // The on-demand fetch only runs for a signed-in user, so send the access
-    // token — the server verifies it before spending Google calls (#10).
+    // token — the server verifies it before spending Google calls (#10). AWAIT it:
+    // on success we re-check coverage so the card DISAPPEARS (was lingering on a
+    // stale gate); on failure we show a fallback instead of spinning forever.
     let token = null;
     try { const { data } = await supabase.auth.getSession(); token = data && data.session && data.session.access_token; } catch (e) {}
-    try { fetch("/api/city/unlock", { method: "POST", headers: { "content-type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: JSON.stringify({ lat: center.lat, lng: center.lng, city: cityName }) }); } catch (e) {}
+    try {
+      const r = await fetch("/api/city/unlock", { method: "POST", headers: { "content-type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: JSON.stringify({ lat: center.lat, lng: center.lng, city: cityName }) });
+      const j = r.ok ? await r.json() : null;
+      if (j && (j.status === "live" || j.added > 0)) { requestedFor.current = null; onUnlocked && onUnlocked(); } // coverage now exists → home re-checks → card unmounts
+      else { setPhase("failed"); requestedFor.current = null; }
+    } catch (e) { setPhase("failed"); requestedFor.current = null; }
   };
 
   const notify = async () => {
@@ -56,10 +63,10 @@ export default function CityGate({ status, center, city, user, onSignUp }) {
     } catch (e) { setPhase("listed"); }
   };
 
-  // ── premium shell ──
+  // ── premium shell ── (constrained + centered so it doesn't stretch ugly on desktop)
   const shell = {
-    position: "relative", overflow: "hidden", margin: "12px 2px 18px",
-    padding: "22px 20px 20px", borderRadius: 20,
+    position: "relative", overflow: "hidden", margin: "12px auto 18px", maxWidth: 560, width: "auto",
+    padding: "22px 22px 20px", borderRadius: 20,
     background: "radial-gradient(120% 140% at 100% 0%, rgba(249,115,22,.22) 0%, rgba(249,115,22,0) 42%), linear-gradient(160deg, #0C1526 0%, #131E33 55%, #0A1120 100%)",
     border: "1px solid rgba(232,201,122,.28)",
     boxShadow: "0 12px 34px rgba(0,0,0,.45)",
@@ -87,7 +94,14 @@ export default function CityGate({ status, center, city, user, onSignUp }) {
           <>
             {eyebrow("Unlocking " + cityName)}
             {title("Building " + cityName + "…")}
-            {body("We're pulling " + cityName + "'s best places, tours and stays and scoring them the same way as everywhere else. Give it a moment, then refresh — it'll be live.")}
+            {body("We're pulling " + cityName + "'s best places and scoring them the same way as everywhere else — this only takes a few seconds.")}
+          </>
+        ) : phase === "failed" ? (
+          <>
+            {eyebrow("New city")}
+            {title("We couldn't reach " + cityName + " just now.")}
+            {body("Give it another try, or leave your email and we'll build it and let you know.")}
+            <button onClick={() => { requestedFor.current = null; unlock(); }} style={primaryBtn}>Try again</button>
           </>
         ) : (
           <>

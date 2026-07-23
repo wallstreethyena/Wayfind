@@ -35,5 +35,12 @@ ok(/wf_city_requests/.test(route) && /status": "fetching"|status: "fetching"|"fe
 ok(/sbEnv/.test(route), "unlock endpoint uses the service role (server-side)");
 ok(read("middleware.js").includes('"/api/city/unlock"'), "unlock endpoint is same-origin guarded");
 
+// v6.85: the "unlocking" message must clear (was lingering), fail gracefully, and not stretch on desktop
+ok(/function CityGate\(\{ status, center, city, user, onSignUp, onUnlocked \}\)/.test(g), "CityGate takes onUnlocked");
+ok(/j\.status === "live" \|\| j\.added > 0\)\) \{ requestedFor\.current = null; onUnlocked && onUnlocked\(\)/.test(g), "on a successful unlock it signals home to re-check coverage → the card clears (no lingering)");
+ok(/setPhase\("failed"\)/.test(g) && /Try again/.test(g), "a failed/empty unlock shows a Try-again fallback, not an endless 'Building…' spinner");
+ok(/maxWidth: 560/.test(g) && /margin: "12px auto 18px"/.test(g), "the card is width-constrained + centered (doesn't stretch ugly on desktop)");
+ok(/onUnlocked=\{\(\) => setGateBump\(\(x\) => x \+ 1\)\}/.test(home) && /\[screen, center, user, gateBump\]/.test(home), "home re-checks the gate after an unlock (gateBump) so the card disappears once covered");
+
 console.log(`test-city-gate: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
