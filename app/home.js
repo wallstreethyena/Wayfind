@@ -2861,7 +2861,7 @@ function PageInner({ initialEvents = null }) {
   // initial default is never written) so direct-entry surfaces like /order-in
   // inherit the SAME metro instead of re-geolocating or defaulting to Orlando.
   useEffect(() => {
-    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName })); } catch (e) {}
+    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
   const cityNow = locName ? locName.split(",")[0] : "you";
@@ -3038,6 +3038,25 @@ function PageInner({ initialEvents = null }) {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState("⭐");
   const manualRef = useRef(false);
+  // Restore a SEARCHED location across remounts (e.g. tapping a hero-card page
+  // then Back re-mounts Home). Without this, manualRef resets to false on mount
+  // and the geolocation effect overrides the searched city with the device
+  // location — forcing the user to re-search. We only restore a MANUAL search
+  // (not a passive device center) and only if recent (<6h), then mark manualRef
+  // so geolocation stands down. Runs once, synchronously before GPS resolves.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("wf_center");
+      if (!raw) return;
+      const c = JSON.parse(raw);
+      if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+        manualRef.current = true;
+        setCenter({ lat: c.lat, lng: c.lng });
+        if (c.loc) setLocName(c.loc);
+      }
+    } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Hook state — declared before hookCards memo to avoid temporal dead zone.
   const [aiHooks, setAiHooks] = useState(null);
   const [hookLikes, setHookLikes] = useState(() => new Set());
@@ -6269,7 +6288,7 @@ function PageInner({ initialEvents = null }) {
                 </span>
               </div>
               {searchLabel && (
-                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {} if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); reverseGeocode(deviceLoc.lat, deviceLoc.lng).then((nm) => nm && setLocName(nm), () => {}); } }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
               )}
             </div>
           </>
