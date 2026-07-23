@@ -5492,6 +5492,35 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center, user, gateBump]);
 
+  // Auto-fill coverage for ANY uncovered location (owner: works for the user's
+  // searched OR default location — no tap, signed in or not). When the gate says
+  // this place isn't covered, kick /api/city/unlock ONCE per location cell; it
+  // pulls Google + Viator server-side, then we re-check so the door gives way to
+  // real content and a real "Things to do" rail. Cost is bounded server-side
+  // (per-city 90-day dedup + global hourly cap + same-origin guard).
+  const autoUnlockRef = useRef(new Set());
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    if (gateStatus !== "unlock" && gateStatus !== "alert") return;
+    const cell = center.lat.toFixed(2) + "," + center.lng.toFixed(2);
+    if (autoUnlockRef.current.has(cell)) return; // one attempt per location per session
+    autoUnlockRef.current.add(cell);
+    let dead = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/city/unlock", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName || "" }),
+        });
+        const j = r.ok ? await r.json() : null;
+        if (!dead && j && (j.status === "live" || j.added > 0 || j.experiences > 0)) setGateBump((x) => x + 1);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, gateStatus]);
+
   // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
   // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
   useEffect(() => {
