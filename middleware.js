@@ -41,6 +41,8 @@ export const config = {
     "/api/local/report",
     // Buzz hero (v6.56): metered Anthropic proxy for the trending why-line.
     "/api/buzz/why",
+    // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
+    "/api/image-score",
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
