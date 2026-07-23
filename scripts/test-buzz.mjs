@@ -27,9 +27,9 @@ ok(/qualifying/.test(pickBestPhoto([{ name: "p/a", widthPx: 1600, heightPx: 900 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes('supabase.rpc("wf_buzz_picks"'), "buzz slide reads the real popularity RPC");
 ok(/\(r\.sources_count \|\| 0\) >= 1/.test(home), "buzz requires at least one REAL signal source");
-ok(home.includes('"More people are looking this up than usual'), "the single-source fallback line claims only what pageviews prove");
-ok(home.includes("Trending near you") && !/busiest/i.test(home.match(/buzzWhy \|\|[\s\S]{0,220}/)[0]), "the card says Trending; the rendered fallback line never claims busiest (no door counts)");
-ok(home.includes('"Drawing attention across " + buzzPick.sources_count + " signals this week'), "the multi-source fallback line is data-templated, never invented");
+ok(home.includes("On readers' radar near you"), "the single-source fallback claims only a LEVEL ('on the radar'), never a velocity ('than usual' — wf_buzz_picks has no baseline)");
+ok(home.includes("Trending near you") && !/than usual|busiest|more people/i.test(home.match(/buzzWhy \|\|[\s\S]{0,220}/)[0]), "the rendered fallback line never claims a velocity or crowd (no baseline/door-count data)");
+ok(home.includes('"Popular across " + buzzPick.sources_count + " local signals'), "the multi-source fallback is data-templated (real source COUNT only), no 'this week' freshness claim");
 const why = readFileSync(new URL("../app/api/buzz/why/route.js", import.meta.url), "utf8");
 ok(why.includes("THE SWAP TEST") && why.includes("NEVER INVENT") && why.includes("hidden gem, nestled, boasts, stunning"), "the why-line prompt carries the Wayfind editorial standard");
 ok(why.includes('cget(ckey)') && why.includes("1 * DAY"), "why-lines pool-cached one day");
