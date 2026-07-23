@@ -65,5 +65,22 @@ ok(sql.includes("5184000") , "the SQL decay constant matches TASTE_TAU_MS (60 da
 ok(sql.includes("wf_taste_wipe"), "delete-my-taste ships now — legal by design");
 ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforce ownership");
 
+// --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
+ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY with explicit consent — off = same for everyone");
+ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
+ok(home.includes('Picked for you — tuned to what you like'), "when on, the personalization is LABELED (never silent)");
+ok(home.includes("Personalize my feed") && home.includes("No thanks"), "the consent ask is a real choice, not a dark pattern");
+ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
+ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
+ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable vector loads from their OWN rows");
+// Phase 3 control
+ok(home.includes("function resetTaste") && home.includes('supabase.rpc("wf_taste_wipe")'), "Reset wipes the server vector");
+ok(home.includes("function exportTaste") && home.includes("wayfind-my-taste.json"), "export-my-data ships");
+ok(home.includes("function forgetTasteItem"), "per-item forget ships");
+ok(home.includes("Your taste") && home.includes("never sold"), "the transparency panel exists and states the promise");
+// The Score honesty lock STILL holds after activation.
+ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit/.test(home), "affinity STILL never feeds the Wayfind Score — re-rank uses the internal _ps only");
+ok(home.includes("displayed wfScore never changes"), "the ranking comment still asserts the visible Score is untouched");
+
 console.log(`test-taste: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

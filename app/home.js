@@ -90,6 +90,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { signalWeights as tasteSignals, applyLocalTaste } from "../lib/taste";
+import { blendTaste as tasteBlend, localToVector as tasteLocalToVector } from "../lib/taste";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
@@ -3415,6 +3416,56 @@ function PageInner({ initialEvents = null }) {
   const [pwSaving, setPwSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false); // account menu popover
+  // THE TASTE LOOP — Phase 2/3 (owner). Consent-gated personalization + control.
+  const [personalize, setPersonalize] = useState(null); // 'on' | 'off' | null(unasked)
+  const [tasteOpen, setTasteOpen] = useState(false);
+  const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
+  const tasteVecRef = useRef({});                        // durable per-user vector
+  const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
+
+  // Consent is remembered; the durable vector loads per user/session (not per
+  // action — the session signals give instant feel; this is the slow layer).
+  useEffect(() => { try { const c = localStorage.getItem("wf_personalize"); if (c === "on" || c === "off") setPersonalize(c); } catch (e) {} }, []);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      let vec = {};
+      try {
+        if (supabase && user) {
+          const { data } = await supabase.from("wf_taste").select("dimension,value,weight,updated_at");
+          vec = tasteBlend((data || []).map((r) => ({ dimension: r.dimension, value: r.value, weight: r.weight, updated_at: new Date(r.updated_at).getTime() })), Date.now());
+        } else {
+          vec = tasteLocalToVector(JSON.parse(localStorage.getItem("wf_taste_local") || "null"), Date.now());
+        }
+      } catch (e) {}
+      if (!dead) { tasteVecRef.current = vec; setTasteVecState(vec); }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, tasteVer]);
+  function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  async function forgetTasteItem(dim, val) {
+    try {
+      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+    } catch (e) {}
+    setTasteVer((n) => n + 1);
+  }
+  async function resetTaste() {
+    try {
+      if (supabase && user) { await supabase.rpc("wf_taste_wipe"); }
+      localStorage.removeItem("wf_taste_local");
+    } catch (e) {}
+    setConsent("off"); setTasteVer((n) => n + 1);
+  }
+  function exportTaste() {
+    try {
+      const vec = tasteVecRef.current || {};
+      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
+      try { logEvent("taste_export"); } catch (e) {}
+    } catch (e) {}
+  }
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -6450,6 +6501,32 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ marginTop: 10, background: "linear-gradient(150deg, rgba(249,115,22,.14), rgba(11,14,21,.6))", border: `1px solid rgba(249,115,22,.35)`, borderRadius: 14, padding: "13px 15px" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: 40, borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: 40, padding: "0 16px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+            </div>
+          );
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -6492,9 +6569,17 @@ function PageInner({ initialEvents = null }) {
         {screen === "suggested" && !outOfCoverage(center) && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
+          // Phase 2: fold the DURABLE per-user taste vector into the category
+          // weights so preference persists across sessions, not just this one.
+          // (category namespace matches catW; the visible Score is untouched.)
+          const _vec = tasteVecRef.current || {};
+          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          const hasAffinity = activeSignals.length >= 2;
-          const displayList = dedupePlaces(hasAffinity ? applyAffinity(list, affinities) : list, true);
+          // Personalize ONLY with explicit consent (Phase 2). Without it, the
+          // feed is pure moment/Score order — same for everyone.
+          const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
+          const personalized = personalize === "on" && hasTaste;
+          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
@@ -7307,6 +7392,41 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
+      {tasteOpen && (() => {
+        const vec = tasteVecState || {};
+        const chips = [];
+        for (const dim of ["category", "tag", "price"]) { const m = vec[dim]; if (!m) continue; for (const [val, w] of Object.entries(m)) chips.push({ dim, val, w: Number(w) || 0 }); }
+        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
+        const top = chips.slice(0, 24);
+        const dimLabel = { category: "", tag: "", price: "$".repeat(1) };
+        return (
+          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(2,4,8,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: C.bg, borderTop: `1px solid ${C.border}`, borderRadius: "18px 18px 0 0", padding: "18px 18px 26px", maxHeight: "82vh", overflowY: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Your taste</div>
+                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+              </div>
+              <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
+              {top.length ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {top.map((c) => (
+                    <span key={c.dim + "|" + c.val} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: c.w >= 0 ? C.text : C.muted, background: c.w >= 0 ? "rgba(232,201,122,.12)" : "rgba(255,255,255,.04)", border: `1px solid ${c.w >= 0 ? "rgba(232,201,122,.4)" : C.border}`, borderRadius: 999, padding: "6px 8px 6px 12px" }}>
+                      {c.w >= 0 ? "" : "not "}{c.val}
+                      <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.val} style={{ width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: C.muted, fontSize: 11, lineHeight: 1, cursor: "pointer" }}>✕</button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+                <button onClick={exportTaste} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Export my data</button>
+                <button onClick={() => { resetTaste(); setTasteOpen(false); }} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid rgba(179,58,43,.5)`, background: "transparent", color: "#E06A5A", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Reset &amp; forget all</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* App-tile sheets: opened from the home navigation grid */}
       {menuSheet && <MenuSheet ctx={ctx} />}
