@@ -53,6 +53,9 @@ export default function Privacy() {
         <h2 style={S.h2}>Analytics, consent &amp; opt-out</h2>
         <p style={S.p}>We use PostHog to understand how the app is used (screens viewed, features tapped) so we can improve it. Analytics are for product improvement only. Web performance metrics (page speed measurements) are also collected. [OWNER/COUNSEL: decide the consent posture — e.g. whether a consent banner is required for your user base (EU/UK visitors) and what the opt-out mechanism is; document it here.]</p>
 
+        <h2 style={S.h2}>Device recognition</h2>
+        <p style={S.p}>To remember your preferences and recognize a returning device, we store a random, anonymous device identifier in your browser &mdash; in local storage and a first-party cookie that can last up to two years. It contains no personal information and is <b>first-party only</b>: we never use it for cross-site or cross-app tracking, and we never use fingerprinting or &ldquo;evercookie&rdquo; techniques to recreate it after you delete it. If you sign in, that device is linked to your account so your saved spots and preferences follow you across sessions and devices. <b>Opt out:</b> turn on &ldquo;Do Not Track&rdquo; in your browser and we switch to a session-only identifier that is not kept between visits; clearing your browser&rsquo;s site data removes it entirely. [OWNER/COUNSEL: confirm the consent posture for EU/UK visitors.]</p>
+
         <h2 style={S.h2}>Children</h2>
         <p style={S.p}>Wayfind is not directed at children and we do not knowingly collect personal information from children under 13. If you believe a child has provided us personal information, contact <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a> and we will delete it. [OWNER/COUNSEL: confirm the age threshold appropriate to your markets, e.g. 16 in parts of the EU.]</p>
 
