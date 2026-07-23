@@ -13,7 +13,7 @@ const read = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
 // ── grouping / shaping (pure) ──
 const rows = [
   { id: 1, provider: "undercover_tourist", subcategory: "seasonal_events", title: "Halloween", affiliate_url: "https://anrdoezrs.net/links/101643573/type/dlg/sid/x/https://u/", quality10: 8.6 },
-  { id: 2, provider: "undercover_tourist", subcategory: "theme_parks", title: "Disney", affiliate_url: "https://anrdoezrs.net/links/101643573/type/dlg/sid/y/https://u/", quality10: 9.4, discount_text: "Discount tickets", badge: "Best seller", image_url: null, gradient: "linear-gradient(1)" },
+  { id: 2, provider: "undercover_tourist", subcategory: "theme_parks", title: "Disney", affiliate_url: "https://anrdoezrs.net/links/101643573/type/dlg/sid/y/https://u/", quality10: 9.4, discount_text: "Discount tickets", badge: "Best seller", image_url: null, photo_ref: "GOOG_REF_123", gradient: "linear-gradient(1)" },
 ];
 const providers = { undercover_tourist: { label: "Undercover Tourist", disclosure: "Affiliate link…" } };
 const rails = buildRails(rows, providers);
@@ -25,6 +25,9 @@ ok(disney.href === rows[1].affiliate_url, "the affiliate link is passed through 
 ok(disney.href.includes("101643573"), "the rendered link carries our CJ PID");
 ok(disney.providerLabel === "Undercover Tourist", "provider display_name resolved for the disclosure chip");
 ok(disney.discount === "Discount tickets" && disney.badge === "Best seller", "discount + badge carried through");
+ok(disney.photoRef === "GOOG_REF_123", "photo_ref carried through (Google photo fallback when no image_url)");
+ok(read("app/home.js").includes("/api/photo?ref=${encodeURIComponent(d.photoRef)}"), "the rail renders the Google photo via /api/photo when image_url is absent");
+ok(read("lib/dealsData.js").includes("mergePhotoRefs"), "serveDeals merges photo_ref from the base table (the ranked view omits it)");
 ok(buildRails([], {}).length === 0 && buildRails(null, null).length === 0, "empty / null input → no rails (renders nothing)");
 ok(SUBCAT_LABEL.theme_park_hotels === "Theme-park hotels & packages", "stays rail label present");
 
