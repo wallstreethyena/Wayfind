@@ -16,6 +16,7 @@ import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge } from "./k
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+import { rankReason } from "../../lib/rankReason.js";
 import { viatorDirectUrl } from "../../lib/affiliates.js";
 
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
@@ -79,7 +80,7 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
             verified wf_editorial hook (gold, like the beaches page). The AI
             blurb renders only when no verified hook exists. */}
-        {r.editorial_hook ? <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div> : blurb ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{blurb}</div> : null}
+        {r.editorial_hook ? <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div> : (rankReason(r, rank) || blurb) ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{rankReason(r, rank) || blurb}</div> : null}
         <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
           {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
           {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}

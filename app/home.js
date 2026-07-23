@@ -98,6 +98,7 @@ import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
 import { pickHomeExp } from "../lib/homeExpPick";
+import { rankReason } from "../lib/rankReason";
 import { siteTodayStr } from "../lib/siteTime";
 import { usePlaceProduct } from "../lib/placeProduct";
 import { saveItem as saveMonetized } from "../lib/savedItems";
@@ -7973,7 +7974,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
   // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
-  const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
+  // Editorial line: a curated hook (rich) → the honest rank-aware "why it's here"
+  // (owner: answer why #1 beats #2, from real signals) → generic blurb.
+  const take = ((curatedFor(p) || {}).hook) || (rank ? rankReason(p, rank) : "") || line || templateBlurb(p);
   const offer = OFFERS[p.id];
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
