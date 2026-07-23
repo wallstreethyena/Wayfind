@@ -513,7 +513,7 @@ export default function DetailSheet({ ctx }) {
                 </div>
               )}
               <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginBottom: 16 }}>
-                <FeaturedTag name={detail.name} />
+                <FeaturedTag p={detail} />
                 {experienceBadges(detail, null, 4).map((b) => (
                   <button key={b.key} onClick={() => { setDetail(null); openExperience(b.key); }} style={{ fontSize: 12, fontWeight: 700, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "5px 11px", cursor: "pointer" }}>{b.label}</button>
                 ))}
