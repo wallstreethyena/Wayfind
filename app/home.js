@@ -7126,8 +7126,8 @@ function PageInner({ initialEvents = null }) {
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
               {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
-              {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
-                <div className="wf-discovery-empty" style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
+              {!browseCat && !suggestedLoading && suggested !== null && (
+                <section className="wf-discovery-empty" aria-label="Explore Wayfind" style={{ padding: "16px 2px 8px" }}>{/* Visual Release 02: one permanent discovery section, never duplicated. */}
                   <div className="wf-discovery-heading" style={{ marginBottom: 12 }}>
                     <div className="wf-discovery-visual">
                       <img src="/brand/wayfind-neighborhood-context-v1.png" alt="A walkable waterfront neighborhood with local restaurants, live music, and places to explore" loading="lazy" />
@@ -7154,7 +7154,7 @@ function PageInner({ initialEvents = null }) {
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
