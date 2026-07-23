@@ -15,14 +15,14 @@ ok(/status !== "unlock" && status !== "alert"\) return null/.test(g), "renders n
 ok(/from\("wf_city_requests"\)\.insert/.test(g), "unlock records demand in wf_city_requests");
 ok(/fetch\("\/api\/city\/unlock"/.test(g), "unlock kicks the server-side fetch endpoint");
 ok(/from\("wf_waitlist"\)\.insert/.test(g) && /source: "gate"/.test(g), "alert captures the email in wf_waitlist");
-ok(/Unlock \{cityName\}/.test(g) && /Notify me/.test(g), "unlock shows an Unlock CTA; alert shows Notify me");
+ok(/Unlock (?:full )?\{cityName\}/.test(g) && /Notify me/.test(g), "unlock shows an Unlock CTA; alert shows Notify me");
 
 // ── home wiring ──
 const home = read("app/home.js");
 ok(/const \[gateStatus, setGateStatus\] = useState\(null\)/.test(home), "home holds the gate status (null = optimistic feed)");
 ok(/rpc\("wf_gate_status", \{ p_lat: center\.lat, p_lng: center\.lng, p_user_id/.test(home), "home calls wf_gate_status for the current location");
 ok(/\(gateStatus === "unlock" \|\| gateStatus === "alert"\) && \(\s*<CityGate/.test(home), "the CityGate door renders only on unlock/alert");
-ok(/gateStatus !== "unlock" && gateStatus !== "alert" && \(\(\) => \{/.test(home), "the feed renders unless the gate says unlock/alert (null → feed, safe default)");
+ok(/gateStatus !== "alert" && \(\(\) => \{/.test(home), "SIGNED-IN users always get the feed: it renders for unlock/live/null; only signed-out 'alert' walls it");
 
 // ── unlock endpoint ──
 const route = read("app/api/city/unlock/route.js");

@@ -68,9 +68,9 @@ export default function CityGate({ center, city, user }) {
           </>
         ) : (
           <>
-            <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Wayfind isn't in {cityName} yet — want it?</div>
-            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>You're signed in, so you can open it. We'll pull {cityName}'s best places, tours and tickets and score them by the same Wayfind Score.</div>
-            <button onClick={unlock} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "10px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Unlock {cityName} →</button>
+            <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>You're exploring {cityName} — live picks are below.</div>
+            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>{cityName} is outside our core area, so you're seeing live results. Want the full curated Wayfind experience here — tours, tickets and stays scored the same way? Unlock it and we'll build it out.</div>
+            <button onClick={unlock} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "10px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Unlock full {cityName} →</button>
           </>
         )}
       </div>
