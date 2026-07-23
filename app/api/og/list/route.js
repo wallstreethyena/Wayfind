@@ -8,7 +8,7 @@ export const runtime = "edge";
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    return await listCardResponse(decodeCard(searchParams.get("d")) || SAMPLE);
+    return await listCardResponse(decodeCard(searchParams.get("d")) || SAMPLE, { assetOrigin: new URL(req.url).origin });
   } catch (e) {
     return listCardFallback();
   }

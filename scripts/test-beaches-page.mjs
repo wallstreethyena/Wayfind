@@ -42,10 +42,13 @@ ok(parts.includes("last known"), "stale readings say so");
 ok(parts.includes("tested "), "every water reading shows its freshness");
 ok(parts.includes("BackControl") && parts.includes("window.history.back()"), "sticky back control: history first, our fallback second");
 const pageSrc2 = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-ok(pageSrc2.includes("<BeachLiveChips id={b.id}"), "chips render per ROW — never the number-one beach's values on others");
+ok(!pageSrc2.includes("<BeachLiveChips"), "v6.60 (owner): live water chips are OFF the list — the beach photo sells, chips live in the detail sheet");
 // THE RULE: verified editorial replaces the metric sentence (core law)
 ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified wf_editorial rows replace the metric prose");
-ok(pageSrc2.includes("Plan it:"), "know_before + best_time render as the Plan-it line");
+ok(pageSrc2.includes("Know before you go:") && pageSrc2.includes("How we verified this"), "know_before folds into the concise 'Know before you go' line inside the verify collapse");
+  ok(pageSrc2.includes('aspectRatio: "16 / 10"') && pageSrc2.includes("w=640"), "the beach card is image-forward — a large photo, not a 72px thumbnail");
+  ok(/fontSize: 21, fontWeight: 800, color: "#fff"/.test(pageSrc2), "name rides the image at hero size");
+
 ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
 ok(parts.includes("navigator.share"), "native share with clipboard fallback");
@@ -59,15 +62,14 @@ ok(og.includes("BEACH_SHARE_PHOTO"), "share card uses the curated best picture")
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 
 
-// v6.55 "Make it a beach day" — the revenue rail's honesty contract.
+// v6.61 "Make it a beach day" — now the client TourStrip (build-time fetch was empty).
 {
   const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-  ok(src.includes("SUPABASE_SERVICE_ROLE_KEY") && !src.includes('"use client"'), "tours read must stay server-only — the service key must never reach a client component");
-  ok(src.includes("viatorDirectUrl(t.product_url) || t.product_url") && !/viator\.com\/tours\/[^\"]*\$\{/.test(src), "tour links must be Viator's OWN product_url through the ONE tracking wrapper — never hand-built, never unattributed");
-  ok(src.includes('rel="noreferrer nofollow sponsored"'), "affiliate links must carry nofollow+sponsored — this is an INDEXED page");
-  ok(src.includes("tours.length >= 2"), "the section hides below 2 tours — never a lonely ad");
-  ok(src.includes("may earn a commission"), "the disclosure line is required");
-  ok(src.includes("wfTourScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
+  ok(src.includes('<TourStrip') && src.includes('waterOnly'), "the beach tours render via the client TourStrip (water-only)");
+  const ts = readFileSync(new URL("../app/components/TourStrip.js", import.meta.url), "utf8");
+  ok(ts.includes("may earn a commission"), "the disclosure line is required");
+  ok(ts.includes("wayfindScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
+  ok(/href=\{t\.url\}/.test(ts) && /\/pid=\/\.test\(t\.url\)/.test(ts), "product_url verbatim + pid guard");
 }
 // v6.55b Stay lane: the house hotel pattern, honestly.
 {
@@ -88,7 +90,7 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
   ok(src.includes("Know before you go:"), "the one practical line is gone");
   const rep = readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8");
-  ok(rep.includes("topLeft || null") && rep.includes("fontSize: 21, fontWeight: 800"), "hero shell lost the back-control slot or the bigger wordmark");
+  ok(rep.includes("topLeft || null") && rep.includes("fontSize: 23, fontWeight: 800"), "hero shell lost the back-control slot or the bigger wordmark");
   const icx = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icx.includes('topLeft={<BackControl fallback="/" />}'), "family/date-night lost their back button");
 }

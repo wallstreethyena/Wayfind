@@ -65,7 +65,10 @@ export async function generateMetadata({ params, searchParams }) {
     ogH = card.staticH || 630;
   } else {
     og = "/api/og?kind=list&t=" + encodeURIComponent(t);
-    if (card) og += "&card=" + encodeURIComponent(params.key === "hol-worldcup" ? "worldcup" : params.key);
+    // Always carry the list key. Bespoke cards use it for copy and all other
+    // lists use it only to resolve their visual artwork; the original title,
+    // count, location and live list intelligence remain untouched.
+    og += "&card=" + encodeURIComponent(params.key === "hol-worldcup" ? "worldcup" : params.key);
     if (wc && rotN) og += "&rot=" + encodeURIComponent(rotN);
     if (n) og += "&n=" + n;
     if (loc) og += "&loc=" + encodeURIComponent(loc);

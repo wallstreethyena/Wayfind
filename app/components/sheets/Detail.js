@@ -6,7 +6,7 @@
 // betterAlternatives/similarPlaces/relatedPicks, which close over the
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
@@ -112,6 +112,49 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// The Wayfind take — a peek-carousel of labeled cards (owner, 2026-07-22).
+// One aspect per card; the next peeks in and the dots track the swipe, so the
+// reader always sees there is more and what it is. Body is near-white and
+// regular-weight for readability.
+function WayfindTakeRail({ editorial }) {
+  const railRef = useRef(null);
+  const [active, setActive] = useState(0);
+  const SPEC = [
+    ["why", "Why go", "🧭", C.accent], ["knownFor", "Known for", "⭐", C.gold],
+    ["insiderMove", "Insider move", "🔑", C.gold], ["proof", "Why it stands out", "💎", C.green],
+    ["goodToKnow", "Good to know", "💡", "#7DD3FC"], ["watchOut", "Heads up", "⚠️", "#E8B84B"],
+    ["bestFor", "Best for", "🎯", C.accent], ["move", "Best move", "✨", C.accent],
+    ["foodMove", "Food move", "🍽️", C.gold], ["drinkMove", "Drink move", "🍸", C.gold],
+    ["story", "The story", "📖", "#7DD3FC"], ["vibe", "Vibe check", "🎭", C.accent],
+    ["funFact", "Fun fact", "💡", C.gold],
+  ];
+  const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] })).filter((x) => x.body);
+  if (!items.length) return null;
+  const multi = items.length > 1;
+  const onScroll = () => { const el = railRef.current; if (!el) return; const w = el.clientWidth * 0.86 + 10; setActive(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w)))); };
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9 }}>
+        <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>📝 The Wayfind take</div>
+        {multi ? <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{active + 1} / {items.length} · Swipe →</div> : null}
+      </div>
+      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: multi ? 2 : 0 }}>
+        {items.map((it) => (
+          <div key={it.label} style={{ flex: multi ? "0 0 86%" : "0 0 100%", scrollSnapAlign: "start", background: "linear-gradient(155deg, rgba(255,255,255,.045), rgba(11,14,21,.5))", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", minHeight: 96, boxSizing: "border-box" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: it.color, marginBottom: 8 }}><span>{it.icon}</span>{it.label}</div>
+            <div style={{ fontSize: 14, fontWeight: 400, color: "#E6EDF3", lineHeight: 1.55 }}>{it.body}</div>
+          </div>
+        ))}
+      </div>
+      {multi ? (
+        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 9 }}>
+          {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 16 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.22)", transition: "width .2s ease, background .2s ease" }} />))}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -327,28 +370,45 @@ export default function DetailSheet({ ctx }) {
                 );
               })()}
               {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
-              <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
-                {insightLoading && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
-                    <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
-                    Reading the reviews
+              {/* v6.60 (owner, brand integrity — the Ryan's Coffee House bug):
+                  "Why Wayfind picked this" is a Wayfind OPINION. It renders ONLY
+                  when we actually have one — a review-grounded insight or a
+                  curated editorial. It must NEVER stamp that header over generic
+                  filler ("A highly reviewed nearby option..."). When there is no
+                  real opinion the block is omitted; the neutral Google summary
+                  still renders below, clearly sourced. */}
+              {(() => {
+                if (insightLoading) return (
+                  <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.muted, marginTop: 8 }}>
+                      <div style={{ animation: "wfbob 1.1s ease-in-out infinite", display: "flex" }}><Critter size={22} /></div>
+                      Reading the reviews
+                    </div>
                   </div>
-                )}
-                {!insightLoading && (() => {
-                  const ins = insight && !insight.error && !insight.unavailable ? insight : null;
-                  const S = (v) => insightSane(v);
-                  const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
-                  let why = ins ? S(ins.why) : "";
-                  if (!why && ins) {
-                    const goWhen = S(ins.goWhen) || S(ins.bestTime);
-                    const skipIf = S(ins.skipIf);
-                    why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
-                  }
-                  if (!why) why = detail.rating != null && detail.rating >= 4.3 ? "A highly reviewed nearby option with a strong rating." : "Worth a look while you are nearby.";
-                  return <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{why}</div>;
-                })()}
-              </div>
+                );
+                const ins = insight && !insight.error && !insight.unavailable ? insight : null;
+                const S = (v) => insightSane(v);
+                const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
+                let why = ins ? S(ins.why) : "";
+                if (!why && ins) {
+                  const goWhen = S(ins.goWhen) || S(ins.bestTime);
+                  const skipIf = S(ins.skipIf);
+                  why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
+                }
+                // A REAL, review-grounded opinion only — no filler, ever. The
+                // curated editorial has its own surface (the Wayfind-take rail);
+                // the Google summary renders neutrally below. So this block is
+                // strictly the insight, shown only when it actually grounded.
+                const body = why;
+                if (!body) return null;
+                return (
+                  <div style={{ marginBottom: 16, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.accent}55`, borderRadius: 14, padding: "13px 14px" }}>
+                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>{detail._event ? "Why this venue" : "Why Wayfind picked this"}</div>
+                    <div style={{ fontSize: 14.5, color: C.text, lineHeight: 1.6, marginTop: 8, fontWeight: 500 }}>{body}</div>
+                  </div>
+                );
+              })()}
               {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
@@ -379,18 +439,15 @@ export default function DetailSheet({ ctx }) {
                 </div>
               ); })()}
               {/* 3. Insider tip */}
-              {/* v6.37 — the Wayfind take (Vibe Check / Why Go / Best Move), the owner's editorial voice for this exact place. */}
-              {!detail._event && editorial && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px", marginBottom: 16 }}>
-                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 7 }}>📝 The Wayfind take</div>
-                  {[["Vibe Check", editorial.vibe], ["Why Go", editorial.why], ["Best Move", editorial.move], ["Known For", editorial.knownFor], ["Food Move", editorial.foodMove], ["Drink Move", editorial.drinkMove], ["The Story", editorial.story], ["Best For", editorial.bestFor], ["Insider Move", editorial.insiderMove], ["Why It Stands Out", editorial.proof], ["Good to Know", editorial.goodToKnow], ["Fun Fact", editorial.funFact], ["Heads Up", editorial.watchOut]].filter(([_l, _b]) => _b).map(([_lb, _bd]) => (
-                    <div key={_lb} style={{ marginBottom: 7 }}>
-                      <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{_lb}: </span>
-                      <span style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5 }}>{_bd}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/* v6.60 (owner) — the Wayfind take as a PEEK-CAROUSEL of labeled
+                  cards: the swipe-one-at-a-time feel, but the next card peeks in
+                  and every card wears its label, so nothing is hidden. Order:
+                  Why go -> Known for -> Insider move -> Why it stands out ->
+                  Good to know -> Heads up (remaining aspects appended so nothing
+                  is dropped). Body is near-white, 14px, REGULAR weight — larger
+                  and lighter than the label, the readability fix the owner asked
+                  for. */}
+              {!detail._event && editorial ? <WayfindTakeRail editorial={editorial} /> : null}
 
               {(() => { const _ins = insider[detail.id]; if (!_ins || _ins.none) return null; const _cf = curatedFor && curatedFor(detail); const rows = [["🗝️", "Insider tip", _ins.tip], ["🕐", "Best time", _ins.bestTime], ["⭐", "Don't miss", _ins.dontMiss], ["💡", "Fun fact", (_cf && _cf.funFact) || _ins.funFact]].filter((r) => r[2]); if (!rows.length) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>

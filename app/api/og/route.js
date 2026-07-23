@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
-import { SITE_URL } from "../../../lib/site";
-import { SHARE_CARD_SYSTEM, shareCardFor, wcRotation } from "../../../lib/shareCards";
+import { SHARE_CARD_SYSTEM, shareCardFor, shareVisualFor, wcRotation } from "../../../lib/shareCards";
 
 export const runtime = "edge";
 
@@ -18,11 +17,21 @@ export const runtime = "edge";
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
+    const assetOrigin = new URL(req.url).origin;
     const kind = searchParams.get("kind") || "list";
     const O = SHARE_CARD_SYSTEM.accent;
     const BG = "#0B0B0C";
-    const card = shareCardFor((searchParams.get("card") || "").slice(0, 24));
-    const bgSrc = card ? SITE_URL + card.art : OG_BG;
+    const cardKey = (searchParams.get("card") || "").slice(0, 24);
+    const card = shareCardFor(cardKey);
+    // Use the same image resolver for experience lists, place categories,
+    // weather and the generic saved-list path. This changes presentation only:
+    // title, counts, score and all recommendation intelligence still come from
+    // the existing signed share URL.
+    const visual = shareVisualFor(cardKey || searchParams.get("cat") || kind);
+    // Public assets are fetched from the current deployment. Keeping artwork
+    // outside this Edge bundle preserves Vercel's function-size budget and
+    // avoids a brief mismatch while the production alias is rolling forward.
+    const bgSrc = visual && visual.art ? assetOrigin + visual.art : OG_BG;
     const bg = <img width={1200} height={630} src={bgSrc} style={{ position: "absolute", top: 0, left: 0, objectFit: "cover" }} />;
     const col = { position: "absolute", top: 0, right: 0, width: 566, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", paddingRight: 60 };
     const signal = <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#FDBA74", fontSize: 16, fontWeight: 800, letterSpacing: 2.3, marginBottom: 18 }}><span style={{ display: "flex", width: 22, height: 3, borderRadius: 999, backgroundColor: O }} />{SHARE_CARD_SYSTEM.eyebrow}</div>;

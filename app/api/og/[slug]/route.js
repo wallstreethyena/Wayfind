@@ -15,8 +15,9 @@ export async function GET(req, { params }) {
     let snap = v ? await getSnapshot(slug, v) : null;
     const exact = !!(snap && String(snap.v) === String(v));
     if (!snap) snap = await getLatestSnapshot(slug);
-    if (!snap || !snap.card) return await listCardResponse(null); // branded sample, live cache
-    return await listCardResponse(snap.card, { immutable: exact });
+    const assetOrigin = new URL(req.url).origin;
+    if (!snap || !snap.card) return await listCardResponse(null, { assetOrigin }); // branded sample, live cache
+    return await listCardResponse(snap.card, { immutable: exact, assetOrigin });
   } catch (e) {
     return listCardFallback();
   }
