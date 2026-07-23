@@ -6592,7 +6592,10 @@ function PageInner({ initialEvents = null }) {
         {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
           <CityGate center={center} city={locName} user={user} />
         )}
-        {screen === "suggested" && gateStatus !== "unlock" && gateStatus !== "alert" && (() => {
+        {/* Signed-in users ALWAYS get the feed — even outside our core area (the
+            gate returns 'unlock', and the live-search feed works anywhere). Only
+            'alert' (signed-out + uncovered) walls the feed behind the waitlist. */}
+        {screen === "suggested" && gateStatus !== "alert" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           // Phase 2: fold the DURABLE per-user taste vector into the category
