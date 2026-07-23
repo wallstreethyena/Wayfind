@@ -21,8 +21,12 @@ ok(/Unlock (?:full )?\{cityName\}/.test(g) && /Notify me/.test(g), "unlock shows
 const home = read("app/home.js");
 ok(/const \[gateStatus, setGateStatus\] = useState\(null\)/.test(home), "home holds the gate status (null = optimistic feed)");
 ok(/rpc\("wf_gate_status", \{ p_lat: center\.lat, p_lng: center\.lng, p_user_id/.test(home), "home calls wf_gate_status for the current location");
-ok(/\(gateStatus === "unlock" \|\| gateStatus === "alert"\) && \(\s*<CityGate/.test(home), "the CityGate door renders only on unlock/alert");
-ok(/gateStatus !== "alert" && \(\(\) => \{/.test(home), "SIGNED-IN users always get the feed: it renders for unlock/live/null; only signed-out 'alert' walls it");
+ok(/\(gateStatus === "unlock" \|\| gateStatus === "alert"\) && \(\s*<CityGate/.test(home), "the coverage door renders on unlock (signed-in) + alert (signed-out); it re-fetches on sign-in so the card swaps promptly");
+ok(/onSignUp=\{\(\) => setAuthOpen\(true\)\}/.test(home), "the door's Sign-in CTA opens the auth flow");
+ok(/gateStatus !== "alert" && \(\(\) => \{/.test(home), "the feed renders unless 'alert' (signed-out + uncovered) — signed-in users get access");
+// the two states carry the right CTAs
+ok(/Sign in to unlock \{cityName\}/.test(g) && /onSignUp && onSignUp\(\)/.test(g), "ALERT (signed-out): primary CTA = 'Sign in to unlock {city}' → auth; plus the Notify-me fallback");
+ok(/You can unlock it now — we'll pull it in live/.test(g) && /Unlock \{cityName\}/.test(g), "UNLOCK (signed-in): 'You can unlock it now…' + [Unlock {city}]");
 
 // ── unlock endpoint ──
 const route = read("app/api/city/unlock/route.js");
