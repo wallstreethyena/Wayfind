@@ -6919,7 +6919,7 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} />}
+                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} region={locName || ""} />}
                   {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
                       next to the Viator rail — spec §3. Renders nothing when no live deals. */}
                   {browseCat === "attractions" && <UTDealsRail category="attractions" onSave={saveMonetizedItem} />}
@@ -7654,7 +7654,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
 const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", landmarks: "historical", arts: "museums", marinas: "water" };
-function BookableExpRail({ sub, lat, lng, onSave, city }) {
+function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
   const cat = SUB_TO_EXP[sub || "all"];
   const [items, setItems] = useState(null);
   useEffect(() => {
@@ -7673,7 +7673,10 @@ function BookableExpRail({ sub, lat, lng, onSave, city }) {
       // 2) Nothing pre-pulled for this location → fetch tours LIVE for the user's
       //    ACTUAL city (never fall back to Florida). Same card shape.
       if (!arr.length && city) {
-        const tr = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&count=10").then((r) => (r.ok ? r.json() : null), () => null);
+        // /api/viator/tours needs the REGION (state) to accept the city's tours —
+        // without it the anti-foreign-destination filter rejects everything
+        // (verified: q=Charleston → 0, q=Charleston®ion=South Carolina → real tours).
+        const tr = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&count=10").then((r) => (r.ok ? r.json() : null), () => null);
         arr = (tr && Array.isArray(tr.items) ? tr.items : []).slice(0, 10);
       }
       if (!dead) setItems(arr);
