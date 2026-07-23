@@ -10,7 +10,7 @@ const read = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
 
 // ── CityGate component ──
 const g = read("app/components/CityGate.js");
-ok(/rpc\("wf_gate_status"/.test(g), "CityGate asks the server function wf_gate_status");
+ok(/function CityGate\(\{ status,/.test(g) && !/rpc\("wf_gate_status"/.test(g), "CityGate takes status as a PROP and does NOT re-fetch — single round-trip (no lingering)");
 ok(/status !== "unlock" && status !== "alert"\) return null/.test(g), "renders nothing when live/unknown (results show normally)");
 ok(/from\("wf_city_requests"\)\.insert/.test(g), "unlock records demand in wf_city_requests");
 ok(/fetch\("\/api\/city\/unlock"/.test(g), "unlock kicks the server-side fetch endpoint");
@@ -19,6 +19,7 @@ ok(/Unlock (?:full )?\{cityName\}/.test(g) && /Notify me/.test(g), "unlock shows
 
 // ── home wiring ──
 const home = read("app/home.js");
+ok(/<CityGate status=\{gateStatus\}/.test(home), "home passes its already-resolved gateStatus to the card (single fetch)");
 ok(/const \[gateStatus, setGateStatus\] = useState\(null\)/.test(home), "home holds the gate status (null = optimistic feed)");
 ok(/rpc\("wf_gate_status", \{ p_lat: center\.lat, p_lng: center\.lng, p_user_id/.test(home), "home calls wf_gate_status for the current location");
 ok(/\(gateStatus === "unlock" \|\| gateStatus === "alert"\) && \(\s*<CityGate/.test(home), "the coverage door renders on unlock (signed-in) + alert (signed-out); it re-fetches on sign-in so the card swaps promptly");

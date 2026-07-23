@@ -15,21 +15,17 @@ import { useEffect, useRef, useState } from "react";
 import { C, CHAMPAGNE } from "./kit";
 import { supabase } from "../../lib/supabase";
 
-export default function CityGate({ center, city, user, onSignUp }) {
-  const [status, setStatus] = useState(null); // live | unlock | alert | null
+export default function CityGate({ status, center, city, user, onSignUp }) {
+  // SINGLE SOURCE OF TRUTH: home.js already resolves wf_gate_status and passes it
+  // in. We do NOT re-fetch here — that double round-trip is what made the card
+  // linger. The card now appears/disappears atomically with home's fast lookup.
   const [phase, setPhase] = useState("idle");  // idle | building | listed
   const [email, setEmail] = useState("");
   const requestedFor = useRef(null);
   const cityName = (city || "this area").split(",")[0];
 
-  useEffect(() => {
-    let dead = false;
-    if (!supabase || !center || !isFinite(center.lat)) { setStatus(null); return; }
-    setPhase("idle");
-    supabase.rpc("wf_gate_status", { p_lat: center.lat, p_lng: center.lng, p_user_id: (user && user.id) || null })
-      .then(({ data }) => { if (!dead) setStatus(typeof data === "string" ? data : null); }, () => {});
-    return () => { dead = true; };
-  }, [center && center.lat, center && center.lng, user && user.id]);
+  // Reset the transient phase when the place or coverage status changes.
+  useEffect(() => { setPhase("idle"); }, [status, center && center.lat, center && center.lng]);
 
   if (status !== "unlock" && status !== "alert") return null; // live / unknown → nothing
 
