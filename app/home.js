@@ -6941,8 +6941,8 @@ function PageInner({ initialEvents = null }) {
                   {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} region={locName || ""} />}
                   {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
                       next to the Viator rail — spec §3. Renders nothing when no live deals. */}
-                  {browseCat === "attractions" && <UTDealsRail category="attractions" onSave={saveMonetizedItem} />}
-                  {browseCat === "hotels" && <UTDealsRail category="stays" onSave={saveMonetizedItem} />}
+                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7740,17 +7740,20 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
 // "stays" on the Stays surface. The affiliate_url is the verified CJ deep link —
 // rendered VERBATIM (never re-wrapped). Each card carries the "via {partner}"
 // disclosure chip. Ships nothing (returns null) when there are no live deals.
-function UTDealsRail({ category, onSave }) {
+function UTDealsRail({ category, onSave, lat, lng }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {
     let dead = false;
     setRails(null);
-    fetch("/api/deals?category=" + encodeURIComponent(category)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+    // Pass the user's location so /api/deals geo-gates — a far-away region's deals
+    // (Orlando hotels in South Carolina) are filtered out and the rail hides.
+    const geo = (Number.isFinite(lat) && Number.isFinite(lng)) ? "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3) : "";
+    fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
       if (dead) return;
       setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
     });
     return () => { dead = true; };
-  }, [category]);
+  }, [category, lat, lng]);
   if (rails === null || !rails.length) return null; // no skeleton flash
   const cta = category === "stays" ? "View hotels ↗" : "Get tickets ↗";
   return (

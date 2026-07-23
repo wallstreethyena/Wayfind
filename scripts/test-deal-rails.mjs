@@ -45,8 +45,8 @@ ok(read("middleware.js").includes('"/api/deals"'), "/api/deals is same-origin gu
 // ── render (home.js) ──
 const home = read("app/home.js");
 ok(/function UTDealsRail/.test(home), "UTDealsRail component exists");
-ok(/browseCat === "attractions" && <UTDealsRail category="attractions"/.test(home), "UT deal rail rendered on Things-to-do (attractions)");
-ok(/browseCat === "hotels" && <UTDealsRail category="stays"/.test(home), "UT hotel rail rendered on Stays");
+ok(/browseCat === "attractions" && center && <UTDealsRail category="attractions"/.test(home), "UT deal rail rendered on Things-to-do (attractions), geo-scoped");
+ok(/browseCat === "hotels" && center && <UTDealsRail category="stays"/.test(home), "UT hotel rail rendered on Stays, geo-scoped");
 ok(/href={d\.href}/.test(home) && /rel="noopener sponsored"/.test(home), "rail links render href verbatim with sponsored rel");
 ok(/kind: "ut_deal_rail"/.test(home), "outbound clicks are logged as ut_deal_rail");
 ok(/import AffiliateChip(?:, \{[^}]*\})? from "\.\/components\/AffiliateChip"/.test(home) && /<AffiliateChip provider={d\.provider}/.test(home), "the disclosure chip is imported and rendered on each deal card");
