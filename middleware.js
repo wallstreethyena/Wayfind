@@ -60,6 +60,10 @@ export const config = {
     // app/home.js) reading wf_deals_ranked via the service role. ANTI-SCRAPING,
     // not a cost gate — keeps the affiliate deal catalog from being harvested.
     "/api/deals",
+    // City unlock: /api/city/unlock is a same-origin POST that queues an
+    // uncovered city for population (writes wf_city_requests). Same-origin
+    // guarded so the demand/pull queue can't be poked cross-origin.
+    "/api/city/unlock",
     // Beach Intelligence (§0): /api/beach/conditions is a same-origin XHR that
     // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
     // cost gate — every upstream is free — but the assembled view is ours.
