@@ -29,19 +29,19 @@ export default function SavedScreen({ ctx }) {
           <div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, paddingTop: 4 }}>
               <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Saved</div>
-              <button onClick={() => { if (!requireAuth("Sign up free to build a list and open it from any device.")) return; setNewListOpen(true); }} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
+              <button onClick={() => { if (!requireAuth("Sign up free to build a list and open it from any device.")) return; setNewListOpen(true); }} style={{ background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>+ New list</button>
             </div>
             {supabase && !user && (
               <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16, cursor: "pointer" }}>
                 <span style={{ fontSize: 17 }}>☁️</span>
                 <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.35 }}>Sign up free — your lists, saved and synced to every device.</div>
-                <span style={{ fontSize: 12.5, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
+                <span style={{ fontSize: 12.5, fontWeight: 800, color: C.light, whiteSpace: "nowrap" }}>Sign in ›</span>
               </div>
             )}
             {supabase && user && (
               <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.card, marginBottom: 16 }}>
                 <div style={{ fontSize: 13, color: C.muted, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Signed in as {user.email}</div>
-                <span onClick={signOutUser} style={{ fontSize: 13, fontWeight: 700, color: C.accent, cursor: "pointer" }}>Sign out</span>
+                <span onClick={signOutUser} style={{ fontSize: 13, fontWeight: 700, color: C.light, cursor: "pointer" }}>Sign out</span>
               </div>
             )}
             <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginBottom: 2 }}>Your lists</div>
@@ -71,7 +71,7 @@ export default function SavedScreen({ ctx }) {
                   const cnt = Object.keys(f.items || {}).length;
                   return (
                     <div key={f.k} onClick={() => setSysFolder(f.k)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
-                      <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{f.emoji}</div>
+                      <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{f.emoji}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>{f.name}</div>
                         <div style={{ fontSize: 13, color: C.muted }}>{cnt} place{cnt !== 1 ? "s" : ""} · automatic</div>
@@ -108,15 +108,15 @@ export default function SavedScreen({ ctx }) {
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => setSysFolder(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
+                <button onClick={() => setSysFolder(null)} style={{ background: "none", border: "none", color: C.light, fontSize: 22, cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{cfg.emoji} {cfg.name}</div>
                 <span style={{ fontSize: 13, color: C.muted }}>{arr.length} place{arr.length !== 1 ? "s" : ""}</span>
               </div>
               {supabase && !user && arr.length > 0 && (
-                <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, marginBottom: 14, cursor: "pointer" }}>
+                <div onClick={() => setAuthOpen(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.border}`, background: C.adim, marginBottom: 14, cursor: "pointer" }}>
                   <span style={{ fontSize: 18 }}>☁️</span>
                   <div style={{ flex: 1, fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>Sign in to save these and sync them across your devices.</div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: C.accent, whiteSpace: "nowrap" }}>Sign in ›</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: C.light, whiteSpace: "nowrap" }}>Sign in ›</span>
                 </div>
               )}
               {arr.length === 0 ? (
@@ -132,10 +132,10 @@ export default function SavedScreen({ ctx }) {
         {activeList && lists[activeList] && (
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4 }}>
-              <button onClick={() => setActiveList(null)} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
+              <button onClick={() => setActiveList(null)} style={{ background: "none", border: "none", color: C.light, fontSize: 22, cursor: "pointer" }}>‹</button>
               <div style={{ flex: 1, fontSize: 17, fontWeight: 700, color: C.text }}>{lists[activeList].emoji} {lists[activeList].name}</div>
               {lists[activeList].places.length > 0 && (
-                <button onClick={() => shareList(lists[activeList].places, lists[activeList].name)} style={{ background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 20, cursor: "pointer" }}>Share ↗</button>
+                <button onClick={() => shareList(lists[activeList].places, lists[activeList].name)} style={{ background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 13, fontWeight: 700, padding: "7px 12px", borderRadius: 20, cursor: "pointer" }}>Share ↗</button>
               )}
               {activeList !== "favorites" && (
                 <button onClick={() => deleteList(activeList)} style={{ background: "none", border: `1px solid ${C.border}`, color: C.red, fontSize: 16, width: 34, height: 34, borderRadius: 10, cursor: "pointer" }}>🗑</button>
@@ -146,7 +146,7 @@ export default function SavedScreen({ ctx }) {
             ) : (
               <>
                 {lists[activeList].places.length > 1 && (
-                  <button onClick={rollDice} style={{ width: "100%", marginBottom: 14, padding: "12px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
+                  <button onClick={rollDice} style={{ width: "100%", marginBottom: 14, padding: "12px 0", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>🎲 Pick for me</button>
                 )}
                 {lists[activeList].places.map((p) => (
                   <PlaceCard key={p.id} p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} onBadge={openExperience} onCuisineTap={openCuisine} />

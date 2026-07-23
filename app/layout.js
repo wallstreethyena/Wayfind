@@ -180,7 +180,7 @@ export default function RootLayout({ children }) {
                 {Object.keys(GUIDES).slice(0, 8).map((k) => (
                   <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>{GUIDES[k].title}</a>
                 ))}
-                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#F97316", textDecoration: "none", padding: "3px 0", fontWeight: 700 }}>All guides</a>
+                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#CBD5E1", textDecoration: "none", padding: "3px 0", fontWeight: 700 }}>All guides</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>

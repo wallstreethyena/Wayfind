@@ -73,8 +73,8 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
           )}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
-          {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
+          {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
         </div>
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
             verified wf_editorial hook (gold, like the beaches page). The AI

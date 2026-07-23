@@ -31,7 +31,7 @@ export default function MenuSheet({ ctx }) {
                   <Icon name="sparkles" size={19} color={C.accent} />
                   <span>Browse by occasion</span>
                 </button>
-                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, minHeight: 62, borderRadius: 16, border: `1.5px solid ${C.accent}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
+                <button onClick={() => { setMenuSheet(null); openSurprise(); }} style={{ width: "100%", marginTop: 12, minHeight: 62, borderRadius: 16, border: `1.5px solid ${C.border}`, background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, color: C.light, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontSize: 15, fontWeight: 800 }}>
                   <Icon name="dice" size={19} color={C.accent} />
                   <span>Can't decide? Let's Wayfind it</span>
                 </button>
@@ -93,9 +93,9 @@ export default function MenuSheet({ ctx }) {
                   const evs = dedupeEvents(foryouEvents || [], true).filter(Boolean).slice(0, 2);
                   return (
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, marginBottom: 8 }}>Start with these</div>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.light, marginBottom: 8 }}>Start with these</div>
                       {picks.map((p, i) => (
-                        <div key={"nbpick-" + p.id} onClick={() => { setMenuSheet(null); openDetail(p); }} style={{ marginBottom: 10, border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card }}>
+                        <div key={"nbpick-" + p.id} onClick={() => { setMenuSheet(null); openDetail(p); }} style={{ marginBottom: 10, border: `1.5px solid ${i === 0 ? C.light : C.border}`, borderRadius: 16, overflow: "hidden", cursor: "pointer", background: i === 0 ? `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)` : C.card }}>
                           <div style={{ position: "relative" }}>
                             <FallbackImg src={p.photo} icon="📍" style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
                             {(() => { const lo = liveOpen(p); return (
@@ -111,13 +111,13 @@ export default function MenuSheet({ ctx }) {
                               {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>· {p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed"}</span> : null; })()}
                               {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                             </div>
-                            {whyNow(p) && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 7 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
+                            {whyNow(p) && <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginTop: 7 }}><span style={{ color: C.light, fontWeight: 800 }}>Why now: </span>{whyNow(p)}</div>}
                           </div>
                         </div>
                       ))}
                       {evs.length > 0 && (
                         <>
-                          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.accent, margin: "6px 2px 8px" }}>Happening near you</div>
+                          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: C.light, margin: "6px 2px 8px" }}>Happening near you</div>
                           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 9, marginBottom: 4 }}>
                             {evs.map((e) => {
                               // v5.76 (B3): the last event surface still dead-ending via openVenue(e)
@@ -131,7 +131,7 @@ export default function MenuSheet({ ctx }) {
                               const internal = typeof e.dest === "string" && e.dest[0] === "/";
                               return (
                                 <a key={"nbev-" + e.id} href={e.dest} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => setMenuSheet(null)} style={{ display: "block", textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 11, cursor: "pointer", minWidth: 0 }}>
-                                  <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
+                                  <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.light : C.purple, marginBottom: 4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
                                   <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
                                   <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
                                 </a>
@@ -150,7 +150,7 @@ export default function MenuSheet({ ctx }) {
                     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "16px 16px", marginBottom: 12, textAlign: "center" }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>Quiet right around {locName ? locName.split(",")[0] : "you"}</div>
                       <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 12 }}>We did not find much in your immediate area. Want to look a little farther out?</div>
-                      <button onClick={() => { setMenuSheet(null); setPendingRadius(Math.max(searchRadius || 0, 40234)); setRadiusSheet(true); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Search a wider area →</button>
+                      <button onClick={() => { setMenuSheet(null); setPendingRadius(Math.max(searchRadius || 0, 40234)); setRadiusSheet(true); }} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Search a wider area →</button>
                     </div>
                   );
                 })()}
@@ -160,31 +160,31 @@ export default function MenuSheet({ ctx }) {
             {menuSheet === "pick" && (
               <>
                 <style>{"@keyframes wfRouletteFloat{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-7px) rotate(7deg)}}@keyframes wfRouletteGlow{0%,100%{opacity:.42;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}@keyframes wfRouletteSpin{to{transform:rotate(360deg)}}"}</style>
-                <section aria-label="Wayfind Roulette" style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: "22px 18px 18px", marginBottom: 16, background: "radial-gradient(circle at 84% 16%, rgba(249,115,22,.25), transparent 31%), linear-gradient(145deg, #172235 0%, #0E1622 58%, #0A1019 100%)", border: "1px solid rgba(249,115,22,.34)", boxShadow: "0 18px 44px rgba(0,0,0,.38)" }}>
-                  <div aria-hidden="true" style={{ position: "absolute", width: 188, height: 188, right: -64, top: -72, borderRadius: "50%", border: "1px solid rgba(249,115,22,.25)", animation: "wfRouletteSpin 18s linear infinite" }} />
+                <section aria-label="Wayfind Roulette" style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: "22px 18px 18px", marginBottom: 16, background: "radial-gradient(circle at 84% 16%, rgba(148,163,184,.25), transparent 31%), linear-gradient(145deg, #172235 0%, #0E1622 58%, #0A1019 100%)", border: "1px solid rgba(148,163,184,.34)", boxShadow: "0 18px 44px rgba(0,0,0,.38)" }}>
+                  <div aria-hidden="true" style={{ position: "absolute", width: 188, height: 188, right: -64, top: -72, borderRadius: "50%", border: "1px solid rgba(148,163,184,.25)", animation: "wfRouletteSpin 18s linear infinite" }} />
                   <div aria-hidden="true" style={{ position: "absolute", width: 126, height: 126, right: -33, top: -40, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.16)", animation: "wfRouletteSpin 12s linear infinite reverse" }} />
                   <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
                     <div style={{ maxWidth: 245 }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 850, letterSpacing: "1.15px", color: C.accent }}>WAYFIND ROULETTE</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 850, letterSpacing: "1.15px", color: C.light }}>WAYFIND ROULETTE</div>
                       <div style={{ fontSize: 25, lineHeight: 1.06, fontWeight: 850, letterSpacing: "-.55px", color: "#F8FAFC", marginTop: 6 }}>One great plan. No endless scrolling.</div>
                       <div style={{ fontSize: 13, color: "#B7C4D6", lineHeight: 1.48, marginTop: 9 }}>We choose one standout nearby based on what is worth your time right now.</div>
                     </div>
-                    <button aria-label={homeRolling ? "Choosing your Wayfind pick" : "Roll Wayfind Roulette"} onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", flexShrink: 0, width: 92, height: 92, borderRadius: 28, border: "1px solid rgba(249,115,22,.88)", background: "linear-gradient(145deg, #2C394B, #111A26)", cursor: homeRolling ? "default" : "pointer", boxShadow: "0 12px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}>
-                      <span aria-hidden="true" style={{ position: "absolute", inset: -8, borderRadius: 34, border: "1px solid rgba(249,115,22,.36)", animation: "wfRouletteGlow 2.2s ease-in-out infinite" }} />
+                    <button aria-label={homeRolling ? "Choosing your Wayfind pick" : "Roll Wayfind Roulette"} onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", flexShrink: 0, width: 92, height: 92, borderRadius: 28, border: "1px solid rgba(148,163,184,.88)", background: "linear-gradient(145deg, #2C394B, #111A26)", cursor: homeRolling ? "default" : "pointer", boxShadow: "0 12px 28px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}>
+                      <span aria-hidden="true" style={{ position: "absolute", inset: -8, borderRadius: 34, border: "1px solid rgba(148,163,184,.36)", animation: "wfRouletteGlow 2.2s ease-in-out infinite" }} />
                       {homeRolling ? <span style={{ position: "relative", zIndex: 1, color: "#fff", fontSize: 41, lineHeight: 1, animation: "wfroll .48s linear infinite" }}>{homeDiceFace}</span> : <span aria-hidden="true" style={{ position: "relative", zIndex: 1, width: 48, height: 48, borderRadius: 14, background: "linear-gradient(145deg, #F8FAFC, #B9C3D0)", boxShadow: "inset 0 1px 0 #fff, 0 7px 14px rgba(0,0,0,.26)", transform: "rotate(-9deg)", animation: "wfRouletteFloat 3.6s ease-in-out infinite", display: "block" }}><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", left: 10, top: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", right: 10, top: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#F97316", left: 20.5, top: 20.5 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", left: 10, bottom: 10 }} /><i style={{ position: "absolute", width: 7, height: 7, borderRadius: "50%", background: "#18202C", right: 10, bottom: 10 }} /></span>}
                     </button>
                   </div>
                   <div style={{ position: "relative", zIndex: 1, display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 7, marginTop: 18 }}>
-                    {["Nearby", "Great reviews", "Best for now"].map((label, index) => <div key={label} style={{ borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 8, color: "#D7E0EC", fontSize: 11, fontWeight: 750, lineHeight: 1.2 }}><span style={{ color: C.accent, marginRight: 5 }}>{["01", "02", "03"][index]}</span>{label}</div>)}
+                    {["Nearby", "Great reviews", "Best for now"].map((label, index) => <div key={label} style={{ borderTop: "1px solid rgba(255,255,255,.14)", paddingTop: 8, color: "#D7E0EC", fontSize: 11, fontWeight: 750, lineHeight: 1.2 }}><span style={{ color: C.light, marginRight: 5 }}>{["01", "02", "03"][index]}</span>{label}</div>)}
                   </div>
-                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", zIndex: 1, width: "100%", minHeight: 54, marginTop: 18, border: "none", borderRadius: 15, background: "linear-gradient(180deg,#FF963C,#F97316 58%,#E95A0C)", color: "#0B111A", fontSize: 15, fontWeight: 850, cursor: homeRolling ? "default" : "pointer", boxShadow: "0 10px 22px rgba(249,115,22,.28)", opacity: homeRolling ? .65 : 1 }}>{homeRolling ? "Finding your move…" : rollHistory.length ? "Roll a new plan →" : "Find my next move →"}</button>
+                  <button onClick={() => rollHomePick(suggested || places || [])} disabled={homeRolling} style={{ position: "relative", zIndex: 1, width: "100%", minHeight: 54, marginTop: 18, border: "none", borderRadius: 15, background: "linear-gradient(180deg,#FF963C,#F97316 58%,#E95A0C)", color: "#0B111A", fontSize: 15, fontWeight: 850, cursor: homeRolling ? "default" : "pointer", boxShadow: "0 10px 22px rgba(148,163,184,.28)", opacity: homeRolling ? .65 : 1 }}>{homeRolling ? "Finding your move…" : rollHistory.length ? "Roll a new plan →" : "Find my next move →"}</button>
                 </section>
                 {rollHistory.length > 0 && (
                   <div style={{ marginTop: 10 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Your rolls</div>
                     {rollHistory.map((rp, i) => (
                       <div key={rp.id + "-" + i} onClick={() => { setMenuSheet(null); openDetail(rp); }} style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 10px", marginBottom: 7, cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.accent, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{rollHistory.length - i}</span>
+                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{rollHistory.length - i}</span>
                         <FallbackImg src={rp.photo} icon="🍽️" style={{ width: 40, height: 40, borderRadius: 8, objectFit: "cover", flexShrink: 0 }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{rp.name}</div>
@@ -207,13 +207,13 @@ export default function MenuSheet({ ctx }) {
                   {INTENTS.map((it) => {
                     const on = intent === it.id;
                     return (
-                      <button key={it.id} onClick={() => { setIntent(on ? null : it.id); setMenuSheet(null); }} style={{ height: 76, borderRadius: 16, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 14, fontWeight: 800 }}>
+                      <button key={it.id} onClick={() => { setIntent(on ? null : it.id); setMenuSheet(null); }} style={{ height: 76, borderRadius: 16, border: `1.5px solid ${on ? C.light : C.border}`, background: on ? C.adim : C.card, color: on ? C.light : C.light, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 14, fontWeight: 800 }}>
                         <span style={{ fontSize: 24, lineHeight: 1 }}>{it.icon}</span>
                         <span>{it.label}</span>
                       </button>
                     );
                   })}
-                  <button onClick={() => { const rc = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)]; setMenuSheet(null); pickCat(rc.id); }} style={{ height: 76, borderRadius: 16, border: `1.5px dashed ${C.accent}`, background: C.adim, color: C.accent, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 13, fontWeight: 800 }}>
+                  <button onClick={() => { const rc = CATEGORIES[Math.floor(Math.random() * CATEGORIES.length)]; setMenuSheet(null); pickCat(rc.id); }} style={{ height: 76, borderRadius: 16, border: `1.5px dashed ${C.accent}`, background: C.adim, color: C.light, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, fontSize: 13, fontWeight: 800 }}>
                     <span style={{ fontSize: 24, lineHeight: 1 }}>🎲</span>
                     <span>Surprise Me</span>
                   </button>
@@ -252,8 +252,8 @@ export default function MenuSheet({ ctx }) {
                   </div>
                 ) : null; })()}
                 {(() => { const t = wayfindWeatherTake(weather); if (!t || (!t.good.length && !t.avoid.length)) return null; return (
-                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.accent}`, borderRadius: 14, padding: "13px 14px", marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", color: C.accent, textTransform: "uppercase", marginBottom: 8 }}>Wayfind take · {t.night ? "tonight" : "today"}</div>
+                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 14px", marginBottom: 16 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", color: C.light, textTransform: "uppercase", marginBottom: 8 }}>Wayfind take · {t.night ? "tonight" : "today"}</div>
                     {t.good.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5, marginBottom: t.avoid.length ? 7 : 0 }}><span style={{ color: C.green, fontWeight: 800, flexShrink: 0 }}>Good for</span><span>{t.good.join(", ")}</span></div>}
                     {t.avoid.length > 0 && <div style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 13.5, color: C.text, lineHeight: 1.5 }}><span style={{ color: C.muted, fontWeight: 800, flexShrink: 0 }}>Skip</span><span>{t.avoid.join(", ")}</span></div>}
                   </div>
@@ -278,7 +278,7 @@ export default function MenuSheet({ ctx }) {
                     </div>
                   ); })()}
                 </div>
-                <button onClick={shareWeather} style={{ width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 12, border: `1.5px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                <button onClick={shareWeather} style={{ width: "100%", marginTop: 16, padding: "13px 0", borderRadius: 12, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
                   {isNightNow(weather) ? "Share the weather tonight" : "Share the weather"}
                 </button>

@@ -65,7 +65,7 @@ export default function GuidePage({ params }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
       <div style={S.kicker}>Wayfind Guides · {g.region || "Orlando"}</div>
       <h1 style={S.h1}>{g.title}</h1>
-      <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#F97316", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#F97316", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
+      <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
       <p style={S.p}>{g.intro}</p>
       <div style={S.disclosure}>Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
       {g.picks.map((pick, i) => {

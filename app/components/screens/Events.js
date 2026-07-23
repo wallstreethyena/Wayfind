@@ -50,7 +50,7 @@ function EventCard({ e, onVenue, ctx }) {
         <div style={{ position: "relative" }}>
           <EventArt ctx={ctx} e={e} seg={seg} height={120} />
           <div style={{ position: "absolute", top: 8, left: 8, background: "rgba(13,17,23,.85)", borderRadius: 8, padding: "3px 7px", textAlign: "center", minWidth: 36, backdropFilter: "blur(3px)" }}>
-            <div style={{ fontSize: 9, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
+            <div style={{ fontSize: 9, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.5px" }}>{f.mo}</div>
             <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{f.day}</div>
           </div>
           {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)", display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} />{seg.short}</div>}
@@ -59,7 +59,7 @@ function EventCard({ e, onVenue, ctx }) {
           <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
             {rec
-              ? <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
+              ? <span style={{ fontSize: 10, fontWeight: 800, color: C.light, background: C.adim, borderRadius: 999, padding: "2px 8px", whiteSpace: "nowrap" }}>↻ {rec}</span>
               : (f.wd && <span style={{ fontSize: 11, color: C.muted }}>{f.wd}</span>)}
             {f.time && <span style={{ fontSize: 11, color: C.muted }}>{rec ? "" : "· "}{f.time}</span>}
           </div>
@@ -68,11 +68,11 @@ function EventCard({ e, onVenue, ctx }) {
       </a>
       <div style={{ padding: "0 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         {venue && (
-          <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
+          <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.light, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
         )}
         <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
           {externalTickets
-            ? <a href={externalTickets} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { id: e.id, src: "events_grid" }); } catch (er) {} }} style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none" }}>{e.ticketed ? "Get tickets ↗" : "Official site ↗"}</a>
+            ? <a href={externalTickets} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { id: e.id, src: "events_grid" }); } catch (er) {} }} style={{ fontSize: 11.5, fontWeight: 800, color: C.light, textDecoration: "none" }}>{e.ticketed ? "Get tickets ↗" : "Official site ↗"}</a>
             : <span />}
           {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{e.source}</span>}
         </div>
@@ -136,7 +136,7 @@ export default function EventsScreen({ ctx }) {
     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
   }
-  const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.accent : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.accent : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
+  const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.light : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.light : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
   const businessEmpty = (
     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
       <div style={{ fontSize: 40, marginBottom: 12 }}>💼</div>
@@ -156,7 +156,7 @@ export default function EventsScreen({ ctx }) {
           rail (owner direction) and styled to match the app's SortControl
           ("≡ Top rated ▾"): outlined orange pill + sliders icon + chevron. */}
       <div style={{ position: "relative", marginBottom: 14 }}>
-        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: C.card, border: `1px solid ${C.accent}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+        <button onClick={() => setFilterOpen((v) => !v)} aria-haspopup="listbox" aria-expanded={filterOpen} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
           <span>{activeFilter.label}</span>
           <span style={{ fontSize: 10, color: C.muted, transform: filterOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"▼"}</span>
@@ -168,10 +168,10 @@ export default function EventsScreen({ ctx }) {
               <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Category</div>
               {EVENT_FILTERS.map((f) => { const on = f.key === activeFilter.key; const n = f.key === "tours" ? tours.length : countForFilter(f); return (
                 <button key={f.key} role="option" aria-selected={on} onClick={() => { setEventCat(f.key); setFilterOpen(false); }} style={{ display: "flex", alignItems: "center", gap: 10, width: "100%", padding: "10px 8px", borderRadius: 10, border: "none", background: on ? "rgba(249,115,22,.12)" : "transparent", cursor: "pointer", textAlign: "left" }}>
-                  <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
+                  <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${on ? C.light : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{on ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
                   <span style={{ fontSize: 16 }}>{f.icon}</span>
                   <span style={{ flex: 1, fontSize: 13.5, fontWeight: on ? 800 : 600, color: on ? C.text : C.light }}>{f.label}</span>
-                  {n > 0 && <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? C.accent : C.muted }}>{n}</span>}
+                  {n > 0 && <span style={{ fontSize: 12.5, fontWeight: 700, color: on ? C.light : C.muted }}>{n}</span>}
                 </button>
               ); })}
             </div>

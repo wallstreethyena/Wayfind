@@ -84,7 +84,7 @@ export default async function SharePage({ params, searchParams }) {
       }}
     >
       <Redirect to={target} />
-      <div style={{ fontSize: 28, fontWeight: 800, color: "#F97316", letterSpacing: "1px", marginBottom: 14 }}>
+      <div style={{ fontSize: 28, fontWeight: 800, color: "#CBD5E1", letterSpacing: "1px", marginBottom: 14 }}>
         📍 WAYFIND
       </div>
       <div style={{ fontSize: 16, color: "#CBD5E1", marginBottom: 22 }}>Opening {t}…</div>

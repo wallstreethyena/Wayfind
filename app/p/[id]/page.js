@@ -56,7 +56,7 @@ export default function PlaceSharePage({ params, searchParams }) {
   return (
     <div style={{ minHeight: "100dvh", background: "#0D1117", color: "#F1F5F9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "system-ui, sans-serif", textAlign: "center", padding: "24px" }}>
       <ShareRedirect to={target} />
-      <div style={{ fontSize: 28, fontWeight: 800, color: "#F97316", letterSpacing: "1px", marginBottom: 14 }}>📍 WAYFIND</div>
+      <div style={{ fontSize: 28, fontWeight: 800, color: "#CBD5E1", letterSpacing: "1px", marginBottom: 14 }}>📍 WAYFIND</div>
       <div style={{ fontSize: 16, color: "#CBD5E1", marginBottom: 22 }}>Opening {t}…</div>
       <a href={target} style={{ display: "inline-block", padding: "12px 22px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 15, textDecoration: "none" }}>Open in Wayfind</a>
       <div style={{ marginTop: 18, fontSize: 12, color: "#8B949E" }}>Wayfind is an independent guide, not affiliated with the venues listed.</div>

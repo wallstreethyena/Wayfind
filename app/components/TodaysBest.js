@@ -69,7 +69,7 @@ export default function TodaysBest({ center, weather, onLog }) {
     <section aria-label="Today's Best" style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
       <style>{`.wf-tb-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
       <div style={{ padding: "16px 2px 6px" }}>
-        <div style={{ ...TYPE.eyebrow, color: C.accent }}>Today's Best</div>
+        <div style={{ ...TYPE.eyebrow, color: C.light }}>Today's Best</div>
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>The best of the best near you, ranked live for right now.</div>
       </div>
       {TB_SECTIONS.map((s) => {
@@ -79,9 +79,9 @@ export default function TodaysBest({ center, weather, onLog }) {
           <div key={s.id}>
             <button onClick={() => toggle(s.id)} aria-expanded={isOpen} className="wf-tb-focus" style={{ display: "flex", alignItems: "center", gap: 13, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", padding: "16px 2px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
               <span aria-hidden="true" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 28 }}>
-                <NavIcon name={s.id} size={25} strokeWidth={1.5} color={isOpen ? C.accent : "#FFFFFF"} />
+                <NavIcon name={s.id} size={25} strokeWidth={1.5} color={isOpen ? C.light : "#FFFFFF"} />
               </span>
-              <span style={{ flex: 1, minWidth: 0, fontSize: 16.5, fontWeight: 600, color: isOpen ? C.accent : "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{s.label}</span>
+              <span style={{ flex: 1, minWidth: 0, fontSize: 16.5, fontWeight: 600, color: isOpen ? C.light : "rgba(255,255,255,.95)", lineHeight: 1.25 }}>{s.label}</span>
               <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)", display: "inline-flex", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </span>

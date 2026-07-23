@@ -97,7 +97,7 @@ export default async function CulturePage({ params }) {
                 <h3 style={{ fontSize: 17, fontWeight: 800, color: "#FFFFFF", margin: 0 }}><a href={"/florida/" + TOWN_HUBS[k]} style={{ color: "#FFFFFF", textDecoration: "none" }}>{t.title}</a></h3>
                 <p style={{ fontSize: 13.5, color: "#8B949E", margin: "2px 0 6px" }}>{t.tag}</p>
                 <p style={{ fontSize: 14, color: "#E6EDF3", margin: "0 0 8px" }}><b style={{ color: "#F2C14E" }}>⭐ The one thing:</b> {t.one}</p>
-                <a href={"/florida/" + TOWN_HUBS[k]} style={{ fontSize: 13, fontWeight: 800, color: "#F97316", textDecoration: "none" }}>Full {t.title} guide ›</a>
+                <a href={"/florida/" + TOWN_HUBS[k]} style={{ fontSize: 13, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" }}>Full {t.title} guide ›</a>
               </div>
             ) : (
               <div key={k} style={{ margin: "18px 0 0", padding: "14px 16px", background: "#161B22", borderRadius: 12 }}>
