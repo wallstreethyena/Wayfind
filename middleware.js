@@ -43,6 +43,16 @@ export const config = {
     "/api/buzz/why",
     // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
     "/api/image-score",
+    // Metered proxies that shipped OPEN (audit 2026-07-23): YouTube Data API
+    // (100 quota units/call — quota-DoS) and TripAdvisor Terra (metered + a
+    // service-role census under ?probe). Both are same-origin XHRs → full guard.
+    "/api/youtube",
+    "/api/ta/place",
+    // Google Places media proxy (metered on cache-miss). Loaded via <img> incl.
+    // cross-origin OG/share-preview crawlers, so it's rate-limit-only (below) —
+    // a same-origin 403 would break shared-link images. Still needs a matcher
+    // entry to get the per-IP rate limit (the actual cost guard).
+    "/api/photo",
     // Verified booking products: /api/place-products is a same-origin POST (the
     // place-card booking gate, usePlaceProduct in app/home.js) reading
     // wf_place_products via the service role. ANTI-SCRAPING — keeps the verified
@@ -89,9 +99,14 @@ export const config = {
 // Referer on a fresh nav), so these get the per-IP rate limit WITHOUT the
 // same-origin block. All other matched routes get the full guard.
 const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go"]);
+// Image proxies loaded via <img> — including cross-origin OG/share-preview
+// crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
+// shared-link image, so keep the per-IP rate limit (the real cost guard) but
+// skip the same-origin block.
+const IMAGE_ROUTES = new Set(["/api/photo"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
-  const rateLimitOnly = NAV_302_ROUTES.has(path);
+  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path);
   return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
 }
