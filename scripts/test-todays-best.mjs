@@ -128,7 +128,7 @@ ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engi
 // bookable-experiences rail on Things to do — trending on All, themed per
 // sub-menu — and the affiliate key on EVERY tour link.
 ok(/const SUB_TO_EXP = \{ all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme"/.test(home), "the sub-menu -> experience-catalog mapping drifted");
-ok(/browseCat === "attractions" && center && <BookableExpRail sub=\{sub \|\| "all"\}/.test(home), "the permanent bookable rail left Things to do");
+ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub=\{sub\}/.test(home), "the bookable rail renders on a sub-filter only (the ALL view interleaves tours via ThingsToDoList — no duplicate cards; see check-ttd-dedup)");
 ok(/Aff\.viatorDirectUrl\(t\.url\) \|\| t\.url/.test(home), "rail hrefs lost the affiliate wrapper");
 ok(ttd.includes("viatorDirectUrl(r.booking_url) || r.booking_url"), "TTD tour cards lost the affiliate wrapper — unattributed bookings earn nothing");
 ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook line");
