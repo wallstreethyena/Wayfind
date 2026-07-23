@@ -2588,7 +2588,8 @@ function calmReason(p) {
   for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
   const pick = (arr) => arr[seed % arr.length];
   let lead;
-  if (r != null && r >= 4.6 && n >= 300) lead = pick(["Highly rated, thousands of reviews", "Top rated, loved by thousands"]);
+  if (r != null && r >= 4.6 && n >= 1000) lead = pick(["Highly rated, thousands of reviews", "Top rated, loved by thousands"]);
+  else if (r != null && r >= 4.6 && n >= 300) lead = pick(["Highly rated, hundreds of reviews", "Top rated, hundreds of reviews"]);
   else if (r != null && r >= 4.5 && n >= 100) lead = pick(["Highly rated with strong reviews", "Consistently rated, well reviewed"]);
   else if (r != null && r >= 4.4 && n > 0 && n < 100) lead = pick(["A quiet, well rated find", "An under the radar favorite"]);
   else if (r != null && r >= 4.2) lead = pick(["A solid, well rated pick", "A dependable nearby pick"]);
@@ -6950,7 +6951,7 @@ function PageInner({ initialEvents = null }) {
                             </div>
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                               <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || (buzzPick.sources_count > 1 ? "Drawing attention across " + buzzPick.sources_count + " signals this week ›" : "More people are looking this up than usual ›")}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || (buzzPick.sources_count > 1 ? "Popular across " + buzzPick.sources_count + " local signals ›" : "On readers' radar near you ›")}</div>
                             </div>
                           </div>
                         )}
@@ -8031,7 +8032,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           {isBeach(p) && beachSignal && (beachSignal.popularityPct != null || beachSignal.water) && (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
               {beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Popular</span>
               )}
               {beachSignal.water && (() => {
                 const w = beachSignal.water;
