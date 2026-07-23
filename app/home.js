@@ -96,7 +96,8 @@ import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
-import { useBestPhoto } from "../lib/bestPhoto";
+import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
+import { usePlaceProduct } from "../lib/placeProduct";
 import { saveItem as saveMonetized } from "../lib/savedItems";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
@@ -5420,11 +5421,10 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("family theme park attractions things to do kids") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=attractions");
         const j = r.ok ? await r.json() : null;
         if (cancelled || !j || !Array.isArray(j.places)) return;
-        const best = j.places
-          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
-          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.5 && x.reviews >= 500)
-          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
-        if (best) setFamilyHeroImg(best.ref); // raw photoRef — the render builds the URL, the click passes it on (continuity)
+        // people-free hero (owner: no human faces on cards) — heroRefFromPlaces
+        // ranks by our quality floor then vision-picks the best face-free shot.
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.5, minReviews: 500 });
+        if (!cancelled && ref) setFamilyHeroImg(ref); // raw photoRef — the render builds the URL, the click passes it on (continuity)
       } catch (e) {}
     })();
     return () => { cancelled = true; };
@@ -5442,11 +5442,8 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
         const j = r.ok ? await r.json() : null;
         if (cancelled || !j || !Array.isArray(j.places)) return;
-        const best = j.places
-          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
-          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.4 && x.reviews >= 150)
-          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
-        if (best) setDateHeroImg(best.ref);
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150 });
+        if (!cancelled && ref) setDateHeroImg(ref);
       } catch (e) {}
     })();
     return () => { cancelled = true; };
@@ -5505,11 +5502,8 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
         const j = r.ok ? await r.json() : null;
         if (cancelled || !j || !Array.isArray(j.places)) return;
-        const best = j.places
-          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
-          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.6 && x.reviews >= 60 && x.reviews <= 3000)
-          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
-        if (best) setGemHeroImg(best.ref);
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000 });
+        if (!cancelled && ref) setGemHeroImg(ref);
       } catch (e) {}
     })();
     return () => { cancelled = true; };
@@ -7860,29 +7854,22 @@ function ViatorRail({ title, items, theme }) {
 // product with attribution, or the tracked pid search; every click attributed).
 // Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
 // test-card-booking.mjs enforces the match so the surfaces never drift.
-// The place card can't confirm a VERIFIED Viator product at build time (no per-card
-// precompute), so it must NOT show a verified-sounding "Tickets & tours" — that's the
-// booking-integrity over-promise. It renders the honest generic "Search Viator ↗"
-// (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
-// parks/beaches). The /go route still upgrades to the exact product at click time when
-// one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function cardBookingHref(p) {
-  // v2 (booking-integrity): build the /api/viator/go URL through lib/affiliates so
-  // the go-URL is constructed in exactly ONE place (the resolver + attribution live
-  // there); nothing else in the app hand-rolls a Viator URL. The route still does the
-  // verified-or-honest-search resolution at click time.
-  try {
-    const parts = String(p.address || "").split(",").map((x) => x.trim());
-    const city = parts.length >= 3 ? parts[1] : "";
-    return Aff.experienceGoUrl(p.name, city, placeKind(p) || "", p.id || "") || "";
-  } catch (e) { return Aff.experienceGoUrl((p && p.name) || "") || ""; }
-}
+// Owner (booking-integrity): the place card no longer renders a generic "Search
+// Viator" fallback — a name-based search sent people to wrong-geo/irrelevant
+// Viator pages ("a majority aren't Viator"). The card now shows a booking button
+// ONLY when the place has a VERIFIED product (wf_place_products, rn=1), resolved
+// per-card by usePlaceProduct → /api/place-products, and links straight to that
+// product_url. "No verified product, no button." See scripts/test-card-booking.mjs.
 
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
   // The best card photo (no people, most Instagrammable) — non-blocking: starts
   // as p.photo, upgrades once the vision score lands. Hook runs before any early
   // return (rules of hooks).
   const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
+  // Booking-integrity (owner): a card shows a booking button ONLY when the place
+  // has a VERIFIED product (wf_place_products, rn=1) — no generic name-search link.
+  // Hook runs before the completeness gate (rules of hooks), same as useBestPhoto.
+  const cardProduct = usePlaceProduct(p && p.id);
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -8001,8 +7988,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
-            {Aff.isTicketyPlace(p) && (
-              <a href={cardBookingHref(p)} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Search Viator ↗"}</a>
+            {cardProduct && cardProduct.url && (
+              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card", verified: true }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Book on Viator ↗"}</a>
             )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
