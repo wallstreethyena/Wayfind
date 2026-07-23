@@ -48,7 +48,7 @@ export default function WeatherSharePage() {
       <ShareRedirect to={target} />
       <div style={{ fontSize: 28, fontWeight: 800, color: "#CBD5E1", letterSpacing: "1px", marginBottom: 14 }}>📍 WAYFIND</div>
       <div style={{ fontSize: 16, color: "#CBD5E1", marginBottom: 22 }}>Opening Wayfind…</div>
-      <a href={target} style={{ display: "inline-block", padding: "12px 22px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 15, textDecoration: "none" }}>Open Wayfind</a>
+      <a href={target} style={{ display: "inline-block", padding: "12px 22px", borderRadius: 999, background: "#C9A961", color: "#0D1117", fontWeight: 800, fontSize: 15, textDecoration: "none" }}>Open Wayfind</a>
     </div>
   );
 }

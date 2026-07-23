@@ -4,7 +4,7 @@
 // hooks — usable from server and client pages alike. No logo box over the
 // photo (a quiet wordmark link instead); medals top-3; green Scores;
 // metric-honest why-lines arrive from the caller.
-const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
+const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#C9A961", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
 
 export function Trophy({ i }) {

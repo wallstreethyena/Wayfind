@@ -46,7 +46,7 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly }) {
                 {t.rating > 0 && t.reviews > 0 ? <span style={{ fontSize: 13, fontWeight: 800, color: "#3ee08a" }}>{toDisplayScore(wayfindScore(t.rating, t.reviews))}</span> : <span style={{ fontSize: 10.5, fontWeight: 700, color: "#8B93A1" }}>New</span>}
                 <span style={{ fontSize: 11, color: "#8B93A1" }}>{t.fromPrice != null ? "from $" + t.fromPrice : ""}</span>
               </div>
-              <div style={{ marginTop: 8, display: "inline-block", background: "#F97316", color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontSize: 11, fontWeight: 800 }}>Book ↗</div>
+              <div style={{ marginTop: 8, display: "inline-block", background: "#C9A961", color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontSize: 11, fontWeight: 800 }}>Book ↗</div>
             </div>
           </a>
         ))}
