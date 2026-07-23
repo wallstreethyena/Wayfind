@@ -6608,8 +6608,12 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
+        {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
+            IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
+            effect deps) so the alert card swaps to the unlock card immediately —
+            no lingering. */}
         {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
-          <CityGate center={center} city={locName} user={user} />
+          <CityGate center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} />
         )}
         {/* Signed-in users ALWAYS get the feed — even outside our core area (the
             gate returns 'unlock', and the live-search feed works anywhere). Only

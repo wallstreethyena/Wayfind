@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { C } from "./kit";
 import { supabase } from "../../lib/supabase";
 
-export default function CityGate({ center, city, user }) {
+export default function CityGate({ center, city, user, onSignUp }) {
   const [status, setStatus] = useState(null); // live | unlock | alert | null
   const [phase, setPhase] = useState("idle");  // idle | building | listed
   const [email, setEmail] = useState("");
@@ -68,9 +68,9 @@ export default function CityGate({ center, city, user }) {
           </>
         ) : (
           <>
-            <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>You're exploring {cityName} — live picks are below.</div>
-            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>{cityName} is outside our core area, so you're seeing live results. Want the full curated Wayfind experience here — tours, tickets and stays scored the same way? Unlock it and we'll build it out.</div>
-            <button onClick={unlock} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "10px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Unlock full {cityName} →</button>
+            <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Wayfind isn't in {cityName} yet.</div>
+            <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>You can unlock it now — we'll pull it in live.</div>
+            <button onClick={unlock} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "10px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Unlock {cityName} →</button>
           </>
         )}
       </div>
@@ -88,10 +88,11 @@ export default function CityGate({ center, city, user }) {
       ) : (
         <>
           <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Wayfind isn't in {cityName} yet.</div>
-          <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>Get notified when it's live — or sign in to unlock it now.</div>
+          <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginBottom: 12 }}>Sign in to unlock {cityName} now — or get notified when it's live. It's free.</div>
+          <button onClick={() => { try { onSignUp && onSignUp(); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: 44, padding: "11px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer", marginBottom: 10 }}>Sign in to unlock {cityName}</button>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" inputMode="email" placeholder="you@email.com" aria-label={"Email to be notified about " + cityName} style={{ flex: "1 1 180px", minHeight: 42, padding: "10px 14px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.adim, color: C.text, fontSize: 14 }} />
-            <button onClick={notify} style={{ minHeight: 42, padding: "10px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>Notify me</button>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" inputMode="email" placeholder="you@email.com" aria-label={"Email to be notified about " + cityName} style={{ flex: "1 1 160px", minHeight: 42, padding: "10px 14px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.adim, color: C.text, fontSize: 14 }} />
+            <button onClick={notify} style={{ minHeight: 42, padding: "10px 18px", borderRadius: 999, border: `1px solid ${C.border}`, background: "transparent", color: C.light, fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Notify me</button>
           </div>
         </>
       )}

@@ -9,7 +9,7 @@ ok(h.includes("function outOfCoverage(center)") && h.includes("WF_COVERAGE_METRO
 // live/unlock/alert) via CityGate. SIGNED-IN users (unlock) get the live feed —
 // only SIGNED-OUT + uncovered ('alert') is walled behind the waitlist so it
 // never shows another market's data to a logged-out visitor.
-ok(h.includes('(gateStatus === "unlock" || gateStatus === "alert") && (') && h.includes('gateStatus !== "alert" && (() => {'), "signed-out+uncovered (alert) shows ONLY the waitlist door; signed-in (unlock) still gets the feed");
+ok(h.includes('(gateStatus === "unlock" || gateStatus === "alert") && (') && h.includes('gateStatus !== "alert" && (() => {'), "the coverage door shows on unlock/alert; the feed shows unless a signed-out 'alert' visitor");
 ok(h.includes("function CoverageWaitlist") && h.includes("Wayfind isn"), "the honest coming-soon state renders");
 ok(h.includes('supabase.from("wf_waitlist").insert'), "email capture writes to the waitlist");
 ok(h.includes("won") && h.includes("another city"), "the copy states we never show another city's picks");
