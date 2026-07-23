@@ -4,8 +4,8 @@ export const runtime = "nodejs";
 // people (owner: no human faces on cards). Returns { people, aesthetic } and
 // CACHES the verdict per photo ref for 30 days — each photo is scored at most
 // once, ever. METERED Anthropic proxy → MUST stay in middleware.js's matcher.
-import { aiKey } from "../../../../lib/aiKey";
-import { cget, cset, DAY } from "../../../../lib/serverCache";
+import { aiKey } from "../../../lib/aiKey";
+import { cget, cset, DAY } from "../../../lib/serverCache";
 
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.gowayfind.com").replace(/\/+$/, "");
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
