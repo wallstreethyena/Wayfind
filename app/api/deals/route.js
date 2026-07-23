@@ -9,8 +9,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req) {
-  const category = new URL(req.url).searchParams.get("category") || "";
-  const out = await serveDeals(category);
+  const sp = new URL(req.url).searchParams;
+  const category = sp.get("category") || "";
+  const out = await serveDeals(category, parseFloat(sp.get("lat")), parseFloat(sp.get("lng")));
   return Response.json(out, {
     headers: { "Cache-Control": out.dark ? "no-store" : "public, s-maxage=300, stale-while-revalidate=1800" },
   });
