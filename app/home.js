@@ -88,10 +88,13 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
+import { signalWeights as tasteSignals, applyLocalTaste } from "../lib/taste";
+import { blendTaste as tasteBlend, localToVector as tasteLocalToVector } from "../lib/taste";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
+import AffiliateChip from "./components/AffiliateChip";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -125,7 +128,7 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 // param and reaches the DOM.
 function ticketUrl(url) {
   const s = safeUrl(url);
-  return s ? safeUrl(Aff.ticketOutUrl(s)) : null;
+  return s ? safeUrl(Aff.ticketOutUrl(s, "home")) : null;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
@@ -138,6 +141,52 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
+// v6.61 (owner build order #7): coverage. Wayfind is live around three FL
+// metros; more than 75 mi from all of them we NEVER show another city's data —
+// we say so honestly and capture interest so coverage grows where users are.
+const WF_COVERAGE_METROS = [{ lat: 27.4, lng: -82.55 }, { lat: 27.85, lng: -82.6 }, { lat: 28.54, lng: -81.38 }];
+function milesBetween(a, b) {
+  const R = 3958.8, rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+function outOfCoverage(center) {
+  if (!center || !isFinite(center.lat)) return false; // unknown location -> let the normal feed try
+  return WF_COVERAGE_METROS.every((m) => milesBetween(center, m) > 75);
+}
+function CoverageWaitlist({ center, locName, C, supabase }) {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("idle"); // idle | saving | done | err
+  const city = (locName ? locName.split(",")[0] : "your area") || "your area";
+  const submit = async (e) => {
+    e.preventDefault();
+    const v = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setState("err"); return; }
+    setState("saving");
+    try {
+      if (supabase) { const { error } = await supabase.from("wf_waitlist").insert({ email: v, city, lat: center ? center.lat : null, lng: center ? center.lng : null }); if (error) throw error; }
+      setState("done");
+    } catch (er) { setState("err"); }
+  };
+  return (
+    <div style={{ textAlign: "center", padding: "40px 22px 60px", maxWidth: 460, margin: "0 auto" }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Wayfind isn&apos;t live in {city} yet</div>
+      <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.55, margin: "0 0 18px" }}>We&apos;re built for the Gulf Coast and Orlando right now, and expanding. We won&apos;t show you another city&apos;s picks pretending they&apos;re yours — that&apos;s not how Wayfind works. Leave your email and we&apos;ll tell you the day {city} goes live.</p>
+      {state === "done" ? (
+        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.green }}>You&apos;re on the list. We&apos;ll be in touch when {city} is live. ✓</div>
+      ) : (
+        <form onSubmit={submit} style={{ display: "flex", gap: 8, maxWidth: 380, margin: "0 auto" }}>
+          <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); if (state === "err") setState("idle"); }} placeholder="you@email.com" aria-label="Email" style={{ flex: 1, minHeight: 44, borderRadius: 11, border: `1px solid ${state === "err" ? "#B33A2B" : C.border}`, background: C.card, color: C.text, fontSize: 15, padding: "0 14px" }} />
+          <button type="submit" disabled={state === "saving"} style={{ minHeight: 44, padding: "0 18px", borderRadius: 11, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>{state === "saving" ? "…" : "Notify me"}</button>
+        </form>
+      )}
+      {state === "err" ? <div style={{ fontSize: 12.5, color: "#E06A5A", marginTop: 8 }}>Enter a valid email and we&apos;ll add you.</div> : null}
+    </div>
+  );
+}
+
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
@@ -2925,8 +2974,11 @@ function PageInner({ initialEvents = null }) {
   // captivating photo — the top proven family place's picture (rating x
   // depth heuristic), never stock art unless nothing qualifies yet.
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
+  const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
+  const [homeExp, setHomeExp] = useState(null); // v6.61 #3: one bookable card near the homepage top
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
+  const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
@@ -3364,6 +3416,56 @@ function PageInner({ initialEvents = null }) {
   const [pwSaving, setPwSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false); // account menu popover
+  // THE TASTE LOOP — Phase 2/3 (owner). Consent-gated personalization + control.
+  const [personalize, setPersonalize] = useState(null); // 'on' | 'off' | null(unasked)
+  const [tasteOpen, setTasteOpen] = useState(false);
+  const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
+  const tasteVecRef = useRef({});                        // durable per-user vector
+  const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
+
+  // Consent is remembered; the durable vector loads per user/session (not per
+  // action — the session signals give instant feel; this is the slow layer).
+  useEffect(() => { try { const c = localStorage.getItem("wf_personalize"); if (c === "on" || c === "off") setPersonalize(c); } catch (e) {} }, []);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      let vec = {};
+      try {
+        if (supabase && user) {
+          const { data } = await supabase.from("wf_taste").select("dimension,value,weight,updated_at");
+          vec = tasteBlend((data || []).map((r) => ({ dimension: r.dimension, value: r.value, weight: r.weight, updated_at: new Date(r.updated_at).getTime() })), Date.now());
+        } else {
+          vec = tasteLocalToVector(JSON.parse(localStorage.getItem("wf_taste_local") || "null"), Date.now());
+        }
+      } catch (e) {}
+      if (!dead) { tasteVecRef.current = vec; setTasteVecState(vec); }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, tasteVer]);
+  function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  async function forgetTasteItem(dim, val) {
+    try {
+      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+    } catch (e) {}
+    setTasteVer((n) => n + 1);
+  }
+  async function resetTaste() {
+    try {
+      if (supabase && user) { await supabase.rpc("wf_taste_wipe"); }
+      localStorage.removeItem("wf_taste_local");
+    } catch (e) {}
+    setConsent("off"); setTasteVer((n) => n + 1);
+  }
+  function exportTaste() {
+    try {
+      const vec = tasteVecRef.current || {};
+      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
+      try { logEvent("taste_export"); } catch (e) {}
+    } catch (e) {}
+  }
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -3931,6 +4033,25 @@ function PageInner({ initialEvents = null }) {
     const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
     setSignals(next);
     saveSignals(next);
+    recordTaste(action, p);
+  }
+
+  // THE TASTE MODEL (owner, 2026-07-22) — Phase 1: LEARN ONLY, no ranking change.
+  // Projects an explicit signal into a decayed, PER-USER preference vector.
+  // Always updates the first-party local vector (legal, respects deletion);
+  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
+  // never pooled, never another user's). 'open' is local-only (mild + high
+  // volume); the strong verbs persist. Never touches the Wayfind Score.
+  function recordTaste(action, p) {
+    try {
+      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
+      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
+      const sig = tasteSignals(action, place);
+      if (!sig.length) return;
+      const now = Date.now();
+      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
+      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
+    } catch (e) {}
   }
   // Pooled, anonymous engagement log. One fire-and-forget row per action into a
   // shared Supabase "events" table — this is the proprietary signal Google can't
@@ -4020,6 +4141,7 @@ function PageInner({ initialEvents = null }) {
   function addShared(p) {
     if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
+    try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
@@ -5246,6 +5368,28 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.58 (owner): the date-night card wears the area's best date-worthy
+  // photo — same floor the date-night list rides on (4.4/150+), art only as
+  // fallback. One lazy fetch per center, identical shape to the family card.
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const best = j.places
+          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
+          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.4 && x.reviews >= 150)
+          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
+        if (best) setDateHeroImg(best.ref);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
   // gating: only renders with >=2 real signal sources and a photo.
   useEffect(() => {
@@ -5254,7 +5398,10 @@ function PageInner({ initialEvents = null }) {
     (async () => {
       try {
         const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
-        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 2);
+        // >=1 real source until the owner's paid keys land (wikipedia pageviews
+        // alone is a true attention signal); the fallback line only ever claims
+        // what the source count can prove.
+        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
         // The owner's drive rule applies here too: rank order only.
         cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
         const pick = cand[0] || null;
@@ -5269,6 +5416,47 @@ function PageInner({ initialEvents = null }) {
           } catch (e) {}
         }
       } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
+  // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
+  // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const best = j.places
+          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
+          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.6 && x.reviews >= 60 && x.reviews <= 3000)
+          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
+        if (best) setGemHeroImg(best.ref);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
+  // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
+  // traffic surface had no bookable inventory. Top selling-out (else top-
+  // reviewed) experience for the area; product_url rendered VERBATIM (pid).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
+        const r = await fetch("/api/experiences?" + q.toString());
+        const j = r.ok ? await r.json() : null;
+        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
+        const best = items.sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))[0] || null;
+        if (!cancelled) setHomeExp(best);
+      } catch (e) { if (!cancelled) setHomeExp(null); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -5830,6 +6018,7 @@ function PageInner({ initialEvents = null }) {
     setLists((prev) => {
       const f = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
       const h = f.places.some((x) => x.id === p.id);
+      if (!h) { try { recordSignal(p, "save"); } catch (e) {} }
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
@@ -6312,6 +6501,32 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ marginTop: 10, background: "linear-gradient(150deg, rgba(249,115,22,.14), rgba(11,14,21,.6))", border: `1px solid rgba(249,115,22,.35)`, borderRadius: 14, padding: "13px 15px" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: 40, borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: 40, padding: "0 16px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+            </div>
+          );
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -6348,12 +6563,23 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {screen === "suggested" && (() => {
+        {screen === "suggested" && outOfCoverage(center) && (
+          <CoverageWaitlist center={center} locName={locName} C={C} supabase={supabase} />
+        )}
+        {screen === "suggested" && !outOfCoverage(center) && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
+          // Phase 2: fold the DURABLE per-user taste vector into the category
+          // weights so preference persists across sessions, not just this one.
+          // (category namespace matches catW; the visible Score is untouched.)
+          const _vec = tasteVecRef.current || {};
+          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          const hasAffinity = activeSignals.length >= 2;
-          const displayList = dedupePlaces(hasAffinity ? applyAffinity(list, affinities) : list, true);
+          // Personalize ONLY with explicit consent (Phase 2). Without it, the
+          // feed is pure moment/Score order — same for everyone.
+          const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
+          const personalized = personalize === "on" && hasTaste;
+          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
@@ -6544,8 +6770,8 @@ function PageInner({ initialEvents = null }) {
                         {/* v6.52 (owner): slides 3+4 — date night and family, each the
                             best of the town for that intent, opening the luxury ranked
                             pages built on the /best-beaches standard. Owned card art. */}
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/date-night.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src={dateHeroImg ? "/api/photo?ref=" + encodeURIComponent(dateHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
@@ -6566,11 +6792,23 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
                           </div>
                         </div>
+                        {/* v6.60 HIDDEN GEMS SLIDE — loved, not overrun. */}
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/hidden-gems?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (gemHeroImg ? "&img=" + encodeURIComponent(gemHeroImg) : "")); } catch (e2) {} }} aria-label="Hidden gems near you" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src={gemHeroImg ? "/api/photo?ref=" + encodeURIComponent(gemHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(167,139,250,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+                            <span style={{ fontSize: 11 }}>💎</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#A78BFA", letterSpacing: "0.4px", textTransform: "uppercase" }}>Hidden gems</span>
+                          </div>
+                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Loved, not overrun</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The spots locals keep to themselves in {locName ? locName.split(",")[0] : "your town"} ›</div>
+                          </div>
+                        </div>
                         {/* v6.56 THE BUZZ SLIDE — "Trending near you" from real
                             popularity signals; never "busiest" (no door counts).
                             Absent until the popularity engine has rows. */}
                         {buzzPick && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("buzz_hero_open", null, { id: buzzPick.place_id }); } catch (e2) {} try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {} }} aria-label={"Trending near you: " + buzzPick.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("buzz_hero_open", null, { id: buzzPick.place_id }); } catch (e2) {} try { window.location.assign("/trending-now?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (buzzPick.photo_ref ? "&img=" + encodeURIComponent(buzzPick.photo_ref) : "")); } catch (e2) {} }} aria-label={"Trending near you: " + buzzPick.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
                             <img src={"/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                             <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(255,107,107,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
@@ -6578,7 +6816,7 @@ function PageInner({ initialEvents = null }) {
                             </div>
                             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
                               <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")}</div>
+                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || (buzzPick.sources_count > 1 ? "Drawing attention across " + buzzPick.sources_count + " signals this week ›" : "More people are looking this up than usual ›")}</div>
                             </div>
                           </div>
                         )}
@@ -6610,6 +6848,23 @@ function PageInner({ initialEvents = null }) {
                           tours + attractions + beaches ranked together). Replaces the
                           client-ranked v6.25 food card; the Today's Best accordion stays
                           retired (component + engines in repo). */}
+                      {!browseCat && homeExp && (
+                        <a href={homeExp.url} target="_blank" rel="noopener sponsored nofollow" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || homeExp.url; try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code }); } catch (er) {} openExternal(_live); }} style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14 }}>
+                          <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
+                            <img src={homeExp.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: 999, padding: "2px 7px" }}>🔥 Selling out</span> : null}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
+                            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.accent, marginBottom: 4 }}>✨ Make a day of it</div>
+                            <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
+                              {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
+                              {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
+                              <span style={{ marginLeft: "auto", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
+                            </div>
+                          </div>
+                        </a>
+                      )}
                       {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
@@ -6636,6 +6891,10 @@ function PageInner({ initialEvents = null }) {
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
                   {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} />}
+                  {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
+                      next to the Viator rail — spec §3. Renders nothing when no live deals. */}
+                  {browseCat === "attractions" && <UTDealsRail category="attractions" />}
+                  {browseCat === "hotels" && <UTDealsRail category="stays" />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -6872,8 +7131,8 @@ function PageInner({ initialEvents = null }) {
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
               {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
-              {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
-                <div className="wf-discovery-empty" style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
+              {!browseCat && !suggestedLoading && suggested !== null && (
+                <section className="wf-discovery-empty" aria-label="Explore Wayfind" style={{ padding: "16px 2px 8px" }}>{/* Visual Release 02: one permanent discovery section, never duplicated. */}
                   <div className="wf-discovery-heading" style={{ marginBottom: 12 }}>
                     <div className="wf-discovery-visual">
                       <img src="/brand/wayfind-neighborhood-context-v1.png" alt="A walkable waterfront neighborhood with local restaurants, live music, and places to explore" loading="lazy" />
@@ -6900,7 +7159,7 @@ function PageInner({ initialEvents = null }) {
                       </button>
                     ))}
                   </div>
-                </div>
+                </section>
               )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
@@ -7098,6 +7357,41 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
+      {tasteOpen && (() => {
+        const vec = tasteVecState || {};
+        const chips = [];
+        for (const dim of ["category", "tag", "price"]) { const m = vec[dim]; if (!m) continue; for (const [val, w] of Object.entries(m)) chips.push({ dim, val, w: Number(w) || 0 }); }
+        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
+        const top = chips.slice(0, 24);
+        const dimLabel = { category: "", tag: "", price: "$".repeat(1) };
+        return (
+          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(2,4,8,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: C.bg, borderTop: `1px solid ${C.border}`, borderRadius: "18px 18px 0 0", padding: "18px 18px 26px", maxHeight: "82vh", overflowY: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Your taste</div>
+                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+              </div>
+              <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
+              {top.length ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {top.map((c) => (
+                    <span key={c.dim + "|" + c.val} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: c.w >= 0 ? C.text : C.muted, background: c.w >= 0 ? "rgba(232,201,122,.12)" : "rgba(255,255,255,.04)", border: `1px solid ${c.w >= 0 ? "rgba(232,201,122,.4)" : C.border}`, borderRadius: 999, padding: "6px 8px 6px 12px" }}>
+                      {c.w >= 0 ? "" : "not "}{c.val}
+                      <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.val} style={{ width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: C.muted, fontSize: 11, lineHeight: 1, cursor: "pointer" }}>✕</button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+                <button onClick={exportTaste} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Export my data</button>
+                <button onClick={() => { resetTaste(); setTasteOpen(false); }} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid rgba(179,58,43,.5)`, background: "transparent", color: "#E06A5A", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Reset &amp; forget all</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* App-tile sheets: opened from the home navigation grid */}
       {menuSheet && <MenuSheet ctx={ctx} />}
@@ -7374,6 +7668,57 @@ function BookableExpRail({ sub, lat, lng }) {
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
+  );
+}
+
+// UT deal rails (spec §1/§3): promo/coupon cards from wf_deals_ranked (already
+// quality-gated + link-guardian-checked), grouped by subcategory, rendered next
+// to the Viator experience rail. category="attractions" on Things-to-do,
+// "stays" on the Stays surface. The affiliate_url is the verified CJ deep link —
+// rendered VERBATIM (never re-wrapped). Each card carries the "via {partner}"
+// disclosure chip. Ships nothing (returns null) when there are no live deals.
+function UTDealsRail({ category }) {
+  const [rails, setRails] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    setRails(null);
+    fetch("/api/deals?category=" + encodeURIComponent(category)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+      if (dead) return;
+      setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
+    });
+    return () => { dead = true; };
+  }, [category]);
+  if (rails === null || !rails.length) return null; // no skeleton flash
+  const cta = category === "stays" ? "View hotels ↗" : "Get tickets ↗";
+  return (
+    <>
+      {rails.map((rail) => (
+        <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
+          </div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {rail.items.map((d) => (
+              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
+                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
+                </div>
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                    {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
+                    <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
+                  </div>
+                  <div style={{ marginTop: 6 }}><AffiliateChip provider={d.provider} label={d.providerLabel} /></div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+        </div>
+      ))}
+    </>
   );
 }
 

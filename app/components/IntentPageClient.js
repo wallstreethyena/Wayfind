@@ -67,6 +67,19 @@ export default function IntentPageClient({ intent }) {
         }
       } catch (e) {}
       if (!dead) setRows(ranked);
+      // v6.60 (owner): every card carries an editorial line. Rows without a
+      // VERIFIED hook get one written by the LLM in the Wayfind voice — the
+      // same evidence-first Atlas prompt /api/blurbs already runs (shared
+      // 30-day pool, so it costs nothing on a warm area). Applied to the top
+      // rows; fail-soft to no line.
+      try {
+        const need = ranked.filter((r) => !r.editorial_hook).slice(0, 8);
+        if (need.length) {
+          const res = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ city: loc.city, places: need.map((r) => ({ id: r.id, name: r.name, type: r.type, rating: r.rating, reviews: r.reviews, editorial: r.editorial })) }) });
+          const j = res.ok ? await res.json() : null;
+          if (j && j.blurbs && !dead) { for (const r of ranked) { if (!r.editorial_hook && j.blurbs[r.id]) r.ai_line = j.blurbs[r.id]; } setRows([...ranked]); }
+        }
+      } catch (e) {}
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -116,7 +129,7 @@ export default function IntentPageClient({ intent }) {
               title={r.name}
               score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
               why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
-              editorial={r.editorial_hook || null} />
+              editorial={r.editorial_hook || r.ai_line || null} />
           ))}
         </ol>
       ) : (

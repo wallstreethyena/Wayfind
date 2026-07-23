@@ -40,7 +40,7 @@ export const metadata = {
         url: "/share-card.png?v=11",
         width: 1200,
         height: 630,
-        alt: "Wayfind",
+        alt: "Wayfind — local recommendations for things to do, places to eat, and travel planning",
       },
     ],
   },
