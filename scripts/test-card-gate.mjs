@@ -42,8 +42,8 @@ ok(typeof served[0].rating === "number" && served[0].rating > 0, "a served inven
 
 // ── the components actually enforce the contract ────────────────────────────
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardPhoto = useBestPhoto\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home),
-  "PlaceCard's completeness gate is its first RETURN (only the useBestPhoto hook may precede it — rules of hooks; an incomplete card still renders nothing)");
+ok(/function PlaceCard\(\{[^}]*\}\) \{\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardPhoto = useBestPhoto\([^;]*\);\s*\n\s*)?(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home),
+  "PlaceCard's completeness gate is its first RETURN (only the useBestPhoto + usePlaceProduct hooks may precede it — rules of hooks; an incomplete card still renders nothing)");
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
 ok(/if \(p\.wfScore == null && Number\(p\.rating\) > 0\) p\.wfScore = wayfindScore\(/.test(home),
   "PlaceCard self-heals a missing wfScore from rating signals (a rated card ALWAYS shows the Score badge)");

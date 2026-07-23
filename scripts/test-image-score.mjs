@@ -26,8 +26,8 @@ ok(/mem\.has\(ref\)/.test(bp), "in-session cache so a photo is fetched once per 
 
 // ── PlaceCard integration ──
 const home = read("app/home.js");
-ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
-ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
+ok(/import \{ useBestPhoto, heroRefFromPlaces \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCard imports the picker");
+ok(/const cardPhoto = useBestPhoto\(p && p\.photo, p && p\.photos\);\s*\n\s*(?:\/\/[^\n]*\n\s*)*(?:const cardProduct = usePlaceProduct\([^;]*\);\s*\n\s*)?if \(!cardComplete\(p\)\) return null;/.test(home), "the hook runs BEFORE the early return (rules of hooks)");
 ok(/src=\{cardPhoto \|\| p\.photo\}/.test(home), "the card renders the best photo, falling back to the primary");
 
 console.log(`test-image-score: ${n - failn}/${n} passed`);

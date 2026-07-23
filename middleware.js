@@ -43,6 +43,11 @@ export const config = {
     "/api/buzz/why",
     // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
     "/api/image-score",
+    // Verified booking products: /api/place-products is a same-origin POST (the
+    // place-card booking gate, usePlaceProduct in app/home.js) reading
+    // wf_place_products via the service role. ANTI-SCRAPING — keeps the verified
+    // affiliate product catalog from being harvested off-origin.
+    "/api/place-products",
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
