@@ -2,11 +2,27 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only; the
 // three original sibling branches (root, system folder, custom list) keep
 // their exact conditions.
+import { useEffect, useState } from "react";
 import { C } from "../kit";
 import { supabase } from "../../../lib/supabase";
+import { fetchSavedItems, removeSavedItem } from "../../../lib/savedItems";
 
 export default function SavedScreen({ ctx }) {
   const { activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, openExperience, openCuisine, shareList, deleteList, rollDice, PlaceCard, requireAuth } = ctx;
+  // Saved experiences & deals (wf_saved_items) — separate from the place lists
+  // above (saved_places). Loads for the signed-in user; empty when signed out.
+  const [savedItems, setSavedItems] = useState([]);
+  useEffect(() => {
+    let dead = false;
+    if (!user) { setSavedItems([]); return; }
+    fetchSavedItems(user.id).then((rows) => { if (!dead) setSavedItems(rows); });
+    return () => { dead = true; };
+  }, [user]);
+  const removeItem = async (it) => {
+    if (!user) return;
+    setSavedItems((prev) => prev.filter((x) => x.id !== it.id));
+    try { await removeSavedItem(user.id, it.item_type, it.item_id); } catch (e) {}
+  };
   return (
     <>
         {!activeList && !sysFolder && (
@@ -64,6 +80,23 @@ export default function SavedScreen({ ctx }) {
                     </div>
                   );
                 })}
+              </>
+            )}
+            {user && savedItems.length > 0 && (
+              <>
+                <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 8 }}>Saved experiences & deals</div>
+                {savedItems.map((it) => (
+                  <div key={it.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: `1px solid ${C.border}` }}>
+                    <a href={it.item_url || "#"} target="_blank" rel="noopener sponsored" style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0, textDecoration: "none" }}>
+                      <div style={{ width: 54, height: 54, borderRadius: 10, flexShrink: 0, background: it.item_image ? `center/cover no-repeat url(${it.item_image})` : C.adim }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{it.item_title}</div>
+                        <div style={{ fontSize: 12, color: C.muted }}>{it.item_type === "deal" ? "Deal" : "Experience"}{it.provider ? " · via " + (it.provider === "undercover_tourist" ? "Undercover Tourist" : it.provider === "viator" ? "Viator" : it.provider) : ""}</div>
+                      </div>
+                    </a>
+                    <button onClick={() => removeItem(it)} aria-label={"Remove " + it.item_title} style={{ flexShrink: 0, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, borderRadius: 999, width: 30, height: 30, cursor: "pointer" }}>✕</button>
+                  </div>
+                ))}
               </>
             )}
           </div>
