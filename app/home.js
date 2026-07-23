@@ -27,7 +27,6 @@ import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
-import MapPreview from "./components/MapPreview"; // v6.41: FREE sidebar map — the billed Google Map now loads only on the real Map screen
 // G1 (July 2026 decomposition): non-default screens ship in their own chunks.
 // `screen` initializes to "suggested" and these render only on user action, so
 // ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
@@ -6380,25 +6379,25 @@ function PageInner({ initialEvents = null }) {
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}`}</style>
+      <style>{`@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}`}</style>
       {/* Header */}
-      <div style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
+      <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+        <div className="wf-topbar-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
             {/* v6.54 (spec 4): code wordmark — the orange dot is the TITTLE of the
                 i (the PNG master bakes the pin after the d, which reads as a
-                period). ~35px, +35% over the previous render. The PNG stays
+                period). The PNG stays
                 canonical for OG cards where it sits on its own dark band. */}
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <img src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 46.75, width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
+            <img className="wf-wordmark" src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 64, maxWidth: "48vw", width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
-              <button onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
+              <button className="wf-weather-button" onClick={() => setWxOpen((v) => !v)} aria-label="Weather forecast" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", color: C.text, cursor: "pointer", padding: "2px 4px" }}>
                 <span style={{ fontSize: 18 }}>{wxIconNow(weather)}</span>
                 <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", lineHeight: 1.05 }}>
                   <span style={{ fontSize: 15, fontWeight: 800 }}>{weather.feels != null ? weather.feels : weather.temp}°</span>
@@ -6410,7 +6409,7 @@ function PageInner({ initialEvents = null }) {
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
-              <button onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
+              <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
           </div>
         </div>
@@ -6443,9 +6442,9 @@ function PageInner({ initialEvents = null }) {
         )}
         {/* map search moved onto the map as a floating control (see map overlay) */}
         {(screen !== "map" || mapSearchOpen) && (
-        <div style={{ display: "flex", gap: 0, position: "relative" }}>
+        <div className="wf-search-row" style={{ display: "flex", gap: 0, position: "relative" }}>
           <div style={{ flex: 1, position: "relative" }}>
-            <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none", opacity: 0.85 }}>🔍</span>
+            <span className="wf-search-icon" style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", opacity: 0.9, display: "inline-flex", zIndex: 1 }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
             {/* v5.63 (audit P4): a real combobox — the input owns the listbox
                 (aria-controls), announces its expanded state and the active
                 option (aria-activedescendant), and supports full keyboard
@@ -6464,7 +6463,7 @@ function PageInner({ initialEvents = null }) {
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
               aria-activedescendant={sugIdx >= 0 ? `wf-sug-${sugIdx}` : undefined}
               aria-label="Search a place or city" placeholder="Search a place or city"
-              style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
+              className="wf-search-input" style={{ width: "100%", boxSizing: "border-box", height: 48, padding: "0 14px 0 38px", background: C.card, border: `1.5px solid ${C.border}`, borderRight: "none", borderRadius: "14px 0 0 14px", color: C.text, fontSize: 16, outline: "none" }}
             />
             {suggestions.length > 0 && (
               <ul id="wf-suggestions" role="listbox" aria-label="Search suggestions" style={{ listStyle: "none", margin: 0, padding: 0, position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0, background: C.panel, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.5)", zIndex: 50 }}>
@@ -6490,13 +6489,13 @@ function PageInner({ initialEvents = null }) {
             {/* Live region: announce the highlighted suggestion to screen readers. */}
             <div aria-live="polite" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>{sugIdx >= 0 && suggestions[sugIdx] ? `${suggestions[sugIdx].text}, ${sugIdx + 1} of ${suggestions.length}` : ""}</div>
           </div>
-          <button onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
+          <button className="wf-search-submit" onClick={submitSearch} aria-label="Search" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 48, background: C.accent, border: "none", borderRadius: "0 14px 14px 0", color: "#0D1117", fontSize: 22, fontWeight: 800, cursor: "pointer" }}>→</button>
           {/* v5.7x: "Take a chance" moved off the home-menu list and onto an
               icon button beside search — same visual weight as the sparkle
               "Find my vibe" button in the header. */}
           {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
               beside search; the dice experiment is retired. */}
-          <button onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
@@ -6557,7 +6556,7 @@ function PageInner({ initialEvents = null }) {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(64px + env(safe-area-inset-bottom))" }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(96px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
@@ -7042,7 +7041,7 @@ function PageInner({ initialEvents = null }) {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
-                      <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(64px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
+            <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(96px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
                         <span style={{ fontSize: 15 }}>📍</span>
                         <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
                         <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
@@ -7128,13 +7127,18 @@ function PageInner({ initialEvents = null }) {
                   the generic line first; the moment arrives one paint later. */}
               {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
               {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
-                <div style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
-                  <div style={{ textAlign: "center", marginBottom: 12 }}>
-                    <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 8 }}><Critter size={44} /></div>
-                    <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>Start with one of these</div>
-                    <div style={{ fontSize: 13, color: C.muted, marginTop: 3 }}>Wayfind is reading what's around you — these always work.</div>
+                <div className="wf-discovery-empty" style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
+                  <div className="wf-discovery-heading" style={{ marginBottom: 12 }}>
+                    <div className="wf-discovery-visual">
+                      <img src="/brand/wayfind-neighborhood-context-v1.png" alt="A walkable waterfront neighborhood with local restaurants, live music, and places to explore" loading="lazy" />
+                      <div className="wf-discovery-copy">
+                        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
+                        <div className="wf-discovery-title">Know what is around you.</div>
+                        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
+                  <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
                     {[
                       ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openCurated("today")],
                       ["gem", "Hidden gems", () => openExpSheet("gem")],
@@ -7145,7 +7149,7 @@ function PageInner({ initialEvents = null }) {
                       ["wallet", "Big fun, small budget", () => openExpSheet("budget")],
                       ["dice", "Surprise me", () => setMenuSheet("pick")],
                     ].map(([ic, lbl, go]) => (
-                      <button key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: TARGET }}>
+                      <button className="wf-discovery-link" key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: TARGET }}>
                         <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
                       </button>
                     ))}
@@ -7167,50 +7171,6 @@ function PageInner({ initialEvents = null }) {
               </div>
               <div style={{ height: 20 }} />
               </div>
-              {isDesktop && (
-                <div style={{ width: 400, flexShrink: 0, position: "sticky", top: 12 }}>
-                  {/* v5.01 (user direction): the orange weather card is gone from
-                      the desktop sidebar — weather lives in the header, period.
-                      In its place: the in-app map, pinned with what's on screen
-                      around the current location. Tap a pin → place detail;
-                      Full map → the map tab. */}
-                  {(() => { /* v6.34 (owner ask): the sidebar map follows the
-                      ACTIVE list — the open cuisine/moment sheet, the in-place
-                      category browse, else the home feed — and frames the
-                      ~20mi radius with the same expanding distance rings as
-                      the main Map (5/10/15/20 at that zoom). Pins are the
-                      already-loaded, cache-served rows: zero extra fetches. */
-                    const _active = (cuisineSheet && Array.isArray(cuisineSheet.list) && cuisineSheet.list.length ? cuisineSheet.list : null) || (hookDetail && Array.isArray(hookDetail.places) && hookDetail.places.length ? hookDetail.places : null) || (browseCat && Array.isArray(view) && view.length ? view : null) || (list || []);
-                    const _pins = _active.filter((p) => p && p.lat != null).slice(0, 20); return (
-                  <div style={{ border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, position: "relative", height: 320, background: C.card }}>
-                    <MapPreview places={_pins} center={center} deviceLoc={deviceLoc} onSelect={(p) => { try { logEvent("map_pin_selected", p, { src: "sidebar" }); } catch (e) {} openDetail(p); }} />
-                    <button onClick={() => { setMapListOverride(null); setScreen("map"); }} style={{ position: "absolute", right: 10, bottom: 10, zIndex: 5, padding: "7px 13px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 12, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,.4)" }}>Full map ↗</button>
-                    {locName ? <div style={{ position: "absolute", left: 10, top: 10, zIndex: 5, padding: "6px 11px", borderRadius: 999, background: "rgba(13,17,23,.82)", backdropFilter: "blur(6px)", color: C.text, fontSize: 12, fontWeight: 700, maxWidth: 220, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {locName.split(",")[0]}{_pins.length ? ` · ${_pins.length} spots` : ""}</div> : null}
-                  </div>
-                  ); })()}
-                  {foryouEvents && foryouEvents.length > 0 && (
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={16} color={C.accent} />Events nearby</div>
-                        <span onClick={() => setScreen("events")} style={{ fontSize: 12, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
-                      </div>
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 8 }}>
-                        {dedupeEvents(foryouEvents, true).filter((e) => e && e.dest).slice(0, 6).map((e) => {
-                          const f = formatEventDate(e.date, e.time);
-                          const internal = e.destKind === "internal";
-                          return (
-                            <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "community_grid" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 10, textDecoration: "none" }}>
-                              <div style={{ fontSize: 10, fontWeight: 800, color: C.purple, marginBottom: 3 }}>{f.wd} {f.mo} {f.day}{f.time ? " · " + f.time : ""}</div>
-                              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
-                              <div style={{ fontSize: 10.5, color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📍 {e.venue || e.city || "Nearby"}</div>
-                            </a>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           );
         })()}
@@ -7302,17 +7262,17 @@ function PageInner({ initialEvents = null }) {
           (no transformed ancestor exists to break it), centered to the app column
           (maxWidth 480). Only the inner list scrolls; the nav never moves with the
           page. The scroll container below reserves matching bottom padding. */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <nav className="wf-bottom-nav" aria-label="Primary navigation" style={{ position: "fixed", bottom: 0, left: 0, right: 0, maxWidth: 480, margin: "0 auto", zIndex: 20, background: C.panel, borderTop: `1px solid ${C.border}`, display: "flex", paddingBottom: "env(safe-area-inset-bottom)" }}>
         {[{ id: "home", icon: "home", label: "Home" }, { id: "events", icon: "events", label: "Events" }, { id: "coupons", icon: "coupons", label: "Coupons" }, { id: "map", icon: "map", label: "Map" }, { id: "saved", icon: "saved", label: "Favorites" }, { id: "itinerary", icon: "itinerary", label: "Itinerary" }].map((s) => {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
-          <a key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "7px 6px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, background: "transparent", border: "none", cursor: "pointer", textDecoration: "none" }}>
-            <NavIcon name={s.icon} color={active ? C.accent : C.muted} size={22} />
-            <span style={{ fontSize: 10.5, fontWeight: active ? 700 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
+          <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
+            <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
+            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </a>
           );
         })}
-      </div>
+      </nav>
 
       {/* Detail sheet */}
       {detail && <DetailSheet ctx={ctx} />}
@@ -7921,7 +7881,8 @@ const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the hor
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
 const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
-const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:flex;gap:32px;align-items:flex-start;width:100%;max-width:1240px;margin:0 auto}.wf-col-main{max-width:780px}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
+const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:#F97316!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px env(safe-area-inset-bottom);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:23px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{height:78px!important;max-width:52vw!important}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:29px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:0!important;padding:16px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
+const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus{border-color:#F97316!important;background:linear-gradient(135deg,#1B2635,#121B26)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 0 0 3px rgba(249,115,22,.12)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 

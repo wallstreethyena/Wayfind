@@ -1,461 +1,138 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
-import { getLoader } from "../../lib/google";
+import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
 
-// Premium redesign (v5.55): when Google Maps can't load (missing/invalid key,
-// network, quota), Google injects its own raw "Oops! Something went wrong"
-// gray box into the container — a broken placeholder the spec forbids. We
-// render an intentional branded preview instead: the Wayfind pin motif on the
-// same dark map tone, honest about the state, with the parent's "Full map"
-// action still layered on top. Never a half-loaded gray box.
-function MapFallback({ count }) {
-  return (
-    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(150deg, #1B2230 0%, #131A24 60%, #0D1117 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, textAlign: "center", padding: 20 }}>
-      <svg width={34} height={45} viewBox="0 0 24 24" style={{ opacity: 0.9 }}><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#0D1117" /></svg>
-      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#CBD5E1" }}>{count > 0 ? `${count} ${count === 1 ? "spot" : "spots"} nearby` : "Map preview"}</div>
-      <div style={{ fontSize: 12, color: "#94A3B8", maxWidth: 230, lineHeight: 1.5 }}>The interactive map is unavailable right now. Open the full map to explore.</div>
-    </div>
-  );
-}
-
-const CAT_COLOR = {
-  food: "#F97316",
-  nightlife: "#F472B6",
-  attractions: "#A78BFA",
-  hotels: "#38BDF8",
-  shopping: "#22C55E",
-};
-
-// Top spots get medal colors so ranking reads at a glance.
-function medalColor(i) {
-  if (i === 0) return "#FBBF24"; // gold
-  if (i === 1) return "#CBD5E1"; // silver
-  if (i >= 2 && i <= 4) return "#CD7F32"; // bronze (3rd-5th)
-  return null;
-}
-
-// The user's own location, shown as the clean Wayfind brand pin: a hollow
-// teardrop with nothing inside, so it reads as a true pinpoint on the map.
-const PIN_SVG =
-  "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='40' viewBox='0 0 30 40'>" +
-  "<path fill-rule='evenodd' fill='#F97316' stroke='#ffffff' stroke-width='1.3' d='M15 1.5 C8 1.5 2.7 6.7 2.7 13.6 C2.7 22.5 15 38 15 38 C15 38 27.3 22.5 27.3 13.6 C27.3 6.7 22 1.5 15 1.5 Z M15 8.2 a5.4 5.4 0 1 0 0.01 0 Z'/>" +
-  "</svg>";
-
-// Ranked place markers use the Wayfind pin shape with the rank number sitting in
-// the pin's center, tinted by medal color so the top spots still read at a glance.
-function placePinSVG(fill, num, numColor) {
-  return "<svg xmlns='http://www.w3.org/2000/svg' width='34' height='44' viewBox='0 0 34 44'>" +
-    "<path d='M17 1.5 C9 1.5 3 7.3 3 15 C3 25 17 42 17 42 C17 42 31 25 31 15 C31 7.3 25 1.5 17 1.5 Z' fill='" + fill + "' stroke='#0D1117' stroke-width='1.4'/>" +
-    "<circle cx='17' cy='15' r='8.6' fill='#0D1117'/>" +
-    "<text x='17' y='15' text-anchor='middle' dy='0.35em' font-family='Arial, Helvetica, sans-serif' font-size='11' font-weight='700' fill='" + numColor + "'>" + num + "</text>" +
-    "</svg>";
-}
-
-// ── Distance rings (main Map only) ────────────────────────────────────────
-// Tripsy-style concentric rings centered on the search origin: native
-// google.maps.Circle + a lightweight OverlayView label. No new deps. Purely
-// decorative — Circles are clickable:false, labels are pointer-events:none, and
-// both live on the overlay pane BELOW every marker, so a tap always hits a pin.
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const MI_TO_M = 1609.344;
-const RING_MI_STEPS = [0.25, 0.5, 1, 2, 5, 10, 25, 50];
-// v6.22 — brand-orange, brighter rings (the muted white rings read as "dull"
-// and vanished at a wide zoom). Warm accent + higher opacity so the distance
-// context pops on the dark map.
-const RING_COLOR = "#F9A03F";
-const RING_STYLES = [
-  { w: 2, op: 0.95, fill: 0.05 }, // innermost = the emphasized "close to you" zone
-  { w: 1.5, op: 0.55, fill: 0.015 },
-  { w: 1.3, op: 0.36, fill: 0 },
-];
-function fmtRingMi(mi) {
-  const s = mi % 1 === 0 ? String(mi) : String(Number(mi.toFixed(2)));
-  return s + "mi";
-}
-let RingLabelClass = null;
-function ensureRingLabelClass() {
-  if (RingLabelClass || typeof window === "undefined" || !window.google) return RingLabelClass;
-  class RingLabel extends window.google.maps.OverlayView {
-    constructor(position, text) { super(); this.pos = position; this.text = text; this.div = null; }
-    onAdd() {
-      const d = document.createElement("div");
-      d.textContent = this.text;
-      d.style.cssText = "position:absolute;transform:translate(-50%,-50%);font:600 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:rgba(255,255,255,0.92);text-shadow:0 1px 3px rgba(0,0,0,0.85);pointer-events:none;white-space:nowrap;will-change:opacity;transition:opacity .2s ease;";
-      this.div = d;
-      const panes = this.getPanes();
-      (panes.overlayLayer || panes.overlayMouseTarget || panes.floatPane).appendChild(d);
-    }
-    draw() {
-      const proj = this.getProjection();
-      if (!proj || !this.div) return;
-      const p = proj.fromLatLngToDivPixel(new window.google.maps.LatLng(this.pos.lat, this.pos.lng));
-      if (p) { this.div.style.left = Math.round(p.x) + "px"; this.div.style.top = Math.round(p.y) + "px"; }
-    }
-    onRemove() { if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div); this.div = null; }
-    setOpacity(o) { if (this.div) this.div.style.opacity = String(o); }
-  }
-  RingLabelClass = RingLabel;
-  return RingLabelClass;
+
+function MapFallback({ count }) {
+  return <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, #17212E 0%, #0A111B 72%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, padding: 22, textAlign: "center" }}>
+    <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(249,115,22,.14)", border: "1px solid rgba(249,115,22,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div>
+    <div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{count ? `${count} places ready to explore` : "Map preview"}</div>
+    <div style={{ maxWidth: 240, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map could not load right now. Your ranked results are still available below.</div>
+  </div>;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings }) {
-  const ref = useRef(null);
+function markerNode({ label, color, kind, selected }) {
+  const el = document.createElement("button");
+  el.type = "button";
+  el.setAttribute("aria-label", label);
+  el.style.cssText = [
+    "width:" + (kind === "origin" ? 18 : kind === "event" ? 30 : 34) + "px",
+    "height:" + (kind === "origin" ? 18 : kind === "event" ? 30 : 34) + "px",
+    "border-radius:50%",
+    "border:2px solid rgba(255,255,255,.96)",
+    "background:" + color,
+    "box-shadow:0 5px 14px rgba(0,0,0,.28),0 0 0 " + (selected ? "4px" : "2px") + " rgba(255,255,255,.2)",
+    "color:#fff;font:800 " + (kind === "origin" ? "0" : "12px") + "/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
+    "display:grid;place-items:center;padding:0;cursor:pointer",
+  ].join(";");
+  if (kind === "event") el.innerHTML = "<span style='font-size:14px;line-height:1'>✦</span>";
+  else if (kind !== "origin") el.textContent = label.replace(/^\D*(\d+).*$/, "$1");
+  return el;
+}
+
+function circleFeature(center, miles) {
+  const points = [];
+  const lat = Number(center.lat);
+  const lng = Number(center.lng);
+  const radius = miles * MI_TO_M;
+  for (let i = 0; i <= 64; i += 1) {
+    const a = (i / 64) * Math.PI * 2;
+    const dLat = (radius * Math.cos(a)) / 111320;
+    const dLng = (radius * Math.sin(a)) / (111320 * Math.max(.2, Math.cos(lat * Math.PI / 180)));
+    points.push([lng + dLng, lat + dLat]);
+  }
+  return { type: "Feature", properties: { miles }, geometry: { type: "Polygon", coordinates: [points] } };
+}
+
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false }) {
+  const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
-  const circleRef = useRef(null);
-  const haloRef = useRef(null);
-  const lastCenterRef = useRef("");
-  const anchorRef = useRef(null);
-  const ringGenRef = useRef(null);
-  const ringStateRef = useRef(null);
-  const ringTimerRef = useRef(null);
-  const ringListenerRef = useRef(null);
-  const ringsOnRef = useRef(false);
   const [failed, setFailed] = useState(false);
-  ringsOnRef.current = !!rings;
 
-  // Drawer rows hand us a focus target: fly to the pin so the list locates
-  // instead of navigating away.
-  useEffect(() => {
-    if (!focus || focus.lat == null || !mapRef.current) return;
-    try {
-      mapRef.current.panTo({ lat: focus.lat, lng: focus.lng });
-      const z = mapRef.current.getZoom ? mapRef.current.getZoom() : 12;
-      if (z < 14) mapRef.current.setZoom(14);
-    } catch (e) {}
-  }, [focus && focus.ts]);
+  const clearMarkers = () => {
+    markersRef.current.forEach((marker) => { try { marker.remove(); } catch (e) {} });
+    markersRef.current = [];
+  };
 
-  useEffect(() => {
-    let cancelled = false;
-    // An INVALID key doesn't reject importLibrary — Google loads, then calls
-    // this global and paints its own error box. Catch it and swap in the
-    // branded preview. (A missing key or network failure rejects below.)
-    const prevAuthFail = typeof window !== "undefined" ? window.gm_authFailure : undefined;
-    if (typeof window !== "undefined") window.gm_authFailure = () => { try { prevAuthFail && prevAuthFail(); } catch (e) {} if (!cancelled) setFailed(true); };
-    async function init() {
-      try {
-        const { Map } = await getLoader().importLibrary("maps");
-        if (cancelled || !ref.current) return;
-        if (!mapRef.current) {
-          mapRef.current = new Map(ref.current, {
-            center: center || { lat: 27.5689, lng: -82.4393 },
-            zoom: 12,
-            disableDefaultUI: true,
-            zoomControl: true,
-            gestureHandling: "greedy",
-            styles: DARK_STYLE,
-          });
-          if (ringsOnRef.current) {
-            // Rings recompute only after a gesture settles (never per-frame):
-            // debounce the map's own idle event ~150ms.
-            ringListenerRef.current = mapRef.current.addListener("idle", () => {
-              clearTimeout(ringTimerRef.current);
-              ringTimerRef.current = setTimeout(() => recomputeRings(), 150);
-            });
-          }
-        }
-        draw();
-      } catch (e) {
-        // Loader rejects on a missing/invalid key or network failure. Show the
-        // branded preview instead of letting Google paint its raw error box.
-        if (!cancelled) setFailed(true);
-      }
+  const redraw = () => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    clearMarkers();
+    const bounds = new LngLatBounds();
+    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null);
+    const eventList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
+
+    ranked.forEach((place, index) => {
+      const color = place.openNow === false ? "#64748B" : index === 0 ? "#F59E0B" : "#F97316";
+      const node = markerNode({ label: `${index + 1}. ${place.name || "Place"}`, color, selected: index === 0 });
+      node.addEventListener("click", (event) => { event.stopPropagation(); onSelect && onSelect(place); });
+      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([place.lng, place.lat]).addTo(map));
+      bounds.extend([place.lng, place.lat]);
+    });
+    eventList.forEach((event) => {
+      const node = markerNode({ label: event.venue || event.name || "Event", color: "#8B5CF6", kind: "event" });
+      node.addEventListener("click", (e) => { e.stopPropagation(); onSelectEvent && onSelectEvent(event); });
+      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([event.lng, event.lat]).addTo(map));
+      bounds.extend([event.lng, event.lat]);
+    });
+
+    const origin = deviceLoc || center;
+    if (origin && origin.lat != null && origin.lng != null) {
+      const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#0F172A", kind: "origin" });
+      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([origin.lng, origin.lat]).addTo(map));
+      if (fit) bounds.extend([origin.lng, origin.lat]);
     }
-    init();
-    return () => { cancelled = true; if (typeof window !== "undefined") window.gm_authFailure = prevAuthFail; clearTimeout(ringTimerRef.current); if (ringListenerRef.current) { try { ringListenerRef.current.remove(); } catch (e) {} ringListenerRef.current = null; } clearRings(); };
+
+    const ringSource = map.getSource("wf-rings");
+    const ringData = origin && rings ? { type: "FeatureCollection", features: [1, 5, 10, 20].map((mi) => circleFeature(origin, mi)) } : { type: "FeatureCollection", features: [] };
+    if (ringSource) ringSource.setData(ringData);
+
+    if (fit && !bounds.isEmpty()) map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 });
+    else if (center && !ranked.length && !eventList.length) map.easeTo({ center: [center.lng, center.lat], zoom: 11, duration: 450 });
+  };
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return undefined;
+    const startingPoint = center || { lat: 27.5689, lng: -82.4393 };
+    const map = new MapLibreMap({
+      container: containerRef.current,
+      style: MAP_STYLE,
+      center: [startingPoint.lng, startingPoint.lat],
+      zoom: 11,
+      attributionControl: true,
+      dragRotate: false,
+      pitchWithRotate: false,
+      cooperativeGestures: true,
+    });
+    mapRef.current = map;
+    if (!compact) map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
+    map.on("load", () => {
+      map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({ id: "wf-rings-fill", type: "fill", source: "wf-rings", paint: { "fill-color": "#F97316", "fill-opacity": .035 } });
+      map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", paint: { "line-color": "#F97316", "line-width": 1.2, "line-opacity": .52 } });
+      redraw();
+    });
+    map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) setFailed(true); });
+    return () => { clearMarkers(); map.remove(); mapRef.current = null; };
+    // The map is intentionally created only once; state is projected in redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    draw();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [places, center, category, deviceLoc, events, fit]);
-
-  function draw() {
     const map = mapRef.current;
-    if (!map || !window.google) return;
-    markersRef.current.forEach((m) => m.setMap(null));
-    markersRef.current = [];
-    // v4.4: simplified pin colors. Rank still reads through SIZE (below), so color
-    // carries just three signals: gold = the #1 pick, blue = other open spots, gray =
-    // closed right now, so closed places recede on the map too. The orange teardrop is
-    // reserved for the user's own location and purple for event venues.
-    const REST = "#4C8DFF";
-    const CLOSED = "#5B6675";
-    const bounds = new window.google.maps.LatLngBounds();
-
-    (places || []).forEach((p, i) => {
-      const fill = p.openNow === false ? CLOSED : (i === 0 ? "#FBBF24" : REST);
-      const s = i === 0 ? 50 : i === 1 ? 45 : i === 2 ? 41 : i <= 4 ? 37 : 32;
-      const w = Math.round((s * 34) / 44);
-      const marker = new window.google.maps.Marker({
-        position: { lat: p.lat, lng: p.lng },
-        map,
-        // v5.38 a11y: title is Maps' supported accessible-name API — without
-        // it every pin is an unnamed role="button" to screen readers.
-        title: `${i + 1}. ${p.name || "Place"}`,
-        icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(placePinSVG(fill, i + 1, "#ffffff")),
-          scaledSize: new window.google.maps.Size(w, s),
-          anchor: new window.google.maps.Point(Math.round(w / 2), s),
-        },
-        zIndex: i <= 4 ? 500 - i : 100,
-      });
-      marker.addListener("click", () => onSelect && onSelect(p));
-      markersRef.current.push(marker);
-      bounds.extend({ lat: p.lat, lng: p.lng });
-    });
-
-    // Event venue markers (purple pins), shown when the map is in events mode.
-    const evList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
-    evList.forEach((ev) => {
-      const m = new window.google.maps.Marker({
-        position: { lat: ev.lat, lng: ev.lng },
-        map,
-        title: ev.venue || ev.name || "Event",
-        icon: {
-          url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(EVENT_PIN_SVG),
-          scaledSize: new window.google.maps.Size(26, 34),
-          anchor: new window.google.maps.Point(13, 32),
-        },
-        zIndex: 400,
-      });
-      m.addListener("click", () => onSelectEvent && onSelectEvent(ev));
-      markersRef.current.push(m);
-      bounds.extend({ lat: ev.lat, lng: ev.lng });
-    });
-
-    // Origin anchor for the distance rings: the user's own dot when we have it,
-    // otherwise the geocoded center of the searched city.
-    anchorRef.current = deviceLoc || center || null;
-
-    // Boundary ring around the searched area. The small home-screen map card
-    // keeps this single orange ring; the main Map replaces it with adaptive
-    // distance rings (drawn on idle, below), so skip it when rings are on.
-    if (circleRef.current) { circleRef.current.setMap(null); circleRef.current = null; }
-    if (haloRef.current) { haloRef.current.setMap(null); haloRef.current = null; }
-    if (center && !ringsOnRef.current) {
-      circleRef.current = new window.google.maps.Circle({
-        map,
-        center: { lat: center.lat, lng: center.lng },
-        radius: 14000,
-        strokeColor: "#F97316",
-        strokeOpacity: 0.22,
-        strokeWeight: 1,
-        fillColor: "#F97316",
-        fillOpacity: 0.03,
-        clickable: false,
-      });
-    }
-
-    // v6.19: ALWAYS mark the ring origin so "my location + radius" is never a
-    // mystery. A real GPS fix gets the classic blue location dot with a soft
-    // accuracy halo; a searched-city center (no GPS granted) gets an orange
-    // center dot so the distance rings visibly radiate from a labeled origin.
-    const originPt = deviceLoc || center;
-    if (originPt && window.google) {
-      const gps = !!deviceLoc;
-      const dotColor = gps ? "#4285F4" : "#F97316";
-      // Soft accuracy halo under the dot.
-      const halo = new window.google.maps.Circle({
-        map,
-        center: { lat: originPt.lat, lng: originPt.lng },
-        radius: gps ? 140 : 220,
-        clickable: false,
-        zIndex: 2,
-        strokeColor: dotColor, strokeOpacity: 0.35, strokeWeight: 1,
-        fillColor: dotColor, fillOpacity: 0.12,
-      });
-      haloRef.current = halo;
-      const dot = new window.google.maps.Marker({
-        position: originPt,
-        map,
-        zIndex: 1000,
-        title: gps ? "You're here" : "Search center",
-        icon: {
-          path: window.google.maps.SymbolPath.CIRCLE,
-          scale: 7,
-          fillColor: dotColor,
-          fillOpacity: 1,
-          strokeColor: "#FFFFFF",
-          strokeWeight: 2.5,
-        },
-      });
-      markersRef.current.push(dot);
-    }
-
-    // Track center + first-5 place IDs together so we re-fit whenever data changes
-    // but don't snap the map back while the user is panning between draws.
-    const cc = center ? `${center.lat.toFixed(4)},${center.lng.toFixed(4)}` : "";
-    const placeKey = (places || []).slice(0, 5).map((p) => p.id || "").join(",");
-    const stateKey = cc + "|" + placeKey;
-    const stateChanged = stateKey !== lastCenterRef.current;
-
-    if (stateChanged) {
-      lastCenterRef.current = stateKey;
-      const a20 = anchorRef.current;
-      if (fit && places && places.length > 0) {
-        // v4.95 list-map mode: the user's location AND every listed place
-        // must be visible at once so it's obvious which is closest.
-        if (deviceLoc) bounds.extend(deviceLoc); else if (center) bounds.extend(center);
-        map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 });
-        if (places.length === 1) map.setZoom(14);
-      } else if (ringsOnRef.current && a20) {
-        // v6.22 — the main Map defaults to the app's ~20mi radius view (matching
-        // the 17mi default search radius) so the rings expand and everything
-        // around is visible, instead of a tight zoom onto the origin. The user's
-        // own zoom/pan persists (this only fires when the center/data changes).
-        const RM = 20 * MI_TO_M;
-        const dLat = RM / 111320;
-        const dLng = RM / (111320 * Math.max(0.2, Math.cos(a20.lat * Math.PI / 180)));
-        const b20 = new window.google.maps.LatLngBounds(
-          { lat: a20.lat - dLat, lng: a20.lng - dLng },
-          { lat: a20.lat + dLat, lng: a20.lng + dLng },
-        );
-        map.fitBounds(b20, { top: 70, right: 28, bottom: 90, left: 28 });
-      } else if (places && places.length > 0) {
-        // Always fit to the actual pins, not the search center.
-        // This is what fixes the "only 1 pin visible" issue when places are
-        // clustered 15+ miles from the address center.
-        // Center on the user at a moderate zoom instead of fitting every pin,
-        // which zoomed out across the whole region and read as overwhelming.
-        // Distant pins sit off-screen until the user zooms out. Zoom is a
-        // starting estimate; tune after seeing it live.
-        if (center) { map.setCenter({ lat: center.lat, lng: center.lng }); map.setZoom(places.length === 1 ? 15 : 12); }
-        else { map.fitBounds(bounds, { top: 60, right: 40, bottom: 80, left: 40 }); if (places.length === 1) map.setZoom(15); }
-      } else if (evList.length > 0) {
-        map.fitBounds(bounds, 60);
-      } else if (center) {
-        map.setCenter({ lat: center.lat, lng: center.lng });
-        map.setZoom(12);
-      }
-    }
-    // On a fit (stateChanged) the viewport moves and the idle listener will
-    // recompute with the settled bounds. When nothing re-fit (e.g. a locate-me
-    // that only moved the user dot), recompute now against the live bounds.
-    if (ringsOnRef.current && !stateChanged) recomputeRings();
-  }
-
-  // ── Distance-ring lifecycle ─────────────────────────────────────────────
-  function destroyRingGen(gen) {
-    if (!gen) return;
-    gen.circles.forEach((o) => { try { o.c.setMap(null); } catch (e) {} });
-    gen.labels.forEach((l) => { try { l.setMap(null); } catch (e) {} });
-  }
-  function clearRings() {
-    if (ringGenRef.current) { destroyRingGen(ringGenRef.current); ringGenRef.current = null; }
-    ringStateRef.current = null;
-  }
-  function buildRings(interval, single) {
-    const map = mapRef.current; const anchor = anchorRef.current;
-    if (!map || !anchor || !window.google) return;
-    const Cls = ensureRingLabelClass();
-    if (!Cls) return;
-    const radiiMi = single ? [0.25] : [interval, interval * 2, interval * 3];
-    const circles = []; const labels = [];
-    radiiMi.forEach((mi, idx) => {
-      const st = RING_STYLES[Math.min(idx, RING_STYLES.length - 1)];
-      const rM = mi * MI_TO_M;
-      const c = new window.google.maps.Circle({
-        map, center: { lat: anchor.lat, lng: anchor.lng }, radius: rM,
-        clickable: false, zIndex: 1,
-        strokeColor: RING_COLOR, strokeOpacity: st.op, strokeWeight: st.w,
-        fillColor: RING_COLOR, fillOpacity: st.fill,
-      });
-      circles.push({ c, op: st.op, fill: st.fill });
-      const lbl = new Cls({ lat: anchor.lat + rM / 111320, lng: anchor.lng }, fmtRingMi(mi));
-      lbl.setMap(map);
-      labels.push(lbl);
-    });
-    const prev = ringGenRef.current;
-    ringGenRef.current = { circles, labels };
-    const reduce = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prev && prev.circles.length && !reduce) {
-      // Crossfade old out / new in over ~200ms.
-      circles.forEach((o) => o.c.setOptions({ strokeOpacity: 0, fillOpacity: 0 }));
-      labels.forEach((l) => l.setOpacity(0));
-      const now0 = (typeof performance !== "undefined" && performance.now) ? performance.now() : 0;
-      const dur = 200;
-      const step = () => {
-        const now = (typeof performance !== "undefined" && performance.now) ? performance.now() : now0 + dur;
-        const t = Math.min(1, (now - now0) / dur);
-        circles.forEach((o) => o.c.setOptions({ strokeOpacity: o.op * t, fillOpacity: o.fill * t }));
-        labels.forEach((l) => l.setOpacity(t));
-        prev.circles.forEach((o) => o.c.setOptions({ strokeOpacity: o.op * (1 - t), fillOpacity: o.fill * (1 - t) }));
-        prev.labels.forEach((l) => l.setOpacity(1 - t));
-        if (t < 1) requestAnimationFrame(step); else destroyRingGen(prev);
-      };
-      requestAnimationFrame(step);
-    } else if (prev) {
-      destroyRingGen(prev);
-    }
-  }
-  function recomputeRings() {
-    const map = mapRef.current;
-    if (!map || !ringsOnRef.current || !window.google) return;
-    const anchor = anchorRef.current;
-    if (!anchor) { clearRings(); return; }
-    const bounds = map.getBounds && map.getBounds();
-    if (!bounds) return;
-    const anchorLL = new window.google.maps.LatLng(anchor.lat, anchor.lng);
-    if (!bounds.contains(anchorLL)) return; // anchor panned off-screen: leave rings anchored, don't rescale
-    const ne = bounds.getNorthEast(); const sw = bounds.getSouthWest();
-    const cosLat = Math.max(0.02, Math.cos(anchor.lat * Math.PI / 180));
-    const nearestMi = Math.min(
-      (ne.lat() - anchor.lat) * 111320,
-      (anchor.lat - sw.lat()) * 111320,
-      (ne.lng() - anchor.lng) * 111320 * cosLat,
-      (anchor.lng - sw.lng()) * 111320 * cosLat,
-    ) / MI_TO_M;
-    const ideal = (0.85 * nearestMi) / 3; // 3x the interval must fit in ~85% of the origin-to-nearest-edge span
-    const anchorKey = anchor.lat.toFixed(5) + "," + anchor.lng.toFixed(5);
-    if (ideal > 50) { // zoomed way out: hide the rings entirely
-      const key = anchorKey + "|hidden";
-      if (ringStateRef.current === key) return;
-      clearRings(); ringStateRef.current = key; return;
-    }
-    let single = false; let interval;
-    if (ideal < 0.25) { single = true; interval = 0.25; } // zoomed way in: a single 0.25mi ring
-    else { interval = RING_MI_STEPS.filter((c) => c <= ideal).pop() || 0.25; }
-    const key = anchorKey + "|" + (single ? "q" : interval);
-    if (ringStateRef.current === key) return; // no interval/anchor change: keep the current rings
-    ringStateRef.current = key;
-    buildRings(interval, single);
-  }
+    if (!map || !focus || focus.lat == null || focus.lng == null) return;
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 14), duration: 650, essential: true });
+  }, [focus && focus.ts]);
 
   if (failed) return <MapFallback count={(places || []).length} />;
-  return <div ref={ref} style={{ width: "100%", height: "100%" }} />;
+  return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: compact ? "#0C1420" : "#E7EBEF" }}>
+    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "saturate(.62) contrast(1.05) brightness(.73)" : undefined }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.42), rgba(3,8,14,.16) 55%, rgba(3,8,14,.46))" : "linear-gradient(180deg, rgba(5,10,16,.04), transparent 28%, rgba(5,10,16,.14))", mixBlendMode: "multiply" }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.1)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5)" }} />
+  </div>;
 }
-
-const EVENT_PIN_SVG =
-  "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='34' viewBox='0 0 26 34'>" +
-  "<path d='M13 1 C7 1 2.3 5.5 2.3 11.5 C2.3 19 13 32 13 32 C13 32 23.7 19 23.7 11.5 C23.7 5.5 19 1 13 1 Z' fill='#A78BFA' stroke='#0D1117' stroke-width='1.3'/>" +
-  "<circle cx='13' cy='11.5' r='4.4' fill='#0D1117'/>" +
-  "</svg>";
-
-// Muted Apple-Maps-dark palette (Tripsy reference): deep-navy water, desaturated
-// teal-green land, quiet roads, no business POI or shields — nothing on the base
-// map competes with the Wayfind pins or the white distance rings.
-// v6.22 — richer, less "dull" palette: deeper blue water, a livelier teal-green
-// land, vivid parks/nature (they matter for a discovery app), and brighter road
-// + label legibility. Still dark so the Wayfind pins and orange rings pop.
-const DARK_STYLE = [
-  { elementType: "geometry", stylers: [{ color: "#1E4A40" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#C6D3DB" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0C151C" }] },
-  { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#1E4A40" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0E2A44" }] },
-  { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#7CA0BA" }] },
-  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
-  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#256F52" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#33474F" }] },
-  { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9FB0BC" }] },
-  { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#3A505A" }] },
-  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#42606E" }] },
-  { featureType: "road.highway", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { featureType: "road.local", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-  { featureType: "administrative.neighborhood", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "transit", stylers: [{ visibility: "off" }] },
-];

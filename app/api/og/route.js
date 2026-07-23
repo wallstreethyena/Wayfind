@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
 import { SITE_URL } from "../../../lib/site";
-import { shareCardFor, wcRotation } from "../../../lib/shareCards";
+import { SHARE_CARD_SYSTEM, shareCardFor, wcRotation } from "../../../lib/shareCards";
 
 export const runtime = "edge";
 
@@ -19,13 +19,14 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const kind = searchParams.get("kind") || "list";
-    const O = "#F97316";
+    const O = SHARE_CARD_SYSTEM.accent;
     const BG = "#0B0B0C";
     const card = shareCardFor((searchParams.get("card") || "").slice(0, 24));
     const bgSrc = card ? SITE_URL + card.art : OG_BG;
     const bg = <img width={1200} height={630} src={bgSrc} style={{ position: "absolute", top: 0, left: 0, objectFit: "cover" }} />;
     const col = { position: "absolute", top: 0, right: 0, width: 566, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", paddingRight: 60 };
-    const wm = <div style={{ display: "flex", fontSize: 30, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 20 }}>wayfind</div>;
+    const signal = <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#FDBA74", fontSize: 16, fontWeight: 800, letterSpacing: 2.3, marginBottom: 18 }}><span style={{ display: "flex", width: 22, height: 3, borderRadius: 999, backgroundColor: O }} />{SHARE_CARD_SYSTEM.eyebrow}</div>;
+    const wm = <div style={{ display: "flex", fontSize: 30, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 14 }}>wayfind</div>;
     const cta = (label) => <div style={{ display: "flex", marginTop: 34 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 27, fontWeight: 800, padding: "15px 30px", borderRadius: 999 }}>{label}</div></div>;
 
     // v6.25 — the World Cup "Watch the game together" card. Bespoke design drawn
@@ -84,7 +85,8 @@ export async function GET(req) {
           {bg}
           <div style={col}>
             {wm}
-            <div style={{ display: "flex", fontSize: 25, fontWeight: 800, color: O, letterSpacing: 2, marginBottom: 16 }}>FOUND A SPOT FOR YOU</div>
+            {signal}
+            <div style={{ display: "flex", fontSize: 20, fontWeight: 800, color: "#CBD5E1", letterSpacing: 1.5, marginBottom: 16 }}>A SPOT WORTH YOUR TIME</div>
             <div style={{ display: "flex", fontSize: hook ? 62 : 74, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.03, letterSpacing: -2, maxWidth: 520 }}>{name}</div>
             {hook ? <div style={{ display: "flex", fontSize: 26, fontWeight: 600, color: "#FCE3C3", lineHeight: 1.35, marginTop: 14, maxWidth: 520 }}>{"\u201C" + hook + "\u201D"}</div> : <div style={{ display: "flex" }} />}
             {scoreText ? <div style={{ display: "flex", marginTop: 26 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 33, fontWeight: 800, padding: "10px 24px", borderRadius: 999 }}>{scoreText}</div></div> : <div style={{ display: "flex" }} />}
@@ -107,6 +109,7 @@ export async function GET(req) {
           {bg}
           <div style={col}>
             {wm}
+            {signal}
             <div style={{ display: "flex", alignItems: "baseline", gap: 16 }}>
               <div style={{ display: "flex", fontSize: 108, fontWeight: 800, color: "#FFFFFF", letterSpacing: -3, lineHeight: 1 }}>{temp ? temp + "\u00b0" : "Weather"}</div>
               {cond ? <div style={{ display: "flex", fontSize: 40, fontWeight: 700, color: "#CBD5E1" }}>{cond}</div> : <div style={{ display: "flex" }} />}
@@ -133,6 +136,7 @@ export async function GET(req) {
         {card ? <div style={{ position: "absolute", top: 0, right: 0, width: 640, height: 630, backgroundImage: "linear-gradient(to right, rgba(11,11,12,0), rgba(11,11,12,.82) 42%, rgba(11,11,12,.94))" }} /> : <div style={{ display: "none" }} />}
         <div style={col}>
           {wm}
+          {signal}
           {card ? <div style={{ display: "flex", fontSize: 23, fontWeight: 800, color: card.accent || O, letterSpacing: 3, marginBottom: 14 }}>{card.eyebrow}</div> : (HT ? <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}><div style={{ display: "flex", fontSize: 40 }}>{HT.emoji}</div><div style={{ display: "flex", fontSize: 22, fontWeight: 800, color: HT.text, letterSpacing: 2 }}>{HT.tag}</div></div> : <div style={{ display: "flex" }} />)}
           <div style={{ display: "flex", fontSize: 68, fontWeight: 800, color: "#FFFFFF", lineHeight: 1.05, letterSpacing: -2, maxWidth: 540 }}>{title}</div>
           {(n || loc) ? <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 22 }}>{n ? <div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 24, fontWeight: 800, padding: "8px 18px", borderRadius: 999 }}>{n + " spots inside"}</div> : <div style={{ display: "flex" }} />}{loc ? <div style={{ display: "flex", alignItems: "center", color: "#CBD5E1", fontSize: 27, fontWeight: 700 }}>{loc}</div> : <div style={{ display: "flex" }} />}</div> : <div style={{ display: "flex" }} />}
