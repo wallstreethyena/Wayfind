@@ -40,7 +40,11 @@ export default function CityGate({ status, center, city, user, onSignUp }) {
         city_query: cityName, lat: center.lat, lng: center.lng, status: "requested",
       });
     } catch (e) {}
-    try { fetch("/api/city/unlock", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ lat: center.lat, lng: center.lng, city: cityName }) }); } catch (e) {}
+    // The on-demand fetch only runs for a signed-in user, so send the access
+    // token — the server verifies it before spending Google calls (#10).
+    let token = null;
+    try { const { data } = await supabase.auth.getSession(); token = data && data.session && data.session.access_token; } catch (e) {}
+    try { fetch("/api/city/unlock", { method: "POST", headers: { "content-type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: JSON.stringify({ lat: center.lat, lng: center.lng, city: cityName }) }); } catch (e) {}
   };
 
   const notify = async () => {
