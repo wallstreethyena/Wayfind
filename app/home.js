@@ -3016,6 +3016,7 @@ function PageInner({ initialEvents = null }) {
   // (signed-in, offer to open the city) / alert (waitlist). null = unknown →
   // we optimistically show the feed (the covered-market default).
   const [gateStatus, setGateStatus] = useState(null);
+  const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5492,7 +5493,7 @@ function PageInner({ initialEvents = null }) {
       .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user]);
+  }, [screen, center, user, gateBump]);
 
   // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
   // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
@@ -6641,7 +6642,7 @@ function PageInner({ initialEvents = null }) {
             effect deps) so the alert card swaps to the unlock card immediately —
             no lingering. */}
         {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
-          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} />
+          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
         )}
         {/* Signed-in users ALWAYS get the feed — even outside our core area (the
             gate returns 'unlock', and the live-search feed works anywhere). Only
