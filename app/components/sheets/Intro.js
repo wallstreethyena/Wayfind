@@ -16,6 +16,26 @@ import { C, useDialogFocus, Icon } from "../kit";
 // language instead of an emoji grid, calmer and on-brand.
 const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart", nightout: "glass", eatnow: "utensils", brunch: "utensils", hiddengems: "gem", familyfun: "users" };
 
+// Welcome imagery is editorial, never ad placement. Evergreen scenes change
+// weekly; a seasonal scene can take the lead during a meaningful travel window.
+const INTRO_VISUAL_LIBRARY = {
+  evergreen: [
+    "/brand/wayfind-welcome-wynwood-v3.png",
+    "/brand/wayfind-welcome-local-plan-v2.png",
+  ],
+  seasonal: [
+    { startsOn: "2026-07-22", endsOn: "2026-09-08", src: "/brand/wayfind-welcome-labor-day-south-beach-v2.png" },
+  ],
+};
+
+function introVisualForDate(now = new Date()) {
+  const dateKey = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+  const seasonal = INTRO_VISUAL_LIBRARY.seasonal.find((item) => dateKey >= item.startsOn && dateKey <= item.endsOn);
+  if (seasonal) return seasonal.src;
+  const week = Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 604800000);
+  return INTRO_VISUAL_LIBRARY.evergreen[week % INTRO_VISUAL_LIBRARY.evergreen.length];
+}
+
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
   date: "M12 20s-7-4.4-9.2-8.6C1.2 8.3 3.2 5 6.4 5c2 0 3.4 1.1 4.1 2.4l1.5 2.4 1.5-2.4C14.2 6.1 15.6 5 17.6 5c3.2 0 5.2 3.3 3.6 6.4C19 15.6 12 20 12 20Z",
@@ -41,57 +61,23 @@ function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
 export default function IntroSheet({ ctx }) {
   const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience } = ctx;
   const introDlgRef = useRef(null);
+  const introVisual = introVisualForDate();
   useDialogFocus(introOpen, introDlgRef, () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); });
   return (
         <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "30px 16px", overflowY: "auto" }} onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          {/* v4.80: livelier breathing — wider swing between soft and bright, and
-              the border warms with the glow so the whole frame feels lit.
-              v5.25 premium concierge: soft radial halo behind a frosted-glass
-              card, a scale-and-fade entrance instead of a hard cut, and the six
-              adaptive mood tiles (the ONLY home of the mood picker — the inline
-              home-screen row is gone by design). */}
-          {/* Premium redesign, Phase 4: calm onboarding — the pulsing halo and
-              layered orange glow are gone; a clean elevation and a single
-              subtle scale-in entrance (reduced-motion disables it) replace the
-              arcade bloom the first impression must never lead with. */}
-          <style>{"@keyframes wfIntroIn{from{opacity:0;transform:scale(.98) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}.wf-mood-tile{transition:border-color .18s ease,background .18s ease}@media (prefers-reduced-motion: reduce){.wf-intro-pop{animation:none !important}.wf-mood-tile{transition:none}}"}</style>
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — what are you in the mood for?" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", width: "100%", maxWidth: 440, maxHeight: "82vh", overflowY: "auto", borderRadius: 20, padding: "12px 16px 16px", background: "#161B22", border: `1px solid ${C.border}`, boxShadow: "0 24px 60px rgba(0,0,0,.55)", animation: "wfIntroIn .32s cubic-bezier(.16,1,.3,1) both" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-              <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ width: 40, height: 40, borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: "#E8EAF2", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
+          <style>{`@keyframes wfIntroIn{from{opacity:0;transform:scale(.975) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfIntroTileIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}@keyframes wfLogoPinGlow{0%,100%{opacity:.26;transform:scale(.88)}50%{opacity:.58;transform:scale(1.12)}}.wf-intro-pop{isolation:isolate}.wf-logo-pin-glow{animation:wfLogoPinGlow 3.8s ease-in-out infinite}.wf-mood-tile{transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}.wf-mood-tile:hover{transform:translateY(-2px);border-color:rgba(255,175,105,.92)!important;box-shadow:0 9px 18px rgba(0,0,0,.19)}.wf-mood-tile:active{transform:translateY(0) scale(.98)}.wf-intro-cta{transition:transform .2s ease,filter .2s ease}.wf-intro-cta:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.04)}.wf-intro-cta:not(:disabled):active{transform:translateY(0) scale(.99)}.wf-mood-tile:focus-visible,.wf-intro-cta:focus-visible{outline:2px solid #FFB56F;outline-offset:2px}@media (prefers-reduced-motion:reduce){.wf-intro-pop,.wf-logo-pin-glow,.wf-mood-tile,.wf-intro-cta{animation:none !important;transition:none!important}}`}</style>
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", zIndex: 1, width: "100%", maxWidth: 383, maxHeight: "88vh", overflowY: "auto", borderRadius: 26, padding: 0, background: "#080B10", border: "1px solid #2B3441", boxShadow: "0 32px 80px rgba(0,0,0,.72)", animation: "wfIntroIn .46s cubic-bezier(.16,1,.3,1) both" }}>
+            <img aria-hidden="true" src={introVisual} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center center", pointerEvents: "none" }} />
+            <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: "linear-gradient(180deg,rgba(5,8,13,.68) 0%,rgba(5,8,13,.46) 34%,rgba(5,8,13,.58) 64%,rgba(5,8,13,.68) 100%)" }} />
+            <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ position: "absolute", zIndex: 3, right: 14, top: 14, width: 38, height: 38, borderRadius: 999, background: "rgba(8,11,16,.68)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.18)", color: "#F5F7FA", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
+            <div style={{ position: "relative", zIndex: 1, padding: "30px 18px 11px" }}>
+              <div aria-hidden="true" style={{ position: "absolute", inset: "0 0 -24px", pointerEvents: "none", background: "linear-gradient(180deg,rgba(2,5,9,.66) 0%,rgba(2,5,9,.42) 58%,rgba(2,5,9,0) 100%)" }} />
+              <div style={{ position: "relative", width: 195, height: 71 }}><div style={{ position: "absolute", zIndex: 1, left: 0, top: 0, width: 145, height: 71, overflow: "hidden" }}><img src="/brand/wayfind-logo-header-transparent.png" alt="Wayfind" style={{ position: "absolute", top: -7, left: -16, display: "block", width: 214, height: "auto" }} /></div><div className="wf-logo-pin-glow" aria-hidden="true" style={{ position: "absolute", zIndex: 0, left: 150, top: 17, width: 35, height: 35, borderRadius: "50%", background: "radial-gradient(circle,rgba(255,124,34,.62),rgba(255,124,34,0) 68%)", filter: "blur(3px)", pointerEvents: "none" }} /><img src="/brand/wayfind-pin-transparent.png" aria-hidden="true" alt="" style={{ position: "absolute", zIndex: 1, left: 142, top: 0, display: "block", width: 50, height: 70 }} /></div>
+              <div style={{ position: "relative", fontSize: 29, fontWeight: 850, letterSpacing: "-.045em", color: "#FFFFFF", lineHeight: 1.06, textShadow: "0 2px 12px rgba(0,0,0,.7)", marginTop: 15 }}>Your best next plan,<br />without the work.</div>
+              <div style={{ position: "relative", marginTop: 9, maxWidth: 350, color: "#FFFFFF", fontSize: 13.5, lineHeight: 1.42, fontWeight: 650, textShadow: "0 1px 8px rgba(0,0,0,.72)" }}>Tell Wayfind what sounds good. We do the research and bring back places worth your time—nearby now or wherever you go.</div>
             </div>
-            <div style={{ textAlign: "center", fontSize: 24, fontWeight: 800, color: "#F4F6FC", lineHeight: 1.18, marginTop: 8 }}>Find the right place.<br />For the <span style={{ background: "linear-gradient(90deg, #FF8A3D, #E8B84B)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>right moment.</span></div>
-            <div style={{ textAlign: "center", marginTop: 7 }}><IntroIcon k="spark" size={21} color="#FFC28A" /></div>
-            {/* v5.25 concierge greeting — personalization (name/time/weather),
-                real abundance (live open-now count, never invented), and an
-                easy out. Every claim in it is computed from live data. */}
-            <div style={{ textAlign: "center", fontSize: 13.5, color: "#B6BCD0", lineHeight: 1.55, margin: "8px auto 12px", maxWidth: 360 }}>{(() => { try {
-              const h = new Date().getHours();
-              const gm = user && user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name);
-              const first = gm ? String(gm).trim().split(/\s+/)[0] : "";
-              const g = (h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening") + (first ? ", " + first : "") + ".";
-              const town = locName ? locName.split(",")[0] : "your area";
-              let w = "";
-              if (weather && typeof weather.temp === "number") {
-                // v5.26: the greeting speaks in what it FEELS like — a Florida
-                // 92° with a 103° heat index greets as 103°. When feels-like
-                // meaningfully differs from the thermometer, say so explicitly.
-                const felt = weather.feels != null ? weather.feels : weather.temp;
-                const diff = weather.feels != null && Math.abs(weather.feels - weather.temp) >= 3;
-                const rainy = weather.wet || /rain|storm|shower/i.test(weather.label || "");
-                w = rainy ? " Rain out there — the perfect excuse for a cozy find in " + town + "."
-                  : felt >= 99 ? (diff ? " It's " + weather.temp + "° but feels like " + felt + "° — cool, easy picks are winning today." : " It's a steamy " + felt + "° — cool, easy picks are winning today.")
-                  : felt >= 60 ? (diff ? " It feels like a gorgeous " + felt + "° out — a great moment to be out in " + town + "." : " It's a gorgeous " + felt + "° — a great moment to be out in " + town + ".")
-                  : (diff ? " It feels like a crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good." : " A crisp " + felt + "° in " + town + " — perfect for finding somewhere warm and good.");
-              }
-              const openN = (suggested || []).filter((p) => liveOpen(p) === true).length;
-              const alive = openN >= 3 ? " " + openN + " great spots are open near you right now." : "";
-              return g + w + alive;
-            } catch (e) { return "Wayfind turns how you feel into the best places near you."; } })()}</div>
-            <div style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "8px 14px", borderRadius: 999, border: "1.5px solid rgba(255,138,61,.5)", background: "rgba(255,138,61,.08)" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#F4F6FC", textAlign: "center" }}>What are you in the mood for?</span>
-              </div>
-            </div>
+            <div style={{ position: "relative", zIndex: 1, padding: "10px 18px 16px", marginTop: 0 }}>
+              <div style={{ display: "flex", alignItems: "baseline", marginTop: 12, marginBottom: 10 }}><div style={{ fontSize: 14.5, fontWeight: 800, color: "#F4F6FC" }}>What sounds good right now?</div></div>
             {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
                 adaptive rules the home row used: evenings lead with Date Night
                 and Night Out, bad weather swaps Outside for Cozy Indoor, weekend
@@ -110,18 +96,19 @@ export default function IntroSheet({ ctx }) {
               const MOOD_LBL = { outdoors: ["\u2600\ufe0f", "Outside"], cozyindoor: ["\ud83c\udf27\ufe0f", "Cozy Indoor"], datenight: ["\ud83c\udf39", "Date Night"], nightout: ["\ud83c\udf78", "Night Out"], eatnow: ["\ud83c\udf7d\ufe0f", "Where to Eat"], brunch: ["\ud83e\udd5e", "Brunch"], hiddengems: ["\ud83d\udc8e", "Hidden Gems"], familyfun: ["\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", "Family Fun"] };
               const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
               return (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, marginBottom: 9 }}>
-                  {order.map((k) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: "16px 10px 13px", borderRadius: 14, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: "#E8EAF2", fontSize: 13.5, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: 88 }}>
-                      <Icon name={MOOD_ICON[k] || "pin"} size={24} color={on ? C.accent : "#C7CDDC"} strokeWidth={1.8} /><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginBottom: 12 }}>
+                  {order.map((k, i) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
+                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ animation: `wfIntroTileIn .38s cubic-bezier(.16,1,.3,1) ${90 + i * 45}ms both`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 7, textAlign: "center", padding: "11px 6px 10px", borderRadius: 15, border: `1px solid ${on ? "#FF9A50" : "rgba(225,232,243,.19)"}`, background: "rgba(7,12,20,.76)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: on ? "inset 0 0 0 1px rgba(255,166,94,.16),0 8px 18px rgba(0,0,0,.18)" : "inset 0 1px 0 rgba(255,255,255,.06)", color: "#F1F3F8", fontSize: 12, fontWeight: 750, cursor: "pointer", lineHeight: 1.2, minHeight: 74 }}>
+                      <Icon name={MOOD_ICON[k] || "pin"} size={25} color={on ? "#FFB36E" : "#D7DEEA"} strokeWidth={1.8} /><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
                     </button>
                   ); })}
                 </div>
               );
             } catch (e) { return null; } })()}
-            <button onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 12, minHeight: 48, padding: "13px 10px", borderRadius: 14, border: "none", background: C.accent, color: "#0D1117", fontSize: 15.5, fontWeight: 800, cursor: introSel.length ? "pointer" : "default", opacity: introSel.length ? 1 : 0.5, display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9 }}><IntroIcon k="wand" size={19} color="#0D1117" />Let's Wayfind it</button>
-            <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} style={{ display: "block", width: "100%", minHeight: 44, marginTop: 6, background: "transparent", border: "none", textAlign: "center", fontSize: 13, color: "#AEB4C8", cursor: "pointer" }}>Just let me look around</button>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 9, fontSize: 10.5, color: "#8B90A5" }}><IntroIcon k="shield" size={13} color="#8B90A5" />Rankings are merit-based. Affiliate links never change placement.</div>
+            <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", marginTop: 10, minHeight: 57, padding: "13px 18px", borderRadius: 17, border: `1px solid ${introSel.length ? "rgba(255,168,90,.88)" : "rgba(231,238,248,.25)"}`, background: introSel.length ? "linear-gradient(135deg,#20232B 0%,#12161D 100%)" : "linear-gradient(135deg,rgba(19,27,40,.94),rgba(8,12,20,.92))", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", color: introSel.length ? "#FFF7EF" : "#E6EBF3", boxShadow: introSel.length ? "inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.42),0 16px 28px rgba(0,0,0,.30),0 5px 18px rgba(249,115,22,.14)" : "inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.22)", fontSize: 15.5, fontWeight: 850, letterSpacing: "-.012em", cursor: introSel.length ? "pointer" : "default", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 10 }}>Find my next favorite place<span style={{ marginLeft: 7, fontSize: 21, fontWeight: 500, lineHeight: 0, color: introSel.length ? "#FFB575" : "#E6EBF3" }}>→</span></button>
+            <div style={{ minHeight: 42, marginTop: 5, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: 13, color: "#D5DBE5", fontWeight: 650 }}>We’ll do the work.</div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 5, fontSize: 10.5, color: "#9AA5B7" }}><IntroIcon k="shield" size={13} color="#9AA5B7" />No paid placement. Just places worth your time.</div>
+            </div>
           </div>
         </div>
   );

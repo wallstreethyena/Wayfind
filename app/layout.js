@@ -1,4 +1,5 @@
 import Script from "next/script";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { SITE_URL } from "../lib/site";
 import { GUIDES } from "../lib/guides";
 import { CULTURE } from "../lib/culture";
@@ -39,7 +40,7 @@ export const metadata = {
         url: "/share-card.png?v=11",
         width: 1200,
         height: 630,
-        alt: "Wayfind",
+        alt: "Wayfind — local recommendations for things to do, places to eat, and travel planning",
       },
     ],
   },
@@ -97,6 +98,9 @@ export default function RootLayout({ children }) {
           // trap; a ring around the whole panel is noise. Interactive children
           // keep their :focus-visible ring (rule above).
           + "[tabindex=\"-1\"]:focus,[tabindex=\"-1\"]:focus-visible{outline:none !important}"
+          // MapLibre controls are intentionally styled as quiet iOS-like
+          // material buttons rather than the library's stock web controls.
+          + ".maplibregl-ctrl-group{border-radius:12px !important;overflow:hidden;box-shadow:0 6px 16px rgba(15,23,42,.18) !important;border:1px solid rgba(15,23,42,.12) !important}.maplibregl-ctrl-group button{width:32px !important;height:32px !important;background:rgba(255,255,255,.9) !important}.maplibregl-ctrl-group button+button{border-top:1px solid rgba(15,23,42,.1) !important}.maplibregl-ctrl-icon{filter:contrast(.8)}.maplibregl-ctrl-bottom-right{right:10px !important;bottom:10px !important}.maplibregl-ctrl-attrib{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif !important;font-size:10px !important;background:rgba(255,255,255,.72) !important;border-radius:8px 0 0 0 !important}"
           // Image-loading skeleton (Phase 3): a calm shimmer matching the card
           // frame, shown until the image decodes. Reduced-motion (above)
           // freezes the sweep to a static tint.
