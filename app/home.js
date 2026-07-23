@@ -97,6 +97,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
+import { siteTodayStr } from "../lib/siteTime";
 import { usePlaceProduct } from "../lib/placeProduct";
 import { saveItem as saveMonetized } from "../lib/savedItems";
 import CityGate from "./components/CityGate";
@@ -2015,7 +2016,7 @@ function EventHeroBg({ image, acc, venue, near }) {
     // Budget guardrail: at most 12 venue-photo lookups per device per day. Past
     // the cap we cache "none" and fall back to the gradient instead of spending.
     try {
-      const bk = "wf_evimg_budget_" + new Date().toISOString().slice(0, 10);
+      const bk = "wf_evimg_budget_" + siteTodayStr(); // ET day, not UTC (resets at local midnight, not 8 PM ET)
       const n = parseInt(localStorage.getItem(bk) || "0", 10) || 0;
       if (n >= 12) { try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), url: "", by: "" })); } catch (e) {} setAlt(""); return; }
       localStorage.setItem(bk, String(n + 1));

@@ -1,7 +1,8 @@
 // scripts/test-site-time.mjs — locks the ONE shared siteTodayStr and its use as
 // the single source of "today" for date cutoffs (B11/B20 events, C1 coupons).
-import { siteTodayStr } from "../lib/siteTime.js";
+import { siteTodayStr, siteTodayParts, siteAnchorDate } from "../lib/siteTime.js";
 import { couponIsLive } from "../lib/coupons.js";
+import { windowRange, filterByWindow } from "../lib/eventsList.js";
 import { readFileSync } from "fs";
 
 let pass = 0;
@@ -30,4 +31,14 @@ ok(/siteTodayStr\(\)/.test(scr) && !/new Date\(\)\.toISOString\(\)\.slice\(0, 10
 const ep = readFileSync(new URL("../lib/eventsPipeline.js", import.meta.url), "utf8");
 ok(/from "\.\/siteTime\.js"/.test(ep) && /export \{ siteTodayStr \}/.test(ep), "eventsPipeline re-exports the shared siteTodayStr (route.js importer unaffected)");
 
-console.log(`test-site-time: OK — ${pass} assertions (one venue-local siteTodayStr; coupons + events route through it)`);
+// Day-math primitives + the event-window fix, locked at the boundary instant
+// (8:30 PM EDT Jul 31 = 00:30 UTC Aug 1). Before the fix, UTC rolled the day to
+// Aug 1 and "tonight" dropped tonight's still-upcoming events on the SEO pages.
+const NOW = new Date("2026-08-01T00:30:00Z");
+eq(siteTodayParts(NOW).d, 31, "siteTodayParts anchors to the ET day (31), not UTC (1)");
+eq(siteAnchorDate(NOW).getDate(), 31, "siteAnchorDate reads the ET calendar day (31)");
+eq(windowRange("tonight", NOW).start, "2026-07-31", "windowRange tonight.start = tonight (ET), not tomorrow");
+eq(windowRange("tonight", NOW).end, "2026-07-31", "windowRange tonight.end = tonight (ET)");
+eq(filterByWindow([{ date: "2026-07-31" }, { date: "2026-08-01" }], "tonight", NOW).length, 1, "tonight's event survives after 8 PM ET (only Jul 31 counts as 'tonight')");
+
+console.log(`test-site-time: OK — ${pass} assertions (one venue-local siteTodayStr; coupons + events + day-math route through it)`);
