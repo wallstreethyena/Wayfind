@@ -8,6 +8,7 @@ const read = (f) => readFileSync(new URL("../" + f, import.meta.url), "utf8");
 
 // ── endpoint ──
 const ep = read("app/api/image-score/route.js");
+ok(/from "\.\.\/\.\.\/\.\.\/lib\/aiKey"/.test(ep) && /from "\.\.\/\.\.\/\.\.\/lib\/serverCache"/.test(ep), "lib imports use the CORRECT depth (3 levels from app/api/image-score — not 4, which broke the prod build)");
 ok(/PHOTO_REF\.test\(ref\)/.test(ep), "only a valid Google photo ref is scored");
 ok(/"people"/.test(ep) && /"aesthetic"/.test(ep), "asks the model for {people, aesthetic}");
 ok(/type: "image", source: \{ type: "url"/.test(ep), "sends the photo to the vision model as an image");
