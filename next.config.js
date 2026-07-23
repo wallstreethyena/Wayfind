@@ -26,9 +26,9 @@ const CSP_REPORT_ONLY = [
   // the moment it flips to enforcing they would break. Added: Ticketmaster
   // event images (s1.ticketm.net, proven live), and the Viator partner
   // image CDNs used by the booking-CTA tour cards.
-  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com",
+  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://tiles.openfreemap.org",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org",
   "worker-src 'self' blob:",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a

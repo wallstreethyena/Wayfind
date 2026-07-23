@@ -218,26 +218,30 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   );
 
   return (
-    <section aria-label="Best nearby" style={{ background: CARD_BG, border: `1px solid ${C.border}`, borderRadius: 16, padding: "2px 14px", marginBottom: 10, boxShadow: SHADOW.card }}>
+    <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
       <style>{`.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 1px 8px" }}>
+        <span style={{ fontSize: 11.5, fontWeight: 750, color: "#DCE5F0", display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: C.accent, boxShadow: "0 0 8px rgba(249,115,22,.55)" }} />Nearby, right now</span>
+        <span style={{ fontSize: 10.5, color: "#7F8DA0" }}>Updated for this hour</span>
+      </div>
       {SECTIONS.map((sdef, si) => {
         const isOpen = open === sdef.id;
         const data = rows[sdef.id];
         const list = Array.isArray(data) ? data : [];
         return (
-          <div key={sdef.id}>
-            <button onClick={() => toggle(sdef.id)} aria-expanded={isOpen} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: si ? "1px solid rgba(255,255,255,.07)" : "none", padding: "11px 0", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-              <NavIcon name={sdef.icon} size={24} strokeWidth={1.6} color={isOpen ? C.accent : "#FFFFFF"} />
+          <div key={sdef.id} style={{ borderTop: si ? "1px solid rgba(255,255,255,.07)" : "none", borderLeft: isOpen ? `2px solid ${C.accent}` : "2px solid transparent", background: isOpen ? "linear-gradient(90deg, rgba(249,115,22,.075), transparent 70%)" : "transparent", transition: "border-color .22s ease, background .22s ease" }}>
+            <button onClick={() => toggle(sdef.id)} aria-expanded={isOpen} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 2px 13px 10px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+              <span style={{ width: 29, height: 29, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: 9, background: isOpen ? "rgba(249,115,22,.1)" : "rgba(255,255,255,.028)" }}><NavIcon name={sdef.icon} size={21} strokeWidth={1.7} color={isOpen ? C.accent : "#E7EDF5"} /></span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: "block", fontSize: 15.5, fontWeight: 700, color: isOpen ? C.accent : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
-                <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 1 }}>{sdef.sub}</span>
+                <span style={{ display: "block", fontSize: 15.2, fontWeight: 740, letterSpacing: "-.08px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
+                <span style={{ display: "block", fontSize: 11.5, color: "#8D9AAB", marginTop: 2 }}>{sdef.sub}</span>
               </span>
-              <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.35)", display: "inline-flex", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
+              <span aria-hidden="true" style={{ width: 24, height: 24, flexShrink: 0, color: isOpen ? C.accent : "rgba(255,255,255,.42)", display: "grid", placeItems: "center", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </span>
             </button>
             <div style={{ overflow: "hidden", maxHeight: isOpen ? 10 * 64 + 220 : 0, opacity: isOpen ? 1 : 0, transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease" }}>
-              <div style={{ padding: "0 0 12px" }}>
+              <div style={{ padding: "0 2px 12px 12px" }}>
                 {data === "loading" ? (
                   <>
                     <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
