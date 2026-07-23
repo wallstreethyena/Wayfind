@@ -12,6 +12,7 @@ import { BackControl } from "../best-beaches/[metro]/parts";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
+import { rankByHour, timeFit } from "../../lib/trendingTime";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -40,15 +41,20 @@ export default function TrendingNowClient() {
         const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: loc.lat, p_lng: loc.lng, p_radius_mi: 25, p_max: 12 });
         picks = (Array.isArray(data) ? data : []).filter((r) => (r.sources_count || 0) >= 1);
       } catch (e) {}
+      // HOUR-AWARE: re-rank by time-of-day fit so tonight's list leans to things
+      // you can actually do now (a 9pm list shouldn't lead with museums/beaches),
+      // then take the top few and write editorial only for those.
+      const hour = new Date().getHours();
+      const ranked = rankByHour(picks, hour).slice(0, 8);
       // Editorial in the Wayfind voice — one cached call per pick. Fail-soft:
       // a pick with no honest line falls back to a data-templated one.
-      const withWhy = await Promise.all(picks.map(async (p) => {
+      const withWhy = await Promise.all(ranked.map(async (p) => {
         let line = null;
         try {
           const r = await fetch("/api/buzz/why", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ place_id: p.place_id, name: p.name, category: p.category, city: loc.city, rating: p.rating, reviews: p.reviews, popularity: p.popularity, sources_count: p.sources_count, by_source: p.by_source, freshest: p.freshest }) });
           const j = r.ok ? await r.json() : null; line = j && j.line ? j.line : null;
         } catch (e) {}
-        return { ...p, why: line };
+        return { ...p, why: line, timeFit: timeFit(p.category, hour) };
       }));
       if (!dead) setRows(withWhy);
     })();
@@ -71,7 +77,7 @@ export default function TrendingNowClient() {
       eyebrow="Trending near you"
       titleTop="What's drawing people"
       titleBottom={loc.city}
-      subtitle={"The places near " + loc.city + " getting the most attention right now — measured by real signals, ranked by the Wayfind Score."}
+      subtitle={"The places near " + loc.city + " getting the most attention right now — measured by real signals and ordered for the time of day, so what's worth doing this hour rises to the top."}
       heroImg={heroImg}
       accent="#FF6B6B"
       footNote="Trending is measured from real popularity signals (search interest and cross-platform attention), never door counts or paid placement. The Wayfind Score stays the same for everyone."
@@ -88,7 +94,7 @@ export default function TrendingNowClient() {
               img={r.photo_ref ? "/api/photo?ref=" + encodeURIComponent(r.photo_ref) + "&w=240" : null}
               title={r.name}
               score={r.rating > 0 ? toDisplayScore(wayfindScore(r.rating, r.reviews)) : null}
-              why={(r.distance_mi != null ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : "") + (r.reviews ? " · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" : "")}
+              why={(r.distance_mi != null ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : "") + (r.reviews ? " · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" : "") + (r.timeFit ? " · " + r.timeFit : "")}
               editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")} />
           ))}
         </ol>
