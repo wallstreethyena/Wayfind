@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
-const C = { card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#C9A961", teal: "#2DD4BF", red: "#EF6A5A", green: "#3ee08a" };
+const C = { card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", teal: "#2DD4BF", red: "#EF6A5A", green: "#3ee08a" };
 
 function Chip({ label, value, tone }) {
   return (

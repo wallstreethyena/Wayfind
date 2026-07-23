@@ -11,7 +11,7 @@ import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula
 
 export const C = {
   bg: "#040810", panel: "#161B22", card: "#1C2230", border: "#2D3748",
-  accent: "#C9A961", adim: "rgba(148,163,184,.12)", blue: "#38BDF8", green: "#22C55E",
+  accent: "#F97316", adim: "rgba(148,163,184,.12)", blue: "#38BDF8", green: "#22C55E",
   red: "#EF4444", purple: "#A78BFA", pink: "#F472B6", gold: "#FBBF24",
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };

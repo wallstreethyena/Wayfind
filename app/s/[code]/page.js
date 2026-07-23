@@ -94,7 +94,7 @@ export default async function SharePage({ params, searchParams }) {
           display: "inline-block",
           padding: "12px 22px",
           borderRadius: 999,
-          background: "#C9A961",
+          background: "#F97316",
           color: "#0D1117",
           fontWeight: 800,
           fontSize: 15,

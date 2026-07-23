@@ -81,7 +81,7 @@ export default function RootLayout({ children }) {
             is visually hidden until focused, then appears top-left. */}
         <a
           href="#wf-main"
-          style={{ position: "absolute", left: -9999, top: 0, zIndex: 2000, background: "#C9A961", color: "#0D1117", fontWeight: 800, fontSize: 14, padding: "10px 16px", borderRadius: "0 0 10px 0", textDecoration: "none" }}
+          style={{ position: "absolute", left: -9999, top: 0, zIndex: 2000, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 14, padding: "10px 16px", borderRadius: "0 0 10px 0", textDecoration: "none" }}
           className="wf-skip-link"
         >
           Skip to main content
