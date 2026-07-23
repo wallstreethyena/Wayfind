@@ -96,6 +96,7 @@ import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
+import { saveItem as saveMonetized } from "../lib/savedItems";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -3512,6 +3513,14 @@ function PageInner({ initialEvents = null }) {
     return false;
   }
 
+  // Save a monetized non-place card (Viator experience / UT deal) to
+  // wf_saved_items (Saved tab reads it). Signed-in only — prompts otherwise.
+  async function saveMonetizedItem(item) {
+    if (!requireAuth("Sign in to save this and find it later on any device.")) return;
+    const okv = await saveMonetized(user.id, item);
+    showToast(okv ? "Saved to your list" : "Could not save — try again");
+  }
+
   // v5.61 (audit P0): landing on a personal screen (Favorites/Itinerary) while
   // signed out — via nav tap, deep link (?go=favorites), or restore — pops the
   // sign-in dialog. The screen content is already withheld (AuthWall renders
@@ -6891,11 +6900,11 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} />}
                   {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
                       next to the Viator rail — spec §3. Renders nothing when no live deals. */}
-                  {browseCat === "attractions" && <UTDealsRail category="attractions" />}
-                  {browseCat === "hotels" && <UTDealsRail category="stays" />}
+                  {browseCat === "attractions" && <UTDealsRail category="attractions" onSave={saveMonetizedItem} />}
+                  {browseCat === "hotels" && <UTDealsRail category="stays" onSave={saveMonetizedItem} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7626,7 +7635,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
 const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", landmarks: "historical", arts: "museums", marinas: "water" };
-function BookableExpRail({ sub, lat, lng }) {
+function BookableExpRail({ sub, lat, lng, onSave }) {
   const cat = SUB_TO_EXP[sub || "all"];
   const [items, setItems] = useState(null);
   useEffect(() => {
@@ -7663,6 +7672,10 @@ function BookableExpRail({ sub, lat, lng }) {
                 {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
                 <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}</span>
               </div>
+              <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url) || t.url, provider: "viator" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
+                <button aria-label={"Share " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(t.title, Aff.viatorDirectUrl(t.url) || t.url, null, "Found on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>↗</button>
+              </div>
             </div>
           </a>
         ))}
@@ -7678,7 +7691,7 @@ function BookableExpRail({ sub, lat, lng }) {
 // "stays" on the Stays surface. The affiliate_url is the verified CJ deep link —
 // rendered VERBATIM (never re-wrapped). Each card carries the "via {partner}"
 // disclosure chip. Ships nothing (returns null) when there are no live deals.
-function UTDealsRail({ category }) {
+function UTDealsRail({ category, onSave }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {
     let dead = false;
@@ -7711,7 +7724,13 @@ function UTDealsRail({ category }) {
                     {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
                     <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
                   </div>
-                  <div style={{ marginTop: 6 }}><AffiliateChip provider={d.provider} label={d.providerLabel} /></div>
+                  <div style={{ marginTop: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+                    <AffiliateChip provider={d.provider} label={d.providerLabel} />
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      <button aria-label={"Save " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "deal", item_id: d.id, item_title: d.title, item_image: d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=240" : null), item_url: d.href, provider: d.provider }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡</button>
+                      <button aria-label={"Share " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(d.title, d.href, null, "Discount tickets on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>↗</button>
+                    </div>
+                  </div>
                 </div>
               </a>
             ))}
