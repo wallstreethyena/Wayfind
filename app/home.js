@@ -97,6 +97,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import { saveItem as saveMonetized } from "../lib/savedItems";
+import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -2983,6 +2984,10 @@ function PageInner({ initialEvents = null }) {
   const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
+  // Coverage gate (STEP 3): the server decides — live (show results) / unlock
+  // (signed-in, offer to open the city) / alert (waitlist). null = unknown →
+  // we optimistically show the feed (the covered-market default).
+  const [gateStatus, setGateStatus] = useState(null);
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -5431,6 +5436,17 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // Coverage gate: ask the server whether this location is live / unlock / alert.
+  // One RPC; the result drives whether the feed or the CityGate door renders.
+  useEffect(() => {
+    if (screen !== "suggested" || !center || !supabase) { setGateStatus(null); return; }
+    let dead = false;
+    supabase.rpc("wf_gate_status", { p_lat: center.lat, p_lng: center.lng, p_user_id: (user && user.id) || null })
+      .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, user]);
+
   // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
   // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
   useEffect(() => {
@@ -6573,10 +6589,10 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {screen === "suggested" && outOfCoverage(center) && (
-          <CoverageWaitlist center={center} locName={locName} C={C} supabase={supabase} />
+        {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
+          <CityGate center={center} city={locName} user={user} />
         )}
-        {screen === "suggested" && !outOfCoverage(center) && (() => {
+        {screen === "suggested" && gateStatus !== "unlock" && gateStatus !== "alert" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           // Phase 2: fold the DURABLE per-user taste vector into the category
