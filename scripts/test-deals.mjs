@@ -52,7 +52,7 @@ ok(judgeLink({ affFirstHop: 302, affLocation: "https://cj.dotomi.com/x", destSta
 // cron contract
 const cron = read("app/api/cron/deals-health/route.js");
 ok(/CRON_SECRET/.test(cron) && /status:\s*401/.test(cron), "cron is fail-CLOSED on CRON_SECRET");
-ok(/wf_deals_needs_check/.test(cron), "cron targets the wf_deals_needs_check view");
+ok(/from\("wf_deals"\)/.test(cron) && /link_ok !== true/.test(cron), "cron reads the base table and INCLUDES quarantined rows (link_ok != true), so it can repair them — the needs_check view omits fail_count and excludes quarantined rows");
 ok(/repairAffiliateUrl/.test(cron) && /hasCjPid/.test(cron), "cron repairs the link form and refuses untracked links");
 ok(/active:\s*false/.test(cron) && /ends_at/.test(cron), "cron runs the expiry sweep");
 ok(/FAIL_THRESHOLD\s*=\s*2/.test(cron), "requires 2 consecutive fails before pulling a deal");

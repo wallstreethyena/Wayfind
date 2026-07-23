@@ -67,9 +67,24 @@ export async function GET(req) {
     if (job === "expiry") return Response.json({ ok: true, job, expired }, { headers: { "Cache-Control": "no-store" } });
   }
 
-  // (B) LINK-HEALTH — every deal the view says needs checking.
-  const { data: rows, error } = await db.from("wf_deals_needs_check").select("id, affiliate_url, dest_url, fail_count");
-  if (error) return Response.json({ ok: false, expired, error: "needs_check read failed" }, { status: 200 });
+  // (B) LINK-HEALTH — read the BASE table, not wf_deals_needs_check: that view
+  // omits fail_count AND excludes quarantined rows (its filter is stale/expired
+  // only, no link_ok=false clause), so it could never surface a freshly-
+  // quarantined deal to repair. We select every active deal and pick the work
+  // set in JS: anything not currently healthy (link_ok != true), never checked,
+  // stale (>12h), or expired. Table is tiny; this is the correct repair target.
+  const STALE_MS = 12 * 3600 * 1000;
+  const { data: all, error } = await db.from("wf_deals")
+    .select("id, affiliate_url, dest_url, fail_count, link_ok, last_checked_at, ends_at")
+    .eq("active", true);
+  if (error) return Response.json({ ok: false, expired, error: "deals read failed" }, { status: 200 });
+  const nowMs = Date.now();
+  const rows = (all || []).filter((r) =>
+    r.link_ok !== true ||
+    !r.last_checked_at ||
+    (nowMs - new Date(r.last_checked_at).getTime() > STALE_MS) ||
+    (r.ends_at && new Date(r.ends_at).getTime() <= nowMs)
+  );
 
   const stats = { checked: 0, ok: 0, repaired: 0, failed: 0, pulled: 0, untracked_skipped: 0 };
   await pool(rows || [], PARALLEL, async (row) => {
