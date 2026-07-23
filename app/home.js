@@ -97,6 +97,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
+import { pickHomeExp } from "../lib/homeExpPick";
 import { siteTodayStr } from "../lib/siteTime";
 import { usePlaceProduct } from "../lib/placeProduct";
 import { saveItem as saveMonetized } from "../lib/savedItems";
@@ -3038,6 +3039,17 @@ function PageInner({ initialEvents = null }) {
   const [familyHeroImg, setFamilyHeroImg] = useState(null);
   const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
   const [homeExp, setHomeExp] = useState(null); // v6.61 #3: one bookable card near the homepage top
+  // Hour bucket — re-evaluated every 20 min and whenever the tab regains focus,
+  // so the "Make a day of it" pick refreshes with the time of day instead of
+  // staying frozen on last night's choice (owner report).
+  const [todBucket, setTodBucket] = useState(0);
+  useEffect(() => {
+    const tick = () => setTodBucket((x) => x + 1);
+    const id = setInterval(tick, 20 * 60 * 1000);
+    const onVis = () => { try { if (document.visibilityState === "visible") tick(); } catch (e) {} };
+    try { document.addEventListener("visibilitychange", onVis); } catch (e) {}
+    return () => { clearInterval(id); try { document.removeEventListener("visibilitychange", onVis); } catch (e) {} };
+  }, []);
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
   const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
@@ -5581,13 +5593,14 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/experiences?" + q.toString());
         const j = r.ok ? await r.json() : null;
         const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
-        const best = items.sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))[0] || null;
-        if (!cancelled) setHomeExp(best);
+        // HOUR-AWARE + rotated: never a night activity in the morning; changes
+        // through the day (see lib/homeExpPick). Was a static top-selling-out pick.
+        if (!cancelled) setHomeExp(pickHomeExp(items));
       } catch (e) { if (!cancelled) setHomeExp(null); }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
+  }, [screen, center, todBucket]);
 
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
