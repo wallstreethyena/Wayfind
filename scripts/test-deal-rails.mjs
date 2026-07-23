@@ -46,7 +46,7 @@ ok(/browseCat === "attractions" && <UTDealsRail category="attractions"/.test(hom
 ok(/browseCat === "hotels" && <UTDealsRail category="stays"/.test(home), "UT hotel rail rendered on Stays");
 ok(/href={d\.href}/.test(home) && /rel="noopener sponsored"/.test(home), "rail links render href verbatim with sponsored rel");
 ok(/kind: "ut_deal_rail"/.test(home), "outbound clicks are logged as ut_deal_rail");
-ok(/import AffiliateChip from "\.\/components\/AffiliateChip"/.test(home) && /<AffiliateChip provider={d\.provider}/.test(home), "the disclosure chip is imported and rendered on each deal card");
+ok(/import AffiliateChip(?:, \{[^}]*\})? from "\.\/components\/AffiliateChip"/.test(home) && /<AffiliateChip provider={d\.provider}/.test(home), "the disclosure chip is imported and rendered on each deal card");
 
 // ── the chip itself ──
 const chip = read("app/components/AffiliateChip.js");

@@ -94,7 +94,8 @@ import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
-import AffiliateChip from "./components/AffiliateChip";
+import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
+import { cardAffiliateProvider } from "../lib/cardAffiliate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -7904,6 +7905,10 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             )}
             <button onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
+          {/* Per-card affiliate disclosure (spec §2): which partner this card earns
+              through, so it's visible at a glance. Owner-audit mode also flags cards
+              with NO affiliate; in production an unaffiliated card shows nothing. */}
+          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
         </div>
       </div>
     </div>
