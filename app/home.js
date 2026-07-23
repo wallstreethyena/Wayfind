@@ -94,6 +94,7 @@ import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
+import AffiliateChip from "./components/AffiliateChip";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -6890,6 +6891,10 @@ function PageInner({ initialEvents = null }) {
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
                   {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} />}
+                  {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
+                      next to the Viator rail — spec §3. Renders nothing when no live deals. */}
+                  {browseCat === "attractions" && <UTDealsRail category="attractions" />}
+                  {browseCat === "hotels" && <UTDealsRail category="stays" />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7663,6 +7668,57 @@ function BookableExpRail({ sub, lat, lng }) {
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
+  );
+}
+
+// UT deal rails (spec §1/§3): promo/coupon cards from wf_deals_ranked (already
+// quality-gated + link-guardian-checked), grouped by subcategory, rendered next
+// to the Viator experience rail. category="attractions" on Things-to-do,
+// "stays" on the Stays surface. The affiliate_url is the verified CJ deep link —
+// rendered VERBATIM (never re-wrapped). Each card carries the "via {partner}"
+// disclosure chip. Ships nothing (returns null) when there are no live deals.
+function UTDealsRail({ category }) {
+  const [rails, setRails] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    setRails(null);
+    fetch("/api/deals?category=" + encodeURIComponent(category)).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+      if (dead) return;
+      setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
+    });
+    return () => { dead = true; };
+  }, [category]);
+  if (rails === null || !rails.length) return null; // no skeleton flash
+  const cta = category === "stays" ? "View hotels ↗" : "Get tickets ↗";
+  return (
+    <>
+      {rails.map((rail) => (
+        <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
+          </div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {rail.items.map((d) => (
+              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
+                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
+                </div>
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                    {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
+                    <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
+                  </div>
+                  <div style={{ marginTop: 6 }}><AffiliateChip provider={d.provider} label={d.providerLabel} /></div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+        </div>
+      ))}
+    </>
   );
 }
 
