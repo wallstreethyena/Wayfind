@@ -1365,7 +1365,7 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
 .wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
 .wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`}</style>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.light, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
       </div>
       <input type="range" min={1} max={max} step={1} value={mi} onChange={(e) => onChange(Number(e.target.value))} className="wf-radius" style={{ "--wfp": pct + "%" }} aria-label="Search distance in miles" />
@@ -1589,9 +1589,9 @@ function StateBadge({ code, size }) {
   const sz = size || 48;
   const has = code && code.length === 2;
   return (
-    <div style={{ width: sz, height: sz, borderRadius: sz > 34 ? 12 : 8, background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div style={{ width: sz, height: sz, borderRadius: sz > 34 ? 12 : 8, background: C.adim, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
       {has
-        ? <span style={{ fontSize: Math.round(sz * 0.36), fontWeight: 800, letterSpacing: "0.5px", color: C.accent }}>{code}</span>
+        ? <span style={{ fontSize: Math.round(sz * 0.36), fontWeight: 800, letterSpacing: "0.5px", color: C.light }}>{code}</span>
         : <span style={{ fontSize: Math.round(sz * 0.42) }}>📍</span>}
     </div>
   );
@@ -2286,7 +2286,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
   return (
     <div style={{ margin: "0 -12px 14px", paddingLeft: 12 }}>
       {totalLiked > 0 && (
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.light, marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
           <span>❤️</span>
           <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
         </div>
@@ -6297,7 +6297,7 @@ function PageInner({ initialEvents = null }) {
             <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
             <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
               Add your Google Maps API key as an environment variable named{" "}
-              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
+              <code style={{ color: C.light }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
             </p>
           </div>
         </div>
@@ -6379,7 +6379,7 @@ function PageInner({ initialEvents = null }) {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
               <div style={{ fontSize: 12.5, color: C.muted }}>
                 {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
-                <span style={{ color: C.accent, fontWeight: 700 }}>
+                <span style={{ color: C.light, fontWeight: 700 }}>
                   {sortBy === "near" ? "nearest first" : sortBy === "rated" ? "Wayfind Score, best to worst" : "ranked by fit"}
                 </span>
               </div>
@@ -6398,7 +6398,7 @@ function PageInner({ initialEvents = null }) {
         </div>
       )}
       {exHero && (
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.light, margin: "2px 2px 8px" }}>Best move right now</div>
       )}
       {exHero && (() => {
         const open = liveOpen(exHero);
@@ -6409,9 +6409,9 @@ function PageInner({ initialEvents = null }) {
             <div onClick={() => openDetail(exHero)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${exHero.name || "featured place"}`} style={{ cursor: "pointer" }}>
               <div style={{ position: "relative" }}>
                 <FallbackImg src={exHero.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
-                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
+                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.border}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
                   <span style={{ fontSize: 12 }}>{badgeIcon}</span>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>
@@ -6425,13 +6425,13 @@ function PageInner({ initialEvents = null }) {
                   {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
                   {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
                 </div>
-                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
+                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.light, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
               </div>
             </div>
           </div>
         );
       })()}
-      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
+      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.light, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
@@ -6549,7 +6549,7 @@ function PageInner({ initialEvents = null }) {
               </button>
             )}
             {supabase && (user ? (
-              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
+              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
               <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
@@ -6559,7 +6559,7 @@ function PageInner({ initialEvents = null }) {
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: C.light, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
               <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
             </div>
             <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
@@ -6637,7 +6637,7 @@ function PageInner({ initialEvents = null }) {
               "Find my vibe" button in the header. */}
           {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
               beside search; the dice experiment is retired. */}
-          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
@@ -6657,13 +6657,13 @@ function PageInner({ initialEvents = null }) {
           if (personalize === "on") return (
             <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.light, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
             </div>
           );
           if (personalize === "off" && ld >= 2) return (
             <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
               <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.light, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
             </div>
           );
           return null;
@@ -6839,7 +6839,7 @@ function PageInner({ initialEvents = null }) {
                   <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
                   <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
+                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
                     <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
                     <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
                   </div>
@@ -6859,7 +6859,7 @@ function PageInner({ initialEvents = null }) {
                   <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
-                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
+                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.light, cursor: "pointer" }}>See all ↗</span>
                     </div>
                     {featured && featured.dest && (() => {
                       const f = formatEventDate(featured.date, featured.time);
@@ -7003,7 +7003,7 @@ function PageInner({ initialEvents = null }) {
                             {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: 999, padding: "2px 7px" }}>🔥 Selling out</span> : null}
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
-                            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.accent, marginBottom: 4 }}>✨ Make a day of it</div>
+                            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.light, marginBottom: 4 }}>✨ Make a day of it</div>
                             <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
                               {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
@@ -7029,7 +7029,7 @@ function PageInner({ initialEvents = null }) {
               {browseCat && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -7084,7 +7084,7 @@ function PageInner({ initialEvents = null }) {
                             <div>That's all {view.length} {_lbl ? _lbl + " " : ""}{view.length === 1 ? "spot" : "spots"} near {_city}{locApprox ? " (approximate location)" : ""}.</div>
                             {view.length < 8 && (
                               <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
-                                style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
+                                style={{ display: "inline-block", marginTop: 8, color: C.light, fontWeight: 800, cursor: "pointer" }}>
                                 {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "See more great spots — " + _mi + " mi out ↗"}
                               </div>
                             )}
@@ -7200,7 +7200,7 @@ function PageInner({ initialEvents = null }) {
                     {locApprox && !locBannerGone && (
             <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(96px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
                         <span style={{ fontSize: 15 }}>📍</span>
-                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
+                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.light, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
                         <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
                       </div>
                     )}
@@ -7559,7 +7559,7 @@ function PageInner({ initialEvents = null }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>Add to favorites</div>
-              <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
+              <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.border}`, color: C.light, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
             </div>
             {Object.values(lists).map((l) => (
               <div key={l.id} onClick={() => saveToList(l.id)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Save to ${l.name || "list"}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 8, cursor: "pointer" }}>
@@ -7765,7 +7765,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       )}
       <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
       {st.hasMore ? (
-        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
+        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
       ) : null}
     </div>
   );
@@ -8066,7 +8066,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {cardProduct && cardProduct.url && (
-              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card", verified: true }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Book on Viator ↗"}</a>
+              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card", verified: true }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Book on Viator ↗"}</a>
             )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
