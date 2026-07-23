@@ -7038,7 +7038,11 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} region={locName || ""} />}
+                  {/* The Bookable rail and ThingsToDoList both surface Viator tours; ThingsToDoList
+                      interleaves them only in the ALL view. Render the rail ONLY on a sub-filter
+                      (the complement of ThingsToDoList's `sub === "all" || !sub` gate) so the same
+                      tour never appears twice (owner: duplicate cards on Things to do). */}
+                  {browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub={sub} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} region={locName || ""} />}
                   {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
                       next to the Viator rail — spec §3. Renders nothing when no live deals. */}
                   {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
