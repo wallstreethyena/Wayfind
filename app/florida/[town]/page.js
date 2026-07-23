@@ -29,7 +29,7 @@ export function generateMetadata({ params }) {
 
 const S = {
   page: { maxWidth: 760, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
-  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#F97316" },
+  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#CBD5E1" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 6px", fontWeight: 800, color: "#FFFFFF" },
   tag: { fontSize: 15, color: "#8B949E", margin: "0 0 12px" },
   one: { fontSize: 15.5, color: "#E6EDF3", background: "#161B22", borderRadius: 12, padding: "12px 14px", margin: "0 0 18px" },
@@ -38,11 +38,11 @@ const S = {
   card: { background: "#161B22", borderRadius: 12, padding: "12px 14px", margin: "0 0 10px" },
   name: { fontSize: 15.5, fontWeight: 800, color: "#FFFFFF", margin: 0 },
   story: { fontSize: 13.5, color: "#C9D1D9", margin: "4px 0 8px" },
-  open: { display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#F97316", textDecoration: "none" },
+  open: { display: "inline-block", fontSize: 12.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" },
   mistake: { fontSize: 13, color: "#E8B84B", margin: "6px 0 0" },
   rowWhy: { fontSize: 13, color: "#8B949E", margin: "3px 0 0" },
   links: { fontSize: 14, color: "#C9D1D9", margin: "10px 0 0" },
-  a: { color: "#F97316", fontWeight: 700, textDecoration: "none" },
+  a: { color: "#CBD5E1", fontWeight: 700, textDecoration: "none" },
   disclosure: { fontSize: 12, color: "#8B949E", background: "#161B22", borderRadius: 10, padding: "10px 12px", margin: "22px 0 0" },
 };
 

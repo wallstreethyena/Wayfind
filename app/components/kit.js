@@ -11,21 +11,21 @@ import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula
 
 export const C = {
   bg: "#040810", panel: "#161B22", card: "#1C2230", border: "#2D3748",
-  accent: "#F97316", adim: "rgba(148,163,184,.12)", blue: "#38BDF8", green: "#22C55E",
-  red: "#EF4444", purple: "#FF8A3D", pink: "#F472B6", gold: "#FBBF24",
+  accent: "#C9A961", adim: "rgba(148,163,184,.12)", blue: "#38BDF8", green: "#22C55E",
+  red: "#EF4444", purple: "#A78BFA", pink: "#F472B6", gold: "#FBBF24",
   text: "#F1F5F9", muted: "#94A3B8", light: "#CBD5E1",
 };
 export const CAT_ICONS = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️" };
 // Each category gets its own accent color, used on the selected category tab.
 export const CAT_COLOR = {
-  food: { c: "#F97316", dim: "rgba(249,115,22,.15)" },
+  food: { c: "#A8B3C4", dim: "rgba(148,163,184,.14)" },
   nightlife: { c: "#F472B6", dim: "rgba(244,114,182,.15)" },
-  attractions: { c: "#FF8A3D", dim: "rgba(167,139,250,.15)" },
+  attractions: { c: "#94A3B8", dim: "rgba(148,163,184,.14)" },
   beach: { c: "#2DD4BF", dim: "rgba(45,212,191,.15)" },
   hotels: { c: "#38BDF8", dim: "rgba(56,189,248,.15)" },
   shopping: { c: "#22C55E", dim: "rgba(34,197,94,.15)" },
 };
-export const CAT_LABEL_COLOR = { Food: "#F97316", Nightlife: "#F472B6", Activities: "#FF8A3D", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
+export const CAT_LABEL_COLOR = { Food: "#A8B3C4", Nightlife: "#F472B6", Activities: "#94A3B8", Beach: "#2DD4BF", Hotels: "#38BDF8", Shopping: "#22C55E" };
 export const SHEET_EASE = "transform .34s cubic-bezier(.22,.61,.36,1)";
 export const sheetBg = { position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 900, display: "flex", alignItems: "flex-end", justifyContent: "center" };
 export const sheet = { background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "92dvh", overflowY: "auto" };
@@ -139,7 +139,7 @@ export { imageDisplayState } from "../../lib/imageState.js";
 export function BrandedImageFallback({ style }) {
   return (
     <div style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)" }} aria-hidden="true">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" style={{ opacity: 0.5 }}>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ opacity: 0.5 }}>
         <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
         <circle cx="12" cy="9.4" r="2.4" />
       </svg>
@@ -154,7 +154,7 @@ export function GlowPin({ size = 26 }) {
   const s = size;
   return (
     <span style={{ position: "relative", width: s, height: s, flexShrink: 0, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <svg width={s} height={s} viewBox="0 0 24 24"><path fill="#F97316" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#0D1117" /></svg>
+      <svg width={s} height={s} viewBox="0 0 24 24"><path fill="#CBD5E1" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Z" /><circle cx="12" cy="10" r="3" fill="#0D1117" /></svg>
     </span>
   );
 }

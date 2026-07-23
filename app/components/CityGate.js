@@ -67,7 +67,7 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
   const shell = {
     position: "relative", overflow: "hidden", margin: "12px auto 18px", maxWidth: 560, width: "auto",
     padding: "22px 22px 20px", borderRadius: 20,
-    background: "radial-gradient(120% 140% at 100% 0%, rgba(249,115,22,.22) 0%, rgba(249,115,22,0) 42%), linear-gradient(160deg, #0C1526 0%, #131E33 55%, #0A1120 100%)",
+    background: "radial-gradient(120% 140% at 100% 0%, rgba(148,163,184,.22) 0%, rgba(148,163,184,0) 42%), linear-gradient(160deg, #0C1526 0%, #131E33 55%, #0A1120 100%)",
     border: "1px solid rgba(232,201,122,.28)",
     boxShadow: "0 12px 34px rgba(0,0,0,.45)",
   };
@@ -84,7 +84,7 @@ export default function CityGate({ status, center, city, user, onSignUp, onUnloc
   );
   const title = (t) => <div style={{ fontSize: 20, fontWeight: 800, color: C.text, lineHeight: 1.2, letterSpacing: "-.2px", marginBottom: 6 }}>{t}</div>;
   const body = (t) => <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginBottom: 16, maxWidth: 460 }}>{t}</div>;
-  const primaryBtn = { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", minHeight: 48, padding: "12px 20px", borderRadius: 999, border: "none", background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 22px rgba(249,115,22,.32)" };
+  const primaryBtn = { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", minHeight: 48, padding: "12px 20px", borderRadius: 999, border: "none", background: "linear-gradient(135deg, #F97316 0%, #FB923C 100%)", color: "#0D1117", fontSize: 15, fontWeight: 800, cursor: "pointer", boxShadow: "0 8px 22px rgba(148,163,184,.32)" };
 
   if (status === "unlock") {
     return (

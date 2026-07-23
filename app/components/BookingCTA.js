@@ -76,7 +76,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
-        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
+        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
       >
         {verifiedUrl ? "Tickets & tours ↗" : (goFallback ? "Search Viator ↗" : "Check rates ↗")}
       </a>
@@ -98,7 +98,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       return (
         <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
           {items.map((t, i) => (
@@ -123,7 +123,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                   {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
                 </div>
               </div>
-              <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
+              <span style={{ color: C.light, fontSize: 15, fontWeight: 800 }}>↗</span>
             </a>
           ))}
         </div>
@@ -148,7 +148,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Search Viator ↗</div>
           <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>No verified product for this place — search Viator for tickets &amp; tours nearby</div>
         </div>
-        <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+        <span style={{ color: C.light, fontSize: 16, fontWeight: 800 }}>↗</span>
       </a>
     );
   }
