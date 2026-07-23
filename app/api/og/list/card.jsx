@@ -57,7 +57,13 @@ export async function listCardResponse(card, opts = {}) {
 
   const res = new ImageResponse(
     (
-      <div style={{ width: "1200px", height: "630px", display: "flex", flexDirection: "column", backgroundColor: INK, padding: "38px 44px 34px", fontFamily: "Archivo" }}>
+      <div style={{ width: "1200px", height: "630px", display: "flex", flexDirection: "column", backgroundColor: INK, padding: "38px 44px 34px", fontFamily: "Archivo", position: "relative", overflow: "hidden" }}>
+        {/* The live snapshot remains a data-led card. This subdued universal
+            scene makes the share visually desirable without baking copy or a
+            stale place photo into a versioned list. */}
+        <img src={(opts.assetOrigin || "https://www.gowayfind.com") + "/cards/nearby-v1.png"} width="1200" height="630" style={{ position: "absolute", inset: 0, width: "1200px", height: "630px", objectFit: "cover", opacity: 0.16 }} />
+        <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, rgba(10,11,13,.96), rgba(10,11,13,.88) 55%, rgba(10,11,13,.96))" }} />
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", height: "100%" }}>
         <div style={{ display: "flex", flexShrink: 0, alignItems: "center", fontSize: 12, fontWeight: 700, letterSpacing: 2.3, color: MUTE }}>
           {strip.map((t, i) => (
             <div key={i} style={{ display: "flex", alignItems: "center" }}>
@@ -100,6 +106,7 @@ export async function listCardResponse(card, opts = {}) {
           </div>
           <div style={{ display: "flex", fontSize: 13, fontWeight: 600, color: MUTE }}>{note}</div>
           <div style={{ display: "flex", fontSize: 17, fontWeight: 700, color: WHITE }}>gowayfind.com</div>
+        </div>
         </div>
       </div>
     ),
