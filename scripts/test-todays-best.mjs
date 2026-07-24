@@ -100,7 +100,7 @@ ok(home.includes("const EV_HERO_H = 208"), "hero height is the owner's taller ca
 // v6.50 hero swiper: slide 2 is the best-rated REAL beach within 20 mi
 ok(/wf-hero-swipe/.test(home) && /scrollSnapType: "x mandatory"/.test(home), 'hero is a native scroll-snap swiper');
 ok(/wf_nearest_beaches", \{ p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60/.test(home), 'beach slide: BEST beach regardless of distance (radius 60)');
-ok(/setBestBeach\(rankBeaches\(rows\)\[0\]/.test(home), 'beach slide uses the ONE shared ranking (lib/beaches) — identical to the page');
+ok(/const rankedB = rankBeaches\(rows\)/.test(home) && /bPool = rankedB\.slice/.test(home), 'beach slide uses the ONE shared ranking (lib/beaches) — day-rotated among its top few so the hero is not frozen (see test-dynamic-daily)');
 ok(/window\.location\.assign\("\/best-beaches\/"/.test(home), 'beach slide opens the shareable ranking page');
 ok(/\{bestBeach && \(/.test(home), 'no beach in range = no second slide, never a filler card');
 ok(/width: "93%" \/\* date-night \+ family slides always follow \*\//.test(home), 'slide 1 always peeks — date-night and family slides always follow');
