@@ -5625,8 +5625,13 @@ function PageInner({ initialEvents = null }) {
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
         // owner: the BEST beach, regardless of distance — the ONE shared
-        // ranking (lib/beaches rankBeaches), identical to /best-beaches.
-        setBestBeach(rankBeaches(rows)[0] || null);
+        // ranking (lib/beaches rankBeaches), identical to /best-beaches. DAY-ROTATE
+        // among the top few so the beach hero changes daily (owner: no frozen
+        // hero cards) — all are top-ranked beaches, so it's variety, not a drop.
+        const rankedB = rankBeaches(rows);
+        const bPool = rankedB.slice(0, 5);
+        const bSeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
+        setBestBeach(bPool.length ? bPool[((bSeed % bPool.length) + bPool.length) % bPool.length] : null);
       } catch (e) { if (!cancelled) setBestBeach(null); }
     })();
     return () => { cancelled = true; };

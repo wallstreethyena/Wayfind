@@ -33,9 +33,20 @@ ok((await heroRefFromPlaces(places, opt(1))) === r1, "same day → same pick (no
 // backward compatible: no dayRotate → deterministic top (existing behavior)
 ok((await heroRefFromPlaces(places, { minRating: 4.5, minReviews: 500 })) === "places/A/photos/1", "no seed → top place (unchanged)");
 
-// wiring: buzz hero + all three category heroes are day-seeded
+// PERMANENT RULE: EVERY hero card must rotate daily — a new frozen one fails here.
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/p_max: 12/.test(home) && /pool\[\(\(daySeed % pool\.length\)/.test(home), "buzz hero rotates a real pool by the day seed (not cand[0])");
-ok((home.match(/dayRotate: Math\.floor\(Date\.now\(\) \/ 864e5\)/g) || []).length >= 3, "all three category heroes (family/date/gem) are day-rotated");
+
+// 1) trending / buzz hero
+ok(/p_max: 12/.test(home) && /pool\[\(\(daySeed % pool\.length\)/.test(home), "trending hero rotates a real pool by the day seed");
+ok(!/const pick = cand\[0\]/.test(home), "trending hero is NOT the frozen cand[0]");
+
+// 2) EVERY heroRefFromPlaces call (family/date/gem + any future photo hero) is day-rotated
+const heroLines = home.split("\n").filter((l) => l.includes("heroRefFromPlaces("));
+ok(heroLines.length >= 3, "the photo heroes are present");
+ok(heroLines.every((l) => l.includes("dayRotate")), "EVERY heroRefFromPlaces call is day-rotated — no frozen photo hero can ship");
+
+// 3) beach hero
+ok(/rankBeaches\(rows\)/.test(home) && /bPool\[/.test(home) && /bSeed/.test(home), "the beach hero is day-rotated");
+ok(!/setBestBeach\(rankBeaches\(rows\)\[0\]/.test(home), "the beach hero is NOT the frozen top pick");
 
 console.log(`test-dynamic-daily: OK — ${pass} assertions (hero + trending picks rotate daily, honest, stable-within-day)`);
