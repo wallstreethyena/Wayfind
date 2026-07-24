@@ -34,7 +34,12 @@ const BOOKABLE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach"
 function bookingTargets(detail, kind, topItem, locName) {
   const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
   const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
-  const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
+  // v6.60 (owner, Coquina->Mumbai bug): the fallback must ALSO clear
+  // isTicketyPlace. BOOKABLE_KINDS includes beach/nature/scenic/waterfront for
+  // legit tours, but a BEACH or natural feature is never bookable — without
+  // this gate its geo-less "Search Viator" defaulted to Viator's featured
+  // cities (Mumbai/Dubai). isTicketyPlace already knows this; now the CTA asks.
+  const goFallback = (!verifiedUrl && BOOKABLE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
   const tk = verifiedUrl || goFallback;
   const tu = tk || Aff.hotelUrl(detail);
   return { verifiedUrl, goFallback, tk, tu };
@@ -71,7 +76,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
-        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.accent}`, borderRadius: 12, color: C.accent, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
+        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
       >
         {verifiedUrl ? "Tickets & tours ↗" : (goFallback ? "Search Viator ↗" : "Check rates ↗")}
       </a>
@@ -93,7 +98,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       return (
         <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
           {items.map((t, i) => (
@@ -118,17 +123,17 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                   {t.rating != null && <span style={{ color: C.gold, fontWeight: 700 }}>★ {t.rating}</span>}{t.reviews != null && <span> ({t.reviews.toLocaleString()})</span>}{t.duration && <span> · {t.duration}</span>}{t.fromPrice != null && <span style={{ color: C.green, fontWeight: 700 }}> · from ${t.fromPrice}</span>}
                 </div>
               </div>
-              <span style={{ color: C.accent, fontSize: 15, fontWeight: 800 }}>↗</span>
+              <span style={{ color: C.light, fontSize: 15, fontWeight: 800 }}>↗</span>
             </a>
           ))}
         </div>
       );
     }
     if (suppressFallback) return null;
-    // No verified product for this place -- the honest fallback is a
-    // tracked SEARCH page, never a guessed product. See lib/affiliates.js
-    // experienceGoUrl and its server-side resolver (never fabricates a
-    // "found a match" when nothing cleared the confidence bar).
+    // No verified product for this place -- the honest fallback is a tracked
+    // SEARCH page, never a guessed product. But ONLY for genuinely bookable
+    // inventory: a beach/natural feature is gated out (the Coquina->Mumbai fix).
+    if (!Aff.isTicketyPlace(detail)) return null;
     const fallbackHref = Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "", kind, placeId);
     return (
       <a
@@ -143,7 +148,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Search Viator ↗</div>
           <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>No verified product for this place — search Viator for tickets &amp; tours nearby</div>
         </div>
-        <span style={{ color: C.accent, fontSize: 16, fontWeight: 800 }}>↗</span>
+        <span style={{ color: C.light, fontSize: 16, fontWeight: 800 }}>↗</span>
       </a>
     );
   }

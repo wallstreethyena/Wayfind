@@ -14,7 +14,7 @@ import { embedSrc } from "../../lib/videoEmbed";
 
 export default function VideoFacade({ platform, url, label }) {
   const [play, setPlay] = useState(false);
-  const p = PLATFORM[platform] || { label: platform, color: "#F97316" };
+  const p = PLATFORM[platform] || { label: platform, color: "#CBD5E1" };
   const src = embedSrc(platform, url);
   if (!src) return null; // non-embeddable -> the card renders a plain external link
 

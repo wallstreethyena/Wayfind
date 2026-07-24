@@ -37,7 +37,7 @@ export default function SurpriseScreen({ ctx }) {
           }
           return (
             <div>
-              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 10 }}>‹ Back</div>
+              <div onClick={() => setScreen("suggested")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px", marginBottom: 10 }}>‹ Back</div>
               <div style={{ paddingBottom: 4 }}>
                 <div style={{ fontSize: 20, fontWeight: 800, color: C.text }}>🎲 Your {period} Pick</div>
                 <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, lineHeight: 1.45 }}>{sSub}</div>
@@ -67,11 +67,11 @@ export default function SurpriseScreen({ ctx }) {
                         {cuisineLabel && <span style={{ fontSize: 12, color: C.muted }}>· {cuisineLabel}</span>}
                         {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
                       </div>
-                      {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
+                      {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 9 }}><span style={{ color: C.light, fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
                       {badges.length > 0 && (
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 10 }}>
                           {badges.map((b) => (
-                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+                            <button key={b.key} onClick={(e) => { e.stopPropagation(); openExperience(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
                           ))}
                         </div>
                       )}
@@ -81,7 +81,7 @@ export default function SurpriseScreen({ ctx }) {
                   <button onClick={primaryAction} style={{ width: "100%", marginTop: 10, background: C.accent, color: "#0D1117", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, padding: "13px 0", cursor: "pointer" }}>{primaryLabel}</button>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
                     
-                    <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.accent : C.light, border: `1px solid ${isSaved(p.id) ? C.accent : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
+                    <button onClick={() => quickSaveFavorite(p)} style={{ flex: 1, background: isSaved(p.id) ? C.adim : "transparent", color: isSaved(p.id) ? C.light : C.light, border: `1px solid ${isSaved(p.id) ? C.light : C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "11px 0", cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
                   </div>
                   <div style={{ display: "flex", gap: 10, marginTop: 9 }}>
                     {!sOpen && openAlt ? (

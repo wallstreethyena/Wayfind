@@ -63,7 +63,7 @@ export default function AuthSheet({ ctx }) {
             <div style={{ textAlign: "center", marginTop: 14, fontSize: 13, color: C.muted }}>
               {authMode === "signup" ? "Already have an account? " : "New here? "}
               {/* v5.61 (audit P1): semantic <button>, not a <span> onClick. */}
-              <button type="button" onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ background: "none", border: "none", padding: "6px 4px", color: C.accent, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</button>
+              <button type="button" onClick={() => setAuthMode(authMode === "signup" ? "signin" : "signup")} style={{ background: "none", border: "none", padding: "6px 4px", color: C.light, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{authMode === "signup" ? "Sign in" : "Create one"}</button>
             </div>
             {authMode === "signin" && (
               <div style={{ textAlign: "center", marginTop: 8 }}>

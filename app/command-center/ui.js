@@ -129,7 +129,7 @@ function PanelError({ error, status, reload }) {
     <div role="alert" style={{ border: `1px solid ${STATUS.serious}`, borderRadius: RADII.control, padding: 12, fontSize: 12.5, color: C.light, display: "flex", gap: 10, alignItems: "center" }}>
       <span aria-hidden="true" style={{ color: STATUS.serious, fontWeight: 800 }}>✕</span>
       <span style={{ flex: 1 }}>{msg}</span>
-      <button type="button" onClick={reload} style={{ background: C.adim, color: C.accent, border: `1px solid ${C.accent}`, borderRadius: 8, fontSize: 11, fontWeight: 800, padding: "4px 10px", cursor: "pointer" }}>Retry</button>
+      <button type="button" onClick={reload} style={{ background: C.adim, color: C.light, border: `1px solid ${C.border}`, borderRadius: 8, fontSize: 11, fontWeight: 800, padding: "4px 10px", cursor: "pointer" }}>Retry</button>
     </div>
   );
 }
@@ -140,7 +140,7 @@ function LockScreen({ auth, setAuth, denied, notConfigured }) {
   return (
     <div style={{ maxWidth: 460, margin: "10vh auto", padding: 20 }}>
       <Card>
-        <div style={{ ...TYPE.eyebrow, color: C.accent, marginBottom: 8 }}>Wayfind · owner only</div>
+        <div style={{ ...TYPE.eyebrow, color: C.light, marginBottom: 8 }}>Wayfind · owner only</div>
         <h1 style={{ ...TYPE.display, color: C.text, margin: "0 0 8px" }}>Command Center is locked</h1>
         <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.55 }}>
           {notConfigured
@@ -796,7 +796,7 @@ function OpsSection({ auth }) {
               <div>
                 {(repo.commits || []).map((c) => (
                   <div key={c.sha} style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 8, padding: "6px 0", borderBottom: `1px solid ${C.border}`, fontSize: 12 }}>
-                    <code style={{ color: C.accent, fontSize: 11 }}>{c.sha}</code>
+                    <code style={{ color: C.light, fontSize: 11 }}>{c.sha}</code>
                     <span style={{ color: C.light, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.message}</span>
                     <span style={{ color: C.muted, fontSize: 11, whiteSpace: "nowrap" }}>{String(c.date || "").slice(5, 16).replace("T", " ")}</span>
                   </div>
@@ -893,7 +893,7 @@ export default function CommandCenter() {
     <div style={{ fontFamily: FONT, color: C.text, maxWidth: 1180, margin: "0 auto", padding: "0 16px 60px" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 40, background: "rgba(13,17,23,.94)", backdropFilter: "blur(6px)", borderBottom: `1px solid ${C.border}`, margin: "0 -16px", padding: "10px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.3px" }}>Wayfind <span style={{ color: C.accent }}>Command Center</span></span>
+          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.3px" }}>Wayfind <span style={{ color: C.light }}>Command Center</span></span>
           <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: C.gold, border: `1px solid ${C.gold}`, borderRadius: 99, padding: "2px 8px" }}>Owner only</span>
           <span style={{ flex: 1 }} />
           <nav aria-label="Sections" style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -907,8 +907,8 @@ export default function CommandCenter() {
           {RANGES.map(([k, label]) => (
             <button key={k} type="button" onClick={() => setRangeKey(k)} aria-pressed={rangeKey === k}
               style={{
-                background: rangeKey === k ? C.adim : "transparent", color: rangeKey === k ? C.accent : C.light,
-                border: `1px solid ${rangeKey === k ? C.accent : C.border}`, borderRadius: 999, fontSize: 11.5, fontWeight: 800,
+                background: rangeKey === k ? C.adim : "transparent", color: rangeKey === k ? C.light : C.light,
+                border: `1px solid ${rangeKey === k ? C.light : C.border}`, borderRadius: 999, fontSize: 11.5, fontWeight: 800,
                 padding: "5px 11px", cursor: "pointer", transition: `all ${MOTION.fast} ${MOTION.ease}`, minHeight: 30,
               }}>{label}</button>
           ))}

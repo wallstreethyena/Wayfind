@@ -11,7 +11,7 @@ const wrap = { maxWidth: 760, margin: "0 auto", padding: "40px 22px 80px", color
 const h1 = { color: "#F1F5F9", fontSize: 28, fontWeight: 800, margin: "0 0 6px", letterSpacing: "-0.4px" };
 const h2 = { color: "#F1F5F9", fontSize: 18, fontWeight: 800, margin: "28px 0 8px" };
 const muted = { color: "#94A3B8", fontSize: 13 };
-const a = { color: "#F97316", textDecoration: "none", fontWeight: 700 };
+const a = { color: "#CBD5E1", textDecoration: "none", fontWeight: 700 };
 
 export default function Terms() {
   return (

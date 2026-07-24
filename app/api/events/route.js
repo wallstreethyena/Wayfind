@@ -12,6 +12,7 @@ export const runtime = "nodejs";
 // only true when NO provider is configured at all.
 
 import { processEvents, siteTodayStr } from "../../../lib/eventsPipeline.js";
+import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
@@ -329,7 +330,7 @@ function parseSerpDate(s) {
   const now = new Date();
   const year = m[3] ? parseInt(m[3], 10) : now.getFullYear();
   let dt = new Date(year, mo, day);
-  if (!m[3] && dt < new Date(now.getFullYear(), now.getMonth(), now.getDate())) dt = new Date(year + 1, mo, day);
+  if (!m[3] && dt < siteAnchorDate(now)) dt = new Date(year + 1, mo, day);
   const mm = String(dt.getMonth() + 1).padStart(2, "0");
   const dd = String(dt.getDate()).padStart(2, "0");
   return `${dt.getFullYear()}-${mm}-${dd}`;

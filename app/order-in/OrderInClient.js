@@ -143,7 +143,7 @@ export default function OrderInClient() {
   const city = metroCity;
 
   const Card = ({ p }) => (
-    <div style={{ flex: "0 0 172px", background: C.card, border: `1px solid ${p._wfFeatured ? C.accent : p._deal ? C.accent : C.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div style={{ flex: "0 0 172px", background: C.card, border: `1px solid ${p._wfFeatured ? C.light : p._deal ? C.light : C.border}`, borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative" }}>
         {p.photo
           ? <img src={p.photo} alt={p.name} loading="lazy" style={{ width: "100%", height: 88, objectFit: "cover", display: "block" }} />
@@ -209,7 +209,7 @@ export default function OrderInClient() {
 
         {/* Why order through Wayfind */}
         <div style={{ marginTop: 12, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "13px 15px" }}>
-          <div style={{ fontSize: 10.5, fontWeight: 800, color: C.accent, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 5 }}>Why start here, not in the app?</div>
+          <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 5 }}>Why start here, not in the app?</div>
           <div style={{ fontSize: 13, lineHeight: 1.55, color: C.muted }}>
             Delivery apps rank by ad spend. The Wayfind Score ranks by what matters — rating, local buzz,
             value, and distance — so you pick the restaurant on merit, then Uber Eats handles the driving.

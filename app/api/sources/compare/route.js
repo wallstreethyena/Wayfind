@@ -58,6 +58,15 @@ async function fsqSearch(q, lat, lng, radius, key) {
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
+  // COST GATE: this diagnostic fires 6× Google Text Search + 6× Foursquare per
+  // hit — it is NOT a user surface. Lock it behind CRON_SECRET (Bearer or ?key=)
+  // so it can never be called anonymously to run up the bill. Fail-CLOSED: an
+  // unset secret returns 401, never opens.
+  const secret = process.env.CRON_SECRET;
+  const auth = req.headers.get("authorization") || "";
+  if (!secret || (auth !== "Bearer " + secret && searchParams.get("key") !== secret)) {
+    return Response.json({ error: "unauthorized" }, { status: 401 });
+  }
   const lat = parseFloat(searchParams.get("lat") || "27.58");
   const lng = parseFloat(searchParams.get("lng") || "-82.43");
   const radius = Math.min(Math.max(parseInt(searchParams.get("radius") || "27359", 10) || 27359, 1000), 100000);

@@ -41,6 +41,23 @@ export const config = {
     "/api/local/report",
     // Buzz hero (v6.56): metered Anthropic proxy for the trending why-line.
     "/api/buzz/why",
+    // Vision card-photo scoring: metered Anthropic proxy — same-origin guarded.
+    "/api/image-score",
+    // Metered proxies that shipped OPEN (audit 2026-07-23): YouTube Data API
+    // (100 quota units/call — quota-DoS) and TripAdvisor Terra (metered + a
+    // service-role census under ?probe). Both are same-origin XHRs → full guard.
+    "/api/youtube",
+    "/api/ta/place",
+    // Google Places media proxy (metered on cache-miss). Loaded via <img> incl.
+    // cross-origin OG/share-preview crawlers, so it's rate-limit-only (below) —
+    // a same-origin 403 would break shared-link images. Still needs a matcher
+    // entry to get the per-IP rate limit (the actual cost guard).
+    "/api/photo",
+    // Verified booking products: /api/place-products is a same-origin POST (the
+    // place-card booking gate, usePlaceProduct in app/home.js) reading
+    // wf_place_products via the service role. ANTI-SCRAPING — keeps the verified
+    // affiliate product catalog from being harvested off-origin.
+    "/api/place-products",
     "/api/hooks",
     "/api/eats/check",
     "/api/eats/go",
@@ -56,6 +73,14 @@ export const config = {
     // Supabase read); full same-origin guard keeps the affiliate catalog from
     // being harvested off our origin.
     "/api/experiences",
+    // UT deal rails: /api/deals is a same-origin XHR (the UTDealsRail in
+    // app/home.js) reading wf_deals_ranked via the service role. ANTI-SCRAPING,
+    // not a cost gate — keeps the affiliate deal catalog from being harvested.
+    "/api/deals",
+    // City unlock: /api/city/unlock is a same-origin POST that queues an
+    // uncovered city for population (writes wf_city_requests). Same-origin
+    // guarded so the demand/pull queue can't be poked cross-origin.
+    "/api/city/unlock",
     // Beach Intelligence (§0): /api/beach/conditions is a same-origin XHR that
     // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
     // cost gate — every upstream is free — but the assembled view is ours.
@@ -74,9 +99,14 @@ export const config = {
 // Referer on a fresh nav), so these get the per-IP rate limit WITHOUT the
 // same-origin block. All other matched routes get the full guard.
 const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go"]);
+// Image proxies loaded via <img> — including cross-origin OG/share-preview
+// crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
+// shared-link image, so keep the per-IP rate limit (the real cost guard) but
+// skip the same-origin block.
+const IMAGE_ROUTES = new Set(["/api/photo"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;
-  const rateLimitOnly = NAV_302_ROUTES.has(path);
+  const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path);
   return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
 }

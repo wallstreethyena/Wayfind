@@ -33,7 +33,7 @@ export default function ItineraryScreen({ ctx }) {
                           <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</div>
                           <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Booked via {r.partner} · {new Date(r.at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
                         </div>
-                        {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.accent, textDecoration: "none", flexShrink: 0 }}>View ↗</a> : null}
+                        {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, fontWeight: 800, color: C.light, textDecoration: "none", flexShrink: 0 }}>View ↗</a> : null}
                         <button onClick={() => removeRes(r.id)} aria-label="Remove reservation" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 15, cursor: "pointer", padding: "2px 4px", flexShrink: 0 }}>✕</button>
                       </div>
                       <input defaultValue={r.conf} onBlur={(e) => saveResConf(r.id, e.target.value)} placeholder="Add confirmation # or note"
@@ -74,7 +74,7 @@ export default function ItineraryScreen({ ctx }) {
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.accent, fontSize: 22, cursor: "pointer" }}>‹</button>
+                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
@@ -121,7 +121,7 @@ export default function ItineraryScreen({ ctx }) {
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
                         <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
                         <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1)); }} disabled={i === items.length - 1} style={{ ...tripCtl, opacity: i === items.length - 1 ? 0.35 : 1 }}>↓</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.accent } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
+                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
                         <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(p.id); setTripMoveFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
                         <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(p.id); setTripNoteEdit(null); }} style={tripChip}>Move</button>
                         <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); }} style={{ ...tripChip, color: C.red }}>Remove</button>

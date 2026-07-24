@@ -16,7 +16,8 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // The desktop preview is optional: removing it is also a zero-cost outcome.
 // What must never return is an automatically mounted, billed Google Map.
 ok(!/<MapView places=\{_pins\}/.test(home), "desktop sidebar does NOT mount the billed Google Map (the July bill)");
-ok(/id: "map", icon: "map", label: "Map"/.test(home) && /setScreen\(s\.id\)/.test(home), "the Map navigation still opens the real map screen (paid loads = real usage)");
+ok(!/<MapPreview places=\{_pins\}/.test(home), "Visual Release 01 keeps the desktop discovery surface map-free");
+ok(/id: "map"[\s\S]*?label: "Map"/.test(home) && /setScreen\(s\.id\)/.test(home), "the Map navigation still opens the real map screen on explicit user intent");
 
 ok(existsSync(new URL("../app/components/MapPreview.js", import.meta.url)), "MapPreview component exists");
 const prev = readFileSync(new URL("../app/components/MapPreview.js", import.meta.url), "utf8");

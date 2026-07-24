@@ -8,11 +8,11 @@ export const metadata = {
 
 const S = {
   page: { maxWidth: 720, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.65 },
-  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#F97316" },
+  kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#CBD5E1" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 14px", fontWeight: 800, color: "#FFFFFF" },
   h2: { fontSize: 20, fontWeight: 800, color: "#FFFFFF", margin: "26px 0 8px" },
   p: { fontSize: 15, color: "#C9D1D9", margin: "0 0 12px" },
-  a: { color: "#F97316", fontWeight: 700, textDecoration: "none" },
+  a: { color: "#CBD5E1", fontWeight: 700, textDecoration: "none" },
 };
 
 export default function Page() {

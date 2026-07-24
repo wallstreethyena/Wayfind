@@ -141,7 +141,7 @@ export function NotConnected({ source, compact }) {
       <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>
         {source && source.reason === "error" ? (source.note || "The provider call failed; data withheld rather than guessed.") : (source && source.nextStep) || "No credentials configured."}
       </div>
-      {source && source.link ? <a href={source.link} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: C.accent, fontWeight: 700 }}>Open provider dashboard ↗</a> : null}
+      {source && source.link ? <a href={source.link} target="_blank" rel="noreferrer" style={{ fontSize: 11.5, color: C.light, fontWeight: 700 }}>Open provider dashboard ↗</a> : null}
     </div>
   );
 }
@@ -152,8 +152,8 @@ export function Frame({ title, def, source, columns, rows, children, right }) {
   const btn = (m, label) => (
     <button type="button" onClick={() => setMode(m)} aria-pressed={mode === m}
       style={{
-        background: mode === m ? C.adim : "none", color: mode === m ? C.accent : C.muted,
-        border: `1px solid ${mode === m ? C.accent : C.border}`, borderRadius: 8, fontSize: 10.5, fontWeight: 800,
+        background: mode === m ? C.adim : "none", color: mode === m ? C.light : C.muted,
+        border: `1px solid ${mode === m ? C.light : C.border}`, borderRadius: 8, fontSize: 10.5, fontWeight: 800,
         padding: "3px 8px", cursor: "pointer", transition: `all ${MOTION.fast} ${MOTION.ease}`,
       }}>{label}</button>
   );

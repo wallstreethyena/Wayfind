@@ -68,6 +68,13 @@ export async function GET(req) {
   // probe=2 — contribution census: how many places Tripadvisor has enriched
   // (cached ta5 rows carrying a rating) vs looked-up-but-unmatched.
   if (searchParams.get("probe") === "2") {
+    // Operator-only: this runs service-role Supabase census queries. Was
+    // unauthenticated; gate behind CRON_SECRET (Bearer or ?key=). Fail-closed.
+    const secret = process.env.CRON_SECRET;
+    const auth = req.headers.get("authorization") || "";
+    if (!secret || (auth !== "Bearer " + secret && searchParams.get("key") !== secret)) {
+      return Response.json({ error: "unauthorized" }, { status: 401 });
+    }
     const s2 = sb();
     if (!s2) return Response.json({ error: "no cache backend" });
     const H2 = { apikey: s2.key, Authorization: `Bearer ${s2.key}`, Prefer: "count=exact", Range: "0-0" };
