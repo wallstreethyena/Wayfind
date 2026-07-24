@@ -55,7 +55,7 @@ const bsrc = readFileSync(new URL("../lib/beaches.js", import.meta.url), "utf8")
 const consts = (src) => { const m = src.match(/const m = (\d+);\s*\n?\s*const C = ([\d.]+);/); return m && m[1] + "/" + m[2]; };
 ok(consts(gsrc) === "60/3.9" && consts(bsrc) === "60/3.9", "beaches.js formula constants match lib/google wayfindScore (60/3.9)");
 const og = readFileSync(new URL("../app/api/og/beaches/route.js", import.meta.url), "utf8");
-ok(og.includes("BEACH_SHARE_PHOTO"), "share card uses the curated best picture");
+ok(og.includes("beach-adobestock-216195684.jpeg"), "share card matches the owned beach hero artwork");
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 
 
@@ -88,7 +88,7 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
   ok(src.includes("Know before you go:"), "the one practical line is gone");
   const rep = readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8");
-  ok(rep.includes("topLeft || null") && rep.includes("fontSize: 21, fontWeight: 800"), "hero shell lost the back-control slot or the bigger wordmark");
+  ok(rep.includes("topLeft || null") && rep.includes("/brand/wayfind-wordmark-transparent-v2.png"), "hero shell lost the back-control slot or the official transparent wordmark");
   const icx = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icx.includes('topLeft={<BackControl fallback="/" />}'), "family/date-night lost their back button");
 }

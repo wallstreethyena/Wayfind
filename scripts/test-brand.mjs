@@ -1,8 +1,7 @@
 // scripts/test-brand.mjs — THE BRAND RULES (owner, 2026-07-22):
 // 1. The wordmark NEVER wraps or shrinks (the live "wayfnd / ı" break).
 // 2. The tittle IS the orange dot — the period-after-d form is banned.
-// 3. The raster logo (baked #040810 background) never sits on a surface
-//    that isn't its own background — OG dark bands only.
+// 3. The transparent official wordmark is the one logo used across surfaces.
 // 4. Viator cards wear the ONE Wayfind Score like every place card.
 import { readFileSync, readdirSync, statSync } from "fs";
 import { join } from "path";
@@ -10,17 +9,14 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-// THE LOGO (owner, 2026-07-22): the header wears the OFFICIAL asset — not a
-// text lookalike — because the header bg IS the logo's baked #040810. This is
-// the ONE sanctioned in-app raster placement; it must never shrink or wrap.
-// 42.5px = the owner's default (2026-07-22: "25% bigger, make that the default").
-ok(home.includes('src="/brand/wayfind-logo-header.png"') && /height: 42\.5, width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the OFFICIAL logo at its default 42.5px (or its shrink protection)");
-ok((home.match(/brand\/wayfind-logo/g) || []).length === 1, "the raster logo may appear exactly ONCE in home.js — the header");
+// The homepage header wears the isolated official wordmark and never shrinks.
+ok(home.includes('src="/brand/wayfind-wordmark-transparent-v2.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the transparent official logo or its shrink protection");
+ok((home.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE in home.js — the header");
 
 for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
   const s = readFileSync(new URL(f, import.meta.url), "utf8");
   ok(!/wayfind<span[^>]*>\.<\/span>/.test(s), label + " uses the banned period-after-d wordmark");
-  ok(s.includes("ı<span aria-hidden"), label + " lost the tittle-dot wordmark");
+  ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png"), label + " lost the transparent official wordmark");
 }
 
 // Raster logo only in OG routes (their dark #040810 band = the baked bg).

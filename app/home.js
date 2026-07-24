@@ -141,7 +141,7 @@ function iconForPlace(p) {
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
-    <div style={{ marginBottom: tight ? 10 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
+    <div style={{ marginBottom: tight ? 7 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
       {heading && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
           <GlowPin size={22} />
@@ -152,8 +152,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} strokeWidth={1.4} />
-            <span style={{ fontSize: 11, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+            <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -2147,14 +2147,91 @@ function renderHookText(text, highlightWord, color) {
 // EV_RAIL_MIN_H), so the skeleton -> events swap changes no layout and adds no
 // CLS. The heading is real text, not a grey box, so the section announces what
 // is coming instead of looking broken.
+function DiscoveryHeroCard() {
+  return (
+    <article
+      className="wf-discovery-visual wf-discovery-hero-card"
+      aria-label="Know what is around you"
+      style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start" }}
+    >
+      <img src="/brand/wayfind-default-hero-adobestock-289023289.jpeg" alt="" loading="eager" fetchPriority="high" />
+      <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
+        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
+        <div className="wf-discovery-title">Know what is around you.</div>
+        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
+      </div>
+    </article>
+  );
+}
+
+function HeroRail({ children }) {
+  const railRef = useRef(null);
+  const slide = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * 0.93), behavior: "smooth" });
+  };
+  return (
+    <div style={{ position: "relative", marginBottom: 10 }}>
+      <div ref={railRef} className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {children}
+      </div>
+      <div style={{ position: "absolute", right: 11, bottom: 11, zIndex: 5, display: "flex", gap: 7 }}>
+        <button type="button" onClick={() => slide(-1)} aria-label="Previous featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>‹</button>
+        <button type="button" onClick={() => slide(1)} aria-label="Next featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>›</button>
+      </div>
+    </div>
+  );
+}
+
+function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, title, subtitle, ariaLabel, onOpen }) {
+  return (
+    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+      <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${badgeColor}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+        {navIcon ? <NavIcon name={icon} size={12} strokeWidth={2} color={badgeColor} /> : <Icon name={icon} size={12} color={badgeColor} />}<span style={{ fontSize: 10.5, fontWeight: 800, color: badgeColor, letterSpacing: "0.4px", textTransform: "uppercase" }}>{badge}</span>
+      </div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 92px 14px 14px" }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{title}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{subtitle}</div>
+      </div>
+    </div>
+  );
+}
+
+function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonight, onDrive, onBudget, onSurprise }) {
+  return (
+    <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9, marginBottom: 12 }}>
+      {[
+        ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
+        ["gem", "Hidden gems", onGems],
+        ["users", "Family favorites", onFamily],
+        ["heart", "Date night ideas", onDateNight],
+        ["ticket", "Perfect for tonight", onTonight],
+        ["car", "Worth the drive", onDrive],
+        ["wallet", "Big fun, small budget", onBudget],
+        ["dice", "Surprise me", onSurprise],
+      ].map(([ic, lbl, go]) => (
+        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer", lineHeight: 1.12, minHeight: 42 }}>
+          <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function EventsRailSkeleton() {
   return (
-    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Finding events near you">
+    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Loading more things near you">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
       </div>
-      <div className="wf-sk" aria-hidden="true" style={{ height: EV_HERO_H, borderRadius: 18, marginBottom: 10 }} />
+      <HeroRail>
+        <DiscoveryHeroCard />
+        <div className="wf-sk" aria-hidden="true" style={{ flexShrink: 0, width: "93%", height: EV_HERO_H, borderRadius: 18, scrollSnapAlign: "start" }} />
+      </HeroRail>
       <div aria-hidden="true" style={{ display: "flex", gap: 8, minHeight: EV_RAIL_MIN_H, paddingBottom: 4, overflow: "hidden" }}>
         {[0, 1, 2].map((i) => (
           <div key={i} className="wf-sk" style={{ width: 150, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
@@ -2921,10 +2998,6 @@ function PageInner({ initialEvents = null }) {
       } catch (e) {}
     }
   }, [detail]);
-  // v6.53 (owner): the family hero card wears the area's own most
-  // captivating photo — the top proven family place's picture (rating x
-  // depth heuristic), never stock art unless nothing qualifies yet.
-  const [familyHeroImg, setFamilyHeroImg] = useState(null);
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
   const [buzzPick, setBuzzPick] = useState(null);
@@ -3734,7 +3807,12 @@ function PageInner({ initialEvents = null }) {
   function openExpSheet(key) {
     const e = EXPERIENCES[key]; if (!e) return;
     const m = revenueExpMeta(key, cityNow) || {};
-    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, places: null });
+    const heroImage = key === "gem"
+      ? "/cards/hidden-gems-adobestock-321810820.jpeg"
+      : key === "entertainment"
+        ? "/cards/trending-near-you-adobestock-434128766.jpeg"
+        : null;
+    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage, places: null });
     try { window.scrollTo(0, 0); } catch {}
   }
   function openMoment(sel) {
@@ -5225,27 +5303,6 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
-  // v6.53: one lazy fetch for the family card photo (top family place by
-  // rating x review depth from our guarded search; fail-soft to brand art).
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("family theme park attractions things to do kids") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=attractions");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        const best = j.places
-          .map((pp) => ({ ref: pp.photos && pp.photos[0] && pp.photos[0].name, rating: Number(pp.rating) || 0, reviews: Number(pp.userRatingCount != null ? pp.userRatingCount : pp.reviews) || 0 }))
-          .filter((x) => x.ref && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(x.ref) && x.rating >= 4.5 && x.reviews >= 500)
-          .sort((a, b) => (b.rating * Math.log(b.reviews + 1)) - (a.rating * Math.log(a.reviews + 1)))[0];
-        if (best) setFamilyHeroImg(best.ref); // raw photoRef — the render builds the URL, the click passes it on (continuity)
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
   // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
   // gating: only renders with >=2 real signal sources and a photo.
   useEffect(() => {
@@ -6204,7 +6261,7 @@ function PageInner({ initialEvents = null }) {
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <img className="wf-wordmark" src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 64, maxWidth: "48vw", width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
+            <img className="wf-wordmark" src="/brand/wayfind-wordmark-transparent-v2.png" alt="wayfind" onClick={openSuggested} style={{ height: 64, maxWidth: "48vw", width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -6448,6 +6505,19 @@ function PageInner({ initialEvents = null }) {
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
+          const discoveryMenu = (
+            <DiscoveryMenu
+              locName={locName}
+              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} openCurated("today"); }}
+              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} openExpSheet("gem"); }}
+              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} openExpSheet("family"); }}
+              onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} openExpSheet("romantic"); }}
+              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} setScreen("events"); }}
+              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} openExpSheet("entertainment"); }}
+              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} openExpSheet("budget"); }}
+              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me" }); } catch (e) {} setMenuSheet("pick"); }}
+            />
+          );
           return (
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
@@ -6459,19 +6529,79 @@ function PageInner({ initialEvents = null }) {
                   geometry so the swap below is shift-free. Deliberately NOT
                   gated on `suggested` — the first screen must never be blank
                   while a Places search runs. */}
-              {!browseCat && !isDesktop && foryouEvents === null && <EventsRailSkeleton />}
-              {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px", marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
-                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
+              {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
+              {!browseCat && foryouEvents === null && discoveryMenu}
+              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+                <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+                  </div>
+                  <HeroRail>
+                    <DiscoveryHeroCard />
+                    <LocalPlanHeroCard
+                      image="/cards/beach-adobestock-216195684.jpeg"
+                      badge="Beach day"
+                      badgeColor="#2DD4BF"
+                      icon="beach"
+                      navIcon
+                      title={bestBeach ? bestBeach.name : "Beach day, decided"}
+                      subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
+                      ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
+                      onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/hidden-gems-adobestock-321810820.jpeg"
+                      badge="Hidden gems"
+                      badgeColor="#FF7A1A"
+                      icon="gem"
+                      title="Worth finding. Easy to miss."
+                      subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
+                      ariaLabel="Explore hidden gems"
+                      onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/date-night-adobestock-190984224.jpeg"
+                      badge="Date night"
+                      badgeColor="#F472B6"
+                      icon="heart"
+                      title="Tonight, decided"
+                      subtitle={`The best of ${locName ? locName.split(",")[0] : "your town"}, picked for two ›`}
+                      ariaLabel="Date night, decided"
+                      onOpen={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/family-adobestock-794890098.jpeg"
+                      badge="Family"
+                      badgeColor="#22C55E"
+                      icon="users"
+                      title="Memories for life, nearby"
+                      subtitle={`The most-loved family spots in ${locName ? locName.split(",")[0] : "your town"} ›`}
+                      ariaLabel="Family day, decided"
+                      onOpen={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/trending-near-you-adobestock-434128766.jpeg"
+                      badge="Trending near you"
+                      badgeColor="#FF6B6B"
+                      icon="sparkles"
+                      title="What everyone's talking about"
+                      subtitle="Popular local picks worth seeing now ›"
+                      ariaLabel="Trending near you"
+                      onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} openExpSheet("entertainment"); }}
+                    />
+                  </HeroRail>
+                  {discoveryMenu}
+                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
+                    </div>
                   </div>
                 </div>
               )}
-              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
@@ -6499,10 +6629,11 @@ function PageInner({ initialEvents = null }) {
                       // the event's resolved destination; the tickets action is a
                       // separate sibling control layered on top, never nested.
                       return (
-                        <div className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", marginBottom: 10 }}>
-                        {/* v6.50 (owner): slide 2 is the best-rated beach within 20 mi (real
-                            inventory + signals; none in range = one slide). Slide 1 narrows
-                            to 93% so the beach edge peeks — the swipe affordance. */}
+                        <HeroRail>
+                        {/* The orientation card leads the same rail; the event, beach,
+                            date-night, family, and trending cards keep their existing
+                            destinations and behavior as the following slides. */}
+                        <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
@@ -6525,27 +6656,32 @@ function PageInner({ initialEvents = null }) {
                               : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
                           </div>
                         </div>
-                        {bestBeach && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro || "manatee-sarasota")); } catch (e2) {} }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                            {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(45,212,191,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <NavIcon name="beach" size={12} strokeWidth={2} color="#2DD4BF" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", letterSpacing: "0.4px", textTransform: "uppercase" }}>Beach day</span>
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{bestBeach.name}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>
-                                <span>{bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away</span>
-                                <PlaceScoreChip p={{ rating: bestBeach.rating, reviews: bestBeach.reviews }} size={12.5} />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <LocalPlanHeroCard
+                          image="/cards/beach-adobestock-216195684.jpeg"
+                          badge="Beach day"
+                          badgeColor="#2DD4BF"
+                          icon="beach"
+                          navIcon
+                          title={bestBeach ? bestBeach.name : "Beach day, decided"}
+                          subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
+                          ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
+                          onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
+                        />
+                        <LocalPlanHeroCard
+                          image="/cards/hidden-gems-adobestock-321810820.jpeg"
+                          badge="Hidden gems"
+                          badgeColor="#FF7A1A"
+                          icon="gem"
+                          title="Worth finding. Easy to miss."
+                          subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
+                          ariaLabel="Explore hidden gems"
+                          onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                        />
                         {/* v6.52 (owner): slides 3+4 — date night and family, each the
                             best of the town for that intent, opening the luxury ranked
                             pages built on the /best-beaches standard. Owned card art. */}
                         <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src="/cards/date-night.jpg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                          <img src="/cards/date-night-adobestock-190984224.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
@@ -6555,8 +6691,8 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The best of {locName ? locName.split(",")[0] : "your town"}, picked for two ›</div>
                           </div>
                         </div>
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src={familyHeroImg ? "/api/photo?ref=" + encodeURIComponent(familyHeroImg) + "&w=800" : "/cards/family-fun.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src="/cards/family-adobestock-794890098.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(34,197,94,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <NavIcon name="family" size={12} strokeWidth={2} color="#22C55E" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#22C55E", letterSpacing: "0.4px", textTransform: "uppercase" }}>Family</span>
@@ -6566,25 +6702,29 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
                           </div>
                         </div>
-                        {/* v6.56 THE BUZZ SLIDE — "Trending near you" from real
-                            popularity signals; never "busiest" (no door counts).
-                            Absent until the popularity engine has rows. */}
-                        {buzzPick && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("buzz_hero_open", null, { id: buzzPick.place_id }); } catch (e2) {} try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {} }} aria-label={"Trending near you: " + buzzPick.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                            <img src={"/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(255,107,107,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 11 }}>🔥</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#FF6B6B", letterSpacing: "0.4px", textTransform: "uppercase" }}>Trending near you</span>
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")}</div>
-                            </div>
-                          </div>
-                        )}
-                        </div>
+                        {/* The Trending slide is always present. Real popularity
+                            data personalizes its copy and destination when ready. */}
+                        <LocalPlanHeroCard
+                          image="/cards/trending-near-you-adobestock-434128766.jpeg"
+                          badge="Trending near you"
+                          badgeColor="#FF6B6B"
+                          icon="sparkles"
+                          title={buzzPick ? buzzPick.name : "What everyone's talking about"}
+                          subtitle={buzzPick ? (buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")) : "Popular local picks worth seeing now ›"}
+                          ariaLabel={buzzPick ? "Trending near you: " + buzzPick.name : "Trending near you"}
+                          onOpen={() => {
+                            try { logEvent("buzz_hero_open", null, { id: buzzPick ? buzzPick.place_id : null, src: "hero_swipe" }); } catch (e2) {}
+                            if (buzzPick) {
+                              try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {}
+                            } else {
+                              openExpSheet("entertainment");
+                            }
+                          }}
+                        />
+                        </HeroRail>
                       );
                     })()}
+                    {discoveryMenu}
                     {rest.length > 0 && (
                       <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", minHeight: EV_RAIL_MIN_H, paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.filter((e) => e && e.dest).map((e) => {
@@ -6872,36 +7012,6 @@ function PageInner({ initialEvents = null }) {
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
               {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
-              {!browseCat && !suggestedLoading && suggested !== null && list.length === 0 && (
-                <div className="wf-discovery-empty" style={{ padding: "16px 2px 8px" }}>{/* v4.70 discovery grid: a first visit is never a dead end */}
-                  <div className="wf-discovery-heading" style={{ marginBottom: 12 }}>
-                    <div className="wf-discovery-visual">
-                      <img src="/brand/wayfind-neighborhood-context-v1.png" alt="A walkable waterfront neighborhood with local restaurants, live music, and places to explore" loading="lazy" />
-                      <div className="wf-discovery-copy">
-                        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
-                        <div className="wf-discovery-title">Know what is around you.</div>
-                        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
-                    {[
-                      ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openCurated("today")],
-                      ["gem", "Hidden gems", () => openExpSheet("gem")],
-                      ["users", "Family favorites", () => openExpSheet("family")],
-                      ["heart", "Date night ideas", () => openExpSheet("romantic")],
-                      ["ticket", "Perfect for tonight", () => setScreen("events")],
-                      ["car", "Worth the drive", () => openExpSheet("entertainment")],
-                      ["wallet", "Big fun, small budget", () => openExpSheet("budget")],
-                      ["dice", "Surprise me", () => setMenuSheet("pick")],
-                    ].map(([ic, lbl, go]) => (
-                      <button className="wf-discovery-link" key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: TARGET }}>
-                        <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
@@ -7583,7 +7693,7 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 208; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
+const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
 const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
@@ -7592,8 +7702,8 @@ const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the hor
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
 const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
-const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:#F97316!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px env(safe-area-inset-bottom);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:23px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{height:78px!important;max-width:52vw!important}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:29px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:0!important;padding:16px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
-const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus{border-color:#F97316!important;background:linear-gradient(135deg,#1B2635,#121B26)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 0 0 3px rgba(249,115,22,.12)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
+const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px env(safe-area-inset-bottom);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{height:78px!important;max-width:52vw!important}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
+const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 

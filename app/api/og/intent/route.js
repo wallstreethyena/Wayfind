@@ -7,8 +7,8 @@ export const runtime = "edge";
 // marketing (owner). Full-bleed brand art, hard legibility band, one promise
 // in big type, the brand row. Fails soft to a dark card.
 const INTENTS = {
-  "date-night": { art: "/cards/date-night.jpg", accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
-  family: { art: "/cards/family-fun.jpg", accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
+  "date-night": { art: "/cards/date-night-adobestock-190984224.jpeg", accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
+  family: { art: "/cards/family-adobestock-794890098.jpeg", accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
 };
 
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
@@ -39,7 +39,7 @@ export async function GET(req) {
             <div style={{ display: "flex", fontSize: 29, color: "rgba(241,245,249,.94)", marginTop: 12 }}>{def.promise}</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 26 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <img src={SITE_URL + "/brand/wayfind-logo-header.png"} height={30} style={{ borderRadius: 4 }} />
+                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} height={30} />
                 <div style={{ display: "flex", fontSize: 21, fontWeight: 700, color: "rgba(241,245,249,.75)", marginLeft: 14 }}>gowayfind.com</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", background: "#E8C97A", borderRadius: 999, padding: "13px 32px" }}>

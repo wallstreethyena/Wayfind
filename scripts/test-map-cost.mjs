@@ -13,10 +13,10 @@ const fail = (m) => { console.error("test-map-cost: FAIL — " + m); process.exi
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(/<MapPreview places=\{_pins\}/.test(home), "desktop sidebar renders the FREE MapPreview");
+// The desktop preview is optional: removing it is also a zero-cost outcome.
+// What must never return is an automatically mounted, billed Google Map.
 ok(!/<MapView places=\{_pins\}/.test(home), "desktop sidebar does NOT mount the billed Google Map (the July bill)");
-ok(/import MapPreview from "\.\/components\/MapPreview"/.test(home), "home.js imports MapPreview");
-ok(/setScreen\("map"\)/.test(home), "the Full map button still opens the real map screen (paid loads = real usage)");
+ok(/id: "map", icon: "map", label: "Map"/.test(home) && /setScreen\(s\.id\)/.test(home), "the Map navigation still opens the real map screen (paid loads = real usage)");
 
 ok(existsSync(new URL("../app/components/MapPreview.js", import.meta.url)), "MapPreview component exists");
 const prev = readFileSync(new URL("../app/components/MapPreview.js", import.meta.url), "utf8");

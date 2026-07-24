@@ -14,6 +14,7 @@ export default function HookDetailSheet({ ctx }) {
         const allSrc = dedupePlaces([...(suggested || []), ...places], true);
         const acc = hookDetail.accent || C.accent;
         const theme = hookDetail.theme || "best";
+        const heroImage = hookDetail.heroImage || null;
         const isLiked = hookLikes.has(hookDetail.id);
         const primaryId = hookDetail.placeId;
 
@@ -45,7 +46,7 @@ export default function HookDetailSheet({ ctx }) {
         return (
           <div style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, display: "flex", flexDirection: "column", overflowY: "auto", overscrollBehavior: "contain", alignItems: isDesktop ? "center" : "stretch" }}>
             {/* Gradient hero header */}
-            <div style={{ background: `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
+            <div style={{ background: heroImage ? `linear-gradient(180deg, rgba(4,8,16,.28) 0%, rgba(4,8,16,.72) 50%, ${C.bg} 100%), url("${heroImage}") center / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? 300 : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                 <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px" }}>‹ Back</button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
