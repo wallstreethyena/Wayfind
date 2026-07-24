@@ -23,6 +23,7 @@ import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
+import { usePlaceProduct } from "../lib/placeProduct";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -7522,22 +7523,10 @@ function ViatorRail({ title, items, theme }) {
 // test-card-booking.mjs enforces the match so the surfaces never drift.
 // The place card can't confirm a VERIFIED Viator product at build time (no per-card
 // precompute), so it must NOT show a verified-sounding "Tickets & tours" — that's the
-// booking-integrity over-promise. It renders the honest generic "Search Viator ↗"
+// booking-integrity over-promise. It renders a button only for a verified product.
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function cardBookingHref(p) {
-  // v2 (booking-integrity): build the /api/viator/go URL through lib/affiliates so
-  // the go-URL is constructed in exactly ONE place (the resolver + attribution live
-  // there); nothing else in the app hand-rolls a Viator URL. The route still does the
-  // verified-or-honest-search resolution at click time.
-  try {
-    const parts = String(p.address || "").split(",").map((x) => x.trim());
-    const city = parts.length >= 3 ? parts[1] : "";
-    return Aff.experienceGoUrl(p.name, city, placeKind(p) || "", p.id || "") || "";
-  } catch (e) { return Aff.experienceGoUrl((p && p.name) || "") || ""; }
-}
-
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
@@ -7567,6 +7556,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
   const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
   const offer = OFFERS[p.id];
+  const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
   // killswitch restores the old layout.
@@ -7657,8 +7647,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
-            {Aff.isTicketyPlace(p) && (
-              <a href={cardBookingHref(p)} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Search Viator ↗"}</a>
+            {cardProduct && cardProduct.url && (
+              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>Book on Viator ↗</a>
             )}
             <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
