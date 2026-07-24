@@ -114,7 +114,6 @@ export default async function BeachesPage({ params }) {
   if (!meta) return <main style={{ background: C.bg, color: C.muted, minHeight: "100vh", padding: 40 }}>No such beach group.</main>;
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
-  const tours = await toursFor(params.metro);
   const heroImg = "/cards/beach-adobestock-216195684.jpeg";
 
   // Structured data (v6.55 SEO sweep) — same house pattern as lib/landing.js:
