@@ -6776,7 +6776,7 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7442,7 +7442,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
 const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", landmarks: "historical", arts: "museums", marinas: "water" };
-function BookableExpRail({ sub, lat, lng }) {
+function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
   const cat = SUB_TO_EXP[sub || "all"];
   const [items, setItems] = useState(null);
   useEffect(() => {
@@ -7450,17 +7450,25 @@ function BookableExpRail({ sub, lat, lng }) {
     let dead = false;
     setItems(null);
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
       if (dead) return;
-      const arr = (res && Array.isArray(res.items) ? res.items : [])
+      let arr = (res && Array.isArray(res.items) ? res.items : [])
         .slice()
         .sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))
         .slice(0, 10);
+      // If the local inventory is dark, search the user's actual city — never
+      // never fall back to Florida markets for an out-of-region visitor.
+      if (!arr.length && city) {
+        try {
+          const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
+          arr = (live && Array.isArray(live.items) ? live.items : []).slice(0, 10);
+        } catch (e) {}
+      }
       setItems(arr);
     });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, lat, lng]);
+  }, [cat, lat, lng, city, region]);
   if (!cat || items === null) return null; // no skeleton flash — the rail appears when real
   if (!items.length) return null;
   return (
