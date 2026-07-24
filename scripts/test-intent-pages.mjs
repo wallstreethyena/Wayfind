@@ -33,7 +33,7 @@ const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes("familyHeroImg ?"), "family card wears the area's best family photo, art only as fallback");
-ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.5, minReviews: 500 \}\)/.test(home), "card photo comes from a PROVEN family place (same floor as the list)");
+ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.5, minReviews: 500, dayRotate:/.test(home), "card photo comes from a PROVEN family place (same floor as the list)");
 
 // THE CONTINUITY RULE (owner, 2026-07-22): the photo you clicked is the photo
 // you land on — the hero never flashes a different image first.
@@ -68,7 +68,7 @@ ok(icSrc.includes('fetch("/api/blurbs"'), "cards without a verified hook get an 
 // same continuity contract as family.
 ok(home.includes("dateHeroImg ?"), "date-night card lost its real-photo hero (art must be fallback only)");
 ok(home.includes('(dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")'), "the date-night card no longer hands its photo to the landing page");
-ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.4, minReviews: 150 \}\)/.test(home), "date-night card photo must come from the SAME floor the date-night list rides on");
+ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.4, minReviews: 150, dayRotate:/.test(home), "date-night card photo must come from the SAME floor the date-night list rides on");
 
 // v6.60 (owner): the Hidden Gems page — loved (4.6+) but NOT famous (review
 // CEILING 3000), each card carrying the LLM editorial line.

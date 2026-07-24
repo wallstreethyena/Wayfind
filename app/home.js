@@ -5467,7 +5467,7 @@ function PageInner({ initialEvents = null }) {
         if (cancelled || !j || !Array.isArray(j.places)) return;
         // people-free hero (owner: no human faces on cards) — heroRefFromPlaces
         // ranks by our quality floor then vision-picks the best face-free shot.
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.5, minReviews: 500 });
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.5, minReviews: 500, dayRotate: Math.floor(Date.now() / 864e5) });
         if (!cancelled && ref) setFamilyHeroImg(ref); // raw photoRef — the render builds the URL, the click passes it on (continuity)
       } catch (e) {}
     })();
@@ -5486,7 +5486,7 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
         const j = r.ok ? await r.json() : null;
         if (cancelled || !j || !Array.isArray(j.places)) return;
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150 });
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150, dayRotate: Math.floor(Date.now() / 864e5) + 2 });
         if (!cancelled && ref) setDateHeroImg(ref);
       } catch (e) {}
     })();
@@ -5501,14 +5501,20 @@ function PageInner({ initialEvents = null }) {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
+        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 12 });
         // >=1 real source until the owner's paid keys land (wikipedia pageviews
         // alone is a true attention signal); the fallback line only ever claims
         // what the source count can prove.
         const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
         // The owner's drive rule applies here too: rank order only.
         cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
-        const pick = cand[0] || null;
+        // DAY-ROTATE among the genuine top trending places — popularity levels
+        // barely move day to day, so picking cand[0] every day looked frozen
+        // (owner: "same card every day"). Every place in the pool is really
+        // trending; the date just decides which one leads today.
+        const pool = cand.slice(0, 8);
+        const daySeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
+        const pick = pool.length ? pool[((daySeed % pool.length) + pool.length) % pool.length] : null;
         if (cancelled) return;
         setBuzzPick(pick);
         setBuzzWhy(null);
@@ -5575,7 +5581,7 @@ function PageInner({ initialEvents = null }) {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
         const j = r.ok ? await r.json() : null;
         if (cancelled || !j || !Array.isArray(j.places)) return;
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000 });
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000, dayRotate: Math.floor(Date.now() / 864e5) + 4 });
         if (!cancelled && ref) setGemHeroImg(ref);
       } catch (e) {}
     })();
