@@ -4,7 +4,7 @@
 // Every number is the real metric (rating × review depth through the ONE
 // Bayesian formula); why-lines explain the rank, never invent sand or surf.
 // Live water conditions render client-side for the #1 beach only (compact).
-import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../../../lib/beaches";
+import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
 import { SITE_URL } from "../../../lib/site";
@@ -114,8 +114,7 @@ export default async function BeachesPage({ params }) {
   if (!meta) return <main style={{ background: C.bg, color: C.muted, minHeight: "100vh", padding: 40 }}>No such beach group.</main>;
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
-  const heroPhoto = BEACH_SHARE_PHOTO[params.metro];
-  const heroImg = heroPhoto ? "/api/photo?ref=" + encodeURIComponent(heroPhoto.photo_ref) + "&w=800" : null;
+  const heroImg = "/cards/beach-adobestock-216195684.jpeg";
 
   // Structured data (v6.55 SEO sweep) — same house pattern as lib/landing.js:
   // Breadcrumb + ItemList(Beach) + FAQ, every number the real metric or omitted.
@@ -144,7 +143,9 @@ export default async function BeachesPage({ params }) {
         {/* Owner: no logo box over the hero photo — the brand lives in the
             footer line and the share card. Just a quiet home link. */}
         <BackControl fallback="/" />
-        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 18, left: 0, right: 0, display: "block", maxWidth: 680, margin: "0 auto", padding: "0 20px", textAlign: "center", fontSize: 23, fontWeight: 800, color: "rgba(241,245,249,.95)", textDecoration: "none", textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>way<span style={{ position: "relative", display: "inline-block" }}>f<span style={{ position: "relative", display: "inline-block" }}>ı<span aria-hidden="true" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", top: "0.04em", width: "0.22em", height: "0.22em", borderRadius: "50%", background: "#F97316" }} /></span></span>nd</a>
+        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", display: "block", width: 118, height: 47, textDecoration: "none" }}>
+          <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+        </a>
         <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
           <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: C.gold }}>The definitive beach ranking</div>

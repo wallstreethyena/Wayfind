@@ -23,6 +23,7 @@ import * as Radius from "../lib/radius";
 import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
+import { usePlaceProduct } from "../lib/placeProduct";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -88,21 +89,10 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
-import { signalWeights as tasteSignals, applyLocalTaste } from "../lib/taste";
-import { blendTaste as tasteBlend, localToVector as tasteLocalToVector } from "../lib/taste";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
-import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
-import { cardAffiliateProvider } from "../lib/cardAffiliate";
-import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
-import { pickHomeExp } from "../lib/homeExpPick";
-import { rankReason } from "../lib/rankReason";
-import { siteTodayStr } from "../lib/siteTime";
-import { usePlaceProduct } from "../lib/placeProduct";
-import { saveItem as saveMonetized } from "../lib/savedItems";
-import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -136,7 +126,7 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 // param and reaches the DOM.
 function ticketUrl(url) {
   const s = safeUrl(url);
-  return s ? safeUrl(Aff.ticketOutUrl(s, "home")) : null;
+  return s ? safeUrl(Aff.ticketOutUrl(s)) : null;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
@@ -149,56 +139,10 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-// v6.61 (owner build order #7): coverage. Wayfind is live around three FL
-// metros; more than 75 mi from all of them we NEVER show another city's data —
-// we say so honestly and capture interest so coverage grows where users are.
-const WF_COVERAGE_METROS = [{ lat: 27.4, lng: -82.55 }, { lat: 27.85, lng: -82.6 }, { lat: 28.54, lng: -81.38 }];
-function milesBetween(a, b) {
-  const R = 3958.8, rad = (x) => (x * Math.PI) / 180;
-  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
-}
-function outOfCoverage(center) {
-  if (!center || !isFinite(center.lat)) return false; // unknown location -> let the normal feed try
-  return WF_COVERAGE_METROS.every((m) => milesBetween(center, m) > 75);
-}
-function CoverageWaitlist({ center, locName, C, supabase }) {
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState("idle"); // idle | saving | done | err
-  const city = (locName ? locName.split(",")[0] : "your area") || "your area";
-  const submit = async (e) => {
-    e.preventDefault();
-    const v = email.trim();
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setState("err"); return; }
-    setState("saving");
-    try {
-      if (supabase) { const { error } = await supabase.from("wf_waitlist").insert({ email: v, city, lat: center ? center.lat : null, lng: center ? center.lng : null }); if (error) throw error; }
-      setState("done");
-    } catch (er) { setState("err"); }
-  };
-  return (
-    <div style={{ textAlign: "center", padding: "40px 22px 60px", maxWidth: 460, margin: "0 auto" }}>
-      <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
-      <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Wayfind isn&apos;t live in {city} yet</div>
-      <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.55, margin: "0 0 18px" }}>We&apos;re built for the Gulf Coast and Orlando right now, and expanding. We won&apos;t show you another city&apos;s picks pretending they&apos;re yours — that&apos;s not how Wayfind works. Leave your email and we&apos;ll tell you the day {city} goes live.</p>
-      {state === "done" ? (
-        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.green }}>You&apos;re on the list. We&apos;ll be in touch when {city} is live. ✓</div>
-      ) : (
-        <form onSubmit={submit} style={{ display: "flex", gap: 8, maxWidth: 380, margin: "0 auto" }}>
-          <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); if (state === "err") setState("idle"); }} placeholder="you@email.com" aria-label="Email" style={{ flex: 1, minHeight: 44, borderRadius: 11, border: `1px solid ${state === "err" ? "#B33A2B" : C.border}`, background: C.card, color: C.text, fontSize: 15, padding: "0 14px" }} />
-          <button type="submit" disabled={state === "saving"} style={{ minHeight: 44, padding: "0 18px", borderRadius: 11, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>{state === "saving" ? "…" : "Notify me"}</button>
-        </form>
-      )}
-      {state === "err" ? <div style={{ fontSize: 12.5, color: "#E06A5A", marginTop: 8 }}>Enter a valid email and we&apos;ll add you.</div> : null}
-    </div>
-  );
-}
-
 function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
   const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
-    <div style={{ marginBottom: tight ? 10 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
+    <div style={{ marginBottom: tight ? 7 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
       {heading && (
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "2px 4px 10px" }}>
           <GlowPin size={22} />
@@ -209,8 +153,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
           <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={26} strokeWidth={1.4} />
-            <span style={{ fontSize: 11, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
+            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+            <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
           </button>
         ); })}
         {trailing || null}
@@ -219,7 +163,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ overflow: "hidden", maxHeight: (activeCat && subs.length > 1) ? 96 : 0, opacity: (activeCat && subs.length > 1) ? 1 : 0, transition: "max-height 0.34s cubic-bezier(.4,0,.2,1), opacity 0.26s ease" }}>
         <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 12, paddingTop: 12, display: "flex", gap: 6, flexWrap: "nowrap", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 2 }}>
           {subs.map((sf) => { const son = sub === sf.id; return (
-            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.light : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
+            <button key={sf.id} onClick={() => { onSub(sf.id); }} style={{ flexShrink: 0, padding: "8px 11px 10px", border: "none", background: "transparent", color: son ? C.accent : "#A9B4C7", fontSize: 12.5, fontWeight: son ? 800 : 600, letterSpacing: "0.1px", cursor: "pointer", whiteSpace: "nowrap", position: "relative" }}>
               {sf.label}
               {son ? <span style={{ position: "absolute", left: 11, right: 11, bottom: 4, height: 2.5, borderRadius: 2, background: C.accent }} /> : null}
             </button>
@@ -231,8 +175,8 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
 }
 // Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
 const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
-function FeaturedTag({ p }) {
-  if (!(featuredBoost(p) > 0)) return null;
+function FeaturedTag({ name }) {
+  if (!(featuredBoost(name) > 0)) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
 }
 function listShareUrl(key, title, n, loc, hk) {
@@ -361,7 +305,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -379,38 +323,11 @@ function originUrl(path) {
 // A stable, anonymous, per-device id (no personal data — just a random string)
 // used to attribute pooled engagement events and measure return visits. Created
 // once and kept in localStorage. Returns null if storage is unavailable.
-// Durable, first-party, anonymous device id. This is the LEGAL maximum of a
-// "persistent cookie": it recognizes a returning visitor and (via user_id on
-// signed-in events) links the device to their account — WITHOUT the illegal
-// parts of a zombie/supercookie. Specifically it uses ONLY standard first-party
-// storage (localStorage + a long-lived first-party cookie, mirrored for
-// reliability + server visibility) — never Flash/ETag/canvas/IndexedDB/cache
-// "evercookie" resurrection or fingerprinting — and it HONORS opt-out: with Do
-// Not Track or an explicit wf_optout flag the id is session-only (no
-// cross-session recognition), and a full "clear site data" removes both stores.
-// (Disclose this in the privacy policy — it's a functional/analytics identifier.)
-const WF_DID_MAXAGE = 2 * 365 * 24 * 3600; // 2 years — as durable as a first-party cookie legally gets
 function deviceId() {
   try {
     if (typeof window === "undefined") return null;
-    const newId = () => "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
-    const optedOut = navigator.doNotTrack === "1" || window.doNotTrack === "1" ||
-      (() => { try { return localStorage.getItem("wf_optout") === "1"; } catch { return false; } })();
-    if (optedOut) {
-      // Respect the signal: a per-session id only, never persisted → no
-      // cross-visit recognition for users who asked not to be tracked.
-      let s = null; try { s = sessionStorage.getItem("wf_device_s"); } catch (e) {}
-      if (!s) { s = newId(); try { sessionStorage.setItem("wf_device_s", s); } catch (e) {} }
-      return s;
-    }
-    const readCookie = () => { try { const m = document.cookie.match(/(?:^|;\s*)wf_device=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; } catch { return null; } };
-    const setCookie = (v) => { try { document.cookie = "wf_device=" + encodeURIComponent(v) + "; Max-Age=" + WF_DID_MAXAGE + "; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); } catch (e) {} };
-    let id = null;
-    try { id = localStorage.getItem("wf_device"); } catch (e) {}
-    if (!id) id = readCookie();          // survive a partial clear of one store
-    if (!id) id = newId();
-    try { localStorage.setItem("wf_device", id); } catch (e) {}
-    setCookie(id);                        // refresh the 2-year first-party cookie
+    let id = localStorage.getItem("wf_device");
+    if (!id) { id = "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("wf_device", id); }
     return id;
   } catch { return null; }
 }
@@ -711,43 +628,19 @@ const BEST_OF_SET = new Set(BEST_OF_NAMES.map(wfNorm));
 const LOCAL_FAVE_SET = new Set([...BEST_OF_NAMES, ...LOCAL_FAVE_EXTRA].map(wfNorm));
 const LOCAL_FAVE_KEYS = [...LOCAL_FAVE_SET];
 const _faveCache = new Map();
-// The metros Wayfind actually has first-party curated data for: the Sarasota /
-// Tampa Gulf-Coast cluster + Orlando (gems). Name-keyed picks / best-of / gems
-// apply ONLY to a place physically in one of these — a same-named place anywhere
-// else (a Denver "Chart House", a Greenville "Columbia Restaurant") must never
-// inherit a Florida badge, boost, or blurb. Fail-CLOSED: unknown coords => out.
-const FIRST_PARTY_ANCHORS = [
-  { lat: 27.336, lng: -82.531 }, // Sarasota
-  { lat: 27.498, lng: -82.575 }, // Bradenton / Anna Maria
-  { lat: 27.767, lng: -82.640 }, // St. Petersburg
-  { lat: 27.947, lng: -82.459 }, // Tampa / Ybor
-  { lat: 28.538, lng: -81.379 }, // Orlando (gems)
-];
-const FIRST_PARTY_RADIUS_MI = 55;
-function inCuratedRegion(p) {
-  if (!p || typeof p.lat !== "number" || typeof p.lng !== "number") return false;
-  for (const a of FIRST_PARTY_ANCHORS) {
-    const dLat = p.lat - a.lat, dLng = (p.lng - a.lng) * Math.cos((a.lat * Math.PI) / 180);
-    if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= FIRST_PARTY_RADIUS_MI) return true;
-  }
-  return false;
-}
-// faveTier takes the PLACE (needs coords to geo-gate). Raw name→tier is cached by
-// name; the region gate is applied per-place and NOT cached (a name is tier-2 in
-// Sarasota and tier-0 everywhere else). The old startsWith fuzzy branch is DROPPED
-// — it was the main false-positive source (generic names like "Columbia
-// Restaurant" / "Pier 22" colliding with unrelated venues nationwide).
-function faveTier(p) {
-  const name = typeof p === "string" ? p : p && p.name;
+function faveTier(name) {
   const n = wfNorm(name);
   if (!n) return 0;
-  if (p && typeof p === "object" && !inCuratedRegion(p)) return 0; // geo gate (per-place, uncached)
-  let tier = _faveCache.get(n);
-  if (tier == null) { tier = BEST_OF_SET.has(n) ? 2 : LOCAL_FAVE_SET.has(n) ? 1 : 0; _faveCache.set(n, tier); }
+  if (_faveCache.has(n)) return _faveCache.get(n);
+  let tier = 0;
+  if (BEST_OF_SET.has(n)) tier = 2;
+  else if (LOCAL_FAVE_SET.has(n)) tier = 1;
+  else { for (const k of LOCAL_FAVE_KEYS) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) { tier = BEST_OF_SET.has(k) ? 2 : 1; break; } } }
+  _faveCache.set(n, tier);
   return tier;
 }
-const isLocalFave = (p) => faveTier(p) >= 1;
-const isBestOf = (p) => faveTier(p) === 2;
+const isLocalFave = (name) => faveTier(name) >= 1;
+const isBestOf = (name) => faveTier(name) === 2;
 
 // Owner-curated featured boost. Places listed here get a ranking lift so they
 // surface prominently for everyone. Keyed by normalized name -> points added to
@@ -949,7 +842,7 @@ function communityBoost(p) {
 }
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
-const curatedFor = (p) => (p && inCuratedRegion(p) ? CURATED_BY_NAME.get(_wfNorm(p.name)) : undefined);
+const curatedFor = (p) => CURATED_BY_NAME.get(_wfNorm(p && p.name));
 // v4.83: curated picks stay injectable out to 45 mi even though lists open at
 // the 17-mi default — the owner's promise is that tagged picks always compete,
 // and every card labels its distance so nothing is hidden.
@@ -972,16 +865,11 @@ const ADAPT_MIN = 8;
 // to remove or retune, change VIDEO_BOOST or delete hasCreatorVideo at its call sites.
 const VIDEO_BOOST = 45; // clears the 30-pt max distance penalty and lifts a featured place near the top
 function hasCreatorVideo(p) { try { return creatorVideosFor(p).length > 0; } catch (e) { return false; } }
-// featuredBoost takes the PLACE (needs coords to geo-gate). WAYFIND_FEATURED +
-// gems are first-party FL data; a same-named place outside the curated region
-// never inherits the boost. The startsWith fuzzy branch is DROPPED (false
-// positives). Bare-string callers (none remain) simply skip the gate.
-function featuredBoost(p) {
-  const name = typeof p === "string" ? p : p && p.name;
+function featuredBoost(name) {
   const n = wfNorm(name);
   if (!n) return 0;
-  if (p && typeof p === "object" && !inCuratedRegion(p)) return 0; // geo gate
   if (WAYFIND_FEATURED[n] != null) return WAYFIND_FEATURED[n];
+  for (const k in WAYFIND_FEATURED) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_FEATURED[k]; }
   const _g = Gems.gemFor(name); if (_g) return (_g.boost != null ? _g.boost : 2); // gems nudge, never override earned rank
   return 0;
 }
@@ -1082,8 +970,8 @@ const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
-  featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p) > 0 },
-  bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p) },
+  featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
+  bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
   rooftop:   { icon: "🌆", label: "Rooftop",         title: "Rooftop Spots",    cat: "nightlife", keyword: "rooftop", lead: "Drinks and a view from up top." },
   romantic:  { icon: "💕", label: "Romantic",        title: "Date Night",       cat: "food",      keyword: "romantic restaurant", lead: "Low light, good wine, and a table for two." },
@@ -1217,8 +1105,8 @@ function experienceBadges(p, selectedKey, max, audit) {
   if (p.rating >= 4.6 && p.reviews >= 800) q.add("localfav");
   if (p.rating >= 4.5 && p.reviews >= 2500) q.add("localfav");
   // v6.22: curated local favorites also earn the badge, matched by name (see faveTier). Editorially recognized ones get "bestof".
-  if (isLocalFave(p)) q.add("localfav");
-  if (isBestOf(p)) q.add("bestof");
+  if (isLocalFave(p.name)) q.add("localfav");
+  if (isBestOf(p.name)) q.add("bestof");
   if (p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 800) q.add("gem");
   if (p.rating >= 4.2 && p.priceNum != null && p.priceNum <= 2) q.add("value");
 
@@ -1362,11 +1250,11 @@ function RadiusSlider({ mi, onChange, where, max = 30 }) {
     <div style={{ padding: "11px 14px 12px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14 }}>
       <style>{`.wf-radius{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;outline:none;margin:4px 0 2px;cursor:pointer}
 .wf-radius::-webkit-slider-runnable-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
-.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(148,163,184,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
+.wf-radius::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer;margin-top:-10px}
 .wf-radius::-moz-range-track{height:7px;border-radius:999px;background:linear-gradient(90deg,#FB923C 0%,#F97316 var(--wfp),#2D3748 var(--wfp))}
-.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(148,163,184,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`}</style>
+.wf-radius::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#FFD9B3,#F97316 68%);border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(249,115,22,.22),0 3px 10px rgba(0,0,0,.5);cursor:pointer}`}</style>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.light, fontSize: 17 }}>{mi} mi</span></div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Within <span style={{ color: C.accent, fontSize: 17 }}>{mi} mi</span></div>
         <div style={{ fontSize: 11.5, color: C.muted }}>of {where}</div>
       </div>
       <input type="range" min={1} max={max} step={1} value={mi} onChange={(e) => onChange(Number(e.target.value))} className="wf-radius" style={{ "--wfp": pct + "%" }} aria-label="Search distance in miles" />
@@ -1489,7 +1377,7 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
   const current = (OPTIONS.find(([k]) => k === sortBy) || OPTIONS[0])[1];
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
-      <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.light : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
+      <div onClick={(e) => { e.stopPropagation(); setOpenMenu((o) => !o); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "inline-flex", alignItems: "center", gap: 7, background: C.card, border: `1px solid ${openMenu ? C.accent : C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: "8px 14px" }}>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         <span>{sortBy === "near" && mi ? `Within ${mi} mi` : current}</span>
         <span style={{ fontSize: 9, color: C.muted, transform: openMenu ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"\u25BC"}</span>
@@ -1500,14 +1388,14 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
           <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 40, width: 292, background: "#161B22", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 44px rgba(0,0,0,.55)", padding: 10 }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: "1px", color: C.muted, textTransform: "uppercase", padding: "4px 8px 6px" }}>Sort by</div>
             {OPTIONS.map(([k, lb]) => (
-              <div key={k} onClick={() => { onSort(k); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer", background: sortBy === k ? "rgba(148,163,184,.12)" : "transparent" }}>
-                <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${sortBy === k ? C.light : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sortBy === k ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
+              <div key={k} onClick={() => { onSort(k); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer", background: sortBy === k ? "rgba(249,115,22,.12)" : "transparent" }}>
+                <span style={{ width: 17, height: 17, borderRadius: "50%", border: `2px solid ${sortBy === k ? C.accent : C.border}`, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{sortBy === k ? <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.accent }} /> : null}</span>
                 <span style={{ fontSize: 13.5, fontWeight: sortBy === k ? 800 : 600, color: sortBy === k ? C.text : C.light }}>{lb}</span>
               </div>
             ))}
             {dealsAvailable ? (
               <div onClick={() => onDeals && onDeals(!dealsOnly)} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 8px", borderRadius: 10, cursor: "pointer" }}>
-                <span style={{ width: 17, height: 17, borderRadius: 5, border: `2px solid ${dealsOnly ? C.light : C.border}`, background: dealsOnly ? C.light : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#0D1117", fontSize: 11, fontWeight: 900 }}>{dealsOnly ? "\u2713" : ""}</span>
+                <span style={{ width: 17, height: 17, borderRadius: 5, border: `2px solid ${dealsOnly ? C.accent : C.border}`, background: dealsOnly ? C.accent : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#0D1117", fontSize: 11, fontWeight: 900 }}>{dealsOnly ? "\u2713" : ""}</span>
                 <span style={{ fontSize: 13.5, fontWeight: 600, color: C.light }}>Deals only</span>
               </div>
             ) : null}
@@ -1590,9 +1478,9 @@ function StateBadge({ code, size }) {
   const sz = size || 48;
   const has = code && code.length === 2;
   return (
-    <div style={{ width: sz, height: sz, borderRadius: sz > 34 ? 12 : 8, background: C.adim, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+    <div style={{ width: sz, height: sz, borderRadius: sz > 34 ? 12 : 8, background: C.adim, border: `1px solid ${C.accent}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
       {has
-        ? <span style={{ fontSize: Math.round(sz * 0.36), fontWeight: 800, letterSpacing: "0.5px", color: C.light }}>{code}</span>
+        ? <span style={{ fontSize: Math.round(sz * 0.36), fontWeight: 800, letterSpacing: "0.5px", color: C.accent }}>{code}</span>
         : <span style={{ fontSize: Math.round(sz * 0.42) }}>📍</span>}
     </div>
   );
@@ -1990,7 +1878,7 @@ function eventCategory(e) {
   const t = ((e && e.name) || "").toLowerCase();
   const has = (re) => re.test(t);
   if (has(/\b(wine|beer|brewery|cocktail|happy hour|pub|tap ?room|tasting|spirits|nightlife|club|dj|martini)\b/)) return { icon: "🍷", iconName: "glass", short: "Nightlife", color: "#F472B6" };
-  if (has(/\b(food|truck|taste|culinary|bbq|brunch|dinner|chef|eats|dining|feast|pizza|seafood)\b/)) return { icon: "🍔", iconName: "utensils", short: "Food", color: "#CBD5E1" };
+  if (has(/\b(food|truck|taste|culinary|bbq|brunch|dinner|chef|eats|dining|feast|pizza|seafood)\b/)) return { icon: "🍔", iconName: "utensils", short: "Food", color: "#F97316" };
   if (has(/\b(trail|park|hike|outdoor|cleanup|clean-up|workday|garden|nature|beach|kayak|paddle|fishing)\b/)) return { icon: "🌳", iconName: "leaf", short: "Outdoors", color: "#22C55E" };
   if (has(/\b(market|farmers|craft|vendor|flea|bazaar|artisan|swap)\b/)) return { icon: "🛒", iconName: "cart", short: "Market", color: "#2DD4BF" };
   if (has(/\b(kids|family|children|child|story ?time|teen)\b/)) return { icon: "👪", iconName: "users", short: "Family", color: "#22C55E" };
@@ -2018,7 +1906,7 @@ function EventHeroBg({ image, acc, venue, near }) {
     // Budget guardrail: at most 12 venue-photo lookups per device per day. Past
     // the cap we cache "none" and fall back to the gradient instead of spending.
     try {
-      const bk = "wf_evimg_budget_" + siteTodayStr(); // ET day, not UTC (resets at local midnight, not 8 PM ET)
+      const bk = "wf_evimg_budget_" + new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
       const n = parseInt(localStorage.getItem(bk) || "0", 10) || 0;
       if (n >= 12) { try { localStorage.setItem(key, JSON.stringify({ ts: Date.now(), url: "", by: "" })); } catch (e) {} setAlt(""); return; }
       localStorage.setItem(bk, String(n + 1));
@@ -2053,14 +1941,14 @@ function Logo({ size = 26 }) {
         </filter>
       </defs>
       <g filter="url(#wfglow)">
-        <path d="M48 5 C26 5 9 22 9 44 C9 70 48 118 48 118 C48 118 87 70 87 44 C87 22 70 5 48 5 Z" fill="#0D1117" stroke="#CBD5E1" strokeWidth="2.5" />
-        <rect x="31" y="32" width="34" height="18" rx="3" fill="#CBD5E1" />
-        <rect x="41" y="26" width="14" height="7" rx="2" fill="#CBD5E1" />
+        <path d="M48 5 C26 5 9 22 9 44 C9 70 48 118 48 118 C48 118 87 70 87 44 C87 22 70 5 48 5 Z" fill="#0D1117" stroke="#F97316" strokeWidth="2.5" />
+        <rect x="31" y="32" width="34" height="18" rx="3" fill="#F97316" />
+        <rect x="41" y="26" width="14" height="7" rx="2" fill="#F97316" />
         <rect x="36.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
         <rect x="52.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
-        <rect x="34" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
-        <rect x="45" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
-        <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
+        <rect x="34" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+        <rect x="45" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+        <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
       </g>
     </svg>
   );
@@ -2069,13 +1957,13 @@ function Logo({ size = 26 }) {
 function Critter({ size = 26 }) {
   return (
     <svg width={size} height={Math.round((size * 38) / 40)} viewBox="28 22 40 38" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: "block" }}>
-      <rect x="31" y="32" width="34" height="18" rx="3" fill="#CBD5E1" />
-      <rect x="41" y="26" width="14" height="7" rx="2" fill="#CBD5E1" />
+      <rect x="31" y="32" width="34" height="18" rx="3" fill="#F97316" />
+      <rect x="41" y="26" width="14" height="7" rx="2" fill="#F97316" />
       <rect x="36.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
       <rect x="52.5" y="37.5" width="7" height="8" rx="1.5" fill="#0D1117" />
-      <rect x="34" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
-      <rect x="45" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
-      <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#CBD5E1" />
+      <rect x="34" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+      <rect x="45" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
+      <rect x="56" y="50" width="6" height="6" rx="1.5" fill="#F97316" />
     </svg>
   );
 }
@@ -2260,14 +2148,91 @@ function renderHookText(text, highlightWord, color) {
 // EV_RAIL_MIN_H), so the skeleton -> events swap changes no layout and adds no
 // CLS. The heading is real text, not a grey box, so the section announces what
 // is coming instead of looking broken.
+function DiscoveryHeroCard() {
+  return (
+    <article
+      className="wf-discovery-visual wf-discovery-hero-card"
+      aria-label="Know what is around you"
+      style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start" }}
+    >
+      <img src="/brand/wayfind-default-hero-adobestock-289023289.jpeg" alt="" loading="eager" fetchPriority="high" />
+      <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
+        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
+        <div className="wf-discovery-title">Know what is around you.</div>
+        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
+      </div>
+    </article>
+  );
+}
+
+function HeroRail({ children }) {
+  const railRef = useRef(null);
+  const slide = (direction) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * 0.93), behavior: "smooth" });
+  };
+  return (
+    <div style={{ position: "relative", marginBottom: 10 }}>
+      <div ref={railRef} className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+        {children}
+      </div>
+      <div style={{ position: "absolute", right: 11, bottom: 11, zIndex: 5, display: "flex", gap: 7 }}>
+        <button type="button" onClick={() => slide(-1)} aria-label="Previous featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>‹</button>
+        <button type="button" onClick={() => slide(1)} aria-label="Next featured card" style={{ width: 34, height: 34, borderRadius: 999, border: "1px solid rgba(255,255,255,.35)", background: "rgba(5,10,18,.72)", color: "#fff", fontSize: 18, fontWeight: 800, lineHeight: 1, cursor: "pointer", backdropFilter: "blur(6px)" }}>›</button>
+      </div>
+    </div>
+  );
+}
+
+function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, title, subtitle, ariaLabel, onOpen }) {
+  return (
+    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+      <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${badgeColor}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+        {navIcon ? <NavIcon name={icon} size={12} strokeWidth={2} color={badgeColor} /> : <Icon name={icon} size={12} color={badgeColor} />}<span style={{ fontSize: 10.5, fontWeight: 800, color: badgeColor, letterSpacing: "0.4px", textTransform: "uppercase" }}>{badge}</span>
+      </div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 92px 14px 14px" }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{title}</div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{subtitle}</div>
+      </div>
+    </div>
+  );
+}
+
+function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonight, onDrive, onBudget, onSurprise }) {
+  return (
+    <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9, marginBottom: 12 }}>
+      {[
+        ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
+        ["gem", "Hidden gems", onGems],
+        ["users", "Family favorites", onFamily],
+        ["heart", "Date night ideas", onDateNight],
+        ["ticket", "Perfect for tonight", onTonight],
+        ["car", "Worth the drive", onDrive],
+        ["wallet", "Big fun, small budget", onBudget],
+        ["dice", "Surprise me", onSurprise],
+      ].map(([ic, lbl, go]) => (
+        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer", lineHeight: 1.12, minHeight: 42 }}>
+          <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function EventsRailSkeleton() {
   return (
-    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Finding events near you">
+    <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Loading more things near you">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
       </div>
-      <div className="wf-sk" aria-hidden="true" style={{ height: EV_HERO_H, borderRadius: 18, marginBottom: 10 }} />
+      <HeroRail>
+        <DiscoveryHeroCard />
+        <div className="wf-sk" aria-hidden="true" style={{ flexShrink: 0, width: "93%", height: EV_HERO_H, borderRadius: 18, scrollSnapAlign: "start" }} />
+      </HeroRail>
       <div aria-hidden="true" style={{ display: "flex", gap: 8, minHeight: EV_RAIL_MIN_H, paddingBottom: 4, overflow: "hidden" }}>
         {[0, 1, 2].map((i) => (
           <div key={i} className="wf-sk" style={{ width: 150, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
@@ -2287,7 +2252,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
   return (
     <div style={{ margin: "0 -12px 14px", paddingLeft: 12 }}>
       {totalLiked > 0 && (
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.light, marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8, display: "flex", alignItems: "center", gap: 5 }}>
           <span>❤️</span>
           <span>{totalLiked} tip{totalLiked === 1 ? "" : "s"} saved</span>
         </div>
@@ -2590,8 +2555,7 @@ function calmReason(p) {
   for (let i = 0; i < s.length; i++) seed = (seed * 31 + s.charCodeAt(i)) >>> 0;
   const pick = (arr) => arr[seed % arr.length];
   let lead;
-  if (r != null && r >= 4.6 && n >= 1000) lead = pick(["Highly rated, thousands of reviews", "Top rated, loved by thousands"]);
-  else if (r != null && r >= 4.6 && n >= 300) lead = pick(["Highly rated, hundreds of reviews", "Top rated, hundreds of reviews"]);
+  if (r != null && r >= 4.6 && n >= 300) lead = pick(["Highly rated, thousands of reviews", "Top rated, loved by thousands"]);
   else if (r != null && r >= 4.5 && n >= 100) lead = pick(["Highly rated with strong reviews", "Consistently rated, well reviewed"]);
   else if (r != null && r >= 4.4 && n > 0 && n < 100) lead = pick(["A quiet, well rated find", "An under the radar favorite"]);
   else if (r != null && r >= 4.2) lead = pick(["A solid, well rated pick", "A dependable nearby pick"]);
@@ -2919,9 +2883,8 @@ function PageInner({ initialEvents = null }) {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
-  // A1: persist the app's RESOLVED location (gated on a real locName, so the
-  // initial default is never written) so direct-entry surfaces like /order-in
-  // inherit the SAME metro instead of re-geolocating or defaulting to Orlando.
+  // A1: persist the app's resolved location, including whether it came from
+  // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
     try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
@@ -3035,33 +2998,10 @@ function PageInner({ initialEvents = null }) {
       } catch (e) {}
     }
   }, [detail]);
-  // v6.53 (owner): the family hero card wears the area's own most
-  // captivating photo — the top proven family place's picture (rating x
-  // depth heuristic), never stock art unless nothing qualifies yet.
-  const [familyHeroImg, setFamilyHeroImg] = useState(null);
-  const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
-  const [homeExp, setHomeExp] = useState(null); // v6.61 #3: one bookable card near the homepage top
-  // Hour bucket — re-evaluated every 20 min and whenever the tab regains focus,
-  // so the "Make a day of it" pick refreshes with the time of day instead of
-  // staying frozen on last night's choice (owner report).
-  const [todBucket, setTodBucket] = useState(0);
-  useEffect(() => {
-    const tick = () => setTodBucket((x) => x + 1);
-    const id = setInterval(tick, 20 * 60 * 1000);
-    const onVis = () => { try { if (document.visibilityState === "visible") tick(); } catch (e) {} };
-    try { document.addEventListener("visibilitychange", onVis); } catch (e) {}
-    return () => { clearInterval(id); try { document.removeEventListener("visibilitychange", onVis); } catch (e) {} };
-  }, []);
   // v6.56 Buzz hero (owner): trending near you from REAL tier-2 popularity.
   // No popularity rows yet -> buzzPick stays null -> the slide simply absent.
-  const [dateHeroImg, setDateHeroImg] = useState(null); // raw photoRef — render builds URL, click passes it on (continuity)
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
-  // Coverage gate (STEP 3): the server decides — live (show results) / unlock
-  // (signed-in, offer to open the city) / alert (waitlist). null = unknown →
-  // we optimistically show the feed (the covered-market default).
-  const [gateStatus, setGateStatus] = useState(null);
-  const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [suggested, setSuggested] = useState(null);
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
@@ -3112,24 +3052,16 @@ function PageInner({ initialEvents = null }) {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState("⭐");
   const manualRef = useRef(false);
-  // Restore a SEARCHED location across remounts (e.g. tapping a hero-card page
-  // then Back re-mounts Home). Without this, manualRef resets to false on mount
-  // and the geolocation effect overrides the searched city with the device
-  // location — forcing the user to re-search. We only restore a MANUAL search
-  // (not a passive device center) and only if recent (<6h), then mark manualRef
-  // so geolocation stands down. Runs once, synchronously before GPS resolves.
   useEffect(() => {
     try {
       const raw = localStorage.getItem("wf_center");
-      if (!raw) return;
-      const c = JSON.parse(raw);
+      const c = raw ? JSON.parse(raw) : null;
       if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
         manualRef.current = true;
         setCenter({ lat: c.lat, lng: c.lng });
         if (c.loc) setLocName(c.loc);
       }
     } catch (e) {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Hook state — declared before hookCards memo to avoid temporal dead zone.
   const [aiHooks, setAiHooks] = useState(null);
@@ -3145,7 +3077,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3223,7 +3155,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
-        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -3516,56 +3448,6 @@ function PageInner({ initialEvents = null }) {
   const [pwSaving, setPwSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false); // account menu popover
-  // THE TASTE LOOP — Phase 2/3 (owner). Consent-gated personalization + control.
-  const [personalize, setPersonalize] = useState(null); // 'on' | 'off' | null(unasked)
-  const [tasteOpen, setTasteOpen] = useState(false);
-  const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
-  const tasteVecRef = useRef({});                        // durable per-user vector
-  const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
-
-  // Consent is remembered; the durable vector loads per user/session (not per
-  // action — the session signals give instant feel; this is the slow layer).
-  useEffect(() => { try { const c = localStorage.getItem("wf_personalize"); if (c === "on" || c === "off") setPersonalize(c); } catch (e) {} }, []);
-  useEffect(() => {
-    let dead = false;
-    (async () => {
-      let vec = {};
-      try {
-        if (supabase && user) {
-          const { data } = await supabase.from("wf_taste").select("dimension,value,weight,updated_at");
-          vec = tasteBlend((data || []).map((r) => ({ dimension: r.dimension, value: r.value, weight: r.weight, updated_at: new Date(r.updated_at).getTime() })), Date.now());
-        } else {
-          vec = tasteLocalToVector(JSON.parse(localStorage.getItem("wf_taste_local") || "null"), Date.now());
-        }
-      } catch (e) {}
-      if (!dead) { tasteVecRef.current = vec; setTasteVecState(vec); }
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, tasteVer]);
-  function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
-  async function forgetTasteItem(dim, val) {
-    try {
-      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
-      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
-    } catch (e) {}
-    setTasteVer((n) => n + 1);
-  }
-  async function resetTaste() {
-    try {
-      if (supabase && user) { await supabase.rpc("wf_taste_wipe"); }
-      localStorage.removeItem("wf_taste_local");
-    } catch (e) {}
-    setConsent("off"); setTasteVer((n) => n + 1);
-  }
-  function exportTaste() {
-    try {
-      const vec = tasteVecRef.current || {};
-      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
-      try { logEvent("taste_export"); } catch (e) {}
-    } catch (e) {}
-  }
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -3609,14 +3491,6 @@ function PageInner({ initialEvents = null }) {
     setAuthOpen(true);
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
-  }
-
-  // Save a monetized non-place card (Viator experience / UT deal) to
-  // wf_saved_items (Saved tab reads it). Signed-in only — prompts otherwise.
-  async function saveMonetizedItem(item) {
-    if (!requireAuth("Sign in to save this and find it later on any device.")) return;
-    const okv = await saveMonetized(user.id, item);
-    showToast(okv ? "Saved to your list" : "Could not save — try again");
   }
 
   // v5.61 (audit P0): landing on a personal screen (Favorites/Itinerary) while
@@ -3944,7 +3818,12 @@ function PageInner({ initialEvents = null }) {
   function openExpSheet(key) {
     const e = EXPERIENCES[key]; if (!e) return;
     const m = revenueExpMeta(key, cityNow) || {};
-    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, places: null });
+    const heroImage = key === "gem"
+      ? "/cards/hidden-gems-adobestock-321810820.jpeg"
+      : key === "entertainment"
+        ? "/cards/trending-near-you-adobestock-434128766.jpeg"
+        : null;
+    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage, places: null });
     try { window.scrollTo(0, 0); } catch {}
   }
   function openMoment(sel) {
@@ -4141,25 +4020,6 @@ function PageInner({ initialEvents = null }) {
     const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
     setSignals(next);
     saveSignals(next);
-    recordTaste(action, p);
-  }
-
-  // THE TASTE MODEL (owner, 2026-07-22) — Phase 1: LEARN ONLY, no ranking change.
-  // Projects an explicit signal into a decayed, PER-USER preference vector.
-  // Always updates the first-party local vector (legal, respects deletion);
-  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
-  // never pooled, never another user's). 'open' is local-only (mild + high
-  // volume); the strong verbs persist. Never touches the Wayfind Score.
-  function recordTaste(action, p) {
-    try {
-      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
-      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
-      const sig = tasteSignals(action, place);
-      if (!sig.length) return;
-      const now = Date.now();
-      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
-      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
-    } catch (e) {}
   }
   // Pooled, anonymous engagement log. One fire-and-forget row per action into a
   // shared Supabase "events" table — this is the proprietary signal Google can't
@@ -4249,7 +4109,6 @@ function PageInner({ initialEvents = null }) {
   function addShared(p) {
     if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
-    try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
@@ -4991,7 +4850,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -5403,7 +5262,7 @@ function PageInner({ initialEvents = null }) {
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
         let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -5455,45 +5314,6 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
-  // v6.53: one lazy fetch for the family card photo (top family place by
-  // rating x review depth from our guarded search; fail-soft to brand art).
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("family theme park attractions things to do kids") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=attractions");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        // people-free hero (owner: no human faces on cards) — heroRefFromPlaces
-        // ranks by our quality floor then vision-picks the best face-free shot.
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.5, minReviews: 500, dayRotate: Math.floor(Date.now() / 864e5) });
-        if (!cancelled && ref) setFamilyHeroImg(ref); // raw photoRef — the render builds the URL, the click passes it on (continuity)
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // v6.58 (owner): the date-night card wears the area's best date-worthy
-  // photo — same floor the date-night list rides on (4.4/150+), art only as
-  // fallback. One lazy fetch per center, identical shape to the family card.
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150, dayRotate: Math.floor(Date.now() / 864e5) + 2 });
-        if (!cancelled && ref) setDateHeroImg(ref);
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
   // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
   // gating: only renders with >=2 real signal sources and a photo.
   useEffect(() => {
@@ -5501,20 +5321,11 @@ function PageInner({ initialEvents = null }) {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 12 });
-        // >=1 real source until the owner's paid keys land (wikipedia pageviews
-        // alone is a true attention signal); the fallback line only ever claims
-        // what the source count can prove.
-        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
+        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
+        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 2);
         // The owner's drive rule applies here too: rank order only.
         cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
-        // DAY-ROTATE among the genuine top trending places — popularity levels
-        // barely move day to day, so picking cand[0] every day looked frozen
-        // (owner: "same card every day"). Every place in the pool is really
-        // trending; the date just decides which one leads today.
-        const pool = cand.slice(0, 8);
-        const daySeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
-        const pick = pool.length ? pool[((daySeed % pool.length) + pool.length) % pool.length] : null;
+        const pick = cand[0] || null;
         if (cancelled) return;
         setBuzzPick(pick);
         setBuzzWhy(null);
@@ -5531,85 +5342,6 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
-  // Coverage gate: ask the server whether this location is live / unlock / alert.
-  // One RPC; the result drives whether the feed or the CityGate door renders.
-  useEffect(() => {
-    if (screen !== "suggested" || !center || !supabase) { setGateStatus(null); return; }
-    let dead = false;
-    supabase.rpc("wf_gate_status", { p_lat: center.lat, p_lng: center.lng, p_user_id: (user && user.id) || null })
-      .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, user, gateBump]);
-
-  // Auto-fill coverage for ANY uncovered location (owner: works for the user's
-  // searched OR default location — no tap, signed in or not). When the gate says
-  // this place isn't covered, kick /api/city/unlock ONCE per location cell; it
-  // pulls Google + Viator server-side, then we re-check so the door gives way to
-  // real content and a real "Things to do" rail. Cost is bounded server-side
-  // (per-city 90-day dedup + global hourly cap + same-origin guard).
-  const autoUnlockRef = useRef(new Set());
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    if (gateStatus !== "unlock" && gateStatus !== "alert") return;
-    const cell = center.lat.toFixed(2) + "," + center.lng.toFixed(2);
-    if (autoUnlockRef.current.has(cell)) return; // one attempt per location per session
-    autoUnlockRef.current.add(cell);
-    let dead = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/city/unlock", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName || "" }),
-        });
-        const j = r.ok ? await r.json() : null;
-        if (!dead && j && (j.status === "live" || j.added > 0 || j.experiences > 0)) setGateBump((x) => x + 1);
-      } catch (e) {}
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, gateStatus]);
-
-  // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
-  // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
-        const j = r.ok ? await r.json() : null;
-        if (cancelled || !j || !Array.isArray(j.places)) return;
-        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000, dayRotate: Math.floor(Date.now() / 864e5) + 4 });
-        if (!cancelled && ref) setGemHeroImg(ref);
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center]);
-
-  // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
-  // traffic surface had no bookable inventory. Top selling-out (else top-
-  // reviewed) experience for the area; product_url rendered VERBATIM (pid).
-  useEffect(() => {
-    if (screen !== "suggested" || !center) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
-        const r = await fetch("/api/experiences?" + q.toString());
-        const j = r.ok ? await r.json() : null;
-        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
-        // HOUR-AWARE + rotated: never a night activity in the morning; changes
-        // through the day (see lib/homeExpPick). Was a static top-selling-out pick.
-        if (!cancelled) setHomeExp(pickHomeExp(items));
-      } catch (e) { if (!cancelled) setHomeExp(null); }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, center, todBucket]);
-
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   useEffect(() => {
@@ -5625,13 +5357,8 @@ function PageInner({ initialEvents = null }) {
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
         // owner: the BEST beach, regardless of distance — the ONE shared
-        // ranking (lib/beaches rankBeaches), identical to /best-beaches. DAY-ROTATE
-        // among the top few so the beach hero changes daily (owner: no frozen
-        // hero cards) — all are top-ranked beaches, so it's variety, not a drop.
-        const rankedB = rankBeaches(rows);
-        const bPool = rankedB.slice(0, 5);
-        const bSeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
-        setBestBeach(bPool.length ? bPool[((bSeed % bPool.length) + bPool.length) % bPool.length] : null);
+        // ranking (lib/beaches rankBeaches), identical to /best-beaches.
+        setBestBeach(rankBeaches(rows)[0] || null);
       } catch (e) { if (!cancelled) setBestBeach(null); }
     })();
     return () => { cancelled = true; };
@@ -6069,6 +5796,12 @@ function PageInner({ initialEvents = null }) {
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
   }
 
+  function clearSearchedLocation() {
+    manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
+    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); }
+    setLocName("");
+  }
+
   async function submitSearch(qOverride, opts) {
     try { logEvent("search", null, { q: String(query || "").slice(0, 80) }); } catch (e) {}
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
@@ -6171,7 +5904,6 @@ function PageInner({ initialEvents = null }) {
     setLists((prev) => {
       const f = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
       const h = f.places.some((x) => x.id === p.id);
-      if (!h) { try { recordSignal(p, "save"); } catch (e) {} }
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
@@ -6309,7 +6041,7 @@ function PageInner({ initialEvents = null }) {
             <h2 style={{ color: C.text, margin: "0 0 8px" }}>Almost there</h2>
             <p style={{ color: C.light, maxWidth: 360, lineHeight: 1.6 }}>
               Add your Google Maps API key as an environment variable named{" "}
-              <code style={{ color: C.light }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
+              <code style={{ color: C.accent }}>NEXT_PUBLIC_GOOGLE_MAPS_KEY</code> in Vercel, then redeploy.
             </p>
           </div>
         </div>
@@ -6342,7 +6074,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -6391,12 +6123,12 @@ function PageInner({ initialEvents = null }) {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
               <div style={{ fontSize: 12.5, color: C.muted }}>
                 {view.length} result{view.length === 1 ? "" : "s"} ·{" "}
-                <span style={{ color: C.light, fontWeight: 700 }}>
+                <span style={{ color: C.accent, fontWeight: 700 }}>
                   {sortBy === "near" ? "nearest first" : sortBy === "rated" ? "Wayfind Score, best to worst" : "ranked by fit"}
                 </span>
               </div>
               {searchLabel && (
-                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {} if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); reverseGeocode(deviceLoc.lat, deviceLoc.lng).then((nm) => nm && setLocName(nm), () => {}); } }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+                <button onClick={() => { setSearchMode(false); setSearchLabel(""); setSortBy("near"); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
               )}
             </div>
           </>
@@ -6410,20 +6142,20 @@ function PageInner({ initialEvents = null }) {
         </div>
       )}
       {exHero && (
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.light, margin: "2px 2px 8px" }}>Best move right now</div>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 0.7, textTransform: "uppercase", color: C.accent, margin: "2px 2px 8px" }}>Best move right now</div>
       )}
       {exHero && (() => {
         const open = liveOpen(exHero);
         const badgeIcon = open === true ? "✨" : "📍";
         const badgeText = open === true ? "Open now · top pick" : "Top pick nearby";
         return (
-          <div style={{ marginBottom: 16, border: `1.5px solid ${C.border}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
+          <div style={{ marginBottom: 16, border: `1.5px solid ${C.accent}`, borderRadius: 18, overflow: "hidden", background: `linear-gradient(160deg, rgba(255,150,70,.10) 0%, ${C.card} 60%)`, boxShadow: "0 6px 24px rgba(0,0,0,.35)" }}>
             <div onClick={() => openDetail(exHero)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${exHero.name || "featured place"}`} style={{ cursor: "pointer" }}>
               <div style={{ position: "relative" }}>
                 <FallbackImg src={exHero.photo} icon="📍" style={{ width: "100%", height: 185, objectFit: "cover", display: "block" }} />
-                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.border}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
+                <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.62)", border: `1px solid ${C.accent}80`, borderRadius: 999, padding: "5px 11px", backdropFilter: "blur(4px)" }}>
                   <span style={{ fontSize: 12 }}>{badgeIcon}</span>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: C.accent, textTransform: "uppercase", letterSpacing: "0.7px" }}>{badgeText}</span>
                 </div>
               </div>
               <div style={{ padding: 16 }}>
@@ -6437,13 +6169,13 @@ function PageInner({ initialEvents = null }) {
                   {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
                   {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
                 </div>
-                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.light, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
+                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
               </div>
             </div>
           </div>
         );
       })()}
-      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.light, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
+      {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
       {!loading && !err && view.length === 0 && (
         <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
@@ -6471,7 +6203,7 @@ function PageInner({ initialEvents = null }) {
       {!loading && restView.length > visibleCount && (
         <div style={{ padding: "2px 2px 10px" }}>
           <div style={{ height: 1, background: C.border, margin: "0 0 12px" }} />
-          <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(148,163,184,.4)" }}>
+          <button onClick={() => setVisibleCount((c) => c + 5)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, height: 50, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>
             Wayfind 5 more spots
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}><path d="M5 12h13M13 6l6 6-6 6" /></svg>
           </button>
@@ -6546,7 +6278,7 @@ function PageInner({ initialEvents = null }) {
             {/* THE LOGO (owner, 2026-07-22): the OFFICIAL asset, not a text lookalike.
                 Allowed here because the header background IS the logo's baked
                 #040810 — the one placement the brand rule sanctions in-app. */}
-            <img className="wf-wordmark" src="/brand/wayfind-logo-header.png" alt="wayfind" onClick={openSuggested} style={{ height: 64, maxWidth: "48vw", width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
+            <img className="wf-wordmark" src="/brand/wayfind-wordmark-transparent-v2.png" alt="wayfind" onClick={openSuggested} style={{ height: 64, maxWidth: "48vw", width: "auto", display: "block", cursor: "pointer", flexShrink: 0 }} />
             {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -6561,7 +6293,7 @@ function PageInner({ initialEvents = null }) {
               </button>
             )}
             {supabase && (user ? (
-              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
+              <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
               <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
@@ -6571,7 +6303,7 @@ function PageInner({ initialEvents = null }) {
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 8px 10px" }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: C.light, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: C.accent, letterSpacing: "0.5px", textTransform: "uppercase" }}>Next 18 hours</span>
               <span style={{ fontSize: 11, color: C.muted }}>Feels-like · every 3h</span>
             </div>
             <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 6px" }}>
@@ -6583,8 +6315,8 @@ function PageInner({ initialEvents = null }) {
                 const dt = new Date(h.ms);
                 const tl = idx === 0 ? "Now" : dt.toLocaleTimeString([], { hour: "numeric" }).replace(" ", "");
                 return (
-                  <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 64, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.light : "transparent"}` }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.light : C.muted, marginBottom: 5 }}>{tl}</div>
+                  <div key={h.ms} style={{ scrollSnapAlign: "center", flexShrink: 0, width: 64, textAlign: "center", padding: "8px 4px", borderRadius: 12, background: idx === 0 ? C.adim : "transparent", border: `1px solid ${idx === 0 ? C.accent : "transparent"}` }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: idx === 0 ? C.accent : C.muted, marginBottom: 5 }}>{tl}</div>
                     <div style={{ fontSize: 23, lineHeight: 1, marginBottom: 5 }}>{hi.icon}</div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{h.feels}°</div>
                     <div style={{ fontSize: 8.5, fontWeight: 600, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{weatherFromCode(h.code).label}</div>
@@ -6631,7 +6363,7 @@ function PageInner({ initialEvents = null }) {
                     onMouseDown={(e) => { e.preventDefault(); pickSuggestion(s); }}
                     style={{ padding: "11px 14px", fontSize: 14, color: C.text, background: i === sugIdx ? C.adim : "transparent", borderBottom: i < suggestions.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}
                   >
-                    <span style={{ color: s.kind === "place" ? C.light : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
+                    <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
                       {s.kind === "place" && <div style={{ fontSize: 11, color: C.muted, marginTop: 1 }}>Go to this place</div>}
@@ -6649,37 +6381,11 @@ function PageInner({ initialEvents = null }) {
               "Find my vibe" button in the header. */}
           {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
               beside search; the dice experiment is retired. */}
-          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
         )}
-        {screen === "suggested" && (() => {
-          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
-          if (personalize === null && ld >= 2) return (
-            <div style={{ marginTop: 10, background: "linear-gradient(150deg, rgba(148,163,184,.14), rgba(11,14,21,.6))", border: `1px solid rgba(148,163,184,.35)`, borderRadius: 14, padding: "13px 15px" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: 40, borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Personalize my feed</button>
-                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: 40, padding: "0 16px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>No thanks</button>
-              </div>
-            </div>
-          );
-          if (personalize === "on") return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.light, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
-            </div>
-          );
-          if (personalize === "off" && ld >= 2) return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 13px" }}>
-              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, background: "transparent", border: "none", color: C.light, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
-            </div>
-          );
-          return null;
-        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -6716,30 +6422,12 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
-            IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
-            effect deps) so the alert card swaps to the unlock card immediately —
-            no lingering. */}
-        {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
-          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
-        )}
-        {/* Signed-in users ALWAYS get the feed — even outside our core area (the
-            gate returns 'unlock', and the live-search feed works anywhere). Only
-            'alert' (signed-out + uncovered) walls the feed behind the waitlist. */}
-        {screen === "suggested" && gateStatus !== "alert" && (() => {
+        {screen === "suggested" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
-          // Phase 2: fold the DURABLE per-user taste vector into the category
-          // weights so preference persists across sessions, not just this one.
-          // (category namespace matches catW; the visible Score is untouched.)
-          const _vec = tasteVecRef.current || {};
-          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          // Personalize ONLY with explicit consent (Phase 2). Without it, the
-          // feed is pure moment/Score order — same for everyone.
-          const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
-          const personalized = personalize === "on" && hasTaste;
-          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
+          const hasAffinity = activeSignals.length >= 2;
+          const displayList = dedupePlaces(hasAffinity ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
@@ -6834,6 +6522,19 @@ function PageInner({ initialEvents = null }) {
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
+          const discoveryMenu = (
+            <DiscoveryMenu
+              locName={locName}
+              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} openCurated("today"); }}
+              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} openExpSheet("gem"); }}
+              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} openExpSheet("family"); }}
+              onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} openExpSheet("romantic"); }}
+              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} setScreen("events"); }}
+              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} openExpSheet("entertainment"); }}
+              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} openExpSheet("budget"); }}
+              onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me" }); } catch (e) {} setMenuSheet("pick"); }}
+            />
+          );
           return (
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
@@ -6845,19 +6546,79 @@ function PageInner({ initialEvents = null }) {
                   geometry so the swap below is shift-free. Deliberately NOT
                   gated on `suggested` — the first screen must never be blank
                   while a Places search runs. */}
-              {!browseCat && !isDesktop && foryouEvents === null && <EventsRailSkeleton />}
-              {!browseCat && !isDesktop && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px", marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 4 }}>Happening near you</div>
-                  <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
-                    <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
+              {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
+              {!browseCat && foryouEvents === null && discoveryMenu}
+              {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
+                <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+                  </div>
+                  <HeroRail>
+                    <DiscoveryHeroCard />
+                    <LocalPlanHeroCard
+                      image="/cards/beach-adobestock-216195684.jpeg"
+                      badge="Beach day"
+                      badgeColor="#2DD4BF"
+                      icon="beach"
+                      navIcon
+                      title={bestBeach ? bestBeach.name : "Beach day, decided"}
+                      subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
+                      ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
+                      onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/hidden-gems-adobestock-321810820.jpeg"
+                      badge="Hidden gems"
+                      badgeColor="#FF7A1A"
+                      icon="gem"
+                      title="Worth finding. Easy to miss."
+                      subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
+                      ariaLabel="Explore hidden gems"
+                      onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/date-night-adobestock-190984224.jpeg"
+                      badge="Date night"
+                      badgeColor="#F472B6"
+                      icon="heart"
+                      title="Tonight, decided"
+                      subtitle={`The best of ${locName ? locName.split(",")[0] : "your town"}, picked for two ›`}
+                      ariaLabel="Date night, decided"
+                      onOpen={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/family-adobestock-794890098.jpeg"
+                      badge="Family"
+                      badgeColor="#22C55E"
+                      icon="users"
+                      title="Memories for life, nearby"
+                      subtitle={`The most-loved family spots in ${locName ? locName.split(",")[0] : "your town"} ›`}
+                      ariaLabel="Family day, decided"
+                      onOpen={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }}
+                    />
+                    <LocalPlanHeroCard
+                      image="/cards/trending-near-you-adobestock-434128766.jpeg"
+                      badge="Trending near you"
+                      badgeColor="#FF6B6B"
+                      icon="sparkles"
+                      title="What everyone's talking about"
+                      subtitle="Popular local picks worth seeing now ›"
+                      ariaLabel="Trending near you"
+                      onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} openExpSheet("entertainment"); }}
+                    />
+                  </HeroRail>
+                  {discoveryMenu}
+                  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Date night", src: "events_empty" }); } catch (e) {} openExperience("romantic"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.adim, border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Date night</button>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Rainy day", src: "events_empty" }); } catch (e) {} openRainy(); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Rainy day</button>
+                      <button onClick={() => { try { logEvent("intent_chip", null, { intent: "Hidden gems", src: "events_empty" }); } catch (e) {} openExperience("gem"); }} style={{ padding: "8px 14px", borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>Hidden gems</button>
+                    </div>
                   </div>
                 </div>
               )}
-              {!browseCat && !isDesktop && foryouEvents && foryouEvents.length > 0 && (() => {
+              {!browseCat && foryouEvents && foryouEvents.length > 0 && (() => {
                 const evs = dedupeEvents(foryouEvents, true);
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
@@ -6871,7 +6632,7 @@ function PageInner({ initialEvents = null }) {
                   <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                       <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
-                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.light, cursor: "pointer" }}>See all ↗</span>
+                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
                     </div>
                     {featured && featured.dest && (() => {
                       const f = formatEventDate(featured.date, featured.time);
@@ -6885,10 +6646,11 @@ function PageInner({ initialEvents = null }) {
                       // the event's resolved destination; the tickets action is a
                       // separate sibling control layered on top, never nested.
                       return (
-                        <div className="wf-hero-swipe" style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", marginBottom: 10 }}>
-                        {/* v6.50 (owner): slide 2 is the best-rated beach within 20 mi (real
-                            inventory + signals; none in range = one slide). Slide 1 narrows
-                            to 93% so the beach edge peeks — the swipe affordance. */}
+                        <HeroRail>
+                        {/* The orientation card leads the same rail; the event, beach,
+                            date-night, family, and trending cards keep their existing
+                            destinations and behavior as the following slides. */}
+                        <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
@@ -6911,27 +6673,32 @@ function PageInner({ initialEvents = null }) {
                               : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
                           </div>
                         </div>
-                        {bestBeach && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro || "manatee-sarasota")); } catch (e2) {} }} aria-label={"Beach day: " + bestBeach.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                            {bestBeach.photo_ref && <img src={"/api/photo?ref=" + encodeURIComponent(bestBeach.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(45,212,191,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <NavIcon name="beach" size={12} strokeWidth={2} color="#2DD4BF" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#2DD4BF", letterSpacing: "0.4px", textTransform: "uppercase" }}>Beach day</span>
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{bestBeach.name}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 9, fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>
-                                <span>{bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away</span>
-                                <PlaceScoreChip p={{ rating: bestBeach.rating, reviews: bestBeach.reviews }} size={12.5} />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                        <LocalPlanHeroCard
+                          image="/cards/beach-adobestock-216195684.jpeg"
+                          badge="Beach day"
+                          badgeColor="#2DD4BF"
+                          icon="beach"
+                          navIcon
+                          title={bestBeach ? bestBeach.name : "Beach day, decided"}
+                          subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
+                          ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
+                          onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
+                        />
+                        <LocalPlanHeroCard
+                          image="/cards/hidden-gems-adobestock-321810820.jpeg"
+                          badge="Hidden gems"
+                          badgeColor="#FF7A1A"
+                          icon="gem"
+                          title="Worth finding. Easy to miss."
+                          subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
+                          ariaLabel="Explore hidden gems"
+                          onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                        />
                         {/* v6.52 (owner): slides 3+4 — date night and family, each the
                             best of the town for that intent, opening the luxury ranked
                             pages built on the /best-beaches standard. Owned card art. */}
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src={dateHeroImg ? "/api/photo?ref=" + encodeURIComponent(dateHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("datenight_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/date-night?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Date night, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src="/cards/date-night-adobestock-190984224.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(244,114,182,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
@@ -6941,8 +6708,8 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The best of {locName ? locName.split(",")[0] : "your town"}, picked for two ›</div>
                           </div>
                         </div>
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src={familyHeroImg ? "/api/photo?ref=" + encodeURIComponent(familyHeroImg) + "&w=800" : "/cards/family-fun.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("family_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/family?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "")); } catch (e2) {} }} aria-label="Family day, decided" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
+                          <img src="/cards/family-adobestock-794890098.jpeg" alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
                           <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(34,197,94,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
                             <NavIcon name="family" size={12} strokeWidth={2} color="#22C55E" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#22C55E", letterSpacing: "0.4px", textTransform: "uppercase" }}>Family</span>
@@ -6952,37 +6719,29 @@ function PageInner({ initialEvents = null }) {
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The most-loved family spots in {locName ? locName.split(",")[0] : "your town"} ›</div>
                           </div>
                         </div>
-                        {/* v6.60 HIDDEN GEMS SLIDE — loved, not overrun. */}
-                        <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} try { window.location.assign("/hidden-gems?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (gemHeroImg ? "&img=" + encodeURIComponent(gemHeroImg) : "")); } catch (e2) {} }} aria-label="Hidden gems near you" style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                          <img src={gemHeroImg ? "/api/photo?ref=" + encodeURIComponent(gemHeroImg) + "&w=800" : "/cards/date-night.jpg"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                          <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                          <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(167,139,250,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                            <span style={{ fontSize: 11 }}>💎</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#A78BFA", letterSpacing: "0.4px", textTransform: "uppercase" }}>Hidden gems</span>
-                          </div>
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>Loved, not overrun</div>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The spots locals keep to themselves in {locName ? locName.split(",")[0] : "your town"} ›</div>
-                          </div>
-                        </div>
-                        {/* v6.56 THE BUZZ SLIDE — "Trending near you" from real
-                            popularity signals; never "busiest" (no door counts).
-                            Absent until the popularity engine has rows. */}
-                        {buzzPick && (
-                          <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={() => { try { logEvent("buzz_hero_open", null, { id: buzzPick.place_id }); } catch (e2) {} try { window.location.assign("/trending-now?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (buzzPick.photo_ref ? "&img=" + encodeURIComponent(buzzPick.photo_ref) : "")); } catch (e2) {} }} aria-label={"Trending near you: " + buzzPick.name} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-                            <img src={"/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
-                            <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: "1px solid rgba(255,107,107,.6)", borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
-                              <span style={{ fontSize: 11 }}>🔥</span><span style={{ fontSize: 10.5, fontWeight: 800, color: "#FF6B6B", letterSpacing: "0.4px", textTransform: "uppercase" }}>Trending near you</span>
-                            </div>
-                            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                              <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{buzzPick.name}</div>
-                              <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{buzzWhy || (buzzPick.sources_count > 1 ? "Popular across " + buzzPick.sources_count + " local signals ›" : "On readers' radar near you ›")}</div>
-                            </div>
-                          </div>
-                        )}
-                        </div>
+                        {/* The Trending slide is always present. Real popularity
+                            data personalizes its copy and destination when ready. */}
+                        <LocalPlanHeroCard
+                          image="/cards/trending-near-you-adobestock-434128766.jpeg"
+                          badge="Trending near you"
+                          badgeColor="#FF6B6B"
+                          icon="sparkles"
+                          title={buzzPick ? buzzPick.name : "What everyone's talking about"}
+                          subtitle={buzzPick ? (buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")) : "Popular local picks worth seeing now ›"}
+                          ariaLabel={buzzPick ? "Trending near you: " + buzzPick.name : "Trending near you"}
+                          onOpen={() => {
+                            try { logEvent("buzz_hero_open", null, { id: buzzPick ? buzzPick.place_id : null, src: "hero_swipe" }); } catch (e2) {}
+                            if (buzzPick) {
+                              try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {}
+                            } else {
+                              openExpSheet("entertainment");
+                            }
+                          }}
+                        />
+                        </HeroRail>
                       );
                     })()}
+                    {discoveryMenu}
                     {rest.length > 0 && (
                       <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", minHeight: EV_RAIL_MIN_H, paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.filter((e) => e && e.dest).map((e) => {
@@ -6991,7 +6750,7 @@ function PageInner({ initialEvents = null }) {
                           const internal = e.destKind === "internal";
                           return (
                             <a key={e.id} href={internal ? e.dest : ticketUrl(e.dest)} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: e.id, kind: e.destKind, src: "foryou_rail" }); } catch (e2) {} }} style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 9, width: 150, flexShrink: 0, scrollSnapAlign: "start", textDecoration: "none" }}>
-                              <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.light : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
+                              <div style={{ fontSize: 10, fontWeight: 800, color: evRel ? C.accent : C.purple, marginBottom: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{evRel ? evRel.toUpperCase() : (f.mo + " " + f.day)}{f.time ? " · " + f.time : ""}</div>
                               <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, marginBottom: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 30 }}>{e.name}</div>
                               <div style={{ fontSize: 10, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {e.venue || e.city || "Nearby"}</div>
                             </a>
@@ -7008,23 +6767,6 @@ function PageInner({ initialEvents = null }) {
                           tours + attractions + beaches ranked together). Replaces the
                           client-ranked v6.25 food card; the Today's Best accordion stays
                           retired (component + engines in repo). */}
-                      {!browseCat && homeExp && (
-                        <a href={homeExp.url} target="_blank" rel="noopener sponsored nofollow" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || homeExp.url; try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code }); } catch (er) {} openExternal(_live); }} style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14 }}>
-                          <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
-                            <img src={homeExp.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                            {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: 999, padding: "2px 7px" }}>🔥 Selling out</span> : null}
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
-                            <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.light, marginBottom: 4 }}>✨ Make a day of it</div>
-                            <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
-                              {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
-                              {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
-                              <span style={{ marginLeft: "auto", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
-                            </div>
-                          </div>
-                        </a>
-                      )}
                       {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
@@ -7041,7 +6783,7 @@ function PageInner({ initialEvents = null }) {
               {browseCat && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
-                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.light, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
+                    <div onClick={() => { setBrowseCat(null); setMoodPick(null); setSub("all"); }} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : "you"} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
                   {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
@@ -7050,15 +6792,7 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {/* The Bookable rail and ThingsToDoList both surface Viator tours; ThingsToDoList
-                      interleaves them only in the ALL view. Render the rail ONLY on a sub-filter
-                      (the complement of ThingsToDoList's `sub === "all" || !sub` gate) so the same
-                      tour never appears twice (owner: duplicate cards on Things to do). */}
-                  {browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub={sub} lat={center.lat} lng={center.lng} onSave={saveMonetizedItem} city={locName ? locName.split(",")[0] : ""} region={locName || ""} />}
-                  {/* UT discount-ticket deals (wf_deals_ranked), grouped by subcategory,
-                      next to the Viator rail — spec §3. Renders nothing when no live deals. */}
-                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
-                  {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7096,7 +6830,7 @@ function PageInner({ initialEvents = null }) {
                             <div>That's all {view.length} {_lbl ? _lbl + " " : ""}{view.length === 1 ? "spot" : "spots"} near {_city}{locApprox ? " (approximate location)" : ""}.</div>
                             {view.length < 8 && (
                               <div role="button" tabIndex={0} onClick={_act} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); _act(); } }}
-                                style={{ display: "inline-block", marginTop: 8, color: C.light, fontWeight: 800, cursor: "pointer" }}>
+                                style={{ display: "inline-block", marginTop: 8, color: C.accent, fontWeight: 800, cursor: "pointer" }}>
                                 {_canRelax ? "Show all " + (_lbl || "spots") + " nearby" : "See more great spots — " + _mi + " mi out ↗"}
                               </div>
                             )}
@@ -7212,7 +6946,7 @@ function PageInner({ initialEvents = null }) {
                     {locApprox && !locBannerGone && (
             <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(96px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
                         <span style={{ fontSize: 15 }}>📍</span>
-                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.light, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
+                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
                         <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
                       </div>
                     )}
@@ -7295,36 +7029,6 @@ function PageInner({ initialEvents = null }) {
                   disagree (this was the live React 418/423). Both sides render
                   the generic line first; the moment arrives one paint later. */}
               {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "you"}…` : "Finding the best options near you…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
-              {!browseCat && !suggestedLoading && suggested !== null && (
-                <section className="wf-discovery-empty" aria-label="Explore Wayfind" style={{ padding: "16px 2px 8px" }}>{/* Visual Release 02: one permanent discovery section, never duplicated. */}
-                  <div className="wf-discovery-heading" style={{ marginBottom: 12 }}>
-                    <div className="wf-discovery-visual">
-                      <img src="/brand/wayfind-neighborhood-context-v1.png" alt="A walkable waterfront neighborhood with local restaurants, live music, and places to explore" loading="lazy" />
-                      <div className="wf-discovery-copy">
-                        <div className="wf-discovery-kicker">WAYFIND, MADE FOR RIGHT NOW</div>
-                        <div className="wf-discovery-title">Know what is around you.</div>
-                        <div className="wf-discovery-text">Wayfind ranks the local places worth your time, so you can spend less time searching and more time out there.</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9 }}>
-                    {[
-                      ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), () => openCurated("today")],
-                      ["gem", "Hidden gems", () => openExpSheet("gem")],
-                      ["users", "Family favorites", () => openExpSheet("family")],
-                      ["heart", "Date night ideas", () => openExpSheet("romantic")],
-                      ["ticket", "Perfect for tonight", () => setScreen("events")],
-                      ["car", "Worth the drive", () => openExpSheet("entertainment")],
-                      ["wallet", "Big fun, small budget", () => openExpSheet("budget")],
-                      ["dice", "Surprise me", () => setMenuSheet("pick")],
-                    ].map(([ic, lbl, go]) => (
-                      <button className="wf-discovery-link" key={lbl} onClick={() => { try { logEvent("discovery_tile", null, { tile: lbl }); } catch (e) {} go(); }} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "13px 12px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, fontWeight: 700, cursor: "pointer", lineHeight: 1.25, minHeight: TARGET }}>
-                        <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-              )}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}
@@ -7384,14 +7088,14 @@ function PageInner({ initialEvents = null }) {
               {[{ mi: 3, v: 4828 }, { mi: 5, v: 8047 }, { mi: 10, v: 16093 }, { mi: 15, v: 24140 }, { mi: 25, v: 40234 }, { mi: 30, v: 48280 }].map((r) => {
                 const on = pendingRadius === r.v;
                 return (
-                  <button key={r.v} onClick={() => setPendingRadius(r.v)} style={{ padding: "16px 8px", borderRadius: 14, border: `1.5px solid ${on ? C.light : C.border}`, background: on ? C.adim : C.card, color: on ? C.light : C.light, fontSize: 18, fontWeight: 800, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                  <button key={r.v} onClick={() => setPendingRadius(r.v)} style={{ padding: "16px 8px", borderRadius: 14, border: `1.5px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.light, fontSize: 18, fontWeight: 800, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                     <span>{r.mi}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: on ? C.light : C.muted }}>miles</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: on ? C.accent : C.muted }}>miles</span>
                   </button>
                 );
               })}
             </div>
-            <button onClick={() => { setSearchRadius(pendingRadius); setRadiusSheet(false); }} style={{ width: "100%", marginTop: 18, height: 52, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 15.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(148,163,184,.4)" }}>Search this area</button>
+            <button onClick={() => { setSearchRadius(pendingRadius); setRadiusSheet(false); }} style={{ width: "100%", marginTop: 18, height: 52, borderRadius: 14, border: "none", background: "linear-gradient(180deg, #FB923C 0%, #F97316 52%, #EA580C 100%)", color: "#fff", fontSize: 15.5, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 14px rgba(249,115,22,.4)" }}>Search this area</button>
             <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 10 }}>We only search again when you tap the button, to save data.</div>
           </div>
         </div>
@@ -7419,7 +7123,7 @@ function PageInner({ initialEvents = null }) {
                 { label: "🛍️ Shopping", cat: "shopping", kw: "" },
                 { label: "🎲 Anything", any: true },
               ].map((d) => (
-                <button key={d.label} onClick={() => rollFor(d)} style={{ flex: d.any ? "1 1 100%" : "1 1 calc(50% - 5px)", padding: "13px 10px", borderRadius: 14, border: `1px solid ${d.any ? C.light : C.border}`, background: d.any ? C.adim : C.card, color: d.any ? C.light : C.text, fontSize: 14, fontWeight: d.any ? 800 : 700, cursor: "pointer" }}>{d.label}</button>
+                <button key={d.label} onClick={() => rollFor(d)} style={{ flex: d.any ? "1 1 100%" : "1 1 calc(50% - 5px)", padding: "13px 10px", borderRadius: 14, border: `1px solid ${d.any ? C.accent : C.border}`, background: d.any ? C.adim : C.card, color: d.any ? C.accent : C.text, fontSize: 14, fontWeight: d.any ? 800 : 700, cursor: "pointer" }}>{d.label}</button>
               ))}
             </div>
             <button onClick={() => setDiceChoose(false)} style={{ width: "100%", marginTop: 12, padding: "11px 0", borderRadius: 12, border: "none", background: "transparent", color: C.muted, fontSize: 13.5, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
@@ -7436,8 +7140,8 @@ function PageInner({ initialEvents = null }) {
           const active = (s.id === "home" && (screen === "suggested" || screen === "explore" || screen === "experience" || screen === "surprise")) || s.id === screen;
           return (
           <a className={`wf-bottom-nav-item${active ? " is-active" : ""}`} key={s.id} href={{ home: "/", events: "/events", coupons: "/coupons", map: "/map", saved: "/favorites", itinerary: "/itinerary" }[s.id] || "/"} aria-label={s.label} aria-current={active ? "page" : undefined} onClick={(e) => { e.preventDefault(); if (s.id === "home" && active) { setBrowseCat(null); setMoodPick(null); setSub("all"); } setActiveList(null); setSysFolder(null); setListMenu(null); setRenamingList(null); setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setMapListOverride(null); if (s.id === "home") { openSuggested(); } else { setScreen(s.id); } try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); window.scrollTo(0, 0); } catch (e) {} }} style={{ flex: 1, padding: "9px 6px 8px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, background: "transparent", border: "none", borderRadius: 0, cursor: "pointer", textDecoration: "none" }}>
-            <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.light : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
-            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.light : C.muted }}>{s.label}</span>
+            <span className="wf-bottom-nav-icon"><NavIcon name={s.icon} color={active ? C.accent : C.muted} size={25} strokeWidth={active ? 2.3 : 2} /></span>
+            <span className="wf-bottom-nav-label" style={{ fontSize: 11.2, fontWeight: active ? 800 : 600, color: active ? C.accent : C.muted }}>{s.label}</span>
           </a>
           );
         })}
@@ -7482,7 +7186,7 @@ function PageInner({ initialEvents = null }) {
               <div style={{ fontSize: 12.5, color: C.muted, marginBottom: 12 }}>{list.length > 0 ? (cs.sub || ("The best " + cs.label.toLowerCase() + " spots loaded nearby, ranked by quality, distance and time.")) : (cs.title ? "Nothing loaded for this yet. Give the area a moment to finish loading, then try again." : "No " + cs.label.toLowerCase() + " spots loaded nearby yet. Try searching this cuisine.")}</div>
               {list.map((p, i) => (
                 <div key={p.id} onClick={() => { setCuisineSheet(null); openDetail(p); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ display: "flex", alignItems: "center", gap: 11, padding: "9px 0", borderBottom: i < list.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                  <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.light : C.muted, flexShrink: 0 }}>{i + 1}</div>
+                  <div style={{ width: 22, textAlign: "center", fontSize: 13.5, fontWeight: 800, color: i < 3 ? C.accent : C.muted, flexShrink: 0 }}>{i + 1}</div>
                   <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 46, height: 46, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
@@ -7521,41 +7225,6 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
-      {tasteOpen && (() => {
-        const vec = tasteVecState || {};
-        const chips = [];
-        for (const dim of ["category", "tag", "price"]) { const m = vec[dim]; if (!m) continue; for (const [val, w] of Object.entries(m)) chips.push({ dim, val, w: Number(w) || 0 }); }
-        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
-        const top = chips.slice(0, 24);
-        const dimLabel = { category: "", tag: "", price: "$".repeat(1) };
-        return (
-          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(2,4,8,.72)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 520, background: C.bg, borderTop: `1px solid ${C.border}`, borderRadius: "18px 18px 0 0", padding: "18px 18px 26px", maxHeight: "82vh", overflowY: "auto" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Your taste</div>
-                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
-              </div>
-              <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
-              {top.length ? (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {top.map((c) => (
-                    <span key={c.dim + "|" + c.val} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: c.w >= 0 ? C.text : C.muted, background: c.w >= 0 ? "rgba(232,201,122,.12)" : "rgba(255,255,255,.04)", border: `1px solid ${c.w >= 0 ? "rgba(232,201,122,.4)" : C.border}`, borderRadius: 999, padding: "6px 8px 6px 12px" }}>
-                      {c.w >= 0 ? "" : "not "}{c.val}
-                      <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.val} style={{ width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: C.muted, fontSize: 11, lineHeight: 1, cursor: "pointer" }}>✕</button>
-                    </span>
-                  ))}
-                </div>
-              ) : (
-                <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
-              )}
-              <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-                <button onClick={exportTaste} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Export my data</button>
-                <button onClick={() => { resetTaste(); setTasteOpen(false); }} style={{ flex: 1, minHeight: 42, borderRadius: 11, border: `1px solid rgba(179,58,43,.5)`, background: "transparent", color: "#E06A5A", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Reset &amp; forget all</button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* App-tile sheets: opened from the home navigation grid */}
       {menuSheet && <MenuSheet ctx={ctx} />}
@@ -7571,7 +7240,7 @@ function PageInner({ initialEvents = null }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
               <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>Add to favorites</div>
-              <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.border}`, color: C.light, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
+              <button onClick={() => { setSaveTarget(null); setNewListOpen(true); }} style={{ background: "none", border: `1px solid ${C.accent}`, color: C.accent, fontSize: 12, fontWeight: 700, padding: "6px 12px", borderRadius: 18, cursor: "pointer" }}>+ New list</button>
             </div>
             {Object.values(lists).map((l) => (
               <div key={l.id} onClick={() => saveToList(l.id)} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Save to ${l.name || "list"}`} style={{ display: "flex", alignItems: "center", gap: 12, padding: 13, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 8, cursor: "pointer" }}>
@@ -7612,7 +7281,7 @@ function PageInner({ initialEvents = null }) {
             <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "0 auto 16px" }} />
             <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 14, color: C.text }}>Rename list</div>
             <input value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && renameList()} placeholder="List name" style={{ width: "100%", boxSizing: "border-box", padding: "12px 14px", background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.text, fontSize: 16, outline: "none", marginBottom: 16 }} />
-            <button onClick={renameList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.light : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Save</button>
+            <button onClick={renameList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Save</button>
           </div>
         </div>
       )}
@@ -7632,10 +7301,10 @@ function PageInner({ initialEvents = null }) {
             <div style={{ fontSize: 13, color: C.muted, marginBottom: 10 }}>Pick an icon</div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 8, marginBottom: 20 }}>
               {EMOJIS.map((e) => (
-                <button key={e} onClick={() => setNewEmoji(e)} style={{ fontSize: 22, padding: "8px 0", borderRadius: 10, cursor: "pointer", background: newEmoji === e ? C.adim : C.card, border: `1.5px solid ${newEmoji === e ? C.light : C.border}` }}>{e}</button>
+                <button key={e} onClick={() => setNewEmoji(e)} style={{ fontSize: 22, padding: "8px 0", borderRadius: 10, cursor: "pointer", background: newEmoji === e ? C.adim : C.card, border: `1.5px solid ${newEmoji === e ? C.accent : C.border}` }}>{e}</button>
               ))}
             </div>
-            <button onClick={createList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.light : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Create list</button>
+            <button onClick={createList} disabled={!newName.trim()} style={{ width: "100%", padding: 14, background: newName.trim() ? C.accent : C.card, border: "none", borderRadius: 12, color: newName.trim() ? "#fff" : C.muted, fontSize: 15, fontWeight: 700, cursor: newName.trim() ? "pointer" : "default" }}>Create list</button>
           </div>
         </div>
       )}
@@ -7732,7 +7401,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
         {chips.map((c) => {
           const on = c.key === cat;
           return (
-            <button key={c.key} onClick={() => { setCat(c.key); log("exp_chip", { cat: c.key }); }} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", fontSize: 12.5, fontWeight: 700, border: `1px solid ${on ? C.light : C.border}`, background: on ? C.adim : C.card, color: on ? C.light : C.text }}>
+            <button key={c.key} onClick={() => { setCat(c.key); log("exp_chip", { cat: c.key }); }} style={{ flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, padding: "7px 13px", borderRadius: 999, cursor: "pointer", whiteSpace: "nowrap", fontSize: 12.5, fontWeight: 700, border: `1px solid ${on ? C.accent : C.border}`, background: on ? C.adim : C.card, color: on ? C.accent : C.text }}>
               <span aria-hidden="true">{c.icon}</span>{c.label}
             </button>
           );
@@ -7741,7 +7410,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       <div style={{ display: "flex", gap: 6, marginBottom: 10, alignItems: "center" }}>
         <span style={{ fontSize: 11, color: C.muted }}>Within</span>
         {EXP_MI_RUNGS.map((m) => (
-          <button key={m} onClick={() => setMi(m)} style={{ padding: "4px 10px", borderRadius: 999, cursor: "pointer", fontSize: 11.5, fontWeight: 700, border: `1px solid ${mi === m ? C.light : C.border}`, background: mi === m ? C.adim : "transparent", color: mi === m ? C.light : C.muted }}>{m} mi</button>
+          <button key={m} onClick={() => setMi(m)} style={{ padding: "4px 10px", borderRadius: 999, cursor: "pointer", fontSize: 11.5, fontWeight: 700, border: `1px solid ${mi === m ? C.accent : C.border}`, background: mi === m ? C.adim : "transparent", color: mi === m ? C.accent : C.muted }}>{m} mi</button>
         ))}
       </div>
       {busy && !st.items.length ? (
@@ -7777,7 +7446,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
       )}
       <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
       {st.hasMore ? (
-        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
+        <button onClick={loadMore} disabled={more} style={{ width: "100%", marginTop: 10, padding: "11px 0", borderRadius: 12, border: `1px solid ${C.accent}`, background: C.adim, color: C.accent, fontSize: 13.5, fontWeight: 800, cursor: more ? "default" : "pointer", opacity: more ? 0.6 : 1 }}>{more ? "Loading…" : "Show more experiences"}</button>
       ) : null}
     </div>
   );
@@ -7796,29 +7465,26 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
     if (!cat || !isFinite(lat)) { setItems([]); return; }
     let dead = false;
     setItems(null);
-    (async () => {
-      // 1) The fast pre-pulled inventory (Florida markets). destsWithin now
-      //    returns EMPTY for a far-away user, so this is honestly dark elsewhere.
-      const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-      const res = await fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null);
+    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
+    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
+      if (dead) return;
       let arr = (res && Array.isArray(res.items) ? res.items : [])
         .slice()
         .sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))
         .slice(0, 10);
-      // 2) Nothing pre-pulled for this location → fetch tours LIVE for the user's
-      //    ACTUAL city (never fall back to Florida). Same card shape.
+      // If the local inventory is dark, search the user's actual city — never
+      // never fall back to Florida markets for an out-of-region visitor.
       if (!arr.length && city) {
-        // /api/viator/tours needs the REGION (state) to accept the city's tours —
-        // without it the anti-foreign-destination filter rejects everything
-        // (verified: q=Charleston → 0, q=Charleston®ion=South Carolina → real tours).
-        const tr = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&count=10").then((r) => (r.ok ? r.json() : null), () => null);
-        arr = (tr && Array.isArray(tr.items) ? tr.items : []).slice(0, 10);
+        try {
+          const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
+          arr = (live && Array.isArray(live.items) ? live.items : []).slice(0, 10);
+        } catch (e) {}
       }
-      if (!dead) setItems(arr);
-    })();
+      setItems(arr);
+    });
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, lat, lng, city]);
+  }, [cat, lat, lng, city, region]);
   if (!cat || items === null) return null; // no skeleton flash — the rail appears when real
   if (!items.length) return null;
   return (
@@ -7837,76 +7503,12 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
                 {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
                 <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}</span>
               </div>
-              <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
-                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url) || t.url, provider: "viator" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
-                <button aria-label={"Share " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(t.title, Aff.viatorDirectUrl(t.url) || t.url, null, "Found on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>↗</button>
-              </div>
             </div>
           </a>
         ))}
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
     </div>
-  );
-}
-
-// UT deal rails (spec §1/§3): promo/coupon cards from wf_deals_ranked (already
-// quality-gated + link-guardian-checked), grouped by subcategory, rendered next
-// to the Viator experience rail. category="attractions" on Things-to-do,
-// "stays" on the Stays surface. The affiliate_url is the verified CJ deep link —
-// rendered VERBATIM (never re-wrapped). Each card carries the "via {partner}"
-// disclosure chip. Ships nothing (returns null) when there are no live deals.
-function UTDealsRail({ category, onSave, lat, lng }) {
-  const [rails, setRails] = useState(null);
-  useEffect(() => {
-    let dead = false;
-    setRails(null);
-    // Pass the user's location so /api/deals geo-gates — a far-away region's deals
-    // (Orlando hotels in South Carolina) are filtered out and the rail hides.
-    const geo = (Number.isFinite(lat) && Number.isFinite(lng)) ? "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3) : "";
-    fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
-      if (dead) return;
-      setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
-    });
-    return () => { dead = true; };
-  }, [category, lat, lng]);
-  if (rails === null || !rails.length) return null; // no skeleton flash
-  const cta = category === "stays" ? "View hotels ↗" : "Get tickets ↗";
-  return (
-    <>
-      {rails.map((rail) => (
-        <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
-            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
-          </div>
-          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-            {rail.items.map((d) => (
-              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
-                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
-                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
-                </div>
-                <div style={{ padding: "8px 10px" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
-                    {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
-                    <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
-                  </div>
-                  <div style={{ marginTop: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-                    <AffiliateChip provider={d.provider} label={d.providerLabel} />
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button aria-label={"Save " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "deal", item_id: d.id, item_title: d.title, item_image: d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=240" : null), item_url: d.href, provider: d.provider }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡</button>
-                      <button aria-label={"Share " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(d.title, d.href, null, "Discount tickets on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>↗</button>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
-        </div>
-      ))}
-    </>
   );
 }
 
@@ -7943,22 +7545,13 @@ function ViatorRail({ title, items, theme }) {
 // product with attribution, or the tracked pid search; every click attributed).
 // Kinds MUST stay identical to the Detail sheet's tour gate; scripts/
 // test-card-booking.mjs enforces the match so the surfaces never drift.
-// Owner (booking-integrity): the place card no longer renders a generic "Search
-// Viator" fallback — a name-based search sent people to wrong-geo/irrelevant
-// Viator pages ("a majority aren't Viator"). The card now shows a booking button
-// ONLY when the place has a VERIFIED product (wf_place_products, rn=1), resolved
-// per-card by usePlaceProduct → /api/place-products, and links straight to that
-// product_url. "No verified product, no button." See scripts/test-card-booking.mjs.
-
+// The place card can't confirm a VERIFIED Viator product at build time (no per-card
+// precompute), so it must NOT show a verified-sounding "Tickets & tours" — that's the
+// booking-integrity over-promise. It renders a button only for a verified product.
+// (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
+// parks/beaches). The /go route still upgrades to the exact product at click time when
+// one clears the geo-gated resolver; otherwise it's an honest Viator search.
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
-  // The best card photo (no people, most Instagrammable) — non-blocking: starts
-  // as p.photo, upgrades once the vision score lands. Hook runs before any early
-  // return (rules of hooks).
-  const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
-  // Booking-integrity (owner): a card shows a booking button ONLY when the place
-  // has a VERIFIED product (wf_place_products, rn=1) — no generic name-search link.
-  // Hook runs before the completeness gate (rules of hooks), same as useBestPhoto.
-  const cardProduct = usePlaceProduct(p && p.id);
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -7979,16 +7572,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   }, [p && p.id]);
   // v5.99: the "Creator video" badge is shown iff the place got the VIDEO_BOOST
   // (same hasCreatorVideo predicate) — the boost is labeled, never silent.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
   // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
-  // Editorial line: a curated hook (rich) → the honest rank-aware "why it's here"
-  // (owner: answer why #1 beats #2, from real signals) → generic blurb.
-  const take = ((curatedFor(p) || {}).hook) || (rank ? rankReason(p, rank) : "") || line || templateBlurb(p);
+  const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
   const offer = OFFERS[p.id];
+  const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
   // killswitch restores the old layout.
@@ -8012,7 +7604,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           decides owner status, so ownerPick=false can never render it. */}
       {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
       <div style={{ display: "flex" }}>
-        <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m
@@ -8038,7 +7630,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               const primary = showCuisine ? cz : pcat;
               if (!primary) return null;
               const canTap = !!(showCuisine && onCuisineTap);
-              return <span onClick={canTap ? (e) => { e.stopPropagation(); onCuisineTap(cz, p); } : undefined} style={{ fontSize: 12, fontWeight: 800, color: canTap ? C.light : (CAT_LABEL_COLOR[pcat] || C.light), cursor: canTap ? "pointer" : "inherit", textDecoration: canTap ? "underline" : "none", textUnderlineOffset: 3, textDecorationThickness: canTap ? "1.5px" : undefined }}>{primary}{canTap ? " ›" : ""}</span>;
+              return <span onClick={canTap ? (e) => { e.stopPropagation(); onCuisineTap(cz, p); } : undefined} style={{ fontSize: 12, fontWeight: 800, color: canTap ? C.accent : (CAT_LABEL_COLOR[pcat] || C.light), cursor: canTap ? "pointer" : "inherit", textDecoration: canTap ? "underline" : "none", textUnderlineOffset: 3, textDecorationThickness: canTap ? "1.5px" : undefined }}>{primary}{canTap ? " ›" : ""}</span>;
             })()}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
@@ -8063,7 +7655,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           {isBeach(p) && beachSignal && (beachSignal.popularityPct != null || beachSignal.water) && (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
               {beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Popular</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
               )}
               {beachSignal.water && (() => {
                 const w = beachSignal.water;
@@ -8074,15 +7666,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           )}
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
-              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: "transparent", border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
+              <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {cardProduct && cardProduct.url && (
-              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card", verified: true }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>{"Book on Viator ↗"}</a>
+              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>Book on Viator ↗</a>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.light : "transparent", border: `1.5px solid ${saved ? C.light : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
+            <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
               <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>
             )}
@@ -8091,17 +7683,13 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             )}
             <button onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
-          {/* Per-card affiliate disclosure (spec §2): which partner this card earns
-              through, so it's visible at a glance. Owner-audit mode also flags cards
-              with NO affiliate; in production an unaffiliated card shows nothing. */}
-          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
         </div>
       </div>
     </div>
   );
 }
 
-const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(148,163,184,.3)", borderRadius: 999, padding: "5px 11px" };
+const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(249,115,22,.3)", borderRadius: 999, padding: "5px 11px" };
 // Responsive layout, in CSS instead of JS state.
 //
 // It used to live in `const [vw, setVw] = useState(0)` + `isDesktop = vw >= 900`.
@@ -8119,7 +7707,7 @@ const WF_DESKTOP_BP = 900;
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
-const EV_HERO_H = 208; // v6.50 (owner): 'a little taller' than the original 176 — the 150 fit-the-fold cut read as too small. Other fold trims stay; full stack still ~731px on a Pixel-class viewport.   // the featured hero <a> height
+const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
 const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
@@ -8128,8 +7716,8 @@ const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the hor
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
 const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
-const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(148,163,184,.48),transparent);opacity:.6}.wf-wordmark{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(148,163,184,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:#F97316!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(148,163,184,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px env(safe-area-inset-bottom);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(148,163,184,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(148,163,184,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:23px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{height:78px!important;max-width:52vw!important}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:29px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:0!important;padding:16px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
-const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus{border-color:#F97316!important;background:linear-gradient(135deg,#1B2635,#121B26)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 0 0 3px rgba(148,163,184,.12)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(148,163,184,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(148,163,184,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
+const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px env(safe-area-inset-bottom);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{height:78px!important;max-width:52vw!important}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
+const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 

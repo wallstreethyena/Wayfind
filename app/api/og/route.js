@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
+import { SITE_URL } from "../../../lib/site";
 import { SHARE_CARD_SYSTEM, shareCardFor, shareVisualFor, wcRotation } from "../../../lib/shareCards";
 
 export const runtime = "edge";

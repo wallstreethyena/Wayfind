@@ -1,27 +1,26 @@
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "../../../../lib/site";
-import { BEACH_METROS, BEACH_SHARE_PHOTO } from "../../../../lib/beaches";
+import { BEACH_METROS } from "../../../../lib/beaches";
 
 export const runtime = "edge";
 
 // 1200x630 share card for /beaches/[metro] — the group's most beautiful
-// photo (curated by eye in lib/beaches BEACH_SHARE_PHOTO, per the owner:
-// best PICTURE, regardless of the place's rank) full-bleed, with the
+// same owned beach artwork used by the homepage and landing page, full-bleed,
+// with the
 // ranking's promise in very few words. Fails soft to a plain dark card so
 // a share never renders blank.
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const metro = (searchParams.get("metro") || "").slice(0, 32);
   const meta = BEACH_METROS[metro];
-  const pick = BEACH_SHARE_PHOTO[metro];
   const top3 = (searchParams.get("t") || "").split("|").filter(Boolean).slice(0, 3);
   const nBeaches = Math.max(0, parseInt(searchParams.get("n") || "0", 10) || 0);
   const rvRaw = Math.max(0, parseInt(searchParams.get("rv") || "0", 10) || 0);
   const rvTxt = rvRaw >= 1000 ? Math.round(rvRaw / 1000) + ",000+" : String(rvRaw);
   const GOLD = "#E8C97A";
   try {
-    if (!meta || !pick) throw new Error("unknown metro");
-    const img = SITE_URL + "/api/photo?ref=" + encodeURIComponent(pick.photo_ref) + "&w=1200";
+    if (!meta) throw new Error("unknown metro");
+    const img = SITE_URL + "/cards/beach-adobestock-216195684.jpeg";
     return new ImageResponse(
       (
         <div style={{ width: 1200, height: 630, display: "flex", position: "relative", background: "#040810" }}>
@@ -45,7 +44,7 @@ export async function GET(req) {
                 <div style={{ display: "flex", fontSize: 25, fontWeight: 800, color: "#040810", letterSpacing: 1 }}>SEE THE WINNER →</div>
               </div>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <img src={SITE_URL + "/brand/wayfind-logo-header.png"} height={28} style={{ borderRadius: 4 }} />
+                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} height={28} />
                 <div style={{ display: "flex", fontSize: 19, fontWeight: 700, color: "rgba(241,245,249,.75)", marginLeft: 12 }}>gowayfind.com</div>
               </div>
             </div>

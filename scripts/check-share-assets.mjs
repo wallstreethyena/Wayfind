@@ -36,7 +36,7 @@ console.log(`check-share-assets: OK — ${checked} static share-card asset(s) re
   const og = readFileSync(new URL("../app/api/og/intent/route.js", import.meta.url), "utf8");
   if (!og.includes('searchParams.get("img")') || !og.includes("REF_RX.test(ref)")) fail("og/intent lost the real-photo (?img=) lane — cards fall back to generic art");
   if (!og.includes("SEE THE RANKING") || !og.includes("#E8C97A")) fail("og/intent lost its single gold CTA pill");
-  if (!og.includes("wayfind-logo-header.png")) fail("og/intent lost the canonical brand row");
+  if (!og.includes("wayfind-wordmark-transparent-v2.png")) fail("og/intent lost the canonical transparent brand row");
   const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   if (!ic.includes('u.searchParams.set("img", heroRef)')) fail("shared intent URLs no longer carry the hero photo — recipients unfurl generic art");
   const std = readFileSync(new URL("../docs/share-card-standard.md", import.meta.url), "utf8");

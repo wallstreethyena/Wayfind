@@ -13,11 +13,9 @@ const fail = (m) => { console.error("test-map-cost: FAIL — " + m); process.exi
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-// Visual Release 01 intentionally removes the desktop map sidebar: it made the
-// primary discovery surface feel stitched together and the map is still one tap
-// away in its dedicated screen. The hard requirement is no auto-mounted paid map,
-// not a permanent preview sidebar. MapPreview remains available to other surfaces.
-ok(!/<MapView places=\{_pins\}/.test(home), "home does NOT auto-mount the real map (the July bill)");
+// The desktop preview is optional: removing it is also a zero-cost outcome.
+// What must never return is an automatically mounted, billed Google Map.
+ok(!/<MapView places=\{_pins\}/.test(home), "desktop sidebar does NOT mount the billed Google Map (the July bill)");
 ok(!/<MapPreview places=\{_pins\}/.test(home), "Visual Release 01 keeps the desktop discovery surface map-free");
 ok(/id: "map"[\s\S]*?label: "Map"/.test(home) && /setScreen\(s\.id\)/.test(home), "the Map navigation still opens the real map screen on explicit user intent");
 

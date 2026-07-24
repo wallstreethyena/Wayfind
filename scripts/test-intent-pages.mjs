@@ -27,25 +27,26 @@ const unranked = rankRows([near, far], { rating: 4.5, reviews: 500 }, { origin, 
 ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (the rule is opt-in per list)");
 ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is carried on the row for the why-line");
 
-// hero-from-list + card photo
-ok(INTENT_PAGES.family.heroFromList === true, "family hero comes from the list's own best photo");
+// Dedicated landing pages use the same owned artwork as their homepage cards.
+ok(INTENT_PAGES["date-night"].art === "/cards/date-night-adobestock-190984224.jpeg", "date-night landing page matches its homepage hero card");
+ok(INTENT_PAGES.family.art === "/cards/family-adobestock-794890098.jpeg", "family landing page matches its homepage hero card");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
-ok(home.includes("familyHeroImg ?"), "family card wears the area's best family photo, art only as fallback");
-ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.5, minReviews: 500, dayRotate:/.test(home), "card photo comes from a PROVEN family place (same floor as the list)");
+ok((home.match(/family-adobestock-794890098\.jpeg/g) || []).length === 2, "family card uses the owned family artwork in both rails");
+ok(!home.includes("setFamilyHeroImg"), "the owned family artwork no longer triggers an unused live-photo fetch");
 
-// THE CONTINUITY RULE (owner, 2026-07-22): the photo you clicked is the photo
-// you land on — the hero never flashes a different image first.
-ok(ic.includes("THE CONTINUITY RULE"), "the rule is stated where the hero is built");
+// Shared references remain validated for metadata, while the visible landing
+// hero stays locked to the owned card artwork.
+ok(ic.includes("visible landing-page hero stays locked"), "the owned-art continuity rule is stated where the hero is built");
 ok(ic.includes('sp.get("img")'), "landing page accepts the clicked card's own photoRef (?img=)");
 ok(ic.includes("PHOTO_REF.test(v)"), "the passed ref is validated against the strict places-photo pattern");
-ok(/passedRef \? "\/api\/photo\?ref=" \+ encodeURIComponent\(passedRef\) \+ "&w=800"/.test(ic), "a passed photo wins and is never repainted");
-ok(/def\.heroFromList \? \(rows && rows\[0\] && rows\[0\]\.photoRef[\s\S]+?: null\)/.test(ic), "heroFromList with no passed photo holds the dark shell — NEVER another card's art");
+ok(ic.includes("heroImg={def.art}"), "the visible landing hero stays locked to the matching card artwork");
+ok(!ic.includes("def.heroFromList"), "landing heroes no longer repaint from live list photos");
 ok(!ic.includes("w=1200"), "intent heroes respect the w=800 LCP cap");
-ok(home.includes('(familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) : "")'), "the family card hands its photo to the landing page");
+ok(!home.includes('(familyHeroImg ? "&img=" + encodeURIComponent(familyHeroImg) : "")'), "the family card no longer overrides the owned landing-page artwork");
 const bb = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-ok(!bb.includes("w=1200"), "beach page hero respects the w=800 LCP cap too");
+ok(bb.includes('const heroImg = "/cards/beach-adobestock-216195684.jpeg"'), "beach landing page matches its homepage hero card");
 
 // v6.56 (owner): brand dedupe + Wayfind-editorial-only rows + the hidden
 // verification span.
@@ -58,24 +59,10 @@ ok(!bb.includes("w=1200"), "beach page hero respects the w=800 LCP cap too");
   ok(out.some((r) => r.id === "m1"), "the best-ranked branch is the one kept");
   const icSrc = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icSrc.includes('.eq("verified", true).in("place_id"'), "intent rows fetch VERIFIED Wayfind hooks in one call");
-  ok(icSrc.includes("editorial={r.editorial_hook || r.ai_line || null}") && !/editorial=\{r\.editorial\}/.test(icSrc), "rows render Wayfind editorial (verified hook OR the LLM Atlas line), never Google summary text");
-ok(icSrc.includes('fetch("/api/blurbs"'), "cards without a verified hook get an LLM editorial line in the Wayfind voice");
+  ok(icSrc.includes("editorial={r.editorial_hook || null}") && !icSrc.includes("editorial={r.editorial}"), "rows render Wayfind editorial or nothing — never Google summary text");
   const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
   ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
 }
-
-// v6.58 (owner): the date-night card wears the area's best real photo too —
-// same continuity contract as family.
-ok(home.includes("dateHeroImg ?"), "date-night card lost its real-photo hero (art must be fallback only)");
-ok(home.includes('(dateHeroImg ? "&img=" + encodeURIComponent(dateHeroImg) : "")'), "the date-night card no longer hands its photo to the landing page");
-ok(/heroRefFromPlaces\(j\.places, \{ minRating: 4\.4, minReviews: 150, dayRotate:/.test(home), "date-night card photo must come from the SAME floor the date-night list rides on");
-
-// v6.60 (owner): the Hidden Gems page — loved (4.6+) but NOT famous (review
-// CEILING 3000), each card carrying the LLM editorial line.
-ok(INTENT_PAGES["hidden-gems"] && INTENT_PAGES["hidden-gems"].floor.maxReviews === 3000, "the gem rule: a 3000-review CEILING keeps the tourist-magnets out");
-ok(INTENT_PAGES["hidden-gems"].floor.rating === 4.6, "gems must be genuinely loved (4.6+)");
-{ const rows = [{ id: "a", name: "Famous", rating: 4.8, reviews: 9000, lat: 27.5, lng: -82.5 }, { id: "b", name: "Gem", rating: 4.7, reviews: 400, lat: 27.5, lng: -82.5 }]; const out = rankRows(rows, INTENT_PAGES["hidden-gems"].floor, { origin: { lat: 27.5, lng: -82.5 }, penalty: null }); ok(out.length === 1 && out[0].id === "b", "the 9000-review magnet is filtered; the 400-review gem stays"); }
-ok(home.includes("gems_hero_open") && home.includes('window.location.assign("/hidden-gems'), "the Hidden Gems hero opens the page");
 
 console.log(`test-intent-pages: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
