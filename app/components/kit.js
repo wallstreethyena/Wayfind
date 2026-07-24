@@ -90,6 +90,7 @@ const ICON_PATHS = {
   palette: <><path d="M12 21a9 9 0 1 1 9-9c0 2-1.5 3-3 3h-2a2 2 0 0 0-1.5 3.3c.4.5.6 1 .3 1.6-.4.7-1.6 1.1-2.8 1.1z" /><path d="M7.5 10.5h.01" /><path d="M11 7h.01" /><path d="M15.5 8.5h.01" /></>,
   activity: <path d="M22 12h-4l-3 8L9 4l-3 8H2" />,
   image: <><rect x="3" y="4" width="18" height="16" rx="2.4" /><circle cx="9" cy="9.5" r="1.6" /><path d="M21 15.5l-5-5-9 9" /></>,
+  share: <><path d="M12 16V3" /><path d="m7 8 5-5 5 5" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7" /></>,
   cloudrain: <><path d="M17.5 17a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.6A4 4 0 0 0 7 17h10.5z" /><path d="M8.5 19.5v2" /><path d="M12 19.5v2" /><path d="M15.5 19.5v2" /></>,
 };
 export function Icon({ name, size = 18, color = "currentColor", strokeWidth = 2, style, ...rest }) {

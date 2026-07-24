@@ -10,7 +10,9 @@ const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // The homepage header wears the isolated official wordmark and never shrinks.
-ok(home.includes('src="/brand/wayfind-wordmark-transparent-v2.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home), "the header lost the transparent official logo or its shrink protection");
+const legacyImageHeader = home.includes('src="/brand/wayfind-wordmark-transparent-v2.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home);
+const splitOfficialHeader = home.includes('className="wf-wordmark-text"') && home.includes('className="wf-wordmark-pin"') && /\.wf-wordmark\{[^}]*flex-shrink:0/.test(home);
+ok(legacyImageHeader || splitOfficialHeader, "the header lost the transparent official logo or its shrink protection");
 ok((home.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE in home.js — the header");
 
 for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
