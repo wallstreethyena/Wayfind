@@ -2883,11 +2883,10 @@ function PageInner({ initialEvents = null }) {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [deviceLoc, setDeviceLoc] = useState(null);
   const [locName, setLocName] = useState("");
-  // A1: persist the app's RESOLVED location (gated on a real locName, so the
-  // initial default is never written) so direct-entry surfaces like /order-in
-  // inherit the SAME metro instead of re-geolocating or defaulting to Orlando.
+  // A1: persist the app's resolved location, including whether it came from
+  // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
-    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName })); } catch (e) {}
+    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
   const cityNow = locName ? locName.split(",")[0] : "you";
@@ -3053,6 +3052,17 @@ function PageInner({ initialEvents = null }) {
   const [newName, setNewName] = useState("");
   const [newEmoji, setNewEmoji] = useState("⭐");
   const manualRef = useRef(false);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("wf_center");
+      const c = raw ? JSON.parse(raw) : null;
+      if (c && c.manual && isFinite(c.lat) && isFinite(c.lng) && (!c.ts || Date.now() - c.ts < 6 * 3600 * 1000)) {
+        manualRef.current = true;
+        setCenter({ lat: c.lat, lng: c.lng });
+        if (c.loc) setLocName(c.loc);
+      }
+    } catch (e) {}
+  }, []);
   // Hook state — declared before hookCards memo to avoid temporal dead zone.
   const [aiHooks, setAiHooks] = useState(null);
   const [hookLikes, setHookLikes] = useState(() => new Set());
@@ -5784,6 +5794,12 @@ function PageInner({ initialEvents = null }) {
     setQuery("");
     setSuggestions([]);
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
+  }
+
+  function clearSearchedLocation() {
+    manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}
+    if (deviceLoc && isFinite(deviceLoc.lat)) { setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng }); }
+    setLocName("");
   }
 
   async function submitSearch(qOverride, opts) {
