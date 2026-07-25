@@ -5974,26 +5974,72 @@ function PageInner({ initialEvents = null }) {
       });
       if (expHit) { setQuery(""); openExperience(expHit); return; }
     }
+    // v6.60 (owner, 2026-07-25) -- CITY INTENT WINS.
+    //
+    // This function used to run a 20-mile nearby-BUSINESS search FIRST and
+    // `return` on any hit. Typing a nearby city therefore matched businesses
+    // that merely contain the word ("Sarasota" from Parrish -> Sarasota
+    // Memorial, Sarasota Bradenton Airport...), opened a "Results for X"
+    // sheet, and NEVER recentered -- the feed stayed on the old city. That is
+    // the "I searched and the cards stayed on Parrish" bug.
+    //
+    // Order is now: (1) a query that geocodes to a real AREA recenters the app,
+    // always; (2) otherwise a nearby-business search (McDonald's, a venue
+    // name); (3) otherwise a non-area geocode (a street address) still
+    // recenters rather than dead-ending. A city can no longer lose to a
+    // business that happens to share its name.
+    const userPickedLocation = manualRef.current;
     setLoading(true);
     manualRef.current = true;
-    // Use the device GPS if available (more accurate than geocoded center)
-    const searchCenter = deviceLoc
-      ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
-      : center ? { lat: center.lat, lng: center.lng } : null;
+    // Prefer the location the USER CHOSE. Raw device GPS used to win here, so
+    // after navigating to another city a second search silently snapped the
+    // bias back to wherever the user physically was.
+    const searchCenter = (userPickedLocation && center)
+      ? { lat: center.lat, lng: center.lng }
+      : deviceLoc
+        ? { lat: deviceLoc.lat, lng: deviceLoc.lng }
+        : center ? { lat: center.lat, lng: center.lng } : null;
+    // v4.62: "best of {city}" opens the Best-of sheet for that city, and
+    // repeated-letter typos ("paaarrish") collapse before we give up. A
+    // user asking for a city must never hit a dead end over a prefix or a
+    // held-down key.
+    const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
+    const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
+    const goTo = (g) => {
+      setCenter(g);
+      setLocName(g.name.split(",").slice(0, 2).join(",").trim());
+      setSearchMode(false);
+      setSearchLabel("");
+      setQuery("");
+    };
     try {
-      // Try nearby place / chain search within 20 miles first.
-      // This handles McDonald's, Burger King, any specific restaurant or business.
+      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
+      if (bo) {
+        const g = await geoTry(bo[1].trim());
+        if (g) {
+          goTo(g);
+          setLoading(false);
+          setTimeout(() => { try { openCurated("today"); } catch (e) {} }, 60);
+          return;
+        }
+      }
+
+      // (1) CITY / AREA -- always wins, always recenters, always reloads the feed.
+      const area = await geoTry(q);
+      if (area && area.isArea) { goTo(area); return; }
+
+      // (2) NEARBY BUSINESS / CHAIN -- McDonald's, a specific restaurant, a venue.
       if (searchCenter) {
         const nearby = await searchNearbyPlaces(q, searchCenter, (opts && opts.miles) || 20);
         if (nearby && nearby.length > 0) {
           setQuery("");
           if (nearby.length === 1) {
-            // Single match — open detail directly
+            // Single match -- open detail directly
             setSearchMode(true);
             setLoading(false);
             openDetail(nearby[0]);
           } else {
-            // v4.63: multiple matches open in the modern themed sheet — the
+            // v4.63: multiple matches open in the modern themed sheet -- the
             // legacy explore screen is retired as a search destination.
             const sorted = nearby.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
             setLoading(false);
@@ -6003,33 +6049,10 @@ function PageInner({ initialEvents = null }) {
           return;
         }
       }
-      // Fall back to area / city geocode search.
-      // v4.62: "best of {city}" opens the Best-of sheet for that city, and
-      // repeated-letter typos ("paaarrish") collapse before we give up. A
-      // user asking for a city must never hit a dead end over a prefix or a
-      // held-down key.
-      const collapse = (x) => [x, x.replace(/(.)\1{2,}/g, "$1$1"), x.replace(/(.)\1{1,}/g, "$1")];
-      const geoTry = async (name) => { for (const v of collapse(name)) { try { const g = await geocodeCity(v); if (g) return g; } catch (e) {} } return null; };
-      const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
-      if (bo) {
-        const g = await geoTry(bo[1].trim());
-        if (g) {
-          setCenter(g); const nm = g.name.split(",").slice(0, 2).join(",").trim(); setLocName(nm);
-          setSearchMode(false); setSearchLabel(""); setQuery(""); setLoading(false);
-          setTimeout(() => { try { openCurated("today"); } catch (e) {} }, 60);
-          return;
-        }
-      }
-      const c = (await geocodeCity(q)) || (await geoTry(q));
-      if (c) {
-        setCenter(c);
-        setLocName(c.name.split(",").slice(0, 2).join(",").trim());
-        setSearchMode(false);
-        setSearchLabel("");
-        setQuery("");
-      } else {
-        setErr("Nothing found. Try a restaurant name, chain, or city.");
-      }
+
+      // (3) A non-area geocode (street address, landmark) still beats a dead end.
+      if (area) { goTo(area); return; }
+      setErr("Nothing found. Try a restaurant name, chain, or city.");
     } catch {
       setErr("Search failed. Try again.");
     } finally { setLoading(false); }
@@ -6501,7 +6524,21 @@ function PageInner({ initialEvents = null }) {
                 if (e.key === "ArrowDown" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i + 1) % suggestions.length); }
                 else if (e.key === "ArrowUp" && suggestions.length) { e.preventDefault(); setSugIdx((i) => (i <= 0 ? suggestions.length - 1 : i - 1)); }
                 else if (e.key === "Escape") { if (suggestions.length) { e.preventDefault(); setSuggestions([]); setSugIdx(-1); } }
-                else if (e.key === "Enter") { if (suggestions.length > 0) pickSuggestion(suggestions[sugIdx >= 0 ? sugIdx : 0]); else submitSearch(); }
+                else if (e.key === "Enter") {
+                  // v6.60 (owner, 2026-07-25): Enter used to auto-pick
+                  // suggestions[0] whenever the dropdown was open, even though
+                  // the user had highlighted NOTHING (sugIdx === -1). Typing a
+                  // city and hitting Enter therefore fired whatever Google
+                  // happened to rank first -- an airport, a beach, a random
+                  // business -- so the same keystroke did something different
+                  // every time and often left the feed on the old city. Enter
+                  // now only takes a suggestion the user actually arrowed onto;
+                  // otherwise it runs a real search. Locked by
+                  // scripts/test-city-search.mjs.
+                  e.preventDefault();
+                  if (sugIdx >= 0 && suggestions[sugIdx]) pickSuggestion(suggestions[sugIdx]);
+                  else submitSearch();
+                }
               }}
               onBlur={() => { setTimeout(() => { setSuggestions([]); setSugIdx(-1); }, 150); if (screen === "map") setTimeout(() => setMapSearchOpen(false), 220); }}
               role="combobox" aria-expanded={suggestions.length > 0} aria-controls="wf-suggestions" aria-autocomplete="list"
