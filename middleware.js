@@ -33,6 +33,12 @@ import { guardPaidRoute } from "./lib/apiGuard";
 export const config = {
   matcher: [
     "/api/places/search",
+    // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
+    // these used to be direct client->Google calls via the Maps JS library —
+    // the one metered Places surface that bypassed this guard entirely. See
+    // each route's header for the full story.
+    "/api/places/autocomplete",
+    "/api/places/details",
     "/api/fsq/search",
     "/api/list/generate",
     "/api/moment/picks",
