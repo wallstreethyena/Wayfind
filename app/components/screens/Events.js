@@ -9,14 +9,18 @@ import { eventCategoryArt } from "../../../lib/eventCategoryArt";
 
 function EventArt({ e, seg, height, ctx }) {
   const { eventUseImage, eventBucket } = ctx;
-  const [bad, setBad] = useState(false);
+  const [failedImage, setFailedImage] = useState("");
   const acc = (seg && seg.color) || C.accent;
   const categoryImage = eventCategoryArt(eventBucket(e), e);
-  const image = categoryImage || (eventUseImage(e) ? e.image : "");
-  if (image && !bad) {
+  const providerImage = eventUseImage(e) ? e.image : "";
+  const image = providerImage && failedImage !== providerImage
+    ? providerImage
+    : (categoryImage && failedImage !== categoryImage ? categoryImage : "");
+  const usingCategoryImage = image === categoryImage;
+  if (image) {
     return <div style={{ position: "relative", width: "100%", height, overflow: "hidden" }}>
-      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setBad(true); } catch {} }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: categoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
-      {categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.52))" }} /> : null}
+      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setFailedImage(image)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setFailedImage(image); } catch {} }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingCategoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
+      {usingCategoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.52))" }} /> : null}
     </div>;
   }
   return (
