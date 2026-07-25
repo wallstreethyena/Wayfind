@@ -10,6 +10,12 @@ import { wcRotation } from "../lib/shareCards";
 import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+// Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
+// 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
+// the homepage rebuild just never re-imported them. See lib/cardAffiliate.js /
+// app/components/AffiliateChip.js (unchanged) for the disclosure spec (§2).
+import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
+import { cardAffiliateProvider } from "../lib/cardAffiliate";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -6984,6 +6990,9 @@ function PageInner({ initialEvents = null }) {
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
                   {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
+                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" lat={center.lat} lng={center.lng} />}
+                  {browseCat === "hotels" && center && <UTDealsRail category="stays" lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7703,6 +7712,67 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
   );
 }
 
+// Undercover Tourist discount-ticket / theme-park-hotel deal rail (CJ, PID
+// 101643573 — see lib/deals.js). Shipped v6.66, geo-gated v6.76, then silently
+// dropped from the homepage during the design-release-01 rewrite (merge
+// 46be253, 2026-07-24) — the backend (lib/dealsData.js, /api/deals) was never
+// touched and is still live; only this component + its two render call sites
+// were lost. Restored 2026-07-25, card chrome now matched 1:1 to BookableExpRail
+// (its sibling Viator rail just above) per owner request: same 200px card, same
+// <img> height 86 object-fit cover, same title clamp, same disclosure footer —
+// the two rails should read as one visual system, not two different eras of UI.
+function UTDealsRail({ category, lat, lng }) {
+  const [rails, setRails] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    setRails(null);
+    // Pass the user's location so /api/deals geo-gates — a far-away region's
+    // deals (Orlando hotels in South Carolina) are filtered out and the rail
+    // hides rather than showing something irrelevant.
+    const geo = (Number.isFinite(lat) && Number.isFinite(lng)) ? "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3) : "";
+    fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
+      if (dead) return;
+      setRails(res && !res.dark && Array.isArray(res.rails) ? res.rails : []);
+    });
+    return () => { dead = true; };
+  }, [category, lat, lng]);
+  if (rails === null || !rails.length) return null; // no skeleton flash — same contract as BookableExpRail; renders nothing when there are no live deals
+  return (
+    <>
+      {rails.map((rail) => (
+        <div key={rail.subcategory} style={{ margin: "2px 0 14px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{rail.label}</span>
+            <span style={{ fontSize: 9.5, color: C.muted }}>via Undercover Tourist</span>
+          </div>
+          <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+            {rail.items.map((d) => (
+              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
+                {(d.image || d.photoRef) ? (
+                  <img src={d.image || `/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600`} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} />
+                ) : (
+                  <div style={{ width: "100%", height: 86, background: d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)" }} />
+                )}
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
+                  {/* Same slot BookableExpRail uses for its rating chip + price: a
+                      discount badge (same pill shape/weight as PlaceScoreChip)
+                      plus the per-card affiliate disclosure (spec §2). */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
+                    {d.discount ? <span style={{ fontSize: 10.5, fontWeight: 800, color: "#0D1117", background: C.green, borderRadius: 999, padding: "2px 8px" }}>{d.discount}</span> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>Save on tickets</span>}
+                    <AffiliateChip provider={d.provider} label={d.providerLabel} />
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+          <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function ViatorRail({ title, items, theme }) {
   if (!Array.isArray(items) || !items.length) return null;
   return (
@@ -7897,6 +7967,13 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             )}
             <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
+          {/* Restored 2026-07-25: the per-card affiliate disclosure (spec Sec.2,
+              shipped v6.67) was dropped from the homepage in the design-release-01
+              rewrite -- lib/cardAffiliate.js + AffiliateChip.js were untouched and
+              still work, only this render call was lost. Owner-audit mode
+              (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
+              production hides an absent chip, so this is a pure disclosure add. */}
+          {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
         </div>
       </div>
     </div>
