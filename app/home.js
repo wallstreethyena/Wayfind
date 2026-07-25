@@ -8361,18 +8361,26 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-score .wayfind-score-badge>span:last-child{
   min-width:0!important;
   flex:1;
-  align-items:flex-start;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
   box-sizing:border-box;
-  padding:6px 7px!important;
+  padding:6px 6px!important;
   gap:2px!important;
 }
 .wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{
+  width:100%;
+  text-align:center;
   font-size:6.5px!important;
   line-height:1!important;
   letter-spacing:.7px!important;
   color:#B8C2D0!important;
 }
 .wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{
+  width:100%;
+  display:flex!important;
+  align-items:baseline!important;
+  justify-content:center!important;
   gap:2px!important;
   font-size:18px!important;
   line-height:.95!important;
@@ -8498,8 +8506,17 @@ const WF_PLACE_CARD_CSS = `
 }
 .wf-place-card-book{color:#FF9B50!important;border-color:rgba(249,115,22,.36)!important;text-decoration:none}
 .wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}
-.wf-place-card-like,.wf-place-card-dislike{width:36px!important;min-width:36px!important;flex:0 0 36px;padding:0!important;border-radius:11px!important}
-.wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:17px;height:17px}
+.wf-place-card-like,.wf-place-card-dislike{
+  width:42px!important;
+  min-width:42px!important;
+  height:40px!important;
+  min-height:40px!important;
+  flex:0 0 42px;
+  justify-content:center!important;
+  padding:0!important;
+  border-radius:12px!important;
+}
+.wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:19px;height:19px}
 .wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
 .wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
 .wf-place-card-share{min-width:88px;margin-left:auto}
