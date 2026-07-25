@@ -1313,7 +1313,7 @@ async function verifyCulturePlaces(items, center) {
   return out;
 }
 function AreaInsight({ metro, cat, town, center, onFind }) {
-  const [openIt, setOpenIt] = useState(true);
+  const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
   // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
   // only showing on Food and Beach day: the category menu passes Google
@@ -1357,7 +1357,7 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   return (
     <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 24, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 30px 70px rgba(0,0,0,.42)", overflow: "hidden" }}>
       <div style={{ height: 5, background: "linear-gradient(90deg,#FF7A1A,#FFB35F 42%,#42D3AE)" }} />
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" aria-expanded={openIt} tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, color: "#FFB16E", fontSize: 10, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>
             <span style={{ width: 30, height: 36, display: "inline-grid", placeItems: "center", flex: "0 0 auto", filter: "drop-shadow(0 7px 12px rgba(255,122,26,.28))" }}>
@@ -1372,6 +1372,13 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
         {signals.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 18 }}>
           {signals.map((signal) => <span key={signal} style={{ padding: "7px 10px", borderRadius: 9, background: "rgba(255,255,255,.055)", border: "1px solid rgba(255,255,255,.085)", color: "#E6EBF2", fontSize: 10.5, fontWeight: 800 }}><span style={{ color: "#57DFBB", marginRight: 5 }}>{"\u25CF"}</span>{signal}</span>)}
         </div> : null}
+        <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 19, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.1)", color: openIt ? "#D5DEE8" : "#FFFFFF" }}>
+          <span>
+            <span style={{ display: "block", fontSize: 11, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase" }}>{openIt ? "Collapse local guide" : "Open local guide"}</span>
+            <span style={{ display: "block", marginTop: 3, color: "#8F9BAA", fontSize: 10.5, lineHeight: 1.35, fontWeight: 700 }}>{openIt ? "Return to the quick overview" : "See what locals know"}</span>
+          </span>
+          <span aria-hidden="true" style={{ width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "0 0 auto", borderRadius: "50%", border: "1px solid rgba(255,177,110,.38)", background: "linear-gradient(145deg,rgba(255,122,26,.16),rgba(255,255,255,.045))", color: "#FFB16E", fontSize: 14, boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s ease" }}>{"\u2304"}</span>
+        </span>
       </div>
       {openIt && (
         <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
