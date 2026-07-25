@@ -67,7 +67,7 @@ export default function TodaysBest({ center, weather, onLog }) {
 
   return (
     <section aria-label="Today's Best" style={{ marginBottom: 16, background: "transparent", borderTop: "1px solid rgba(255,255,255,.08)" }}>
-      <style>{`.wf-tb-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
+      <style dangerouslySetInnerHTML={{ __html: `.wf-tb-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
       <div style={{ padding: "16px 2px 6px" }}>
         <div style={{ ...TYPE.eyebrow, color: C.light }}>Today's Best</div>
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 3 }}>The best of the best near you, ranked live for right now.</div>

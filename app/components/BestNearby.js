@@ -219,7 +219,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
 
   return (
     <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
-      <style>{`.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
+      <style dangerouslySetInnerHTML={{ __html: `.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 1px 8px" }}>
         <span style={{ fontSize: 11.5, fontWeight: 750, color: "#DCE5F0", display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: C.accent, boxShadow: "0 0 8px rgba(249,115,22,.55)" }} />Nearby, right now</span>
         <span style={{ fontSize: 10.5, color: "#7F8DA0" }}>Updated for this hour</span>

@@ -159,7 +159,7 @@ export default function MenuSheet({ ctx }) {
             )}
             {menuSheet === "pick" && (
               <>
-                <style>{"@keyframes wfRouletteFloat{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-7px) rotate(7deg)}}@keyframes wfRouletteGlow{0%,100%{opacity:.42;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}@keyframes wfRouletteSpin{to{transform:rotate(360deg)}}"}</style>
+                <style dangerouslySetInnerHTML={{ __html: "@keyframes wfRouletteFloat{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-7px) rotate(7deg)}}@keyframes wfRouletteGlow{0%,100%{opacity:.42;transform:scale(.92)}50%{opacity:1;transform:scale(1.08)}}@keyframes wfRouletteSpin{to{transform:rotate(360deg)}}" }} />
                 <section aria-label="Wayfind Roulette" style={{ position: "relative", overflow: "hidden", borderRadius: 22, padding: "22px 18px 18px", marginBottom: 16, background: "radial-gradient(circle at 84% 16%, rgba(148,163,184,.25), transparent 31%), linear-gradient(145deg, #172235 0%, #0E1622 58%, #0A1019 100%)", border: "1px solid rgba(148,163,184,.34)", boxShadow: "0 18px 44px rgba(0,0,0,.38)" }}>
                   <div aria-hidden="true" style={{ position: "absolute", width: 188, height: 188, right: -64, top: -72, borderRadius: "50%", border: "1px solid rgba(148,163,184,.25)", animation: "wfRouletteSpin 18s linear infinite" }} />
                   <div aria-hidden="true" style={{ position: "absolute", width: 126, height: 126, right: -33, top: -40, borderRadius: "50%", border: "1px dashed rgba(255,255,255,.16)", animation: "wfRouletteSpin 12s linear infinite reverse" }} />

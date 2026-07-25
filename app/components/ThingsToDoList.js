@@ -124,7 +124,7 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, bl
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <style>{`.wf-ttd-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}`}</style>
+      <style dangerouslySetInnerHTML={{ __html: `.wf-ttd-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
       <div style={{ fontSize: 12.5, color: C.muted, margin: "0 0 10px" }}>The best of right now — tours, beaches and attractions, ranked together for this hour and weather.</div>
       {list === null ? (
         <>
