@@ -1344,37 +1344,38 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   const headline = notes.headline || ("A local read on " + placeLabel + ".");
   const signals = Array.isArray(notes.signals) ? notes.signals.slice(0, 3) : [];
   const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
-  const readCount = Math.max(1, visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0));
+  const readCount = Math.max(1, Math.ceil((visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0)) * 0.66));
   const featureRow = (marker, title, body, tone, onClick, keyId) => (
-    <div key={keyId} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? KB_CLICK : undefined} style={{ display: "grid", gridTemplateColumns: "36px minmax(0,1fr)", gap: 11, padding: "13px 3px", borderTop: "1px solid rgba(255,255,255,.075)", cursor: onClick ? "pointer" : "default" }}>
+    <div key={keyId} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? KB_CLICK : undefined} style={{ display: "grid", gridTemplateColumns: "38px minmax(0,1fr)", gap: 12, padding: "13px 12px", borderTop: "1px solid rgba(255,255,255,.08)", cursor: onClick ? "pointer" : "default" }}>
       <span style={{ width: 31, height: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "#151F2B", color: tone, fontSize: 11.5, fontWeight: 900 }}>{marker}</span>
       <span style={{ minWidth: 0 }}>
         <span style={{ display: "block", color: "#FFFFFF", fontSize: 13, lineHeight: 1.25, fontWeight: 850, textDecoration: onClick ? "underline" : "none", textDecorationColor: onClick ? "rgba(255,151,70,.36)" : "transparent", textUnderlineOffset: 3 }}>{title}</span>
-        <span style={{ display: "block", color: "#AFBBC9", fontSize: 11.75, lineHeight: 1.48, marginTop: 3 }}>{body}</span>
+        <span style={{ display: "block", color: "#AFBBC9", fontSize: 12, lineHeight: 1.45, marginTop: 4 }}>{body}</span>
       </span>
     </div>
   );
   return (
-    <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 21, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 18px 38px rgba(0,0,0,.28)", overflow: "hidden" }}>
-      <div style={{ height: 4, background: "linear-gradient(90deg,#FF7614,#FFB15D 44%,#42D3AE)" }} />
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "20px 20px 18px", cursor: "pointer", background: "radial-gradient(circle at 94% 0,rgba(255,118,20,.18),transparent 43%),linear-gradient(145deg,#121C27,#0A1119)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 15 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 9, minWidth: 0, color: "#FFB16E", fontSize: 9.5, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".15em", textTransform: "uppercase" }}>
-            <img src="/brand/wayfind-pin-transparent.png" alt="" width="24" height="31" style={{ width: 24, height: 31, objectFit: "contain", filter: "drop-shadow(0 6px 10px rgba(255,118,20,.28))" }} />
+    <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 24, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 30px 70px rgba(0,0,0,.42)", overflow: "hidden" }}>
+      <div style={{ height: 5, background: "linear-gradient(90deg,#FF7A1A,#FFB35F 42%,#42D3AE)" }} />
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "clamp(24px,4vw,27px) clamp(20px,4vw,25px) clamp(19px,3vw,21px)", cursor: "pointer", background: "radial-gradient(circle at 92% 0,rgba(255,122,26,.18),transparent 45%),linear-gradient(145deg,#121C27,#0A1119)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 18 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 10, minWidth: 0, color: "#FFB16E", fontSize: 10, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>
+            <span style={{ width: 30, height: 36, display: "inline-grid", placeItems: "center", flex: "0 0 auto", filter: "drop-shadow(0 7px 12px rgba(255,122,26,.28))" }}>
+              <img src="/brand/wayfind-pin-transparent.png" alt="" width="27" height="35" style={{ display: "block", width: 27, height: 35, objectFit: "contain", transform: "scale(1.55)" }} />
+            </span>
             <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{placeLabel} local culture</span>
           </span>
-          <span style={{ flex: "0 0 auto", padding: "6px 9px", borderRadius: 999, border: "1px solid rgba(255,255,255,.13)", color: "#B8C4D2", fontSize: 9.5, fontWeight: 800 }}>{readCount} min local read</span>
+          <span style={{ flex: "0 0 auto", padding: "7px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,.13)", color: "#B8C4D2", fontSize: 10, fontWeight: 800 }}>{readCount} min local read</span>
         </div>
-        <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(14px,3.1vw,18px)", lineHeight: 1.12, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
-        <span style={{ display: "block", maxWidth: 470, color: "#B9C6D3", fontSize: 12.25, lineHeight: 1.5, marginTop: 9 }}>{notes.line}</span>
-        {signals.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 15 }}>
-          {signals.map((signal) => <span key={signal} style={{ padding: "6px 9px", borderRadius: 9, background: "rgba(255,255,255,.055)", border: "1px solid rgba(255,255,255,.085)", color: "#E6EBF2", fontSize: 10, fontWeight: 800 }}><span style={{ color: "#57DFBB", marginRight: 5 }}>{"\u25CF"}</span>{signal}</span>)}
+        <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(15px,3.1vw,18px)", lineHeight: 1.1, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
+        <span style={{ display: "block", maxWidth: 455, color: "#B9C6D3", fontSize: 13.5, lineHeight: 1.52, marginTop: 11 }}>{notes.line}</span>
+        {signals.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 18 }}>
+          {signals.map((signal) => <span key={signal} style={{ padding: "7px 10px", borderRadius: 9, background: "rgba(255,255,255,.055)", border: "1px solid rgba(255,255,255,.085)", color: "#E6EBF2", fontSize: 10.5, fontWeight: 800 }}><span style={{ color: "#57DFBB", marginRight: 5 }}>{"\u25CF"}</span>{signal}</span>)}
         </div> : null}
-        <span aria-hidden="true" style={{ position: "absolute", right: 14, bottom: 13, width: 24, height: 24, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 999, background: "rgba(255,255,255,.065)", color: "#B7C2CF", fontSize: 9, transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"\u25BC"}</span>
       </div>
       {openIt && (
-        <div style={{ padding: "15px 18px 18px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
-          <div style={{ marginBottom: 2, color: "#7F8C9B", fontSize: 9, fontWeight: 900, letterSpacing: ".16em", textTransform: "uppercase" }}>What locals know</div>
+        <div style={{ padding: "19px 20px 21px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
+          <div style={{ marginBottom: 11, color: "#7F8C9B", fontSize: 9.5, fontWeight: 900, letterSpacing: ".17em", textTransform: "uppercase" }}>What locals know</div>
           {visibleItems.map((x, i) => {
             const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
             const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
