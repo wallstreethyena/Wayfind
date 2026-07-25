@@ -19,6 +19,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
+import { saveItem as saveMonetized } from "../lib/savedItems";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
@@ -3564,6 +3565,14 @@ function PageInner({ initialEvents = null }) {
     return false;
   }
 
+  // Save a monetized non-place card (Viator experience / UT deal) to
+  // wf_saved_items (Saved tab reads it). Signed-in only — prompts otherwise.
+  async function saveMonetizedItem(item) {
+    if (!requireAuth("Sign in to save this and find it later on any device.")) return;
+    const okv = await saveMonetized(user.id, item);
+    showToast(okv ? "Saved to your list" : "Could not save — try again");
+  }
+
   // v5.61 (audit P0): landing on a personal screen (Favorites/Itinerary) while
   // signed out — via nav tap, deep link (?go=favorites), or restore — pops the
   // sign-in dialog. The screen content is already withheld (AuthWall renders
@@ -6989,10 +6998,10 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
-                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" lat={center.lat} lng={center.lng} />}
-                  {browseCat === "hotels" && center && <UTDealsRail category="stays" lat={center.lat} lng={center.lng} />}
+                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(r) => { try { quickSaveFavorite({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); } catch (e) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -7702,6 +7711,7 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
                 {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
                 <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}</span>
+                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url) || t.url, provider: "viator" }); } catch (er) {} }} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
               </div>
             </div>
           </a>
@@ -7721,14 +7731,13 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
 // (its sibling Viator rail just above) per owner request: same 200px card, same
 // <img> height 86 object-fit cover, same title clamp, same disclosure footer —
 // the two rails should read as one visual system, not two different eras of UI.
-function UTDealsRail({ category, lat, lng }) {
+function UTDealsRail({ category, onSave, lat, lng }) {
   const [rails, setRails] = useState(null);
   useEffect(() => {
     let dead = false;
     setRails(null);
-    // Pass the user's location so /api/deals geo-gates — a far-away region's
-    // deals (Orlando hotels in South Carolina) are filtered out and the rail
-    // hides rather than showing something irrelevant.
+    // Pass the user's location so /api/deals geo-gates — a far-away region's deals
+    // (Orlando hotels in South Carolina) are filtered out and the rail hides.
     const geo = (Number.isFinite(lat) && Number.isFinite(lng)) ? "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3) : "";
     fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null).then((res) => {
       if (dead) return;
@@ -7736,7 +7745,8 @@ function UTDealsRail({ category, lat, lng }) {
     });
     return () => { dead = true; };
   }, [category, lat, lng]);
-  if (rails === null || !rails.length) return null; // no skeleton flash — same contract as BookableExpRail; renders nothing when there are no live deals
+  if (rails === null || !rails.length) return null; // no skeleton flash
+  const cta = category === "stays" ? "View hotels ↗" : "Get tickets ↗";
   return (
     <>
       {rails.map((rail) => (
@@ -7747,20 +7757,22 @@ function UTDealsRail({ category, lat, lng }) {
           </div>
           <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
             {rail.items.map((d) => (
-              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
-                {(d.image || d.photoRef) ? (
-                  <img src={d.image || `/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600`} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} />
-                ) : (
-                  <div style={{ width: "100%", height: 86, background: d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)" }} />
-                )}
+              <a key={d.id} href={d.href} target="_blank" rel="noopener sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { logEvent("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
+                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
+                </div>
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>
-                  {/* Same slot BookableExpRail uses for its rating chip + price: a
-                      discount badge (same pill shape/weight as PlaceScoreChip)
-                      plus the per-card affiliate disclosure (spec §2). */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
-                    {d.discount ? <span style={{ fontSize: 10.5, fontWeight: 800, color: "#0D1117", background: C.green, borderRadius: 999, padding: "2px 8px" }}>{d.discount}</span> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>Save on tickets</span>}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5, flexWrap: "wrap" }}>
+                    {d.discount ? <span style={{ fontSize: 11, fontWeight: 800, color: "#7DD3A8" }}>{d.discount}</span> : null}
+                    <span style={{ display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "3px 9px", fontSize: 11, fontWeight: 800 }}>{cta}</span>
+                  </div>
+                  <div style={{ marginTop: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
                     <AffiliateChip provider={d.provider} label={d.providerLabel} />
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      <button aria-label={"Save " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "deal", item_id: d.id, item_title: d.title, item_image: d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=240" : null), item_url: d.href, provider: d.provider }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡</button>
+                      <button aria-label={"Share " + d.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { shareLink(d.title, d.href, null, "Discount tickets on Wayfind"); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>↗</button>
+                    </div>
                   </div>
                 </div>
               </a>
