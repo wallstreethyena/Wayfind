@@ -17,10 +17,10 @@ const expect = (actual, want, msg) => {
 
 // Exact boundary transitions (spec table, all inclusive edges).
 expect(getScoreBand(10), "excellent", "10.0 → green");
-expect(getScoreBand(8.5), "excellent", "8.5 → green");
-expect(getScoreBand(8.49), "strong", "8.49 → orange");
-expect(getScoreBand(7.9), "strong", "7.9 → orange");
-expect(getScoreBand(7.89), "fair", "7.89 → yellow");
+expect(getScoreBand(9.0), "excellent", "9.0 → green");
+expect(getScoreBand(8.99), "strong", "8.99 → orange");
+expect(getScoreBand(8.0), "strong", "8.0 → orange");
+expect(getScoreBand(7.99), "fair", "7.99 → yellow");
 expect(getScoreBand(7.0), "fair", "7.0 → yellow");
 expect(getScoreBand(6.99), "low", "6.99 → red");
 expect(getScoreBand(0), "low", "0.0 → red");
@@ -69,9 +69,9 @@ expect(pinGlyphColor("fair"), SCORE_TOKENS.bg, "yellow band → dark pin glyph")
 expect(pinGlyphColor("excellent"), "#FFFFFF", "green band → white pin glyph");
 
 // Wayfind Pick never on yellow/red.
-expect(pickEligibleByScore(8.5), true, "pick allowed at 8.5");
-expect(pickEligibleByScore(7.9), true, "pick allowed at 7.9 (orange)");
-expect(pickEligibleByScore(7.8), false, "pick blocked on yellow");
+expect(pickEligibleByScore(9.0), true, "pick allowed at 9.0");
+expect(pickEligibleByScore(8.0), true, "pick allowed at 8.0 (orange)");
+expect(pickEligibleByScore(7.99), false, "pick blocked on yellow");
 expect(pickEligibleByScore(6.0), false, "pick blocked on red");
 expect(pickEligibleByScore(NaN), false, "pick blocked on invalid");
 
