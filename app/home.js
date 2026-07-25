@@ -101,6 +101,7 @@ import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
+import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 
@@ -181,10 +182,62 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
     </div>
   );
 }
-function FeaturedTag({ name }) {
-  if (!(featuredBoost(name) > 0)) return null;
+// Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
+const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
+function FeaturedTag({ p }) {
+  // Takes the PLACE — Detail.js passes p={detail}; featuredBoost geo-gates on
+  // its coords. (It was reverted to a {name} prop while Detail kept passing p —
+  // the tag silently never rendered.)
+  if (!(featuredBoost(p) > 0)) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
 }
+// v6.61 (owner build order #7): coverage. Wayfind is live around three FL
+// metros; more than 75 mi from all of them we NEVER show another city's data —
+// we say so honestly and capture interest so coverage grows where users are.
+const WF_COVERAGE_METROS = [{ lat: 27.4, lng: -82.55 }, { lat: 27.85, lng: -82.6 }, { lat: 28.54, lng: -81.38 }];
+function milesBetween(a, b) {
+  const R = 3958.8, rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat), dLng = rad(b.lng - a.lng);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+function outOfCoverage(center) {
+  if (!center || !isFinite(center.lat)) return false; // unknown location -> let the normal feed try
+  return WF_COVERAGE_METROS.every((m) => milesBetween(center, m) > 75);
+}
+function CoverageWaitlist({ center, locName, C, supabase }) {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("idle"); // idle | saving | done | err
+  const city = (locName ? locName.split(",")[0] : "your area") || "your area";
+  const submit = async (e) => {
+    e.preventDefault();
+    const v = email.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)) { setState("err"); return; }
+    setState("saving");
+    try {
+      if (supabase) { const { error } = await supabase.from("wf_waitlist").insert({ email: v, city, lat: center ? center.lat : null, lng: center ? center.lng : null }); if (error) throw error; }
+      setState("done");
+    } catch (er) { setState("err"); }
+  };
+  return (
+    <div style={{ textAlign: "center", padding: "40px 22px 60px", maxWidth: 460, margin: "0 auto" }}>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>🧭</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 8 }}>Wayfind isn&apos;t live in {city} yet</div>
+      <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.55, margin: "0 0 18px" }}>We&apos;re built for the Gulf Coast and Orlando right now, and expanding. We won&apos;t show you another city&apos;s picks pretending they&apos;re yours — that&apos;s not how Wayfind works. Leave your email and we&apos;ll tell you the day {city} goes live.</p>
+      {state === "done" ? (
+        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.green }}>You&apos;re on the list. We&apos;ll be in touch when {city} is live. ✓</div>
+      ) : (
+        <form onSubmit={submit} style={{ display: "flex", gap: 8, maxWidth: 380, margin: "0 auto" }}>
+          <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); if (state === "err") setState("idle"); }} placeholder="you@email.com" aria-label="Email" style={{ flex: 1, minHeight: 44, borderRadius: 11, border: `1px solid ${state === "err" ? "#B33A2B" : C.border}`, background: C.card, color: C.text, fontSize: 15, padding: "0 14px" }} />
+          <button type="submit" disabled={state === "saving"} style={{ minHeight: 44, padding: "0 18px", borderRadius: 11, border: "none", background: C.accent, color: "#0D1117", fontSize: 14, fontWeight: 800, cursor: "pointer", opacity: state === "saving" ? 0.6 : 1 }}>{state === "saving" ? "…" : "Notify me"}</button>
+        </form>
+      )}
+      {state === "err" ? <div style={{ fontSize: 12.5, color: "#E06A5A", marginTop: 8 }}>Enter a valid email and we&apos;ll add you.</div> : null}
+    </div>
+  );
+}
+
+
 function listShareUrl(key, title, n, loc, hk) {
   const q = ["t=" + encodeURIComponent(String(title || "").slice(0, 60))];
   if (hk) q.push("hk=" + encodeURIComponent(hk));
@@ -311,7 +364,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -634,19 +687,43 @@ const BEST_OF_SET = new Set(BEST_OF_NAMES.map(wfNorm));
 const LOCAL_FAVE_SET = new Set([...BEST_OF_NAMES, ...LOCAL_FAVE_EXTRA].map(wfNorm));
 const LOCAL_FAVE_KEYS = [...LOCAL_FAVE_SET];
 const _faveCache = new Map();
-function faveTier(name) {
+// The metros Wayfind actually has first-party curated data for: the Sarasota /
+// Tampa Gulf-Coast cluster + Orlando (gems). Name-keyed picks / best-of / gems
+// apply ONLY to a place physically in one of these — a same-named place anywhere
+// else (a Denver "Chart House", a Greenville "Columbia Restaurant") must never
+// inherit a Florida badge, boost, or blurb. Fail-CLOSED: unknown coords => out.
+const FIRST_PARTY_ANCHORS = [
+  { lat: 27.336, lng: -82.531 }, // Sarasota
+  { lat: 27.498, lng: -82.575 }, // Bradenton / Anna Maria
+  { lat: 27.767, lng: -82.640 }, // St. Petersburg
+  { lat: 27.947, lng: -82.459 }, // Tampa / Ybor
+  { lat: 28.538, lng: -81.379 }, // Orlando (gems)
+];
+const FIRST_PARTY_RADIUS_MI = 55;
+function inCuratedRegion(p) {
+  if (!p || typeof p.lat !== "number" || typeof p.lng !== "number") return false;
+  for (const a of FIRST_PARTY_ANCHORS) {
+    const dLat = p.lat - a.lat, dLng = (p.lng - a.lng) * Math.cos((a.lat * Math.PI) / 180);
+    if (Math.sqrt(dLat * dLat + dLng * dLng) * 69 <= FIRST_PARTY_RADIUS_MI) return true;
+  }
+  return false;
+}
+// faveTier takes the PLACE (needs coords to geo-gate). Raw name→tier is cached by
+// name; the region gate is applied per-place and NOT cached (a name is tier-2 in
+// Sarasota and tier-0 everywhere else). The old startsWith fuzzy branch is DROPPED
+// — it was the main false-positive source (generic names like "Columbia
+// Restaurant" / "Pier 22" colliding with unrelated venues nationwide).
+function faveTier(p) {
+  const name = typeof p === "string" ? p : p && p.name;
   const n = wfNorm(name);
   if (!n) return 0;
-  if (_faveCache.has(n)) return _faveCache.get(n);
-  let tier = 0;
-  if (BEST_OF_SET.has(n)) tier = 2;
-  else if (LOCAL_FAVE_SET.has(n)) tier = 1;
-  else { for (const k of LOCAL_FAVE_KEYS) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) { tier = BEST_OF_SET.has(k) ? 2 : 1; break; } } }
-  _faveCache.set(n, tier);
+  if (p && typeof p === "object" && !inCuratedRegion(p)) return 0; // geo gate (per-place, uncached)
+  let tier = _faveCache.get(n);
+  if (tier == null) { tier = BEST_OF_SET.has(n) ? 2 : LOCAL_FAVE_SET.has(n) ? 1 : 0; _faveCache.set(n, tier); }
   return tier;
 }
-const isLocalFave = (name) => faveTier(name) >= 1;
-const isBestOf = (name) => faveTier(name) === 2;
+const isLocalFave = (p) => faveTier(p) >= 1;
+const isBestOf = (p) => faveTier(p) === 2;
 
 // Owner-curated featured boost. Places listed here get a ranking lift so they
 // surface prominently for everyone. Keyed by normalized name -> points added to
@@ -848,7 +925,7 @@ function communityBoost(p) {
 }
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
-const curatedFor = (p) => CURATED_BY_NAME.get(_wfNorm(p && p.name));
+const curatedFor = (p) => (p && inCuratedRegion(p) ? CURATED_BY_NAME.get(_wfNorm(p.name)) : undefined);
 // v4.83: curated picks stay injectable out to 45 mi even though lists open at
 // the 17-mi default — the owner's promise is that tagged picks always compete,
 // and every card labels its distance so nothing is hidden.
@@ -871,11 +948,16 @@ const ADAPT_MIN = 8;
 // to remove or retune, change VIDEO_BOOST or delete hasCreatorVideo at its call sites.
 const VIDEO_BOOST = 45; // clears the 30-pt max distance penalty and lifts a featured place near the top
 function hasCreatorVideo(p) { try { return creatorVideosFor(p).length > 0; } catch (e) { return false; } }
-function featuredBoost(name) {
+// featuredBoost takes the PLACE (needs coords to geo-gate). WAYFIND_FEATURED +
+// gems are first-party FL data; a same-named place outside the curated region
+// never inherits the boost. The startsWith fuzzy branch is DROPPED (false
+// positives). Bare-string callers (none remain) simply skip the gate.
+function featuredBoost(p) {
+  const name = typeof p === "string" ? p : p && p.name;
   const n = wfNorm(name);
   if (!n) return 0;
+  if (p && typeof p === "object" && !inCuratedRegion(p)) return 0; // geo gate
   if (WAYFIND_FEATURED[n] != null) return WAYFIND_FEATURED[n];
-  for (const k in WAYFIND_FEATURED) { if ((k.length >= 6 && n.startsWith(k)) || (n.length >= 8 && k.startsWith(n))) return WAYFIND_FEATURED[k]; }
   const _g = Gems.gemFor(name); if (_g) return (_g.boost != null ? _g.boost : 2); // gems nudge, never override earned rank
   return 0;
 }
@@ -978,8 +1060,8 @@ const EXPERIENCES = {
   gem:       { icon: "💎", label: "Hidden gem",      title: "Hidden Gems",      cat: "food",      lead: "The quietly excellent places most people walk right past.", filter: (p) => p.rating >= 4.6 && p.reviews >= 40 && p.reviews <= 600 },
   value:     { icon: "💰", label: "Great value",     title: "Great Value",      cat: "food",      keyword: "affordable cheap eats", lead: "Genuinely good food that does not cost a fortune.", filter: (p) => p.rating >= 4.2 && (p.priceNum == null || p.priceNum <= 2) },
   localfav:  { icon: "⭐", label: "Crowd favorite",  title: "Top Rated Near You",  cat: "food",      lead: "Highly rated nearby spots with strong review volume, ranked by the Wayfind Score.", filter: (p) => p.rating >= 4.6 && p.reviews >= 800 },
-  featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p.name) > 0 },
-  bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p.name) },
+  featured:  { icon: "🏅", label: "Featured",       title: "Featured picks",   cat: "food",      lead: "Spots we are highlighting near you.", filter: (p) => featuredBoost(p) > 0 },
+  bestof:    { icon: "🏆", label: "Best of Sarasota", title: "Best of Sarasota", cat: "food", lead: "The local institutions people here name among the best, now in Wayfind.", filter: (p) => isBestOf(p) },
   waterfront:{ icon: "🌊", label: "Waterfront",      title: "On the Water",     cat: "food",      keyword: "waterfront", lead: "Tables with the water in view." },
   rooftop:   { icon: "🌆", label: "Rooftop",         title: "Rooftop Spots",    cat: "nightlife", keyword: "rooftop", lead: "Drinks and a view from up top." },
   romantic:  { icon: "💕", label: "Romantic",        title: "Date Night",       cat: "food",      keyword: "romantic restaurant", lead: "Low light, good wine, and a table for two." },
@@ -1113,8 +1195,8 @@ function experienceBadges(p, selectedKey, max, audit) {
   if (p.rating >= 4.6 && p.reviews >= 800) q.add("localfav");
   if (p.rating >= 4.5 && p.reviews >= 2500) q.add("localfav");
   // v6.22: curated local favorites also earn the badge, matched by name (see faveTier). Editorially recognized ones get "bestof".
-  if (isLocalFave(p.name)) q.add("localfav");
-  if (isBestOf(p.name)) q.add("bestof");
+  if (isLocalFave(p)) q.add("localfav");
+  if (isBestOf(p)) q.add("bestof");
   if (p.rating >= 4.4 && p.reviews >= 15 && p.reviews < 800) q.add("gem");
   if (p.rating >= 4.2 && p.priceNum != null && p.priceNum <= 2) q.add("value");
 
@@ -3075,6 +3157,8 @@ function PageInner({ initialEvents = null }) {
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
+  const [gateStatus, setGateStatus] = useState(null);
+  const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [homeTodo, setHomeTodo] = useState(null);
   const [suggestedLoading, setSuggestedLoading] = useState(false);
   const [intent, setIntent] = useState(null);
@@ -3149,7 +3233,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p.name) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3227,7 +3311,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
-        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -4937,7 +5021,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -5349,7 +5433,7 @@ function PageInner({ initialEvents = null }) {
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
         let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b.name) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a.name) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -5979,6 +6063,47 @@ function PageInner({ initialEvents = null }) {
     setLocName("");
   }
 
+  // Coverage gate: ask the server whether this location is live / unlock / alert.
+  // One RPC; the result drives whether the feed or the CityGate door renders.
+  useEffect(() => {
+    if (screen !== "suggested" || !center || !supabase) { setGateStatus(null); return; }
+    let dead = false;
+    supabase.rpc("wf_gate_status", { p_lat: center.lat, p_lng: center.lng, p_user_id: (user && user.id) || null })
+      .then(({ data }) => { if (!dead) setGateStatus(typeof data === "string" ? data : null); }, () => { if (!dead) setGateStatus(null); });
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, user, gateBump]);
+
+  // Auto-fill coverage for ANY uncovered location (owner: works for the user's
+  // searched OR default location — no tap, signed in or not). When the gate says
+  // this place isn't covered, kick /api/city/unlock ONCE per location cell; it
+  // pulls Google + Viator server-side, then we re-check so the door gives way to
+  // real content and a real "Things to do" rail. Cost is bounded server-side
+  // (per-city 90-day dedup + global hourly cap + same-origin guard).
+  const autoUnlockRef = useRef(new Set());
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    if (gateStatus !== "unlock" && gateStatus !== "alert") return;
+    const cell = center.lat.toFixed(2) + "," + center.lng.toFixed(2);
+    if (autoUnlockRef.current.has(cell)) return; // one attempt per location per session
+    autoUnlockRef.current.add(cell);
+    let dead = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/city/unlock", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ lat: center.lat, lng: center.lng, city: locName || "" }),
+        });
+        const j = r.ok ? await r.json() : null;
+        if (!dead && j && (j.status === "live" || j.added > 0 || j.experiences > 0)) setGateBump((x) => x + 1);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, gateStatus]);
+
+
   async function submitSearch(qOverride, opts) {
     try { logEvent("search", null, { q: String(query || "").slice(0, 80) }); } catch (e) {}
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
@@ -6279,7 +6404,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p.name) * 4 + featuredBoost(p.name) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -6644,7 +6769,17 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {screen === "suggested" && (() => {
+        {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
+            IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
+            effect deps) so the alert card swaps to the unlock card immediately —
+            no lingering. */}
+        {screen === "suggested" && (gateStatus === "unlock" || gateStatus === "alert") && (
+          <CityGate status={gateStatus} center={center} city={locName} user={user} onSignUp={() => setAuthOpen(true)} onUnlocked={() => setGateBump((x) => x + 1)} />
+        )}
+        {/* Signed-in users ALWAYS get the feed — even outside our core area (the
+            gate returns 'unlock', and the live-search feed works anywhere). Only
+            'alert' (signed-out + uncovered) walls the feed behind the waitlist. */}
+        {screen === "suggested" && gateStatus !== "alert" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
@@ -7856,7 +7991,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   }, [p && p.id]);
   // v5.99: the "Creator video" badge is shown iff the place got the VIDEO_BOOST
   // (same hasCreatorVideo predicate) — the boost is labeled, never silent.
-  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p.name) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
+  const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
   // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
