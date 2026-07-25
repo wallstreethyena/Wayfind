@@ -880,11 +880,11 @@ function tasteBump(place) {
   try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); localStorage.setItem("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
 }
 
-// v1.8: hard category gate for intent-specific meal searches. A breakfast search
-// must not surface generic "Food" places with no breakfast evidence. Evidence is
-// read from Google types and the venue name. If gating leaves fewer than 5
-// results (sparse area), fall back to the ungated list rather than showing an
-// empty screen; the conditions ranking still favors open + meal-time fit.
+// v6.44: hard category gate for intent-specific meal searches. Radius changes
+// may expand geography, but never intent. The old sparse-market fallback returned
+// the entire Food list when fewer than five meal matches remained; that is how a
+// widened Breakfast search became generic fast food. Honest scarcity is better
+// than unrelated results, so this gate never falls back to the ungated pool.
 const MEAL_GATE_RE = {
   breakfast: /breakfast|brunch|cafe|caf\u00e9|coffee|bakery|diner|pancake|waffle|donut|doughnut|biscuit|bagel|crepe|creperie|juice/,
   coffee: /coffee|cafe|caf\u00e9|espresso|roaster|tea ?house|bakery|juice/,
@@ -892,8 +892,10 @@ const MEAL_GATE_RE = {
 function mealGate(list, subId) {
   const re = MEAL_GATE_RE[subId];
   if (!re) return list;
-  const g = (list || []).filter((p) => re.test((((Array.isArray(p.types) ? p.types.join(" ") : "") + " " + (p.type || "") + " " + (p.name || ""))).toLowerCase()));
-  return g.length >= 5 ? g : list;
+  return (list || []).filter((p) =>
+    placeAllowed("food", subId, p)
+    && re.test((((Array.isArray(p.types) ? p.types.join(" ") : "") + " " + (p.type || "") + " " + (p.name || ""))).toLowerCase())
+  );
 }
 
 // v6.25: founder-curated "note from Wayfind" for specific properties. Hand-written insider
@@ -1311,7 +1313,7 @@ async function verifyCulturePlaces(items, center) {
   return out;
 }
 function AreaInsight({ metro, cat, town, center, onFind }) {
-  const [openIt, setOpenIt] = useState(false);
+  const [openIt, setOpenIt] = useState(true);
   const [grounded, setGrounded] = useState({});
   // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
   // only showing on Food and Beach day: the category menu passes Google
@@ -1338,33 +1340,49 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [namedKey, center && center.lat, center && center.lng]);
   if (!notes || !c) return null;
+  const placeLabel = isTown ? town : (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " + " + c.title : c.title);
+  const headline = notes.headline || ("A local read on " + placeLabel + ".");
+  const signals = Array.isArray(notes.signals) ? notes.signals.slice(0, 3) : [];
+  const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
+  const readCount = Math.max(1, visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0));
+  const featureRow = (marker, title, body, tone, onClick, keyId) => (
+    <div key={keyId} onClick={onClick} role={onClick ? "button" : undefined} tabIndex={onClick ? 0 : undefined} onKeyDown={onClick ? KB_CLICK : undefined} style={{ display: "grid", gridTemplateColumns: "36px minmax(0,1fr)", gap: 11, padding: "13px 3px", borderTop: "1px solid rgba(255,255,255,.075)", cursor: onClick ? "pointer" : "default" }}>
+      <span style={{ width: 31, height: 31, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 10, background: "#151F2B", color: tone, fontSize: 11.5, fontWeight: 900 }}>{marker}</span>
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: "block", color: "#FFFFFF", fontSize: 13, lineHeight: 1.25, fontWeight: 850, textDecoration: onClick ? "underline" : "none", textDecorationColor: onClick ? "rgba(255,151,70,.36)" : "transparent", textUnderlineOffset: 3 }}>{title}</span>
+        <span style={{ display: "block", color: "#AFBBC9", fontSize: 11.75, lineHeight: 1.48, marginTop: 3 }}>{body}</span>
+      </span>
+    </div>
+  );
   return (
-    <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
-        <span style={{ fontSize: 15, lineHeight: "19px" }}>{"\uD83C\uDF3A"}</span>
-        <span style={{ flex: 1, fontSize: 12.5, color: "#B9D6CE", lineHeight: 1.45 }}>
-          <span style={{ fontWeight: 800, color: "#FFFFFF" }}>{isTown ? town : "Around " + (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title)}: </span>
-          {notes.line}
-        </span>
-        <span style={{ fontSize: 10, color: "#8ED6C4", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s", marginTop: 3 }}>{"\u25BC"}</span>
+    <div style={{ position: "relative", margin: "0 0 14px", borderRadius: 21, border: "1px solid rgba(255,255,255,.13)", background: "#0B1119", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055), 0 18px 38px rgba(0,0,0,.28)", overflow: "hidden" }}>
+      <div style={{ height: 4, background: "linear-gradient(90deg,#FF7614,#FFB15D 44%,#42D3AE)" }} />
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ position: "relative", padding: "20px 20px 18px", cursor: "pointer", background: "radial-gradient(circle at 94% 0,rgba(255,118,20,.18),transparent 43%),linear-gradient(145deg,#121C27,#0A1119)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 15 }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 9, minWidth: 0, color: "#FFB16E", fontSize: 9.5, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".15em", textTransform: "uppercase" }}>
+            <img src="/brand/wayfind-pin-transparent.png" alt="" width="24" height="31" style={{ width: 24, height: 31, objectFit: "contain", filter: "drop-shadow(0 6px 10px rgba(255,118,20,.28))" }} />
+            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{placeLabel} local culture</span>
+          </span>
+          <span style={{ flex: "0 0 auto", padding: "6px 9px", borderRadius: 999, border: "1px solid rgba(255,255,255,.13)", color: "#B8C4D2", fontSize: 9.5, fontWeight: 800 }}>{readCount} min local read</span>
+        </div>
+        <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(14px,3.1vw,18px)", lineHeight: 1.12, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
+        <span style={{ display: "block", maxWidth: 470, color: "#B9C6D3", fontSize: 12.25, lineHeight: 1.5, marginTop: 9 }}>{notes.line}</span>
+        {signals.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 15 }}>
+          {signals.map((signal) => <span key={signal} style={{ padding: "6px 9px", borderRadius: 9, background: "rgba(255,255,255,.055)", border: "1px solid rgba(255,255,255,.085)", color: "#E6EBF2", fontSize: 10, fontWeight: 800 }}><span style={{ color: "#57DFBB", marginRight: 5 }}>{"\u25CF"}</span>{signal}</span>)}
+        </div> : null}
+        <span aria-hidden="true" style={{ position: "absolute", right: 14, bottom: 13, width: 24, height: 24, display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 999, background: "rgba(255,255,255,.065)", color: "#B7C2CF", fontSize: 9, transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s" }}>{"\u25BC"}</span>
       </div>
       {openIt && (
-        <div style={{ padding: "0 13px 13px 37px" }}>
-          {(notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]).map((x, i) => {
+        <div style={{ padding: "15px 18px 18px", borderTop: "1px solid rgba(255,255,255,.07)" }}>
+          <div style={{ marginBottom: 2, color: "#7F8C9B", fontSize: 9, fontWeight: 900, letterSpacing: ".16em", textTransform: "uppercase" }}>What locals know</div>
+          {visibleItems.map((x, i) => {
             const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
-            return (
-              <div key={i} style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
-                  {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
-                </div>
-                <div style={{ fontSize: 11.5, color: "#B9D6CE", lineHeight: 1.45, marginTop: 1 }}>{x.story}</div>
-              </div>
-            );
+            const body = book ? <>{x.story} <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ color: "#59DDBB", fontWeight: 850, textDecoration: "none" }}>Book ↗</a></> : x.story;
+            return featureRow(String(i + 1).padStart(2, "0"), x.name, body, "#FF9B4B", (e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }, "item-" + i);
           })}
-          {notes.say ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 9 }}><span style={{ fontWeight: 800, color: "#8ED6C4" }}>Talk local: </span><span style={{ fontWeight: 800, color: "#FFFFFF" }}>{"\u201C"}{notes.say.phrase}{"\u201D"}</span> {"\u2014"} {notes.say.meaning}</div> : null}
-          {notes.mistake ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>Rookie mistake: </span>{notes.mistake}</div> : null}
-          {isTown && tn && tn.one ? <div style={{ fontSize: 11.5, color: "#B9D6CE", marginTop: 7 }}><span style={{ fontWeight: 800, color: "#F2C14E" }}>⭐ The one thing: </span>{tn.one}</div> : null}
+          {notes.say ? featureRow("“”", "Talk local: “" + notes.say.phrase + "”", notes.say.meaning, "#8ED6C4", null, "say") : null}
+          {notes.mistake ? featureRow("!", "The rookie mistake", notes.mistake, "#FFD15D", null, "mistake") : null}
+          {isTown && tn && tn.one ? featureRow("★", "The one thing", tn.one, "#64DFBF", null, "one") : null}
         </div>
       )}
     </div>

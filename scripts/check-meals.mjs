@@ -65,6 +65,13 @@ if (!placeAllowed("food", "all", obricks)) fail("browse: a bar & grill should st
 if (!placeAllowed("food", "dinner", obricks)) fail("browse: a bar & grill should still pass Dinner");
 if (!placeAllowed("food", "breakfast", B("First Watch", ["breakfast_restaurant", "restaurant", "food"]))) fail("browse: a real breakfast restaurant failed the Breakfast chip");
 if (!placeAllowed("food", "breakfast", B("The Sage Biscuit Café", ["cafe", "restaurant", "food"]))) fail("browse: a café/biscuit breakfast spot failed the Breakfast chip");
+if (placeAllowed("food", "breakfast", B("Chick-fil-A", ["breakfast_restaurant", "fast_food_restaurant", "restaurant", "food"]))) fail("browse: Chick-fil-A passed Breakfast after radius expansion");
+if (!placeAllowed("food", "all", B("Chick-fil-A", ["fast_food_restaurant", "restaurant", "food"]))) fail("browse: Chick-fil-A should remain available under Food·All");
 if (!placeAllowed("food", "dessert", B("Kilwins Ice Cream", ["ice_cream_shop", "dessert_shop", "food"]))) fail("browse: an ice-cream shop failed the Dessert chip");
 
-console.log("check-meals: OK — 9 fixture suites pass; slot labels are hours-verified and browse meal chips reject bars");
+// 10. v6.44 — sparse Breakfast results must stay sparse instead of silently
+// falling back to the generic Food pool when a wider radius is selected.
+const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+if (/return\s+g\.length\s*>=\s*5\s*\?\s*g\s*:\s*list/.test(home)) fail("browse: sparse meal gate still falls back to generic Food");
+
+console.log("check-meals: OK — 10 fixture suites pass; radius expansion preserves meal intent");
