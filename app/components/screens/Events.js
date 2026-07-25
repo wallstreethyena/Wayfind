@@ -11,7 +11,7 @@ function EventArt({ e, seg, height, ctx }) {
   const { eventUseImage, eventBucket } = ctx;
   const [bad, setBad] = useState(false);
   const acc = (seg && seg.color) || C.accent;
-  const categoryImage = eventCategoryArt(eventBucket(e));
+  const categoryImage = eventCategoryArt(eventBucket(e), e);
   const image = categoryImage || (eventUseImage(e) ? e.image : "");
   if (image && !bad) {
     return <div style={{ position: "relative", width: "100%", height, overflow: "hidden" }}>

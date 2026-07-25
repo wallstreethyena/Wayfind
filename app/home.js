@@ -2240,7 +2240,7 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   const internal = event.destKind === "internal";
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
-  const categoryImage = eventCategoryArt(eventBucket(event));
+  const categoryImage = eventCategoryArt(eventBucket(event), event);
   const railImage = categoryImage || event.image || "";
   const when = relativeLabel ? relativeLabel.toUpperCase() : (f.mo + " " + f.day);
   const shareEvent = (ev) => {
@@ -6875,7 +6875,7 @@ function PageInner({ initialEvents = null }) {
                         <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
-                            <EventHeroBg image={eventCategoryArt(eventBucket(featured)) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
+                            <EventHeroBg image={eventCategoryArt(eventBucket(featured), featured) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                             <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
                             <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
