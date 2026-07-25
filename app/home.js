@@ -1914,15 +1914,12 @@ function todayHours(extra) {
 }
 
 // ─── Event tiles: control the frame ──────────────────────────────────────────
-// Scraped event flyers (Google and similar) are blurry, dark, and text-heavy,
-// and we cannot judge image quality from a URL. So we trust art only from
-// ticketing sources that supply clean images; everything else gets a branded
-// category tile instead of a bad flyer.
+// Provider art is always the first choice. Branded category art is a fallback
+// only when the upstream record has no image or the image cannot be loaded.
 function eventUseImage(e) {
-  if (!e || !e.image) return false;
-  const src = (e.source || "").toLowerCase();
-  if (src.includes("ticket")) return true;
-  return false;
+  if (!e || typeof e.image !== "string") return false;
+  const image = e.image.trim();
+  return image.length > 0 && (/^https?:\/\//i.test(image) || image.startsWith("/"));
 }
 // CTA matched to the event, not a blanket "Get tickets" on free community events.
 function eventCTA(e) {
@@ -2339,7 +2336,7 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   return (
     <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 108, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.24)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
       <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "inherit" }}>
-        {railImage ? <img src={railImage} alt="" loading="lazy" decoding="async" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(.78) contrast(.96)" }} /> : null}
+        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(.78) contrast(.96)" }} /> : null}
         <div style={{ position: "absolute", inset: 0, background: railImage ? "linear-gradient(90deg,rgba(5,9,15,.94) 0%,rgba(5,9,15,.78) 58%,rgba(5,9,15,.48) 100%),linear-gradient(0deg,rgba(5,9,15,.8),rgba(5,9,15,.08) 82%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
         {!railImage ? <Icon name={seg.iconName || "ticket"} size={46} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", right: 12, bottom: 7, opacity: 0.16 }} /> : null}
         <div style={{ position: "relative", zIndex: 1, height: "100%", boxSizing: "border-box", padding: "11px 38px 10px 12px", display: "flex", flexDirection: "column" }}>
@@ -8361,18 +8358,26 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-score .wayfind-score-badge>span:last-child{
   min-width:0!important;
   flex:1;
-  align-items:flex-start;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
   box-sizing:border-box;
-  padding:6px 7px!important;
+  padding:6px 6px!important;
   gap:2px!important;
 }
 .wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{
+  width:100%;
+  text-align:center;
   font-size:6.5px!important;
   line-height:1!important;
   letter-spacing:.7px!important;
   color:#B8C2D0!important;
 }
 .wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{
+  width:100%;
+  display:flex!important;
+  align-items:baseline!important;
+  justify-content:center!important;
   gap:2px!important;
   font-size:18px!important;
   line-height:.95!important;
@@ -8498,8 +8503,17 @@ const WF_PLACE_CARD_CSS = `
 }
 .wf-place-card-book{color:#FF9B50!important;border-color:rgba(249,115,22,.36)!important;text-decoration:none}
 .wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}
-.wf-place-card-like,.wf-place-card-dislike{width:36px!important;min-width:36px!important;flex:0 0 36px;padding:0!important;border-radius:11px!important}
-.wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:17px;height:17px}
+.wf-place-card-like,.wf-place-card-dislike{
+  width:42px!important;
+  min-width:42px!important;
+  height:40px!important;
+  min-height:40px!important;
+  flex:0 0 42px;
+  justify-content:center!important;
+  padding:0!important;
+  border-radius:12px!important;
+}
+.wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:19px;height:19px}
 .wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
 .wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
 .wf-place-card-share{min-width:88px;margin-left:auto}
