@@ -148,7 +148,21 @@ export async function GET(req) {
         code: offer.productCode || "",
         title: String(r.title || "").slice(0, 140),
         url: offer.productUrl,
-        image: (() => { try { const v = r.images && r.images[0] && r.images[0].variants; if (!Array.isArray(v) || !v.length) return null; const pick = v.find((x) => x && x.width >= 300 && x.width <= 600) || v[Math.min(2, v.length - 1)]; return pick && pick.url ? pick.url : null; } catch { return null; } })(),
+        image: (() => {
+          try {
+            const images = Array.isArray(r.images) ? r.images : [];
+            const variants = images.flatMap((img) => Array.isArray(img && img.variants) ? img.variants : [])
+              .filter((variant) => variant && typeof variant.url === "string" && variant.url);
+            const preferred = variants
+              .filter((variant) => Number(variant.width) >= 360 && Number(variant.width) <= 900)
+              .sort((a, b) => Number(b.width || 0) - Number(a.width || 0))[0];
+            const largest = variants.sort((a, b) => Number(b.width || 0) - Number(a.width || 0))[0];
+            const direct = images.find((img) => img && typeof img.url === "string" && img.url);
+            return (preferred && preferred.url) || (largest && largest.url) || (direct && direct.url) || null;
+          } catch {
+            return null;
+          }
+        })(),
         rating: r.reviews && typeof r.reviews.combinedAverageRating === "number" ? Math.round(r.reviews.combinedAverageRating * 10) / 10 : null,
         reviews: r.reviews && typeof r.reviews.totalReviews === "number" ? r.reviews.totalReviews : null,
         fromPrice: (() => { try { const p = r.pricing && r.pricing.summary && r.pricing.summary.fromPrice; return typeof p === "number" ? Math.round(p) : null; } catch { return null; } })(),

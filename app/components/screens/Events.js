@@ -19,7 +19,7 @@ function EventArt({ e, seg, height, ctx }) {
   const usingCategoryImage = image === categoryImage;
   if (image) {
     return <div style={{ position: "relative", width: "100%", height, overflow: "hidden" }}>
-      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setFailedImage(image)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setFailedImage(image); } catch {} }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingCategoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
+      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setFailedImage(image)} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingCategoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
       {usingCategoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.52))" }} /> : null}
     </div>;
   }
@@ -28,6 +28,26 @@ function EventArt({ e, seg, height, ctx }) {
       <div style={{ position: "absolute", top: -24, right: -24, width: 110, height: 110, borderRadius: "50%", background: `radial-gradient(circle, ${acc}33 0%, transparent 70%)`, pointerEvents: "none" }} />
       <Icon name={(seg && seg.iconName) || "ticket"} size={38} color={acc} strokeWidth={1.6} style={{ opacity: 0.92 }} />
       <div style={{ position: "absolute", bottom: 7, left: 10, fontSize: 9.5, fontWeight: 800, letterSpacing: "0.7px", textTransform: "uppercase", color: acc, opacity: 0.92 }}>{seg ? seg.short : "Event"}</div>
+    </div>
+  );
+}
+
+function TourArt({ src, height = 96 }) {
+  const fallback = eventCategoryArt("tours");
+  const [providerFailed, setProviderFailed] = useState(false);
+  const image = src && !providerFailed ? src : fallback;
+  const usingFallback = image === fallback;
+  return (
+    <div style={{ position: "relative", height, overflow: "hidden" }}>
+      <img
+        src={image}
+        alt=""
+        loading="lazy"
+        draggable={false}
+        onError={() => { if (!usingFallback) setProviderFailed(true); }}
+        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: usingFallback ? "saturate(.82) contrast(.96)" : "none" }}
+      />
+      {usingFallback ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.5))" }} /> : null}
     </div>
   );
 }
@@ -219,10 +239,7 @@ export default function EventsScreen({ ctx }) {
                   {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
                       through by the API route (t.sellingFast) — never a computed guess. */}
                   {t.sellingFast ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
-                  <div style={{ position: "relative", height: 96, overflow: "hidden" }}>
-                    <img src={eventCategoryArt("tours")} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(.82) contrast(.96)" }} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.5))" }} />
-                  </div>
+                  <TourArt src={t.image} />
                   <div style={{ padding: "9px 11px" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
                     <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${Number(t.reviews).toLocaleString()})` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
