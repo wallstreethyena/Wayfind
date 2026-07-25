@@ -6330,7 +6330,7 @@ function PageInner({ initialEvents = null }) {
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}` }} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -7650,8 +7650,13 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // past this line a Score is always computable and always shown.
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
   const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
+  const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  const cardCuisine = Dining.cuisineLabel(p);
+  const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
+  const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
+  const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
   return (
-    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}`} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
           The old absolute top-right overlay cleared long titles with a magic
           paddingRight (88px) that was ~17px narrower than the badge, so titles
@@ -7661,19 +7666,27 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           top-right score badge), same gold visual system as the Featured badge.
           Display-only, gated SOLELY on the server's ownerPick; the client never
           decides owner status, so ownerPick=false can never render it. */}
-      {p._members && p._members.ownerPick && <span title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
-      <div style={{ display: "flex" }}>
-        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
-        <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+      {p._members && p._members.ownerPick && <span className="wf-place-card-owner" title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
+      <div className="wf-place-card-layout" style={{ display: "flex" }}>
+        {p.photo
+          ? <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+          : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
+        <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
+          <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
             {rank && (m
-              ? <div style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
-              : <div style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
+              ? <div className="wf-place-card-rank" style={{ width: 24, height: 24, borderRadius: "50%", background: m.color, color: "#0D1117", fontSize: 12.5, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{rank}</div>
+              : <div className="wf-place-card-rank" style={{ width: 28, textAlign: "center", color: C.muted, fontSize: 13, fontWeight: 800, flexShrink: 0 }}>#{rank}</div>
             )}
-            <div style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{p.name}</div>
-            {dispScore != null && <div style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={dispScore} /></div>}
+            <div className="wf-place-card-heading">
+              {cardPrimaryLabel && (cardCuisineCanTap
+                ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); onCuisineTap(cardCuisine, p); }}>{cardPrimaryLabel} ›</button>
+                : <span className="wf-place-card-category">{cardPrimaryLabel}</span>
+              )}
+              <div className="wf-place-card-name" style={{ fontSize: 15, fontWeight: 700, color: C.text, lineHeight: 1.3, flex: 1, minWidth: 0, paddingRight: 4 }}>{p.name}</div>
+            </div>
+            {dispScore != null && <div className="wf-place-card-score" style={{ flexShrink: 0, marginLeft: "auto", filter: "drop-shadow(0 6px 14px rgba(0,0,0,.5))" }}><WayfindScoreBadge score={dispScore} /></div>}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
+          <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
             {/* v6.56: premium pass — matches the CHAMPAGNE-gold "✦ Wayfind Pick" chip
@@ -7682,15 +7695,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 meaning (curatedFor), just dressed to the standard the rest of the
                 gold badge family (Featured, Curator's pick) already sets. */}
             {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
-            {(() => {
-              const cz = Dining.cuisineLabel(p);
-              const isFood = pcat === "Food" || pcat === "Nightlife";
-              const showCuisine = isFood && cz;
-              const primary = showCuisine ? cz : pcat;
-              if (!primary) return null;
-              const canTap = !!(showCuisine && onCuisineTap);
-              return <span onClick={canTap ? (e) => { e.stopPropagation(); onCuisineTap(cz, p); } : undefined} style={{ fontSize: 12, fontWeight: 800, color: canTap ? C.accent : (CAT_LABEL_COLOR[pcat] || C.light), cursor: canTap ? "pointer" : "inherit", textDecoration: canTap ? "underline" : "none", textUnderlineOffset: 3, textDecorationThickness: canTap ? "1.5px" : undefined }}>{primary}{canTap ? " ›" : ""}</span>;
-            })()}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
                 with the Bayesian score and confused the ranking. The review
@@ -7723,24 +7727,24 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               })()}
             </div>
           )}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
+          <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
             {badges.map((b) => (
               <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
-          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
-          <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+          <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
+          <div className="wf-place-card-actions" style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {cardProduct && cardProduct.url && (
-              <a href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>Book on Viator ↗</a>
+              <a className="wf-place-card-book" href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>Book on Viator ↗</a>
             )}
-            <button onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
+            <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (
-              <button onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>
+              <button className={`wf-place-card-like${liked ? " is-active" : ""}`} onClick={onLike} title={liked ? "Unlike" : "Like this"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: liked ? "rgba(34,197,94,.15)" : "transparent", border: `1.5px solid ${liked ? C.green : C.border}`, borderRadius: 999, color: liked ? C.green : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 0, verticalAlign: "-2px" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{liked ? " Liked" : ""}</button>
             )}
             {onDislike && (
-              <button onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 0, marginRight: 0, verticalAlign: "-2px", transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{disliked ? " Nope" : ""}</button>
+              <button className={`wf-place-card-dislike${disliked ? " is-active" : ""}`} onClick={onDislike} title={disliked ? "Undo" : "Not for me"} style={{ display: "inline-flex", alignItems: "center", gap: 4, background: disliked ? "rgba(239,68,68,.12)" : "transparent", border: `1.5px solid ${disliked ? C.red : C.border}`, borderRadius: 999, color: disliked ? C.red : C.muted, fontSize: 13, fontWeight: 700, padding: "5px 11px", cursor: "pointer" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 0, marginRight: 0, verticalAlign: "-2px", transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>{disliked ? " Nope" : ""}</button>
             )}
-            <button onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
+            <button className="wf-place-card-share" onClick={(e) => { e.stopPropagation(); logEventAnon("share", p, { kind: "place_card" }); try { onShareCard && onShareCard(p); } catch (er) {} shareLink(p.name, placeShareUrl(p, "", ""), () => { try { if (typeof window !== "undefined") { const _t = document.createElement("div"); _t.textContent = "Link copied"; _t.style.cssText = "position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:#161B22;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #30363D;box-shadow:0 6px 24px rgba(0,0,0,.5)"; document.body.appendChild(_t); setTimeout(() => { try { document.body.removeChild(_t); } catch(e){} }, 1600); } } catch (e) {} }, "Check out " + p.name + " on Wayfind"); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>↗ Share</button>
           </div>
         </div>
       </div>
@@ -7777,6 +7781,199 @@ const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the hor
 const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
 const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
 const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
+const WF_PLACE_CARD_CSS = `
+.wf-place-card{
+  position:relative;
+  margin-bottom:12px!important;
+  overflow:hidden;
+  border-radius:17px!important;
+  border-color:rgba(159,177,203,.25)!important;
+  background:radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
+  box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.wf-place-card:before{
+  content:"";
+  position:absolute;
+  z-index:3;
+  top:0;
+  left:26px;
+  width:50px;
+  height:2px;
+  border-radius:0 0 99px 99px;
+  background:linear-gradient(90deg,transparent,#F97316,transparent);
+  opacity:.7;
+  pointer-events:none;
+}
+.wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
+.wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
+.wf-place-card-layout{display:grid!important;grid-template-columns:96px minmax(0,1fr);min-height:176px}
+.wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
+.wf-place-card-monogram{
+  position:relative;
+  display:grid;
+  min-height:176px;
+  place-items:center;
+  color:#FFC08F;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.09em;
+  background:radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%);
+  box-shadow:inset -1px 0 rgba(159,177,203,.1);
+}
+.wf-place-card-monogram:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:52px;
+  height:52px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,142,61,.3);
+  border-radius:18px;
+  box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.07);
+}
+.wf-place-card-content{padding:13px 13px 11px!important;display:flex;min-width:0;flex-direction:column}
+.wf-place-card-title-row{gap:7px!important}
+.wf-place-card-rank{
+  position:absolute!important;
+  z-index:4;
+  top:11px;
+  left:10px;
+  display:flex!important;
+  width:34px!important;
+  height:34px!important;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:11px!important;
+  background:rgba(4,8,15,.78)!important;
+  color:#FFF!important;
+  font-size:12px!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);
+  backdrop-filter:blur(10px);
+}
+.wf-place-card-owner{top:auto!important;bottom:9px!important;left:8px!important;max-width:80px;font-size:7px!important;padding:3px 6px!important}
+.wf-place-card-heading{flex:1;min-width:0}
+.wf-place-card-category{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  margin:0 0 4px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#FF9B50;
+  font-size:8.5px;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:default;
+}
+.wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
+.wf-place-card-category.is-tappable{cursor:pointer}
+.wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
+.wf-place-card-score{filter:none!important}
+.wf-place-card-score .wayfind-score-badge{
+  border-width:1px!important;
+  border-color:rgba(76,224,179,.38)!important;
+  border-radius:12px!important;
+  background:linear-gradient(135deg,rgba(76,224,179,.06),transparent 70%),rgba(5,13,17,.76)!important;
+  box-shadow:inset 2px 0 #4CE0B3,0 7px 18px rgba(0,0,0,.2);
+}
+.wf-place-card-score .wayfind-score-badge>span:first-child{display:none!important}
+.wf-place-card-score .wayfind-score-badge>span:last-child{padding:6px 7px 6px 8px!important;gap:0!important}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{font-size:6.5px!important;letter-spacing:.65px!important;color:#AEB8C8!important}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{font-size:17px!important}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child span{font-size:8px!important}
+.wf-place-card-meta{gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
+.wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
+.wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
+.wf-place-card-meta>span[style*="color: rgb(34, 197, 94)"],.wf-place-card-meta>span[style*="#22C55E"]{color:#4CE0B3!important}
+.wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
+.wf-place-card-highlights>button,.wf-place-card-highlights>span{
+  display:inline-flex!important;
+  align-items:center;
+  min-height:23px;
+  padding:2px 8px!important;
+  border:1px solid rgba(159,177,203,.17)!important;
+  border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important;
+  color:#DFE5EE!important;
+  font-size:9.5px!important;
+  font-weight:750!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.wf-place-card-highlights>span{color:#DFE5EE!important}
+.wf-place-card-take{
+  overflow:hidden;
+  padding-left:8px;
+  border-left:2px solid rgba(249,115,22,.58);
+  color:#CDD5E1!important;
+  font-size:10.5px!important;
+  line-height:1.35!important;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
+.wf-place-card-actions>a,.wf-place-card-actions>button{
+  display:inline-flex!important;
+  min-height:32px;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px!important;
+  border:1px solid rgba(159,177,203,.22)!important;
+  border-radius:11px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005)),#0A1019!important;
+  color:#DFE5EE!important;
+  font-size:10.5px!important;
+  font-weight:800!important;
+  line-height:1!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+}
+.wf-place-card-book{color:#FF9B50!important;border-color:rgba(249,115,22,.36)!important;text-decoration:none}
+.wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}
+.wf-place-card-like{margin-left:2px;border-radius:11px 0 0 11px!important}
+.wf-place-card-dislike{margin-left:-6px;border-left-color:rgba(159,177,203,.1)!important;border-radius:0 11px 11px 0!important}
+.wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
+.wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
+.wf-place-card-share{margin-left:auto}
+.wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
+.wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
+@media(max-width:430px){
+  .wf-place-card-layout{grid-template-columns:88px minmax(0,1fr)}
+  .wf-place-card-layout>img{width:88px!important}
+  .wf-place-card-content{padding-inline:10px!important}
+  .wf-place-card-name{font-size:15px!important}
+  .wf-place-card-meta>span{font-size:9.75px!important}
+  .wf-place-card-highlights>button{font-size:9px!important}
+}
+@media(min-width:${WF_DESKTOP_BP}px){
+  .wf-place-card-layout{grid-template-columns:108px minmax(0,1fr)}
+  .wf-place-card-layout>img{width:108px!important}
+  .wf-place-card-name{font-size:17px!important}
+}
+.wf-bottom-nav{
+  padding:4px 4px 5px!important;
+  gap:2px!important;
+}
+.wf-bottom-nav-item{
+  min-height:60px!important;
+  padding:6px 4px 5px!important;
+  gap:3px!important;
+}
+.wf-bottom-nav-icon{width:30px!important;height:26px!important;transform:none!important}
+.wf-bottom-nav-label{font-size:10.5px!important}
+@media(display-mode:standalone){
+  .wf-bottom-nav{padding-bottom:max(5px,calc(env(safe-area-inset-bottom) - 12px))!important}
+}
+@media(min-width:${WF_DESKTOP_BP}px){
+  .wf-bottom-nav{bottom:12px!important;padding:6px!important;border-radius:18px!important}
+  .wf-bottom-nav-item{min-height:62px!important;padding:6px 6px 5px!important}
+  .wf-bottom-nav-icon{width:31px!important;height:27px!important}
+  .wf-bottom-nav-label{font-size:10.75px!important}
+}
+`;
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
