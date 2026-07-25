@@ -5970,7 +5970,12 @@ function PageInner({ initialEvents = null }) {
       const expHit = Object.keys(EXPERIENCES).find((k) => {
         const e = EXPERIENCES[k];
         const lab = (e.label || "").toLowerCase();
-        return k === ql || lab === ql || lab.includes(ql) || (e.keyword && e.keyword.toLowerCase().includes(ql));
+        // EXACT key/label match only — label-substring matching swallowed CITY names
+        // that appear inside experience labels: typing "Sarasota" matched the
+        // "Best of Sarasota" label, opened that sheet, and the app never
+        // recentered (the exact bug #361 fixed then still exhibited). A bare
+        // city must fall through to the area-first search below.
+        return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase().includes(ql));
       });
       if (expHit) { setQuery(""); openExperience(expHit); return; }
     }

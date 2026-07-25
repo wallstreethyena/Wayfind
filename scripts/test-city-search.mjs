@@ -78,5 +78,16 @@ ok(/const userPickedLocation = manualRef\.current;/.test(home),
 ok(/const searchCenter = \(userPickedLocation && center\)/.test(home),
    "a user-chosen center outranks raw device GPS when biasing search");
 
+// ── 4) an experience LABEL containing a city name must not swallow the city ──
+// "Sarasota" used to match the "Best of Sarasota" label via lab.includes(ql),
+// open that sheet, and return before the area-first search ever ran — the
+// recenter fix existed but was unreachable. Exact key/label match only.
+{
+  const m = home.match(/const expHit = Object\.keys\(EXPERIENCES\)\.find\(\(k\) => \{[\s\S]{0,900}?\}\);/);
+  ok(!!m, "the experience-shortcut matcher exists");
+  ok(m && !/lab\.includes\(ql\)/.test(m[0]),
+     "experience shortcut never substring-matches the LABEL (a city inside a label must fall through to area search)");
+}
+
 if (fails) process.exit(1);
 console.log("test-city-search: OK — a city always recenters the feed; Enter is deterministic; search follows the chosen location");
