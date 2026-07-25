@@ -1339,21 +1339,24 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   }, [namedKey, center && center.lat, center && center.lng]);
   if (!notes || !c) return null;
   return (
-    <div style={{ margin: "0 0 12px", borderRadius: 14, border: "1px solid rgba(46,204,163,.28)", background: "linear-gradient(135deg, rgba(6,35,30,.55), rgba(11,58,49,.4))", overflow: "hidden" }}>
-      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "11px 13px", cursor: "pointer" }}>
-        <span style={{ fontSize: 15, lineHeight: "19px" }}>{"\uD83C\uDF3A"}</span>
-        <span style={{ flex: 1, fontSize: 12.5, color: "#B9D6CE", lineHeight: 1.45 }}>
-          <span style={{ fontWeight: 800, color: "#FFFFFF" }}>{isTown ? town : "Around " + (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title)}: </span>
-          {notes.line}
+    <div style={{ margin: "0 0 14px", borderRadius: 18, border: "1px solid rgba(46,204,163,.38)", background: "linear-gradient(145deg, rgba(8,37,34,.82), rgba(7,18,24,.94) 72%)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.06), 0 12px 28px rgba(0,0,0,.18)", overflow: "hidden" }}>
+      <div onClick={() => { const nv = !openIt; setOpenIt(nv); if (nv) { try { logEvent("area_insight", null, { metro, cat: key }); } catch (e) {} } }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ display: "flex", alignItems: "flex-start", gap: 11, padding: "14px 15px", cursor: "pointer" }}>
+        <span style={{ width: 31, height: 31, flex: "0 0 31px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 11, background: "linear-gradient(145deg,rgba(46,204,163,.22),rgba(46,204,163,.06))", border: "1px solid rgba(110,230,197,.24)", fontSize: 17, lineHeight: 1 }}>{"\uD83C\uDF3A"}</span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 9.5, letterSpacing: ".13em", textTransform: "uppercase", fontWeight: 850, color: "#76D9C0", marginBottom: 4 }}>Local lens</span>
+          <span style={{ display: "block", fontSize: 13, color: "#C6DDD7", lineHeight: 1.48 }}>
+            <span style={{ fontWeight: 850, color: "#FFFFFF" }}>{isTown ? town : "Around " + (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " and the " + c.title + " area" : c.title)}: </span>
+            {notes.line}
+          </span>
         </span>
-        <span style={{ fontSize: 10, color: "#8ED6C4", transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s", marginTop: 3 }}>{"\u25BC"}</span>
+        <span style={{ width: 25, height: 25, flex: "0 0 25px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: 999, background: "rgba(46,204,163,.11)", color: "#8EE5CF", fontSize: 10, transform: openIt ? "rotate(180deg)" : "none", transition: "transform .2s", marginTop: 1 }}>{"\u25BC"}</span>
       </div>
       {openIt && (
-        <div style={{ padding: "0 13px 13px 37px" }}>
+        <div style={{ padding: "2px 15px 15px 57px", borderTop: "1px solid rgba(110,230,197,.14)" }}>
           {(notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]).map((x, i) => {
             const book = x.viatorUrl ? Aff.viatorDirectUrl(x.viatorUrl) : null;
             return (
-              <div key={i} style={{ marginBottom: 8 }}>
+              <div key={i} style={{ marginBottom: 7, padding: "9px 10px", borderRadius: 12, background: "rgba(255,255,255,.035)", border: "1px solid rgba(255,255,255,.06)" }}>
                 <div style={{ fontSize: 12.5, fontWeight: 800, color: "#FFFFFF", display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   <span onClick={(e) => { e.stopPropagation(); try { logEvent("insight_find", null, { metro, q: x.name }); } catch (er) {} onFind && onFind(x.query || x.name); }} role="button" tabIndex={0} onKeyDown={KB_CLICK} style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "rgba(46,201,166,.4)", textUnderlineOffset: 3 }}>{x.name}</span>
                   {book ? <a href={book} target="_blank" rel="noreferrer" onClick={(e) => { e.stopPropagation(); e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || book; try { logEvent("culture_book", null, { metro, q: x.name }); } catch (er) {} openExternal(_live); }} style={{ fontSize: 10, fontWeight: 800, padding: "2px 9px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", textDecoration: "none" }}>Book ↗</a> : null}
