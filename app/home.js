@@ -8519,23 +8519,23 @@ const WF_PLACE_CARD_CSS = `
   .wf-place-card-name{font-size:17px!important}
 }
 .wf-bottom-nav{
-  padding:4px 4px 5px!important;
+  padding:3px 4px 2px!important;
   gap:2px!important;
 }
 .wf-bottom-nav-item{
-  min-height:60px!important;
-  padding:6px 4px 5px!important;
-  gap:3px!important;
+  min-height:52px!important;
+  padding:4px 4px 2px!important;
+  gap:2px!important;
 }
-.wf-bottom-nav-icon{width:30px!important;height:26px!important;transform:none!important}
+.wf-bottom-nav-icon{width:29px!important;height:24px!important;transform:none!important}
 .wf-bottom-nav-label{font-size:10.5px!important}
 @media(display-mode:standalone){
-  .wf-bottom-nav{padding-bottom:max(5px,calc(env(safe-area-inset-bottom) - 12px))!important}
+  .wf-bottom-nav{padding-bottom:max(3px,calc(env(safe-area-inset-bottom) - 16px))!important}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-bottom-nav{bottom:12px!important;padding:6px!important;border-radius:18px!important}
-  .wf-bottom-nav-item{min-height:62px!important;padding:6px 6px 5px!important}
-  .wf-bottom-nav-icon{width:31px!important;height:27px!important}
+  .wf-bottom-nav{bottom:12px!important;padding:4px 6px 3px!important;border-radius:18px!important}
+  .wf-bottom-nav-item{min-height:54px!important;padding:4px 6px 3px!important}
+  .wf-bottom-nav-icon{width:30px!important;height:25px!important}
   .wf-bottom-nav-label{font-size:10.75px!important}
 }
 `;
