@@ -7655,6 +7655,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
   const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
   const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
+  const cardRank = Number(rank);
+  const cardAward = cardRank >= 1 && cardRank <= 3
+    ? {
+        rank: cardRank,
+        label: cardRank === 1
+          ? `Best ${cardPrimaryLabel || "local"} pick`
+          : `Top ${cardPrimaryLabel || "local"} pick`,
+      }
+    : null;
   return (
     <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}`} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
@@ -7725,6 +7734,16 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
                 return wq ? <span style={{ fontSize: 11, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
               })()}
+            </div>
+          )}
+          {cardAward && (
+            <div className={`wf-place-card-award is-rank-${cardAward.rank}`} aria-label={`Wayfind ranked this the number ${cardAward.rank} ${cardPrimaryLabel || "local"} option`}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">
+                {cardAward.rank === 1
+                  ? <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" /><path d="M8 6H5v1a3 3 0 0 0 3 3" /><path d="M16 6h3v1a3 3 0 0 1-3 3" /><path d="M12 11v4" /><path d="M9 20h6" /><path d="M10 15h4v5h-4z" /></svg>
+                  : cardAward.rank}
+              </span>
+              <span>{cardAward.label}</span>
             </div>
           )}
           <div className="wf-place-card-highlights" style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
@@ -7807,7 +7826,7 @@ const WF_PLACE_CARD_CSS = `
 }
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
-.wf-place-card-layout{display:grid!important;grid-template-columns:96px minmax(0,1fr);min-height:176px}
+.wf-place-card-layout{--wf-place-card-media:96px;display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
 .wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
 .wf-place-card-monogram{
   position:relative;
@@ -7839,7 +7858,7 @@ const WF_PLACE_CARD_CSS = `
   position:absolute!important;
   z-index:4;
   top:11px;
-  left:10px;
+  left:calc(10px - var(--wf-place-card-media));
   display:flex!important;
   width:34px!important;
   height:34px!important;
@@ -7890,6 +7909,60 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
 .wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
 .wf-place-card-meta>span[style*="color: rgb(34, 197, 94)"],.wf-place-card-meta>span[style*="#22C55E"]{color:#4CE0B3!important}
+.wf-place-card-award{
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  min-height:25px;
+  align-items:center;
+  gap:6px;
+  margin:1px 0 7px;
+  padding:3px 9px 3px 5px;
+  overflow:hidden;
+  border:1px solid rgba(223,184,96,.35);
+  border-radius:999px;
+  background:linear-gradient(110deg,rgba(223,184,96,.16),rgba(223,184,96,.035));
+  color:#F5D98F;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.055em;
+  line-height:1;
+  text-transform:uppercase;
+  box-shadow:inset 0 1px rgba(255,255,255,.045);
+}
+.wf-place-card-award>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-place-card-award-icon{
+  position:relative;
+  isolation:isolate;
+  display:grid;
+  width:18px;
+  height:18px;
+  flex:0 0 18px;
+  place-items:center;
+  border-radius:50%;
+  background:#D9A52E;
+  color:#111824;
+  font-size:9px;
+  font-weight:950;
+  box-shadow:0 3px 10px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.45);
+}
+.wf-place-card-award-icon:after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  bottom:-4px;
+  width:9px;
+  height:7px;
+  background:currentColor;
+  clip-path:polygon(0 0,100% 0,78% 100%,50% 68%,22% 100%);
+  opacity:.72;
+}
+.wf-place-card-award.is-rank-1{border-color:rgba(235,187,72,.48);background:linear-gradient(110deg,rgba(235,187,72,.2),rgba(235,187,72,.04));color:#F4D477}
+.wf-place-card-award.is-rank-1 .wf-place-card-award-icon{background:linear-gradient(145deg,#FFE39A,#D79A18);color:#2B1B00}
+.wf-place-card-award.is-rank-2{border-color:rgba(190,204,223,.34);background:linear-gradient(110deg,rgba(190,204,223,.14),rgba(190,204,223,.025));color:#D9E2EF}
+.wf-place-card-award.is-rank-2 .wf-place-card-award-icon{background:linear-gradient(145deg,#F2F5F8,#9BAABD);color:#17202D}
+.wf-place-card-award.is-rank-3{border-color:rgba(204,139,91,.38);background:linear-gradient(110deg,rgba(204,139,91,.15),rgba(204,139,91,.025));color:#E4B18B}
+.wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:linear-gradient(145deg,#E6B184,#9A5D36);color:#25150C}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
 .wf-place-card-highlights>button,.wf-place-card-highlights>span{
   display:inline-flex!important;
@@ -7941,7 +8014,7 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
-  .wf-place-card-layout{grid-template-columns:88px minmax(0,1fr)}
+  .wf-place-card-layout{--wf-place-card-media:88px}
   .wf-place-card-layout>img{width:88px!important}
   .wf-place-card-content{padding-inline:10px!important}
   .wf-place-card-name{font-size:15px!important}
@@ -7949,7 +8022,7 @@ const WF_PLACE_CARD_CSS = `
   .wf-place-card-highlights>button{font-size:9px!important}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-place-card-layout{grid-template-columns:108px minmax(0,1fr)}
+  .wf-place-card-layout{--wf-place-card-media:108px}
   .wf-place-card-layout>img{width:108px!important}
   .wf-place-card-name{font-size:17px!important}
 }
