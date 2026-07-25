@@ -15,6 +15,9 @@ export default function HookDetailSheet({ ctx }) {
         const acc = hookDetail.accent || C.accent;
         const theme = hookDetail.theme || "best";
         const heroImage = hookDetail.heroImage || null;
+        const premiumImagePage = !!heroImage;
+        const premiumCardBg = "linear-gradient(145deg, rgba(27,36,51,.98) 0%, rgba(14,21,32,.99) 100%)";
+        const premiumCardBorder = "rgba(148,163,184,.22)";
         const isLiked = hookLikes.has(hookDetail.id);
         const primaryId = hookDetail.placeId;
 
@@ -44,32 +47,33 @@ export default function HookDetailSheet({ ctx }) {
         const showWarn = theme === "skip";
 
         return (
-          <div style={{ position: "fixed", inset: 0, zIndex: 950, background: C.bg, display: "flex", flexDirection: "column", overflowY: "auto", overscrollBehavior: "contain", alignItems: isDesktop ? "center" : "stretch" }}>
+          <div style={{ position: "fixed", inset: 0, zIndex: 950, background: premiumImagePage ? `radial-gradient(circle at 50% 18%, ${acc}12 0%, transparent 34%), ${C.bg}` : C.bg, display: "flex", flexDirection: "column", overflowY: "auto", overscrollBehavior: "contain", alignItems: isDesktop ? "center" : "stretch" }}>
             {/* Gradient hero header */}
-            <div style={{ background: heroImage ? `linear-gradient(180deg, rgba(4,8,16,.28) 0%, rgba(4,8,16,.72) 50%, ${C.bg} 100%), url("${heroImage}") center / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: `1px solid ${acc}35`, padding: "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? 300 : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
+            <div style={{ background: heroImage ? `linear-gradient(90deg, rgba(3,7,14,.82) 0%, rgba(3,7,14,.50) 48%, rgba(3,7,14,.18) 100%), linear-gradient(180deg, rgba(4,8,16,.16) 0%, rgba(4,8,16,.38) 48%, ${C.bg} 100%), url("${heroImage}") center / cover no-repeat` : `linear-gradient(155deg, ${acc}2A 0%, ${C.bg} 72%)`, borderBottom: premiumImagePage ? "none" : `1px solid ${acc}35`, padding: premiumImagePage ? "max(18px, calc(env(safe-area-inset-top) + 14px)) 18px 82px" : "max(16px, calc(env(safe-area-inset-top) + 12px)) 16px 18px", minHeight: heroImage ? (isDesktop ? 390 : 350) : undefined, flexShrink: 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px" }}>‹ Back</button>
+                <button onClick={() => setHookDetail(null)} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: premiumImagePage ? "rgba(8,14,24,.58)" : C.card, border: `1px solid ${premiumImagePage ? "rgba(255,255,255,.20)" : C.border}`, borderRadius: 999, color: acc, fontSize: 14, fontWeight: 800, cursor: "pointer", padding: "8px 15px", backdropFilter: premiumImagePage ? "blur(14px)" : undefined, boxShadow: premiumImagePage ? "0 8px 24px rgba(0,0,0,.22)" : undefined }}>‹ Back</button>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   {themePlaces.some((pp) => pp && pp.lat != null) ? (
-                    <button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(themePlaces.filter((pp) => pp && pp.lat != null).slice(0, 20)); setHookDetail(null); setScreen("map"); try { logEvent("maps_list", null, { theme, n: Math.min(themePlaces.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>
+                    <button aria-label="See this list on the map" title="See on map" onClick={() => { setMapListOverride(themePlaces.filter((pp) => pp && pp.lat != null).slice(0, 20)); setHookDetail(null); setScreen("map"); try { logEvent("maps_list", null, { theme, n: Math.min(themePlaces.length, 20), inapp: 1 }); } catch (e) {} }} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${premiumImagePage ? "rgba(255,255,255,.22)" : C.border}`, background: premiumImagePage ? "rgba(8,14,24,.42)" : "transparent", color: premiumImagePage ? "#E8EEF7" : C.muted, cursor: "pointer", backdropFilter: premiumImagePage ? "blur(14px)" : undefined }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg></button>
                   ) : null}
-                  <button onClick={() => { const _k = (hookDetail && (hookDetail.key || hookDetail.id)) || theme; const _t = (hookDetail && (hookDetail.title || hookDetail.label)) || "Top picks"; shareLink(_t, listShareUrl(_k, _t, themePlaces.length, locName, hookDetail.hol || ""), () => showToast("Link copied"), "Check this Wayfind list: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: _k }); } catch (e) {} giveawayMark("list:" + _k); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.muted, cursor: "pointer" }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
-                  <button onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }} aria-label={isLiked ? "Saved to lists" : "Save to lists"} title={isLiked ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: isLiked ? acc + "25" : "transparent", border: `1.5px solid ${isLiked ? acc : C.border}`, color: isLiked ? acc : C.muted, cursor: "pointer" }}>
+                  <button onClick={() => { const _k = (hookDetail && (hookDetail.key || hookDetail.id)) || theme; const _t = (hookDetail && (hookDetail.title || hookDetail.label)) || "Top picks"; shareLink(_t, listShareUrl(_k, _t, themePlaces.length, locName, hookDetail.hol || ""), () => showToast("Link copied"), "Check this Wayfind list: " + _t, () => { try { logEvent("share", null, { kind: "list", theme: _k }); } catch (e) {} giveawayMark("list:" + _k); }); }} aria-label="Share list" title="Share list" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: `1.5px solid ${premiumImagePage ? "rgba(255,255,255,.22)" : C.border}`, background: premiumImagePage ? "rgba(8,14,24,.42)" : "transparent", color: premiumImagePage ? "#E8EEF7" : C.muted, cursor: "pointer", backdropFilter: premiumImagePage ? "blur(14px)" : undefined }}><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+                  <button onClick={() => { toggleHookLike(hookDetail.id); saveHookList(hookDetail, themePlaces); }} aria-label={isLiked ? "Saved to lists" : "Save to lists"} title={isLiked ? "Saved to lists" : "Save to lists"} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", background: isLiked ? acc + "30" : (premiumImagePage ? "rgba(8,14,24,.42)" : "transparent"), border: `1.5px solid ${isLiked ? acc : (premiumImagePage ? "rgba(255,255,255,.22)" : C.border)}`, color: isLiked ? acc : (premiumImagePage ? "#E8EEF7" : C.muted), cursor: "pointer", backdropFilter: premiumImagePage ? "blur(14px)" : undefined }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill={isLiked ? acc : "none"} stroke={isLiked ? acc : C.muted} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
                   </button>
                 </div>
               </div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "1px", marginBottom: 7 }}>{hookDetail.emoji} {hookDetail.label}</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: C.text, lineHeight: 1.25, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
+              <div style={{ maxWidth: premiumImagePage ? 620 : undefined, textShadow: premiumImagePage ? "0 2px 16px rgba(0,0,0,.72)" : undefined }}>
+              <div style={{ fontSize: 10, fontWeight: 900, color: acc, textTransform: "uppercase", letterSpacing: "1.5px", marginBottom: 8 }}>{hookDetail.emoji} {hookDetail.label}</div>
+              <div style={{ fontSize: premiumImagePage ? (isDesktop ? 34 : 29) : 24, fontWeight: 850, color: C.text, lineHeight: 1.12, letterSpacing: premiumImagePage ? "-0.7px" : undefined, marginBottom: hookDetail.themeBody ? 10 : 4 }}>
                 {hookDetail.themeTitle || hookDetail.hook}
               </div>
               {hookDetail.themeBody && (
-                <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.6, marginBottom: 8 }}>{hookDetail.themeBody}</div>
+                <div style={{ fontSize: premiumImagePage ? 15 : 13.5, color: premiumImagePage ? "#E4EAF2" : C.light, lineHeight: 1.55, marginBottom: 10 }}>{hookDetail.themeBody}</div>
               )}
               <div style={{ fontSize: 11.5, color: C.muted, fontWeight: 600 }}>
                 {sheetLoading ? "Finding the best picks near you…" : (themePlaces.length + " " + (theme === "skip" ? "to avoid" : theme === "drive" ? "worth the trip" : "curated picks") + " · Tap any to see full details")}
               </div>
-              <div style={{ marginTop: 10 }}>
+              <div style={{ marginTop: 12, display: "inline-flex", padding: premiumImagePage ? 4 : 0, borderRadius: premiumImagePage ? 999 : undefined, background: premiumImagePage ? "rgba(8,14,24,.46)" : undefined, border: premiumImagePage ? "1px solid rgba(255,255,255,.13)" : undefined, backdropFilter: premiumImagePage ? "blur(14px)" : undefined }}>
                 <SortControl sortBy={hkSort} onSort={setHkSort} mi={hkMi} onMi={setHkMi} where={cityNow} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={hkDeals} onDeals={setHkDeals} />
               </div>
               {hookDetail.id === "cur-bestof" && (
@@ -83,10 +87,11 @@ export default function HookDetailSheet({ ctx }) {
                 </div>
               )}
               <div style={{ fontSize: 10, color: C.muted, marginTop: 8 }}>Rankings are merit-based. Affiliate links never change placement.</div>
+              </div>
             </div>
 
             {/* Scrollable editorial list */}
-            <div style={{ flexShrink: 0, padding: "14px 16px calc(24px + env(safe-area-inset-bottom))", width: "100%", maxWidth: isDesktop ? 880 : "none", boxSizing: "border-box" }}>
+            <div style={{ flexShrink: 0, padding: premiumImagePage ? "0 16px calc(30px + env(safe-area-inset-bottom))" : "14px 16px calc(24px + env(safe-area-inset-bottom))", marginTop: premiumImagePage ? -54 : 0, width: "100%", maxWidth: isDesktop ? 920 : "none", boxSizing: "border-box", position: "relative", zIndex: 2 }}>
               {sheetLoading && <Loader label="Finding the best picks" pad="28px 0" />}
               {!sheetLoading && themePlaces.length === 0 && (
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
@@ -108,16 +113,16 @@ export default function HookDetailSheet({ ctx }) {
                   <div
                     onClick={() => { setHookDetail(null); openDetail(p, hookDetail.theme); }}
                     style={{
-                      background: isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card,
-                      border: `1.5px solid ${isFeatured ? acc + "60" : C.border}`,
-                      borderRadius: 16, marginBottom: 10, overflow: "hidden", cursor: "pointer",
-                      boxShadow: isFeatured ? `0 4px 20px ${acc}20` : "none",
+                      background: premiumImagePage ? (isFeatured ? `linear-gradient(145deg, ${acc}20 0%, rgba(25,34,49,.99) 42%, rgba(12,18,28,.99) 100%)` : premiumCardBg) : (isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card),
+                      border: `1.5px solid ${isFeatured ? acc + (premiumImagePage ? "82" : "60") : (premiumImagePage ? premiumCardBorder : C.border)}`,
+                      borderRadius: premiumImagePage ? (isFeatured ? 24 : 18) : 16, marginBottom: premiumImagePage ? 14 : 10, overflow: "hidden", cursor: "pointer",
+                      boxShadow: premiumImagePage ? (isFeatured ? `0 24px 58px rgba(0,0,0,.46), 0 0 0 1px ${acc}12 inset` : "0 12px 30px rgba(0,0,0,.24)") : (isFeatured ? `0 4px 20px ${acc}20` : "none"),
                     }}
                   >
                     {/* Featured (first) place: large photo on top */}
                     {isFeatured && (
                       <div style={{ position: "relative" }}>
-                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }} />
+                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: premiumImagePage ? (isDesktop ? 230 : 205) : 180, objectFit: "cover", display: "block" }} />
                         {showRank && (
                           <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", borderRadius: 10, padding: "5px 10px", display: "flex", alignItems: "center", gap: 6 }}>
                             <span style={{ fontSize: 20 }}>{medalEmoji || "🏆"}</span>
@@ -129,8 +134,8 @@ export default function HookDetailSheet({ ctx }) {
                             <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>⚠️ Skip this</span>
                           </div>
                         )}
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(13,17,23,.95))", padding: "20px 14px 12px" }}>
-                          <div style={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>{p.name}</div>
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: premiumImagePage ? "linear-gradient(180deg, transparent 0%, rgba(7,12,20,.72) 42%, rgba(7,12,20,.98) 100%)" : "linear-gradient(transparent, rgba(13,17,23,.95))", padding: premiumImagePage ? "50px 18px 16px" : "20px 14px 12px" }}>
+                          <div style={{ fontSize: premiumImagePage ? 21 : 18, fontWeight: 850, letterSpacing: premiumImagePage ? "-0.3px" : undefined, color: "#fff" }}>{p.name}</div>
                         </div>
                       </div>
                     )}
@@ -139,7 +144,7 @@ export default function HookDetailSheet({ ctx }) {
                     <div style={{ display: isFeatured ? "block" : "flex", padding: isFeatured ? "12px 14px 14px" : 0, gap: 0 }}>
                       {!isFeatured && (
                         <div style={{ position: "relative", flexShrink: 0 }}>
-                          <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 86, height: 86, objectFit: "cover", display: "block" }} />
+                          <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: premiumImagePage ? 108 : 86, height: premiumImagePage ? 112 : 86, objectFit: "cover", display: "block" }} />
                           {showRank && (
                             <div style={{ position: "absolute", top: 5, left: 5, width: 22, height: 22, borderRadius: "50%", background: rankColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: medalEmoji ? 14 : 10, fontWeight: 800, color: "#0D1117" }}>
                               {medalEmoji || (i + 1)}

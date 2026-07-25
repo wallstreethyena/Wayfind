@@ -9,6 +9,7 @@ import { wcRotation } from "../lib/shareCards";
 // from here so one venue can never show two statuses at the same instant.
 import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
+import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 // Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
 // 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
@@ -180,8 +181,6 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
     </div>
   );
 }
-// Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
-const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
 function FeaturedTag({ name }) {
   if (!(featuredBoost(name) > 0)) return null;
   return <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(232,184,75,.12)", border: "1px solid rgba(232,184,75,.45)", borderRadius: 999, padding: "3px 9px" }}>🏅 Featured</span>;
@@ -2241,6 +2240,8 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   const internal = event.destKind === "internal";
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
+  const categoryImage = eventCategoryArt(eventBucket(event));
+  const railImage = categoryImage || event.image || "";
   const when = relativeLabel ? relativeLabel.toUpperCase() : (f.mo + " " + f.day);
   const shareEvent = (ev) => {
     ev.preventDefault();
@@ -2256,10 +2257,9 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   return (
     <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 108, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.24)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
       <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "inherit" }}>
-        {event.image ? <img src={event.image} alt="" loading="lazy" decoding="async" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-        <div style={{ position: "absolute", inset: 0, background: event.image ? "linear-gradient(90deg,rgba(5,9,15,.96) 0%,rgba(5,9,15,.85) 55%,rgba(5,9,15,.38) 100%),linear-gradient(0deg,rgba(5,9,15,.72),transparent 70%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
-        {!event.image ? <Icon name={seg.iconName || "ticket"} size={46} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", right: 12, bottom: 7, opacity: 0.16 }} /> : null}
-        <div style={{ position: "absolute", left: 0, top: 14, bottom: 14, width: 2, borderRadius: "0 3px 3px 0", background: seg.color, boxShadow: `0 0 12px ${seg.color}70` }} />
+        {railImage ? <img src={railImage} alt="" loading="lazy" decoding="async" onError={(ev) => { ev.currentTarget.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(.78) contrast(.96)" }} /> : null}
+        <div style={{ position: "absolute", inset: 0, background: railImage ? "linear-gradient(90deg,rgba(5,9,15,.94) 0%,rgba(5,9,15,.78) 58%,rgba(5,9,15,.48) 100%),linear-gradient(0deg,rgba(5,9,15,.8),rgba(5,9,15,.08) 82%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
+        {!railImage ? <Icon name={seg.iconName || "ticket"} size={46} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", right: 12, bottom: 7, opacity: 0.16 }} /> : null}
         <div style={{ position: "relative", zIndex: 1, height: "100%", boxSizing: "border-box", padding: "11px 38px 10px 12px", display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, color: relativeLabel ? C.accent : seg.color, fontSize: 9.5, lineHeight: 1, fontWeight: 850, letterSpacing: ".45px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             <span>{when}{f.time ? " · " + f.time : ""}</span>
@@ -3177,7 +3177,7 @@ function PageInner({ initialEvents = null }) {
     // isBestOf gate is dropped so it works in any market (Parrish included).
     // Supports the "Hidden gems" lens (opts.lens==="gems") from the retired
     // Best-of tile. Phase 2 adds live events + Parrish curation.
-    today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", slots: [{ label: "Top experiences", n: 4, q: "top attractions tours and things to do" }, { label: "Theme parks", n: 2, q: "theme parks" }, { label: "Shows & theater", n: 2, q: "shows theater live entertainment" }, { label: "Local favorites", n: 2, q: "top rated attractions and local favorites" }], rank: DEFAULT_RANK },
+    today: { title: "Best things to do today", emoji: "⭐", lead: "The strongest things to do around you right now: attractions, tours, shows, and the local spots worth your time. Attraction pages include bookable tours.", heroImage: "/cards/best-things-market-hero.jpg", slots: [{ label: "Top experiences", n: 4, q: "top attractions tours and things to do" }, { label: "Theme parks", n: 2, q: "theme parks" }, { label: "Shows & theater", n: 2, q: "shows theater live entertainment" }, { label: "Local favorites", n: 2, q: "top rated attractions and local favorites" }], rank: DEFAULT_RANK },
     food: { title: "Top 10 Food near you", emoji: "\uD83C\uDF7D\uFE0F", lead: "The 10 best food spots near you right now \u2014 ranked by what actually matters: flavor, local buzz, reviews, distance, atmosphere, value, and whether it fits the moment. No random list. No tourist traps. Just the places most worth your next bite.", presetMi: 15, slots: [{ label: "Top 10", n: 10, q: "best restaurants" }], rank: DEFAULT_RANK },
     // v5.7x: entertainment + shows fold into experiences — the shows/theater
     // query joins the slot mix, nothing about the destination is deleted.
@@ -3232,7 +3232,7 @@ function PageInner({ initialEvents = null }) {
         return ranked.slice(0, 10);
       } catch (e) { return []; }
     })();
-    const _openFromPool = () => setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, emoji: c.emoji, places: _poolPicks, sections: null, presetMi: 60, presetSort: "curated", lens });
+    const _openFromPool = () => setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: c.title, themeTitle: c.title, label: c.title, take: c.lead, themeBody: c.lead, heroImage: c.heroImage || null, emoji: c.emoji, places: _poolPicks, sections: null, presetMi: 60, presetSort: "curated", lens });
     if (_poolPicks.length >= 3) { _openFromPool(); return; }
     // v6.11 — "Stay Tonight" reads Wayfind's OWNED hotel library FIRST: scored,
     // lodging-only, no 55+ noise, no Google. Renders through the same thin-market
@@ -3256,7 +3256,7 @@ function PageInner({ initialEvents = null }) {
           }
           const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
           setBlurbs((prev) => { const m = { ...prev }; owned.forEach((h) => { if (h.blurb) m[h.id] = h.blurb; }); return m; });
-          setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
+          setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, heroImage: c.heroImage || null, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
           return;
         }
       } catch (e) {}
@@ -3308,7 +3308,7 @@ function PageInner({ initialEvents = null }) {
       // v4.85: a thin market opens at the SMALLEST radius that actually shows the
       // list (17 → 30 → 45 → 60) instead of jumping straight to 60.
       const _fitMi = (() => { const _t = Math.min(10, places2.length); for (const mi of [DEFAULT_RADIUS_MI, 30, 45, 60]) { if (places2.filter((p) => p.distMi == null || p.distMi <= mi).length >= _t) return mi; } return 60; })();
-      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
+      setHookDetail({ id: "cur-" + kind, key: "cur-" + kind, theme: "cur-" + kind, title: title2, themeTitle: title2, label: title2, take: body2, themeBody: body2, heroImage: c.heroImage || null, emoji: c.emoji, places: places2, sections: sections2, presetMi: thin ? _fitMi : c.presetMi, presetSort: c.presetSort, lens });
     } catch (e) { showToast("Could not load that list"); }
   };
   // v5.84 (B-spec): the per-tile live-digest pipeline (tileData + /api/home/tiles
@@ -3898,12 +3898,19 @@ function PageInner({ initialEvents = null }) {
   function openExpSheet(key) {
     const e = EXPERIENCES[key]; if (!e) return;
     const m = revenueExpMeta(key, cityNow) || {};
+    const heroImageOverride = arguments.length > 1 ? arguments[1] : null;
     const heroImage = key === "gem"
       ? "/cards/hidden-gems-adobestock-321810820.jpeg"
+      : key === "family"
+        ? "/cards/family-favorites-pool-hero.jpg"
+      : key === "budget"
+        ? "/cards/big-fun-budget-city-hero.jpg"
+      : key === "romantic"
+        ? "/cards/date-night-dining-hero.jpg"
       : key === "entertainment"
         ? "/cards/trending-near-you-adobestock-434128766.jpeg"
         : null;
-    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage, places: null });
+    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage: heroImageOverride || heroImage, places: null });
     try { window.scrollTo(0, 0); } catch {}
   }
   function openMoment(sel) {
@@ -6745,7 +6752,7 @@ function PageInner({ initialEvents = null }) {
               onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} openExpSheet("family"); }}
               onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} openExpSheet("romantic"); }}
               onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} setScreen("events"); }}
-              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} openExpSheet("entertainment"); }}
+              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} openExpSheet("entertainment", "/cards/worth-the-drive-roadtrip-hero.jpg"); }}
               onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} openExpSheet("budget"); }}
               onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me" }); } catch (e) {} setMenuSheet("pick"); }}
             />
@@ -6868,7 +6875,7 @@ function PageInner({ initialEvents = null }) {
                         <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
-                            <EventHeroBg image={featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
+                            <EventHeroBg image={eventCategoryArt(eventBucket(featured)) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
                             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.12) 0%, rgba(0,0,0,.5) 45%, rgba(0,0,0,.9) 100%)" }} />
                             <div style={{ position: "absolute", bottom: 0, right: 0, width: 140, height: 140, background: `radial-gradient(circle at bottom right, ${acc}30 0%, transparent 65%)`, pointerEvents: "none" }} />
                             <div style={{ position: "absolute", top: 12, left: 12, right: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
@@ -7787,6 +7794,7 @@ function UTDealsRail({ category, onSave, lat, lng }) {
 
 function ViatorRail({ title, items, theme }) {
   if (!Array.isArray(items) || !items.length) return null;
+  const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
   return (
     <div style={{ margin: "4px 0 14px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
@@ -7796,7 +7804,10 @@ function ViatorRail({ title, items, theme }) {
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
         {items.map((t) => (
           <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-            {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
+            {(categoryImage || t.image) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
+              <img src={categoryImage || t.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: categoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
+              {categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
+            </div> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
               {/* THE ONE SCORE: same Wayfind treatment as every place card. */}
@@ -7870,6 +7881,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const cardPrimaryLabel = cardShowsCuisine ? cardCuisine : pcat;
   const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
   const cardRank = Number(rank);
+  const isCuratorPick = !!(p._members && p._members.ownerPick);
   const cardAward = cardRank >= 1 && cardRank <= 3
     ? {
         rank: cardRank,
@@ -7879,7 +7891,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       }
     : null;
   return (
-    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}`} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
+    <div onClick={onDetail} role="button" tabIndex={0} onKeyDown={KB_CLICK} className={`wf-place-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}`} aria-label={`Open ${p.name}`} style={{ position: "relative", background: C.card, border: `1px solid ${liked ? "rgba(34,197,94,.45)" : disliked ? "rgba(239,68,68,.3)" : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden", cursor: "pointer" }}>
       {/* v6.34: the badge lives IN the title row (flex), not floated over it.
           The old absolute top-right overlay cleared long titles with a magic
           paddingRight (88px) that was ~17px narrower than the badge, so titles
@@ -7889,7 +7901,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           top-right score badge), same gold visual system as the Featured badge.
           Display-only, gated SOLELY on the server's ownerPick; the client never
           decides owner status, so ownerPick=false can never render it. */}
-      {p._members && p._members.ownerPick && <span className="wf-place-card-owner" title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
+      {isCuratorPick && (
+        <span className="wf-place-card-owner" title="Personally selected by Wayfind's curator">
+          <span className="wf-place-card-owner-mark" aria-hidden="true">✦</span>
+          <span className="wf-place-card-owner-copy">
+            <span>Wayfind</span>
+            <strong>Curator Select</strong>
+          </span>
+        </span>
+      )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
           ? <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -8093,7 +8113,72 @@ const WF_PLACE_CARD_CSS = `
   box-shadow:0 8px 20px rgba(0,0,0,.28);
   backdrop-filter:blur(10px);
 }
-.wf-place-card-owner{top:auto!important;bottom:9px!important;left:8px!important;max-width:80px;font-size:7px!important;padding:3px 6px!important}
+.wf-place-card.is-curator-pick{
+  border-color:rgba(238,190,75,.48)!important;
+  background:
+    radial-gradient(circle at 0% 100%,rgba(238,190,75,.10),transparent 35%),
+    radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),
+    linear-gradient(145deg,rgba(255,255,255,.04),transparent 36%),
+    #111824!important;
+  box-shadow:0 20px 52px rgba(0,0,0,.38),0 0 32px rgba(218,164,37,.07),inset 0 1px rgba(255,240,195,.08);
+}
+.wf-place-card.is-curator-pick:before{
+  left:0;
+  width:100%;
+  height:2px;
+  background:linear-gradient(90deg,transparent 2%,#9A6813 15%,#FFE8A3 42%,#D89B20 68%,transparent 98%);
+  opacity:1;
+}
+.wf-place-card-owner{
+  position:absolute;
+  z-index:6;
+  bottom:12px;
+  left:12px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-width:126px;
+  padding:6px 12px 6px 7px;
+  overflow:hidden;
+  border:1px solid rgba(255,218,126,.72);
+  border-radius:14px;
+  background:
+    linear-gradient(110deg,rgba(255,224,142,.16),transparent 42%),
+    rgba(10,9,7,.86);
+  color:#F8D985;
+  box-shadow:0 10px 28px rgba(0,0,0,.52),0 0 22px rgba(223,174,53,.16),inset 0 1px rgba(255,248,217,.16);
+  backdrop-filter:blur(14px) saturate(1.25);
+  -webkit-backdrop-filter:blur(14px) saturate(1.25);
+  pointer-events:none;
+}
+.wf-place-card-owner:after{
+  content:"";
+  position:absolute;
+  top:-55%;
+  left:-24%;
+  width:42%;
+  height:220%;
+  transform:rotate(20deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+}
+.wf-place-card-owner-mark{
+  position:relative;
+  display:grid;
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  place-items:center;
+  border:1px solid rgba(255,238,181,.82);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);
+  color:#2A1A03;
+  font-size:15px;
+  text-shadow:0 1px rgba(255,255,255,.35);
+  box-shadow:0 4px 12px rgba(0,0,0,.38),inset 0 1px 2px rgba(255,255,255,.7);
+}
+.wf-place-card-owner-copy{display:flex;min-width:0;flex-direction:column;gap:2px;text-transform:uppercase}
+.wf-place-card-owner-copy>span{color:#BDAE8C;font-size:6.5px;font-weight:900;letter-spacing:.19em;line-height:1}
+.wf-place-card-owner-copy>strong{color:#FFE19A;font-size:9px;font-weight:950;letter-spacing:.105em;line-height:1;white-space:nowrap}
 .wf-place-card-heading{flex:1;min-width:0}
 .wf-place-card-category{
   display:flex;
@@ -8114,18 +8199,54 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
 .wf-place-card-score{filter:none!important}
+.wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
+.wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
+.wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}
+.wf-place-card-score .wayfind-score-badge[data-score-band="low"]{--wf-score-color:#E5484D;--wf-score-tint:rgba(229,72,77,.11);--wf-score-border:rgba(229,72,77,.66);--wf-score-glow:rgba(229,72,77,.18)}
 .wf-place-card-score .wayfind-score-badge{
-  border-width:1px!important;
-  border-color:rgba(76,224,179,.38)!important;
-  border-radius:12px!important;
-  background:linear-gradient(135deg,rgba(76,224,179,.06),transparent 70%),rgba(5,13,17,.76)!important;
-  box-shadow:inset 2px 0 #4CE0B3,0 7px 18px rgba(0,0,0,.2);
+  width:98px;
+  min-width:98px;
+  height:46px;
+  box-sizing:border-box;
+  justify-content:flex-start;
+  border-width:1.5px!important;
+  border-color:var(--wf-score-border)!important;
+  border-radius:13px!important;
+  background:linear-gradient(135deg,var(--wf-score-tint),transparent 68%),rgba(5,13,17,.92)!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 11px var(--wf-score-glow);
 }
-.wf-place-card-score .wayfind-score-badge>span:first-child{display:none!important}
-.wf-place-card-score .wayfind-score-badge>span:last-child{padding:6px 7px 6px 8px!important;gap:0!important}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{font-size:6.5px!important;letter-spacing:.65px!important;color:#AEB8C8!important}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{font-size:17px!important}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child span{font-size:8px!important}
+.wf-place-card-score .wayfind-score-badge>span:first-child{
+  display:flex!important;
+  width:24px!important;
+  height:100%;
+  box-sizing:border-box;
+  background:linear-gradient(180deg,var(--wf-score-color),color-mix(in srgb,var(--wf-score-color) 72%,#071018))!important;
+  box-shadow:inset -1px 0 rgba(255,255,255,.12);
+}
+.wf-place-card-score .wayfind-score-badge>span:last-child{
+  min-width:0!important;
+  flex:1;
+  align-items:flex-start;
+  box-sizing:border-box;
+  padding:6px 7px!important;
+  gap:2px!important;
+}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{
+  font-size:6.5px!important;
+  line-height:1!important;
+  letter-spacing:.7px!important;
+  color:#B8C2D0!important;
+}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{
+  gap:2px!important;
+  font-size:18px!important;
+  line-height:.95!important;
+  white-space:nowrap;
+}
+.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child span{
+  font-size:7.5px!important;
+  line-height:1!important;
+}
 .wf-place-card-meta{gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
 .wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
 .wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
@@ -8198,6 +8319,21 @@ const WF_PLACE_CARD_CSS = `
   font-weight:750!important;
   box-shadow:inset 0 1px rgba(255,255,255,.035);
 }
+.wf-place-card-highlights>button{
+  border-color:rgba(249,115,22,.44)!important;
+  background:linear-gradient(180deg,rgba(249,115,22,.13),rgba(249,115,22,.045))!important;
+  color:#FFC18F!important;
+  cursor:pointer;
+  box-shadow:inset 0 1px rgba(255,255,255,.07);
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,background .18s ease;
+}
+.wf-place-card-highlights>button:hover,.wf-place-card-highlights>button:focus-visible{
+  border-color:rgba(255,155,80,.82)!important;
+  background:linear-gradient(180deg,rgba(249,115,22,.2),rgba(249,115,22,.07))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.1);
+  transform:translateY(-1px);
+  outline:none;
+}
 .wf-place-card-highlights>span{color:#DFE5EE!important}
 .wf-place-card-take{
   overflow:hidden;
@@ -8212,10 +8348,10 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
 .wf-place-card-actions>a,.wf-place-card-actions>button{
   display:inline-flex!important;
-  min-height:32px;
+  min-height:34px;
   align-items:center;
   justify-content:center;
-  padding:0 10px!important;
+  padding:0 13px!important;
   border:1px solid rgba(159,177,203,.22)!important;
   border-radius:11px!important;
   background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005)),#0A1019!important;
@@ -8231,7 +8367,7 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:17px;height:17px}
 .wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
 .wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
-.wf-place-card-share{margin-left:auto}
+.wf-place-card-share{min-width:88px;margin-left:auto}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){

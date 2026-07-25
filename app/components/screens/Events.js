@@ -5,13 +5,19 @@
 import { useState } from "react";
 import { C, Icon, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
+import { eventCategoryArt } from "../../../lib/eventCategoryArt";
 
 function EventArt({ e, seg, height, ctx }) {
-  const { eventUseImage } = ctx;
+  const { eventUseImage, eventBucket } = ctx;
   const [bad, setBad] = useState(false);
   const acc = (seg && seg.color) || C.accent;
-  if (eventUseImage(e) && !bad) {
-    return <img src={e.image} alt="" loading="lazy" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setBad(true); } catch {} }} style={{ width: "100%", height, objectFit: "cover", display: "block" }} />;
+  const categoryImage = eventCategoryArt(eventBucket(e));
+  const image = categoryImage || (eventUseImage(e) ? e.image : "");
+  if (image && !bad) {
+    return <div style={{ position: "relative", width: "100%", height, overflow: "hidden" }}>
+      <img src={image} alt="" loading="lazy" draggable={false} onError={() => setBad(true)} onLoad={(ev) => { try { if (ev.target && ev.target.naturalWidth && ev.target.naturalWidth < 320) setBad(true); } catch {} }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: categoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
+      {categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.52))" }} /> : null}
+    </div>;
   }
   return (
     <div style={{ width: "100%", height, position: "relative", overflow: "hidden", background: `linear-gradient(135deg, ${acc}30 0%, #131A24 56%, #0D1117 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -209,7 +215,10 @@ export default function EventsScreen({ ctx }) {
                   {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
                       through by the API route (t.sellingFast) — never a computed guess. */}
                   {t.sellingFast ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
-                  {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : null}
+                  <div style={{ position: "relative", height: 96, overflow: "hidden" }}>
+                    <img src={eventCategoryArt("tours")} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(.82) contrast(.96)" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.08),rgba(5,9,15,.5))" }} />
+                  </div>
                   <div style={{ padding: "9px 11px" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
                     <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${Number(t.reviews).toLocaleString()})` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
