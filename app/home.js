@@ -5719,10 +5719,46 @@ function PageInner({ initialEvents = null }) {
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
 
+  // v6.60 (2026-07-25 cost/scraping audit): the search box used to call Google
+  // DIRECTLY from the browser via the Maps JS library — the one metered Places
+  // surface that never passed through middleware.js/apiGuard.js (no same-origin
+  // check, no per-IP rate limit), unlike every other paid Places proxy in this
+  // app. fetchSuggestions and pickSuggestion now go through guarded server
+  // routes (/api/places/autocomplete, /api/places/details) first, falling back
+  // to the original direct-to-Google SDK path ONLY when GOOGLE_MAPS_SERVER_KEY
+  // isn't configured (dev/local; never happens in production — search already
+  // depends on that same key via /api/places/search).
   async function fetchSuggestions(q) {
+    if (typeof tokenRef.current !== "string") {
+      tokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+    }
+    try {
+      const r = await fetch("/api/places/autocomplete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          input: q,
+          sessionToken: tokenRef.current,
+          ...(center ? { lat: center.lat, lng: center.lng } : {}),
+        }),
+      });
+      if (r.status === 501) return fetchSuggestionsDirect(q); // server key not configured
+      if (!r.ok) { setSuggestions([]); return; }
+      const data = await r.json();
+      setSuggestions((data.suggestions || []).slice(0, 6));
+    } catch {
+      setSuggestions([]);
+    }
+  }
+
+  // Dev/local-only fallback — the original direct-to-Google client path,
+  // preserved as-is. Never runs in production.
+  async function fetchSuggestionsDirect(q) {
     try {
       const { AutocompleteSuggestion, AutocompleteSessionToken } = await getLoader().importLibrary("places");
-      if (!tokenRef.current) tokenRef.current = new AutocompleteSessionToken();
+      if (!(tokenRef.current instanceof AutocompleteSessionToken)) tokenRef.current = new AutocompleteSessionToken();
       // Geographic types — anything else is treated as an establishment/place.
       const AREA_TYPES = new Set([
         "locality", "administrative_area_level_1", "administrative_area_level_2",
@@ -5752,9 +5788,9 @@ function PageInner({ initialEvents = null }) {
           const text = (pp.text && (pp.text.text || pp.text)) || "";
           const types = pp.types || [];
           const kind = types.some((t) => AREA_TYPES.has(t)) ? "area" : "place";
-          return { text, pp, kind };
+          return { text, placeId: pp.placeId, kind };
         })
-        .filter((x) => x.text)
+        .filter((x) => x.text && x.placeId)
         .slice(0, 6);
       setSuggestions(list);
     } catch {
@@ -5762,34 +5798,87 @@ function PageInner({ initialEvents = null }) {
     }
   }
 
+  // A photo entry is either { name: "places/.../photos/..." } from the guarded
+  // proxy (built into a URL through OUR OWN /api/photo route — never Google
+  // directly) or { _directUri } from the dev-only SDK fallback (already a full
+  // URL, that path's original behavior, unchanged).
+  function photoUrlFor(ph) {
+    if (!ph) return null;
+    if (ph.name) return "/api/photo?ref=" + encodeURIComponent(ph.name) + "&w=640";
+    return ph._directUri || null;
+  }
+
+  // Fetches full Place Details for a suggestion — guarded server proxy first
+  // (/api/places/details), dev/local-only SDK fallback second. Both paths
+  // normalize to the SAME plain-object shape so callers never branch on which
+  // one ran: { id, location:{lat,lng}, displayName, formattedAddress, types,
+  // rating, userRatingCount, photos:[{name}|{_directUri}], priceLevel,
+  // regularOpeningHours:{openNow}, businessStatus }.
+  async function resolvePlaceDetails(placeId, kind, sessionToken) {
+    const r = await fetch("/api/places/details", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ placeId, kind, sessionToken }),
+    });
+    if (r.status === 501) return resolvePlaceDetailsDirect(placeId, kind); // server key not configured
+    if (!r.ok) throw new Error("details upstream " + r.status);
+    const data = await r.json();
+    if (!data.place) throw new Error("no place");
+    return data.place;
+  }
+
+  // Dev/local-only fallback — constructs a Place by id directly via the Maps
+  // JS SDK (no dependence on the autocomplete prediction object, unlike the
+  // original item.pp.toPlace() path) and maps it to the same plain-object
+  // shape resolvePlaceDetails returns. Never runs in production.
+  async function resolvePlaceDetailsDirect(placeId, kind) {
+    const { Place } = await getLoader().importLibrary("places");
+    const p = new Place({ id: placeId });
+    const fields = kind === "area"
+      ? ["location", "formattedAddress", "displayName"]
+      : ["id", "location", "displayName", "formattedAddress", "types", "rating", "userRatingCount", "photos", "priceLevel", "regularOpeningHours", "businessStatus"];
+    await p.fetchFields({ fields });
+    return {
+      id: p.id || placeId,
+      location: p.location ? { lat: p.location.lat(), lng: p.location.lng() } : null,
+      displayName: p.displayName,
+      formattedAddress: p.formattedAddress || "",
+      types: p.types || [],
+      rating: p.rating || null,
+      userRatingCount: p.userRatingCount || 0,
+      photos: (p.photos || []).slice(0, 6).map((ph) => ({ _directUri: ph.getURI?.({ maxWidth: 640 }) })),
+      priceLevel: p.priceLevel,
+      regularOpeningHours: { openNow: p.regularOpeningHours?.isOpen?.() ?? null },
+      businessStatus: p.businessStatus || null,
+    };
+  }
+
   async function pickSuggestion(item) {
     setSuggestions([]);
     setQuery("");
+    const sessionToken = tokenRef.current;
     tokenRef.current = null;
 
     if (item.kind === "place") {
       // Route straight to the place's detail sheet.
       setLoading(true);
       try {
-        const place = item.pp.toPlace();
-        await place.fetchFields({
-          fields: [
-            "id", "location", "displayName", "formattedAddress", "types",
-            "rating", "userRatingCount", "photos", "priceLevel",
-            "regularOpeningHours", "businessStatus",
-          ],
-        });
-        const photoUrl = (place.photos || [])[0]?.getURI?.({ maxWidth: 640 }) || null;
-        const allPhotos = (place.photos || []).slice(0, 6).map((ph) => ph.getURI?.({ maxWidth: 640 })).filter(Boolean);
+        const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
+        const photoList = (place.photos || []).slice(0, 6).map(photoUrlFor).filter(Boolean);
+        const photoUrl = photoList[0] || null;
         const PRICE_LEVELS = ["FREE", "INEXPENSIVE", "MODERATE", "EXPENSIVE", "VERY_EXPENSIVE"];
         const priceNum = place.priceLevel != null
           ? (typeof place.priceLevel === "number" ? place.priceLevel : PRICE_LEVELS.indexOf(String(place.priceLevel)))
           : null;
+        const loc = place.location || {};
+        const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
+        const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
+        const isOpenNow = typeof place.regularOpeningHours?.openNow === "boolean" ? place.regularOpeningHours.openNow : (place.regularOpeningHours?.openNow ?? null);
         const placeObj = {
           id: place.id,
           name: (place.displayName?.text || place.displayName || item.text).split(",")[0].trim(),
-          lat: place.location?.lat(),
-          lng: place.location?.lng(),
+          lat,
+          lng,
           address: place.formattedAddress || "",
           type: (place.types || [])[0] || "",
           types: place.types || [],
@@ -5798,18 +5887,18 @@ function PageInner({ initialEvents = null }) {
           priceNum: priceNum >= 0 ? priceNum : null,
           price: priceNum > 0 ? "$".repeat(priceNum) : null,
           photo: photoUrl,
-          photos: allPhotos,
-          openNow: place.regularOpeningHours?.isOpen?.() ?? null,
+          photos: photoList,
+          openNow: isOpenNow,
           // v6.34: isOpen() is live at THIS instant — stamp it so businessStatus
           // may trust it inside the snapshot freshness window.
-          hoursAsOf: (place.regularOpeningHours?.isOpen?.() ?? null) != null ? Date.now() : null,
+          hoursAsOf: isOpenNow != null ? Date.now() : null,
           mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${place.id}`,
           labels: [],
           wfScore: null,
         };
         // Recenter explore list to this place's area for the "similar spots" context.
-        if (place.location) {
-          setCenter({ lat: place.location.lat(), lng: place.location.lng() });
+        if (typeof lat === "number" && typeof lng === "number") {
+          setCenter({ lat, lng });
           manualRef.current = true;
         }
         openDetail(placeObj);
@@ -5825,11 +5914,12 @@ function PageInner({ initialEvents = null }) {
     setLoading(true);
     manualRef.current = true;
     try {
-      const place = item.pp.toPlace();
-      await place.fetchFields({ fields: ["location", "formattedAddress", "displayName"] });
-      const loc = place.location;
-      if (loc) {
-        setCenter({ lat: loc.lat(), lng: loc.lng() });
+      const place = await resolvePlaceDetails(item.placeId, "area", sessionToken);
+      const loc = place.location || {};
+      const lat = typeof loc.lat === "number" ? loc.lat : loc.latitude;
+      const lng = typeof loc.lng === "number" ? loc.lng : loc.longitude;
+      if (typeof lat === "number" && typeof lng === "number") {
+        setCenter({ lat, lng });
         const fa = place.formattedAddress || (place.displayName && (place.displayName.text || place.displayName)) || item.text;
         setLocName(String(fa).split(",").slice(0, 2).join(",").trim());
       }
