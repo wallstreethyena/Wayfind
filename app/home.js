@@ -2323,7 +2323,7 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
   const categoryImage = eventCategoryArt(eventBucket(event), event);
-  const railImage = categoryImage || event.image || "";
+  const railImage = (eventUseImage(event) ? event.image : "") || categoryImage;
   const when = relativeLabel ? relativeLabel.toUpperCase() : (f.mo + " " + f.day);
   const shareEvent = (ev) => {
     ev.preventDefault();
@@ -7939,9 +7939,9 @@ function ViatorRail({ title, items, theme }) {
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
         {items.map((t) => (
           <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-            {(categoryImage || t.image) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
-              <img src={categoryImage || t.image} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: categoryImage ? "saturate(.82) contrast(.96)" : "none" }} />
-              {categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
+            {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
+              <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
+              {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
             </div> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
@@ -8519,23 +8519,23 @@ const WF_PLACE_CARD_CSS = `
   .wf-place-card-name{font-size:17px!important}
 }
 .wf-bottom-nav{
-  padding:4px 4px 5px!important;
+  padding:3px 4px 2px!important;
   gap:2px!important;
 }
 .wf-bottom-nav-item{
-  min-height:60px!important;
-  padding:6px 4px 5px!important;
-  gap:3px!important;
+  min-height:52px!important;
+  padding:4px 4px 2px!important;
+  gap:2px!important;
 }
-.wf-bottom-nav-icon{width:30px!important;height:26px!important;transform:none!important}
+.wf-bottom-nav-icon{width:29px!important;height:24px!important;transform:none!important}
 .wf-bottom-nav-label{font-size:10.5px!important}
 @media(display-mode:standalone){
-  .wf-bottom-nav{padding-bottom:max(5px,calc(env(safe-area-inset-bottom) - 12px))!important}
+  .wf-bottom-nav{padding-bottom:max(3px,calc(env(safe-area-inset-bottom) - 16px))!important}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-bottom-nav{bottom:12px!important;padding:6px!important;border-radius:18px!important}
-  .wf-bottom-nav-item{min-height:62px!important;padding:6px 6px 5px!important}
-  .wf-bottom-nav-icon{width:31px!important;height:27px!important}
+  .wf-bottom-nav{bottom:12px!important;padding:4px 6px 3px!important;border-radius:18px!important}
+  .wf-bottom-nav-item{min-height:54px!important;padding:4px 6px 3px!important}
+  .wf-bottom-nav-icon{width:30px!important;height:25px!important}
   .wf-bottom-nav-label{font-size:10.75px!important}
 }
 `;
