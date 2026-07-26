@@ -76,9 +76,10 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
-        style={{ flex: 1, padding: "13px 0", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", textAlign: "center", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer" }}
+        style={{ flex: 1, minWidth: 0, minHeight: 48, padding: "0 14px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 14, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap", boxSizing: "border-box" }}
       >
-        {verifiedUrl ? "Tickets & tours ↗" : (goFallback ? "Search Viator ↗" : "Check rates ↗")}
+        <span>{verifiedUrl ? "Tickets & tours" : (goFallback ? "Search Viator" : "Check rates")}</span>
+        <span aria-hidden="true" style={{ color: C.accent, fontSize: 16, lineHeight: 1 }}>↗</span>
       </a>
     );
   }
