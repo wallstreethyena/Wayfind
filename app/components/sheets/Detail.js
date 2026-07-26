@@ -135,27 +135,40 @@ function WayfindTakeRail({ editorial }) {
   const items = SPEC.map(([k, label, icon, color]) => ({ label, icon, color, body: editorial[k] })).filter((x) => x.body);
   if (!items.length) return null;
   const multi = items.length > 1;
-  const onScroll = () => { const el = railRef.current; if (!el) return; const w = el.clientWidth * 0.86 + 10; setActive(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w)))); };
+  const onScroll = () => {
+    const el = railRef.current;
+    const firstCard = el?.firstElementChild;
+    if (!el || !firstCard) return;
+    const w = firstCard.getBoundingClientRect().width + 12;
+    setActive(Math.max(0, Math.min(items.length - 1, Math.round(el.scrollLeft / w))));
+  };
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 9 }}>
-        <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>📝 The Wayfind take</div>
-        {multi ? <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>{active + 1} / {items.length} · Swipe →</div> : null}
+    <section style={{ marginBottom: 18, padding: "16px 0 14px", borderTop: "1px solid rgba(255,122,24,.22)", borderBottom: "1px solid rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(255,122,24,.035), rgba(255,255,255,.012))" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, marginBottom: 12, padding: "0 2px" }}>
+        <div>
+          <div style={{ fontSize: 9.5, fontWeight: 900, color: C.accent, letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: 4 }}>Wayfind editorial</div>
+          <div style={{ fontSize: 17, fontWeight: 850, color: C.text, letterSpacing: "-.25px" }}>The local take, distilled.</div>
+        </div>
+          {multi ? <div style={{ flexShrink: 0, padding: "6px 9px", borderRadius: 999, border: "1px solid rgba(255,255,255,.12)", background: "rgba(8,12,18,.72)", fontSize: 10.5, fontWeight: 800, color: C.muted }}>{active + 1} / {items.length} · <span style={{ color: C.accent }}>Swipe →</span></div> : null}
       </div>
-      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 10, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: multi ? 2 : 0 }}>
+      <div ref={railRef} onScroll={onScroll} style={{ display: "flex", gap: 12, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "0 2px 3px" }}>
         {items.map((it) => (
-          <div key={it.label} style={{ flex: multi ? "0 0 86%" : "0 0 100%", scrollSnapAlign: "start", background: "linear-gradient(155deg, rgba(255,255,255,.045), rgba(11,14,21,.5))", border: `1px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", minHeight: 96, boxSizing: "border-box" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 10.5, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: it.color, marginBottom: 8 }}><span>{it.icon}</span>{it.label}</div>
-            <div style={{ fontSize: 14, fontWeight: 400, color: "#E6EDF3", lineHeight: 1.55 }}>{it.body}</div>
-          </div>
+          <article key={it.label} style={{ position: "relative", overflow: "hidden", flex: multi ? "0 0 86%" : "0 0 100%", scrollSnapAlign: "start", background: "linear-gradient(145deg, rgba(28,34,44,.98), rgba(10,14,21,.96))", border: "1px solid rgba(255,255,255,.12)", borderRadius: 18, padding: "17px 18px 18px", minHeight: 126, boxSizing: "border-box", boxShadow: "0 14px 28px rgba(0,0,0,.22)" }}>
+            <span aria-hidden="true" style={{ position: "absolute", inset: "0 auto 0 0", width: 3, background: `linear-gradient(180deg, ${it.color}, transparent 84%)` }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+              <span style={{ width: 30, height: 30, borderRadius: 10, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.065)", border: "1px solid rgba(255,255,255,.1)", fontSize: 15 }}>{it.icon}</span>
+              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", color: it.color }}>{it.label}</span>
+            </div>
+            <div style={{ maxWidth: "34ch", fontSize: 14, fontWeight: 400, color: "#E6EDF3", lineHeight: 1.55, letterSpacing: "-.04px" }}>{it.body}</div>
+          </article>
         ))}
       </div>
       {multi ? (
-        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 9 }}>
-          {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 16 : 5, height: 5, borderRadius: 999, background: i === active ? C.light : "rgba(255,255,255,.22)", transition: "width .2s ease, background .2s ease" }} />))}
+        <div style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 11 }}>
+          {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 20 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.2)", transition: "width .2s ease, background .2s ease" }} />))}
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -289,22 +302,26 @@ export default function DetailSheet({ ctx }) {
                 </div>
               )}
 
-              {/* Action dock: one row. Directions (or Get tickets for events) is the single primary; everything else is a quiet icon. */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 16, alignItems: "stretch" }}>
-                {detail._event && detail._event.url ? (
-                  <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Get tickets ↗</a>
-                ) : (
-                  <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: 1, padding: "13px 0", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", textAlign: "center" }}>Directions ↗</a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} /></>
-                )}
-                {detail._event && detail._event.url && (
-                  <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ flexShrink: 0, width: 46, display: "flex", alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
-                )}
-                {!detail._event && (<>
-                  <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                  <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 46, background: liked[detail.id] ? C.adim : C.card, border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
-                  <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
-                </>)}
-                <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flexShrink: 0, width: 46, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg></button>
+              {/* Premium action dock. Actions and handlers are unchanged; only their visual grouping is refined. */}
+              <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : "repeat(2,minmax(0,1fr))", gap: 8 }}>
+                  {detail._event && detail._event.url ? (
+                    <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
+                  ) : (
+                    <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Directions</span><span aria-hidden="true">↗</span></a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} /></>
+                  )}
+                  {detail._event && detail._event.url && (
+                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  {!detail._event && (<>
+                    <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flex: 1, minWidth: 0, height: 44, padding: "0 12px", background: "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 13.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg><span>{isSaved(detail.id) ? "Saved" : "Save"}</span></button>
+                    <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
+                    <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
+                  </>)}
+                  <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flex: 1, minWidth: 0, height: 44, padding: "0 12px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 13.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
+                </div>
               </div>
               {(() => { /* v6.39 — "Order on Uber Eats" on food places (exact-store redirect via /api/eats/go, the viator/go pattern). */
                 const _ty = ((detail.types || []).join(" ")).toLowerCase();
