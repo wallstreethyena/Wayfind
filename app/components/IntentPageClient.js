@@ -12,6 +12,7 @@ import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
+import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -20,6 +21,12 @@ export default function IntentPageClient({ intent }) {
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
+  // v6.71 (Wave 2): date-night/family never QUERY for beaches, but a text
+  // search like "waterfront dinner sunset views" or "scenic sunset spot" can
+  // still surface a real one (toRow now keeps `types`). Batched once per
+  // result set, same wf_beach_water / wf_place_popularity_scored reads as
+  // every other beach surface — a types false-positive just gets no rows back.
+  const [beachSignals, setBeachSignals] = useState({});
 
   // Preserve a valid shared photo reference for link metadata, while the
   // visible landing-page hero stays locked to the matching homepage card.
@@ -85,6 +92,27 @@ export default function IntentPageClient({ intent }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [intent]);
 
+  useEffect(() => {
+    if (!Array.isArray(rows) || !rows.length || !supabase) return;
+    const ids = rows.filter((r) => ((r.types || []).join(" ")).toLowerCase().includes("beach")).map((r) => r.id);
+    if (!ids.length) return;
+    let dead = false;
+    (async () => {
+      try {
+        const [{ data: water }, { data: pop }] = await Promise.all([
+          supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", ids),
+          supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", ids),
+        ]);
+        if (dead) return;
+        const next = {};
+        (water || []).forEach((r) => { next[r.beach_place_id] = { ...(next[r.beach_place_id] || {}), water: r }; });
+        (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
+        setBeachSignals(next);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+  }, [rows]);
+
   if (!def) return null;
   const h = new Date().getHours() + new Date().getMinutes() / 60;
   const share = async () => {
@@ -121,14 +149,27 @@ export default function IntentPageClient({ intent }) {
         </div>
       ) : rows.length ? (
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
-          {rows.map((r, i) => (
-            <RankedRow key={r.id} i={i} href={"/p/" + encodeURIComponent(r.id)}
-              img={r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=240" : null}
-              title={r.name}
-              score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
-              why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
-              editorial={r.editorial_hook || r.ai_line || null} />
-          ))}
+          {rows.map((r, i) => {
+            const sig = beachSignals[r.id];
+            const wq = sig && sig.water ? (sig.water.advisory ? { t: "Advisory", c: "#EF4444" } : sig.water.result === "Good" ? { t: "Water: Good", c: "#22C55E" } : sig.water.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : sig.water.result ? { t: "Water: Poor", c: "#EF4444" } : null) : null;
+            const badge = sig ? (
+              <span style={{ display: "inline-flex", gap: 6, flexWrap: "wrap" }}>
+                {sig.popularityPct != null && sig.popularityPct >= TRENDING_POPULARITY_THRESHOLD ? (
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Popular</span>
+                ) : null}
+                {wq ? <span style={{ fontSize: 11.5, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null}
+              </span>
+            ) : null;
+            return (
+              <RankedRow key={r.id} i={i} href={"/p/" + encodeURIComponent(r.id)}
+                img={r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=240" : null}
+                title={r.name}
+                score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
+                why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
+                editorial={r.editorial_hook || r.ai_line || null}
+                badge={badge} />
+            );
+          })}
         </ol>
       ) : (
         <p style={{ marginTop: 18, fontSize: 13, color: "#8b93a1" }}>Nothing near you clears the bar for this list right now — that honesty is the product. Try again closer to town.</p>

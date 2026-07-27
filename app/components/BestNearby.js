@@ -16,8 +16,8 @@
 // treatment the owner asked for). Lazy per-section fetches, one open at a
 // time, reserved-height loading, honest empty states.
 // scripts/test-todays-best.mjs locks the contract.
-import { useState, useRef } from "react";
-import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
+import { useState, useRef, useEffect } from "react";
+import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
@@ -66,12 +66,39 @@ const SellingFast = () => (
   <span style={{ flexShrink: 0, background: "#B33A2B", color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "2px 7px" }}>Selling fast</span>
 );
 
+// v6.71 (Wave 2): same flame + threshold as the PlaceCard/Detail-sheet/Best
+// Beaches signal — one meaning wherever a beach shows up. Compact form (no
+// label) since Row's badge slot sits beside a title that's already ellipsized.
+const Flame = () => (
+  <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 800, color: "#FB923C" }} aria-label="Trending">🔥</span>
+);
+
 const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach day · high UV", poor: "Not a beach day", unsafe: "Beach advisories active", too_far: null };
 
 export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
   const [open, setOpen] = useState(null); // "eat" | "todo" | "trends"
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
+  // v6.71 (Wave 2): "Top things to do" mixes beach rows in with tours and
+  // attractions (wf_things_to_do); this batches the same popularity read the
+  // rest of the app uses (wf_place_popularity_scored, keyed by place_id) for
+  // whichever beach rows land in THIS list — one query per open, not per row.
+  const [beachPop, setBeachPop] = useState({});
+  useEffect(() => {
+    const todo = rows.todo;
+    if (!Array.isArray(todo) || !todo.length || !supabase) return;
+    const ids = todo.filter((r) => r.kind !== "experience" && r.category === "beach").map((r) => r.id);
+    if (!ids.length) return;
+    let dead = false;
+    (async () => {
+      try {
+        const { data } = await supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", ids);
+        if (dead || !data) return;
+        setBeachPop((prev) => { const next = { ...prev }; for (const r of data) next[r.place_id] = r.tier2_popularity; return next; });
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+  }, [rows.todo]);
 
   const baseArgs = () => {
     const d = new Date();
@@ -273,7 +300,8 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             trailing={<span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 11px", fontSize: 11, fontWeight: 800 }}>Book ↗</span>} />
                         ) : (
                           <Row key={r.id} i={i} thumb={tbPhotoUrl(r.photo_ref, 240)} title={r.title}
-                            onClick={() => openPlace({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
+                            onClick={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
+                            badge={r.category === "beach" && beachPop[r.id] != null && beachPop[r.id] >= TRENDING_POPULARITY_THRESHOLD ? <Flame /> : null}
                             meta={<>
                               {isFinite(r.distance_mi) ? <span>{r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}
                               <PlaceScoreChip p={{ rating: r.rating, reviews: r.reviews }} size={12} />

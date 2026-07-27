@@ -16,7 +16,7 @@ export function Trophy({ i }) {
   );
 }
 
-export function RankedRow({ i, href, img, title, score, why, editorial }) {
+export function RankedRow({ i, href, img, title, score, why, editorial, badge }) {
   return (
     <li style={{ borderTop: "1px solid " + C.border }}>
       <a href={href} style={{ display: "flex", gap: 14, padding: "16px 0", alignItems: "flex-start", textDecoration: "none", color: "inherit" }}>
@@ -26,6 +26,10 @@ export function RankedRow({ i, href, img, title, score, why, editorial }) {
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 17, fontWeight: 750, color: C.text }}>{title}</span>
             {score != null ? <span style={{ fontSize: 14, fontWeight: 800, color: C.green }}>{score}</span> : null}
+            {/* v6.71 (Wave 2): caller-supplied node (e.g. the beach popularity/
+                water-quality chips) — kept as a prop, not built here, so this
+                stays the pure/no-hooks shell the file's header promises. */}
+            {badge || null}
           </div>
           {why ? <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "4px 0 0" }}>{why}</p> : null}
           {editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{editorial}</p> : null}

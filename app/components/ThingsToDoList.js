@@ -12,12 +12,13 @@
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
 import { useEffect, useState } from "react";
-import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge } from "./kit";
+import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge, TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { rankReason } from "../../lib/rankReason.js";
 import { viatorDirectUrl } from "../../lib/affiliates.js";
+import { supabase } from "../../lib/supabase.js";
 
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
 const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
@@ -28,7 +29,7 @@ const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60)
 // Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
 const confColor = (n) => (n >= 500 ? "#22C55E" : n >= 100 ? "#FBBF24" : "#94A3B8");
 
-function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
+function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare }) {
   const isTour = r.kind === "experience";
   const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
   const open = () => {
@@ -76,6 +77,18 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
           {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
+          {/* v6.71 (Wave 2): same flame + water-quality read as every other
+              beach surface (PlaceCard, Detail sheet, Best Beaches, Best
+              Nearby) — batched once for the whole list in ThingsToDoList
+              below, not per card. */}
+          {r.category === "beach" && beachSignal && beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 10px" }}>🔥 Popular</span>
+          ) : null}
+          {r.category === "beach" && beachSignal && beachSignal.water ? (() => {
+            const w = beachSignal.water;
+            const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
+            return wq ? <span style={{ display: "inline-flex", alignItems: "center", fontSize: 11.5, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
+          })() : null}
         </div>
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
             verified wf_editorial hook (gold, like the beaches page). The AI
@@ -97,6 +110,31 @@ function Card({ r, first, rank, blurb, onOpenPlace, onLog, onSave, onShare }) {
 
 export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare }) {
   const [list, setList] = useState(null); // null = loading
+  // v6.71 (Wave 2): batched water-quality + popularity for whichever beach
+  // rows land in this ranked list — same wf_beach_water / wf_place_popularity_scored
+  // reads as home.js's `beachSignals` effect, one query pair per list load
+  // rather than per card.
+  const [beachSignals, setBeachSignals] = useState({});
+  useEffect(() => {
+    if (!Array.isArray(list) || !list.length || !supabase) return;
+    const ids = list.filter((r) => r.kind !== "experience" && r.category === "beach").map((r) => r.id);
+    if (!ids.length) return;
+    let dead = false;
+    (async () => {
+      try {
+        const [{ data: water }, { data: pop }] = await Promise.all([
+          supabase.from("wf_beach_water").select("beach_place_id,result,advisory,sampled_at").in("beach_place_id", ids),
+          supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", ids),
+        ]);
+        if (dead) return;
+        const next = {};
+        (water || []).forEach((r) => { next[r.beach_place_id] = { ...(next[r.beach_place_id] || {}), water: r }; });
+        (pop || []).forEach((r) => { next[r.place_id] = { ...(next[r.place_id] || {}), popularityPct: r.tier2_popularity }; });
+        setBeachSignals(next);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+  }, [list]);
   useEffect(() => {
     if (!center) return;
     let dead = false;
@@ -134,7 +172,7 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, bl
         </>
       ) : shown.length ? (
         <>
-          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} />)}
+          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} />)}
           {hasTours ? <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Some links are affiliate links; it never changes our rankings.</div> : null}
         </>
       ) : (
