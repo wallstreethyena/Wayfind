@@ -3641,15 +3641,26 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => { if (!locApprox || locBannerGone) return; const t = setTimeout(() => setLocBannerGone(true), 8000); return () => clearTimeout(t); }, [locApprox, locBannerGone]);
   const [reservations, setReservations] = useState([]);
   useEffect(() => { try { setReservations(JSON.parse(localStorage.getItem("wf_reservations") || "[]")); } catch (e) {} }, []);
-  function persistRes(next) { setReservations(next); try { localStorage.setItem("wf_reservations", JSON.stringify(next)); } catch (e) {} }
+  // v6.34: reservations persist via a functional setState + a dedicated
+  // effect keyed on [reservations] (same pattern as `lists`/"wayfind_lists"
+  // above) so two mutations in the same render tick (e.g. two booking CTAs
+  // tapped quickly) both apply instead of the second clobbering the first
+  // from a stale closure. The hydrated-ref guard skips the initial mount run
+  // so the load effect above always wins the race.
+  const reservationsHydrated = useRef(false);
+  useEffect(() => {
+    if (!reservationsHydrated.current) { reservationsHydrated.current = true; return; }
+    try { localStorage.setItem("wf_reservations", JSON.stringify(reservations)); } catch (e) {}
+  }, [reservations]);
+  function persistRes(fn) { setReservations((prev) => fn(prev)); }
   function addReservation(kind, place, partner, url) {
     try {
       const entry = { id: "r" + Date.now() + Math.floor(Math.random() * 999), name: (place && place.name) || "Booking", placeId: place && place.id, kind, partner, at: new Date().toISOString(), url: url || "", conf: "" };
-      persistRes([entry, ...reservations].slice(0, 50));
+      persistRes((prev) => [entry, ...prev].slice(0, 50));
     } catch (e) {}
   }
-  function saveResConf(id, conf) { persistRes(reservations.map((r) => r.id === id ? { ...r, conf: String(conf || "").slice(0, 60) } : r)); }
-  function removeRes(id) { persistRes(reservations.filter((r) => r.id !== id)); }
+  function saveResConf(id, conf) { persistRes((prev) => prev.map((r) => r.id === id ? { ...r, conf: String(conf || "").slice(0, 60) } : r)); }
+  function removeRes(id) { persistRes((prev) => prev.filter((r) => r.id !== id)); }
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
