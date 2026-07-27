@@ -96,7 +96,7 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
