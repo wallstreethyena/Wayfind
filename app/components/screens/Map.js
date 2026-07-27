@@ -1,14 +1,33 @@
 "use client";
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // tasteBoost is exclusive to the map's default ranking blend and moves with it.
-import { C, scoreLabel, PlaceScoreChip } from "../kit";
+import { C, scoreLabel, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 
 function tasteBoost(place) {
   try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
 }
 
+// v6.71 (Wave 2): same flame + water-quality read as every other beach
+// surface, sourced from the SAME `beachSignals` batch home.js already
+// computes for the visible PlaceCards (isBeach + beachSignals both arrive
+// via ctx) — no separate fetch for the map screen.
+function BeachChips({ p, isBeach, beachSignals }) {
+  if (!isBeach || !isBeach(p) || !beachSignals) return null;
+  const sig = beachSignals[p.id];
+  if (!sig) return null;
+  const wq = sig.water ? (sig.water.advisory ? { t: "Advisory", c: C.red } : sig.water.result === "Good" ? { t: "Water: Good", c: C.green } : sig.water.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : sig.water.result ? { t: "Water: Poor", c: C.red } : null) : null;
+  const trending = sig.popularityPct != null && sig.popularityPct >= TRENDING_POPULARITY_THRESHOLD;
+  if (!trending && !wq) return null;
+  return (
+    <>
+      {trending ? <span style={{ fontSize: 11.5, fontWeight: 800, color: "#FB923C" }}>🔥 Popular</span> : null}
+      {wq ? <span style={{ fontSize: 11.5, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null}
+    </>
+  );
+}
+
 export default function MapScreen({ ctx }) {
-  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol } = ctx;
+  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, isBeach, beachSignals } = ctx;
               const dateChips = [];
               const now = new Date();
               for (let i = 0; i < 14; i++) {
@@ -96,6 +115,7 @@ export default function MapScreen({ ctx }) {
                                 {liveOpen(mp) === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
                                 {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
                                 {mp.distMi != null && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>· ≈ {Math.max(4, Math.round((mp.distMi * 1.3 / 28) * 60) + 3)} min drive</span>}
+                                <BeachChips p={mp} isBeach={isBeach} beachSignals={beachSignals} />
                               </div>
                               {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
                               <div style={{ fontSize: 11.5, fontWeight: 700, color: C.light, marginTop: tag ? 4 : 5 }}>See details →</div>
@@ -156,6 +176,7 @@ export default function MapScreen({ ctx }) {
                                   {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open</span>}
                                   {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
                                   {p.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                                  <BeachChips p={p} isBeach={isBeach} beachSignals={beachSignals} />
                                 </div>
                               </div>
                               <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
