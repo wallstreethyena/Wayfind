@@ -19,3 +19,8 @@ wf-inventory-list.txt
 
 # index→library promoter: cached raw enrichment (local, not committed)
 .promote-cache/
+
+# Claude Code: share agent definitions, keep per-machine settings local
+.claude/*
+!.claude/agents/
+.claude/settings.local.json
