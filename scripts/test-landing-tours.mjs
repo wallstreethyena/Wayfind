@@ -5,7 +5,16 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 const s = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
 ok(s.includes("import TourStrip from"), "the ranking page mounts the client TourStrip");
-ok(s.includes('catSlug === "things-to-do" ? <TourStrip'), "tours mount only on high-intent things-to-do pages");
+// Tours mount ONLY where Viator inventory actually matches the page. Widening
+// this to every category would put day tours on a bar page — the entity
+// mismatch the booking-integrity work exists to kill.
+ok(s.includes('catSlug === "things-to-do" ? <TourStrip'), "tours mount on high-intent things-to-do pages");
+ok(/catSlug === "beaches" \? <TourStrip[^>]*waterOnly/.test(s), "beaches mount the WATER-ONLY strip (same contract as /best-beaches/[metro])");
+ok(!/catSlug === "nightlife" \? <TourStrip/.test(s), "nightlife never mounts a tours strip — no honest matching inventory");
+ok(!/catSlug === "restaurants" \? <TourStrip/.test(s), "restaurants never mount a tours strip — they get Order In instead");
+// Restaurants: the exact-store Order In path, never a rebuilt or guessed link.
+ok(s.includes('catSlug === "restaurants"') && s.includes('"/api/eats/go?"'), "restaurant rows link out through /api/eats/go (exact-store 302, honest search fallback)");
+ok(/rel="noreferrer nofollow sponsored"/.test(s), "the Order In link carries the sponsored/nofollow rel");
 const ts = readFileSync(new URL("../app/components/TourStrip.js", import.meta.url), "utf8");
 ok(ts.startsWith('"use client"'), "TourStrip is a client island — it fetches /api/experiences at RUNTIME (the build-time read returned empty)");
 ok(ts.includes('fetch("/api/experiences?"'), "TourStrip reads the runtime experiences endpoint");
