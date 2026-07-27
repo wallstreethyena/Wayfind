@@ -17,14 +17,34 @@ const SRC = process.env.ATLAS_MD ||
 const OUT = join(ROOT, "data/atlas/editorial-cards.json");
 const COMMIT = process.argv.includes("--commit");
 
-// label in markdown -> key in the editorial_card JSON
+// label in markdown -> key in the editorial_card JSON.
+// TWO label vocabularies map onto the SAME keys: the original Atlas-590 headings
+// and the owner's Wayfind Card Standard headings (docs/WAYFIND_CARD_STANDARD.md).
+// The standard's names already match what Detail.js renders ("Why it stands out",
+// "Good to know", "Heads up", "The story"), so aliasing beats renaming the keys.
+// Order matters only in that a LATER alias must not clobber an earlier hit —
+// see the `if (v != null)` guard in the parse loop below.
 const FIELDS = {
+  // --- stable across both vocabularies ---
   "Vibe Check": "vibeCheck", "Why Go": "whyGo", "Best For": "bestFor", "Known For": "knownFor",
-  "Powerhouse Proof": "powerhouseProof", "Food Move": "foodMove", "Drink Move": "drinkMove",
-  "Insider Move": "insiderMove", "Verified Story": "verifiedStory", "Fun Fact": "funFact",
-  "Current Useful Detail": "currentUsefulDetail", "Watch-Out / Not For Everyone": "watchOut",
+  "Food Move": "foodMove", "Drink Move": "drinkMove", "Insider Move": "insiderMove",
+  "Fun Fact": "funFact",
   "Phone": "phone", "Official website": "officialWebsite", "Address": "address",
+  // --- Atlas-590 (original) ---
+  "Powerhouse Proof": "powerhouseProof", "Verified Story": "verifiedStory",
+  "Current Useful Detail": "currentUsefulDetail", "Watch-Out / Not For Everyone": "watchOut",
+  // --- Wayfind Card Standard (owner's headings) -> same keys ---
+  "Why It Stands Out": "powerhouseProof", "The Story": "verifiedStory",
+  "Good to Know": "currentUsefulDetail", "Heads Up": "watchOut",
+  // --- new in the Wayfind Card Standard: no prior key existed ---
+  "Pro Move": "proMove",
 };
+// Sections the Wayfind Card Standard expects. Absence is reported (never silent)
+// but is not fatal — Atlas-590 cards legitimately predate the newer sections.
+const STANDARD_KEYS = [
+  "whyGo", "knownFor", "insiderMove", "powerhouseProof", "currentUsefulDetail",
+  "watchOut", "bestFor", "proMove", "verifiedStory", "vibeCheck", "funFact",
+];
 const unNull = (v) => (v == null || v === "`null`" || v === "null" || v === "") ? null : v;
 const field = (card, label) => {
   const re = new RegExp("^" + label.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&") + ":\\s*(.*)$", "m");
@@ -43,7 +63,11 @@ for (const b of blocks) {
   // hours: drop the "| expires: ..." bookkeeping suffix
   let hours = field(b, "Hours"); if (hours) hours = hours.replace(/\s*\|\s*expires:.*$/i, "").trim();
   const card = { placeId, name, num: Number(num), category, hours };
-  for (const [label, key] of Object.entries(FIELDS)) card[key] = field(b, label);
+  // Every key starts null so the shape is stable, then each label fills its key
+  // ONLY on a hit. Without the null-guard a later alias ("Heads Up") would
+  // overwrite an earlier hit ("Watch-Out / Not For Everyone") back to null.
+  for (const key of Object.values(FIELDS)) if (!(key in card)) card[key] = null;
+  for (const [label, key] of Object.entries(FIELDS)) { const v = field(b, label); if (v != null) card[key] = v; }
   // source URLs (for "Live menu →" etc.) — the block after "Source URLs:" excluding the google-maps line
   const srcBlock = (b.split(/\nSource URLs:/)[1] || "");
   card.sourceUrls = (srcBlock.match(/https?:\/\/\S+/g) || []).filter((u) => !u.includes("google.com/maps/search"));
@@ -61,9 +85,20 @@ for (const c of cards) {
 const pids = cards.map((c) => c.placeId);
 const dupes = pids.filter((p, i) => pids.indexOf(p) !== i);
 
+// Per-section coverage. The old parser dropped an unrecognised heading to null
+// with no signal, so a card could lose 5 of its 11 sections and still "pass".
+// Losing a section is still allowed (Atlas-590 cards predate some of them) —
+// it just can no longer happen quietly.
+const coverage = STANDARD_KEYS.map((k) => [k, cards.filter((c) => c[k] != null).length]);
+
 console.log(`Parsed ${cards.length} PUBLISH-READY cards from ${SRC.replace(process.env.HOME, "~")}`);
 console.log(`Validation: ${problems.length ? problems.length + " PROBLEM(S)" : "clean"}${dupes.length ? `; ${dupes.length} duplicate place_id(s)!` : ""}`);
 for (const p of problems.slice(0, 20)) console.log("  ! " + p);
+console.log("\nSection coverage (Wayfind Card Standard):");
+for (const [k, n] of coverage) {
+  const pct = cards.length ? Math.round((n / cards.length) * 100) : 0;
+  console.log(`  ${n === 0 ? "!" : " "} ${k.padEnd(20)} ${String(n).padStart(4)}/${cards.length}  ${pct}%`);
+}
 const sample = cards.find((c) => c.name?.includes("Siesta")) || cards[0];
 console.log(`\nSample — ${sample.name} (${sample.placeId}):`);
 console.log(JSON.stringify(sample, null, 2).split("\n").slice(0, 16).join("\n") + "\n  ...");
