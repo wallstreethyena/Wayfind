@@ -83,4 +83,52 @@ passed++;
 ok(/className="wf-shell" style=\{\{ \.\.\.wrap, maxWidth: undefined \}\}/.test(src),
   "the shell must spread wrap with maxWidth explicitly cleared — an inline max-width overrides the media query");
 
-console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry)`);
+// ─── 7. THE IDLE JUMP (v6.43) ────────────────────────────────────────────────
+// A SECOND, unrelated incident on the same page. Owner report: "you're
+// stopped, and all of a sudden, it jumps." Production web-vitals CLS
+// attribution confirmed it: shifts with cls_load_state="complete" landing
+// 17s to 8180s after load, almost all on route "/" with cls_target inside
+// #wf-main>…>div.wf-col-main — i.e. the feed moving while nobody touched it.
+//
+// The only timer-driven layout mutation on the homepage is the "Make a day of
+// it" bookable card. Three separate defects stacked:
+//   a) todBucket was a COUNTER, so its every tick (and every visibilitychange)
+//      re-ran the fetch and re-set the card — ~72×/day plus once per tab focus
+//      — even though lib/homeExpPick only rotates on the HOUR.
+//   b) the fetch nulled the pick on a thrown request or an empty response,
+//      deleting a live card out of the middle of the feed.
+//   c) the card's title is clamped to two lines but reserved none, so a short
+//      pick and a long pick were different heights.
+// Section 5 above bans geometry from isDesktop; this section bans the jump from
+// coming back through the refresh path.
+const HOME_EXP_NOTE = "\n  This is the v6.43 idle-jump fix — see the comments at each site in app/home.js.";
+
+// a) The hour bucket holds the HOUR, so React bails out when it has not changed.
+ok(/const \[todBucket, setTodBucket\] = useState\(\(\) => \{[^\n]*new Date\(\)\.getHours\(\)/.test(src),
+  "todBucket must be initialised to the current HOUR, not a counter seed." + HOME_EXP_NOTE);
+ok(/setTodBucket\(new Date\(\)\.getHours\(\)\)/.test(src),
+  "the todBucket ticker must set the current HOUR." + HOME_EXP_NOTE);
+ok(!/setTodBucket\(\s*\(\s*\w+\s*\)\s*=>/.test(src),
+  "todBucket must not be an incrementing counter again — every tick would produce a new value and re-run the /api/experiences fetch, re-setting the card ~72×/day for a pick that can only change 24×/day." + HOME_EXP_NOTE);
+
+// b) A refresh may replace the pick; only a center move may clear it.
+const expEffect = src.match(/const q = new URLSearchParams\(\{ lat: String\(center\.lat\), lng: String\(center\.lng\), mi: "60"[\s\S]{0,700}?\}, \[screen, center, todBucket\]\);/);
+ok(!!expEffect, "the homeExp fetch effect moved or changed shape — re-point this assertion before shipping");
+ok(!/setHomeExp\(null\)/.test(expEffect[0]),
+  "the homeExp refresh must not null the pick — a thrown fetch or a momentarily empty inventory would delete a live card out of the middle of the feed. Clear it at the center-move check instead." + HOME_EXP_NOTE);
+ok(/if \(!cancelled && next\) setHomeExp\(next\)/.test(expEffect[0]),
+  "the homeExp refresh must only apply a real replacement pick." + HOME_EXP_NOTE);
+ok(/homeExpCenter\.current !== key\) \{ homeExpCenter\.current = key; setHomeExp\(null\); \}/.test(src),
+  "the homeExp pick must be cleared when the search center moves — otherwise the previous city's tour survives the move." + HOME_EXP_NOTE);
+
+// c) The clamped title reserves exactly the lines it clamps to.
+ok(/const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS \* HOME_EXP_TITLE_LH \* 2;/.test(src),
+  "HOME_EXP_TITLE_MIN_H must stay DERIVED from the font size and line height — a hardcoded pixel value silently stops matching when the type changes." + HOME_EXP_NOTE);
+const titleLine = src.split("\n").find((l) => l.includes("HOME_EXP_TITLE_MIN_H") && l.includes("minHeight"));
+ok(!!titleLine, "no JSX element applies HOME_EXP_TITLE_MIN_H as a minHeight — the bookable card's title is unreserved again." + HOME_EXP_NOTE);
+ok(/WebkitLineClamp: 2\b/.test(titleLine),
+  "the reserved title must still clamp to exactly 2 lines — the reservation and the clamp have to agree or the card can outgrow its reserved box." + HOME_EXP_NOTE);
+ok(/fontSize: HOME_EXP_TITLE_FS/.test(titleLine) && /lineHeight: HOME_EXP_TITLE_LH/.test(titleLine),
+  "the reserved title must read its font size and line height from the same constants the reservation is derived from." + HOME_EXP_NOTE);
+
+console.log(`test-layout-shift: OK — ${passed} assertions (responsive layout is CSS-driven at the 900px breakpoint; isDesktop never sets geometry; the hourly bookable-card refresh cannot move the feed)`);

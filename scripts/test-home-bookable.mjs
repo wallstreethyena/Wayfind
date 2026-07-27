@@ -15,7 +15,14 @@ ok(/homeExp && \(/.test(h), "the card is absent when there is no bookable invent
 
 // HOUR-AWARE pick (owner: don't feature a night activity in the morning; don't
 // stay frozen all day). Locked behaviorally on the extracted pure pick.
-ok(/setHomeExp\(pickHomeExp\(items\)\)/.test(h) && /import \{ pickHomeExp \}/.test(h), "the pick routes through the hour-aware pickHomeExp");
+// RE-POINTED (v6.43, THE IDLE JUMP — see section 7 of scripts/test-layout-shift.mjs).
+// The call was `setHomeExp(pickHomeExp(items))`, which also nulled a live card
+// whenever a refresh came back empty, collapsing it out of the middle of the
+// feed under an idle reader. It is now `const next = pickHomeExp(items)` +
+// `setHomeExp(next)` guarded on `next`. The guarantee this assertion protects —
+// the value handed to setHomeExp is the hour-aware pure pick and nothing else —
+// is unchanged, so we just recognize the split form.
+ok(/const next = pickHomeExp\(items\);/.test(h) && /setHomeExp\(next\)/.test(h) && /import \{ pickHomeExp \}/.test(h), "the pick routes through the hour-aware pickHomeExp");
 ok(/todBucket\]/.test(h) && /visibilitychange/.test(h), "the pick refreshes on an hour ticker + tab focus (not frozen on last night's choice)");
 
 const night = { title: "Sunset Sailing Cruise", url: "x?pid=1", image: "i", reviews: 5000, sellingOut: true };
