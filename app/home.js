@@ -101,6 +101,7 @@ import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score"
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
 import { rankReason } from "../lib/rankReason.js";
+import { pickHomeExp } from "../lib/homeExpPick";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
@@ -3173,6 +3174,21 @@ function PageInner({ initialEvents = null }) {
   // test-intent-pages. Do not re-add a familyHeroImg state here.)
   const [dateHeroImg, setDateHeroImg] = useState(null);
   const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
+  // v6.61 (owner #3): ONE bookable card near the homepage top — the highest-
+  // traffic surface had no bookable inventory. Hour-aware pick (lib/homeExpPick);
+  // product_url rendered VERBATIM (pid) — never hand-built or resolver-routed.
+  const [homeExp, setHomeExp] = useState(null);
+  // Hour bucket — re-evaluated every 20 min and whenever the tab regains focus,
+  // so the "Make a day of it" pick refreshes with the time of day instead of
+  // staying frozen on last night's choice (owner report).
+  const [todBucket, setTodBucket] = useState(0);
+  useEffect(() => {
+    const tick = () => setTodBucket((x) => x + 1);
+    const id = setInterval(tick, 20 * 60 * 1000);
+    const onVis = () => { try { if (document.visibilityState === "visible") tick(); } catch (e) {} };
+    try { document.addEventListener("visibilitychange", onVis); } catch (e) {}
+    return () => { clearInterval(id); try { document.removeEventListener("visibilitychange", onVis); } catch (e) {} };
+  }, []);
   // v6.53 (owner): closing a detail you arrived at from another Wayfind page
   // (/best-beaches, /date-night, city pages…) returns you THERE, not to the
   // homepage. ShareRedirect records the origin; this watcher fires on every
@@ -5694,6 +5710,27 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.61 (owner #3) / v6.92 hour-aware refresh: the homepage bookable pick.
+  // Fetch /api/experiences, keep only items carrying a real Viator pid= so
+  // nothing unattributed ships, then let the pure lib/homeExpPick rotate the
+  // hour-appropriate pick (never a night activity in the morning; changes
+  // through the day via the todBucket ticker above — was a frozen static pick).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
+        const r = await fetch("/api/experiences?" + q.toString());
+        const j = r.ok ? await r.json() : null;
+        const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
+        if (!cancelled) setHomeExp(pickHomeExp(items));
+      } catch (e) { if (!cancelled) setHomeExp(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, todBucket]);
+
   // Live local weather from the free, keyless Open-Meteo API. Drives the
   // greeting chip and nudges the Suggested feed. Fails soft to no weather.
   useEffect(() => {
@@ -7302,6 +7339,34 @@ function PageInner({ initialEvents = null }) {
                   </div>
                 );
               })()}
+                      {/* v6.61 (owner #3) / v6.92 hour-aware: ONE tasteful bookable card
+                          near the homepage top. homeExp.url is Viator's own product_url,
+                          rendered VERBATIM (pid intact) — never hand-built, never routed
+                          through the resolver. The fetch effect above already drops any
+                          item missing pid=, so an unattributed link can never reach here. */}
+                      {!browseCat && homeExp && (
+                        <a
+                          href={homeExp.url}
+                          target="_blank"
+                          rel="noopener sponsored nofollow"
+                          onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || homeExp.url; try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code }); } catch (er) {} openExternal(_live); }}
+                          style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14, boxShadow: SHADOW.card }}
+                        >
+                          <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
+                            <img src={homeExp.image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                            {homeExp.sellingOut ? <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, letterSpacing: ".3px", textTransform: "uppercase", color: "#FF8A3D", background: "rgba(13,17,23,.82)", borderRadius: RADII.chip, padding: "2px 7px" }}>🔥 Selling out</span> : null}
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
+                            <div style={{ ...TYPE.eyebrow, color: C.light, marginBottom: 4 }}>✨ Make a day of it</div>
+                            <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
+                              {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
+                              {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
+                              <span style={{ marginLeft: "auto", minHeight: TARGET, display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: RADII.chip, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
+                            </div>
+                          </div>
+                        </a>
+                      )}
                       {/* v6.46 (owner): ONE near-black expandable card under the events
                           card — "Best places to eat nearby" + "Top things to do", both on
                           the day's engines (wf_best_picks food / wf_things_to_do: Viator
