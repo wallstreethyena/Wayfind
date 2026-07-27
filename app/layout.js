@@ -63,6 +63,24 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" style={{ height: "100%" }}>
       <body style={{ margin: 0, background: "#040810", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+        {/* Google Ads conversion tag (gtag.js), account AW-18342267447.
+            Powers the "About Us" / page-view conversion action in Google Ads
+            (currently "awaiting conversions" because no tag was installed).
+            Loaded afterInteractive, matching the pattern used for the other
+            third-party scripts below. */}
+        <Script
+          id="google-ads-gtag-src"
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18342267447"
+        />
+        <Script id="google-ads-gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-18342267447');
+          `}
+        </Script>
         {/* #219 events primer: start the home events fetch BEFORE hydration.
             Reads the SAME wf_center the app uses (fallback = DEFAULT_CENTER in
             app/home.js — the lock test pins the coords in sync). Coords ride on
