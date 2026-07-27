@@ -3657,10 +3657,17 @@ function PageInner({ initialEvents = null }) {
     try {
       const entry = { id: "r" + Date.now() + Math.floor(Math.random() * 999), name: (place && place.name) || "Booking", placeId: place && place.id, kind, partner, at: new Date().toISOString(), url: url || "", conf: "" };
       persistRes((prev) => [entry, ...prev].slice(0, 50));
+      try { logEvent("reservation_add", place, { kind, partner }); } catch (e) {}
     } catch (e) {}
   }
   function saveResConf(id, conf) { persistRes((prev) => prev.map((r) => r.id === id ? { ...r, conf: String(conf || "").slice(0, 60) } : r)); }
-  function removeRes(id) { persistRes((prev) => prev.filter((r) => r.id !== id)); }
+  function removeRes(id) {
+    // Read the outgoing row for the event BEFORE the functional update; `gone`
+    // is named to avoid shadowing the `r` in the filter callback below.
+    const gone = reservations.find((x) => x.id === id);
+    try { if (gone) logEvent("reservation_remove", null, { id, place_id: gone.placeId, kind: gone.kind, partner: gone.partner }); } catch (e) {}
+    persistRes((prev) => prev.filter((r) => r.id !== id));
+  }
   const [recoveryOpen, setRecoveryOpen] = useState(false);
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
@@ -6428,7 +6435,17 @@ function PageInner({ initialEvents = null }) {
       const has = l.places.some((p) => p.id === target.id);
       return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== target.id) : [...l.places, target] } };
     });
-    if (wasAdd) setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
+    if (wasAdd) {
+      try {
+        const meta = Trips.tripMetaForPlace(target);
+        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === target.id);
+        if (!already) {
+          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
+          logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
+        }
+      } catch (e) {}
+      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
+    }
     setSaveTarget(null);
   }
   // One-tap save straight to Favorites from a card heart.
@@ -6447,7 +6464,17 @@ function PageInner({ initialEvents = null }) {
     if (!has) logEvent("save", p);
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
-    if (!has) setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+    if (!has) {
+      try {
+        const meta = Trips.tripMetaForPlace(p);
+        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === p.id);
+        if (!already) {
+          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
+          logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
+        }
+      } catch (e) {}
+      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+    }
     if (supabase && user) {
       if (has) {
         supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", p.id).eq("list_name", "Favorites").then(() => {}, () => {});
