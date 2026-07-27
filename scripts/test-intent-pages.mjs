@@ -59,7 +59,17 @@ ok(bb.includes('const heroImg = "/cards/beach-adobestock-216195684.jpeg"'), "bea
   ok(out.some((r) => r.id === "m1"), "the best-ranked branch is the one kept");
   const icSrc = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icSrc.includes('.eq("verified", true).in("place_id"'), "intent rows fetch VERIFIED Wayfind hooks in one call");
-  ok(icSrc.includes("editorial={r.editorial_hook || null}") && !icSrc.includes("editorial={r.editorial}"), "rows render Wayfind editorial or nothing — never Google summary text");
+  // The real guarantee is provenance, not just render shape: r.editorial (Google's
+  // editorialSummary.text, set in lib/intentPages.js toRow) must never (a) be sent
+  // into the /api/blurbs payload — the model would launder it into ai_line — and
+  // (b) be rendered directly. ai_line itself IS allowed in the render: it arrives
+  // from /api/blurbs, whose prompt (app/api/blurbs/route.js) grounds lines ONLY on
+  // curated_fact (Wayfind's hand-checked facts) and review_signals (reviewer praise
+  // restated in the model's own words) — both Wayfind-authored derivations, never
+  // Google's summary text, which is no longer an input at all.
+  ok(!icSrc.includes("editorial: r.editorial"), "the /api/blurbs payload never sends r.editorial (Google's summary) into the model");
+  ok(!icSrc.includes("editorial={r.editorial}"), "rows never render r.editorial (Google's raw summary) directly");
+  ok(icSrc.includes("editorial={r.editorial_hook || r.ai_line || null}"), "rows render verified Wayfind editorial, else the Wayfind-grounded ai_line, else nothing");
   const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
   ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
 }

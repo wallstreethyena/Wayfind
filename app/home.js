@@ -32,6 +32,7 @@ import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
 import { usePlaceProduct } from "../lib/placeProduct";
+import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -99,11 +100,15 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches } from "../lib/beaches";
+import { rankReason } from "../lib/rankReason.js";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
+// THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
+// re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -382,11 +387,38 @@ function originUrl(path) {
 // A stable, anonymous, per-device id (no personal data — just a random string)
 // used to attribute pooled engagement events and measure return visits. Created
 // once and kept in localStorage. Returns null if storage is unavailable.
+// Durable, first-party, anonymous device id. This is the LEGAL maximum of a
+// "persistent cookie": it recognizes a returning visitor and (via user_id on
+// signed-in events) links the device to their account — WITHOUT the illegal
+// parts of a zombie/supercookie. Specifically it uses ONLY standard first-party
+// storage (localStorage + a long-lived first-party cookie, mirrored for
+// reliability + server visibility) — never Flash/ETag/canvas/IndexedDB/cache
+// "evercookie" resurrection or fingerprinting — and it HONORS opt-out: with Do
+// Not Track or an explicit wf_optout flag the id is session-only (no
+// cross-session recognition), and a full "clear site data" removes both stores.
+// (Disclose this in the privacy policy — it's a functional/analytics identifier.)
+const WF_DID_MAXAGE = 2 * 365 * 24 * 3600; // 2 years — as durable as a first-party cookie legally gets
 function deviceId() {
   try {
     if (typeof window === "undefined") return null;
-    let id = localStorage.getItem("wf_device");
-    if (!id) { id = "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("wf_device", id); }
+    const newId = () => "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+    const optedOut = navigator.doNotTrack === "1" || window.doNotTrack === "1" ||
+      (() => { try { return localStorage.getItem("wf_optout") === "1"; } catch { return false; } })();
+    if (optedOut) {
+      // Respect the signal: a per-session id only, never persisted → no
+      // cross-visit recognition for users who asked not to be tracked.
+      let s = null; try { s = sessionStorage.getItem("wf_device_s"); } catch (e) {}
+      if (!s) { s = newId(); try { sessionStorage.setItem("wf_device_s", s); } catch (e) {} }
+      return s;
+    }
+    const readCookie = () => { try { const m = document.cookie.match(/(?:^|;\s*)wf_device=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; } catch { return null; } };
+    const setCookie = (v) => { try { document.cookie = "wf_device=" + encodeURIComponent(v) + "; Max-Age=" + WF_DID_MAXAGE + "; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); } catch (e) {} };
+    let id = null;
+    try { id = localStorage.getItem("wf_device"); } catch (e) {}
+    if (!id) id = readCookie();          // survive a partial clear of one store
+    if (!id) id = newId();
+    try { localStorage.setItem("wf_device", id); } catch (e) {}
+    setCookie(id);                        // refresh the 2-year first-party cookie
     return id;
   } catch { return null; }
 }
@@ -3134,6 +3166,13 @@ function PageInner({ initialEvents = null }) {
   // v6.50: the hero swiper's beach slide — the best-rated beach within 20 mi
   // (owner's 'near'). null = none in range; the swiper then has one slide.
   const [bestBeach, setBestBeach] = useState(null);
+  // v6.86: people-free hero photos for the date-night / hidden-gem hero
+  // slides — raw photoRef (heroRefFromPlaces), the render builds the
+  // /api/photo URL and the click passes it on for continuity. (The family
+  // hero deliberately uses OWNED artwork as of 3aafc14 — no live fetch; see
+  // test-intent-pages. Do not re-add a familyHeroImg state here.)
+  const [dateHeroImg, setDateHeroImg] = useState(null);
+  const [gemHeroImg, setGemHeroImg] = useState(null); // hidden-gems hero photo
   // v6.53 (owner): closing a detail you arrived at from another Wayfind page
   // (/best-beaches, /date-night, city pages…) returns you THERE, not to the
   // homepage. ShareRedirect records the origin; this watcher fires on every
@@ -3601,6 +3640,56 @@ function PageInner({ initialEvents = null }) {
   const [pwSaving, setPwSaving] = useState(false);
   const [resetSending, setResetSending] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false); // account menu popover
+  // THE TASTE LOOP — Phase 2/3 (owner). Consent-gated personalization + control.
+  const [personalize, setPersonalize] = useState(null); // 'on' | 'off' | null(unasked)
+  const [tasteOpen, setTasteOpen] = useState(false);
+  const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
+  const tasteVecRef = useRef({});                        // durable per-user vector
+  const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
+
+  // Consent is remembered; the durable vector loads per user/session (not per
+  // action — the session signals give instant feel; this is the slow layer).
+  useEffect(() => { try { const c = localStorage.getItem("wf_personalize"); if (c === "on" || c === "off") setPersonalize(c); } catch (e) {} }, []);
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      let vec = {};
+      try {
+        if (supabase && user) {
+          const { data } = await supabase.from("wf_taste").select("dimension,value,weight,updated_at");
+          vec = tasteBlend((data || []).map((r) => ({ dimension: r.dimension, value: r.value, weight: r.weight, updated_at: new Date(r.updated_at).getTime() })), Date.now());
+        } else {
+          vec = tasteLocalToVector(JSON.parse(localStorage.getItem("wf_taste_local") || "null"), Date.now());
+        }
+      } catch (e) {}
+      if (!dead) { tasteVecRef.current = vec; setTasteVecState(vec); }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, tasteVer]);
+  function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  async function forgetTasteItem(dim, val) {
+    try {
+      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+    } catch (e) {}
+    setTasteVer((n) => n + 1);
+  }
+  async function resetTaste() {
+    try {
+      if (supabase && user) { await supabase.rpc("wf_taste_wipe"); }
+      localStorage.removeItem("wf_taste_local");
+    } catch (e) {}
+    setConsent("off"); setTasteVer((n) => n + 1);
+  }
+  function exportTaste() {
+    try {
+      const vec = tasteVecRef.current || {};
+      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
+      try { logEvent("taste_export"); } catch (e) {}
+    } catch (e) {}
+  }
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -4188,6 +4277,24 @@ function PageInner({ initialEvents = null }) {
     const next = [sig, ...signals.filter((s) => !(s.id === p.id && s.action === action))].slice(0, 1000);
     setSignals(next);
     saveSignals(next);
+    recordTaste(action, p);
+  }
+  // THE TASTE MODEL (owner, 2026-07-22) — Phase 1: LEARN ONLY, no ranking change.
+  // Projects an explicit signal into a decayed, PER-USER preference vector.
+  // Always updates the first-party local vector (legal, respects deletion);
+  // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
+  // never pooled, never another user's). 'open' is local-only (mild + high
+  // volume); the strong verbs persist. Never touches the Wayfind Score.
+  function recordTaste(action, p) {
+    try {
+      const cat = (primaryCategory(p) || p.category || "").toLowerCase();
+      const place = { category: cat, priceNum: p.priceNum != null ? p.priceNum : null, tags: [].concat(p.tags || [], p.google_types || [], p.types || []) };
+      const sig = tasteSignals(action, place);
+      if (!sig.length) return;
+      const now = Date.now();
+      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
+      if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
+    } catch (e) {}
   }
   // Pooled, anonymous engagement log. One fire-and-forget row per action into a
   // shared Supabase "events" table — this is the proprietary signal Google can't
@@ -4277,6 +4384,7 @@ function PageInner({ initialEvents = null }) {
   function addShared(p) {
     if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
+    try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
     try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
@@ -5482,18 +5590,48 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.58 (owner): the date-night card wears the area's best date-worthy
+  // photo — same floor the date-night list rides on (4.4/150+), art only as
+  // fallback. (The family hero deliberately uses owned artwork instead — see
+  // test-intent-pages — so only date-night and hidden-gem fetch live photos.)
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        // people-free hero (owner: no human faces on cards) — heroRefFromPlaces
+        // ranks by our quality floor then vision-picks the best face-free shot.
+        // DAY-ROTATE (owner: no frozen hero cards) — offset staggered vs. the
+        // hidden-gem hero so they don't rotate in lockstep.
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.4, minReviews: 150, dayRotate: Math.floor(Date.now() / 864e5) });
+        if (!cancelled && ref) setDateHeroImg(ref);
+      } catch (e) {}
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
   // v6.56 Buzz: one RPC for the trending pick + one cached why-line. Honest
-  // gating: only renders with >=2 real signal sources and a photo.
+  // gating: only renders with >=1 real signal source and a photo.
   useEffect(() => {
     if (screen !== "suggested" || !center || !supabase) return;
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 3 });
-        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 2);
+        const { data } = await supabase.rpc("wf_buzz_picks", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 25, p_max: 12 });
+        const cand = (Array.isArray(data) ? data : []).filter((r) => r.photo_ref && (r.sources_count || 0) >= 1);
         // The owner's drive rule applies here too: rank order only.
         cand.sort((a, b) => ((b.popularity * 10 - (b.distance_mi > 17 ? Math.ceil((b.distance_mi - 17) / 5) * 0.2 : 0)) - (a.popularity * 10 - (a.distance_mi > 17 ? Math.ceil((a.distance_mi - 17) / 5) * 0.2 : 0))));
-        const pick = cand[0] || null;
+        // DAY-ROTATE among the genuine top trending places — popularity levels
+        // barely move day to day, so picking cand[0] every day looked frozen
+        // (owner: "same card every day"). Every place in the pool is really
+        // trending; the date just decides which one leads today.
+        const pool = cand.slice(0, 8);
+        const daySeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
+        const pick = pool.length ? pool[((daySeed % pool.length) + pool.length) % pool.length] : null;
         if (cancelled) return;
         setBuzzPick(pick);
         setBuzzWhy(null);
@@ -5525,9 +5663,32 @@ function PageInner({ initialEvents = null }) {
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
         // owner: the BEST beach, regardless of distance — the ONE shared
-        // ranking (lib/beaches rankBeaches), identical to /best-beaches.
-        setBestBeach(rankBeaches(rows)[0] || null);
+        // ranking (lib/beaches rankBeaches), identical to /best-beaches. DAY-ROTATE
+        // among the top few so the beach hero changes daily (owner: no frozen
+        // hero cards) — all are top-ranked beaches, so it's variety, not a drop.
+        const rankedB = rankBeaches(rows);
+        const bPool = rankedB.slice(0, 5);
+        const bSeed = Math.floor(Date.now() / 864e5) + Math.round((center.lat + center.lng) * 7);
+        setBestBeach(bPool.length ? bPool[((bSeed % bPool.length) + bPool.length) % bPool.length] : null);
       } catch (e) { if (!cancelled) setBestBeach(null); }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center]);
+
+  // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
+  // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
+  useEffect(() => {
+    if (screen !== "suggested" || !center) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
+        const j = r.ok ? await r.json() : null;
+        if (cancelled || !j || !Array.isArray(j.places)) return;
+        const ref = await heroRefFromPlaces(j.places, { minRating: 4.6, minReviews: 60, maxReviews: 3000, dayRotate: Math.floor(Date.now() / 864e5) + 2 });
+        if (!cancelled && ref) setGemHeroImg(ref);
+      } catch (e) {}
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -6231,6 +6392,7 @@ function PageInner({ initialEvents = null }) {
     setLists((prev) => {
       const f = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
       const h = f.places.some((x) => x.id === p.id);
+      if (!h) { try { recordSignal(p, "save"); } catch (e) {} }
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
@@ -6730,6 +6892,32 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ marginTop: 10, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+            </div>
+          );
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -6779,9 +6967,17 @@ function PageInner({ initialEvents = null }) {
         {screen === "suggested" && gateStatus !== "alert" && (() => {
           const list = suggested || [];
           const affinities = computeAffinities(signals);
+          // Phase 2: fold the DURABLE per-user taste vector into the category
+          // weights so preference persists across sessions, not just this one.
+          // (category namespace matches catW; the visible Score is untouched.)
+          const _vec = tasteVecRef.current || {};
+          if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          const hasAffinity = activeSignals.length >= 2;
-          const displayList = dedupePlaces(hasAffinity ? applyAffinity(list, affinities) : list, true);
+          // Personalize ONLY with explicit consent (Phase 2). Without it, the
+          // feed is pure moment/Score order — same for everyone.
+          const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
+          const personalized = personalize === "on" && hasTaste;
+          const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
           const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
@@ -7081,12 +7277,12 @@ function PageInner({ initialEvents = null }) {
                           badgeColor="#FF6B6B"
                           icon="sparkles"
                           title={buzzPick ? buzzPick.name : "What everyone's talking about"}
-                          subtitle={buzzPick ? (buzzWhy || ("Drawing attention across " + buzzPick.sources_count + " signals this week ›")) : "Popular local picks worth seeing now ›"}
+                          subtitle={buzzPick ? (buzzWhy || (buzzPick.sources_count > 1 ? "Popular across " + buzzPick.sources_count + " local signals ›" : "On readers' radar near you ›")) : "Popular local picks worth seeing now ›"}
                           ariaLabel={buzzPick ? "Trending near you: " + buzzPick.name : "Trending near you"}
                           onOpen={() => {
                             try { logEvent("buzz_hero_open", null, { id: buzzPick ? buzzPick.place_id : null, src: "hero_swipe" }); } catch (e2) {}
                             if (buzzPick) {
-                              try { openDetail({ id: buzzPick.place_id, name: buzzPick.name, rating: buzzPick.rating, reviews: buzzPick.reviews, photo: buzzPick.photo_ref ? "/api/photo?ref=" + encodeURIComponent(buzzPick.photo_ref) + "&w=800" : null }, "buzz_hero"); } catch (e2) {}
+                              try { window.location.assign("/trending-now?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (buzzPick.photo_ref ? "&img=" + encodeURIComponent(buzzPick.photo_ref) : "")); } catch (e2) {}
                             } else {
                               openExpSheet("entertainment");
                             }
@@ -7137,7 +7333,7 @@ function PageInner({ initialEvents = null }) {
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
-                  {browseCat === "attractions" && center && <BookableExpRail sub={sub || "all"} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
                   {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
@@ -7573,6 +7769,41 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
+      {tasteOpen && (() => {
+        const vec = tasteVecState || {};
+        const chips = [];
+        for (const dim of ["category", "tag", "price"]) { const m = vec[dim]; if (!m) continue; for (const [val, w] of Object.entries(m)) chips.push({ dim, val, w: Number(w) || 0 }); }
+        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
+        const top = chips.slice(0, 24);
+        return (
+          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
+            <div onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
+              <Grabber />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Your taste</div>
+                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+              </div>
+              <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
+              {top.length ? (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {top.map((c) => (
+                    <span key={c.dim + "|" + c.val} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: c.w >= 0 ? C.text : C.muted, background: c.w >= 0 ? "rgba(251,191,36,.12)" : C.adim, border: `1px solid ${c.w >= 0 ? "rgba(251,191,36,.4)" : C.border}`, borderRadius: 999, padding: "6px 8px 6px 12px" }}>
+                      {c.w >= 0 ? "" : "not "}{c.val}
+                      <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.val} style={{ width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: C.muted, fontSize: 11, lineHeight: 1, cursor: "pointer" }}>✕</button>
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
+              )}
+              <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+                <button onClick={exportTaste} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Export my data</button>
+                <button onClick={() => { resetTaste(); setTasteOpen(false); }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: `1px solid ${C.red}55`, background: C.card, color: C.red, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Reset &amp; forget all</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* App-tile sheets: opened from the home navigation grid */}
       {menuSheet && <MenuSheet ctx={ctx} />}
@@ -7968,6 +8199,10 @@ function ViatorRail({ title, items, theme }) {
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
+  // v6.86: vision-scored, people-free card photo — must run BEFORE the
+  // cardComplete early return below (rules of hooks: this hook must run on
+  // every render, even for a card that ultimately renders nothing).
+  const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -7994,7 +8229,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
   // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
-  const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
+  const take = ((curatedFor(p) || {}).hook) || rankReason(p, rank) || line || templateBlurb(p);
   const offer = OFFERS[p.id];
   const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
@@ -8044,7 +8279,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
-          ? <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+          ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
@@ -8093,7 +8328,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           {isBeach(p) && beachSignal && (beachSignal.popularityPct != null || beachSignal.water) && (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
               {beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Trending</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Popular</span>
               )}
               {beachSignal.water && (() => {
                 const w = beachSignal.water;

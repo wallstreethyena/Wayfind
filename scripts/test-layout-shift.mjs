@@ -32,7 +32,15 @@ ok(!!cssM, "WF_LAYOUT_CSS must be a plain template literal so it is server-rende
 const bpM = src.match(/const WF_DESKTOP_BP = (\d+)/);
 ok(!!bpM, "WF_DESKTOP_BP is missing");
 const css = cssM[1].replaceAll("${WF_DESKTOP_BP}", bpM[1]);
-ok(/<style>\{`[^`]*\$\{WF_LAYOUT_CSS\}/.test(src), "WF_LAYOUT_CSS must be rendered into the inline <style> block");
+// RE-POINTED (commit 3d95dd7 "fix(hydration): search/map/all interactivity
+// dead — style-tag quote trap (HOTFIX) (#355)"). The inline <style>{`...`}`
+// form broke React SSR escaping once the CSS itself contained double quotes
+// (content:"", url("...")), which killed site interactivity — that HOTFIX
+// correctly switched to <style dangerouslySetInnerHTML={{ __html: `...` }} />.
+// The guarantee this assertion protects — WF_LAYOUT_CSS is concatenated into
+// a SERVER-RENDERED <style> tag, not injected by a client-side effect — still
+// holds under the new form, so we just recognize the new syntax.
+ok(/<style dangerouslySetInnerHTML=\{\{ __html: `[^`]*\$\{WF_LAYOUT_CSS\}/.test(src), "WF_LAYOUT_CSS must be rendered into the inline <style dangerouslySetInnerHTML> block");
 
 // 2. The breakpoint must stay in lockstep with the old JS threshold (900).
 ok(src.includes("const WF_DESKTOP_BP = 900"), "WF_DESKTOP_BP must be 900 to match the previous vw >= 900 behaviour");

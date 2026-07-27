@@ -40,9 +40,11 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/p_max: 12/.test(home) && /pool\[\(\(daySeed % pool\.length\)/.test(home), "trending hero rotates a real pool by the day seed");
 ok(!/const pick = cand\[0\]/.test(home), "trending hero is NOT the frozen cand[0]");
 
-// 2) EVERY heroRefFromPlaces call (family/date/gem + any future photo hero) is day-rotated
+// 2) EVERY heroRefFromPlaces call (date/gem + any future photo hero) is
+// day-rotated. (Family is intentionally NOT one of these — 3aafc14 moved it to
+// owned artwork, locked by test-intent-pages; see test-hero-people-free.)
 const heroLines = home.split("\n").filter((l) => l.includes("heroRefFromPlaces("));
-ok(heroLines.length >= 3, "the photo heroes are present");
+ok(heroLines.length >= 2, "the photo heroes are present");
 ok(heroLines.every((l) => l.includes("dayRotate")), "EVERY heroRefFromPlaces call is day-rotated — no frozen photo hero can ship");
 
 // 3) beach hero

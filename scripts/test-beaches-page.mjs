@@ -42,10 +42,28 @@ ok(parts.includes("last known"), "stale readings say so");
 ok(parts.includes("tested "), "every water reading shows its freshness");
 ok(parts.includes("BackControl") && parts.includes("window.history.back()"), "sticky back control: history first, our fallback second");
 const pageSrc2 = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-ok(pageSrc2.includes("<BeachLiveChips id={b.id}"), "chips render per ROW — never the number-one beach's values on others");
+// RE-POINTED (commit bff5f05 "image-forward beach cards, water chips off the
+// list (v6.60) (#291)"): the per-row <BeachLiveChips> was deliberately
+// removed from the list ("they remain in the detail sheet"). The per-row
+// correctness guarantee — a row/sheet shows ITS OWN beach's values, never
+// the #1 beach's — now lives in app/home.js: the detail sheet's beach
+// conditions are loaded via `loadBeachConditions(detail)` inside a
+// `useEffect(..., [detail])` that resets state to null before every fetch,
+// so each open is keyed to whichever place is actually open and can never
+// carry over a different beach's reading. Verified against app/home.js.
+ok(!pageSrc2.includes("<BeachLiveChips"), "v6.60: live water chips are OFF the list — the beach photo sells, chips live in the detail sheet");
+{
+  const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+  ok(/setBeachCond\(null\);\s*setBeachCondLoading\(true\);/.test(home) && /loadBeachConditions\(detail\)/.test(home) && /\[detail\]/.test(home.slice(home.indexOf("loadBeachConditions(detail)") - 400, home.indexOf("loadBeachConditions(detail)") + 400)),
+    "chips render per beach's OWN values — the detail sheet resets to null and refetches loadBeachConditions(detail) on every [detail] change, so it can never show the #1 beach's values on another");
+}
 // THE RULE: verified editorial replaces the metric sentence (core law)
 ok(pageSrc2.includes("editorialsFor(") && pageSrc2.includes("ed.why"), "verified wf_editorial rows replace the metric prose");
-ok(pageSrc2.includes("Plan it:"), "know_before + best_time render as the Plan-it line");
+// RE-POINTED (same commit bff5f05): the "Plan it:" label was renamed to
+// "Know before you go:" — same underlying fields (ed.watchOut/ed.goodToKnow),
+// confirmed unchanged via `git show bff5f05^:app/best-beaches/[metro]/page.js`
+// (only the label text changed), now collapsed behind "How we verified this".
+ok(pageSrc2.includes("Know before you go:") && pageSrc2.includes("ed.watchOut, ed.goodToKnow") && pageSrc2.includes("How we verified this"), "know_before (ed.watchOut/ed.goodToKnow) renders as the 'Know before you go' line, collapsed behind the verify details");
 ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
 ok(parts.includes("navigator.share"), "native share with clipboard fallback");
@@ -59,15 +77,26 @@ ok(og.includes("beach-adobestock-216195684.jpeg"), "share card matches the owned
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 
 
-// v6.55 "Make it a beach day" — the revenue rail's honesty contract.
+// RE-POINTED (commit 3b9005b "fix(revenue): render tours CLIENT-SIDE so they
+// actually appear (v6.61) (#302)"): the SSR/build-time read of wf_experiences
+// returned empty (no service key at prerender), so the tours rail moved to a
+// client island, TourStrip (app/components/TourStrip.js), which fetches
+// /api/experiences at runtime; the server-only read now lives in
+// lib/experiencesServe.js (serveExperiences), called only from the API route.
+// Every guarantee below still holds, just re-homed to where the behavior
+// actually lives now.
 {
   const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-  ok(src.includes("SUPABASE_SERVICE_ROLE_KEY") && !src.includes('"use client"'), "tours read must stay server-only — the service key must never reach a client component");
-  ok(src.includes("viatorDirectUrl(t.product_url) || t.product_url") && !/viator\.com\/tours\/[^\"]*\$\{/.test(src), "tour links must be Viator's OWN product_url through the ONE tracking wrapper — never hand-built, never unattributed");
-  ok(src.includes('rel="noreferrer nofollow sponsored"'), "affiliate links must carry nofollow+sponsored — this is an INDEXED page");
-  ok(src.includes("tours.length >= 2"), "the section hides below 2 tours — never a lonely ad");
-  ok(src.includes("may earn a commission"), "the disclosure line is required");
-  ok(src.includes("wfTourScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
+  ok(src.includes("<TourStrip") && src.includes("waterOnly"), "the beach tours render via the client TourStrip (water-only)");
+  const ts = readFileSync(new URL("../app/components/TourStrip.js", import.meta.url), "utf8");
+  const serve = readFileSync(new URL("../lib/experiencesServe.js", import.meta.url), "utf8");
+  ok(ts.includes('"use client"') && !/SUPABASE_SERVICE_ROLE_KEY|VIATOR_API_KEY|s\.key/.test(ts), "tours read must stay server-only — TourStrip is a client component and holds no service/API key");
+  ok(!/"use client"/.test(serve) && /SUPABASE_SERVICE_ROLE_KEY/.test(readFileSync(new URL("../lib/serverCache.js", import.meta.url), "utf8")), "the service key lives only in the server-only serveExperiences call chain (lib/serverCache.sbEnv), never in a client component");
+  ok(/href=\{t\.url\}/.test(ts) && /\/pid=\/\.test\(t\.url\)/.test(ts), "tour links must be Viator's OWN product_url VERBATIM (mcid+pid intact) — a link missing pid= never ships (never hand-built, never unattributed)");
+  ok(ts.includes('rel="noopener sponsored nofollow"'), "affiliate links must carry nofollow+sponsored");
+  ok(ts.includes("items.length < 2") && /return null/.test(ts), "the section hides below 2 tours — never a lonely ad");
+  ok(ts.includes("may earn a commission"), "the disclosure line is required");
+  ok(ts.includes("wayfindScore(t.rating, t.reviews)"), "tour tiles carry the ONE Score");
 }
 // v6.55b Stay lane: the house hotel pattern, honestly.
 {

@@ -72,7 +72,10 @@ export default function IntentPageClient({ intent }) {
       try {
         const need = ranked.filter((r) => !r.editorial_hook).slice(0, 8);
         if (need.length) {
-          const res = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ city: loc.city, places: need.map((r) => ({ id: r.id, name: r.name, type: r.type, rating: r.rating, reviews: r.reviews, editorial: r.editorial })) }) });
+          // v6.61: never send r.editorial (Google's editorialSummary.text) into the
+          // blurb model — ai_line must be grounded ONLY in curated_fact and
+          // review_signals, both Wayfind-authored derivations, never Google's summary.
+          const res = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ city: loc.city, places: need.map((r) => ({ id: r.id, name: r.name, type: r.type, rating: r.rating, reviews: r.reviews })) }) });
           const j = res.ok ? await res.json() : null;
           if (j && j.blurbs && !dead) { for (const r of ranked) { if (!r.editorial_hook && j.blurbs[r.id]) r.ai_line = j.blurbs[r.id]; } setRows([...ranked]); }
         }
