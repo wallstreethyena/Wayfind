@@ -125,7 +125,8 @@ function WayfindTakeRail({ editorial }) {
   const [active, setActive] = useState(0);
   const SPEC = [
     ["why", "Why go", "🧭", C.accent], ["knownFor", "Known for", "⭐", C.gold],
-    ["insiderMove", "Insider move", "🔑", C.gold], ["proof", "Why it stands out", "💎", C.green],
+    ["insiderMove", "Insider move", "🔑", C.gold], ["proMove", "Pro move", "⚡", C.green],
+    ["proof", "Why it stands out", "💎", C.green],
     ["goodToKnow", "Good to know", "💡", "#7DD3FC"], ["watchOut", "Heads up", "⚠️", "#E8B84B"],
     ["bestFor", "Best for", "🎯", C.accent], ["move", "Best move", "✨", C.accent],
     ["foodMove", "Food move", "🍽️", C.gold], ["drinkMove", "Drink move", "🍸", C.gold],

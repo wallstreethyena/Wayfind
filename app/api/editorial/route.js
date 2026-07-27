@@ -34,6 +34,7 @@ function cardToEditorial(c) {
     name: c.name,
     vibe: un(c.vibeCheck), why: un(c.whyGo), knownFor: un(c.knownFor), bestFor: un(c.bestFor),
     foodMove: un(c.foodMove), drinkMove: un(c.drinkMove), insiderMove: un(c.insiderMove),
+    proMove: un(c.proMove),
     story: un(c.verifiedStory), proof: un(c.powerhouseProof), goodToKnow: un(c.currentUsefulDetail),
     funFact: un(c.funFact), watchOut: un(c.watchOut),
   };
