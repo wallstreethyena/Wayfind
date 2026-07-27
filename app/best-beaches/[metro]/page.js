@@ -136,8 +136,22 @@ export default async function BeachesPage({ params }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <style>{`
+        .wf-beach-hero { height: 340px; }
+        .wf-beach-quick { display: grid; grid-template-columns: minmax(150px,.8fr) minmax(0,1.2fr); gap: 20px; align-items: center; }
+        .wf-beach-card { display: grid; grid-template-columns: 178px minmax(0,1fr); min-height: 190px; overflow: hidden; }
+        .wf-beach-photo { position: relative; min-height: 190px; background: #10141d; }
+        .wf-beach-body { min-width: 0; padding: 18px 18px 16px; display: flex; flex-direction: column; justify-content: center; }
+        @media (max-width: 560px) {
+          .wf-beach-hero { height: 330px; }
+          .wf-beach-quick { grid-template-columns: 1fr; gap: 12px; }
+          .wf-beach-card { grid-template-columns: 118px minmax(0,1fr); min-height: 166px; }
+          .wf-beach-photo { min-height: 166px; }
+          .wf-beach-body { padding: 13px 13px 12px; }
+        }
+      `}</style>
       {/* Hero — the group's most beautiful photo (curated by eye), few words */}
-      <header style={{ position: "relative", height: 300, overflow: "hidden" }}>
+      <header className="wf-beach-hero" style={{ position: "relative", overflow: "hidden" }}>
         {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
         {/* Owner: no logo box over the hero photo — the brand lives in the
@@ -158,15 +172,18 @@ export default async function BeachesPage({ params }) {
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         {beaches.length ? (
-          <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", marginTop: 4 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Looking for a quick answer?</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <div style={{ fontSize: 12.5, color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best overall:</span> {beaches[0].name}</div>
-              {beaches.filter((b) => QUICK_LABEL[b.id]).map((b) => (
-                <div key={b.id} style={{ fontSize: 12.5, color: "rgba(241,245,249,.85)" }}><span style={{ fontWeight: 800, color: C.gold }}>{QUICK_LABEL[b.id]}:</span> {b.name}</div>
+          <section className="wf-beach-quick" style={{ background: "linear-gradient(145deg, rgba(22,31,44,.98), rgba(8,14,23,.98))", border: "1px solid rgba(226,190,97,.28)", borderRadius: 20, padding: "18px 20px", marginTop: 4, boxShadow: "0 18px 44px rgba(0,0,0,.28)" }}>
+            <div>
+              <div style={{ fontSize: 10, fontWeight: 850, letterSpacing: "1.2px", textTransform: "uppercase", color: C.gold, marginBottom: 6 }}>Wayfind shortlist</div>
+              <div style={{ fontSize: 18, fontWeight: 850, letterSpacing: "-0.25px" }}>Your beach, at a glance</div>
+              <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5, lineHeight: 1.45 }}>Choose by the day you want—not just the highest rating.</div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0,1fr))", gap: 7 }}>
+              <div style={{ fontSize: 11.5, color: "rgba(241,245,249,.9)", background: "rgba(255,255,255,.035)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 10, padding: "8px 10px" }}><span style={{ display: "block", fontSize: 9.5, fontWeight: 850, color: C.gold, textTransform: "uppercase", letterSpacing: ".7px", marginBottom: 2 }}>Best overall</span>{beaches[0].name}</div>
+              {beaches.filter((b) => QUICK_LABEL[b.id]).slice(0, 3).map((b) => (
+                <div key={b.id} style={{ fontSize: 11.5, color: "rgba(241,245,249,.9)", background: "rgba(255,255,255,.035)", border: "1px solid rgba(255,255,255,.08)", borderRadius: 10, padding: "8px 10px" }}><span style={{ display: "block", fontSize: 9.5, fontWeight: 850, color: C.gold, textTransform: "uppercase", letterSpacing: ".7px", marginBottom: 2 }}>{QUICK_LABEL[b.id]}</span>{b.name}</div>
               ))}
             </div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 8 }}>Explore the full ranking below.</div>
           </section>
         ) : null}
 
@@ -175,39 +192,36 @@ export default async function BeachesPage({ params }) {
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
           {beaches.map((b, i) => (
             <li key={b.id} style={{ margin: "14px 0 0" }}>
-              {/* v6.60 (owner): image-forward — the photo IS the card (it is
-                  what sells). Name, Score and Best-for ride the image; one hook
-                  line below; everything else collapses. Live water conditions
-                  moved OFF the list (they live in the detail sheet). */}
-              <a href={"/p/" + encodeURIComponent(b.id)} style={{ display: "block", borderRadius: 16, overflow: "hidden", border: "1px solid " + C.border, background: C.card, textDecoration: "none", color: "inherit" }}>
-                <div style={{ position: "relative", aspectRatio: "16 / 10", background: "#10141d" }}>
+              <a className="wf-beach-card" href={"/p/" + encodeURIComponent(b.id)} style={{ borderRadius: 20, border: "1px solid " + (i === 0 ? "rgba(226,190,97,.58)" : C.border), background: i === 0 ? "linear-gradient(145deg, rgba(30,35,43,.99), rgba(10,16,25,.99))" : "linear-gradient(145deg, rgba(25,34,49,.98), rgba(10,16,25,.98))", textDecoration: "none", color: "inherit", boxShadow: i === 0 ? "0 18px 42px rgba(0,0,0,.34)" : "0 10px 26px rgba(0,0,0,.2)" }}>
+                <div className="wf-beach-photo">
                   {b.photo_ref ? <img src={"/api/photo?ref=" + encodeURIComponent(b.photo_ref) + "&w=640"} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,0) 40%, rgba(4,8,16,.5) 66%, rgba(4,8,16,.92) 100%)" }} />
-                  <div style={{ position: "absolute", top: 10, left: 10, width: 30, height: 30, borderRadius: "50%", background: "rgba(4,8,16,.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(4,8,16,.04) 35%, rgba(4,8,16,.5) 100%)" }} />
+                  <div style={{ position: "absolute", top: 12, left: 12, minWidth: 36, height: 36, borderRadius: 11, background: "rgba(4,8,16,.78)", border: "1px solid rgba(255,255,255,.22)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 18px rgba(0,0,0,.28)" }}>
                     {i < 3
-                      ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={MEDAL[i]} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-label={"Rank " + (i + 1)}><path d="M8 21h8" /><path d="M12 17v4" /><path d="M7 4h10v6a5 5 0 0 1-10 0V4z" /><path d="M7 6H4a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4" /><path d="M17 6h3a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4" /></svg>
-                      : <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{i + 1}</span>}
-                  </div>
-                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "14px 15px 13px" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 21, fontWeight: 800, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,.75)", letterSpacing: "-0.4px" }}>{b.name}</span>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: C.green, textShadow: "0 1px 5px rgba(0,0,0,.7)" }}>{toDisplayScore(b.wf)}</span>
-                    </div>
-                    {(() => { const bf = (BEST_FOR[params.metro] || {})[b.id] || null; return bf ? <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.92)", marginTop: 3, textShadow: "0 1px 5px rgba(0,0,0,.75)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</div> : null; })()}
+                      ? <span style={{ fontSize: 17, fontWeight: 900, color: MEDAL[i] }}>{i + 1}</span>
+                      : <span style={{ fontSize: 13, fontWeight: 850, color: C.text }}>{i + 1}</span>}
                   </div>
                 </div>
+                <div className="wf-beach-body">
+                  <div style={{ fontSize: 10, fontWeight: 850, color: i === 0 ? C.gold : "rgba(241,245,249,.55)", letterSpacing: "1.1px", textTransform: "uppercase", marginBottom: 5 }}>{i === 0 ? "Wayfind best overall" : "Ranked beach pick"}</div>
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+                    <span style={{ fontSize: 19, fontWeight: 850, color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.2 }}>{b.name}</span>
+                    <span style={{ flexShrink: 0, minWidth: 48, textAlign: "center", fontSize: 14, fontWeight: 900, color: C.green, background: "rgba(34,197,94,.1)", border: "1px solid rgba(34,197,94,.4)", borderRadius: 10, padding: "5px 7px" }}>{toDisplayScore(b.wf)}</span>
+                  </div>
+                  {(() => { const bf = (BEST_FOR[params.metro] || {})[b.id] || null; return bf ? <div style={{ display: "inline-flex", alignSelf: "flex-start", fontSize: 11, color: "rgba(255,255,255,.9)", marginTop: 8, background: "rgba(226,190,97,.09)", border: "1px solid rgba(226,190,97,.28)", borderRadius: 999, padding: "4px 8px" }}><span style={{ fontWeight: 850, color: C.gold, marginRight: 4 }}>Best for</span>{bf}</div> : null; })()}
                 {(() => { const ed = editorials[b.id];
-                  if (!ed) return (<div style={{ padding: "11px 15px 13px" }}><p style={{ fontSize: 12.5, color: "rgba(241,245,249,.82)", lineHeight: 1.5, margin: 0 }}>{beachWhy(b, meta.short)}</p></div>);
-                  return (<div style={{ padding: "11px 15px 13px" }}>
-                    {ed.knownFor ? <p style={{ fontSize: 13, fontWeight: 700, color: C.gold, lineHeight: 1.45, margin: 0 }}>{ed.knownFor}</p> : null}
+                  if (!ed) return <p style={{ fontSize: 12, color: "rgba(241,245,249,.76)", lineHeight: 1.45, margin: "9px 0 0" }}>{beachWhy(b, meta.short)}</p>;
+                  return (<>
+                    {ed.knownFor ? <p style={{ fontSize: 12.5, fontWeight: 650, color: "rgba(241,245,249,.86)", lineHeight: 1.45, margin: "9px 0 0" }}>{ed.knownFor}</p> : null}
                     <details style={{ margin: "8px 0 0" }}>
-                      <summary style={{ fontSize: 11, fontWeight: 700, color: "rgba(139,147,161,.9)", cursor: "pointer", listStyle: "none" }}>How we verified this ›</summary>
+                      <summary style={{ fontSize: 11, fontWeight: 750, color: C.gold, cursor: "pointer", listStyle: "none" }}>Open beach notes ›</summary>
                       {ed.why ? <p style={{ fontSize: 12, color: "rgba(241,245,249,.8)", lineHeight: 1.55, margin: "6px 0 0" }}>{ed.why}</p> : null}
                       {(ed.watchOut || ed.goodToKnow) ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 0" }}><span style={{ fontWeight: 800, color: "rgba(241,245,249,.7)" }}>Know before you go: </span>{[ed.watchOut, ed.goodToKnow].filter(Boolean).join(" ")}</p> : null}
                       {ed.sources && ed.sources.length ? <p style={{ fontSize: 10, color: "rgba(139,147,161,.7)", margin: "5px 0 0" }}>Sourced: {ed.sources.join(" · ")}</p> : null}
                     </details>
-                  </div>);
+                  </>);
                 })()}
+                </div>
               </a>
               {i === 2 && beaches.length > 3 ? (
                 <section style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 16, padding: "14px 16px", margin: "4px 0 16px" }}>

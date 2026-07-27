@@ -788,9 +788,13 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               {isBeach(detail) && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF" }}>🏖️ Beach conditions</div>
+                <div style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, rgba(12,31,42,.98) 0%, rgba(13,24,38,.99) 48%, rgba(8,15,25,.99) 100%)", border: "1px solid rgba(45,212,191,.28)", borderRadius: 20, padding: 16, marginBottom: 14, boxShadow: "0 18px 42px rgba(0,0,0,.3)" }}>
+                  <div aria-hidden="true" style={{ position: "absolute", width: 170, height: 170, right: -70, top: -95, borderRadius: "50%", background: "radial-gradient(circle, rgba(45,212,191,.16), transparent 68%)", pointerEvents: "none" }} />
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 13, position: "relative" }}>
+                    <div>
+                      <div style={{ fontSize: 9.5, fontWeight: 850, letterSpacing: "1.2px", textTransform: "uppercase", color: "rgba(153,246,228,.72)", marginBottom: 4 }}>Live coastal read</div>
+                      <div style={{ fontSize: 17, fontWeight: 850, letterSpacing: "-0.2px", color: "#F8FAFC" }}>Beach conditions</div>
+                    </div>
                     {/* v6.57: the same "Trending" flame as the card (kit.js's
                         TRENDING_POPULARITY_THRESHOLD keeps the bar identical). */}
                     {!beachCondLoading && beachCond && beachCond.popularityPct != null && beachCond.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
@@ -810,12 +814,16 @@ export default function DetailSheet({ ctx }) {
                     const wq = bc.water ? (bc.water.advisory ? { t: "Advisory — check before swimming", c: C.red } : bc.water.result === "Good" ? { t: "Good", c: C.green } : bc.water.result === "Moderate" ? { t: "Moderate", c: "#E8B84B" } : { t: "Poor", c: C.red }) : null;
                     const hasAny = bc.wind != null || bc.waveHeight != null || bc.waterTemp != null || wq || bc.redTide;
                     return (
-                      <div>
-                        {bc.waterTemp != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌡️ Water {Math.round(bc.waterTemp)}°F</div>}
-                        {bc.wind != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>💨 Wind {bc.wind} mph{bc.windDir ? " from the " + bc.windDir : ""}</div>}
-                        {bc.waveHeight != null && <div style={{ fontSize: 13.5, color: C.text, marginBottom: 6 }}>🌊 Waves about {bc.waveHeight} ft</div>}
-                        {wq && <div style={{ fontSize: 13.5, fontWeight: 700, color: wq.c, marginBottom: 6 }}>🧪 Water quality: {wq.t}{bc.water.sampled_at ? " · tested " + fmtBeachDay(bc.water.sampled_at) : ""}</div>}
-                        {bc.redTide && <div style={{ fontSize: 13.5, fontWeight: 700, color: bc.redTide.tone === "bad" ? C.red : bc.redTide.tone === "warn" ? "#E8B84B" : C.green, marginBottom: 6 }}>🔬 Red tide: {bc.redTide.label}{bc.redTide.mi != null ? " · " + bc.redTide.mi + " mi away" : ""}</div>}
+                      <div style={{ position: "relative" }}>
+                        {(bc.waterTemp != null || bc.wind != null || bc.waveHeight != null) && (
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0,1fr))", gap: 7, marginBottom: 10 }}>
+                            {bc.waterTemp != null && <div style={{ minWidth: 0, background: "rgba(255,255,255,.045)", border: "1px solid rgba(255,255,255,.09)", borderRadius: 12, padding: "9px 10px" }}><div style={{ fontSize: 9, fontWeight: 800, color: "rgba(203,213,225,.68)", textTransform: "uppercase", letterSpacing: ".7px", marginBottom: 3 }}>Water</div><div style={{ fontSize: 16, fontWeight: 850, color: "#F8FAFC" }}>{Math.round(bc.waterTemp)}°F</div></div>}
+                            {bc.wind != null && <div style={{ minWidth: 0, background: "rgba(255,255,255,.045)", border: "1px solid rgba(255,255,255,.09)", borderRadius: 12, padding: "9px 10px" }}><div style={{ fontSize: 9, fontWeight: 800, color: "rgba(203,213,225,.68)", textTransform: "uppercase", letterSpacing: ".7px", marginBottom: 3 }}>Wind</div><div style={{ fontSize: 16, fontWeight: 850, color: "#F8FAFC" }}>{bc.wind}<span style={{ fontSize: 9.5, fontWeight: 650, color: C.muted }}> mph</span></div>{bc.windDir && <div style={{ fontSize: 9.5, color: C.muted, marginTop: 2 }}>{bc.windDir}</div>}</div>}
+                            {bc.waveHeight != null && <div style={{ minWidth: 0, background: "rgba(255,255,255,.045)", border: "1px solid rgba(255,255,255,.09)", borderRadius: 12, padding: "9px 10px" }}><div style={{ fontSize: 9, fontWeight: 800, color: "rgba(203,213,225,.68)", textTransform: "uppercase", letterSpacing: ".7px", marginBottom: 3 }}>Waves</div><div style={{ fontSize: 16, fontWeight: 850, color: "#F8FAFC" }}>{bc.waveHeight}<span style={{ fontSize: 9.5, fontWeight: 650, color: C.muted }}> ft</span></div></div>}
+                          </div>
+                        )}
+                        {wq && <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: "rgba(255,255,255,.035)", borderTop: "1px solid rgba(255,255,255,.08)", padding: "9px 2px 7px" }}><span style={{ fontSize: 11, fontWeight: 750, color: C.light }}>Water quality</span><span style={{ fontSize: 11, fontWeight: 800, color: wq.c, textAlign: "right" }}>{wq.t}{bc.water.sampled_at ? " · " + fmtBeachDay(bc.water.sampled_at) : ""}</span></div>}
+                        {bc.redTide && <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, borderTop: "1px solid rgba(255,255,255,.08)", padding: "8px 2px 2px" }}><span style={{ fontSize: 11, fontWeight: 750, color: C.light }}>Red tide</span><span style={{ fontSize: 11, fontWeight: 800, color: bc.redTide.tone === "bad" ? C.red : bc.redTide.tone === "warn" ? "#E8B84B" : C.green, textAlign: "right" }}>{bc.redTide.label}{bc.redTide.mi != null ? " · " + bc.redTide.mi + " mi away" : ""}</span></div>}
                         {!hasAny && <div style={{ fontSize: 13, color: C.muted }}>Live conditions are not available for this spot right now.</div>}
                       </div>
                     );

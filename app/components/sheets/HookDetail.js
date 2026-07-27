@@ -115,71 +115,52 @@ export default function HookDetailSheet({ ctx }) {
                     style={{
                       background: premiumImagePage ? (isFeatured ? `linear-gradient(145deg, ${acc}20 0%, rgba(25,34,49,.99) 42%, rgba(12,18,28,.99) 100%)` : premiumCardBg) : (isFeatured ? `linear-gradient(135deg, ${acc}18 0%, ${C.card} 60%)` : C.card),
                       border: `1.5px solid ${isFeatured ? acc + (premiumImagePage ? "82" : "60") : (premiumImagePage ? premiumCardBorder : C.border)}`,
-                      borderRadius: premiumImagePage ? (isFeatured ? 24 : 18) : 16, marginBottom: premiumImagePage ? 14 : 10, overflow: "hidden", cursor: "pointer",
-                      boxShadow: premiumImagePage ? (isFeatured ? `0 24px 58px rgba(0,0,0,.46), 0 0 0 1px ${acc}12 inset` : "0 12px 30px rgba(0,0,0,.24)") : (isFeatured ? `0 4px 20px ${acc}20` : "none"),
+                      borderRadius: premiumImagePage ? 20 : 16, marginBottom: premiumImagePage ? 12 : 10, overflow: "hidden", cursor: "pointer",
+                      boxShadow: premiumImagePage ? (isFeatured ? `0 18px 44px rgba(0,0,0,.4), 0 0 0 1px ${acc}12 inset` : "0 10px 24px rgba(0,0,0,.22)") : (isFeatured ? `0 4px 20px ${acc}20` : "none"),
                     }}
                   >
-                    {/* Featured (first) place: large photo on top */}
-                    {isFeatured && (
-                      <div style={{ position: "relative" }}>
-                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: "100%", height: premiumImagePage ? (isDesktop ? 230 : 205) : 180, objectFit: "cover", display: "block" }} />
+                    <div style={{ display: "flex", minHeight: premiumImagePage ? (isFeatured ? 176 : 142) : 104 }}>
+                      <div style={{ position: "relative", flexShrink: 0, width: premiumImagePage ? (isFeatured ? (isDesktop ? 186 : 132) : (isDesktop ? 142 : 112)) : 92 }}>
+                        <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(4,8,16,.04) 45%, rgba(4,8,16,.42) 100%)" }} />
                         {showRank && (
-                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(0,0,0,.7)", borderRadius: 10, padding: "5px 10px", display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: 20 }}>{medalEmoji || "🏆"}</span>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>#{i + 1} Pick</span>
+                          <div style={{ position: "absolute", top: 10, left: 10, minWidth: isFeatured ? 42 : 32, height: isFeatured ? 42 : 32, padding: isFeatured ? "0 10px" : 0, borderRadius: 12, background: isFeatured ? "rgba(8,12,19,.9)" : "rgba(8,12,19,.82)", border: `1px solid ${rankColor}88`, boxShadow: "0 8px 18px rgba(0,0,0,.3)", display: "flex", alignItems: "center", justifyContent: "center", gap: 5, fontSize: isFeatured ? 14 : 12, fontWeight: 900, color: "#fff", backdropFilter: "blur(8px)" }}>
+                            {medalEmoji && <span>{medalEmoji}</span>}<span>{i + 1}</span>
                           </div>
                         )}
                         {showWarn && (
-                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(239,68,68,.85)", borderRadius: 10, padding: "5px 12px" }}>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: "#fff" }}>⚠️ Skip this</span>
-                          </div>
+                          <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(185,28,28,.9)", borderRadius: 10, padding: "5px 9px", fontSize: 11, fontWeight: 850, color: "#fff" }}>Skip this</div>
                         )}
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: premiumImagePage ? "linear-gradient(180deg, transparent 0%, rgba(7,12,20,.72) 42%, rgba(7,12,20,.98) 100%)" : "linear-gradient(transparent, rgba(13,17,23,.95))", padding: premiumImagePage ? "50px 18px 16px" : "20px 14px 12px" }}>
-                          <div style={{ fontSize: premiumImagePage ? 21 : 18, fontWeight: 850, letterSpacing: premiumImagePage ? "-0.3px" : undefined, color: "#fff" }}>{p.name}</div>
-                        </div>
+                        {isFeatured && (
+                          <div style={{ position: "absolute", left: 10, bottom: 10, borderRadius: 999, padding: "5px 9px", background: "rgba(5,10,17,.86)", border: `1px solid ${acc}88`, color: acc, fontSize: 9.5, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase", backdropFilter: "blur(8px)" }}>Wayfind select</div>
+                        )}
                       </div>
-                    )}
-
-                    {/* Card body */}
-                    <div style={{ display: isFeatured ? "block" : "flex", padding: isFeatured ? "12px 14px 14px" : 0, gap: 0 }}>
-                      {!isFeatured && (
-                        <div style={{ position: "relative", flexShrink: 0 }}>
-                          <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: premiumImagePage ? 108 : 86, height: premiumImagePage ? 112 : 86, objectFit: "cover", display: "block" }} />
-                          {showRank && (
-                            <div style={{ position: "absolute", top: 5, left: 5, width: 22, height: 22, borderRadius: "50%", background: rankColor, display: "flex", alignItems: "center", justifyContent: "center", fontSize: medalEmoji ? 14 : 10, fontWeight: 800, color: "#0D1117" }}>
-                              {medalEmoji || (i + 1)}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      <div style={{ padding: isFeatured ? 0 : "10px 12px", flex: 1, minWidth: 0, position: "relative" }}>
+                      <div style={{ padding: premiumImagePage ? (isFeatured ? "15px 16px 14px" : "12px 14px") : "10px 12px", flex: 1, minWidth: 0, position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                         {(() => { const _sv = isSaved(p.id); return (
-                          <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 6, zIndex: 2 }}>
-                            <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 30, height: 30, borderRadius: "50%", background: _sv ? acc : "rgba(0,0,0,.38)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.28)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(4px)" }}><svg width="13" height="13" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
-                            
+                          <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6, zIndex: 2 }}>
+                            <button onClick={(e) => { e.stopPropagation(); quickSaveFavorite(p); }} aria-label="Save" title="Save" style={{ width: 34, height: 34, borderRadius: "50%", background: _sv ? acc : "rgba(4,8,16,.52)", border: `1px solid ${_sv ? acc : "rgba(255,255,255,.22)"}`, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backdropFilter: "blur(8px)" }}><svg width="15" height="15" viewBox="0 0 24 24" fill={_sv ? "#fff" : "none"} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg></button>
                           </div>
                         ); })()}
-                        {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5, paddingRight: isFeatured ? 74 : 0 }}>
+                        <div style={{ fontSize: isFeatured ? 19 : 15, fontWeight: 850, letterSpacing: isFeatured ? "-0.25px" : undefined, color: C.text, lineHeight: 1.22, marginBottom: 7, paddingRight: 42 }}>{p.name}</div>
+                        {isFeatured && <div style={{ width: 32, height: 3, borderRadius: 999, background: acc, marginBottom: 8 }} />}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 6, paddingRight: 38 }}>
                           <PlaceScoreChip p={p} size={13} />
                           {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
-                          {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
-                          {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
+                          {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 750, color: C.green }}>Open now</span>}
+                          {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 750, color: C.red }}>Closed</span>}
                           {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                          {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
+                          {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 750 }}>{p.price}</span>}
                         </div>
                         {badges.length > 0 && (
-                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
+                          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 7 }}>
                             {badges.map((b) => (
-                              <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {cityFixM(b.label)}</span>
+                              <span key={b.key} style={{ fontSize: 10.5, fontWeight: 750, color: acc, background: acc + "12", border: `1px solid ${acc}4D`, borderRadius: 999, padding: "3px 8px" }}>{b.icon} {cityFixM(b.label)}</span>
                             ))}
                           </div>
                         )}
-                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
-                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: 12.5, color: _fam ? C.light : C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 8 : 2 }}>{why}</div> : null; })()}
-                        {isFeatured && (
-                          <div style={{ fontSize: 12.5, color: acc, fontWeight: 700 }}>See full details →</div>
-                        )}
+                        {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 11.5, fontWeight: 700, color: "#F8FAFC", background: acc + "0F", borderLeft: "2px solid " + acc, padding: "5px 0 5px 9px", marginBottom: 7, lineHeight: 1.35 }}>{_w1}</div> : null; })()}
+                        {(() => { const _isFam = !!(hookDetail && (hookDetail.fetchKey === "family" || hookDetail.theme === "family")); const _fam = _isFam ? Fam.familyWhy(p, { temp: weather ? weather.temp : null, rainy: !!(weather && /rain|storm|shower/i.test(weather.label || "")), distMi: p.distMi, openNow: liveOpen(p) }) : null; const why = _isWC ? WCC.wcCopy(p, themePlaces, i) : (_fam ? _fam.line : pickReason(p, { rank: i + 1, total: themePlaces.length, next: themePlaces[i + 1], weather, night: isNightNow(weather), foodContext: (theme === "best" || theme === "top5" || theme === "food" || /food|eat|breakfast|lunch|dinner/i.test(hookDetail.themeTitle || "")) })); return why ? <div style={{ fontSize: isFeatured ? 12.5 : 12, color: C.light, fontWeight: _fam ? 700 : 400, lineHeight: 1.4, marginBottom: isFeatured ? 7 : 0 }}>{why}</div> : null; })()}
+                        {isFeatured && <div style={{ fontSize: 11.5, color: acc, fontWeight: 800, marginTop: "auto" }}>See full details →</div>}
                       </div>
                     </div>
                   </div>
