@@ -31,6 +31,8 @@ import { isTrueLodging } from "../lib/lodging";
 import * as Fam from "../lib/family";
 import { supabase } from "../lib/supabase";
 import { usePlaceProduct } from "../lib/placeProduct";
+import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
+import { rankReason } from "../lib/rankReason";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
@@ -381,11 +383,42 @@ function originUrl(path) {
 // A stable, anonymous, per-device id (no personal data — just a random string)
 // used to attribute pooled engagement events and measure return visits. Created
 // once and kept in localStorage. Returns null if storage is unavailable.
+
+// A stable, anonymous, per-device id (no personal data — just a random string)
+// used to attribute pooled engagement events and measure return visits. Created
+// once and kept in localStorage. Returns null if storage is unavailable.
+// Durable, first-party, anonymous device id. This is the LEGAL maximum of a
+// "persistent cookie": it recognizes a returning visitor and (via user_id on
+// signed-in events) links the device to their account — WITHOUT the illegal
+// parts of a zombie/supercookie. Specifically it uses ONLY standard first-party
+// storage (localStorage + a long-lived first-party cookie, mirrored for
+// reliability + server visibility) — never Flash/ETag/canvas/IndexedDB/cache
+// "evercookie" resurrection or fingerprinting — and it HONORS opt-out: with Do
+// Not Track or an explicit wf_optout flag the id is session-only (no
+// cross-session recognition), and a full "clear site data" removes both stores.
+// (Disclose this in the privacy policy — it's a functional/analytics identifier.)
+const WF_DID_MAXAGE = 2 * 365 * 24 * 3600; // 2 years — as durable as a first-party cookie legally gets
 function deviceId() {
   try {
     if (typeof window === "undefined") return null;
-    let id = localStorage.getItem("wf_device");
-    if (!id) { id = "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("wf_device", id); }
+    const newId = () => "d_" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
+    const optedOut = navigator.doNotTrack === "1" || window.doNotTrack === "1" ||
+      (() => { try { return localStorage.getItem("wf_optout") === "1"; } catch { return false; } })();
+    if (optedOut) {
+      // Respect the signal: a per-session id only, never persisted → no
+      // cross-visit recognition for users who asked not to be tracked.
+      let s = null; try { s = sessionStorage.getItem("wf_device_s"); } catch (e) {}
+      if (!s) { s = newId(); try { sessionStorage.setItem("wf_device_s", s); } catch (e) {} }
+      return s;
+    }
+    const readCookie = () => { try { const m = document.cookie.match(/(?:^|;\s*)wf_device=([^;]+)/); return m ? decodeURIComponent(m[1]) : null; } catch { return null; } };
+    const setCookie = (v) => { try { document.cookie = "wf_device=" + encodeURIComponent(v) + "; Max-Age=" + WF_DID_MAXAGE + "; Path=/; SameSite=Lax" + (location.protocol === "https:" ? "; Secure" : ""); } catch (e) {} };
+    let id = null;
+    try { id = localStorage.getItem("wf_device"); } catch (e) {}
+    if (!id) id = readCookie();          // survive a partial clear of one store
+    if (!id) id = newId();
+    try { localStorage.setItem("wf_device", id); } catch (e) {}
+    setCookie(id);                        // refresh the 2-year first-party cookie
     return id;
   } catch { return null; }
 }
@@ -7958,6 +7991,11 @@ function ViatorRail({ title, items, theme }) {
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
+  const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);
+  // Booking-integrity (owner): a card shows a booking button ONLY when the place
+  // has a VERIFIED product (wf_place_products, rn=1) — no generic name-search link.
+  // Hooks run before the completeness gate (rules of hooks), same as useBestPhoto.
+  const cardProduct = usePlaceProduct(p && p.id);
   if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
   // v4.89 — photo fix. Non-Google (Foursquare) entries often arrive without a
   // photo reference, so cards fell back to the logo. When a card renders
@@ -7984,9 +8022,10 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
   // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
   // generic/metadata filler. Falls back to the LLM line, then a clean local template.
-  const take = ((curatedFor(p) || {}).hook) || line || templateBlurb(p);
+  // Editorial line: a curated hook (rich) → the honest rank-aware "why it's here"
+  // (owner: answer why #1 beats #2, from real signals) → generic blurb.
+  const take = ((curatedFor(p) || {}).hook) || (rank ? rankReason(p, rank) : "") || line || templateBlurb(p);
   const offer = OFFERS[p.id];
-  const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
   // on every card. Invalid/missing wfScore -> null -> no badge (never a fake 0);
   // killswitch restores the old layout.
@@ -8025,7 +8064,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
       {p._members && p._members.ownerPick && <span className="wf-place-card-owner" title="The owner personally picked this spot" style={{ position: "absolute", top: 7, left: 7, zIndex: 3, display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 800, letterSpacing: "0.5px", textTransform: "uppercase", color: "#E8B84B", background: "rgba(0,0,0,.62)", border: "1px solid rgba(232,184,75,.55)", borderRadius: 999, padding: "3px 8px", backdropFilter: "blur(4px)", WebkitBackdropFilter: "blur(4px)", pointerEvents: "none" }}>{CURATOR_CHIP_LABEL}</span>}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
-          ? <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
+          ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
           : <div className="wf-place-card-monogram" aria-hidden="true">{cardInitials}</div>}
         <div className="wf-place-card-content" style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
