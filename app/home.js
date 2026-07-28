@@ -39,6 +39,7 @@ import { saveItem as saveMonetized } from "../lib/savedItems";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
+import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
 import { HOOK_BANK, pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
@@ -160,7 +161,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.51";
+const BUILD_ID = "v6.52";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -903,6 +904,13 @@ const EXPERIENCES = {
   // water-venue boost so beaches rank at the top when the weather is genuinely
   // beach weather (and still stay present when it isn't).
   outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", mood: true, radius: 48280, lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "beach", keyword: "public beach" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], boost: (p, w) => { const v = Ranking.venueLean(p); if (!v.water) return 0; const felt = w ? (w.feels != null ? w.feels : w.temp) : null; const good = w && !w.wet && !(w.rain != null && w.rain >= 55) && !/storm|rain|shower/i.test(w.label || "") && felt != null && felt >= 62 && felt <= 98; return good ? 22 : 8; }, filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
+  // v6.52 (owner): "vineyard and apple picking in the fall" — a dedicated
+  // seasonal experience, named after whatever season it actually is right
+  // now (see lib/seasons.js). queries/filter/boost all live there so the fit
+  // logic is pure and unit-tested; label/title/lead here are the fallback
+  // used if this entry is ever opened outside the dynamic hero (openExpSheet
+  // special-cases "seasonal" to compute the live season name at open time).
+  seasonal: { icon: "🍂", label: "Seasonal Picks", title: "Seasonal Picks Near You", mood: true, lead: "What actually fits the season you're in right now — pumpkin patches and vineyards in fall, holiday lights in winter, beaches and water parks in summer.", queries: () => seasonQueries(currentSeason()), boost: (p) => seasonalFit(p, currentSeason()), filter: (p) => (p.rating || 0) >= 4.0 },
   hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", mood: true, lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", viator: true, viatorMode: "gems", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
   bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000 /* worth-the-drive class: intentionally wider than the 17-mi default */, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
   familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", mood: true, lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
@@ -2170,10 +2178,19 @@ function HeroRail({ children }) {
 }
 
 function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, title, subtitle, ariaLabel, onOpen }) {
+  // v6.52 (Seasonal Picks): no dedicated stock photo exists for this slide yet
+  // (see lib/seasons.js) and inventing/reusing an unrelated one would be
+  // dishonest about what the card is showing — same "never fabricate" rule
+  // this codebase already applies to editorial and curated data. `image` is
+  // now optional: a themed gradient + a large watermark of the badge icon
+  // stands in until real seasonal photography exists, every existing caller
+  // is unaffected since they all still pass a real photo.
   return (
-    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-      <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: image ? C.card : `linear-gradient(135deg, ${badgeColor}3D 0%, #171C26 55%, #0B0E14 100%)` }}>
+      {image
+        ? <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        : <Icon name={icon} size={150} color={badgeColor} style={{ position: "absolute", right: -20, bottom: -20, opacity: 0.16 }} />}
+      <div style={{ position: "absolute", inset: 0, background: image ? "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" : "linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.3) 55%, rgba(0,0,0,.82) 100%)" }} />
       <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${badgeColor}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
         {navIcon ? <NavIcon name={icon} size={12} strokeWidth={2} color={badgeColor} /> : <Icon name={icon} size={12} color={badgeColor} />}<span style={{ fontSize: 10.5, fontWeight: 800, color: badgeColor, letterSpacing: "0.4px", textTransform: "uppercase" }}>{badge}</span>
       </div>
@@ -4103,7 +4120,28 @@ function PageInner({ initialEvents = null }) {
       : key === "entertainment"
         ? "/cards/trending-near-you-adobestock-434128766.jpeg"
         : null;
-    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage: heroImageOverride || heroImage, places: null });
+    // v6.52: Seasonal Picks names itself after whatever season it actually is
+    // right now \u2014 computed at open time (never a stale hardcoded season) so
+    // "Fall Picks" only ever shows in fall. No dedicated hero photo exists yet
+    // (see lib/seasons.js) so this intentionally leaves heroImage unset \u2014 the
+    // sheet already falls back to an accent-colored gradient header for every
+    // key that doesn't set one (outdoors, datenight, ...).
+    const seasonNow = key === "seasonal" ? currentSeason() : null;
+    const sm = seasonNow ? SEASON_META[seasonNow] : null;
+    const cityShort = locName ? String(locName).split(",")[0] : "your area";
+    setHookDetail({
+      id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent,
+      emoji: sm ? sm.emoji : e.icon,
+      label: sm ? sm.label + " Picks" : cityFix(e.label),
+      highlightWord: m.hl || "",
+      hook: sm ? "The best of " + cityShort + " for " + sm.label.toLowerCase() + " " + sm.emoji : (m.hook || e.lead || e.title),
+      subtitle: m.sub || "",
+      cta: m.cta || "Explore \u2192",
+      themeTitle: sm ? sm.label + " Picks Near You" : cityFix(e.title),
+      themeBody: e.lead,
+      heroImage: heroImageOverride || heroImage,
+      places: null,
+    });
     try { window.scrollTo(0, 0); } catch {}
   }
   function openMoment(sel) {
@@ -5574,8 +5612,26 @@ function PageInner({ initialEvents = null }) {
         }
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
-        let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        // v6.52 (Seasonal Picks): a sheet's experience MAY declare `queries` —
+        // the same {cat,keyword}[] (or time/season-aware function) shape the
+        // legacy moment screen already supports for `outdoors`, `datenight`,
+        // etc. — instead of one blended cat+keyword string. Absent for every
+        // pre-existing key, so this changes nothing for them.
+        const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries;
+        let raw;
+        if (_qs && _qs.length) {
+          const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", ((qd.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim()).catch(() => [])));
+          raw = dedupePlaces(_b.flat().filter(Boolean), true);
+        } else {
+          raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
+        }
+        // v6.52: an experience MAY also declare a bounded context boost — same
+        // exp.boost(place) shape the legacy moment screen honors via
+        // _ctxBoost (e.g. outdoors' weather boost). Absent for every
+        // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
+        // them; Seasonal Picks is the first sheet-path experience to use it.
+        const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -7223,6 +7279,21 @@ function PageInner({ initialEvents = null }) {
                   </div>
                   <HeroRail>
                     <DiscoveryHeroCard />
+                    {/* v6.52 (owner): Seasonal Picks — 2nd slide, ahead of
+                        Beach day / the featured concert / everything else.
+                        Names itself after whatever season it actually is
+                        right now; see lib/seasons.js. */}
+                    {(() => { const _s = SEASON_META[currentSeason()]; return (
+                      <LocalPlanHeroCard
+                        badge={_s.label + " Picks"}
+                        badgeColor={_s.color}
+                        icon="leaf"
+                        title={_s.label + " picks near you"}
+                        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+                        ariaLabel={_s.label + " picks near you"}
+                        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_swipe" }); } catch (e2) {} openExpSheet("seasonal"); }}
+                      />
+                    ); })()}
                     {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
                         render unconditionally and only swap its COPY when no
                         beach was found — so an Orlando user got "Beach day,
@@ -7328,6 +7399,20 @@ function PageInner({ initialEvents = null }) {
                             date-night, family, and trending cards keep their existing
                             destinations and behavior as the following slides. */}
                         <DiscoveryHeroCard />
+                        {/* v6.52 (owner): "make the hero for that... the second
+                            hero card before the concert" — Seasonal Picks
+                            slots in right here, ahead of the featured event. */}
+                        {(() => { const _s = SEASON_META[currentSeason()]; return (
+                          <LocalPlanHeroCard
+                            badge={_s.label + " Picks"}
+                            badgeColor={_s.color}
+                            icon="leaf"
+                            title={_s.label + " picks near you"}
+                            subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+                            ariaLabel={_s.label + " picks near you"}
+                            onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_swipe" }); } catch (e2) {} openExpSheet("seasonal"); }}
+                          />
+                        ); })()}
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={eventCategoryArt(eventBucket(featured), featured) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
