@@ -124,7 +124,14 @@ import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector } from "../lib/taste";
+// v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
+// that read like raw database rows — `food`, `coffee shop`, `food store`).
+// lib/taste.js already carried the fix; home.js simply never imported it. The
+// two additions are the READ path of the same rule the write path uses:
+// isLearnableValue retires junk already sitting in localStorage/Supabase, and
+// tasteLabel is the ONE place that knows the price dimension stores a Google
+// bucket index. Neither belongs in the view.
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -138,7 +145,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.44";
+const BUILD_ID = "v6.45";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3777,8 +3784,32 @@ function PageInner({ initialEvents = null }) {
   function exportTaste() {
     try {
       const vec = tasteVecRef.current || {};
-      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
+      // v6.45: export what the PANEL shows, not the raw store. Handing someone
+      // a file full of tokens we already know are junk ("2", "food") is a worse
+      // answer to "what do you have on me" than handing them the real answer.
+      // Same rule as the panel, so the two can never disagree; the raw value is
+      // kept alongside the label because it IS their data.
+      const taste = {};
+      for (const dim of Object.keys(vec)) {
+        const m = vec[dim];
+        if (!m || typeof m !== "object") continue;
+        for (const [val, w] of Object.entries(m)) {
+          if (!isLearnableValue(dim, val)) continue;
+          (taste[dim] || (taste[dim] = {}))[val] = { label: tasteLabel(dim, val), weight: Number(w) || 0 };
+        }
+      }
+      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste }, null, 2)], { type: "application/json" });
+      // v6.45: the anchor has to be IN the document for Firefox to honour the
+      // click, and the object URL has to be revoked or every export pins its
+      // blob in memory for the life of the page.
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "wayfind-my-taste.json"; a.rel = "noopener"; a.style.display = "none";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 0);
+      // iOS opens a share/download sheet with no context of its own — say what
+      // just happened so the prompt is expected instead of alarming.
+      try { showToast("Downloading wayfind-my-taste.json"); } catch (e) {}
       try { logEvent("taste_export"); } catch (e) {}
     } catch (e) {}
   }
@@ -7169,32 +7200,6 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
-        {screen === "suggested" && (() => {
-          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
-          if (personalize === null && ld >= 2) return (
-            <div style={{ marginTop: 10, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
-                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
-              </div>
-            </div>
-          );
-          if (personalize === "on") return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
-            </div>
-          );
-          if (personalize === "off" && ld >= 2) return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
-              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
-            </div>
-          );
-          return null;
-        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -7231,6 +7236,40 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
+        {/* v6.45 (owner, screenshot: the consent card tangled up with the
+            wordmark and the search field). This block used to render INSIDE
+            .wf-topbar — the app chrome — where it inherited the topbar's drop
+            shadow and its orange :after hairline, and pushed the header to
+            roughly half the viewport on a phone. It is a statement about the
+            FEED, so it belongs in the feed: it now lives in the scrolling body
+            above the list, scrolls away like any other card, and cannot
+            interact with the header at all. Locked by scripts/test-taste.mjs. */}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ margin: "2px 0 13px", background: "linear-gradient(160deg, #232C3C 0%, #1C2230 62%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.22)" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") return (
+            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+            </div>
+          );
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
@@ -8144,33 +8183,58 @@ function PageInner({ initialEvents = null }) {
       {tasteOpen && (() => {
         const vec = tasteVecState || {};
         const chips = [];
-        for (const dim of ["category", "tag", "price"]) { const m = vec[dim]; if (!m) continue; for (const [val, w] of Object.entries(m)) chips.push({ dim, val, w: Number(w) || 0 }); }
+        // v6.45 (owner: "Wtf is this") — FILTER ON READ, not only on write.
+        // The panel was rendering whatever happened to be in the stored vector,
+        // so a numeric token learned before the write-path fix ("2") kept
+        // showing up as a chip forever, and two renders could disagree about
+        // which junk survived. isLearnableValue is the same rule the writer
+        // uses, applied here so bad rows retire the moment this ships instead
+        // of waiting for the user to generate a new signal.
+        for (const dim of ["category", "tag", "price"]) {
+          const m = vec[dim];
+          if (!m) continue;
+          for (const [val, w] of Object.entries(m)) {
+            if (!isLearnableValue(dim, val)) continue;
+            const label = tasteLabel(dim, val);
+            if (!label) continue;
+            chips.push({ dim, val, label, w: Number(w) || 0 });
+          }
+        }
         chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
         const top = chips.slice(0, 24);
         return (
           <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
-            <div onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
+            <div className="wf-taste-sheet" onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
               <Grabber />
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>Your taste</div>
-                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
-              </div>
-              <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
-              {top.length ? (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {top.map((c) => (
-                    <span key={c.dim + "|" + c.val} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontSize: 12.5, fontWeight: 700, color: c.w >= 0 ? C.text : C.muted, background: c.w >= 0 ? "rgba(251,191,36,.12)" : C.adim, border: `1px solid ${c.w >= 0 ? "rgba(251,191,36,.4)" : C.border}`, borderRadius: 999, padding: "6px 8px 6px 12px" }}>
-                      {c.w >= 0 ? "" : "not "}{c.val}
-                      <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.val} style={{ width: 18, height: 18, borderRadius: "50%", border: "none", background: "rgba(255,255,255,.08)", color: C.muted, fontSize: 11, lineHeight: 1, cursor: "pointer" }}>✕</button>
-                    </span>
-                  ))}
+              <div className="wf-taste-body">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                    <span className="wf-taste-mark" aria-hidden="true">✦</span>
+                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.015em", color: C.text }}>Your taste</div>
+                  </div>
+                  <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ flexShrink: 0, minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
                 </div>
-              ) : (
-                <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
-              )}
-              <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-                <button onClick={exportTaste} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Export my data</button>
-                <button onClick={() => { resetTaste(); setTasteOpen(false); }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: `1px solid ${C.red}55`, background: C.card, color: C.red, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Reset &amp; forget all</button>
+                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
+                {top.length ? (
+                  <div className="wf-taste-cloud">
+                    {top.map((c) => (
+                      /* The chip SHOWS tasteLabel but every action still carries
+                         the RAW stored value — forgetting by the label would
+                         quietly delete nothing. */
+                      <span key={c.dim + "|" + c.val} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
+                        {c.w >= 0 ? null : <span className="wf-taste-chip-neg">not</span>}
+                        {c.label}
+                        <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.label} className="wf-taste-x">✕</button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
+                )}
+                <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
+                  <button onClick={exportTaste} className="wf-taste-btn is-primary">Export my data</button>
+                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset &amp; forget all</button>
+                </div>
               </div>
             </div>
           </div>
