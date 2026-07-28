@@ -11,8 +11,18 @@
 // Ride-level rows (individual rides inside a park) are stored as RIDE-LEVEL, not
 // written. NOTE: model is claude-haiku-4-5 by default (cheap/fast over ~2k rows);
 // set ATLAS_MODEL=claude-sonnet-5 in the env for higher editorial quality.
+//
+// v2 — sourced + verified. Two changes, both measured on an 8-place Orlando batch:
+//   1. We fetch the official site's homepage and hand the model its TEXT, not just
+//      a link. Places Details alone is ten shallow fields; the page is where the
+//      admission gotcha, the tour name and the current exhibit actually live.
+//   2. Every card goes through lib/atlasVerify before it is written. A card whose
+//      numbers or proper nouns don't appear literally in the sources is stored
+//      issues=['FAILED VERIFICATION'] instead of published. This is what stops the
+//      invented founding date (three seen across two runs) reaching a row.
 import { aiKey } from "../../../../lib/aiKey";
 import { sbEnv } from "../../../../lib/serverCache";
+import { pageText, verifyAtlasEditorial } from "../../../../lib/atlasVerify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,6 +49,10 @@ const SYSTEM =
   '"facts":[{"claim":"...","source":"https://..."}]}. ' +
   "Every facts[].claim MUST cite a REAL source URL — the official website you are given, or the place’s Google Maps URL. " +
   "NEVER invent a fact, a source, a price, or hours you were not given. " +
+  "When official_page_text is present, prefer it: it is the venue's own words. " +
+  "Every number (price, year, time, count) and every proper name you write MUST appear literally in the context you were given — " +
+  "if a founding date is not there, do not state one. Omit rather than guess; an omitted detail is correct, an invented one is not. " +
+  "Ignore hygiene, cookie, privacy and accessibility boilerplate — it is not editorial. " +
   'If you cannot source anything concrete about THIS specific place, return exactly {"pending":true}.';
 
 async function placeDetails(placeId, key, timeoutMs = 8000) {
@@ -58,7 +72,43 @@ async function placeDetails(placeId, key, timeoutMs = 8000) {
   }
 }
 
-async function writeEditorial(place, d, key, timeoutMs = 20000) {
+// Fetch the official homepage so the model writes from the venue's own words.
+// Fail-soft and tightly bounded: this runs inside a 60s function alongside the
+// Places call and the model call, so one slow site must never sink the batch.
+// On failure we fall through to Places-only — exactly the v1 behaviour.
+async function officialPage(url, timeoutMs = 5000) {
+  if (!/^https?:\/\//i.test(String(url || ""))) return null;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const r = await fetch(url, {
+      signal: ctrl.signal, redirect: "follow", cache: "no-store",
+      headers: { "user-agent": "Mozilla/5.0 (compatible; WayfindEditorial/1.0; +https://gowayfind.com)" },
+    });
+    if (!r.ok) return null;
+    const ct = r.headers.get("content-type") || "";
+    if (!/text\/html|text\/plain/i.test(ct)) return null;
+    const text = pageText(await r.text());
+    return text.length > 200 ? { url, text } : null;
+  } catch (e) {
+    return null;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+// Everything the model was shown, as one string — the corpus the verifier checks
+// each number and proper noun against. Google's own fields count as sources.
+function corpusOf(ctx, sources) {
+  return [
+    ctx.name, ctx.address, ctx.google_summary,
+    Array.isArray(ctx.hours) ? ctx.hours.join(" ") : "",
+    ctx.rating != null ? `rated ${ctx.rating} from ${ctx.reviews} reviews` : "",
+    ...(sources || []).map((s) => s.text),
+  ].filter(Boolean).join(" ");
+}
+
+async function writeEditorial(place, d, key, sources, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   const ctx = {
@@ -73,6 +123,7 @@ async function writeEditorial(place, d, key, timeoutMs = 20000) {
     google_summary: (d.editorialSummary && d.editorialSummary.text) || null,
     types: Array.isArray(d.types) ? d.types.slice(0, 8) : null,
     price_level: d.priceLevel || null,
+    official_page_text: (sources || []).map((s) => `--- ${s.url}\n${s.text}`).join("\n\n") || null,
   };
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -163,7 +214,7 @@ export async function GET(req) {
 
   const nowIso = new Date().toISOString();
   const rows = [];
-  let rides = 0, sourced = 0, pending = 0;
+  let rides = 0, sourced = 0, pending = 0, unverified = 0, withPage = 0;
 
   await pool(places, 6, async (place) => {
     // ride-level → store as RIDE-LEVEL, never written/sourced
@@ -174,12 +225,37 @@ export async function GET(req) {
     }
     const d = await placeDetails(place.place_id, gkey);
     if (!d) { pending++; rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"])); return; }
-    const parsed = await writeEditorial(place, d, akey);
+
+    // The venue's own words, when we can get them. Fail-soft → Places-only.
+    const page = await officialPage(d.websiteUri);
+    const sources = page ? [page] : [];
+    if (page) withPage++;
+
+    const parsed = await writeEditorial(place, d, akey, sources);
     if (!parsed || parsed.pending === true || !parsed.hook) {
       pending++;
       rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"]));
       return;
     }
+
+    // The honesty gate. A claim we cannot trace to what the model was shown does
+    // not get published — it is parked for the owner with the reason attached.
+    const ctxForCheck = {
+      name: place.name, address: d.formattedAddress,
+      google_summary: (d.editorialSummary && d.editorialSummary.text) || "",
+      hours: (d.regularOpeningHours && d.regularOpeningHours.weekdayDescriptions) || [],
+      rating: typeof d.rating === "number" ? d.rating : null,
+      reviews: typeof d.userRatingCount === "number" ? d.userRatingCount : null,
+    };
+    const allowed = [d.websiteUri, d.googleMapsUri, ...(sources.map((s) => s.url))].filter(Boolean);
+    const problems = verifyAtlasEditorial(parsed, corpusOf(ctxForCheck, sources), allowed);
+    if (problems.length) {
+      unverified++;
+      const detail = problems.slice(0, 6).map((p) => `${p.check}:${p.field}:${p.value}`.slice(0, 90));
+      rows.push(editorialRow(place, null, nowIso, ["FAILED VERIFICATION", ...detail]));
+      return;
+    }
+
     sourced++;
     rows.push(editorialRow(place, parsed, nowIso, null));
   });
@@ -214,7 +290,8 @@ export async function GET(req) {
 
   const left = await missing(category);
   return Response.json({
-    ok: !upErr, category, processed: places.length, written, sourced, pending, rides, opportunities: opps,
+    ok: !upErr, category, processed: places.length, written, sourced, pending, rides,
+    unverified, with_page: withPage, opportunities: opps,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
   }, { headers: { "Cache-Control": "no-store" } });
 }

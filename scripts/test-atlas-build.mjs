@@ -28,6 +28,17 @@ ok(/\/\^https\?:\\\/\\\//.test(r) || /\/\^https\?:\/\//.test(r), "facts are filt
 ok(/"PENDING SOURCE"/.test(r), "unsourceable places stored issues=['PENDING SOURCE'], not invented");
 ok(/RIDE-LEVEL/.test(r) && /RIDE_RX/.test(r), "ride-level rows skipped + flagged, not written as places");
 
+// v2 sourcing: the model is handed the venue's own page text, not just a link.
+ok(/async function officialPage\(/.test(r), "fetches the official homepage as a source");
+ok(/official_page_text/.test(r), "page text is passed into the model context");
+ok(/officialPage\(url, timeoutMs = \d+\)/.test(r), "the page fetch is timeout-bounded");
+ok(/officialPage[\s\S]{0,900}?catch \(e\) \{\s*return null;/.test(r), "the page fetch is fail-soft (falls back to Places-only)");
+
+// v2 honesty gate: nothing unverifiable reaches a row.
+ok(/verifyAtlasEditorial/.test(r) && /lib\/atlasVerify/.test(r), "runs the atlasVerify honesty gate");
+ok(/"FAILED VERIFICATION"/.test(r), "unverifiable cards are parked, not published");
+ok(/problems\.length[\s\S]{0,260}?editorialRow\(place, null/.test(r), "a failed card writes NO editorial content");
+
 // Bounded cost.
 ok(/Math\.min\(parseInt\(url\.searchParams\.get\("limit"[\s\S]*, 25\)/.test(r), "per-call batch is bounded (≤25)");
 ok(/maxDuration = 60/.test(r), "60s function ceiling");
