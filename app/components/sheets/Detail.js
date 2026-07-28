@@ -19,6 +19,22 @@ import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
 
+// Community takes (v6.54, owner: "the review is capped on characters we
+// should be able to allow the user to have more characters and write it
+// longer" + "allow the user to also post pictures on the review"). These are
+// the client-side companions to the DB-level backstops in
+// supabase/comment-photos.sql (char_length(body) <= COMMENT_MAX_CHARS,
+// jsonb_array_length(photos) <= COMMENT_MAX_PHOTOS) — the write goes straight
+// from the browser to Supabase with the user's own session (no server route
+// in between, same as the rest of this comment feature), so a client-side cap
+// alone would be trivially bypassed by anyone calling the REST API directly
+// with a valid token. Both layers enforce the SAME numbers so a real user
+// never sees the client accept something the database then silently rejects.
+const COMMENT_MAX_CHARS = 4000;
+const COMMENT_MAX_PHOTOS = 4;
+const COMMENT_MAX_PHOTO_MB = 8;
+const COMMENT_PHOTO_BUCKET = "comment-photos";
+
 function galleryBtn(side) {
   return {
     position: "absolute", top: "50%", transform: "translateY(-50%)", [side]: 8,
@@ -208,6 +224,127 @@ export default function DetailSheet({ ctx }) {
   // first-time user the gallery is swipeable at all.
   const [galleryIdx, setGalleryIdx] = useState(0);
   useEffect(() => { setGalleryIdx(0); }, [detail && detail.id]);
+
+  // Community-take photos (v6.54). pendingPhotos are freshly-picked files not
+  // uploaded yet (local object-URL previews only — nothing hits the network
+  // until Save). existingPhotoUrls are storage PATHS (not full URLs — a path
+  // survives a bucket/project URL change and needs no parsing to delete)
+  // already attached to the signed-in user's own post for this place, so
+  // editing the text never silently drops photos that were never touched.
+  const [pendingPhotos, setPendingPhotos] = useState([]);
+  const [existingPhotoUrls, setExistingPhotoUrls] = useState([]);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [noteLen, setNoteLen] = useState(0);
+  const photoInputRef = useRef(null);
+  useEffect(() => {
+    // Reset on a place change — an attached-but-unsaved photo from the last
+    // place shouldn't silently ride along to this one.
+    setPendingPhotos((prev) => { prev.forEach((p) => { try { URL.revokeObjectURL(p.previewUrl); } catch (e) {} }); return []; });
+    const mine = user && Array.isArray(placePosts) ? placePosts.find((p) => p.user_id === user.id) : null;
+    setExistingPhotoUrls((mine && Array.isArray(mine.photos) ? mine.photos : []).slice(0, COMMENT_MAX_PHOTOS));
+    setNoteLen(((placeComments[detail && detail.id] && placeComments[detail.id].text) || "").length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail && detail.id, placePosts]);
+  function photoUrlFor(path) {
+    if (!supabase || !path) return null;
+    try { return supabase.storage.from(COMMENT_PHOTO_BUCKET).getPublicUrl(path).data.publicUrl; } catch (e) { return null; }
+  }
+  function onPickPhotos(fileList) {
+    const room = COMMENT_MAX_PHOTOS - existingPhotoUrls.length - pendingPhotos.length;
+    if (room <= 0) { showToast(`Up to ${COMMENT_MAX_PHOTOS} photos per post`); return; }
+    const files = Array.from(fileList || []).filter((f) => f && /^image\//.test(f.type));
+    const tooBig = files.some((f) => f.size > COMMENT_MAX_PHOTO_MB * 1024 * 1024);
+    if (tooBig) showToast(`Photos must be under ${COMMENT_MAX_PHOTO_MB}MB`);
+    const accepted = files.filter((f) => f.size <= COMMENT_MAX_PHOTO_MB * 1024 * 1024).slice(0, room);
+    if (!accepted.length) return;
+    setPendingPhotos((prev) => [...prev, ...accepted.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))]);
+  }
+  function removeExistingPhoto(path) { setExistingPhotoUrls((prev) => prev.filter((p) => p !== path)); }
+  function removePendingPhoto(previewUrl) {
+    setPendingPhotos((prev) => { const hit = prev.find((p) => p.previewUrl === previewUrl); if (hit) { try { URL.revokeObjectURL(hit.previewUrl); } catch (e) {} } return prev.filter((p) => p.previewUrl !== previewUrl); });
+  }
+  // Uploads every pending file under the user's OWN folder — storage.objects'
+  // RLS policy (supabase/comment-photos.sql) only allows an authenticated user
+  // to write under `${auth.uid()}/...`, so this path shape is load-bearing,
+  // not cosmetic. Best-effort: one failed upload doesn't drop the rest.
+  async function uploadPendingPhotos() {
+    if (!supabase || !user || !pendingPhotos.length) return [];
+    setPhotoBusy(true);
+    const uploaded = [];
+    try {
+      for (const p of pendingPhotos) {
+        const ext = (p.file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "jpg";
+        const path = `${user.id}/${detail.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+        try {
+          const { error } = await supabase.storage.from(COMMENT_PHOTO_BUCKET).upload(path, p.file, { upsert: false, contentType: p.file.type || "image/jpeg" });
+          if (!error) uploaded.push(path);
+        } catch (e) {}
+      }
+    } finally { setPhotoBusy(false); }
+    return uploaded;
+  }
+  // Extracted from an inline JSX one-liner (v6.53 and earlier) so photo
+  // upload could be inserted as a real async step before the upsert without
+  // becoming unreadable. Behavior for text-only saves is unchanged: clearing
+  // the box still only clears the LOCAL draft (never deletes an already-
+  // posted comment — that's what the separate Delete button is for).
+  async function handleSaveComment() {
+    const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim().slice(0, COMMENT_MAX_CHARS);
+    const next = { ...placeComments };
+    if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id];
+    setPlaceComments(next);
+    try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {}
+
+    const hasNewContent = !!(v || pendingPhotos.length);
+    const posting = !!(supabase && user && hasNewContent);
+    if (hasNewContent && supabase && !user) setAuthOpen(true);
+    try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting, photos: existingPhotoUrls.length + pendingPhotos.length }); } catch (e) {}
+    if (!hasNewContent) { showToast("Cleared"); return; }
+    if (!posting) { showToast(commentType + " saved on this device — sign in to post to everyone"); return; }
+
+    showToast(pendingPhotos.length ? "Uploading…" : "Saving…");
+    try {
+      const { data: _sd } = await supabase.auth.getSession();
+      const _u = _sd && _sd.session && _sd.session.user;
+      if (!_u) { setAuthOpen(true); showToast("Session expired — sign in and tap Save again"); return; }
+      const uploaded = await uploadPendingPhotos();
+      const photos = [...existingPhotoUrls, ...uploaded].slice(0, COMMENT_MAX_PHOTOS);
+      const author = ((_u.email || "member").split("@")[0] || "member").slice(0, 24);
+      const res = await supabase.from("comments").upsert(
+        { place_id: detail.id, place_name: detail.name || "", user_id: _u.id, author, type: commentType, body: v, photos, updated_at: new Date().toISOString() },
+        { onConflict: "user_id,place_id" }
+      );
+      if (res && res.error) {
+        showToast("Couldn't post: " + String((res.error && res.error.message) || "server error").slice(0, 90) + " — saved on this device");
+        try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {}
+      } else {
+        showToast(commentType + (uploaded.length < pendingPhotos.length ? " posted (some photos failed to upload)" : " posted"));
+        setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v, photos, created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]);
+        setExistingPhotoUrls(photos);
+        setPendingPhotos((prev) => { prev.forEach((p) => { try { URL.revokeObjectURL(p.previewUrl); } catch (e) {} }); return []; });
+      }
+    } catch (err) {
+      showToast("Couldn't reach the server — saved on this device");
+      try { console.error("[wayfind comment]", err); } catch (e2) {}
+    }
+  }
+  function handleDeleteComment() {
+    try { supabase.from("comments").delete().eq("user_id", user.id).eq("place_id", detail.id).then(() => {}, () => {}); } catch (e) {}
+    // Best-effort storage cleanup — orphaning a few small images on failure is
+    // harmless (no cost/quota concern at this scale), so this never blocks
+    // the comment delete itself.
+    if (existingPhotoUrls.length) { try { supabase.storage.from(COMMENT_PHOTO_BUCKET).remove(existingPhotoUrls).then(() => {}, () => {}); } catch (e) {} }
+    setPlacePosts((pp) => (pp || []).filter((x) => x.user_id !== user.id));
+    const next = { ...placeComments }; delete next[detail.id]; setPlaceComments(next);
+    try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {}
+    if (noteRef.current) noteRef.current.value = "";
+    setNoteLen(0);
+    setExistingPhotoUrls([]);
+    setPendingPhotos((prev) => { prev.forEach((p) => { try { URL.revokeObjectURL(p.previewUrl); } catch (e) {} }); return []; });
+    setConfirmDel(false);
+    showToast("Deleted");
+    try { logEvent("user_comment_delete", detail, {}); } catch (e) {}
+  }
   // Measured off the children's real offsetLeft rather than clientWidth, so the
   // 6px inter-slide gap can't accumulate into an off-by-one on long galleries.
   const onGalleryScroll = (e) => {
@@ -542,9 +679,40 @@ export default function DetailSheet({ ctx }) {
                         <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.light : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.light : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
                       ))}
                     </div>
-                    <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={3} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 16, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                    <textarea key={detail.id} ref={noteRef} defaultValue={(placeComments[detail.id] && placeComments[detail.id].text) || ""} onChange={(e) => setNoteLen(e.target.value.length)} maxLength={COMMENT_MAX_CHARS} placeholder={"Share your " + commentType.toLowerCase() + " for this place."} rows={4} style={{ width: "100%", resize: "vertical", background: "rgba(22,27,34,.75)", border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px", color: C.text, fontSize: 16, lineHeight: 1.45, fontFamily: "inherit", boxSizing: "border-box", outline: "none" }} />
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 3 }}>
+                      <span style={{ fontSize: 10.5, color: noteLen >= COMMENT_MAX_CHARS ? "#F26D6D" : C.muted }}>{noteLen.toLocaleString()} / {COMMENT_MAX_CHARS.toLocaleString()}</span>
+                    </div>
+
+                    {/* Photos (v6.54, owner: "allow the user to also post pictures on
+                        the review"). Previews are free (local object URLs) — nothing
+                        uploads until Save, same moment text is posted. */}
+                    {(existingPhotoUrls.length > 0 || pendingPhotos.length > 0) && (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                        {existingPhotoUrls.map((path) => (
+                          <div key={path} style={{ position: "relative", width: 64, height: 64 }}>
+                            <FallbackImg src={photoUrlFor(path)} icon="🖼️" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 10, border: `1px solid ${C.border}` }} />
+                            <button onClick={() => removeExistingPhoto(path)} aria-label="Remove photo" style={{ position: "absolute", top: -6, right: -6, width: 20, height: 20, borderRadius: "50%", background: "#0D1117", border: `1px solid ${C.border}`, color: C.light, fontSize: 12, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                          </div>
+                        ))}
+                        {pendingPhotos.map((p) => (
+                          <div key={p.previewUrl} style={{ position: "relative", width: 64, height: 64 }}>
+                            <img src={p.previewUrl} alt="" style={{ width: 64, height: 64, objectFit: "cover", borderRadius: 10, border: `1px solid ${C.border}`, opacity: photoBusy ? 0.5 : 1 }} />
+                            <button onClick={() => removePendingPhoto(p.previewUrl)} aria-label="Remove photo" style={{ position: "absolute", top: -6, right: -6, width: 20, height: 20, borderRadius: "50%", background: "#0D1117", border: `1px solid ${C.border}`, color: C.light, fontSize: 12, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-                      <button onClick={() => { const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim(); const next = { ...placeComments }; if (v) next[detail.id] = { type: commentType, text: v }; else delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} const posting = !!(supabase && user && v); if (v && supabase && !user) { setAuthOpen(true); } showToast(v ? (posting ? "Saving…" : commentType + " saved on this device — sign in to post to everyone") : "Cleared"); try { logEvent("user_comment", detail, { type: commentType, len: v.length, posted: posting }); } catch (e) {} if (posting) { try { supabase.auth.getSession().then(({ data: _sd }) => { const _u = _sd && _sd.session && _sd.session.user; if (!_u) { setAuthOpen(true); showToast("Session expired — sign in and tap Save again"); return; } const author = ((_u.email || "member").split("@")[0] || "member").slice(0, 24); supabase.from("comments").upsert({ place_id: detail.id, place_name: detail.name || "", user_id: _u.id, author, type: commentType, body: v.slice(0, 600), updated_at: new Date().toISOString() }, { onConflict: "user_id,place_id" }).then((res) => { if (res && res.error) { showToast("Couldn't post: " + String((res.error && res.error.message) || "server error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", res.error.message || res.error); } catch (e2) {} } else { showToast(commentType + " posted"); setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v.slice(0, 600), created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]); } }, (err) => { showToast("Couldn't post: " + String((err && err.message) || "network error").slice(0, 90) + " — saved on this device"); try { console.error("[wayfind comment]", err); } catch (e2) {} }); }, () => { showToast("Couldn't reach the server — saved on this device"); }); } catch (e) {} } }} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Save</button>
+                      <input ref={photoInputRef} type="file" accept="image/*" multiple onChange={(e) => { onPickPhotos(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+                      <button
+                        onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                        disabled={existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS}
+                        style={{ padding: "8px 14px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS ? C.muted : C.light, fontSize: 13, fontWeight: 700, cursor: existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS ? "default" : "pointer" }}
+                      >
+                        📷 Add photo
+                      </button>
+                      <button onClick={handleSaveComment} disabled={photoBusy} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13, fontWeight: 800, cursor: photoBusy ? "default" : "pointer" }}>{photoBusy ? "Uploading…" : "Save"}</button>
                       {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.light, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
                     </div>
                   </div>
@@ -555,16 +723,23 @@ export default function DetailSheet({ ctx }) {
                         <span style={{ fontSize: 9, fontWeight: 800, color: C.light, background: C.adim, border: `1px solid ${C.border}44`, borderRadius: 999, padding: "2px 8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>{cp.type}</span>
                         {user && cp.user_id === user.id && (
                           <span style={{ marginLeft: "auto", display: "inline-flex", gap: 10 }}>
-                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus(); } }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
+                            <button onClick={() => { setCommentType(cp.type || "Tip"); if (noteRef.current) { noteRef.current.value = cp.body || ""; noteRef.current.focus(); } setNoteLen((cp.body || "").length); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Edit</button>
                             {confirmDel ? (
-                              <button onClick={() => { try { supabase.from("comments").delete().eq("user_id", user.id).eq("place_id", detail.id).then(() => {}, () => {}); } catch (e) {} setPlacePosts((pp) => (pp || []).filter((x) => x.user_id !== user.id)); const next = { ...placeComments }; delete next[detail.id]; setPlaceComments(next); try { localStorage.setItem("wf_place_comments", JSON.stringify(next)); } catch (e) {} if (noteRef.current) noteRef.current.value = ""; setConfirmDel(false); showToast("Deleted"); try { logEvent("user_comment_delete", detail, {}); } catch (e) {} }} style={{ background: "transparent", border: "none", color: "#F26D6D", fontSize: 10.5, fontWeight: 800, cursor: "pointer", padding: 0 }}>Confirm delete</button>
+                              <button onClick={handleDeleteComment} style={{ background: "transparent", border: "none", color: "#F26D6D", fontSize: 10.5, fontWeight: 800, cursor: "pointer", padding: 0 }}>Confirm delete</button>
                             ) : (
                               <button onClick={() => { setConfirmDel(true); setTimeout(() => setConfirmDel(false), 3500); }} style={{ background: "transparent", border: "none", color: C.muted, fontSize: 10.5, fontWeight: 700, cursor: "pointer", padding: 0 }}>Delete</button>
                             )}
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5 }}>{cp.body}</div>
+                      <div style={{ fontSize: 12.5, color: C.text, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>{cp.body}</div>
+                      {Array.isArray(cp.photos) && cp.photos.length > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 8 }}>
+                          {cp.photos.map((path) => (
+                            <FallbackImg key={path} src={photoUrlFor(path)} icon="🖼️" onClick={() => setLightbox(photoUrlFor(path))} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 10, border: `1px solid ${C.border}`, cursor: "zoom-in" }} />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )) : (
                     <div style={{ fontSize: 11.5, color: C.muted, marginTop: 10 }}>Be the first to share a tip for this place.</div>
