@@ -8839,22 +8839,21 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
-      {/* Compact editorial seal. It stays entirely inside the media rail so it
+      {/* Compact owl seal. It stays entirely inside the media rail so it
           never competes with the title or Wayfind Score, including on 320px
           screens and photo-less cards. Display-only, gated solely on the
           server's ownerPick. */}
       {isCuratorPick && (
-        <span className="wf-place-card-owner" title="Personally selected by Wayfind" aria-label="Wayfind Pick — personally selected by Wayfind">
+        <span className="wf-place-card-owner" title="Curated by Wayfind" aria-label="Curated by Wayfind">
           <span className="wf-place-card-owner-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2.75 14.2 9.8 21.25 12l-7.05 2.2L12 21.25 9.8 14.2 2.75 12 9.8 9.8 12 2.75Z" />
-              <circle cx="12" cy="12" r="1.65" fill="currentColor" stroke="none" />
+            <svg className="wf-place-card-owner-owl" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5.5 8 4 5l4.15 1.35A7.55 7.55 0 0 1 12 5.4c1.4 0 2.72.34 3.85.95L20 5l-1.5 3v4.1a6.5 6.5 0 0 1-13 0V8Z" />
+              <circle cx="9" cy="11" r="2" />
+              <circle cx="15" cy="11" r="2" />
+              <path d="m12 12.8-1.15 1.35 1.15.7 1.15-.7L12 12.8Z" />
             </svg>
           </span>
-          <span className="wf-place-card-owner-copy">
-            <span>Wayfind</span>
-            <strong>Pick</strong>
-          </span>
+          <strong className="wf-place-card-owner-copy">Curated</strong>
         </span>
       )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
@@ -9097,20 +9096,20 @@ const WF_PLACE_CARD_CSS = `
   align-items:center;
   width:calc(var(--wf-place-card-media) - 16px);
   min-width:0;
-  height:30px;
+  height:27px;
   box-sizing:border-box;
-  gap:6px;
-  padding:4px 7px 4px 5px;
+  gap:5px;
+  padding:3px 6px 3px 4px;
   overflow:hidden;
-  border:1px solid rgba(244,211,132,.62);
-  border-radius:9px;
+  border:1px solid rgba(249,115,22,.78);
+  border-radius:999px;
   background:
-    linear-gradient(115deg,rgba(255,238,191,.13),transparent 44%),
-    rgba(7,12,19,.88);
-  color:#F4D384;
-  box-shadow:0 8px 20px rgba(0,0,0,.48),inset 0 1px rgba(255,250,231,.13);
-  backdrop-filter:blur(12px) saturate(1.18);
-  -webkit-backdrop-filter:blur(12px) saturate(1.18);
+    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
+    rgba(5,9,15,.76);
+  color:#FF8A35;
+  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
+  backdrop-filter:blur(10px) saturate(1.12);
+  -webkit-backdrop-filter:blur(10px) saturate(1.12);
   pointer-events:none;
 }
 .wf-place-card-owner:after{
@@ -9118,26 +9117,36 @@ const WF_PLACE_CARD_CSS = `
   position:absolute;
   inset:0;
   border-radius:inherit;
-  background:linear-gradient(105deg,rgba(255,255,255,.08),transparent 34%);
+  background:linear-gradient(105deg,rgba(255,255,255,.07),transparent 34%);
   pointer-events:none;
 }
 .wf-place-card-owner-mark{
   position:relative;
   display:grid;
-  width:20px;
-  height:20px;
-  flex:0 0 20px;
+  width:19px;
+  height:19px;
+  flex:0 0 19px;
   place-items:center;
-  border:1px solid rgba(255,229,161,.7);
-  border-radius:6px;
-  background:linear-gradient(145deg,#F7D983,#B97912);
-  color:#201505;
-  box-shadow:0 3px 9px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.5);
+  border:1px solid rgba(255,138,53,.92);
+  border-radius:50%;
+  background:rgba(249,115,22,.09);
+  color:#FF9A50;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),0 2px 7px rgba(0,0,0,.35);
 }
 .wf-place-card-owner-mark svg{display:block}
-.wf-place-card-owner-copy{position:relative;z-index:1;display:flex;min-width:0;flex-direction:column;gap:1px;text-transform:uppercase}
-.wf-place-card-owner-copy>span{overflow:hidden;color:#C5B994;font-size:5.5px;font-weight:900;letter-spacing:.15em;line-height:1;white-space:nowrap}
-.wf-place-card-owner-copy>strong{color:#FFE5A2;font-size:8px;font-weight:950;letter-spacing:.12em;line-height:1;white-space:nowrap}
+.wf-place-card-owner-copy{
+  position:relative;
+  z-index:1;
+  overflow:hidden;
+  color:#FFD4B5;
+  font-size:7.5px;
+  font-weight:950;
+  letter-spacing:.13em;
+  line-height:1;
+  text-overflow:clip;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
 .wf-place-card-heading{flex:1;min-width:0}
 .wf-place-card-category{
   display:flex;
