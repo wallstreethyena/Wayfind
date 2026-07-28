@@ -21,6 +21,14 @@ export function shellFiles() {
   // in the grep set exactly like kit.js. Without this line every guardrail that
   // looks for a .wf-* class or a media query would go quietly blind.
   if (existsSync(new URL("app/components/css.js", root))) files.push("app/components/css.js");
+  // Wave 2 of the same decomposition: the owner's first-party curation DATA
+  // (BEST_OF_NAMES / LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES,
+  // WAYFIND_FEATURED, CURATED_NOTES). home.js still imports and uses all of it,
+  // and every predicate that reads it stayed behind in home.js, so this is pure
+  // extracted shell content — same case as css.js above. Drop this line and any
+  // guardrail that greps the shell for a curated place name or an editorial note
+  // stops seeing it, and passes while asserting nothing.
+  if (existsSync(new URL("app/components/curatedData.js", root))) files.push("app/components/curatedData.js");
   // NOTE: app/components/BookingCTA.js is deliberately NOT in this set. The
   // booking CTA was extracted there so check-booking-cta.mjs can assert the raw
   // construction (Aff.ticketsUrl / experienceGoUrl) lives ONLY in that component
