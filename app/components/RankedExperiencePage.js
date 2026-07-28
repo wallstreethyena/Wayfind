@@ -4,6 +4,13 @@
 // hooks — usable from server and client pages alike. No logo box over the
 // photo (a quiet wordmark link instead); medals top-3; green Scores;
 // metric-honest why-lines arrive from the caller.
+//
+// v6.47: the <header> moved to ./CollectionHero so the IN-APP experience
+// screen can wear the identical chrome (owner: "i want that to be the
+// universal look"). Same markup, same props, same output — this file just
+// stopped owning it.
+import CollectionHero from "./CollectionHero";
+
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
 
@@ -43,21 +50,7 @@ export function RankedRow({ i, href, img, title, score, why, editorial, badge })
 export default function RankedExperiencePage({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, children, footNote, topLeft }) {
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      <header style={{ position: "relative", height: 300, overflow: "hidden" }}>
-        {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
-        {topLeft || null}
-        <a href="/" aria-label="Wayfind home" style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", display: "block", width: 118, height: 47, textDecoration: "none" }}>
-          <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
-        </a>
-        <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
-          <div style={{ maxWidth: 680, margin: "0 auto", padding: "0 20px" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: accent || C.gold }}>{eyebrow}</div>
-            <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)" }}>{titleTop}{titleBottom ? <><br />{titleBottom}</> : null}</h1>
-            <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.85)", margin: 0, maxWidth: 430 }}>{subtitle}</p>
-          </div>
-        </div>
-      </header>
+      <CollectionHero eyebrow={eyebrow} titleTop={titleTop} titleBottom={titleBottom} subtitle={subtitle} heroImg={heroImg} accent={accent} topLeft={topLeft} />
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         {children}
         {footNote ? <p style={{ fontSize: 11, color: C.muted, marginTop: 26, lineHeight: 1.5 }}>{footNote}</p> : null}

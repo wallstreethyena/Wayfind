@@ -5,6 +5,7 @@
 import { aggregateLikeSignals } from "../lib/memberSignals.js";
 import { memberDelta } from "../lib/ranking.js";
 import { readFileSync } from "fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("test-curator-boost: FAIL — " + m); process.exit(1); };
@@ -89,6 +90,32 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   ok(/isCuratorPick && \(\s*<span className="wf-place-card-owner"/.test(home), "the chip is gated SOLELY on isCuratorPick (ownerPick=false -> renders nothing)");
   ok(/aria-label="Curated by Wayfind"/.test(home) && /className="wf-place-card-owner-owl"/.test(home) && /<strong className="wf-place-card-owner-copy">Curated<\/strong>/.test(home), "the compact seal renders its owl mark and clear one-word Curated copy");
   ok(/!isCuratorPick && curatedFor\(p\)/.test(home), "an owner pick suppresses the duplicate generic Wayfind Pick chip");
+  // v6.44 REGRESSION LOCK (owner-reported with a photo), RE-PINNED for the #384
+  // compact seal. The original chip shipped at bottom:12px/left:12px — the exact
+  // coordinates of the Save button in .wf-place-card-actions, which it covered
+  // completely on a phone.
+  //
+  // The lock used to assert "never absolute". #384's seal IS absolute, by design
+  // and safely: it is width-clamped to the media rail (96px column) while the
+  // action row lives in the content column, so they cannot overlap. Asserting
+  // the invariant that actually protects the user instead of the old
+  // implementation detail — stay inside the media rail, and never let two
+  // definitions of the class exist.
+  {
+    const src = shellSrc();
+    const defs = src.match(/\.wf-place-card-owner\s*\{[^}]*\}/g) || [];
+    ok(defs.length === 1,
+      "exactly ONE .wf-place-card-owner rule exists — two definitions let cascade order decide which wins, which is how a chip silently moves onto a control. Found " + defs.length);
+    const rule = defs[0] || "";
+    ok(/border-radius\s*:\s*\d/.test(rule),
+      "the seal is a rounded shape, not a bare rectangle (owner: \"it looks really weird as a rectangle\")");
+    if (/position\s*:\s*absolute/.test(rule)) {
+      ok(/width\s*:\s*calc\(var\(--wf-place-card-media\)/.test(rule),
+        "an absolutely-positioned seal MUST be width-clamped to the media rail, or it lands on the Save button again (the v6.43 regression)");
+      ok(!/right\s*:\s*\d/.test(rule),
+        "the seal must not stretch toward the content column, where the action row lives");
+    }
+  }
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
   const i = home.indexOf("function refreshOwnerPick(");

@@ -94,6 +94,27 @@ ok(home.includes("A place’s Wayfind Score never changes"), "the editor explain
 ok(home.includes("tasteResetConfirm"), "destructive reset requires confirmation");
 ok(home.includes("wf-taste-inline") && home.includes('aria-controls="wf-taste-inline-body"'), "taste controls expand inside the personalization strip");
 ok(home.includes("{false && tasteOpen && (() => {"), "the retired modal taste sheet can never render");
+
+// --- v6.45 guarantee, re-pinned after the editor rewrite ---------------------
+// main asserted these against the OLD panel's code shape (isLearnableValue
+// called inline in the view). #384 replaced that panel, so the rule moved into
+// summarizeTasteVector. Same promise, asserted behaviourally instead of by
+// regex, so a future rewrite of the view cannot silently drop it again.
+{
+  const T = await import("../lib/taste.js");
+  const junk = T.summarizeTasteVector({ tag: { "2": 5, "24 7": 4, "coffee shop": 6 }, price: { "2": 3 } });
+  const labels = [...junk.more, ...junk.less, ...junk.details].map((x) => x.label || x.value);
+  ok(!labels.includes("2"), "a stored numeric tag never renders as a chip (the chip that just read \"2\")");
+  ok(!labels.includes("24 7"), "other numeric junk is retired on read too");
+  ok(labels.some((l) => /coffee/i.test(l)), "a real preference still surfaces");
+  ok(labels.some((l) => /moderate|\$\$/i.test(l)), "the price bucket renders as a human label, not a raw index");
+  ok(T.isLearnableValue("price", "2") === true, "price legitimately stores 1..4");
+  ok(T.isLearnableValue("tag", "2") === false, "a bare number is not a taste");
+  ok(/if \(!isLearnableValue\(dimension, value\)\) continue;/.test(
+       readFileSync(new URL("../lib/taste.js", import.meta.url), "utf8")),
+     "the read-path filter lives in summarizeTasteVector, applied to every consumer");
+}
+
 // The Score honesty lock STILL holds after activation.
 ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit/.test(home), "affinity STILL never feeds the Wayfind Score — re-rank uses the internal _ps only");
 ok(home.includes("displayed wfScore never changes"), "the ranking comment still asserts the visible Score is untouched");

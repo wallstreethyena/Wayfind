@@ -67,7 +67,12 @@ import("../lib/todaysBest.js").then((m2) => {
   const o = m2.byVisibleScore(rows).map((r) => r.name).join("");
   if (o !== "CAB") { console.error("FAIL: byVisibleScore orders by review-weighted score (got " + o + ")"); process.exit(1); }
 });
-ok(lib2.includes("byVisibleScore(dedupeBrands(data))") && lib2.includes("byVisibleScore((Array.isArray(data)"), "both menus sort by the visible Score, best to worst");
+// v6.44: the things-to-do menu now runs its rows through vetBeachDistance (the
+// owner's 23-mile beach rule) on the way in. That is a FILTER, not a sort — the
+// visible-Score ordering it wraps is unchanged, and the assertion still requires
+// byVisibleScore to be the outermost call on both menus. See test-beach-geo.mjs
+// for the rule itself.
+ok(lib2.includes("byVisibleScore(dedupeBrands(data))") && lib2.includes("byVisibleScore(vetBeachDistance((Array.isArray(data)"), "both menus sort by the visible Score, best to worst");
 ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
 
 // ── v6.47 (owner batch 3) ────────────────────────────────────────────────────

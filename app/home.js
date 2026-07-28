@@ -11,15 +11,23 @@ import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+// v6.51 PERF: defers decorative hero-photo fetches off the critical path.
+import { onIdle } from "../lib/idleTask";
 // Google bridge. PostHog remains the source of truth — forwardToGoogle only
 // MIRRORS an already-captured event to GA4/Ads and never captures to PostHog
 // itself, so existing event names and history stay exactly as they are.
+// One destination, one card: rides/shops inside a theme park render INSIDE the
+// park's card instead of as peer rows. Ranking is untouched — presentation only.
+import { groupByContainment } from "../lib/venueContainment";
 import { forwardToGoogle } from "../lib/analytics";
 import { attributionParams } from "../lib/attribution";
 // Primary metric: activated sessions. See lib/activation.js for why page depth
 // is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
+// Experiment slice, so an in-app detail_open can be attributed back to the
+// static entry page that assigned the visitor. Empty when never exposed.
+import { experimentProps } from "../lib/experiment";
 // Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
 // 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
 // the homepage rebuild just never re-imported them. See lib/cardAffiliate.js /
@@ -105,12 +113,27 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
-import { rankBeaches } from "../lib/beaches";
+import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
 import { rankReason } from "../lib/rankReason.js";
 import { pickHomeExp } from "../lib/homeExpPick";
+// July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
+// rendered CSS live in their own shell file. They are still concatenated into
+// the same single inline <style dangerouslySetInnerHTML> tag below, and
+// app/components/css.js is registered in scripts/lib/shellSrc.mjs so every
+// content guardrail still greps them.
+import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS } from "./components/css";
+// v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
+// curation DATA (best-of / local-fave name lists, the hand-written place notes,
+// the featured-boost table, the founder "note from Wayfind" blocks). Data only.
+// Every predicate that reads it — wfNorm, faveTier, featuredBoost, curatedFor,
+// wayfindNotes, curatedNote, inCuratedRegion — STAYS here on purpose, because
+// scripts/check-geo-gated-boosts.mjs reads app/home.js directly and pins them.
+// curatedData.js is registered in scripts/lib/shellSrc.mjs exactly like css.js,
+// so the content guardrails still grep every curated name and note.
+import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND_FEATURED, CURATED_NOTES } from "./components/curatedData";
 import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
@@ -118,7 +141,14 @@ import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor } from "../lib/creatorVideos";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste";
+// v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
+// that read like raw database rows — `food`, `coffee shop`, `food store`).
+// lib/taste.js already carried the fix; home.js simply never imported it. The
+// two additions are the READ path of the same rule the write path uses:
+// isLearnableValue retires junk already sitting in localStorage/Supabase, and
+// tasteLabel is the ONE place that knows the price dimension stores a Google
+// bucket index. Neither belongs in the view.
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -132,7 +162,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.43";
+const BUILD_ID = "v6.49";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -721,8 +751,6 @@ function templateBlurb(p) {
 // if a spot closes, Google stops returning it and it silently drops out. Two tiers —
 // BEST_OF = editorially recognized (shown as the "Best of Sarasota" surface); the wider
 // LOCAL_FAVE set feeds the existing "Local favorites" experience and a small ranking lift.
-const BEST_OF_NAMES = ["Selva Grill","Owens Fish Camp","Indigenous","Michael's On East","Duval's","Cafe Barbosso","Morton's Market","Marina Jack","Mirna's Cuban Cuisine","Mimi's Brasserie","Florence and the Spice Boys","Ringside","Station 400","Mademoiselle Paris","Focaccia Sandwich","Arts & Central","Siesta Key Summer House","C'est La Vie","Columbia Restaurant","99 Bottles","The Ringling","Marie Selby Botanical Gardens","Mote Marine","Myakka River State Park","Sarasota Opera House","The Bay Park","Lido Beach","Siesta Key Beach","St. Armands Circle","St. Regis Longboat Key","Beach House Waterfront","Wicked Cantina","Anna Maria Oyster Bar","Bridge Street Bistro","Pier 22","The Sandbar Restaurant","The Ugly Grouper","The Waterfront Restaurant","Beach Bistro","Calusa Brewing","Big Top Brewing","Motorworks Brewing","JDub's Brewing","Cask & Ale"];
-const LOCAL_FAVE_EXTRA = ["Se7en Bites","White Wolf Cafe","Olive Eats","The Breakfast Cottage","Sun Garden Cafe","Toastique","Focaccia","Mouthole Smashburgers","Fin & Tonic","The 1818 Grill","Lefty's Oyster","Rufa","Peruvian Grill","El Ceviche","Aji Ceviche Bar","Big Water Fish Market","Kolucan Mexican","Tsunami Sushi","Euphemia Haye","Fiorelli Winery","Burns Court Cinema","Elysian Fields","Der Dutchman","Smoqehouse","Coquina Beach Cafe","Gulf Drive Cafe","Skinny's Place","The Doctor's Office","Rod n Reel Pier","Poppo's Taqueria","Sign of the Mermaid","Blue Marlin Grill","Island Creperie","The Donut Experiment","Bridge Tender Inn","O'Bricks","Chateau 13","enRich Bistro","Joey D's","Oma'z Pizza","Darwin Brewing","Sarasota Brewing Company","Mandeville Beer Garden","Oak & Stone","3 Keys Brewing","Brew Life","3 Car Garage Brewing","Good Liquid Brewing","3 Bridges Brewing","Off the Wagon","Origin Craft Beer","Cock & Bull","Evie's Tavern","Loaded Cannon Distillery","Vin Cella","Siesta Key Wine Bar","Growler's Pub","Sun King Sarasota"];
 const wfNorm = (s) => (s || "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]/g, "");
 const BEST_OF_SET = new Set(BEST_OF_NAMES.map(wfNorm));
 const LOCAL_FAVE_SET = new Set([...BEST_OF_NAMES, ...LOCAL_FAVE_EXTRA].map(wfNorm));
@@ -766,152 +794,6 @@ function faveTier(p) {
 const isLocalFave = (p) => faveTier(p) >= 1;
 const isBestOf = (p) => faveTier(p) === 2;
 
-// Owner-curated featured boost. Places listed here get a ranking lift so they
-// surface prominently for everyone. Keyed by normalized name -> points added to
-// the score. Bounded on purpose: this is a lift, not an absolute pin, so a weak
-// place cannot leapfrog a clearly better one and break trust in the ranking.
-// Raise a number to push harder; add entries to feature more places.
-// Owner-curated editorial notes, keyed by place name (same matcher family as
-// WAYFIND_FEATURED). Rendered on the detail page under an explicit "Curated by
-// Wayfind" label so provenance is honest: this is editorial voice, never
-// presented as review-derived data. Keep tips durable; no prices (they rot).
-const AMC_DS_NOTE = [
-  "Dine-in theater: reserved recliners, with food and drinks ordered to your seat. On busy nights grab tickets and pick seats ahead. Everglazed Donuts & Cold Brew is a couple doors down for before or after.",
-  "For what's playing, check showtimes in the AMC app or at the kiosk on the way in.",
-];
-const K_BOB_NOTE = [
-  "Corn dogs: the 'Original' is half hot dog, half cheese. If you want the cheese, order the full cheese one, it's the better bite than the hot dog.",
-  "Get the chicken sauced. The strips run a little dry on their own, and the Korean butter sauce is what makes them. Plain is still an option if you'd rather.",
-  "Best drink here is the vanilla tea with tapioca and brown sugar.",
-  "Easy with kids: high chairs, toys, kid backpacks, and kiosk ordering at the door, and the tenders are the kid-friendly pick. It runs pricier than most counter service, with the corn dogs the cheaper option.",
-];
-// Owner-shot photos (Gabe's own, licensing clean). Keys are lowercase name
-// fragments matched with includes(); photos prepend to the Google gallery.
-const WAYFIND_PHOTOS = {
-  "parc soleil": ["/wf-parcsoleil-1.jpg", "/wf-parcsoleil-2.jpg", "/wf-parcsoleil-3.jpg"],
-};
-const WAYFIND_NOTES = {
-  "boggy creek airboat": [
-    { text: "Family-run airboat tours through native Florida wildlife in Kissimmee, gators, eagles, turtles, herons, the real Everglades-headwaters landscape most tourists never see. It's the honest, unglitzy version of the airboat experience: just good family fun on the water. On-site they also have a gem mine, a butterfly garden, a restaurant, and a gator pond, so it's an easy half-day.", url: "https://www.bcairboats.com", label: "Book a tour" },
-    { text: "Reservations recommended. About an hour to 75 minutes from Parrish toward Kissimmee. Their printed materials run a 10% off code; grab one before you go.", },
-  ],
-  "boggy creek airboat adventures": [
-    { text: "Same as Boggy Creek Airboat Adventures in Kissimmee, native-wildlife airboat tours plus a gem mine, butterfly garden, and restaurant on site. Family fun, reservations recommended, about an hour from Parrish.", url: "https://www.bcairboats.com", label: "Book a tour" },
-  ],
-  "dezerland park": [
-    { text: "The best rainy-day or too-hot-day card in Orlando: 12-plus indoor attractions under one roof on International Drive, anchored by the Orlando Auto Museum (one of the largest private car collections anywhere), plus a huge arcade, go-karts, pinball palace, axe throwing, and escape rooms. One stop, endless options, and it's all indoors and air-conditioned.", url: "https://www.dezerlandpark.com/orlando/", label: "Plan your visit" },
-  ],
-  "chocolate kingdom": [
-    { text: "A bean-to-bar chocolate factory tour in Orlando that TripAdvisor voted the #1 food tour in the city, follow the story of chocolate from the cocoa pod through the River of Chocolate to the micro-batch factory, with samples throughout and a customize-your-own chocolate bar at the end. They also do chocolate-and-wine pairings and handmade Dubai bars. Advance purchase recommended; it's a small-group experience.", url: "https://www.chocolatekingdom.com", label: "Book the tour" },
-  ],
-  "legoland florida": [
-    { text: "The one Central Florida theme park built specifically for kids, in Winter Haven about 45 minutes from Parrish, and that focus is the whole point: if your crew skews 2 to 12, this beats the mega-parks on fit and on crowds. Bricktastic rides across LEGO NINJAGO, LEGO Movie, and more immersive lands, plus the all-new indoor Galacticoaster where kids customize a LEGO spacecraft and blast off to save the galaxy.", url: "https://www.legoland.com/florida/", label: "Plan your trip" },
-    { text: "It's really a resort, not just a park: the separate LEGOLAND Water Park (14 slides, a wave pool, the Build-A-Raft lazy river), three fully-themed on-site hotels just 130 kid-steps from the gate with daily hot breakfast and nightly kids' entertainment, and year-round events, LEGO NINJAGO Celebration in spring, LEGO Festival and Red White & BOOM fireworks in summer, Brick-or-Treat in fall, and Holidays at LEGOLAND in winter.", },
-    { text: "Two neighbors share the campus and pair naturally: SEA LIFE Florida (the aquarium, included with a LEGOLAND theme-park ticket) and the world's first Peppa Pig Theme Park right next door, which is the ideal add for toddlers. Grab Granny's Apple Fries, they're the LEGOLAND signature treat.", },
-  ],
-  "legoland": [
-    { text: "LEGOLAND Florida in Winter Haven, the Central Florida theme park built for kids, about 45 minutes from Parrish. Rides, shows, and immersive LEGO lands plus the new indoor Galacticoaster, a separate water park, on-site themed hotels, and year-round events. SEA LIFE aquarium is included with a park ticket, and the world's first Peppa Pig Theme Park is right next door.", url: "https://www.legoland.com/florida/", label: "Plan your trip" },
-  ],
-  "peppa pig theme park": [
-    { text: "The world's first Peppa Pig Theme Park, purpose-built for the toddler-and-preschool set and right beside LEGOLAND Florida in Winter Haven, so it pairs perfectly with a LEGOLAND day. A full day of gentle rides and play: Daddy Pig's Roller Coaster as a first coaster, Peppa Pig's Balloon Ride, Grampy Rabbit's Dinosaur Adventure, the Muddy Puddles splash pad, and free fun-fair games. If your kids are little, this is the pick over the big parks.", url: "https://www.peppapigthemepark.com/florida/", label: "Plan your visit" },
-  ],
-  "sea life": [
-    { text: "SEA LIFE Florida, the aquarium at LEGOLAND Florida Resort in Winter Haven, walk through the underwater tunnel of Coral Kingdom, meet rays and sharks, and touch the interactive rockpool exhibits. Best value note: admission is included with a LEGOLAND Florida theme-park ticket, so don't pay for it twice.", url: "https://www.visitsealife.com/florida/", label: "Plan your visit" },
-  ],
-  "gatorland": [
-    { text: "The original Florida roadside attraction, family-owned since 1949 and crowned Alligator Capital of the World, 125-plus acres on Orange Blossom Trail with more gators than anywhere else, plus rare white alligators and crocodiles from around the world. It's won Orlando Weekly's Best of Orlando, and locals will tell you it's more authentic old-Florida fun than the mega-parks. Open daily; parking is always free.", url: "https://www.gatorland.com", label: "Visit Gatorland" },
-    { text: "The thrill add-ons are the reason to go beyond general admission: the Screamin' Gator Zipline soars 70 feet over live gators across seven towers (voted one of the best ziplines in the U.S.), the Stompin' Gator monster-truck-style off-road adventure, and Croc Rock's rock wall, chain bridge, and zip. Buy ride tickets at Gator Joe's Adventure Outpost inside.", },
-    { text: "Great with kids and cheaper than a theme-park day: petting zoo, a splash pad, live shows, the Gator Jumparoo, and a train. About 45 minutes to an hour from Parrish up toward Orlando.", },
-  ],
-  "dinosaur world": [
-    { text: "Florida's largest attraction devoted to dinosaurs, hundreds of life-sized dinosaurs built to scale from the latest paleontological data, towering over you along a wooded outdoor trail in Plant City, right off I-4 at Exit 17 between Tampa and Orlando. Genuinely close to Parrish and an easy half-day; it's exciting, educational, and built for families.", url: "https://www.dinosaurworld.com", label: "Visit Dinosaur World" },
-    { text: "Don't miss the animatronics and the hands-on parts kids love: the fossil dig, the Exploration Cave, and the boneyard. Open every day except Thanksgiving and Christmas, 10am to 5pm. Their printed flyer runs a save-$2-per-adult coupon good for up to 4 people; grab one before you go.", },
-  ],
-  "wild bill's airboat tours": [
-    { text: "The airboat ride locals send their out-of-town family on, and it's been earning great reviews since 1980, about 50 minutes north of Orlando in Inverness. You skim the Withlacoochee River past lily-pad channels and cypress forest, gators basking on the banks, herons and turtles and deer along the way. Kids can handle a baby alligator under expert guidance. Reservations preferred, walk-ins welcome, open 7 days year-round.", url: "https://www.wbairboats.com", label: "Book your tour" },
-    { text: "Ask about the private tour: a 6-passenger boat for a 1 or 2 hour ride, which is the move for a family or small group who want the guide to themselves. Coast Guard approved, and the operation has been featured on National Geographic, Discovery, and America's Got Talent.", },
-  ],
-  "wild bills airboat tours": [
-    { text: "Same as Wild Bill's Airboat Tours in Inverness \u2014 world-famous airboat rides on the Withlacoochee, great reviews since 1980, about 50 minutes north of Orlando. Gators, herons, cypress, and a baby-gator handling moment for the kids. Reservations preferred.", url: "https://www.wbairboats.com", label: "Book your tour" },
-  ],
-  "pirates dinner adventure": [
-    { text: "The big Orlando dinner show that actually earns the hype: an interactive pirate spectacular on a full-size ship with acrobatics, sword fights, and a story you get pulled into, just off International Drive at 6400 Carrier Drive. Admission includes the meal (the Port of Call Feast, with vegetarian, vegan, and kids' options) and the live show. Fully enclosed and air-conditioned, ADA accessible, casual dress. Reserve ahead, especially in peak season.", url: "https://www.piratesdinneradventure.com", label: "Reservations & showtimes" },
-  ],
-  "blue man group": [
-    { text: "Comedy, theater, and rock concert rolled into one, now at ICON Park on International Drive. No spoken language, so it lands for every age and every visitor, three bald blue men, drums, paint, and surprises the whole way through. As Orlando locals put it: if you haven't seen Blue Man Group, you haven't seen Orlando. Groups of 10 or more get a dedicated sales contact.", url: "https://www.blueman.com", label: "Buy tickets" },
-  ],
-  "wonderworks": [
-    { text: "The upside-down building on International Drive is Professor Wonder's lab: over 100 hands-on exhibits across multiple floors, from an astronaut trainer to a hurricane simulator, genuine family fun for all ages. Don't miss the Outta Control Magic Comedy Dinner Show while you're there. Their printed flyer runs a $2-off-tickets coupon valid for up to 6 people; grab one before you go.", url: "https://www.wonderworksonline.com/orlando/", label: "Visit WonderWorks" },
-  ],
-  "safari wilderness": [
-    { text: "This is the one almost no visitor knows about, and locals guard it: a 260-acre private ranch near Lakeland where you ride out among free-roaming herds \u2014 zebra, cheetah, water buffalo, giant tortoise \u2014 with no crowds and no lines. Fodor's named it a Top 10 safari in the entire U.S. Reserve ahead; tours are deliberately kept small and sell out, which is exactly why the experience stays this good.", url: "https://www.safariwilderness.com", label: "Reserve online (required in advance)" },
-    { text: "Pick your ride and it changes the whole day: the custom covered truck for close feeding encounters, a camel-back expedition (the only one outside Africa), kayak safari past lemur island where you hand-feed ring-tailed lemurs, or ATV across the ranch. Each tour runs about 1 to 1.5 hours.", },
-    { text: "Worth the drive from Parrish, roughly an hour north. Add the Premium Cheetah Encounter if you want a 30-minute hands-on session; it books by special request only.", },
-  ],
-  "giraffe ranch": [
-    { text: "Feed a giraffe from eye level on a family-run wildlife preserve in Dade City, about 800 animals across 80 species roaming the second-largest wilderness area in Florida after the Everglades. TripAdvisor has given it a Certificate of Excellence every year since 2012, and Fodor's calls it a Top 10 in Tampa Bay. One reviewer's line says it best: Florida's best kept secret.", url: "https://www.girafferanch.com", label: "Book now (advance online only)" },
-    { text: "The founder personally guided 30 African safaris, and it shows in how the tours run. Choose custom vehicle, camelback, drive-thru, Segway, or the electric Cybertruck safari; the starred options include giraffe feedings, so pick those if feeding the giraffes is the point.", },
-    { text: "Stack on encounters only offered with a full safari: sloth, otter feeding, red river hog, pygmy hippo, monkey. Reserve in advance, it's required, and it's about an hour from Parrish toward Dade City.", },
-  ],
-  "safari wilderness ranch": [
-    { text: "Same place as Safari Wilderness \u2014 the 260-acre exotic-game ranch near Lakeland, Fodor's Top 10 safari in the U.S. Ride among the herds by truck, camel, kayak, or ATV. Small groups, advance reservations required.", url: "https://www.safariwilderness.com", label: "Reserve online" },
-  ],
-  // Entries are strings, or { text, url, label } when a tip has a working
-  // link. Owner-vouched links only; community Tips stay plain text.
-  // Umbrella resort pages (where tourists actually land) route to the parks.
-  "walt disney world": [
-    { text: "Nightly fireworks run inside the individual parks, not resort-wide: Happily Ever After at Magic Kingdom, Luminous at EPCOT, and Fantasmic! at Hollywood Studios on select nights. Open each park's page in Wayfind for its note, and check today's official calendar for exact times \u2014 they change with the season.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park hours & showtimes" },
-  ],
-  "universal orlando resort": [
-    { text: "The nighttime shows live inside each park: CineSational on the Universal Studios lagoon and the Celestial Park finale at Epic Universe. Exact times vary by night \u2014 today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
-  ],
-  "magic kingdom park": [
-    { text: "Happily Ever After fireworks light the castle most nights \u2014 start time changes with the season, so check today's official schedule before you plan dinner.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
-  ],
-  "epcot": [
-    { text: "Luminous \u2014 The Symphony of Us runs over World Showcase Lagoon most nights. Times shift by season; the official calendar has today's showtime.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
-  ],
-  "disney's hollywood studios": [
-    { text: "Fantasmic! runs select nights and fills up \u2014 check today's schedule and line up early or book the dining package.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
-  ],
-  "universal studios florida": [
-    { text: "CineSational: A Symphonic Spectacular closes most nights on the lagoon \u2014 showtime varies, check today's hours.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
-  ],
-  "universal epic universe": [
-    { text: "Celestial Park hosts the park's nighttime finale \u2014 times vary by night; today's schedule is on the official hours page.", url: "https://www.universalorlando.com/web/en/us/plan-your-visit/hours-information", label: "Hours & showtimes" },
-  ],
-  "hilton grand vacations club parc soleil": [
-    { text: "The pool chair and cabana reservation instructions in the welcome letter are often broken. The system that actually works is the resort's own Recreation Team page on Eventbrite, run by the rec staff, free to book.", url: "https://www.eventbrite.com/o/parc-soleil-recreation-team-34192772609", label: "Open chair & cabana reservations" },
-    "Reservation slots drop on a rolling basis, usually the morning of. If the page shows nothing yet, the day's slots have not been posted; check back early or search Eventbrite for Parc Soleil Recreation Team.",
-    "Chairs tend to book out about three days ahead, matching the typical three-night owner stay, so reserve the day before your check-in for the dates you want.",
-    "Owner tip: for the Disney fireworks, ask for Tower 100 rooms 11423, 11424, or 11425 \u2014 they face Disney directly. Northwest-facing high floors in Tower 200 also carry the fireworks line.",
-  ],
-  "disney's animal kingdom": [
-    { text: "The one Disney park with no fireworks \u2014 the animals come first. Evening entertainment and hours change often, so check today's official calendar before you plan the night.", url: "https://disneyworld.disney.go.com/calendars/", label: "Today's park schedule" },
-  ],
-  "seaworld orlando": [
-    { text: "Ignite fireworks play over the lagoon on summer and select nights \u2014 confirm tonight's time on the official hours page.", url: "https://seaworld.com/orlando/park-info/theme-park-hours/", label: "Park hours & shows" },
-    "Sharks Underwater Grill is the meal worth planning around: full service beside the shark tank. Reserve in the SeaWorld app the morning you visit; walk-ins rarely clear on busy days.",
-    "Eating two or more meals? The All-Day Dining Deal usually beats paying per meal at the quick-service spots. It does not cover Sharks Underwater Grill, so pair the deal for lunch with Sharks for dinner.",
-    "Quick-service pecking order from regulars: Voyager's Smokehouse first, Seafire Grill second.",
-    "Ride Mako and Manta in the first hour after opening, then move indoors for shows and aquariums during the mid-afternoon heat.",
-    "On many summer and holiday nights the park closes with fireworks over the lagoon; stake out the Bayside lakefront about 20 minutes before close.",
-    "Visiting twice within a year? The annual pass usually beats two single-day tickets and adds parking and in-park discounts; run that math before buying a day ticket.",
-  ],
-  "cityworks": [
-    "One of the busiest tables in Disney Springs, packed while nearby spots sat half empty, so expect a wait at peak hours. Put your name in early or grab a reservation before you head over.",
-  ],
-  "amc disney springs": AMC_DS_NOTE,
-  "amc dine-in disney springs": AMC_DS_NOTE,
-  "kbob": K_BOB_NOTE,
-  "k-bob": K_BOB_NOTE,
-  "k bob": K_BOB_NOTE,
-  "kbop": K_BOB_NOTE,
-  "k-bop": K_BOB_NOTE,
-  "everglazed": [
-    "Over-the-top glazed donuts and cold brew, an easy sweet stop while you walk Disney Springs, and right by the AMC if you're catching a movie.",
-  ],
-};
 function wayfindNotes(name) {
   const n = String(name || "").toLowerCase().trim();
   if (!n) return null;
@@ -923,38 +805,6 @@ function wayfindNotes(name) {
   if (n.indexOf("universal") >= 0) return WAYFIND_NOTES["universal orlando resort"];
   return null;
 }
-const WAYFIND_FEATURED = {
-  // Keys MUST be wfNorm-normalized (lowercase, & -> and, no spaces or
-  // punctuation) so featuredBoost's lookup actually matches. Earlier spaced
-  // keys ("hilton orlando" etc.) never fired.
-  "trexcafe": 18,
-  "hiltonorlando": 14,
-  "seaworldorlando": 6,
-  "cityworks": 12,
-  "eggsupgrill": 8,
-  "amcdisneysprings": 10,
-  "amcdineindisneysprings": 10,
-  "everglazed": 8,
-  "kbob": 12,
-  "kbop": 12,
-  "safariwilderness": 16,
-  "safariwildernessranch": 16,
-  "girafferanch": 16,
-  "wildbillsairboattours": 15,
-  "wildbillsairboat": 15,
-  "piratesdinneradventure": 8,
-  "wonderworks": 8,
-  "gatorland": 12,
-  "dinosaurworld": 14,
-  "legolandflorida": 10,
-  "legoland": 10,
-  "peppapigthemepark": 12,
-  "sealife": 8,
-  "boggycreekairboat": 13,
-  "boggycreekairboatadventures": 13,
-  "dezerlandpark": 12,
-  "chocolatekingdom": 12,
-};
 // Owner-curation signals from the Supabase place_signals view: just the
 // place_ids the owner account has liked. Owner likes boost globally (+4,
 // below WAYFIND_FEATURED tiers so deliberate curation still outranks a tap).
@@ -1027,23 +877,6 @@ function mealGate(list, subId) {
   );
 }
 
-// v6.25: founder-curated "note from Wayfind" for specific properties. Hand-written insider
-// knowledge, not scraped or AI. Keyed by the normalized venue name, with an optional
-// coordinate gate so a same-named property elsewhere never picks up the wrong note.
-const CURATED_NOTES = {
-  hiltonorlando: {
-    match: { lat: 28.4270, lng: -81.4693, radiusMi: 2.5 },
-    title: "A note from Wayfind",
-    intro: "From a recent stay, the things worth knowing before you book.",
-    items: [
-      { icon: "🅿️", head: "Parking is not included", body: "Plan for it. Self and valet are both extra on top of the room rate." },
-      { icon: "💆", head: "Book the eforea Spa and your valet is covered", body: "A spa booking gets your valet validated at the spa. Valet runs about $50 on its own, so the visit effectively pays for your parking that day." },
-      { icon: "💳", head: "Bring a Hilton Honors Amex, Gold status pays off", body: "Gold members get the daily food and beverage credit, $15 per guest, plus a complimentary room upgrade when one is available." },
-      { icon: "🌇", head: "Pick your side for the view", body: "The north side, away from the pool, faces the theme parks. The pool side looks toward SeaWorld and has the best seat for the fireworks." },
-      { icon: "🎆", head: "Fireworks from the pool side", body: "SeaWorld's Ignite fireworks and drone show typically starts around 9:00 PM on select summer nights, mostly Fridays and Saturdays through early September. Times shift, so check the SeaWorld app the day of." },
-    ],
-  },
-};
 function curatedNote(p) {
   if (!p || !p.name) return null;
   const note = CURATED_NOTES[wfNorm(p.name)];
@@ -2143,19 +1976,26 @@ class ErrorBoundary extends Component {
 // ─── Hook content engine ─────────────────────────────────────────────────────
 // Generates provocative, data-driven hook cards from real place data.
 // Every hook references an actual place — nothing is invented.
+// Ordering for "top of <city>" lists. Prominence (quality x how many people
+// actually showed up), NOT the displayed Wayfind Score — ranking Orlando by the
+// displayed score alone puts escape rooms and a day spa above Magic Kingdom.
+// See prominenceScore() in lib/google.js. Falls back to wfScore when a source
+// has not supplied prominence.
+const promOf = (p) => (p && p.wfProm != null ? p.wfProm : (p && p.wfScore != null ? p.wfScore : 0));
+
 function generateHooks(places, locName) {
   if (!places || places.length < 4) return [];
   const city = (locName || "your area").split(",")[0];
   const h = new Date().getHours();
   const mealLabel = h < 11 ? "breakfast" : h < 15 ? "lunch" : h < 21 ? "dinner" : "late-night";
   const hooks = [];
-  const byScore = [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const byScore = [...places].sort((a, b) => promOf(b) - promOf(a));
 
   // LOCAL SOURCE — only places ≤15 miles. Used for city-specific hooks so "most
   // talked about in Parrish" can't pull Saint Pete (30 miles away).
   const LOCAL_MILES = 15;
   const local = places.filter((p) => p.distMi == null || p.distMi <= LOCAL_MILES);
-  const localByScore = [...local].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const localByScore = [...local].sort((a, b) => promOf(b) - promOf(a));
 
   // #1 — absolute best (local first, fall back to all)
   const best = localByScore[0] || byScore[0];
@@ -2648,7 +2488,7 @@ function relatedPicks(allSrc, subject, n) {
 function placesForHook(hook, allSrc) {
   const theme = (hook && hook.theme) || "best";
   const primaryId = hook && hook.placeId;
-  const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const byScore = [...allSrc].sort((a, b) => promOf(b) - promOf(a));
   let out = [];
   if (theme === "top5" || theme === "best") out = (hook && hook._ctx) ? Ranking.rankByConditions(allSrc, hook._ctx).slice(0, 10) : byScore.slice(0, 10);
   else if (theme === "gem") {
@@ -2791,6 +2631,24 @@ function placeKind(p) {
   // generic attraction actually named for the water it sits on — and never when
   // an override says noWater. " pier" was dropped (matched "pierogies").
   if (!(_ov && _ov.noWater) && named(["waterfront", "riverfront", "bayfront", "riverwalk", "marina", " wharf", "on the river", "on the bay"])) return "waterfront";
+  // v6.44 (owner: "I'm sure someone offers that escape room affiliation — let's
+  // make sure we're doing the work for the user and getting us paid").
+  // An escape room / mini-golf / karting / axe-throwing / laser-tag venue
+  // carries Google types `tourist_attraction, point_of_interest, establishment`
+  // (sometimes `amusement_center`) and matched NO branch above, so it fell
+  // through to "generic". "generic" closes THREE independent gates at once —
+  // the sheet's Viator fetch effect, BOOKABLE_KINDS in components/BookingCTA,
+  // and the sheet's tours list — so a 26,000-review, 10.0-scored attraction
+  // showed no bookable inventory at all, while Aff.isTicketyPlace() said yes
+  // the whole time. That asymmetry was the bug.
+  //
+  // This branch is deliberately LAST: every museum / park / beach / landmark /
+  // restaurant / bar / hotel / shopping / waterfront read above still wins, so
+  // it can only reclassify what was already about to be discarded as generic.
+  // It returns "entertainment" rather than a new kind on purpose — that kind is
+  // already the bookable one for exactly this inventory, so the four coupled
+  // gate lists stay byte-identical and test-sheet-booking.mjs stays green.
+  if (has(["tourist_attraction", "amusement_center"]) || named(["escape room", "escape game", "mini golf", "miniature golf", "go kart", "go-kart", "karting", "axe throw", "trampoline", "laser tag", "topgolf", "top golf", "indoor skydiv"])) return "entertainment";
   return "generic";
 }
 // The global "why this pick" engine. Specific, varied and honest: it weighs the place
@@ -3799,8 +3657,32 @@ function PageInner({ initialEvents = null }) {
   function exportTaste() {
     try {
       const vec = tasteVecRef.current || {};
-      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste: vec }, null, 2)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "wayfind-my-taste.json"; a.click();
+      // v6.45: export what the PANEL shows, not the raw store. Handing someone
+      // a file full of tokens we already know are junk ("2", "food") is a worse
+      // answer to "what do you have on me" than handing them the real answer.
+      // Same rule as the panel, so the two can never disagree; the raw value is
+      // kept alongside the label because it IS their data.
+      const taste = {};
+      for (const dim of Object.keys(vec)) {
+        const m = vec[dim];
+        if (!m || typeof m !== "object") continue;
+        for (const [val, w] of Object.entries(m)) {
+          if (!isLearnableValue(dim, val)) continue;
+          (taste[dim] || (taste[dim] = {}))[val] = { label: tasteLabel(dim, val), weight: Number(w) || 0 };
+        }
+      }
+      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste }, null, 2)], { type: "application/json" });
+      // v6.45: the anchor has to be IN the document for Firefox to honour the
+      // click, and the object URL has to be revoked or every export pins its
+      // blob in memory for the life of the page.
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "wayfind-my-taste.json"; a.rel = "noopener"; a.style.display = "none";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 0);
+      // iOS opens a share/download sheet with no context of its own — say what
+      // just happened so the prompt is expected instead of alarming.
+      try { showToast("Downloading wayfind-my-taste.json"); } catch (e) {}
       try { logEvent("taste_export"); } catch (e) {}
     } catch (e) {}
   }
@@ -4266,7 +4148,14 @@ function PageInner({ initialEvents = null }) {
     const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
     let res = [];
     try { res = await searchPlaces(spec.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", spec.kw || ""); } catch {}
-    let pool = (res || []).filter(Boolean).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+    // v6.44: a dice bucket may declare what actually belongs in it. This is a
+    // HARD filter on purpose — falling back to the unfiltered pool when nothing
+    // matches is what produced "Parks & outdoors -> escape room". If a bucket
+    // genuinely has nothing nearby, the honest answer is the "nothing found"
+    // toast below, not a confidently wrong pick.
+    let pool = (res || []).filter(Boolean);
+    if (typeof spec.filter === "function") { try { pool = pool.filter(spec.filter); } catch (e) {} }
+    pool = pool.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
     const availToday = pool.filter((p) => p.openNow !== false || (p.nextOpen && p.nextOpen.today));
     res = (availToday.length >= 3 ? availToday : pool).slice(0, 12);
     setTimeout(() => {
@@ -4575,7 +4464,8 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {})); } catch (e0) {}
+    const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
+    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
     // and at most one Google event (here); forwardToGoogle dedupes and decides
     // on its own whether the action is worth an Ads conversion at all.
@@ -4583,12 +4473,12 @@ function PageInner({ initialEvents = null }) {
       forwardToGoogle(action, Object.assign({
         place_id: (place && place.id) || (extra && extra.place_id) || null,
         place_name: (place && place.name) || null,
-      }, extra || {}, attributionParams()));
+      }, extra || {}, attributionParams(), _exp));
     } catch (e1) {}
     // Session-scoped milestones — the PRIMARY metric (activated sessions).
     // Fires at most one first_intent and one session_activated per session.
     // Strictly additive: no existing event name, payload, or history changes.
-    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams())); } catch (e2) {}
+    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams(), _exp)); } catch (e2) {}
     try {
       if (!supabase) return;
       const row = {
@@ -5822,9 +5712,14 @@ function PageInner({ initialEvents = null }) {
   // photo — same floor the date-night list rides on (4.4/150+), art only as
   // fallback. (The family hero deliberately uses owned artwork instead — see
   // test-intent-pages — so only date-night and hidden-gem fetch live photos.)
+  // v6.51 PERF: deferred to idle. This is a DECORATIVE hero photo — the card
+  // renders owned art until it arrives — but on load it fired a metered Places
+  // search AND a vision-model /api/image-score, competing with the feed the
+  // user is actually looking at. onIdle changes when, never whether.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
+    const cancelIdle = onIdle(() => {
     (async () => {
       try {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
@@ -5838,7 +5733,8 @@ function PageInner({ initialEvents = null }) {
         if (!cancelled && ref) setDateHeroImg(ref);
       } catch (e) {}
     })();
-    return () => { cancelled = true; };
+    });
+    return () => { cancelled = true; cancelIdle(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
@@ -5878,6 +5774,12 @@ function PageInner({ initialEvents = null }) {
 
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
+  // v6.44 (owner, 2026-07-28): and NEVER a beach that isn't actually near you.
+  // See beachesWithin()/BEACH_NEAR_MI in lib/beaches.js — the RPC still asks for
+  // 60 mi (one call, unchanged cost) so the Bayesian re-rank has a real field to
+  // pick from, then the 23-mile rule is applied client-side on data we already
+  // hold. No beach inside 23 mi => bestBeach stays null => the hero does not
+  // render at all (see the two gates in the JSX below).
   useEffect(() => {
     if (screen !== "suggested" || !center || !supabase) return;
     let cancelled = false;
@@ -5885,12 +5787,18 @@ function PageInner({ initialEvents = null }) {
       try {
         const { data } = await supabase.rpc("wf_nearest_beaches", { p_lat: center.lat, p_lng: center.lng, p_radius_mi: 60, p_max: 40 }); // p_max caps by DISTANCE upstream — keep it wide so the Bayesian re-rank below truly ignores proximity (verified live: 8 hid Coquina from Parrish)
         if (cancelled) return;
-        const rows = (Array.isArray(data) ? data : []).map((b) => ({
+        const fetched = (Array.isArray(data) ? data : []).map((b) => ({
           id: b.place_id, name: b.name, lat: b.lat, lng: b.lng, distance_mi: b.distance_mi, photo_ref: b.photo_ref, metro: b.metro,
           rating: b.signals && Number(b.signals.rating) > 0 ? Number(b.signals.rating) : null,
           reviews: b.signals && Number(b.signals.reviews) > 0 ? Number(b.signals.reviews) : null,
         })).filter((b) => b.name);
-        // owner: the BEST beach, regardless of distance — the ONE shared
+        // THE 23-MILE RULE. Distance is recomputed from the user's live center
+        // against each beach's own coordinates (not trusted from the RPC, which
+        // measured from whatever point it was asked about), and anything beyond
+        // BEACH_NEAR_MI is gone before ranking. Fail-closed: a row with no
+        // usable coordinates is dropped, never assumed near.
+        const rows = beachesWithin(fetched, center, BEACH_NEAR_MI);
+        // owner: the BEST beach among those genuinely within reach — the ONE shared
         // ranking (lib/beaches rankBeaches), identical to /best-beaches. DAY-ROTATE
         // among the top few so the beach hero changes daily (owner: no frozen
         // hero cards) — all are top-ranked beaches, so it's variety, not a drop.
@@ -5906,9 +5814,13 @@ function PageInner({ initialEvents = null }) {
 
   // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
   // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
+  // v6.51 PERF: deferred to idle for the same reason as the date-night hero
+  // above — decorative photo, art fallback already on screen, but it cost a
+  // metered Places search plus a vision-model call on the critical path.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
+    const cancelIdle = onIdle(() => {
     (async () => {
       try {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
@@ -5918,7 +5830,8 @@ function PageInner({ initialEvents = null }) {
         if (!cancelled && ref) setGemHeroImg(ref);
       } catch (e) {}
     })();
-    return () => { cancelled = true; };
+    });
+    return () => { cancelled = true; cancelIdle(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
@@ -6853,7 +6766,16 @@ function PageInner({ initialEvents = null }) {
   // place you can actually go to now; the rest of the ranked list follows below.
   const exHero = (!loading && view.length > 0) ? (view.find((p) => liveOpen(p) === true) || view[0]) : null;
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
-  const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
+  const restView0 = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
+  // Collapse in-venue results (rides, in-park shops) into their parent card.
+  // The parent keeps its rank; children ride along on `_children` so every
+  // PlaceCard render site picks them up without threading a new prop.
+  const restView = (() => {
+    try {
+      const { groups } = groupByContainment(restView0);
+      return groups.map(({ place, children }) => (children && children.length ? { ...place, _children: children } : place));
+    } catch (e) { return restView0; }
+  })();
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -7034,7 +6956,7 @@ function PageInner({ initialEvents = null }) {
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}` }} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -7357,6 +7279,40 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
+        {/* v6.45 (owner, screenshot: the consent card tangled up with the
+            wordmark and the search field). This block used to render INSIDE
+            .wf-topbar — the app chrome — where it inherited the topbar's drop
+            shadow and its orange :after hairline, and pushed the header to
+            roughly half the viewport on a phone. It is a statement about the
+            FEED, so it belongs in the feed: it now lives in the scrolling body
+            above the list, scrolls away like any other card, and cannot
+            interact with the header at all. Locked by scripts/test-taste.mjs. */}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ margin: "2px 0 13px", background: "linear-gradient(160deg, #232C3C 0%, #1C2230 62%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.22)" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") return (
+            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
+              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
+            </div>
+          );
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
@@ -7508,17 +7464,26 @@ function PageInner({ initialEvents = null }) {
                   </div>
                   <HeroRail>
                     <DiscoveryHeroCard />
-                    <LocalPlanHeroCard
-                      image="/cards/beach-adobestock-216195684.jpeg"
-                      badge="Beach day"
-                      badgeColor="#2DD4BF"
-                      icon="beach"
-                      navIcon
-                      title={bestBeach ? bestBeach.name : "Beach day, decided"}
-                      subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
-                      ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
-                      onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
-                    />
+                    {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
+                        render unconditionally and only swap its COPY when no
+                        beach was found — so an Orlando user got "Beach day,
+                        decided" and a deep link to a hardcoded Gulf metro two
+                        hours away. bestBeach is now null unless a real beach is
+                        within BEACH_NEAR_MI (see the effect above), and the
+                        slide is gated on it: no nearby beach, no beach card. */}
+                    {bestBeach && (
+                      <LocalPlanHeroCard
+                        image="/cards/beach-adobestock-216195684.jpeg"
+                        badge="Beach day"
+                        badgeColor="#2DD4BF"
+                        icon="beach"
+                        navIcon
+                        title={bestBeach.name}
+                        subtitle={`${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›`}
+                        ariaLabel={"Beach day: " + bestBeach.name}
+                        onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro, mi: Math.round(bestBeach.distance_mi) }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro)); } catch (e2) {} }}
+                      />
+                    )}
                     <LocalPlanHeroCard
                       image="/cards/hidden-gems-adobestock-321810820.jpeg"
                       badge="Hidden gems"
@@ -7626,17 +7591,21 @@ function PageInner({ initialEvents = null }) {
                               : <span style={{ display: "inline-flex", alignItems: "center", fontSize: 12.5, fontWeight: 800, color: "#0D1117", background: acc, borderRadius: 999, padding: "7px 16px", pointerEvents: "none" }}>See event →</span>}
                           </div>
                         </div>
-                        <LocalPlanHeroCard
-                          image="/cards/beach-adobestock-216195684.jpeg"
-                          badge="Beach day"
-                          badgeColor="#2DD4BF"
-                          icon="beach"
-                          navIcon
-                          title={bestBeach ? bestBeach.name : "Beach day, decided"}
-                          subtitle={bestBeach ? `${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›` : "Sunset, sand, and the best beaches nearby ›"}
-                          ariaLabel={"Beach day: " + (bestBeach ? bestBeach.name : "best beaches nearby")}
-                          onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach ? bestBeach.id : null, metro: bestBeach ? bestBeach.metro : "manatee-sarasota" }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach && bestBeach.metro ? bestBeach.metro : "manatee-sarasota")); } catch (e2) {} }}
-                        />
+                        {/* Same 23-mile gate as the empty-events rail above —
+                            the two beach slides are twins and must stay twins. */}
+                        {bestBeach && (
+                          <LocalPlanHeroCard
+                            image="/cards/beach-adobestock-216195684.jpeg"
+                            badge="Beach day"
+                            badgeColor="#2DD4BF"
+                            icon="beach"
+                            navIcon
+                            title={bestBeach.name}
+                            subtitle={`${bestBeach.distance_mi < 10 ? bestBeach.distance_mi.toFixed(1) : Math.round(bestBeach.distance_mi)} mi away ›`}
+                            ariaLabel={"Beach day: " + bestBeach.name}
+                            onOpen={() => { try { logEvent("beach_hero_open", null, { id: bestBeach.id, metro: bestBeach.metro, mi: Math.round(bestBeach.distance_mi) }); } catch (e2) {} try { window.location.assign("/best-beaches/" + encodeURIComponent(bestBeach.metro)); } catch (e2) {} }}
+                          />
+                        )}
                         <LocalPlanHeroCard
                           image="/cards/hidden-gems-adobestock-321810820.jpeg"
                           badge="Hidden gems"
@@ -8097,7 +8066,22 @@ function PageInner({ initialEvents = null }) {
                 { label: "🌊 Waterfront", cat: "food", kw: "waterfront" },
                 { label: "💕 Date night", cat: "food", kw: "romantic restaurant" },
                 { label: "🎯 Activities", cat: "attractions", kw: "things to do" },
-                { label: "🌳 Parks & outdoors", cat: "attractions", kw: "park" },
+                // v6.44 (owner: "parks continue to show with a bug"). The keyword was
+                // the bare string "park", which Google's text search happily satisfies
+                // with theme parks, trampoline parks, arcades and any prominent
+                // tourist_attraction nearby — and rollFor applied NO filter, it just
+                // sorted the raw result by wfScore. The single highest-scoring
+                // "attraction" in Orlando is an escape room with 26k reviews, so
+                // "Parks & outdoors" reliably rolled an indoor escape room.
+                // Fixed on both halves: a keyword that describes actual green space,
+                // and a predicate that rollFor now enforces (see rollFor).
+                { label: "🌳 Parks & outdoors", cat: "attractions", kw: "park botanical garden nature preserve trail", filter: (p) => {
+                  const t = ((p.types || []).join(" ") + " " + (p.name || "")).toLowerCase();
+                  // Indoor/ticketed venues first — several of them literally contain
+                  // the substring "park" (amusement_park, water_park, trampoline park).
+                  if (/amusement|theme_?park|water_?park|trampoline|escape|bowling|arcade|movie|cinema|casino|shopping_mall|parking|night_club|\bgym\b|museum|aquarium|\bzoo\b|axe|karting|go.?kart|mini.?golf/.test(t)) return false;
+                  return /\bpark\b|botanical|garden|nature|preserve|\btrail|greenway|boardwalk|\bpier\b|campground|natural_feature|scenic|lake|springs?\b/.test(t);
+                } },
                 { label: "👨‍👩‍👧 Family", cat: "attractions", kw: "family friendly" },
                 { label: "🛍️ Shopping", cat: "shopping", kw: "" },
                 { label: "🎲 Anything", any: true },
@@ -8741,7 +8725,18 @@ function ViatorRail({ title, items, theme }) {
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
         {items.map((t) => (
-          <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+          /* v6.44: this rail rendered a RAW t.url while its sibling rail (the
+             Things-to-do one, ~8389) wrapped the identical payload from the
+             identical /api/viator/tours endpoint with viatorDirectUrl(). Two
+             rails, same data, one attributed and one not — so every booking
+             from the Family browse earned nothing. Same class of hole as the
+             Detail sheet's tour list; fixed the same way.
+             NOTE: this is a plain block comment, not a braced JSX comment. The
+             arrow body here is a parenthesised EXPRESSION, not a JSX children
+             list, so a braced comment would be a second top-level expression
+             and the file stops parsing (TS2657 "JSX expressions must have one
+             parent element"). Caught by npm run check:jsx, 2026-07-28. */
+          <a key={t.code || t.url} href={Aff.viatorDirectUrl(t.url) || t.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
             {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
               <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
               {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
@@ -8824,6 +8819,18 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
   const cardRank = Number(rank);
   const isCuratorPick = !!(p._members && p._members.ownerPick);
+  // v6.48: hoisted out of the meta row so the medallion on the thumbnail and any
+  // future consumer read ONE predicate. The gate is unchanged from the pill it
+  // replaces — editorially curated AND either unscored or scoring high enough to
+  // deserve the seal, so a curated-but-weak place never wears it.
+  // The `!isCuratorPick` term is load-bearing and predates the medallion. It
+  // used to live on the meta-row chip this medallion replaced (v6.48), and it
+  // enforces one rule: an OWNER pick suppresses the generic editorial pick, so
+  // a card that is both never wears two "this is a pick" badges. Dropping it
+  // when the chip moved would have shipped the owl seal (bottom-left) and the
+  // medallion (top-left) on the same card — different corners, so it would not
+  // have looked broken, just duplicated. test-curator-boost asserts this.
+  const isWayfindPick = !!(!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)));
   const cardAward = cardRank >= 1 && cardRank <= 3
     ? {
         rank: cardRank,
@@ -8856,6 +8863,37 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <strong className="wf-place-card-owner-copy">Curated</strong>
         </span>
       )}
+      {/* v6.48 — THE WAYFIND PICK MEDALLION. Owner: "we should make it a
+          circular badge so it fits and make it look nice instead of the
+          rectangle."
+
+          It is absolutely positioned against THE CARD ROOT, not against a
+          wrapper around the photo, and that is load-bearing. css.js:63 makes
+          .wf-place-card-layout a `display:grid!important` two-column track and
+          css.js:64/391/399 size the photo through a DIRECT-CHILD selector
+          (`.wf-place-card-layout>img`) at 96/88/108px per breakpoint. Wrapping
+          the <img> in a positioning div orphans all four rules and the photo
+          collapses. The card root already carries position:relative, so it is
+          the correct containing block and costs nothing.
+
+          Safe from the v6.44 "curator logo blocking the save button" bug for a
+          structural reason, not a lucky one: that overlay was pinned
+          bottom-left, on top of .wf-place-card-actions. This one sits top-left
+          over the media column, which holds only the photo (or the monogram) —
+          no controls live there. It also clears .wf-place-card:before (the 2px
+          orange hairline at top:0, z-index:3) by 6px.
+
+          Deliberately NOT pointer-events:none. The card root is the click
+          target and this span carries no handler of its own, so a tap on the
+          medallion bubbles straight to onDetail and opens the sheet exactly as
+          a tap on the photo would — while keeping the hover title, which is
+          the only place a sighted mouse user learns what ✦ PICK means. */}
+      {isWayfindPick && (
+        <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — editorially curated by Wayfind" style={{ position: "absolute", top: 8, left: 8, zIndex: 2, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: MEDALLION_SHADOW, color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
+          <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
+          <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
+        </span>
+      )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
           ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -8878,12 +8916,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
-            {/* v6.56: premium pass — matches the CHAMPAGNE-gold "✦ Wayfind Pick" chip
-                already used on rank-1 ThingsToDoList cards (kit.js's CHAMPAGNE token),
-                instead of the old flat small-radius orange pill. Same editorial-pick
-                meaning (curatedFor), just dressed to the standard the rest of the
-                gold badge family (Featured, Curator's pick) already sets. */}
-            {!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
+            {/* v6.48: the "★ Wayfind Pick" chip that used to sit HERE is now the
+                34px champagne medallion over the thumbnail (see the
+                isWayfindPick block at the top of this card). v6.56 had already
+                restyled it from an orange rectangle to a champagne pill, but the
+                real defect was positional, not cosmetic: sharing this flex-wrap
+                row with reviews, price, open/closed and distance meant it
+                wrapped to its own line on any narrow card. Off the row, it
+                cannot wrap. */}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
                 with the Bayesian score and confused the ranking. The review
@@ -8915,6 +8955,21 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 return wq ? <span style={{ fontSize: 11, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;
               })()}
             </div>
+          )}
+          {/* Curator Select — v6.44. This WAS an absolutely-positioned overlay
+              pinned bottom-left of the card, which landed exactly on top of the
+              Save button in .wf-place-card-actions (owner-reported, with a
+              photo: "the curator logo blocking the save button"). It is now IN
+              NORMAL FLOW, one line above the award pill, so it can never cover
+              an action, and it is a fully-rounded pill rather than the old
+              rectangle. Display-only and gated SOLELY on the server's
+              ownerPick — the client never decides owner status, so
+              ownerPick=false can never render it. */}
+          {isCuratorPick && (
+            <span className="wf-place-card-owner" title="Personally selected by Wayfind's curator">
+              <span className="wf-place-card-owner-mark" aria-hidden="true">✦</span>
+              <span className="wf-place-card-owner-copy"><strong>Curator Select</strong></span>
+            </span>
           )}
           {cardAward && (
             <div className={`wf-place-card-award is-rank-${cardAward.rank}`} aria-label={`Wayfind ranked this the number ${cardAward.rank} ${cardPrimaryLabel || "local"} option`}>
@@ -8952,6 +9007,27 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
               production hides an absent chip, so this is a pure disclosure add. */}
           {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
+          {/* What's inside. Rides and in-park venues used to occupy their own
+              cards, so one theme park could fill half the feed and a visitor had
+              to scroll past four rows describing the same place. They live here
+              now: a ride is not somewhere you can go, it is a REASON to pick the
+              park. Tapping one opens the park (that is the bookable thing), so
+              this adds decision detail without adding dead ends. */}
+          {Array.isArray(p._children) && p._children.length ? (
+            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
+                Top rated inside
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {p._children.slice(0, 6).map((c) => (
+                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
+                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}\u2605</span> : null}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -8959,19 +9035,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
 }
 
 const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 700, color: C.light, background: "rgba(13,17,23,.5)", border: "1px solid rgba(249,115,22,.3)", borderRadius: 999, padding: "5px 11px" };
-// Responsive layout, in CSS instead of JS state.
-//
-// It used to live in `const [vw, setVw] = useState(0)` + `isDesktop = vw >= 900`.
-// vw starts at 0, so the server HTML and the FIRST CLIENT PAINT were always the
-// MOBILE layout; the effect then measured the real width and re-rendered desktop.
-// On a 1440px viewport that snapped the shell 480px -> 1280px at ~514ms and threw
-// every child 800px sideways — one shift worth 0.4938, i.e. 99.8% of a 0.4947 CLS.
-//
-// Media queries are evaluated by the browser before first paint, at the real
-// width, on the server-rendered HTML. There is no "wrong" frame to correct, so
-// the shift cannot happen. The 900px breakpoint MUST stay in lockstep with the
-// old `vw >= 900` — scripts/test-layout-shift.mjs enforces that.
-const WF_DESKTOP_BP = 900;
 // The events rail reserves its real geometry BEFORE the data lands, so the
 // skeleton and the loaded rail occupy identical space and the swap cannot shift
 // anything. Both the skeleton and the live rail read these same constants —
@@ -8996,399 +9059,13 @@ const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & marg
 const HOME_EXP_TITLE_FS = 13.5;
 const HOME_EXP_TITLE_LH = 1.35;
 const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exactly two lines
-const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
-const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
-const WF_PLACE_CARD_CSS = `
-.wf-place-card{
-  position:relative;
-  margin-bottom:12px!important;
-  overflow:hidden;
-  border-radius:17px!important;
-  border-color:rgba(159,177,203,.25)!important;
-  background:radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
-  box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035);
-  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
-}
-.wf-place-card:before{
-  content:"";
-  position:absolute;
-  z-index:3;
-  top:0;
-  left:26px;
-  width:50px;
-  height:2px;
-  border-radius:0 0 99px 99px;
-  background:linear-gradient(90deg,transparent,#F97316,transparent);
-  opacity:.7;
-  pointer-events:none;
-}
-.wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
-.wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
-.wf-place-card{--wf-place-card-media:96px}
-.wf-place-card-layout{display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
-.wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
-.wf-place-card-monogram{
-  position:relative;
-  display:grid;
-  min-height:176px;
-  place-items:center;
-  color:#FFC08F;
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:.09em;
-  background:radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%);
-  box-shadow:inset -1px 0 rgba(159,177,203,.1);
-}
-.wf-place-card-monogram:after{
-  content:"";
-  position:absolute;
-  left:50%;
-  top:50%;
-  width:52px;
-  height:52px;
-  transform:translate(-50%,-50%);
-  border:1px solid rgba(255,142,61,.3);
-  border-radius:18px;
-  box-shadow:0 14px 34px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.07);
-}
-.wf-place-card-content{padding:13px 13px 11px!important;display:flex;min-width:0;flex-direction:column}
-.wf-place-card-title-row{gap:7px!important}
-.wf-place-card-rank{
-  position:absolute!important;
-  z-index:4;
-  top:11px;
-  left:calc(10px - var(--wf-place-card-media));
-  display:flex!important;
-  width:34px!important;
-  height:34px!important;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(255,255,255,.2);
-  border-radius:11px!important;
-  background:rgba(4,8,15,.78)!important;
-  color:#FFF!important;
-  font-size:12px!important;
-  box-shadow:0 8px 20px rgba(0,0,0,.28);
-  backdrop-filter:blur(10px);
-}
-.wf-place-card.is-curator-pick{
-  border-color:rgba(238,190,75,.48)!important;
-  background:
-    radial-gradient(circle at 0% 100%,rgba(238,190,75,.10),transparent 35%),
-    radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),
-    linear-gradient(145deg,rgba(255,255,255,.04),transparent 36%),
-    #111824!important;
-  box-shadow:0 20px 52px rgba(0,0,0,.38),0 0 32px rgba(218,164,37,.07),inset 0 1px rgba(255,240,195,.08);
-}
-.wf-place-card.is-curator-pick:before{
-  left:0;
-  width:100%;
-  height:2px;
-  background:linear-gradient(90deg,transparent 2%,#9A6813 15%,#FFE8A3 42%,#D89B20 68%,transparent 98%);
-  opacity:1;
-}
-.wf-place-card-owner{
-  position:absolute;
-  z-index:6;
-  bottom:9px;
-  left:8px;
-  display:inline-flex;
-  align-items:center;
-  width:calc(var(--wf-place-card-media) - 16px);
-  min-width:0;
-  height:27px;
-  box-sizing:border-box;
-  gap:5px;
-  padding:3px 6px 3px 4px;
-  overflow:hidden;
-  border:1px solid rgba(249,115,22,.78);
-  border-radius:999px;
-  background:
-    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
-    rgba(5,9,15,.76);
-  color:#FF8A35;
-  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
-  backdrop-filter:blur(10px) saturate(1.12);
-  -webkit-backdrop-filter:blur(10px) saturate(1.12);
-  pointer-events:none;
-}
-.wf-place-card-owner:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:linear-gradient(105deg,rgba(255,255,255,.07),transparent 34%);
-  pointer-events:none;
-}
-.wf-place-card-owner-mark{
-  position:relative;
-  display:grid;
-  width:19px;
-  height:19px;
-  flex:0 0 19px;
-  place-items:center;
-  border:1px solid rgba(255,138,53,.92);
-  border-radius:50%;
-  background:rgba(249,115,22,.09);
-  color:#FF9A50;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),0 2px 7px rgba(0,0,0,.35);
-}
-.wf-place-card-owner-mark svg{display:block}
-.wf-place-card-owner-copy{
-  position:relative;
-  z-index:1;
-  overflow:hidden;
-  color:#FFD4B5;
-  font-size:7.5px;
-  font-weight:950;
-  letter-spacing:.13em;
-  line-height:1;
-  text-overflow:clip;
-  text-transform:uppercase;
-  white-space:nowrap;
-}
-.wf-place-card-heading{flex:1;min-width:0}
-.wf-place-card-category{
-  display:flex;
-  align-items:center;
-  gap:5px;
-  margin:0 0 4px;
-  padding:0;
-  border:0;
-  background:transparent;
-  color:#FF9B50;
-  font-size:8.5px;
-  font-weight:850;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  cursor:default;
-}
-.wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
-.wf-place-card-category.is-tappable{cursor:pointer}
-.wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
-.wf-place-card-score{filter:none!important}
-.wf-place-card-score .wayfind-score-badge[data-score-band="excellent"]{--wf-score-color:#25C26E;--wf-score-tint:rgba(37,194,110,.10);--wf-score-border:rgba(37,194,110,.62);--wf-score-glow:rgba(37,194,110,.20)}
-.wf-place-card-score .wayfind-score-badge[data-score-band="strong"]{--wf-score-color:#FF6B18;--wf-score-tint:rgba(255,107,24,.11);--wf-score-border:rgba(255,107,24,.68);--wf-score-glow:rgba(255,107,24,.20)}
-.wf-place-card-score .wayfind-score-badge[data-score-band="fair"]{--wf-score-color:#F2C94C;--wf-score-tint:rgba(242,201,76,.11);--wf-score-border:rgba(242,201,76,.68);--wf-score-glow:rgba(242,201,76,.18)}
-.wf-place-card-score .wayfind-score-badge[data-score-band="low"]{--wf-score-color:#E5484D;--wf-score-tint:rgba(229,72,77,.11);--wf-score-border:rgba(229,72,77,.66);--wf-score-glow:rgba(229,72,77,.18)}
-.wf-place-card-score .wayfind-score-badge{
-  width:98px;
-  min-width:98px;
-  height:46px;
-  box-sizing:border-box;
-  justify-content:flex-start;
-  border-width:1.5px!important;
-  border-color:var(--wf-score-border)!important;
-  border-radius:13px!important;
-  background:linear-gradient(135deg,var(--wf-score-tint),transparent 68%),rgba(5,13,17,.92)!important;
-  box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 11px var(--wf-score-glow);
-}
-.wf-place-card-score .wayfind-score-badge>span:first-child{
-  display:flex!important;
-  width:24px!important;
-  height:100%;
-  box-sizing:border-box;
-  background:linear-gradient(180deg,var(--wf-score-color),color-mix(in srgb,var(--wf-score-color) 72%,#071018))!important;
-  box-shadow:inset -1px 0 rgba(255,255,255,.12);
-}
-.wf-place-card-score .wayfind-score-badge>span:last-child{
-  min-width:0!important;
-  flex:1;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  box-sizing:border-box;
-  padding:6px 6px!important;
-  gap:2px!important;
-}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:first-child{
-  width:100%;
-  text-align:center;
-  font-size:6.5px!important;
-  line-height:1!important;
-  letter-spacing:.7px!important;
-  color:#B8C2D0!important;
-}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child{
-  width:100%;
-  display:flex!important;
-  align-items:baseline!important;
-  justify-content:center!important;
-  gap:2px!important;
-  font-size:18px!important;
-  line-height:.95!important;
-  white-space:nowrap;
-}
-.wf-place-card-score .wayfind-score-badge>span:last-child>span:last-child span{
-  font-size:7.5px!important;
-  line-height:1!important;
-}
-.wf-place-card-meta{gap:4px 12px!important;margin:8px 0 6px!important;color:#A8B2C2}
-.wf-place-card-meta>span{position:relative;font-size:10.5px!important;white-space:nowrap}
-.wf-place-card-meta>span+span:before{content:"·";position:absolute;left:-8px;color:#4E5A6D}
-.wf-place-card-meta>span[style*="color: rgb(34, 197, 94)"],.wf-place-card-meta>span[style*="#22C55E"]{color:#4CE0B3!important}
-.wf-place-card-award{
-  display:inline-flex;
-  width:max-content;
-  max-width:100%;
-  min-height:25px;
-  align-items:center;
-  gap:6px;
-  margin:1px 0 7px;
-  padding:3px 9px 3px 5px;
-  overflow:hidden;
-  border:1px solid rgba(223,184,96,.35);
-  border-radius:999px;
-  background:linear-gradient(110deg,rgba(223,184,96,.16),rgba(223,184,96,.035));
-  color:#F5D98F;
-  font-size:9px;
-  font-weight:850;
-  letter-spacing:.055em;
-  line-height:1;
-  text-transform:uppercase;
-  box-shadow:inset 0 1px rgba(255,255,255,.045);
-}
-.wf-place-card-award>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wf-place-card-award-icon{
-  position:relative;
-  isolation:isolate;
-  display:grid;
-  width:18px;
-  height:18px;
-  flex:0 0 18px;
-  place-items:center;
-  border-radius:50%;
-  background:#D9A52E;
-  color:#111824;
-  font-size:9px;
-  font-weight:950;
-  box-shadow:0 3px 10px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.45);
-}
-.wf-place-card-award-icon:after{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  bottom:-4px;
-  width:9px;
-  height:7px;
-  background:currentColor;
-  clip-path:polygon(0 0,100% 0,78% 100%,50% 68%,22% 100%);
-  opacity:.72;
-}
-.wf-place-card-award.is-rank-1{border-color:rgba(235,187,72,.48);background:linear-gradient(110deg,rgba(235,187,72,.2),rgba(235,187,72,.04));color:#F4D477}
-.wf-place-card-award.is-rank-1 .wf-place-card-award-icon{background:linear-gradient(145deg,#FFE39A,#D79A18);color:#2B1B00}
-.wf-place-card-award.is-rank-2{border-color:rgba(190,204,223,.34);background:linear-gradient(110deg,rgba(190,204,223,.14),rgba(190,204,223,.025));color:#D9E2EF}
-.wf-place-card-award.is-rank-2 .wf-place-card-award-icon{background:linear-gradient(145deg,#F2F5F8,#9BAABD);color:#17202D}
-.wf-place-card-award.is-rank-3{border-color:rgba(204,139,91,.38);background:linear-gradient(110deg,rgba(204,139,91,.15),rgba(204,139,91,.025));color:#E4B18B}
-.wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:linear-gradient(145deg,#E6B184,#9A5D36);color:#25150C}
-.wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
-.wf-place-card-highlights>button,.wf-place-card-highlights>span{
-  display:inline-flex!important;
-  align-items:center;
-  min-height:23px;
-  padding:2px 8px!important;
-  border:1px solid rgba(159,177,203,.17)!important;
-  border-radius:999px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important;
-  color:#DFE5EE!important;
-  font-size:9.5px!important;
-  font-weight:750!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.035);
-}
-.wf-place-card-highlights>button{
-  border-color:rgba(249,115,22,.44)!important;
-  background:linear-gradient(180deg,rgba(249,115,22,.13),rgba(249,115,22,.045))!important;
-  color:#FFC18F!important;
-  cursor:pointer;
-  box-shadow:inset 0 1px rgba(255,255,255,.07);
-  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease,background .18s ease;
-}
-.wf-place-card-highlights>button:hover,.wf-place-card-highlights>button:focus-visible{
-  border-color:rgba(255,155,80,.82)!important;
-  background:linear-gradient(180deg,rgba(249,115,22,.2),rgba(249,115,22,.07))!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.1);
-  transform:translateY(-1px);
-  outline:none;
-}
-.wf-place-card-highlights>span{color:#DFE5EE!important}
-.wf-place-card-take{
-  overflow:hidden;
-  padding-left:8px;
-  border-left:2px solid rgba(249,115,22,.58);
-  color:#CDD5E1!important;
-  font-size:10.5px!important;
-  line-height:1.35!important;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
-.wf-place-card-actions>a,.wf-place-card-actions>button{
-  display:inline-flex!important;
-  min-height:34px;
-  align-items:center;
-  justify-content:center;
-  padding:0 13px!important;
-  border:1px solid rgba(159,177,203,.22)!important;
-  border-radius:11px!important;
-  background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,255,255,.005)),#0A1019!important;
-  color:#DFE5EE!important;
-  font-size:10.5px!important;
-  font-weight:800!important;
-  line-height:1!important;
-  box-shadow:inset 0 1px rgba(255,255,255,.025);
-}
-.wf-place-card-book{color:#FF9B50!important;border-color:rgba(249,115,22,.36)!important;text-decoration:none}
-.wf-place-card-save.is-active{color:#0D1117!important;border-color:#F97316!important;background:#F97316!important}
-.wf-place-card-like,.wf-place-card-dislike{
-  width:42px!important;
-  min-width:42px!important;
-  height:40px!important;
-  min-height:40px!important;
-  flex:0 0 42px;
-  justify-content:center!important;
-  padding:0!important;
-  border-radius:12px!important;
-}
-.wf-place-card-like svg,.wf-place-card-dislike svg{display:block;width:19px;height:19px}
-.wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
-.wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
-.wf-place-card-share{min-width:88px;margin-left:auto}
-.wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
-.wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
-@media(max-width:430px){
-  .wf-place-card{--wf-place-card-media:88px}
-  .wf-place-card-layout>img{width:88px!important}
-  .wf-place-card-content{padding-inline:10px!important}
-  .wf-place-card-name{font-size:15px!important}
-  .wf-place-card-meta>span{font-size:9.75px!important}
-  .wf-place-card-highlights>button{font-size:9px!important}
-}
-@media(min-width:${WF_DESKTOP_BP}px){
-  .wf-place-card{--wf-place-card-media:108px}
-  .wf-place-card-layout>img{width:108px!important}
-  .wf-place-card-name{font-size:17px!important}
-}
-.wf-bottom-nav{
-  padding:3px 4px 2px!important;
-  gap:2px!important;
-}
-.wf-bottom-nav-item{
-  min-height:52px!important;
-  padding:4px 4px 2px!important;
-  gap:2px!important;
-}
-.wf-bottom-nav-icon{width:29px!important;height:24px!important;transform:none!important}
-.wf-bottom-nav-label{font-size:10.5px!important}
-@media(display-mode:standalone){
-  .wf-bottom-nav{padding-bottom:max(3px,calc(env(safe-area-inset-bottom) - 16px))!important}
-}
-@media(min-width:${WF_DESKTOP_BP}px){
-  .wf-bottom-nav{bottom:12px!important;padding:4px 6px 3px!important;border-radius:18px!important}
-  .wf-bottom-nav-item{min-height:54px!important;padding:4px 6px 3px!important}
-  .wf-bottom-nav-icon{width:30px!important;height:25px!important}
-  .wf-bottom-nav-label{font-size:10.75px!important}
-}
-`;
+// WF_LAYOUT_CSS lives in app/components/css.js (July 2026 decomposition).
+// Re-declaring it here renders the shell stylesheet — and the wordmark — twice.
+
+// WF_SEARCH_CSS lives in app/components/css.js (July 2026 decomposition).
+
+// WF_PLACE_CARD_CSS lives in app/components/css.js (July 2026 decomposition).
+
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 

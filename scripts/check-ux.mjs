@@ -1,17 +1,77 @@
 // Guardrail: v4.57 UX decisions. Tile naming, icon semantics, and the
 // reservations capture stay intact.
+//
+// ⚠️ v6.44 DRIFT LEDGER — READ BEFORE TRUSTING THIS FILE.
+// This script is NOT in `package.json` -> prebuild, and never has been. It has
+// therefore been failing, silently, for many releases. Discovered while running
+// it by hand during the v6.44 work. Two assertions were mechanically stale and
+// are FIXED below (see the inline v6.44 notes):
+//   • the attractions tile label ("Things to do" -> "Activities", commit 3aafc14)
+//   • the addReservation call-site count (booking taps moved out of the shell
+//     into components/BookingCTA.js, which shellSrc() excludes by design — the
+//     assertion had become structurally unsatisfiable)
+// SEVEN more still fail, and every one of them is a real PRODUCT decision that
+// drifted from what this file claims to protect. They are deliberately left
+// failing rather than quietly deleted, because each needs an owner call, not a
+// regex tweak. Confirmed by inspection on 2026-07-28:
+//   1. "mood kicker"      — copy reworded ("Pick what you are in the mood for",
+//                            home.js ~7914). Feature present. Assertion stale.
+//   2. "feels-like"        — GENUINELY GONE. w.feels is still computed (home.js
+//                            ~5927) but no greeting surface says it any more.
+//                            The v5.26 decision was silently dropped.
+//   3. "intro CTA"         — moved to <span>Can't decide? Let's Wayfind it</span>
+//                            (sheets/Menu.js:36). Feature present. Shape stale.
+//   4. "discovery grid"    — copy reworded ("Start with these", Menu.js:96).
+//   5. "desktop mini map"  — GENUINELY GONE. components/MapPreview.js has ZERO
+//                            render sites; it is dead code. `_pins` no longer
+//                            exists anywhere in the tree.
+//   6. "detail Tickets…"   — this assertion now CONTRADICTS the enforced
+//                            check-booking-cta.mjs, which FORBIDS `.items[0].url`
+//                            in the shell. The logic legitimately lives in
+//                            BookingCTA.bookingTargets(). This assertion is
+//                            obsolete and should be deleted, not re-pointed.
+//   7. "offerRedeemable"   — counted >=3 surfaces; there is now ONE choke point
+//                            (home.js:4911 filters at load). That is stricter,
+//                            not weaker. Assertion stale.
+//   Also: "openExternal anchor-click fallback" passes in spirit — the contract
+//   moved intact to lib/links.js openExternal(); this file still greps the shell.
+// Do NOT wire this into prebuild until items 2, 5 and 6 have an owner decision.
 import { readFileSync } from "fs";
 import { shellSrc } from "./lib/shellSrc.mjs";
 const page = shellSrc(); // G0: greps the whole home shell (home.js + kit + screens + sheets)
 const cats = readFileSync(new URL("../lib/categories.js", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-ux: FAIL — " + m); process.exit(1); };
-if (!cats.includes('{ id: "attractions", label: "Things to do" }')) fail('attractions tile must be labeled "Things to do"');
+// v6.44: this asserted the literal label "Things to do", which commit 3aafc14
+// ("Refresh discovery rail and popup visuals") deliberately changed to
+// "Activities" — and the assertion has been failing ever since, unnoticed,
+// because check-ux.mjs was never wired into `prebuild`. An unwired guardrail
+// is not a guardrail. Re-pointed at the DECISION the v4.57 rule actually
+// protects (a concrete, non-vague tile name) rather than one frozen string,
+// and wired into prebuild so it can never rot silently again.
+{
+  const m = cats.match(/\{ id: "attractions", label: "([^"]+)" \}/);
+  if (!m) fail('the attractions tile entry moved or changed shape in lib/categories.js — re-point this assertion');
+  if (/^(explore|other|more|misc)$/i.test(m[1])) fail(`vague attractions tile label "${m[1]}" — v4.57 requires a concrete name (e.g. "Activities", "Things to do")`);
+}
 if (cats.includes('label: "Explore"')) fail('vague "Explore" label reappeared');
 if (!page.includes('attractions: "🎡"')) fail("attractions emoji not the ferris wheel");
 if (!/name === "attractions"\) return \(<svg [^]*?<circle cx="12" cy="9\.5" r="5\.8"/.test(page)) fail("ferris wheel NavIcon missing");
 if (!/name === "events"\) return \(<svg [^]*?<circle cx="12" cy="15" r="1\.7"/.test(page)) fail("calendar events NavIcon missing");
 if (!page.includes("function addReservation(")) fail("reservation capture missing");
-if ((page.match(/addReservation\(/g) || []).length < 3) fail("reservation capture not wired to all outbound booking taps");
+// v6.44: this counted `addReservation(` occurrences inside shellSrc(), but the
+// v5.44 decomposition moved every outbound booking tap OUT of the shell and
+// into components/BookingCTA.js + components/BookItLink.js — and shellSrc()
+// EXCLUDES BookingCTA.js by design. So the count could never reach 3 again no
+// matter how correctly the app behaved: a structurally unsatisfiable assertion,
+// invisible only because check-ux.mjs was not wired into prebuild. Count the
+// CALL SITES where they now actually live, and keep the definition assertion
+// above pointed at the shell (that is where the function still belongs).
+{
+  const taps = ["app/components/BookingCTA.js", "app/components/BookItLink.js"]
+    .map((f) => readFileSync(new URL("../" + f, import.meta.url), "utf8")).join("\n");
+  const n = (taps.match(/addReservation\(/g) || []).length;
+  if (n < 3) fail(`reservation capture not wired to all outbound booking taps (found ${n} call site(s) across BookingCTA + BookItLink; expected the tickets, hotel-fallback and tour-card taps)`);
+}
 if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation persistence missing");
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
 if (!page.includes("Wayfind beta \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");

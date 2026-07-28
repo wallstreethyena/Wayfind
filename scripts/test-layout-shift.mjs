@@ -17,19 +17,26 @@
 // the shift cannot occur. Any future `isDesktop ? A : B` that decides a WIDTH,
 // MAX-WIDTH, MARGIN or DISPLAY re-creates the bug, so this test fails the build.
 import { readFileSync } from "node:fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 
 let passed = 0;
 const fail = (m) => { console.error("test-layout-shift: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); passed++; };
 
 const src = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+// The CSS itself was lifted into app/components/css.js (July 2026 decomposition,
+// wave 1) — same shell, same single server-rendered <style> tag, just not the
+// same file. The CONTRACT this test enforces is unchanged, so the CSS-literal
+// assertions read the whole shell while the JSX assertions below stay pinned to
+// home.js, where the markup and the isDesktop scan actually live.
+const shell = shellSrc();
 
 // 1. The CSS exists and is server-rendered inline (not a client-only injection).
-ok(src.includes("WF_LAYOUT_CSS"), "WF_LAYOUT_CSS is gone — the responsive layout must ship as CSS");
-const cssM = src.match(/const WF_LAYOUT_CSS = `([^`]*)`/);
+ok(shell.includes("WF_LAYOUT_CSS"), "WF_LAYOUT_CSS is gone — the responsive layout must ship as CSS");
+const cssM = shell.match(/const WF_LAYOUT_CSS = `([^`]*)`/);
 ok(!!cssM, "WF_LAYOUT_CSS must be a plain template literal so it is server-rendered");
 // The literal contains ${WF_DESKTOP_BP}; resolve it so we assert the real breakpoint.
-const bpM = src.match(/const WF_DESKTOP_BP = (\d+)/);
+const bpM = shell.match(/const WF_DESKTOP_BP = (\d+)/);
 ok(!!bpM, "WF_DESKTOP_BP is missing");
 const css = cssM[1].replaceAll("${WF_DESKTOP_BP}", bpM[1]);
 // RE-POINTED (commit 3d95dd7 "fix(hydration): search/map/all interactivity
@@ -43,7 +50,7 @@ const css = cssM[1].replaceAll("${WF_DESKTOP_BP}", bpM[1]);
 ok(/<style dangerouslySetInnerHTML=\{\{ __html: `[^`]*\$\{WF_LAYOUT_CSS\}/.test(src), "WF_LAYOUT_CSS must be rendered into the inline <style dangerouslySetInnerHTML> block");
 
 // 2. The breakpoint must stay in lockstep with the old JS threshold (900).
-ok(src.includes("const WF_DESKTOP_BP = 900"), "WF_DESKTOP_BP must be 900 to match the previous vw >= 900 behaviour");
+ok(shell.includes("const WF_DESKTOP_BP = 900"), "WF_DESKTOP_BP must be 900 to match the previous vw >= 900 behaviour");
 ok(css.includes("@media(min-width:900px)"), "the media query must use the 900px breakpoint");
 
 // 3. Every layout class the JSX references must be defined in the CSS, and vice

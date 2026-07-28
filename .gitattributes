@@ -6,3 +6,8 @@
 *.css text eol=lf
 *.mjs text eol=lf
 *.sql text eol=lf
+
+# One guard per line, so concurrent additions from different branches are BOTH
+# kept instead of conflicting on a shared line. Union is safe here because the
+# runner de-duplicates and order is not load-bearing between guards.
+scripts/guards.txt merge=union
