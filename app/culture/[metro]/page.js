@@ -4,6 +4,8 @@
 // and pass authority to the guides and the app through internal links.
 import { notFound } from "next/navigation";
 import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
+import ExploreBridge from "../../components/ExploreBridge";
+import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
@@ -49,6 +51,21 @@ export default async function CulturePage({ params }) {
   // undefined — a guaranteed TypeError → HTTP 500 on any unknown metro slug (bad
   // for users and for how Google reads these URLs). Return a real 404.
   if (!c) notFound();
+  // Culture metro slugs line up with landing city slugs (tampa, sarasota,
+  // orlando, ...). rankedFor reuses the SAME 30-day cached rows as /go/[city],
+  // so the bridge adds no new metered Places spend beyond first render.
+  const bridgeCity = LANDING_CITIES[params.metro] || null;
+  let bridgePicks = [];
+  if (bridgeCity) {
+    try {
+      const ranked = await rankedFor("things-to-do", params.metro, { withPhotos: true });
+      bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
+        id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
+        distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
+        reason: whyLine(p, "spot"),
+      }));
+    } catch (e) { bridgePicks = []; }
+  }
   return (
     <main style={S.page}>
       {/* v5.75: the Article + Breadcrumb JSON-LD used to sit ONLY in the
@@ -59,6 +76,7 @@ export default async function CulturePage({ params }) {
       <div style={S.kicker}>Know before you go · {c.tag}</div>
       <h1 style={S.h1}>What {c.title} Is Known For</h1>
       <p style={S.sub}>The local food, the experiences you shouldn&apos;t leave without, the sights worth your eyes, and how the locals actually talk.</p>
+      <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/culture/" + params.metro} pageType="culture" />
       <h2 style={S.h2}>Eat like a local</h2>
       {c.eat.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
       <h2 style={S.h2}>Don&apos;t leave without</h2>
