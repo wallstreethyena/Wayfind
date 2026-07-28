@@ -16,9 +16,9 @@ import { C, useDialogFocus, Icon } from "../kit";
 // language instead of an emoji grid, calmer and on-brand.
 const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart", nightout: "glass", eatnow: "utensils", brunch: "utensils", hiddengems: "gem", familyfun: "users" };
 
-// The welcome moment uses one recognizable, upbeat family scene so it stays
-// visually consistent whenever the visitor opens "Your best next plan."
-const INTRO_VISUAL = "/brand/wayfind-next-plan-family-pool.jpeg";
+// A destination-led editorial scene makes the welcome feel like the beginning
+// of a night out, not a generic onboarding panel.
+const INTRO_VISUAL = "/brand/wayfind-welcome-local-discovery-v1.png";
 
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
@@ -45,22 +45,117 @@ function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
 export default function IntroSheet({ ctx }) {
   const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience } = ctx;
   const introDlgRef = useRef(null);
-  useDialogFocus(introOpen, introDlgRef, () => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); });
+  const introLocation = String(locName || "").replace(/\s*,\s*/g, ", ").trim();
+  const dismissIntro = () => {
+    try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
+    setIntroOpen(false);
+  };
+  useDialogFocus(introOpen, introDlgRef, dismissIntro);
   return (
-        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(5,7,14,.78)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 16px", overflowY: "auto" }} onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }}>
-          <style dangerouslySetInnerHTML={{ __html: `@keyframes wfIntroIn{from{opacity:0;transform:scale(.975) translateY(14px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes wfIntroTileIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}@keyframes wfLogoPinGlow{0%,100%{opacity:.26;transform:scale(.88)}50%{opacity:.58;transform:scale(1.12)}}.wf-intro-pop{isolation:isolate}.wf-logo-pin-glow{animation:wfLogoPinGlow 3.8s ease-in-out infinite}.wf-mood-tile{transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease}.wf-mood-tile:hover{transform:translateY(-2px);border-color:rgba(255,184,122,.68)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 12px 22px rgba(0,0,0,.28)!important}.wf-mood-tile:active{transform:translateY(0) scale(.98)}.wf-intro-cta{transition:transform .2s ease,filter .2s ease}.wf-intro-cta:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.04)}.wf-intro-cta:not(:disabled):active{transform:translateY(0) scale(.99)}.wf-mood-tile:focus-visible,.wf-intro-cta:focus-visible{outline:2px solid #FFB56F;outline-offset:2px}@media(max-height:700px){.wf-intro-pop{border-radius:22px!important}.wf-intro-copy{padding:16px 16px 6px!important}.wf-intro-logo{width:138px!important;height:50px!important}.wf-intro-title{font-size:24px!important;margin-top:5px!important}.wf-intro-desc{font-size:12px!important;line-height:1.3!important;margin-top:5px!important}.wf-intro-body{padding:4px 16px 14px!important}.wf-intro-prompt{margin-top:3px!important;margin-bottom:6px!important}.wf-mood-grid{max-width:288px!important;gap:8px!important;margin-bottom:6px!important}.wf-mood-tile{min-height:54px!important;padding:5px 4px!important;gap:3px!important;font-size:11px!important}.wf-mood-tile svg{width:19px!important;height:19px!important}.wf-intro-cta{max-width:288px!important;min-height:43px!important;margin-top:13px!important;padding:8px 14px!important}.wf-intro-work{min-height:24px!important;margin-top:2px!important;font-size:11.5px!important}.wf-intro-foot{margin-top:1px!important;font-size:9.5px!important}}@media (prefers-reduced-motion:reduce){.wf-intro-pop,.wf-logo-pin-glow,.wf-mood-tile,.wf-intro-cta{animation:none !important;transition:none!important}}` }} />
-          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop" style={{ outline: "none", position: "relative", zIndex: 1, width: "100%", maxWidth: 383, maxHeight: "calc(100dvh - 16px)", overflow: "hidden", borderRadius: 26, padding: 0, background: "linear-gradient(180deg,#0D1520 0%,#080B10 48%,#07090D 100%)", border: "1px solid #2B3441", boxShadow: "0 32px 80px rgba(0,0,0,.72)", animation: "wfIntroIn .46s cubic-bezier(.16,1,.3,1) both" }}>
-            <img aria-hidden="true" src={INTRO_VISUAL} alt="" style={{ position: "absolute", inset: "0 0 auto", width: "100%", height: 246, objectFit: "cover", objectPosition: "58% center", pointerEvents: "none" }} />
-            <div aria-hidden="true" style={{ position: "absolute", inset: "0 0 auto", height: 285, pointerEvents: "none", background: "linear-gradient(180deg,rgba(5,8,13,.48) 0%,rgba(5,8,13,.48) 44%,rgba(8,11,16,.88) 80%,#080B10 100%)" }} />
-            <button onClick={() => { try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); }} aria-label="Close" style={{ position: "absolute", zIndex: 3, right: 14, top: 14, width: 38, height: 38, borderRadius: 999, background: "rgba(8,11,16,.68)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,.18)", color: "#F5F7FA", fontSize: 16, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{"\u2715"}</button>
-            <div className="wf-intro-copy" style={{ position: "relative", zIndex: 1, padding: "26px 18px 9px" }}>
-              <div aria-hidden="true" style={{ position: "absolute", inset: "0 0 -24px", pointerEvents: "none", background: "linear-gradient(180deg,rgba(2,5,9,.66) 0%,rgba(2,5,9,.42) 58%,rgba(2,5,9,0) 100%)" }} />
-              <div className="wf-intro-logo" style={{ width: 172, height: 62 }}><img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }} /></div>
-              <div className="wf-intro-title" style={{ position: "relative", fontSize: 27, fontWeight: 850, letterSpacing: "-.045em", color: "#FFFFFF", lineHeight: 1.06, textShadow: "0 2px 12px rgba(0,0,0,.7)", marginTop: 9 }}>Your best next plan,<br />without the work.</div>
-              <div className="wf-intro-desc" style={{ position: "relative", marginTop: 7, maxWidth: 350, color: "#FFFFFF", fontSize: 13, lineHeight: 1.36, fontWeight: 650, textShadow: "0 1px 8px rgba(0,0,0,.72)" }}>Tell Wayfind what sounds good. We do the research and bring back places worth your time—nearby now or wherever you go.</div>
-            </div>
-            <div className="wf-intro-body" style={{ position: "relative", zIndex: 1, padding: "7px 18px 21px", marginTop: 0 }}>
-              <div className="wf-intro-prompt" style={{ display: "flex", alignItems: "baseline", marginTop: 8, marginBottom: 8 }}><div style={{ fontSize: 14, fontWeight: 800, color: "#F4F6FC" }}>What sounds good right now?</div></div>
+        <div className="wf-intro-backdrop" onClick={dismissIntro}>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes wfIntroIn{from{opacity:0;transform:scale(.985) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+            @keyframes wfIntroTileIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+            .wf-intro-backdrop{position:fixed;inset:0;z-index:90;background:rgba(5,15,23,.64);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+            .wf-intro-pop{--wf-intro-text:${C.text};--wf-intro-muted:${C.muted};--wf-intro-light:${C.light};--wf-intro-accent:${C.accent};--wf-intro-ink:#111824;--wf-intro-border:${C.border};isolation:isolate;outline:none;position:relative;z-index:1;width:100%;max-width:960px;max-height:calc(100dvh - 48px);display:grid;grid-template-columns:minmax(0,.9fr) minmax(470px,1.1fr);overflow:hidden;border-radius:36px;background:#F7F3EA;border:1px solid rgba(255,255,255,.74);box-shadow:0 46px 120px rgba(3,13,20,.46),0 4px 16px rgba(3,13,20,.16);animation:wfIntroIn .48s cubic-bezier(.16,1,.3,1) both}
+            .wf-intro-visual{position:relative;min-height:604px;overflow:hidden;background:${C.bg}}
+            .wf-intro-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% center}
+            .wf-intro-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,16,24,.08) 20%,rgba(5,16,24,.24) 54%,rgba(5,16,24,.88) 100%)}
+            .wf-intro-brand{position:absolute;z-index:1;left:32px;top:28px;width:142px;height:48px}
+            .wf-intro-brand img{display:block;width:100%;height:100%;object-fit:contain}
+            .wf-intro-copy{position:absolute;z-index:1;left:36px;right:34px;bottom:38px;color:var(--wf-intro-text)}
+            .wf-intro-kicker{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#FFB575}
+            .wf-intro-kicker:before{content:"";width:26px;height:1px;background:var(--wf-intro-accent)}
+            .wf-intro-title{max-width:370px;margin-top:14px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:44px;font-weight:500;letter-spacing:-.045em;line-height:.97;text-wrap:balance}
+            .wf-intro-desc{max-width:350px;margin-top:18px;color:var(--wf-intro-light);font-size:13.5px;line-height:1.62;font-weight:520}
+            .wf-intro-body{position:relative;display:flex;flex-direction:column;padding:45px 48px 32px;color:var(--wf-intro-ink);overflow-y:auto;background:radial-gradient(circle at 100% 0%,rgba(249,115,22,.055),transparent 42%),#F7F3EA}
+            .wf-intro-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;color:#4E5A6D;font-size:9.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
+            .wf-intro-location{display:flex;align-items:center;gap:6px;max-width:56%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#B94E0B;letter-spacing:.08em}
+            .wf-intro-location:before{content:"";width:5px;height:5px;border-radius:999px;background:var(--wf-intro-accent);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+            .wf-intro-prompt{margin:0;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:34px;font-weight:500;letter-spacing:-.04em;line-height:1.03;color:var(--wf-intro-ink);text-wrap:balance}
+            .wf-intro-sub{margin:13px 0 24px;max-width:390px;color:#4E5A6D;font-size:13px;line-height:1.62}
+            .wf-mood-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;column-gap:18px;row-gap:2px;border-top:1px solid rgba(45,55,72,.18)}
+            .wf-mood-tile{min-height:60px;display:flex;align-items:center;gap:11px;text-align:left;padding:10px 5px;border:0;border-bottom:1px solid rgba(45,55,72,.18);border-radius:0;background:transparent;color:var(--wf-intro-ink);font-size:12.5px;font-weight:760;line-height:1.2;cursor:pointer;box-shadow:none;transition:padding .2s ease,color .2s ease,background .2s ease}
+            .wf-mood-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;color:#C95A10;transition:color .2s ease,transform .2s ease}
+            .wf-mood-tile:after{content:"";width:6px;height:6px;margin-left:auto;border-radius:999px;border:1px solid rgba(45,55,72,.32);transition:background .2s ease,border-color .2s ease,transform .2s ease}
+            .wf-mood-tile:hover{padding-left:9px;background:rgba(255,255,255,.4);color:#8F3B09}
+            .wf-mood-tile[data-selected="true"]{padding-left:9px;background:rgba(249,115,22,.08);color:var(--wf-intro-ink)}
+            .wf-mood-tile[data-selected="true"] .wf-mood-icon{color:var(--wf-intro-accent);transform:scale(1.05)}
+            .wf-mood-tile[data-selected="true"]:after{background:var(--wf-intro-accent);border-color:var(--wf-intro-accent);transform:scale(1.12)}
+            .wf-mood-tile:active{transform:translateY(0) scale(.985)}
+            .wf-intro-cta{width:100%;min-height:55px;margin-top:25px;padding:13px 20px;border-radius:999px;border:1px solid transparent;background:var(--wf-intro-ink);color:var(--wf-intro-text);box-shadow:0 13px 26px rgba(17,24,36,.2);font-size:13.5px;font-weight:850;letter-spacing:.005em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .2s ease,background .2s ease,box-shadow .2s ease}
+            .wf-intro-cta span{color:var(--wf-intro-accent);font-size:18px;font-weight:500}
+            .wf-intro-cta:disabled{background:#DEDCD3;color:#7B8380;box-shadow:none;cursor:default}
+            .wf-intro-cta:disabled span{color:#9DA29D}
+            .wf-intro-cta:not(:disabled):hover{transform:translateY(-1px);background:${C.bg};box-shadow:0 16px 30px rgba(4,8,16,.25)}
+            .wf-intro-cta:not(:disabled):active{transform:translateY(0) scale(.992)}
+            .wf-intro-skip{align-self:center;margin-top:13px;border:0;background:transparent;color:#4E5A6D;font-size:11.5px;font-weight:700;text-decoration:underline;text-decoration-color:rgba(78,90,109,.3);text-underline-offset:3px;cursor:pointer}
+            .wf-intro-foot{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:auto;padding-top:20px;font-size:10px;color:#647082;letter-spacing:.01em}
+            .wf-intro-close{position:absolute;z-index:4;right:18px;top:18px;width:38px;height:38px;border-radius:999px;background:rgba(247,243,234,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(45,55,72,.16);color:var(--wf-intro-ink);font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 3px 12px rgba(17,24,36,.08)}
+            .wf-mood-tile:focus-visible,.wf-intro-cta:focus-visible,.wf-intro-skip:focus-visible,.wf-intro-close:focus-visible{outline:3px solid rgba(249,115,22,.5);outline-offset:3px}
+            @media(max-width:760px){
+              .wf-intro-backdrop{align-items:flex-end;padding:10px}
+              .wf-intro-pop{display:block;max-width:520px;max-height:calc(100dvh - 10px);border-radius:26px 26px 20px 20px;overflow-y:auto}
+              .wf-intro-visual{min-height:205px}
+              .wf-intro-visual>img{object-position:50% 57%}
+              .wf-intro-brand{left:22px;top:18px;width:118px;height:38px}
+              .wf-intro-copy{left:22px;right:58px;bottom:20px}
+              .wf-intro-kicker{font-size:9px}
+              .wf-intro-kicker:before{width:18px}
+              .wf-intro-title{margin-top:8px;font-size:31px;line-height:1}
+              .wf-intro-desc{display:none}
+              .wf-intro-body{padding:25px 20px 19px;overflow:visible}
+              .wf-intro-meta{margin-bottom:19px}
+              .wf-intro-prompt{font-size:25px}
+              .wf-intro-sub{margin:8px 0 17px;font-size:12.5px}
+              .wf-mood-grid{column-gap:12px;row-gap:0}
+              .wf-mood-tile{min-height:52px;padding:8px 3px;gap:7px;font-size:11.5px}
+              .wf-mood-tile:hover,.wf-mood-tile[data-selected="true"]{padding-left:6px}
+              .wf-mood-icon{width:25px;height:25px}
+              .wf-mood-icon svg{width:18px!important;height:18px!important}
+              .wf-intro-cta{min-height:49px;margin-top:17px}
+              .wf-intro-foot{padding-top:14px}
+              .wf-intro-close{right:15px;top:15px;background:rgba(7,19,27,.64);border-color:rgba(255,255,255,.18);color:#fff}
+            }
+            @media(max-height:700px) and (min-width:761px){
+              .wf-intro-pop{max-width:820px;grid-template-columns:.82fr 1.18fr}
+              .wf-intro-visual{min-height:520px}
+              .wf-intro-body{padding:32px 40px 24px}
+              .wf-intro-meta{margin-bottom:18px}
+              .wf-intro-prompt{font-size:28px}
+              .wf-intro-sub{margin:8px 0 17px}
+              .wf-mood-tile{min-height:54px;padding:9px 12px}
+              .wf-intro-cta{margin-top:16px;min-height:49px}
+              .wf-intro-foot{padding-top:15px}
+            }
+            @media(max-height:620px) and (max-width:760px){
+              .wf-intro-visual{min-height:158px}
+              .wf-intro-title{font-size:27px}
+              .wf-intro-body{padding-top:18px}
+              .wf-intro-sub{display:none}
+              .wf-mood-grid{margin-top:14px}
+              .wf-intro-foot{display:none}
+            }
+            @media(prefers-reduced-motion:reduce){.wf-intro-pop,.wf-mood-tile,.wf-intro-cta{animation:none!important;transition:none!important}}
+          ` }} />
+          <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop">
+            <button onClick={dismissIntro} aria-label="Close" className="wf-intro-close">{"\u2715"}</button>
+            <section className="wf-intro-visual" aria-label="A local evening waiting to be discovered">
+              <img aria-hidden="true" src={INTRO_VISUAL} alt="" />
+              <div className="wf-intro-brand"><img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" /></div>
+              <div className="wf-intro-copy">
+                <div className="wf-intro-kicker">Your local concierge</div>
+                <div className="wf-intro-title">A better plan is closer than you think.</div>
+                <div className="wf-intro-desc">Wayfind does the research and brings back places worth your time—nearby now or wherever you go.</div>
+              </div>
+            </section>
+            <section className="wf-intro-body">
+              <div className="wf-intro-meta">
+                <span>Find your moment</span>
+                {introLocation ? <span className="wf-intro-location">{introLocation}</span> : null}
+              </div>
+              <h2 className="wf-intro-prompt">Tell us the mood.<br />We’ll handle the shortlist.</h2>
+              <p className="wf-intro-sub">One choice is enough. Wayfind will surface the places that fit this moment—not another endless list.</p>
             {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
                 adaptive rules the home row used: evenings lead with Date Night
                 and Night Out, bad weather swaps Outside for Cozy Indoor, weekend
@@ -79,19 +174,20 @@ export default function IntroSheet({ ctx }) {
               const MOOD_LBL = { outdoors: ["\u2600\ufe0f", "Outside"], cozyindoor: ["\ud83c\udf27\ufe0f", "Cozy Indoor"], datenight: ["\ud83c\udf39", "Date Night"], nightout: ["\ud83c\udf78", "Night Out"], eatnow: ["\ud83c\udf7d\ufe0f", "Where to Eat"], brunch: ["\ud83e\udd5e", "Brunch"], hiddengems: ["\ud83d\udc8e", "Hidden Gems"], familyfun: ["\ud83d\udc68\u200d\ud83d\udc69\u200d\ud83d\udc67", "Family Fun"] };
               const order = _eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"] : [eatKey, outsideKey, "hiddengems", "familyfun", "datenight", "nightout"];
               return (
-                <div className="wf-mood-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", width: "100%", maxWidth: 306, gap: 11, margin: "0 auto 8px" }}>
+                <div className="wf-mood-grid">
                   {order.map((k, i) => { const ex = EXPERIENCES[k]; if (!ex) return null; const on = introSel[0] === k; return (
-                    <button key={k} className="wf-mood-tile" onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ animation: `wfIntroTileIn .38s cubic-bezier(.16,1,.3,1) ${90 + i * 45}ms both`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, textAlign: "center", padding: "8px 5px 7px", borderRadius: 16, border: `1px solid ${on ? "rgba(255,159,84,.88)" : "rgba(203,213,225,.18)"}`, background: on ? "linear-gradient(145deg,rgba(89,49,27,.94),rgba(22,25,32,.96) 72%)" : "linear-gradient(145deg,rgba(29,37,50,.9),rgba(8,13,21,.94))", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", boxShadow: on ? "inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(255,166,94,.1),0 10px 22px rgba(0,0,0,.26)" : "inset 0 1px 0 rgba(255,255,255,.075),0 7px 16px rgba(0,0,0,.16)", color: "#F1F3F8", fontSize: 11.5, fontWeight: 750, cursor: "pointer", lineHeight: 1.2, minHeight: 62 }}>
-                      <Icon name={MOOD_ICON[k] || "pin"} size={22} color={on ? "#FFB36E" : "#D7DEEA"} strokeWidth={1.8} /><span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
+                    <button key={k} className="wf-mood-tile" data-selected={on ? "true" : "false"} aria-pressed={on} onClick={() => { setIntroSel(on ? [] : [k]); try { logEvent("mood_tile", null, { mood: k, src: "intro", adaptive: k === "cozyindoor" || k === "brunch" ? 1 : 0 }); } catch (e) {} }} style={{ animation: `wfIntroTileIn .38s cubic-bezier(.16,1,.3,1) ${90 + i * 45}ms both` }}>
+                      <span className="wf-mood-icon"><Icon name={MOOD_ICON[k] || "pin"} size={20} color="currentColor" strokeWidth={1.8} /></span>
+                      <span>{(MOOD_LBL[k] || [null, ex.label])[1]}</span>
                     </button>
                   ); })}
                 </div>
               );
             } catch (e) { return null; } })()}
-            <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {} setIntroOpen(false); openExperience(introSel[0]); }} disabled={!introSel.length} style={{ width: "100%", maxWidth: 306, margin: "20px auto 0", minHeight: 50, padding: "11px 18px", borderRadius: 15, border: `1px solid ${introSel.length ? "rgba(255,168,90,.88)" : "rgba(231,238,248,.25)"}`, background: introSel.length ? "linear-gradient(135deg,#20232B 0%,#12161D 100%)" : "linear-gradient(135deg,rgba(19,27,40,.94),rgba(8,12,20,.92))", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", color: introSel.length ? "#FFF7EF" : "#E6EBF3", boxShadow: introSel.length ? "inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.42),0 16px 28px rgba(0,0,0,.30),0 5px 18px rgba(249,115,22,.14)" : "inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.32),0 12px 24px rgba(0,0,0,.22)", fontSize: 14.5, fontWeight: 850, letterSpacing: "-.012em", cursor: introSel.length ? "pointer" : "default", display: "flex", alignItems: "center", justifyContent: "center", gap: 9 }}>Find my next favorite place<span style={{ marginLeft: 6, fontSize: 19, fontWeight: 500, lineHeight: 0, color: introSel.length ? "#FFB575" : "#E6EBF3" }}>→</span></button>
-            <div className="wf-intro-work" style={{ minHeight: 34, marginTop: 3, display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: 12.5, color: "#D5DBE5", fontWeight: 650 }}>We’ll do the work.</div>
-            <div className="wf-intro-foot" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 3, fontSize: 10, color: "#9AA5B7" }}><IntroIcon k="shield" size={13} color="#9AA5B7" />No paid placement. Just places worth your time.</div>
-            </div>
+              <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; dismissIntro(); openExperience(introSel[0]); }} disabled={!introSel.length}>Show me the best matches <span aria-hidden="true">→</span></button>
+              <button className="wf-intro-skip" onClick={dismissIntro}>Skip and explore everything</button>
+              <div className="wf-intro-foot"><IntroIcon k="shield" size={13} color={C.muted} />No sponsored rankings. Just places worth your time.</div>
+            </section>
           </div>
         </div>
   );
