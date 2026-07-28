@@ -123,7 +123,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.42";
+const BUILD_ID = "v6.43";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3086,7 +3086,17 @@ function PageInner({ initialEvents = null }) {
   const [detailExtra, setDetailExtra] = useState(null);
   const [offers, setOffers] = useState({});
   const [dealsOnly, setDealsOnly] = useState(false);
+  // v6.43: `lightbox` stays the photo URL (every call site passes a src), but
+  // the viewer now pages. lbDrag is the live swipe offset in px; lbTouch holds
+  // the in-flight gesture so a horizontal swipe can be told from a vertical
+  // scroll before we commit to either.
   const [lightbox, setLightbox] = useState(null);
+  const [lbDrag, setLbDrag] = useState(0);
+  const lbTouch = useRef(null);
+  const lastLightboxIndex = useRef(-1);
+  // Touch devices synthesise a click after a swipe. Without this the viewer
+  // would close on every attempt to flip a photo.
+  const lbSwipeAt = useRef(0);
   const [reviewsOpen, setReviewsOpen] = useState(false);
   const [hoursOpen, setHoursOpen] = useState(false);
   const [venueEvents, setVenueEvents] = useState(null);
@@ -3178,13 +3188,28 @@ function PageInner({ initialEvents = null }) {
   // traffic surface had no bookable inventory. Hour-aware pick (lib/homeExpPick);
   // product_url rendered VERBATIM (pid) — never hand-built or resolver-routed.
   const [homeExp, setHomeExp] = useState(null);
-  // Hour bucket — re-evaluated every 20 min and whenever the tab regains focus,
+  // The search center the pick on screen was fetched for. A refresh replaces
+  // the pick; only a real center move clears it. See the fetch effect below.
+  const homeExpCenter = useRef(null);
+  // Hour bucket — re-evaluated every 5 min and whenever the tab regains focus,
   // so the "Make a day of it" pick refreshes with the time of day instead of
   // staying frozen on last night's choice (owner report).
-  const [todBucket, setTodBucket] = useState(0);
+  //
+  // v6.43 THE IDLE JUMP (owner: "you're stopped, and all of a sudden, it
+  // jumps"). This used to be a COUNTER — every tick and every visibilitychange
+  // produced a new value, so the dependent fetch below re-ran ~72×/day plus
+  // once per tab focus and re-set the card each time. lib/homeExpPick is a pure
+  // function of the HOUR (it rotates on `hour % pool.length`), so that value
+  // only changes 24×/day; the other ~50 runs were pure churn that could move
+  // the feed under a reader who was not touching anything. Holding the hour
+  // ITSELF makes React bail out when it has not changed, so the fetch re-runs
+  // at most once an hour — exactly as often as the pick can actually differ.
+  const [todBucket, setTodBucket] = useState(() => { try { return new Date().getHours(); } catch (e) { return 0; } });
   useEffect(() => {
-    const tick = () => setTodBucket((x) => x + 1);
-    const id = setInterval(tick, 20 * 60 * 1000);
+    const tick = () => { try { setTodBucket(new Date().getHours()); } catch (e) {} };
+    // 5 min, not 20: each tick is now a cheap same-value compare that re-renders
+    // nothing, so polling more often only buys a tighter latch onto the hour turn.
+    const id = setInterval(tick, 5 * 60 * 1000);
     const onVis = () => { try { if (document.visibilityState === "visible") tick(); } catch (e) {} };
     try { document.addEventListener("visibilitychange", onVis); } catch (e) {}
     return () => { clearInterval(id); try { document.removeEventListener("visibilitychange", onVis); } catch (e) {} };
@@ -3996,6 +4021,100 @@ function PageInner({ initialEvents = null }) {
   function scrollGallery(dir) {
     const el = galleryRef.current;
     if (el) el.scrollBy({ left: dir * Math.round(el.clientWidth * 0.85), behavior: "smooth" });
+  }
+
+  // ── Full-screen photo viewer paging (v6.43) ────────────────────────────────
+  // Owner report: "when you click on the picture and it gets bigger you cannot
+  // flip pictures — the only way is to go back to the small one and slide."
+  // The viewer only ever knew one URL, so there was nothing to page through.
+  // It now derives the same list the sheet gallery shows and moves within it
+  // by swipe, arrow key, or the on-screen arrows.
+  const lightboxPhotos = (detail && Array.isArray(detail.photos) && detail.photos.length)
+    ? detail.photos
+    : (detail && detail.photo ? [detail.photo] : []);
+  const lightboxIndex = lightbox ? lightboxPhotos.indexOf(lightbox) : -1;
+  // Wraps, so the last photo's "next" is the first — a dead-end arrow on a
+  // full-screen viewer reads as broken.
+  function goLightbox(dir) {
+    const n = lightboxPhotos.length;
+    if (n < 2 || lightboxIndex < 0) return;
+    setLbDrag(0);
+    setLightbox(lightboxPhotos[(lightboxIndex + dir + n) % n]);
+  }
+  // Keep the small gallery on whatever photo the viewer was left on, so
+  // closing does not teleport the user back to where they started.
+  useEffect(() => {
+    if (lightbox) return;
+    const i = lastLightboxIndex.current;
+    lastLightboxIndex.current = -1;
+    if (i <= 0) return;
+    const el = galleryRef.current;
+    // Slides are 100%-wide flex items with a 6px gap (see sheets/Detail.js).
+    if (el) el.scrollTo({ left: i * (el.clientWidth + 6), behavior: "auto" });
+  }, [lightbox]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (lightboxIndex >= 0) lastLightboxIndex.current = lightboxIndex; }, [lightboxIndex]);
+  // Arrow keys page; Escape is handled with the rest of the dialog stack below.
+  useEffect(() => {
+    if (!lightbox || lightboxPhotos.length < 2) return undefined;
+    const onKey = (e) => {
+      if (e.key === "ArrowRight") { e.preventDefault(); goLightbox(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); goLightbox(-1); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, lightboxIndex, lightboxPhotos.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Preload the neighbours so a swipe lands on a painted image, not a flash.
+  useEffect(() => {
+    if (!lightbox || lightboxIndex < 0 || typeof window === "undefined") return;
+    const n = lightboxPhotos.length;
+    if (n < 2) return;
+    for (const d of [1, -1]) {
+      const src = lightboxPhotos[(lightboxIndex + d + n) % n];
+      if (src) { const img = new window.Image(); img.src = src; }
+    }
+  }, [lightbox, lightboxIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function lightboxTouchStart(e) {
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    lbTouch.current = { x: t.clientX, y: t.clientY, axis: null };
+  }
+  function lightboxTouchMove(e) {
+    const g = lbTouch.current;
+    const t = e.touches && e.touches[0];
+    if (!g || !t) return;
+    const dx = t.clientX - g.x;
+    const dy = t.clientY - g.y;
+    // Lock the axis once past the noise floor so a diagonal drag does not
+    // fight the close gesture.
+    if (!g.axis && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) g.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+    if (g.axis !== "x") return;
+    g.moved = true;
+    // The gesture's own record of how far it travelled. `lbDrag` is the VISUAL
+    // offset only: it is React state, so a flick whose touchmove and touchend
+    // land in the same task (a fast swipe, or a synthetic one) reaches touchend
+    // before React has committed it, and the swipe silently does nothing. The
+    // ref is written synchronously, so the decision below is never racy.
+    g.dx = dx;
+    if (lightboxPhotos.length > 1) setLbDrag(dx);
+  }
+  function lightboxTouchEnd() {
+    const g = lbTouch.current;
+    lbTouch.current = null;
+    const dx = g ? (g.dx || 0) : 0;
+    setLbDrag(0);
+    if (!g || g.axis !== "x") return;
+    if (g.moved) lbSwipeAt.current = Date.now();
+    // ~18% of the viewport, floored at 40px — the same feel as the sheet drag.
+    const threshold = Math.max(40, (typeof window !== "undefined" ? window.innerWidth : 390) * 0.18);
+    if (dx <= -threshold) goLightbox(1);
+    else if (dx >= threshold) goLightbox(-1);
+  }
+  // Only a real tap closes: a click within 500ms of a swipe is the browser's
+  // synthesised one, not intent.
+  function closeLightbox() {
+    if (Date.now() - lbSwipeAt.current < 500) return;
+    setLightbox(null);
   }
 
   // Detect viewport so desktop gets a wider, side-by-side layout.
@@ -5736,14 +5855,25 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
+    // v6.43 THE IDLE JUMP, part 2. A refresh may REPLACE the pick; it must never
+    // remove it. This used to `setHomeExp(null)` on any thrown fetch and on any
+    // momentarily empty inventory, collapsing a live ~124px card out of the
+    // middle of the feed and yanking everything below it upward while the user
+    // sat still — one of the late shifts in the production CLS attribution.
+    // The card is cleared only when the search CENTER moves, where the entire
+    // feed is being replaced anyway (and the previous city's tour is simply the
+    // wrong answer), and where the shift follows a user action.
+    const key = String(center.lat) + "," + String(center.lng);
+    if (homeExpCenter.current !== key) { homeExpCenter.current = key; setHomeExp(null); }
     (async () => {
       try {
         const q = new URLSearchParams({ lat: String(center.lat), lng: String(center.lng), mi: "60", cat: "all", limit: "12", page: "0" });
         const r = await fetch("/api/experiences?" + q.toString());
         const j = r.ok ? await r.json() : null;
         const items = (j && Array.isArray(j.items) ? j.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
-        if (!cancelled) setHomeExp(pickHomeExp(items));
-      } catch (e) { if (!cancelled) setHomeExp(null); }
+        const next = pickHomeExp(items);
+        if (!cancelled && next) setHomeExp(next);
+      } catch (e) { /* keep whatever is already on screen — see the note above */ }
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -7396,7 +7526,11 @@ function PageInner({ initialEvents = null }) {
                           </div>
                           <div style={{ flex: 1, minWidth: 0, padding: "11px 13px 12px", display: "flex", flexDirection: "column" }}>
                             <div style={{ ...TYPE.eyebrow, color: C.light, marginBottom: 4 }}>✨ Make a day of it</div>
-                            <div style={{ fontSize: 13.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
+                            {/* minHeight = exactly the two lines WebkitLineClamp allows, so a
+                                short pick and a long pick occupy the same box (see
+                                HOME_EXP_TITLE_MIN_H — this card refreshes on the hour under
+                                an idle reader and must not move the feed when it does). */}
+                            <div style={{ fontSize: HOME_EXP_TITLE_FS, fontWeight: 750, color: C.text, lineHeight: HOME_EXP_TITLE_LH, minHeight: HOME_EXP_TITLE_MIN_H, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{homeExp.title}</div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: "auto", paddingTop: 8 }}>
                               {homeExp.rating > 0 && homeExp.reviews > 0 ? <PlaceScoreChip p={{ rating: homeExp.rating, reviews: homeExp.reviews }} size={12} /> : null}
                               {homeExp.fromPrice != null ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>from ${homeExp.fromPrice}</span> : null}
@@ -7858,17 +7992,52 @@ function PageInner({ initialEvents = null }) {
         <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)" }}>{toast}</div>
       )}
 
-      {/* Full-screen photo viewer */}
-      {lightbox && (
-        <div onClick={() => setLightbox(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
-          <img src={lightbox} alt={detail && detail.name ? "Photo of " + detail.name : "Full-size photo"} onClick={() => setLightbox(null)} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8 }} />
-          <button onClick={() => setLightbox(null)} aria-label="Close" style={{ position: "absolute", top: "max(16px, calc(env(safe-area-inset-top) + 10px))", right: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)", color: "#fff", fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
-          <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
-            {(() => { const i = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1; const by = i >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[i] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
-            <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>Tap anywhere to close</div>
+      {/* Full-screen photo viewer — pages through the whole gallery (v6.43) */}
+      {lightbox && (() => {
+        const total = lightboxPhotos.length;
+        const canPage = total > 1 && lightboxIndex >= 0;
+        const arrow = (side) => ({
+          position: "absolute", top: "50%", transform: "translateY(-50%)",
+          [side]: "max(8px, env(safe-area-inset-" + side + "))",
+          width: 48, height: 48, borderRadius: "50%",
+          border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)",
+          color: "#fff", fontSize: 26, lineHeight: 1, cursor: "pointer", zIndex: 2,
+          display: "grid", placeItems: "center", padding: 0,
+        });
+        return (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={detail && detail.name ? "Photos of " + detail.name : "Photo viewer"}
+            onClick={closeLightbox}
+            onTouchStart={lightboxTouchStart}
+            onTouchMove={lightboxTouchMove}
+            onTouchEnd={lightboxTouchEnd}
+            onTouchCancel={lightboxTouchEnd}
+            style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.92)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, touchAction: "pan-y", overflow: "hidden" }}
+          >
+            <img
+              src={lightbox}
+              alt={detail && detail.name ? "Photo of " + detail.name : "Full-size photo"}
+              onClick={closeLightbox}
+              draggable={false}
+              style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 8, transform: lbDrag ? "translateX(" + lbDrag + "px)" : undefined, transition: lbDrag ? "none" : "transform .18s ease-out", willChange: canPage ? "transform" : undefined }}
+            />
+            <button onClick={() => setLightbox(null)} aria-label="Close" style={{ position: "absolute", top: "max(16px, calc(env(safe-area-inset-top) + 10px))", right: 16, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.3)", background: "rgba(0,0,0,.55)", color: "#fff", fontSize: 20, cursor: "pointer", zIndex: 2 }}>✕</button>
+            {canPage && (
+              <>
+                <button onClick={(e) => { e.stopPropagation(); goLightbox(-1); }} aria-label="Previous photo" style={arrow("left")}>‹</button>
+                <button onClick={(e) => { e.stopPropagation(); goLightbox(1); }} aria-label="Next photo" style={arrow("right")}>›</button>
+              </>
+            )}
+            <div style={{ position: "absolute", bottom: "max(20px, calc(env(safe-area-inset-bottom) + 12px))", left: 0, right: 0, textAlign: "center", pointerEvents: "none" }}>
+              {(() => { const by = lightboxIndex >= 0 && detail && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[lightboxIndex] || "") : ""; return <div style={{ color: "rgba(255,255,255,.85)", fontSize: 11.5, fontWeight: 600, marginBottom: 3 }}>{by === "Wayfind" ? "Photo: Wayfind" : by ? "Photo: " + by + " · via Google" : "Photo via Google"}</div>; })()}
+              {canPage && <div aria-live="polite" style={{ color: "rgba(255,255,255,.92)", fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>{lightboxIndex + 1} / {total}</div>}
+              <div style={{ color: "rgba(255,255,255,.6)", fontSize: 12 }}>{canPage ? "Swipe to browse · tap to close" : "Tap anywhere to close"}</div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
@@ -8509,6 +8678,17 @@ const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the hor
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
 const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
+// v6.43 THE IDLE JUMP, part 3 — the "Make a day of it" bookable card.
+// Its title is clamped to two lines, so a one-line pick rendered a card one
+// line SHORTER than a two-line pick. The hourly refresh swaps that title
+// underneath a reader who is not touching anything, so every swap between a
+// short and a long title moved the whole feed below it. Reserving both lines
+// makes the card's height identical for every possible pick — the content can
+// change, the box cannot. Derived, not hardcoded, so editing the type below
+// cannot silently un-reserve it.
+const HOME_EXP_TITLE_FS = 13.5;
+const HOME_EXP_TITLE_LH = 1.35;
+const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exactly two lines
 const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
 const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
 const WF_PLACE_CARD_CSS = `

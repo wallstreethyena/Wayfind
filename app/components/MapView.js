@@ -1,10 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl } from "maplibre-gl";
+import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
 
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const MI_TO_M = 1609.344;
+
+// v6.43 — THE BLANK MAP. maplibre-gl v6 is ESM-only and derives its Web Worker
+// URL from `import.meta.url`. Next 14's client webpack output replaces that
+// with a build-time `file:///vercel/path0/...` literal; maplibre's own
+// `/^https?:/` guard rejects it and falls back to "", and `new Worker("")`
+// resolves against the document base — so the "worker" was the HTML page.
+// All vector tile decoding happens in that worker, so the map drew nothing,
+// and because no request actually failed, the error handler below never fired
+// and users got a silent blank panel instead of MapFallback.
+// Pointing maplibre at a real same-origin file fixes it. The file is vendored
+// into public/maplibre/ by scripts/sync-maplibre-worker.mjs and guarded by
+// scripts/test-map-worker.mjs in prebuild.
+setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
 function MapFallback({ count }) {
   return <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, #17212E 0%, #0A111B 72%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, padding: 22, textAlign: "center" }}>
@@ -110,14 +123,21 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     });
     mapRef.current = map;
     if (!compact) map.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
+    // Watchdog: the blank-map bug above produced NO error event, so `failed`
+    // never flipped and users saw an empty panel with no explanation. If the
+    // style has not loaded well after any plausible slow-network load, show
+    // the fallback (which still lists the ranked results) rather than nothing.
+    let watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 15000);
+    const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
     map.on("load", () => {
+      clearWatchdog();
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-fill", type: "fill", source: "wf-rings", paint: { "fill-color": "#F97316", "fill-opacity": .035 } });
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", paint: { "line-color": "#F97316", "line-width": 1.2, "line-opacity": .52 } });
       redraw();
     });
-    map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) setFailed(true); });
-    return () => { clearMarkers(); map.remove(); mapRef.current = null; };
+    map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
+    return () => { clearWatchdog(); clearMarkers(); map.remove(); mapRef.current = null; };
     // The map is intentionally created only once; state is projected in redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
