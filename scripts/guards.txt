@@ -184,3 +184,5 @@ node scripts/test-promote-index.mjs
 node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
 node scripts/check-pick-medallion.mjs
+node scripts/check-editorial-publish.mjs
+node scripts/test-atlas-editorial-row.mjs
