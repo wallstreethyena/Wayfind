@@ -8814,27 +8814,23 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
-<<<<<<< HEAD
-=======
-      {/* Compact editorial seal. It stays entirely inside the media rail so it
+      {/* Compact owl seal. It stays entirely inside the media rail so it
           never competes with the title or Wayfind Score, including on 320px
           screens and photo-less cards. Display-only, gated solely on the
           server's ownerPick. */}
       {isCuratorPick && (
-        <span className="wf-place-card-owner" title="Personally selected by Wayfind" aria-label="Wayfind Pick — personally selected by Wayfind">
+        <span className="wf-place-card-owner" title="Curated by Wayfind" aria-label="Curated by Wayfind">
           <span className="wf-place-card-owner-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2.75 14.2 9.8 21.25 12l-7.05 2.2L12 21.25 9.8 14.2 2.75 12 9.8 9.8 12 2.75Z" />
-              <circle cx="12" cy="12" r="1.65" fill="currentColor" stroke="none" />
+            <svg className="wf-place-card-owner-owl" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5.5 8 4 5l4.15 1.35A7.55 7.55 0 0 1 12 5.4c1.4 0 2.72.34 3.85.95L20 5l-1.5 3v4.1a6.5 6.5 0 0 1-13 0V8Z" />
+              <circle cx="9" cy="11" r="2" />
+              <circle cx="15" cy="11" r="2" />
+              <path d="m12 12.8-1.15 1.35 1.15.7 1.15-.7L12 12.8Z" />
             </svg>
           </span>
-          <span className="wf-place-card-owner-copy">
-            <span>Wayfind</span>
-            <strong>Pick</strong>
-          </span>
+          <strong className="wf-place-card-owner-copy">Curated</strong>
         </span>
       )}
->>>>>>> 3ea2193 (Refine curator pick badge for compact cards)
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
           ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -8998,8 +8994,6 @@ const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & marg
 const HOME_EXP_TITLE_FS = 13.5;
 const HOME_EXP_TITLE_LH = 1.35;
 const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exactly two lines
-<<<<<<< HEAD
-=======
 const WF_LAYOUT_CSS = `@keyframes wfsk{0%{background-position:200% 0}100%{background-position:-200% 0}}.wf-sk{background:linear-gradient(90deg,#161B22 25%,#1D242E 37%,#161B22 63%);background-size:200% 100%;animation:wfsk 1.4s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wf-sk{animation:none}}.wf-shell{max-width:480px}.wf-col-main{flex:1;min-width:0}.wf-hooks{display:block;margin:0 0 14px}.wf-hook-card{width:100%;height:152px}.wf-topbar{box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}.wf-wordmark{display:flex;align-items:center;gap:5px;cursor:pointer;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}.wf-wordmark-text,.wf-wordmark-pin{display:block;flex:none;background-image:url("/brand/wayfind-wordmark-transparent-v2.png");background-repeat:no-repeat}.wf-wordmark-text{width:117.4px;height:39.06px;background-size:151.2px 39.06px;background-position:left center}.wf-wordmark-pin{width:31.65px;height:36.54px;background-size:141.45px 36.54px;background-position:right center}.wf-event-share-card{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.wf-event-share-card:hover{transform:translateY(-2px);border-color:rgba(203,213,225,.42)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),0 14px 30px rgba(0,0,0,.34)!important}.wf-weather-button,.wf-signin-button,.wf-vibe-button{transition:background .18s ease,border-color .18s ease,transform .18s ease}.wf-weather-button:hover{background:rgba(255,255,255,.04)!important;border-radius:10px}.wf-signin-button:hover,.wf-vibe-button:hover{border-color:rgba(249,115,22,.5)!important;transform:translateY(-1px)}.wf-search-row{filter:drop-shadow(0 8px 14px rgba(0,0,0,.18))}.wf-search-input{transition:border-color .18s ease,background .18s ease}.wf-search-input:focus{border-color:rgba(203,213,225,.72)!important;background:#151D29!important}.wf-search-submit{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);transition:filter .18s ease,transform .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px)}.wf-bottom-nav{gap:3px;padding:5px 5px 6px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 -9px 24px rgba(0,0,0,.14)}@media(display-mode:standalone){.wf-bottom-nav{padding-bottom:env(safe-area-inset-bottom)!important}}.wf-bottom-nav-item{position:relative;min-height:66px;transition:color .18s ease,transform .18s ease}.wf-bottom-nav-icon{width:32px;height:28px;display:grid;place-items:center}.wf-bottom-nav-item.is-active:before{content:"";position:absolute;top:0;width:24px;height:2px;border-radius:0 0 99px 99px;background:#F97316;box-shadow:0 2px 8px rgba(249,115,22,.6)}.wf-bottom-nav-item.is-active .wf-bottom-nav-icon{filter:drop-shadow(0 2px 6px rgba(249,115,22,.28))}.wf-bottom-nav-item.is-active .wf-bottom-nav-label{letter-spacing:.12px}.wf-discovery-visual{position:relative;min-height:188px;overflow:hidden;border-radius:20px;background:#0D1117;box-shadow:0 16px 38px rgba(0,0,0,.28)}.wf-discovery-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.wf-discovery-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,8,14,.9) 0%,rgba(3,8,14,.62) 43%,rgba(3,8,14,.1) 78%),linear-gradient(0deg,rgba(3,8,14,.42),transparent 60%)}.wf-discovery-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;height:188px;max-width:300px;padding:20px;color:#F8FAFC}.wf-discovery-kicker{font-size:10px;font-weight:800;letter-spacing:1.1px;color:#FB923C}.wf-discovery-title{margin-top:7px;font-size:22px;font-weight:800;line-height:1.08;letter-spacing:-.45px}.wf-discovery-text{margin-top:7px;font-size:12.5px;font-weight:600;line-height:1.42;color:#D8E0EA}@media(min-width:${WF_DESKTOP_BP}px){.wf-shell{max-width:1280px}.wf-explore{max-width:760px;margin:0 auto}.wf-cols{display:block;width:100%;max-width:800px;margin:16px auto 0}.wf-col-main{width:100%;max-width:800px;margin:0 auto}.wf-topbar{padding-left:max(28px,calc((100vw - 800px)/2))!important;padding-right:max(28px,calc((100vw - 800px)/2))!important;padding-top:20px!important;padding-bottom:18px!important}.wf-topbar-row{margin-bottom:14px!important}.wf-wordmark{gap:6px}.wf-wordmark-text{width:139.77px;height:46.5px;background-size:179.99px 46.5px}.wf-wordmark-pin{width:37.68px;height:43.5px;background-size:168.38px 43.5px}.wf-weather-button{padding:5px 8px!important}.wf-weather-button span:first-child{font-size:21px!important}.wf-signin-button{padding:10px 16px!important;font-size:13px!important}.wf-vibe-button{width:48px!important;height:48px!important}.wf-search-input{height:58px!important;font-size:17px!important;border-radius:17px 0 0 17px!important}.wf-search-submit{width:62px!important;height:58px!important;border-radius:0 17px 17px 0!important;font-size:25px!important}.wf-bottom-nav{left:50%!important;right:auto!important;bottom:18px!important;transform:translateX(-50%);width:min(800px,calc(100vw - 44px));max-width:none!important;margin:0!important;padding:9px!important;border:1px solid #30363D!important;border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 18px 48px rgba(0,0,0,.42);backdrop-filter:blur(18px)}.wf-bottom-nav-item{min-height:72px;padding:10px 12px!important;border-radius:0!important}.wf-bottom-nav-icon{width:36px;height:31px;transform:scale(1.1)}.wf-bottom-nav-label{font-size:12px!important;letter-spacing:.05px}.wf-bottom-nav-item:hover{background:rgba(255,255,255,.025)!important}.wf-discovery-empty{padding-top:30px!important}.wf-discovery-heading{display:block!important;margin-bottom:16px!important}.wf-discovery-heading>div:first-child{margin:0!important;flex:initial!important}.wf-discovery-visual{min-height:224px;border-radius:22px}.wf-discovery-copy{height:224px;max-width:365px;padding:28px}.wf-discovery-title{font-size:27px}.wf-discovery-text{font-size:13.5px;max-width:300px}.wf-discovery-grid{gap:0!important;border-top:1px solid #30363D}.wf-discovery-link{min-height:42px!important;padding:10px 6px!important;border:0!important;border-bottom:1px solid #30363D!important;background:transparent!important}.wf-discovery-link:nth-child(odd){padding-right:18px!important}.wf-discovery-link:nth-child(even){padding-left:18px!important;border-left:1px solid #30363D!important}.wf-hooks{display:flex;flex-wrap:wrap;overflow-x:visible;padding-left:12px;padding-right:12px;margin:0 -12px 14px}.wf-hook-card{width:290px;height:185px}}`;
 const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba(0,0,0,.24));transition:filter .2s ease}.wf-search-row:focus-within{filter:drop-shadow(0 13px 25px rgba(0,0,0,.34)) drop-shadow(0 0 7px rgba(148,163,184,.06))}.wf-search-row>div:first-child{border-radius:14px 0 0 14px}.wf-search-icon{color:#AEB9C8;transition:color .18s ease}.wf-search-row:focus-within .wf-search-icon{color:#E2E8F0}.wf-search-input{background:linear-gradient(135deg,#182130,#111923)!important;border-color:#354153!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25);transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.wf-search-input::placeholder{color:#8190A3;opacity:1}.wf-search-input:focus,.wf-search-input:focus-visible{outline:none!important;outline-offset:0!important;border-color:rgba(203,213,225,.72)!important;background:linear-gradient(135deg,#1A2330,#121923)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.075),inset 0 0 0 1px rgba(203,213,225,.08),0 0 0 1px rgba(203,213,225,.14)!important}.wf-search-submit{background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27);transition:filter .18s ease,transform .18s ease,box-shadow .18s ease}.wf-search-submit:hover{filter:brightness(1.06);transform:translateX(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 10px 20px rgba(249,115,22,.34)}@media(min-width:${WF_DESKTOP_BP}px){.wf-topbar{padding-top:18px!important;padding-bottom:16px!important}.wf-topbar-row{margin-bottom:10px!important}.wf-search-row>div:first-child{border-radius:17px 0 0 17px}.wf-search-icon{left:16px!important}.wf-search-input{padding-left:43px!important}}`;
 const WF_PLACE_CARD_CSS = `
@@ -9100,20 +9094,20 @@ const WF_PLACE_CARD_CSS = `
   align-items:center;
   width:calc(var(--wf-place-card-media) - 16px);
   min-width:0;
-  height:30px;
+  height:27px;
   box-sizing:border-box;
-  gap:6px;
-  padding:4px 7px 4px 5px;
+  gap:5px;
+  padding:3px 6px 3px 4px;
   overflow:hidden;
-  border:1px solid rgba(244,211,132,.62);
-  border-radius:9px;
+  border:1px solid rgba(249,115,22,.78);
+  border-radius:999px;
   background:
-    linear-gradient(115deg,rgba(255,238,191,.13),transparent 44%),
-    rgba(7,12,19,.88);
-  color:#F4D384;
-  box-shadow:0 8px 20px rgba(0,0,0,.48),inset 0 1px rgba(255,250,231,.13);
-  backdrop-filter:blur(12px) saturate(1.18);
-  -webkit-backdrop-filter:blur(12px) saturate(1.18);
+    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
+    rgba(5,9,15,.76);
+  color:#FF8A35;
+  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
+  backdrop-filter:blur(10px) saturate(1.12);
+  -webkit-backdrop-filter:blur(10px) saturate(1.12);
   pointer-events:none;
 }
 .wf-place-card-owner:after{
@@ -9121,26 +9115,36 @@ const WF_PLACE_CARD_CSS = `
   position:absolute;
   inset:0;
   border-radius:inherit;
-  background:linear-gradient(105deg,rgba(255,255,255,.08),transparent 34%);
+  background:linear-gradient(105deg,rgba(255,255,255,.07),transparent 34%);
   pointer-events:none;
 }
 .wf-place-card-owner-mark{
   position:relative;
   display:grid;
-  width:20px;
-  height:20px;
-  flex:0 0 20px;
+  width:19px;
+  height:19px;
+  flex:0 0 19px;
   place-items:center;
-  border:1px solid rgba(255,229,161,.7);
-  border-radius:6px;
-  background:linear-gradient(145deg,#F7D983,#B97912);
-  color:#201505;
-  box-shadow:0 3px 9px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.5);
+  border:1px solid rgba(255,138,53,.92);
+  border-radius:50%;
+  background:rgba(249,115,22,.09);
+  color:#FF9A50;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.035),0 2px 7px rgba(0,0,0,.35);
 }
 .wf-place-card-owner-mark svg{display:block}
-.wf-place-card-owner-copy{position:relative;z-index:1;display:flex;min-width:0;flex-direction:column;gap:1px;text-transform:uppercase}
-.wf-place-card-owner-copy>span{overflow:hidden;color:#C5B994;font-size:5.5px;font-weight:900;letter-spacing:.15em;line-height:1;white-space:nowrap}
-.wf-place-card-owner-copy>strong{color:#FFE5A2;font-size:8px;font-weight:950;letter-spacing:.12em;line-height:1;white-space:nowrap}
+.wf-place-card-owner-copy{
+  position:relative;
+  z-index:1;
+  overflow:hidden;
+  color:#FFD4B5;
+  font-size:7.5px;
+  font-weight:950;
+  letter-spacing:.13em;
+  line-height:1;
+  text-overflow:clip;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
 .wf-place-card-heading{flex:1;min-width:0}
 .wf-place-card-category{
   display:flex;
@@ -9383,7 +9387,6 @@ const WF_PLACE_CARD_CSS = `
   .wf-bottom-nav-label{font-size:10.75px!important}
 }
 `;
->>>>>>> 3ea2193 (Refine curator pick badge for compact cards)
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
