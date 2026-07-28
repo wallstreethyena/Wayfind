@@ -34,6 +34,16 @@ for (const f of ["app/components/css.js", "app/components/curatedData.js"]) {
   ok(files.includes(f), `${f} is registered in shellSrc — unregistered, every guardrail that greps the shell for its contents silently stops asserting`);
   ok(home.includes(f.replace("app/components/", "./components/").replace(/\.js$/, "")), `${f} is still IMPORTED by home.js — an extracted file nothing imports is dead weight in the grep set`);
 }
+// v6.47 — CollectionHero.js is the same case with a different importer: it was
+// extracted out of a SCREEN (app/components/screens/Experience.js), not out of
+// home.js, so home.js never imports it. The registration requirement is
+// identical; only the "who imports it" assertion moves.
+{
+  const f = "app/components/CollectionHero.js";
+  ok(files.includes(f), `${f} is registered in shellSrc — unregistered, the hero markup that left screens/Experience.js drops out of every content guardrail's grep set`);
+  ok(read("app/components/screens/Experience.js").includes("../CollectionHero"), "screens/Experience.js still imports CollectionHero — the in-app collection look IS that component");
+  ok(read("app/components/RankedExperiencePage.js").includes("./CollectionHero"), "RankedExperiencePage still imports CollectionHero — one hero, so /trending-now and the in-app screen cannot drift apart");
+}
 
 // 3) curatedData.js is DATA ONLY. The moment a predicate lands in it, someone has
 // moved decision-making out of the file the geo guardrail is pinned to.

@@ -170,9 +170,21 @@ export default function HookDetailSheet({ ctx }) {
                         </div>
                         {badges.length > 0 && (
                           <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
-                            {badges.map((b) => (
+                            {/* v6.47 (owner: "the little experience chip are also
+                                not workign i used to be able to click on them and
+                                open a page"). These were inert <span>s. They now
+                                open the same collection the PlaceCard chips do,
+                                via ?exp= (app/home.js:2876 resolves every
+                                experienceBadges key). stopPropagation keeps the
+                                card's own onClick — which opens the detail sheet —
+                                from firing underneath the navigation. The World
+                                Cup badge is NOT an EXPERIENCES key, so it stays a
+                                plain span rather than linking nowhere. */}
+                            {badges.map((b) => (_isWC ? (
                               <span key={b.key} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px" }}>{b.icon} {cityFixM(b.label)}</span>
-                            ))}
+                            ) : (
+                              <a key={b.key} href={"/?exp=" + b.key} onClick={(e) => e.stopPropagation()} style={{ fontSize: 11, fontWeight: 700, color: acc, background: acc + "18", border: `1px solid ${acc}55`, borderRadius: 999, padding: "2px 8px", textDecoration: "none", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</a>
+                            )))}
                           </div>
                         )}
                         {isFeatured && (() => { const _w1 = whyFirst(p, themePlaces); return _w1 ? <div style={{ fontSize: 12, fontWeight: 700, color: "#FFFFFF", background: acc + "14", border: "1px solid " + acc + "3D", borderRadius: 9, padding: "7px 10px", marginBottom: 9, lineHeight: 1.4 }}>{_w1}</div> : null; })()}
