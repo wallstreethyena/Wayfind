@@ -2951,5 +2951,137 @@
       "https://www.lbvfs.com/",
       "https://www.lbvfs.com/stores/"
     ]
+  },
+  {
+    "placeId": "ChIJgUulalN-3YgRGoTaWM2LawY",
+    "name": "Magic Kingdom Park",
+    "num": 604,
+    "category": "attractions",
+    "vibeCheck": "The castle park — fireworks, a nighttime parade, and the attractions everyone else is measured against. Busy by design and unapologetic about it.",
+    "whyGo": "Happily Ever After puts lights, lasers and fireworks over the castle, and Pirates of the Caribbean and Haunted Mansion still hold up decades on.",
+    "bestFor": "First-timers and families who want the headline park. Not the one to pick if you want a short day or a quiet one.",
+    "knownFor": "Pirates of the Caribbean, Haunted Mansion, TRON Lightcycle / Run, Tiana's Bayou Adventure and the Happily Ever After fireworks.",
+    "powerhouseProof": "Tiana's Bayou Adventure and TRON Lightcycle / Run sit alongside Pirates of the Caribbean and Haunted Mansion — new headliners next to originals.",
+    "foodMove": "Cinderella's Royal Table for the setting; The Crystal Palace, Liberty Tree Tavern and Be Our Guest Restaurant for a proper sit-down.",
+    "drinkMove": null,
+    "insiderMove": "If crowds are the problem, buy into Disney After Hours at Magic Kingdom Park: popular attractions with lower wait times plus snacks, select evenings from January 12 to July 27, 2026.",
+    "verifiedStory": null,
+    "funFact": "Bibbidi Bobbidi Boutique will transform your child into a princess or a knight before they set foot in the park.",
+    "currentUsefulDetail": "Mickey's Not-So-Scary Halloween Party runs select nights from August 7 to October 31, 2026; Mickey's Very Merry Christmas Party from November 8 to December 22, 2026.",
+    "watchOut": "The headline events are separately ticketed on top of park admission, and the Fireworks Dessert Parties reserve the Garden Plaza viewing area — the free view is wherever you can stand.",
+    "officialWebsite": "https://disneyworld.disney.go.com/destinations/magic-kingdom/",
+    "sourceUrls": [
+      "https://disneyworld.disney.go.com/destinations/magic-kingdom/"
+    ]
+  },
+  {
+    "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
+    "name": "Epcot",
+    "num": 605,
+    "category": "attractions",
+    "vibeCheck": "Two parks in one: a science-and-technology half, and a World Showcase ring of 11 countries you walk, eat and drink your way around.",
+    "whyGo": "World Showcase covers 11 countries on foot, and it is the only park where the food is a genuine reason to come rather than a refuelling stop.",
+    "bestFor": "Adults, food-minded visitors and anyone who wants to walk and graze. Less good for small children than the castle park.",
+    "knownFor": "Spaceship Earth, Test Track, Guardians of the Galaxy: Cosmic Rewind, Frozen Ever After and the World Showcase.",
+    "powerhouseProof": "World Showcase covers 11 countries, and the Biergarten Restaurant alone celebrates over 200 years of Oktoberfest.",
+    "foodMove": "Le Cellier Steakhouse for steak, Rose and Crown Dining Room overlooking World Showcase Lagoon, Spice Road Table for Moroccan on the waterfront, Space 220 Restaurant for celestial views from 220 miles above the Earth.",
+    "drinkMove": "GEO-82 serves cocktails inside Spaceship Earth, exclusive to Guests ages 21 and older.",
+    "insiderMove": "Time your visit to a festival — the International Food and Wine Festival, Festival of the Arts, Flower and Garden Festival and Festival of the Holidays each change what the park actually is.",
+    "verifiedStory": null,
+    "funFact": "The DiveQuest tour puts you inside a 5.7-million-gallon aquarium, and Behind the Seeds tours 4 greenhouses and a fish farm at The Land Pavilion.",
+    "currentUsefulDetail": "Disney After Hours at EPCOT runs select evenings from January 22 to September 24, 2026. Luminous The Symphony of Us is the current fireworks spectacular.",
+    "watchOut": "World Showcase is a long walk and much of the good eating is spread across it, so budget a full day rather than a half.",
+    "officialWebsite": "https://disneyworld.disney.go.com/destinations/epcot/",
+    "sourceUrls": [
+      "https://disneyworld.disney.go.com/destinations/epcot/"
+    ]
+  },
+  {
+    "placeId": "ChIJ_eH9PaOB3YgRuz8jIkYEODQ",
+    "name": "Disney's Animal Kingdom Theme Park",
+    "num": 606,
+    "category": "attractions",
+    "vibeCheck": "A zoo, a theme park and a botanical walk at once — real animals on a savanna, with Pandora glowing after dark.",
+    "whyGo": "Kilimanjaro Safaris is a guided tour of an African savanna with live exotic animals, and Avatar Flight of Passage is the best ride Disney has built.",
+    "bestFor": "Animal lovers and anyone who wants a park that is genuinely outdoors. Less good in the heat of the afternoon.",
+    "knownFor": "Pandora The World of Avatar, Kilimanjaro Safaris, Expedition Everest, the Tree of Life and Festival of the Lion King.",
+    "powerhouseProof": "The Tree of Life carries more than 300 animal carvings, and Gorilla Falls Exploration Trail offers views of the world's largest primates.",
+    "foodMove": "Satu'li Canteen in Pandora for healthy dishes, Yak and Yeti Restaurant for pan-Asian, Tiffins Restaurant for international, Tusker House Restaurant for a buffet with Donald Duck.",
+    "drinkMove": null,
+    "insiderMove": "Book a paid tour rather than only riding: Wild Africa Trek is a guided VIP expedition, Savor the Savanna is a private safari with African-inspired tapas, and Caring for Giants gets you to the elephants.",
+    "verifiedStory": null,
+    "funFact": "Na'vi River Journey navigates a bioluminescent rainforest, and Zootopia: Better Zoogether is an all-new 4D show in the Tree of Life Theater.",
+    "currentUsefulDetail": "Bluey's Wild World at Conservation Station and Zootopia: Better Zoogether are both new.",
+    "watchOut": "It is the most exposed of the parks — an African savanna and a jungle trek in the open — so the middle of the day is the hard part.",
+    "officialWebsite": "https://disneyworld.disney.go.com/destinations/animal-kingdom/",
+    "sourceUrls": [
+      "https://disneyworld.disney.go.com/destinations/animal-kingdom/"
+    ]
+  },
+  {
+    "placeId": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
+    "name": "Disney's Hollywood Studios",
+    "num": 607,
+    "category": "attractions",
+    "vibeCheck": "The most ride-dense of the four, built around Star Wars: Galaxy's Edge and Toy Story Land, with a genuinely good nighttime show.",
+    "whyGo": "Star Wars: Galaxy's Edge and Toy Story Land are the two most immersive lands Disney has built, and Fantasmic closes the night with stunts and pyrotechnics.",
+    "bestFor": "Star Wars and Toy Story fans, and anyone who wants rides over atmosphere. Less good if you want animals or gardens.",
+    "knownFor": "Star Wars: Galaxy's Edge, Toy Story Land, The Twilight Zone Tower of Terror, Slinky Dog Dash and Mickey and Minnie's Runaway Railway.",
+    "powerhouseProof": "Millennium Falcon: Smugglers Run now runs a new mission with Din Djarin and Grogu — the land is still being added to, not maintained.",
+    "foodMove": "Sci-Fi Dine-In Theater Restaurant for the retro gimmick, The Hollywood Brown Derby for the Golden Age of Hollywood, Roundup Rodeo BBQ inside Toy Story Land.",
+    "drinkMove": null,
+    "insiderMove": "Stay for the shows rather than only queueing: Fantasmic, Disney Villains: Unfairly Ever After and The Little Mermaid A Musical Adventure all run in the same park.",
+    "verifiedStory": null,
+    "funFact": "Monstropolis is under development as a new immersive land, powered by laughter.",
+    "currentUsefulDetail": "Disney After Hours runs select nights through September 12, 2026; Disney Jollywood Nights from November 7, 2026 to January 5, 2027. The Magic of Disney Animation returns September 14, 2026.",
+    "watchOut": "Rock n Roller Coaster has been rethemed to The Muppets, so arrive knowing the ride you remember is not the ride you will get.",
+    "officialWebsite": "https://disneyworld.disney.go.com/destinations/hollywood-studios/",
+    "sourceUrls": [
+      "https://disneyworld.disney.go.com/destinations/hollywood-studios/"
+    ]
+  },
+  {
+    "placeId": "ChIJ96XKNOZ-3YgRoPEc0B85Hqc",
+    "name": "Walt Disney World® Resort",
+    "num": 608,
+    "category": "attractions",
+    "vibeCheck": "Not one place but four theme parks and a wall of hotels — the decision is which park, not whether.",
+    "whyGo": "Four parks, nearly 400 dining options and a hotel system that keeps you inside the bubble for as long as you want to be.",
+    "bestFor": "Anyone planning multiple days. If you have one day, pick a single park and treat this as the parent listing.",
+    "knownFor": "Magic Kingdom, EPCOT, Disney's Hollywood Studios and Disney's Animal Kingdom, plus Disney Resort hotels.",
+    "powerhouseProof": "Nearly 400 dining options across the resort, from gourmet to on-the-go.",
+    "foodMove": null,
+    "drinkMove": null,
+    "insiderMove": "Check the Florida Resident offers before you buy anything else — the Disney Summer 4-Day Ticket is $259 plus tax, which works out at $65 a day for park visits from May 17 to October 3, 2026.",
+    "verifiedStory": null,
+    "funFact": null,
+    "currentUsefulDetail": "Florida Residents can save up to 35% on rooms for stays of 4 or more nights at select Disney Resort hotels, for most arrivals from July 30 to October 3, 2026.",
+    "watchOut": "Depending on your admission type you may still need a theme park reservation, and Lightning Lane passes are a separate cost on top of the ticket.",
+    "officialWebsite": "https://disneyworld.disney.go.com/",
+    "sourceUrls": [
+      "https://disneyworld.disney.go.com/"
+    ]
+  },
+  {
+    "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
+    "name": "SeaWorld Orlando",
+    "num": 609,
+    "category": "attractions",
+    "vibeCheck": "Half marine park, half coaster park — orcas and a shark tunnel on one side, record-breaking rides on the other.",
+    "whyGo": "You get genuine animal encounters and serious coasters on one ticket, which no other Orlando park offers.",
+    "bestFor": "Families mixing animals with thrill rides. Visitors uneasy about marine mammals in human care should read up first.",
+    "knownFor": "Dolphin Cove, Orca Underwater Viewing, Shark Encounter, Sesame Street Land and its roller coasters.",
+    "powerhouseProof": "Fewer than 10% of the approximately 2,800 animal exhibitors licensed by the USDA have met AZA standards, and SeaWorld is one of them.",
+    "foodMove": "Red, White, and BBQ runs weekends July 4 to August 23, 2026, with BBQ from the most iconic regions across the US.",
+    "drinkMove": "The Fireworks and Drone Show VIP Viewing adds a happy hour with premium tapas and cocktails on the waterfront patio at Lakeside Grill.",
+    "insiderMove": "Go late in summer: Electric Ocean runs select dates now to September 7, 2026, and staying past dark is how you get the fireworks and drone show.",
+    "verifiedStory": null,
+    "funFact": "With more than 43,000 rescues to date, SeaWorld is one of the largest marine animal rescue organizations in the world.",
+    "currentUsefulDetail": "Baby Shark at SeaWorld runs now to September 7. Active-duty military get FREE tickets.",
+    "watchOut": "Annual Pass perks like free parking do not extend to single-day tickets, and the up-close animal tours and Quick Queue passes are all paid add-ons.",
+    "officialWebsite": "https://seaworld.com/orlando/",
+    "sourceUrls": [
+      "https://seaworld.com/orlando/"
+    ]
   }
 ]
