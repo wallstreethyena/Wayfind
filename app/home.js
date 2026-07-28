@@ -20,6 +20,9 @@ import { attributionParams } from "../lib/attribution";
 // is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
+// Experiment slice, so an in-app detail_open can be attributed back to the
+// static entry page that assigned the visitor. Empty when never exposed.
+import { experimentProps } from "../lib/experiment";
 // Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
 // 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
 // the homepage rebuild just never re-imported them. See lib/cardAffiliate.js /
@@ -4529,7 +4532,8 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => { try { logEvent("screen_view", null, { screen }); } catch (e) {} }, [screen]);
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
-    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {})); } catch (e0) {}
+    const _exp = (() => { try { return experimentProps(); } catch (e) { return {}; } })();
+    try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {}, _exp)); } catch (e0) {}
     // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
     // and at most one Google event (here); forwardToGoogle dedupes and decides
     // on its own whether the action is worth an Ads conversion at all.
@@ -4537,12 +4541,12 @@ function PageInner({ initialEvents = null }) {
       forwardToGoogle(action, Object.assign({
         place_id: (place && place.id) || (extra && extra.place_id) || null,
         place_name: (place && place.name) || null,
-      }, extra || {}, attributionParams()));
+      }, extra || {}, attributionParams(), _exp));
     } catch (e1) {}
     // Session-scoped milestones — the PRIMARY metric (activated sessions).
     // Fires at most one first_intent and one session_activated per session.
     // Strictly additive: no existing event name, payload, or history changes.
-    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams())); } catch (e2) {}
+    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams(), _exp)); } catch (e2) {}
     try {
       if (!supabase) return;
       const row = {
