@@ -2,7 +2,7 @@
 // from EXPLICIT signals, decays honestly, stays bounded, and — the brand rule —
 // NEVER touches the Wayfind Score. Ranking is unchanged in Phase 1.
 import { readFileSync } from "fs";
-import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, TASTE_TAU_MS, SIGNAL_WEIGHT } from "../lib/taste.js";
+import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, TASTE_TAU_MS, SIGNAL_WEIGHT, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -44,6 +44,17 @@ ok(affinityFor({ category: "food" }, dvec) < 1 && affinityFor({ category: "food"
 ok(affinityFor({ category: "beach" }, vec) === 1, "an unseen dimension is neutral (1.0) — no guessing");
 ok(affinityFor({ category: "food" }, null) === 1 && affinityFor(null, vec) === 1, "no taste / no place -> neutral");
 
+// --- human-editable profile: readable groups + explicit correction ---
+ok(TASTE_EDITOR_OPTIONS.length >= 10 && new Set(TASTE_EDITOR_OPTIONS.map((x) => x.id)).size === TASTE_EDITOR_OPTIONS.length, "taste editor offers a useful, unique controlled vocabulary");
+{ const moreCoffee = manualTasteSignals("coffee", "more"); const lessCoffee = manualTasteSignals("coffee", "less"); ok(moreCoffee.length === 2 && moreCoffee.every((x) => x.delta > 0) && lessCoffee.every((x) => x.delta < 0), "manual preference supports explicit more/less direction"); }
+ok(manualTasteSignals("not-a-real-option", "more").length === 0, "manual preference fails closed for unknown options");
+{
+  const summary = summarizeTasteVector({ tag: { "coffee shop": 2, cafe: 1, "brunch restaurant": 3, "raw service token": -2 }, category: { beach: 4 } });
+  ok(summary.more.some((x) => x.id === "coffee" && x.label === "Coffee & cafés"), "technical coffee tags collapse into one human-readable preference");
+  ok(summary.more.some((x) => x.id === "brunch") && summary.more.some((x) => x.id === "beaches"), "known tags/categories become readable profile groups");
+  ok(summary.details.length === 1 && summary.details[0].label === "Raw Service Token" && summary.details[0].weight < 0, "unmatched values remain inspectable/removable under details");
+}
+
 // --- THE BRAND LOCKS (home.js) ---
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes("function recordTaste(action, p)"), "the taste recorder is wired");
@@ -68,7 +79,7 @@ ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforc
 // --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
 ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY with explicit consent — off = same for everyone");
 ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
-ok(home.includes('Picked for you — tuned to what you like'), "when on, the personalization is LABELED (never silent)");
+ok(home.includes("Personalized for you") && home.includes("Your taste profile is reordering these picks"), "when on, personalization is labeled and explained (never silent)");
 ok(home.includes("Personalize my feed") && home.includes("No thanks"), "the consent ask is a real choice, not a dark pattern");
 ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
 ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
@@ -77,7 +88,10 @@ ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable
 ok(home.includes("function resetTaste") && home.includes('supabase.rpc("wf_taste_wipe")'), "Reset wipes the server vector");
 ok(home.includes("function exportTaste") && home.includes("wayfind-my-taste.json"), "export-my-data ships");
 ok(home.includes("function forgetTasteItem"), "per-item forget ships");
-ok(home.includes("Your taste") && home.includes("never sold"), "the transparency panel exists and states the promise");
+ok(home.includes("function addTastePreference") && home.includes("function forgetTasteGroup"), "users can add, correct, and remove summarized preferences");
+ok(home.includes("Your Wayfind profile") && home.includes("never sold"), "the transparency panel exists and states the promise");
+ok(home.includes("A place’s Wayfind Score never changes"), "the editor explains that personalization changes order, never the score");
+ok(home.includes("tasteResetConfirm"), "destructive reset requires confirmation");
 // The Score honesty lock STILL holds after activation.
 ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit/.test(home), "affinity STILL never feeds the Wayfind Score — re-rank uses the internal _ps only");
 ok(home.includes("displayed wfScore never changes"), "the ranking comment still asserts the visible Score is untouched");
