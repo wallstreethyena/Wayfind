@@ -76,7 +76,7 @@ export async function generateMetadata({ params }) {
   const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3) + "&n=" + beaches.length + "&rv=" + totalReviews;
   const near = NEAR_LABEL[params.metro] || meta.label;
   const title = "The Best Beaches Near " + near + " | Wayfind";
-  const description = "Not every 4.8-star beach is equal. The beaches near " + meta.short + " actually worth your time — ranked by rating strength, review depth, and what each beach is genuinely best for. No paid placement.";
+  const description = "Stop searching and start choosing. Wayfind's shortlist reveals the beaches near " + meta.short + " that fit the day you actually want — clear winners, honest tradeoffs, and no paid placement.";
   return {
     title, description,
     alternates: { canonical: SITE_URL + "/best-beaches/" + params.metro },
@@ -142,7 +142,8 @@ const BEACH_PREMIUM_CSS = `
 .wf-beach-premium-location{display:inline-flex;align-items:center;gap:7px;color:#B84E0D;letter-spacing:.12em;white-space:nowrap}
 .wf-beach-premium-location:before{content:"";width:7px;height:7px;border-radius:50%;background:#F97316;box-shadow:0 0 0 4px rgba(249,115,22,.12)}
 .wf-beach-premium-panel h1{max-width:620px;margin:28px 0 14px;color:#111824;font-family:Georgia,'Times New Roman',serif;font-size:47px;font-weight:400;letter-spacing:-.045em;line-height:1.01;text-wrap:balance}
-.wf-beach-premium-dek{max-width:590px;margin:0;color:#596476;font-size:15px;font-weight:520;line-height:1.55}
+.wf-beach-premium-dek{max-width:590px;margin:0;color:#596476;font-size:14.5px;font-weight:520;line-height:1.52}
+.wf-beach-premium-dek strong{display:block;margin-bottom:5px;color:#B84E0D;font-size:16px;font-weight:850;letter-spacing:-.015em}
 .wf-beach-premium-rule{height:1px;margin:26px 0 20px;background:rgba(17,24,36,.16)}
 .wf-beach-premium-quick-title{margin-bottom:12px;color:#596476;font-size:9.5px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}
 .wf-beach-premium-picks{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(17,24,36,.13)}
@@ -234,7 +235,7 @@ export default async function BeachesPage({ params }) {
               <span className="wf-beach-premium-location">{NEAR_LABEL[params.metro] || meta.label}</span>
             </div>
             <h1 id="wf-beach-title">The Best Beaches Near {NEAR_LABEL[params.metro] || meta.label}</h1>
-            <p className="wf-beach-premium-dek">Not every 4.8-star beach is equal. We ranked the coast by rating strength, review depth, and what each beach is genuinely best for.</p>
+            <p className="wf-beach-premium-dek"><strong>Stop searching. Start choosing.</strong>This isn’t another list of beaches—it’s the shortlist we’d send a friend, with clear winners, honest tradeoffs, and the right shoreline for the day you actually want.</p>
             <div className="wf-beach-premium-rule" />
             {quickPicks.length ? (
               <>
