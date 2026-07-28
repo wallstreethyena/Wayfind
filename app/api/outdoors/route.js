@@ -40,7 +40,13 @@ async function osmCacheGet(k) {
   const s = sb();
   if (!s) return null;
   try {
-    const r = await fetch(`${s.url}/rest/v1/wf_places_cache?k=eq.${encodeURIComponent(k)}&select=v,exp`, { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store" });
+    // v6.51: bounded so a slow Supabase read can never itself become the hang
+    // — resolveOsm() below races this against the live Overpass attempt, and
+    // an unbounded fetch here would defeat that race in the worst case.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 2500);
+    const r = await fetch(`${s.url}/rest/v1/wf_places_cache?k=eq.${encodeURIComponent(k)}&select=v,exp`, { headers: { apikey: s.key, Authorization: `Bearer ${s.key}` }, cache: "no-store", signal: ctrl.signal });
+    clearTimeout(timer);
     if (!r.ok) return null;
     const row = (await r.json())[0];
     if (!row || new Date(row.exp).getTime() < Date.now()) return null;
@@ -196,6 +202,35 @@ async function fromOSM(lat, lng, radiusM) {
   } catch (e) { return { configured: true, ok: false, places: [] }; }
 }
 
+// v5.01 fail-fast (launch prompt 3): every source races a hard 4.5s wall —
+// a slow or dead upstream can never hold the route (or the Beach day / Things
+// to do tabs) hostage. Whatever answered in time ships.
+const wall = (p) => Promise.race([p, new Promise((res) => setTimeout(() => res(null), 4500))]);
+
+// v6.51 (owner: "the beach tab takes a long time") — root cause. Overpass is
+// DOCUMENTED above as unreliable from cloud IPs, and until now every request
+// paid its full ~4s live-fetch wall BEFORE ever consulting the 7-day durable
+// cache this route already keeps for exactly that situation — the cache
+// fallback only ran AFTER the live attempt had already failed, so the fast
+// path never got used. fromOSM() and the cache lookup are started at the same
+// tick and raced: a cache HIT short-circuits the response the moment it
+// lands (~100-300ms, not ~4-4.5s), and the live attempt keeps running in the
+// background to refresh the cache for next time — it just no longer blocks
+// this request. A geo bucket with NO cache at all still costs the full wall,
+// same as before; nothing got slower, the common case got much faster.
+async function resolveOsm(lat, lng, radius, osmKey) {
+  const live = wall(fromOSM(lat, lng, radius)); // fires now; not awaited yet
+  const cached = await osmCacheGet(osmKey);
+  if (Array.isArray(cached) && cached.length) {
+    live.then((r) => { if (r && r.ok && r.places.length) osmCacheSet(osmKey, r.places); }).catch(() => {});
+    return { osm: { configured: true, ok: true, places: cached }, osmFrom: "cached" };
+  }
+  const r = await live;
+  const osm = r || { configured: true, ok: false, places: [] };
+  if (osm.ok && osm.places.length) osmCacheSet(osmKey, osm.places);
+  return { osm, osmFrom: "live" };
+}
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   if (searchParams.get("probe") === "1") {
@@ -211,25 +246,15 @@ export async function GET(req) {
   if (hit && hit.exp > Date.now()) return Response.json(hit.body, { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
 
   const radiusMi = toMi(radius);
-  // v5.01 fail-fast (launch prompt 3): every source races a hard 4.5s wall via
-  // allSettled — a slow or dead upstream can never hold the route (or the
-  // Beach day / Things to do tabs) hostage. Whatever answered in time ships.
-  const wall = (p) => Promise.race([p, new Promise((res) => setTimeout(() => res(null), 4500))]);
-  const [npsR, ridbR, osmR] = await Promise.allSettled([wall(fromNPS(lat, lng, radiusMi)), wall(fromRIDB(lat, lng, radiusMi)), wall(fromOSM(lat, lng, radius))]);
+  const osmKey = "wf-osm|" + ck;
+  const [npsR, ridbR, osmR] = await Promise.allSettled([wall(fromNPS(lat, lng, radiusMi)), wall(fromRIDB(lat, lng, radiusMi)), resolveOsm(lat, lng, radius, osmKey)]);
   const pick = (r, fb) => (r.status === "fulfilled" && r.value) ? r.value : fb;
   const nps = pick(npsR, { configured: !!getNps(), places: [] });
   const ridb = pick(ridbR, { configured: !!getRidb(), places: [] });
-  let osm = pick(osmR, { configured: true, ok: false, places: [] });
-  // v5.04 durable OSM: persist live successes; fall back to the last good
-  // result for this geo when Overpass throttles us (counts.osm stays a real
-  // number, marked "cached" for honesty).
-  const osmKey = "wf-osm|" + ck;
-  let osmFrom = "live";
-  if (osm.ok && osm.places.length) { osmCacheSet(osmKey, osm.places); }
-  else if (!osm.ok) {
-    const kept = await osmCacheGet(osmKey);
-    if (Array.isArray(kept) && kept.length) { osm = { configured: true, ok: true, places: kept }; osmFrom = "cached"; }
-  }
+  // v5.04 durable OSM, v6.51 cache-first: resolveOsm() already raced the live
+  // Overpass attempt against the 7-day cache — counts.osm stays a real number
+  // either way, marked "cached" for honesty when the fast path was used.
+  const { osm, osmFrom } = pick(osmR, { osm: { configured: true, ok: false, places: [] }, osmFrom: "live" });
   const places = [...nps.places, ...ridb.places, ...osm.places];
   const body = { places, counts: { nps: nps.configured ? nps.places.length : "no key", ridb: ridb.configured ? ridb.places.length : "no key", osm: osm.ok === false ? "unavailable" : osm.places.length, ...(osmFrom === "cached" ? { osmFrom } : {}) } };
   // v4.91: a transient OSM outage must not be sticky — cache failures briefly
