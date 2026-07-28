@@ -8,6 +8,11 @@ import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
+// The floating pill stays (it catches people who DO read to the end). This adds
+// the above-the-fold handoff under a 50/50 experiment — measured dwell on these
+// pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
+import ExploreBridge from "../../components/ExploreBridge";
+import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 
 export function generateStaticParams() {
   return Object.keys(GUIDES).map((slug) => ({ slug }));
@@ -45,7 +50,7 @@ const S = {
   footerLink: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
 };
 
-export default function GuidePage({ params }) {
+export default async function GuidePage({ params }) {
   const g = GUIDES[params.slug];
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
@@ -58,6 +63,25 @@ export default function GuidePage({ params }) {
     "@type": "FAQPage",
     mainEntity: g.faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
   } : null;
+  // Region -> landing city (all four guide regions exist as landing slugs).
+  // rankedFor reuses the SAME 30-day cached rows as /go/[city], so this adds no
+  // new metered Places spend beyond the first render per city.
+  const bridgeSlug = String(g.region || "Orlando").toLowerCase().replace(/\s+/g, "-");
+  const bridgeCity = LANDING_CITIES[bridgeSlug] || null;
+  let bridgePicks = [];
+  if (bridgeCity) {
+    try {
+      const ranked = await rankedFor("things-to-do", bridgeSlug, { withPhotos: true });
+      bridgePicks = (Array.isArray(ranked) ? ranked : []).slice(0, 3).map((p) => ({
+        id: p.id, name: p.name, rating: p.rating, reviews: p.reviews,
+        distMi: p.distMi, openNow: p.openNow, photoRef: p.photoRef || null,
+        // Honest, built only from the place's own numbers — same helper the
+        // ranked landing pages use.
+        reason: whyLine(p, "spot"),
+      }));
+    } catch (e) { bridgePicks = []; }
+  }
+
   return (
     <main style={S.page}>
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
@@ -67,6 +91,7 @@ export default function GuidePage({ params }) {
       <h1 style={S.h1}>{g.title}</h1>
       <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
       <p style={S.p}>{g.intro}</p>
+      <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
       <div style={S.disclosure}>Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
       {g.picks.map((pick, i) => {
         const book = pick.viatorUrl ? viatorDirectUrl(pick.viatorUrl) : (pick.bookQuery ? experienceGoUrl(pick.bookQuery, g.region || "Orlando") : null);
