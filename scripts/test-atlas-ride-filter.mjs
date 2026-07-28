@@ -44,11 +44,26 @@ for (const name of [
 
 // The wall-clock budget: the upsert runs after the pool settles, so a killed
 // function writes nothing and wastes the whole batch's metered spend.
-ok(/const deadline = Date\.now\(\) \+ \d[\d_]*;/.test(src), "batch carries a wall-clock deadline");
-ok(/Date\.now\(\) > deadline/.test(src), "the deadline actually gates new work");
-const budget = parseInt((src.match(/const deadline = Date\.now\(\) \+ ([\d_]+);/) || [])[1]?.replace(/_/g, "") || "0", 10);
+// WIDENED during the v6.49 merge. These pinned #383's exact literals
+// (`const deadline = Date.now() + N`, `Date.now() > deadline`, `skipped`), but
+// v6.49 had INDEPENDENTLY added the same guard as `startedAt` +
+// `DISPATCH_DEADLINE_MS` + `deferred`. Keeping both implementations would have
+// counted one event under two names and reported two different numbers for it,
+// so the merge kept one. The property these assertions describe is fully
+// intact; only the identifiers changed.
+//
+// So they now accept either shape and assert the BEHAVIOUR — a budget exists,
+// it is read inside the pool, it leaves headroom under maxDuration, and what it
+// drops is counted. A deadline nothing reads is not a deadline.
+const dispatchMs = (src.match(/const DISPATCH_DEADLINE_MS = ([\d_]+);/) || [])[1];
+const absoluteMs = (src.match(/const deadline = Date\.now\(\) \+ ([\d_]+);/) || [])[1];
+ok(!!(dispatchMs || absoluteMs), "batch carries a wall-clock deadline");
+ok(/Date\.now\(\) > deadline/.test(src) || /Date\.now\(\) - startedAt > DISPATCH_DEADLINE_MS/.test(src),
+  "the deadline actually gates new work — it is read inside the pool, not just declared");
+const budget = parseInt(String(dispatchMs || absoluteMs || "0").replace(/_/g, ""), 10);
 ok(budget > 0 && budget <= 50000, `deadline leaves headroom under maxDuration=60 (got ${budget}ms)`);
-ok(/skipped\+\+/.test(src) && /skipped,/.test(src), "skipped places are counted and reported");
+ok((/skipped\+\+/.test(src) && /skipped,/.test(src)) || (/deferred\+\+/.test(src) && /deferred,/.test(src)),
+  "places dropped to the deadline are counted AND reported, so a persistently non-zero count is visible");
 
 // Unbounded response bodies must never be pulled into the function.
 ok(/content-length[\s\S]{0,120}?return null;/.test(src), "the page fetch caps response size");
