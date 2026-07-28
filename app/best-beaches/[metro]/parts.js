@@ -20,7 +20,7 @@ function Chip({ label, value, tone }) {
   );
 }
 
-export default function BeachPageClient({ topBeach, metro, label }) {
+export default function BeachPageClient({ topBeach, metro, label, variant }) {
   const [copied, setCopied] = useState(false);
 
 
@@ -39,8 +39,10 @@ export default function BeachPageClient({ topBeach, metro, label }) {
       {/* v6.54 (spec 2): the number-one-only strip is gone; every beach row
           renders its own live chips (BeachLiveChips); rip-current and UV
           chips removed entirely (product decision). */}
-      <button onClick={share} style={{ marginTop: 12, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
-        {copied ? "Link copied" : "Share this ranking"}
+      <button onClick={share} style={variant === "premium"
+        ? { display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 9, minHeight: 46, padding: "10px 20px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: C.accent, color: "#111824", boxShadow: "0 10px 24px rgba(249,115,22,.2), inset 0 1px rgba(255,255,255,.35)", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }
+        : { marginTop: 12, display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
+        {copied ? "Link copied" : "Share this ranking"} <span aria-hidden="true">↗</span>
       </button>
     </div>
   );
@@ -118,6 +120,6 @@ export function BackControl({ fallback }) {
     window.location.assign(fallback || "/");
   };
   return (
-    <button onClick={go} aria-label="Back" style={{ position: "sticky", top: 10, zIndex: 40, marginLeft: 14, display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "7px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(4,8,16,.55)", color: "#F1F5F9", fontSize: 13, fontWeight: 700, cursor: "pointer", backdropFilter: "blur(6px)" }}>← Back</button>
+    <button className="wf-back-control" onClick={go} aria-label="Back" style={{ position: "sticky", top: 10, zIndex: 40, marginLeft: 14, display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "7px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(4,8,16,.55)", color: "#F1F5F9", fontSize: 13, fontWeight: 700, cursor: "pointer", backdropFilter: "blur(6px)" }}>← Back</button>
   );
 }

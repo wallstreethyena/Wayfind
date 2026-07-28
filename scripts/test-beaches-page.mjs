@@ -112,6 +112,8 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("The Best Beaches Near {NEAR_LABEL[params.metro]"), "H1 lost the search-language Near form");
   ok(src.includes("Looking for a quick answer?") && src.includes("Best overall:"), "the quick-answer block is gone — decision-first is the page's whole point");
   ok(src.includes("QUICK_LABEL[b.id]") && !/Best sand:.*hardcoded/.test(src), "quick answers render ONLY for beaches actually present and serving");
+  ok(src.includes("wf-beach-premium-hero") && src.includes("wf-beach-premium-panel") && src.includes("wf-beach-premium-media"), "premium split hero lost its image/panel composition");
+  ok(src.includes('variant="premium"') && src.includes("No paid placement. No sponsored rankings."), "premium hero lost its share action or trust signal");
   ok(src.includes("How we verified this") && src.includes("<details"), "the depth must collapse behind How-we-verified-this — too many words on a phone otherwise");
   ok(src.includes("Why Wayfind ranked them this way") && src.includes('i === 2 && beaches.length > 3'), "the trust section after rank 3 is gone");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
