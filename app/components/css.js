@@ -128,9 +128,36 @@ export const WF_PLACE_CARD_CSS = `
    .wf-place-card-award below (same inline-flex / width:max-content / 999px
    rhythm) so the two stack as one coherent column of credentials.
    scripts/test-curator-boost.mjs forbids position:absolute here. */
-/* .wf-place-card-owner — superseded by the compact media-rail seal
-   defined in app/home.js (#384). Two competing definitions of the same class
-   let cascade ORDER decide which wins, which is how a chip silently moves. */
+/* Compact media-rail seal (#384). Absolute BY DESIGN and safe: width is
+   clamped to the media rail while .wf-place-card-actions lives in the
+   content column, so it can never cover the Save button (the v6.43
+   regression). Canonical home is here — a second definition in home.js
+   would let cascade order decide which wins. */
+.wf-place-card-owner{
+  position:absolute;
+  z-index:6;
+  bottom:9px;
+  left:8px;
+  display:inline-flex;
+  align-items:center;
+  width:calc(var(--wf-place-card-media) - 16px);
+  min-width:0;
+  height:27px;
+  box-sizing:border-box;
+  gap:5px;
+  padding:3px 6px 3px 4px;
+  overflow:hidden;
+  border:1px solid rgba(249,115,22,.78);
+  border-radius:999px;
+  background:
+    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
+    rgba(5,9,15,.76);
+  color:#FF8A35;
+  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
+  backdrop-filter:blur(10px) saturate(1.12);
+  -webkit-backdrop-filter:blur(10px) saturate(1.12);
+  pointer-events:none;
+}
 .wf-place-card-owner:after{
   content:"";
   position:absolute;

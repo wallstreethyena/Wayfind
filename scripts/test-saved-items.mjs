@@ -33,6 +33,10 @@ ok(/fetchSavedItems\(user\.id\)/.test(saved), "Saved tab loads wf_saved_items fo
 ok(/Saved experiences & deals/.test(saved), "Saved tab renders the experiences/deals section (alongside place lists)");
 ok(/removeSavedItem\(user\.id/.test(saved), "saved items can be removed");
 ok(/PlaceCard /.test(saved), "the place lists (saved_places) still render — both stores coexist");
+ok(/className="wf-saved-hero"/.test(saved) && /Keep the places worth remembering/.test(saved), "Saved opens with the premium collection hero and clear user benefit");
+ok(/className="wf-saved-list-grid"/.test(saved) && /className="wf-saved-list-card"/.test(saved), "personal lists render as visual collection cards");
+ok(/className="wf-saved-activity-grid"/.test(saved) && /Your taste, remembered/.test(saved), "automatic folders are framed as understandable taste memory");
+ok(/prefers-reduced-motion:reduce/.test(saved), "Saved premium motion honors reduced-motion preferences");
 
 console.log(`test-saved-items: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
