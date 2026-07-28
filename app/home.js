@@ -11,6 +11,8 @@ import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+// v6.51 PERF: defers decorative hero-photo fetches off the critical path.
+import { onIdle } from "../lib/idleTask";
 // Google bridge. PostHog remains the source of truth — forwardToGoogle only
 // MIRRORS an already-captured event to GA4/Ads and never captures to PostHog
 // itself, so existing event names and history stay exactly as they are.
@@ -5710,9 +5712,14 @@ function PageInner({ initialEvents = null }) {
   // photo — same floor the date-night list rides on (4.4/150+), art only as
   // fallback. (The family hero deliberately uses owned artwork instead — see
   // test-intent-pages — so only date-night and hidden-gem fetch live photos.)
+  // v6.51 PERF: deferred to idle. This is a DECORATIVE hero photo — the card
+  // renders owned art until it arrives — but on load it fired a metered Places
+  // search AND a vision-model /api/image-score, competing with the feed the
+  // user is actually looking at. onIdle changes when, never whether.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
+    const cancelIdle = onIdle(() => {
     (async () => {
       try {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("romantic dinner intimate") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=8&cat=food");
@@ -5726,7 +5733,8 @@ function PageInner({ initialEvents = null }) {
         if (!cancelled && ref) setDateHeroImg(ref);
       } catch (e) {}
     })();
-    return () => { cancelled = true; };
+    });
+    return () => { cancelled = true; cancelIdle(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
@@ -5806,9 +5814,13 @@ function PageInner({ initialEvents = null }) {
 
   // v6.60: one lazy fetch for the Hidden Gems card photo — a genuinely loved
   // (4.6+) but NOT famous place (review CEILING 3000, the gem rule).
+  // v6.51 PERF: deferred to idle for the same reason as the date-night hero
+  // above — decorative photo, art fallback already on screen, but it cost a
+  // metered Places search plus a vision-model call on the critical path.
   useEffect(() => {
     if (screen !== "suggested" || !center) return;
     let cancelled = false;
+    const cancelIdle = onIdle(() => {
     (async () => {
       try {
         const r = await fetch("/api/places/search?q=" + encodeURIComponent("hidden gem restaurant local favorite tucked away") + "&lat=" + center.lat.toFixed(2) + "&lng=" + center.lng.toFixed(2) + "&radius=27000&n=12&cat=food");
@@ -5818,7 +5830,8 @@ function PageInner({ initialEvents = null }) {
         if (!cancelled && ref) setGemHeroImg(ref);
       } catch (e) {}
     })();
-    return () => { cancelled = true; };
+    });
+    return () => { cancelled = true; cancelIdle(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
