@@ -11,6 +11,11 @@ import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+// Google bridge. PostHog remains the source of truth — forwardToGoogle only
+// MIRRORS an already-captured event to GA4/Ads and never captures to PostHog
+// itself, so existing event names and history stay exactly as they are.
+import { forwardToGoogle } from "../lib/analytics";
+import { attributionParams } from "../lib/attribution";
 // Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
 // 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
 // the homepage rebuild just never re-imported them. See lib/cardAffiliate.js /
@@ -3836,6 +3841,9 @@ function PageInner({ initialEvents = null }) {
     const fixed = fixEmailTypos(authEmail);
     if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
     setAuthSending(true);
+    // Intent, not conversion. signup_started is analytics-only in GA4 and is
+    // deliberately NOT an Ads conversion — submitting a form is not an account.
+    if (authMode === "signup") { try { logEvent("signup_started"); } catch (e) {} }
     try {
       const creds = { email: authEmail.trim(), password: authPassword };
       // v5.05: signup goes through OUR server route (admin-created, email
@@ -3855,7 +3863,8 @@ function PageInner({ initialEvents = null }) {
         if (viaRoute) {
           const res = await supabase.auth.signInWithPassword(creds);
           if (res.error) showToast("Account created \u2014 now sign in: " + res.error.message);
-          else { showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+          // A real account that is really signed in: the PRIMARY conversion.
+          else { try { logEvent("signup_completed", null, { method: "server_route" }); } catch (e) {} showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
           setAuthSending(false); return;
         }
       }
@@ -3871,7 +3880,10 @@ function PageInner({ initialEvents = null }) {
         } catch (e) {}
       }
       if (res.error) { showToast(`Sign-in error: ${res.error.message}`); }
-      else if (res.data && res.data.session) { showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+      // A session here means the credentials really worked. Only the signup
+      // branch is a conversion; an existing user signing in is not new business,
+      // so it stays analytics-only (login_completed).
+      else if (res.data && res.data.session) { try { logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" }); } catch (e) {} showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
       else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
       else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
@@ -4514,6 +4526,15 @@ function PageInner({ initialEvents = null }) {
   function logEvent(action, place, extra) {
     try { if (place && place.type) tasteBump(place); } catch (e) {}
     try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture(action, Object.assign({ place_id: (place && place.id) || (extra && extra.place_id) || null, place_name: (place && place.name) || null }, extra || {})); } catch (e0) {}
+    // Mirror to GA4 / Google Ads. One product action => one PostHog event (above)
+    // and at most one Google event (here); forwardToGoogle dedupes and decides
+    // on its own whether the action is worth an Ads conversion at all.
+    try {
+      forwardToGoogle(action, Object.assign({
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+      }, extra || {}, attributionParams()));
+    } catch (e1) {}
     try {
       if (!supabase) return;
       const row = {

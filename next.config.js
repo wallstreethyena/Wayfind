@@ -17,7 +17,12 @@ const CSP_REPORT_ONLY = [
   // it needs BOTH script-src and connect-src. It was the ONLY origin firing CSP
   // reports in Report-Only (verified live 2026-07-15 on the home route) — i.e. the
   // one thing that would break on the enforce-flip. Same class as scripts.stay22.com.
-  "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com",
+  // Google tag (gtag.js) for Ads AW-18342267447 + GA4. googletagmanager.com
+  // was MISSING while the Ads tag was already live in app/layout.js — harmless
+  // only because this header is Report-Only. On the enforce-flip the tag would
+  // have died silently and taken every conversion with it. googleadservices.com
+  // is the Ads conversion-tracking script gtag pulls in when a conversion fires.
+  "script-src 'self' 'unsafe-inline' https://scripts.stay22.com https://tp-em.com https://maps.googleapis.com https://maps.gstatic.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
@@ -26,9 +31,14 @@ const CSP_REPORT_ONLY = [
   // the moment it flips to enforcing they would break. Added: Ticketmaster
   // event images (s1.ticketm.net, proven live), and the Viator partner
   // image CDNs used by the booking-CTA tour cards.
-  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://tiles.openfreemap.org",
+  // Google conversion/analytics pixels: gtag still falls back to 1x1 image
+  // beacons when sendBeacon/fetch is unavailable, so the image endpoints are
+  // required for conversions to land reliably — not optional.
+  "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org",
+  // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
+  // beacon to google.com/pagead + googleads.g.doubleclick.net.
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://tp-em.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net",
   "worker-src 'self' blob:",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
