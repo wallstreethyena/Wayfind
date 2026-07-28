@@ -6,6 +6,7 @@ import { CULTURE } from "../lib/culture";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
 import GoogleTags from "./components/GoogleTags";
+import FooterVeil from "./components/FooterVeil";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -62,14 +63,30 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" style={{ height: "100%" }}>
-      <body style={{ margin: 0, background: "#040810", height: "100%", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+    // v6.44 (owner-reported landing jump): NO forced height on <html>, and
+    // min-height — never height — on <body>. height:100% here resolves against
+    // the initial containing block, which on iOS is the LARGE viewport (100vh,
+    // URL bar hidden), while the app shell in app/home.js is 100dvh (the small
+    // viewport, URL bar visible). That mismatch alone gives the home document
+    // exactly one URL-bar-height of scroll, and scrolling a 100dvh app UI drags
+    // the entire app up under Safari's translucent chrome. min-height:100dvh
+    // keeps short document routes (/terms, a thin guide) filling the screen
+    // while letting long ones scroll normally.
+    <html lang="en">
+      <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
         {/* Google Ads (AW-18342267447) + GA4, loaded once from one gtag.js.
             This was an inline snippet that only ever called gtag('config'), so
             the Ads account could report page loads and nothing else — the
             reason it showed 0 conversions no matter what users did. The tag now
             also captures landing attribution and forwards real product events;
-            see lib/analytics.js and app/components/GoogleTags.js. */}
+            see lib/analytics.js and app/components/GoogleTags.js.
+
+            REBASE NOTE (v6.44 onto #378): main replaced the inline
+            <Script id="google-ads-gtag-src"> pair this branch still carried
+            with this component. main's version WINS — it is a strict superset.
+            The <html>/<body> attributes above are the opposite call: main never
+            received v6.44, so its height:100% is the pre-fix form and this
+            branch's minHeight:100dvh is kept. */}
         <GoogleTags />
         {/* #219 events primer: start the home events fetch BEFORE hydration.
             Reads the SAME wf_center the app uses (fallback = DEFAULT_CENTER in
@@ -172,12 +189,22 @@ export default function RootLayout({ children }) {
             ⚠ PRIVACY: third-party tracker — must be covered by the privacy
             policy + cookie consent (see the monetization/legal package). */}
         <Script id="travelpayouts-drive" strategy="lazyOnload" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
-        {/* v5.38 a11y: one main landmark for every route; the skip link targets it. */}
-        <main id="wf-main" style={{ minHeight: "100vh" }}>{children}</main>
+        {/* v5.38 a11y: one main landmark for every route; the skip link targets it.
+            v6.44: 100dvh, not 100vh — see the note on <body> above. On "/" this
+            wrapper holds the 100dvh app shell, so any extra height here is pure
+            document scroll that drags the app under the browser chrome. */}
+        <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@graph": [{ "@type": "WebSite", name: "Wayfind", url: SITE_URL, description: "Find great things to do near you, right now.", potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: SITE_URL + "/?q={search_term_string}" }, "query-input": "required name=search_term_string" } }, { "@type": "Organization", name: "WAYFIND LLC", url: SITE_URL, email: "hello@gowayfind.com", logo: SITE_URL + "/icon-512.png" }] }) }} />
+        {/* v6.44: on "/" this footer is the last thing standing between the app
+            and a document that is exactly as tall as the screen. FooterVeil
+            keeps every link in the rendered DOM for crawlers and removes it
+            from the interactive view on the app route ONLY — the same
+            treatment ProofVeil already gives the SSR proof block above.
+            Article routes are unaffected and render it normally. */}
+        <FooterVeil>
         <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
@@ -228,6 +255,7 @@ export default function RootLayout({ children }) {
             <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links on Wayfind are affiliate links to partners like Viator, GetYourGuide, and hotel booking sites. Booking through them may earn Wayfind a commission at no extra cost to you. It never changes our rankings. Wayfind is operated by WAYFIND LLC.</p>
           </div>
         </footer>
+        </FooterVeil>
         </PostHogProvider>
       </body>
     </html>

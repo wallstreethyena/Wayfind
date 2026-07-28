@@ -15,7 +15,7 @@ import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
 import * as Aff from "../../../lib/affiliates";
 import { supabase } from "../../../lib/supabase";
-import BookingCTA from "../BookingCTA";
+import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
 
@@ -195,6 +195,38 @@ export default function DetailSheet({ ctx }) {
   // hours periods (never the stale cached openNow), so "Open" in the list can't
   // become "Closed" in the sheet.
   const openState = (typeof liveOpen === "function" ? liveOpen(detail) : (detail && detail.openNow != null ? detail.openNow : null));
+
+  // v6.44 (owner-reported, with a photo): the hero showed TWO identical
+  // circular left-chevron buttons down the left edge — the Back button at the
+  // top and the gallery's "previous photo" arrow at the vertical centre — which
+  // reads as a duplicate/broken control. Root cause: both arrows rendered
+  // unconditionally, so on photo 1 (i.e. every time the sheet opens) a
+  // "previous" affordance existed with nothing behind it. Track the live slide
+  // and render each arrow only when it has somewhere to go; on open that
+  // removes the left arrow entirely, and the ambiguity with it. A "2 / 7"
+  // counter replaces it as the orientation cue, which is also what tells a
+  // first-time user the gallery is swipeable at all.
+  const [galleryIdx, setGalleryIdx] = useState(0);
+  useEffect(() => { setGalleryIdx(0); }, [detail && detail.id]);
+  // Measured off the children's real offsetLeft rather than clientWidth, so the
+  // 6px inter-slide gap can't accumulate into an off-by-one on long galleries.
+  const onGalleryScroll = (e) => {
+    const el = e.currentTarget;
+    if (!el || !el.children || !el.children.length) return;
+    const x = el.scrollLeft;
+    let best = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < el.children.length; i++) {
+      const d = Math.abs(el.children[i].offsetLeft - x);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    setGalleryIdx(best);
+  };
+
+  // v6.44: does the booking CTA actually render? The dock's grid template
+  // depends on it — see hasBookingCTA in components/BookingCTA.js.
+  const hasBooking = detail ? hasBookingCTA(detail, placeKind(detail), viaTours, locName) : false;
+
   return (
         <div style={sheetBg} onClick={() => window.history.back()}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
@@ -203,15 +235,20 @@ export default function DetailSheet({ ctx }) {
               <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
               {detail.photos && detail.photos.length > 0 ? (
                 <div style={{ position: "relative" }}>
-                  <div ref={galleryRef} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+                  <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {detail.photos.map((src, i) => (
                       <FallbackImg key={i} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                   </div>
                   {detail.photos.length > 1 && (
                     <>
-                      <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
-                      <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
+                      {galleryIdx > 0 && (
+                        <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
+                      )}
+                      {galleryIdx < detail.photos.length - 1 && (
+                        <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
+                      )}
+                      <div aria-hidden="true" style={{ position: "absolute", top: "max(12px, calc(env(safe-area-inset-top) + 4px))", right: 12, zIndex: 6, padding: "3px 9px", borderRadius: 999, background: "rgba(13,17,23,.62)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,.16)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".02em", lineHeight: 1.5, pointerEvents: "none" }}>{galleryIdx + 1} / {detail.photos.length}</div>
                     </>
                   )}
                 </div>
@@ -305,11 +342,15 @@ export default function DetailSheet({ ctx }) {
 
               {/* Premium action dock. Actions and handlers are unchanged; only their visual grouping is refined. */}
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
-                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : "repeat(2,minmax(0,1fr))", gap: 8 }}>
+                {/* v6.44: the second column exists only if BookingCTA will actually
+                    render into it. Previously this was always 2 columns, so a place
+                    with no booking target left "Directions" at half width beside an
+                    empty cell (owner-reported, with a photo). */}
+                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (hasBooking ? "repeat(2,minmax(0,1fr))" : "minmax(0,1fr)"), gap: 8 }}>
                   {detail._event && detail._event.url ? (
                     <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
                   ) : (
-                    <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Directions</span><span aria-hidden="true">↗</span></a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} /></>
+                    <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Directions</span><span aria-hidden="true">↗</span></a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} /></>
                   )}
                   {detail._event && detail._event.url && (
                     <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>

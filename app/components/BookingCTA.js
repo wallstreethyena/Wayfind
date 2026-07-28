@@ -3,7 +3,7 @@
 // the ONLY component in the app allowed to turn a Viator tours/products
 // payload into a clickable booking href. Every surface that shows a
 // "Tickets & tours"-style CTA (the Detail sheet's primary action button,
-// its commission disclosure line, its "Book tours & experiences" card list)
+// its commission disclosure line, its "Viator options nearby" card list)
 // renders through one of this component's variants — never inline. The
 // hard invariant already lives server-side (lib/verifiedOffers.js,
 // lib/bookingResolver.js): by the time `items` reaches this component,
@@ -43,6 +43,22 @@ function bookingTargets(detail, kind, topItem, locName) {
   const tk = verifiedUrl || goFallback;
   const tu = tk || Aff.hotelUrl(detail);
   return { verifiedUrl, goFallback, tk, tu };
+}
+
+// v6.44 (owner-reported, with a photo). The Detail sheet's action dock is a
+// two-column grid whose second cell is <BookingCTA variant="primary">. When
+// that variant returns null the cell stayed empty and "Directions" was
+// stranded at half width beside a hole. The dock needs to know whether the
+// CTA will render BEFORE it chooses its grid template, so it asks here.
+// This derives from the SAME bookingTargets() the primary variant gates on —
+// one predicate, so the layout and the button can never disagree — and it
+// returns a BOOLEAN ONLY, never a URL, so it cannot become a second path for
+// constructing a booking href (the invariant check-booking-cta.mjs enforces).
+export function hasBookingCTA(detail, kind, viaTours, locName) {
+  if (!detail) return false;
+  const hasTours = hasVerifiedTours(viaTours, detail.id);
+  const topItem = hasTours ? viaTours[detail.id].items[0] : null;
+  return !!bookingTargets(detail, kind, topItem, locName).tu;
 }
 
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback }) {
@@ -99,18 +115,36 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       return (
         <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Book tours & experiences</span>
+            {/* v6.44 (owner's own words: "if there is viator activities list them
+                as viator options near by"). The old header, "Book tours &
+                experiences", named an action instead of naming the inventory —
+                a visitor could not tell these were live Viator products for
+                THIS place. Say what they are and who they come from. */}
+            <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🎟️ Viator options nearby</span>
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
-          {items.map((t, i) => (
+          {items.map((t, i) => {
+          // v6.44 (owner: "the person clicks on the viator button, we need to
+          // take them to the right place"). This was the ONLY Viator surface in
+          // the app rendering a RAW `t.url` — the primary variant above (:36),
+          // home.js (3 sites) and ThingsToDoList.js all wrap with
+          // viatorDirectUrl(). So the highest-intent click in the product, on a
+          // named product card, was the one click that carried no partner
+          // attribution: it still reached Viator, but as an anonymous visit, so
+          // the booking earned nothing. viatorDirectUrl returns null for any
+          // non-www.viator.com host (hence the `|| t.url` fallback — behavior
+          // never regresses) and withViatorTracking dedupes `pid`, so this is
+          // safe and idempotent even if the server already attributed the URL.
+          const href = Aff.viatorDirectUrl(t.url) || t.url;
+          return (
             <a
               key={t.code || i}
-              href={t.url}
+              href={href}
               target="_blank"
               rel="noreferrer"
               onClick={(e) => {
                 e.preventDefault();
-                const live = (e.currentTarget && e.currentTarget.href) || t.url;
+                const live = (e.currentTarget && e.currentTarget.href) || href;
                 try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {}
                 try { addReservation("tour", detail, "Viator", live); } catch (er) {}
                 openExternal(live);
@@ -126,7 +160,8 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               </div>
               <span style={{ color: C.light, fontSize: 15, fontWeight: 800 }}>↗</span>
             </a>
-          ))}
+          );
+          })}
         </div>
       );
     }

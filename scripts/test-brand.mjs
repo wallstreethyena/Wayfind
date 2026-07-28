@@ -9,11 +9,20 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+// July 2026 decomposition, wave 1: the homepage's server-rendered CSS moved to
+// app/components/css.js. It is still the same single inline <style> tag on the
+// same page, so "the homepage" is now these two files read together. The RULE is
+// unchanged — the official wordmark appears exactly ONCE on the homepage, in the
+// header — and is deliberately NOT widened to the whole shell: RankedExperiencePage
+// and the Intro sheet legitimately wear their own copy, and this assertion exists
+// to stop a SECOND homepage lockup, not to police every surface.
+const homeCss = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
+const homePage = home + "\n" + homeCss;
 // The homepage header wears the isolated official wordmark and never shrinks.
 const legacyImageHeader = home.includes('src="/brand/wayfind-wordmark-transparent-v2.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home);
-const splitOfficialHeader = home.includes('className="wf-wordmark-text"') && home.includes('className="wf-wordmark-pin"') && /\.wf-wordmark\{[^}]*flex-shrink:0/.test(home);
+const splitOfficialHeader = home.includes('className="wf-wordmark-text"') && home.includes('className="wf-wordmark-pin"') && /\.wf-wordmark\{[^}]*flex-shrink:0/.test(homeCss);
 ok(legacyImageHeader || splitOfficialHeader, "the header lost the transparent official logo or its shrink protection");
-ok((home.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE in home.js — the header");
+ok((homePage.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE on the homepage (app/home.js + app/components/css.js) — the header");
 
 for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
   const s = readFileSync(new URL(f, import.meta.url), "utf8");

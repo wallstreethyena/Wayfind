@@ -5,6 +5,7 @@
 import { aggregateLikeSignals } from "../lib/memberSignals.js";
 import { memberDelta } from "../lib/ranking.js";
 import { readFileSync } from "fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("test-curator-boost: FAIL — " + m); process.exit(1); };
@@ -96,6 +97,23 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
     ok(defCount === 1, "CURATOR_CHIP_LABEL is dead (defined but never referenced) — confirms the chip copy moved inline to the JSX, not that the guarantee weakened (found " + defCount + " occurrence(s))");
   }
   ok(/<strong>Curator Select<\/strong>/.test(home), "the chip renders its Curator Select copy inline (CURATOR_CHIP_LABEL is dead, so we assert the actual rendered text)");
+  // v6.44 REGRESSION LOCK (owner-reported with a photo). The chip shipped as
+  // `position:absolute; bottom:12px; left:12px` — the exact coordinates of the
+  // Save button in .wf-place-card-actions, which it covered completely on a
+  // phone. It must stay IN FLOW. Anything absolute inside a card whose action
+  // row sits bottom-left will land on a control again.
+  {
+    // The place-card CSS moved to app/components/css.js (July 2026
+    // decomposition, wave 1) — same shell, same server-rendered <style> tag.
+    // The JSX assertions above stay pinned to home.js; only the stylesheet
+    // lookup follows the CSS.
+    const m = shellSrc().match(/\.wf-place-card-owner\s*\{[^}]*\}/);
+    ok(!!m, "the .wf-place-card-owner rule moved or changed shape — re-point this assertion before shipping");
+    ok(!/position\s*:\s*absolute/.test(m[0]),
+      "the Curator Select chip must NOT be absolutely positioned — it overlaid and blocked the Save button in v6.43. Keep it in normal flow above the award pill.");
+    ok(/border-radius\s*:\s*999px/.test(m[0]),
+      "the Curator Select chip is a pill, not a rectangle (owner: \"it looks really weird as a rectangle\")");
+  }
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
   const i = home.indexOf("function refreshOwnerPick(");
