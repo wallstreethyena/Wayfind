@@ -123,6 +123,24 @@ ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no co
 // that owns them: the Personalization row at the bottom of Favorites.
 const saved = readFileSync(new URL("../app/components/screens/Saved.js", import.meta.url), "utf8");
 ok(!home.includes("Picked for you") && !home.includes("Personalize my feed") && !home.includes("Want a feed that learns what you like?"), "the home feed carries NO personalization surface — the feed is the feed");
+// The three checks above are COPY checks, and copy gets reworded. The two below
+// are structural, and they exist because of how #392 nearly came back: its
+// home-feed expander survived a 3-way merge silently, because the delta that
+// removed personalization from the feed only knew how to delete the older
+// markup it had shipped itself. Git preserved the newer block as an unrelated
+// addition — correct merge behaviour, wrong product. A class name and a render
+// condition are what a resurrected editor cannot rename its way around.
+ok(!home.includes("wf-taste-inline"), "…and no inline home-feed taste editor, by class name — copy can be reworded, the mount point cannot");
+// home.js is allowed to READ the setting exactly once — to decide whether to
+// re-rank — and nowhere else. Every home-feed personalization surface this file
+// has had to delete started life as a second `personalize === "on"`, one that
+// gated markup instead of ordering. Counting is the check: one is the feature,
+// two is the strip coming back.
+{
+  const reads = home.match(/personalize === "(on|off)"/g) || [];
+  ok(reads.length === 1 && /const personalized = !!user && personalize === "on" && hasTaste;/.test(home),
+    "…and home.js reads `personalize` exactly once, to gate the re-ranking itself — never to render a surface");
+}
 ok(/const on = personalize === "on";/.test(saved) && /On · \$\{learned\} thing/.test(saved) && /Off · same feed for everyone/.test(saved), "when on, the personalization is LABELED (never silent) — the Favorites row states on/off in plain language");
 // v6.56: the on/off subtitle IS the disclosure, so it must not be truncatable.
 // A row that reads "Off · your feed is ranked the s…" has told the reader
