@@ -3564,7 +3564,7 @@ function PageInner({ initialEvents = null }) {
   const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
   const [tasteEditOpen, setTasteEditOpen] = useState(false);
   const [tasteDirection, setTasteDirection] = useState("more");
-  const [tasteDetailsOpen, setTasteDetailsOpen] = useState(false);
+  const [tasteDetailsOpen, setTasteDetailsOpen] = useState(false); // retained for the retired panel until its code split is removed
   const [tasteSaving, setTasteSaving] = useState("");
   const [tasteResetConfirm, setTasteResetConfirm] = useState(false);
 
@@ -7086,18 +7086,135 @@ function PageInner({ initialEvents = null }) {
               </div>
             </div>
           );
-          if (personalize === "on") return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, background: "linear-gradient(135deg,rgba(249,115,22,.07),rgba(28,34,48,.92) 42%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "11px 12px 11px 14px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.035)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                <span style={{ width: 32, height: 32, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: "rgba(249,115,22,.11)", border: "1px solid rgba(249,115,22,.25)" }}><Icon name="sparkles" size={16} color={C.accent} /></span>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 12.5, fontWeight: 800, color: C.text }}>Personalized for you</span>
-                  <span style={{ display: "block", marginTop: 2, fontSize: 10.5, color: C.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Your taste profile is reordering these picks</span>
-                </span>
+          if (personalize === "on") {
+            const summary = summarizeTasteVector(tasteVecState || {});
+            const hasProfile = summary.more.length || summary.less.length;
+            const moreLabels = summary.more.slice(0, 3).map((x) => x.label);
+            const lessLabels = summary.less.slice(0, 2).map((x) => x.label);
+            const profileLine = moreLabels.length
+              ? `${moreLabels.join(" · ")}${summary.more.length > 3 ? ` · +${summary.more.length - 3}` : ""}`
+              : lessLabels.length ? `Less ${lessLabels.join(" · ")}` : "Ready for your first preference";
+            const preferenceRow = (group, direction) => (
+              <div key={direction + "|" + group.id} className={"wf-taste-inline-pref " + (direction === "less" ? "is-less" : "is-more")}>
+                <span className="wf-taste-inline-pref-mark" aria-hidden="true">{direction === "less" ? "−" : "+"}</span>
+                <span>{group.label}</span>
+                <button onClick={() => forgetTasteGroup(group)} aria-label={"Remove " + group.label + " from your taste profile"}>✕</button>
               </div>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 36, padding: "0 11px", display: "inline-flex", alignItems: "center", borderRadius: 999, background: "rgba(249,115,22,.08)", border: "1px solid rgba(249,115,22,.28)", color: C.accent, fontSize: 11.5, fontWeight: 800, cursor: "pointer" }}>Review</button>
-            </div>
-          );
+            );
+            return (
+              <section className={"wf-taste-inline" + (tasteOpen ? " is-open" : "")} aria-label="Your Wayfind taste">
+                <style dangerouslySetInnerHTML={{ __html: `
+                  .wf-taste-inline{position:relative;margin-top:10px;overflow:hidden;border:1px solid rgba(223,184,96,.32);border-radius:18px;background:radial-gradient(circle at 0 0,rgba(249,115,22,.12),transparent 34%),linear-gradient(145deg,#171F2B,#111824 58%,#0D141E);box-shadow:0 16px 36px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.05)}
+                  .wf-taste-inline:before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,#F1D08A,rgba(249,115,22,.75),transparent)}
+                  .wf-taste-inline-head{position:relative;width:100%;min-height:72px;display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;background:transparent;color:${C.text};text-align:left;cursor:pointer}
+                  .wf-taste-inline-seal{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border:1px solid rgba(244,211,132,.55);border-radius:12px;background:linear-gradient(145deg,#F6D77E,#A9660E);color:#211505;box-shadow:0 8px 18px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.55)}
+                  .wf-taste-inline-copy{min-width:0;flex:1}
+                  .wf-taste-inline-kicker{display:block;color:#E9C977;font-size:8px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+                  .wf-taste-inline-title{display:block;margin-top:4px;overflow:hidden;color:${C.text};font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:400;letter-spacing:-.02em;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}
+                  .wf-taste-inline-status{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;color:#F7A15E;font-size:9.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+                  .wf-taste-inline-status:before{content:"";width:6px;height:6px;border-radius:50%;background:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+                  .wf-taste-inline-chevron{display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border:1px solid rgba(255,255,255,.08);border-radius:50%;color:${C.muted};font-size:15px;transition:transform .2s ease}
+                  .wf-taste-inline.is-open .wf-taste-inline-chevron{transform:rotate(180deg)}
+                  .wf-taste-inline-body{position:relative;padding:0 16px 17px}
+                  .wf-taste-inline-rule{height:1px;margin:0 0 15px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(223,184,96,.28),rgba(255,255,255,.04))}
+                  .wf-taste-inline-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;margin-bottom:15px}
+                  .wf-taste-inline-intro strong{display:block;color:${C.text};font-size:12.5px}
+                  .wf-taste-inline-intro p{margin:4px 0 0;max-width:420px;color:${C.muted};font-size:10.5px;line-height:1.45}
+                  .wf-taste-inline-score{max-width:170px;color:#D4B973;font-size:9px;font-weight:750;line-height:1.4;text-align:right}
+                  .wf-taste-inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+                  .wf-taste-inline-lane{min-width:0;padding:12px;border:1px solid rgba(255,255,255,.075);border-radius:14px;background:rgba(255,255,255,.023)}
+                  .wf-taste-inline-lane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+                  .wf-taste-inline-lane-head strong{color:${C.text};font-size:10px;letter-spacing:.02em}
+                  .wf-taste-inline-lane-head span{color:${C.muted};font-size:8.5px}
+                  .wf-taste-inline-prefs{display:flex;flex-wrap:wrap;gap:6px}
+                  .wf-taste-inline-pref{display:inline-flex;min-height:30px;align-items:center;gap:6px;padding:3px 4px 3px 6px;border:1px solid rgba(249,115,22,.28);border-radius:999px;background:rgba(249,115,22,.06);color:${C.light};font-size:9.5px;font-weight:750}
+                  .wf-taste-inline-pref.is-less{border-color:rgba(148,163,184,.2);background:rgba(148,163,184,.045);color:${C.muted}}
+                  .wf-taste-inline-pref-mark{display:grid;width:17px;height:17px;place-items:center;border-radius:50%;background:rgba(249,115,22,.14);color:${C.accent};font-size:11px;font-weight:900}
+                  .wf-taste-inline-pref.is-less .wf-taste-inline-pref-mark{background:rgba(148,163,184,.1);color:${C.muted}}
+                  .wf-taste-inline-pref button{display:grid;width:22px;height:22px;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.05);color:${C.muted};font-size:9px;cursor:pointer}
+                  .wf-taste-inline-empty{margin:0;color:${C.muted};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-add{width:100%;min-height:42px;margin-top:10px;border:1px solid rgba(223,184,96,.3);border-radius:12px;background:linear-gradient(180deg,rgba(223,184,96,.1),rgba(223,184,96,.035));color:#F1D28A;font-size:10.5px;font-weight:850;cursor:pointer}
+                  .wf-taste-inline-editor{margin-top:9px;padding:12px;border:1px solid rgba(249,115,22,.2);border-radius:14px;background:rgba(5,9,15,.4)}
+                  .wf-taste-inline-editor-title{color:${C.text};font-size:11px;font-weight:850}
+                  .wf-taste-inline-editor-copy{margin-top:3px;color:${C.muted};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-direction{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0;padding:4px;border-radius:10px;background:${C.bg}}
+                  .wf-taste-inline-direction button{min-height:34px;border:0;border-radius:8px;background:transparent;color:${C.muted};font-size:9.5px;font-weight:800;cursor:pointer}
+                  .wf-taste-inline-direction button.is-active{background:#1A2230;color:${C.text};box-shadow:0 3px 9px rgba(0,0,0,.2)}
+                  .wf-taste-inline-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+                  .wf-taste-inline-option{min-height:38px;padding:6px 8px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.025);color:${C.light};font-size:9.5px;font-weight:720;text-align:left;cursor:pointer}
+                  .wf-taste-inline-option:hover{border-color:rgba(249,115,22,.38);color:${C.text}}
+                  .wf-taste-inline-option:disabled{opacity:.55;cursor:wait}
+                  .wf-taste-inline-data{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+                  .wf-taste-inline-private{display:flex;align-items:center;gap:6px;color:${C.muted};font-size:8.5px;line-height:1.35}
+                  .wf-taste-inline-actions{display:flex;gap:4px}
+                  .wf-taste-inline-actions button{min-height:34px;padding:0 9px;border:0;background:transparent;color:${C.muted};font-size:9px;font-weight:780;cursor:pointer}
+                  .wf-taste-inline-actions button:last-child{color:#F68B8B}
+                  .wf-taste-inline-reset{margin-top:8px;padding:10px;border:1px solid rgba(239,68,68,.24);border-radius:12px;background:rgba(239,68,68,.05)}
+                  .wf-taste-inline-reset p{margin:0 0 8px;color:${C.light};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-reset div{display:flex;gap:6px}
+                  .wf-taste-inline-reset button{flex:1;min-height:36px;border-radius:9px;font-size:9.5px;font-weight:800;cursor:pointer}
+                  @media(max-width:520px){
+                    .wf-taste-inline-status{display:none}.wf-taste-inline-title{font-size:14.5px}.wf-taste-inline-grid{grid-template-columns:1fr}
+                    .wf-taste-inline-intro{grid-template-columns:1fr}.wf-taste-inline-score{max-width:none;text-align:left}
+                    .wf-taste-inline-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+                    .wf-taste-inline-data{align-items:flex-start;flex-direction:column}.wf-taste-inline-actions{width:100%;justify-content:space-between}
+                  }
+                  @media(prefers-reduced-motion:reduce){.wf-taste-inline-chevron{transition:none}}
+                ` }} />
+                <button className="wf-taste-inline-head" onClick={() => setTasteOpen((v) => !v)} aria-expanded={tasteOpen} aria-controls="wf-taste-inline-body">
+                  <span className="wf-taste-inline-seal" aria-hidden="true"><Icon name="sparkles" size={17} color="#211505" /></span>
+                  <span className="wf-taste-inline-copy">
+                    <span className="wf-taste-inline-kicker">Personalized for you</span>
+                    <span className="wf-taste-inline-title">{profileLine}</span>
+                  </span>
+                  <span className="wf-taste-inline-status">Taste active</span>
+                  <span className="wf-taste-inline-chevron" aria-hidden="true">⌄</span>
+                </button>
+                {tasteOpen ? (
+                  <div className="wf-taste-inline-body" id="wf-taste-inline-body">
+                    <div className="wf-taste-inline-rule" />
+                    <div className="wf-taste-inline-intro">
+                      <div><strong>Your taste, shaping this shortlist.</strong><p>Add what you want more or less of. Wayfind uses it only to reorder recommendations for you.</p></div>
+                      <div className="wf-taste-inline-score">A place’s Wayfind Score never changes.</div>
+                    </div>
+                    <div className="wf-taste-inline-grid">
+                      <section className="wf-taste-inline-lane">
+                        <div className="wf-taste-inline-lane-head"><strong>Show me more of</strong><span>Moves matches up</span></div>
+                        <div className="wf-taste-inline-prefs">{summary.more.length ? summary.more.map((g) => preferenceRow(g, "more")) : <p className="wf-taste-inline-empty">Add something you want to see more often.</p>}</div>
+                      </section>
+                      <section className="wf-taste-inline-lane">
+                        <div className="wf-taste-inline-lane-head"><strong>Show me less of</strong><span>Moves matches down</span></div>
+                        <div className="wf-taste-inline-prefs">{summary.less.length ? summary.less.map((g) => preferenceRow(g, "less")) : <p className="wf-taste-inline-empty">Nothing muted yet.</p>}</div>
+                      </section>
+                    </div>
+                    {!hasProfile ? <p className="wf-taste-inline-empty" style={{ marginTop: 10 }}>Nothing learned yet. Add a preference or keep using Wayfind and this will grow from your explicit actions.</p> : null}
+                    <button className="wf-taste-inline-add" onClick={() => setTasteEditOpen((v) => !v)}>{tasteEditOpen ? "Done tuning" : "+ Add or correct a preference"}</button>
+                    {tasteEditOpen ? (
+                      <div className="wf-taste-inline-editor">
+                        <div className="wf-taste-inline-editor-title">Tune your recommendations</div>
+                        <div className="wf-taste-inline-editor-copy">Choose a direction, then a preference. Your choice replaces Wayfind’s current guess for that topic.</div>
+                        <div className="wf-taste-inline-direction" role="group" aria-label="Preference direction">
+                          <button className={tasteDirection === "more" ? "is-active" : ""} aria-pressed={tasteDirection === "more"} onClick={() => setTasteDirection("more")}>Show me more</button>
+                          <button className={tasteDirection === "less" ? "is-active" : ""} aria-pressed={tasteDirection === "less"} onClick={() => setTasteDirection("less")}>Show me less</button>
+                        </div>
+                        <div className="wf-taste-inline-options">
+                          {TASTE_EDITOR_OPTIONS.map((option) => <button key={option.id} className="wf-taste-inline-option" disabled={!!tasteSaving} onClick={() => addTastePreference(option.id)}>{tasteSaving === option.id ? "Saving…" : option.label}</button>)}
+                        </div>
+                      </div>
+                    ) : null}
+                    <div className="wf-taste-inline-data">
+                      <div className="wf-taste-inline-private"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" /><path d="m9.5 12 1.6 1.6 3.5-4" /></svg><span>Private to your account or this device. Never sold.</span></div>
+                      <div className="wf-taste-inline-actions">
+                        <button onClick={exportTaste}>Export</button>
+                        <button onClick={() => setTasteResetConfirm(true)}>Reset profile</button>
+                      </div>
+                    </div>
+                    {tasteResetConfirm ? <div className="wf-taste-inline-reset"><p>This permanently clears Wayfind’s learned preferences and turns personalization off.</p><div><button onClick={() => setTasteResetConfirm(false)} style={{ border: `1px solid ${C.border}`, background: C.card, color: C.light }}>Keep my profile</button><button onClick={() => { resetTaste(); setTasteResetConfirm(false); setTasteOpen(false); }} style={{ border: `1px solid ${C.red}66`, background: C.red, color: "#fff" }}>Clear everything</button></div></div> : null}
+                  </div>
+                ) : null}
+              </section>
+            );
+          }
           if (personalize === "off" && ld >= 2) return (
             <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
               <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
@@ -8086,7 +8203,11 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
-      {tasteOpen && (() => {
+      {/* Retired: the former full-screen taste sheet. The premium editor now
+          expands inside the personalization strip above, so this overlay can
+          never render while its remaining markup is removed in the next shell
+          extraction. */}
+      {false && tasteOpen && (() => {
         const vec = tasteVecState || {};
         const summary = summarizeTasteVector(vec);
         const hasProfile = summary.more.length || summary.less.length || summary.details.length;
