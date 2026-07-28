@@ -29,6 +29,14 @@ export function shellFiles() {
   // guardrail that greps the shell for a curated place name or an editorial note
   // stops seeing it, and passes while asserting nothing.
   if (existsSync(new URL("app/components/curatedData.js", root))) files.push("app/components/curatedData.js");
+  // v6.47: the collection hero. app/components/screens/Experience.js — a shell
+  // file — no longer owns its header markup; it renders CollectionHero, which
+  // also backs RankedExperiencePage (/trending-now, /date-night, /family,
+  // /hidden-gems, /best-beaches). That makes it extracted shell content exactly
+  // like css.js and curatedData.js: unregistered, every guardrail that greps the
+  // shell for hero copy, the wordmark asset path, or the scrim would go blind
+  // the moment the markup left screens/Experience.js.
+  if (existsSync(new URL("app/components/CollectionHero.js", root))) files.push("app/components/CollectionHero.js");
   // NOTE: app/components/BookingCTA.js is deliberately NOT in this set. The
   // booking CTA was extracted there so check-booking-cta.mjs can assert the raw
   // construction (Aff.ticketsUrl / experienceGoUrl) lives ONLY in that component

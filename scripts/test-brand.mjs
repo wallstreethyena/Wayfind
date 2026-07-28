@@ -24,8 +24,15 @@ const splitOfficialHeader = home.includes('className="wf-wordmark-text"') && hom
 ok(legacyImageHeader || splitOfficialHeader, "the header lost the transparent official logo or its shrink protection");
 ok((homePage.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE on the homepage (app/home.js + app/components/css.js) — the header");
 
-for (const [f, label] of [["../app/components/RankedExperiencePage.js", "ranked shell"], ["../app/best-beaches/[metro]/page.js", "beaches page"]]) {
-  const s = readFileSync(new URL(f, import.meta.url), "utf8");
+// v6.47, same decomposition logic as wave 1 above: RankedExperiencePage no
+// longer owns its hero markup — the <header>, and with it the wordmark, moved to
+// app/components/CollectionHero.js so the in-app experience screen wears the
+// identical chrome. "The ranked shell" is now those two files read together. The
+// RULE is unchanged (that surface still shows the official transparent wordmark
+// and never the banned period-after-d form); only the file it lives in moved.
+const RANKED_SHELL = ["../app/components/RankedExperiencePage.js", "../app/components/CollectionHero.js"];
+for (const [files, label] of [[RANKED_SHELL, "ranked shell"], [["../app/best-beaches/[metro]/page.js"], "beaches page"]]) {
+  const s = files.map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
   ok(!/wayfind<span[^>]*>\.<\/span>/.test(s), label + " uses the banned period-after-d wordmark");
   ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png"), label + " lost the transparent official wordmark");
 }

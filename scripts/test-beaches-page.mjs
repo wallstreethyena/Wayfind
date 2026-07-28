@@ -116,8 +116,15 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("Why Wayfind ranked them this way") && src.includes('i === 2 && beaches.length > 3'), "the trust section after rank 3 is gone");
   ok(src.includes("Partner stay option — it does not affect this ranking."), "the stay card lost its no-conflict label — it clashes with no-paid-placement without it");
   ok(src.includes("Know before you go:"), "the one practical line is gone");
+  // v6.47: the hero markup moved out of RankedExperiencePage into
+  // app/components/CollectionHero.js (shared with the in-app experience screen),
+  // so the hero shell is now BOTH files. Split into two assertions rather than
+  // one loosened grep: the page must still hand a back control to the hero, and
+  // the hero must still render it alongside the official wordmark.
   const rep = readFileSync(new URL("../app/components/RankedExperiencePage.js", import.meta.url), "utf8");
-  ok(rep.includes("topLeft || null") && rep.includes("/brand/wayfind-wordmark-transparent-v2.png"), "hero shell lost the back-control slot or the official transparent wordmark");
+  const chero = readFileSync(new URL("../app/components/CollectionHero.js", import.meta.url), "utf8");
+  ok(/topLeft=\{topLeft\}/.test(rep), "RankedExperiencePage no longer forwards the back control to the hero — /best-beaches loses its ← Back");
+  ok(chero.includes("topLeft || null") && chero.includes("/brand/wayfind-wordmark-transparent-v2.png"), "hero shell lost the back-control slot or the official transparent wordmark");
   const icx = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
   ok(icx.includes('topLeft={<BackControl fallback="/" />}'), "family/date-night lost their back button");
 }

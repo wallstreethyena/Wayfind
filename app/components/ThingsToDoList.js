@@ -24,6 +24,26 @@ import { supabase } from "../../lib/supabase.js";
 const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
 
 const CAT_LABEL = { beach: "Beach day", attractions: "Things to do", food: "Food" };
+// v6.47 (owner: "the little experience chip are also not workign i used to be
+// able to click on them and open a page"). The chips rendered as inert <span>s
+// with a "›" glyph — they LOOKED like links and did nothing. They are now real
+// links into the same collections the PlaceCard chips open, via ?exp=, which
+// app/home.js:2876 already resolves for every key below. Two hard constraints:
+//   • a TOUR card IS an <a> (booking link), so a link-chip inside it would be a
+//     nested anchor — invalid HTML. Tour chips stay plain <span>s.
+//   • a PLACE card is a <div role="button">, so an <a> inside it is legal, but
+//     it must stopPropagation or the card's own onClick fires the detail sheet
+//     underneath the navigation.
+const CAT_EXP = { beach: "outdoors", attractions: "entertainment", food: "eatnow" };
+const CHIP_BASE = { display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, borderRadius: 999, padding: "3px 10px", textDecoration: "none" };
+const chipDead = { ...CHIP_BASE, color: C.light, background: C.adim, border: `1px solid ${C.border}55` };
+const chipLink = { ...CHIP_BASE, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, cursor: "pointer" };
+
+// One chip. `expKey` present + not inside a tour anchor => a real link.
+function Chip({ expKey, label, linkable, onLog }) {
+  if (!linkable || !expKey) return <span style={chipDead}>{label}</span>;
+  return <a href={"/?exp=" + expKey} style={chipLink} onClick={(e) => { e.stopPropagation(); try { onLog && onLog("ttd_chip", { exp: expKey }); } catch (err) {} }}>{label} ›</a>;
+}
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
 // Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
@@ -86,8 +106,12 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
           )}
         </div>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 7 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>{isTour ? "Tour ›" : (CAT_LABEL[r.category] || "Things to do") + " ›"}</span>
-          {r.reviews >= 1000 && r.rating >= 4.5 ? <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.light, background: C.adim, border: `1px solid ${C.border}55`, borderRadius: 999, padding: "3px 10px" }}>⭐ Crowd favorite ›</span> : null}
+          {isTour
+            ? <span style={chipDead}>Tour ›</span>
+            : <Chip linkable expKey={CAT_EXP[r.category] || "entertainment"} label={CAT_LABEL[r.category] || "Things to do"} onLog={onLog} />}
+          {r.reviews >= 1000 && r.rating >= 4.5
+            ? <Chip linkable={!isTour} expKey="localfav" label="⭐ Crowd favorite" onLog={onLog} />
+            : null}
           {/* v6.71 (Wave 2): same flame + water-quality read as every other
               beach surface (PlaceCard, Detail sheet, Best Beaches, Best
               Nearby) — batched once for the whole list in ThingsToDoList
