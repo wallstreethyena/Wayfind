@@ -2147,19 +2147,26 @@ class ErrorBoundary extends Component {
 // ─── Hook content engine ─────────────────────────────────────────────────────
 // Generates provocative, data-driven hook cards from real place data.
 // Every hook references an actual place — nothing is invented.
+// Ordering for "top of <city>" lists. Prominence (quality x how many people
+// actually showed up), NOT the displayed Wayfind Score — ranking Orlando by the
+// displayed score alone puts escape rooms and a day spa above Magic Kingdom.
+// See prominenceScore() in lib/google.js. Falls back to wfScore when a source
+// has not supplied prominence.
+const promOf = (p) => (p && p.wfProm != null ? p.wfProm : (p && p.wfScore != null ? p.wfScore : 0));
+
 function generateHooks(places, locName) {
   if (!places || places.length < 4) return [];
   const city = (locName || "your area").split(",")[0];
   const h = new Date().getHours();
   const mealLabel = h < 11 ? "breakfast" : h < 15 ? "lunch" : h < 21 ? "dinner" : "late-night";
   const hooks = [];
-  const byScore = [...places].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const byScore = [...places].sort((a, b) => promOf(b) - promOf(a));
 
   // LOCAL SOURCE — only places ≤15 miles. Used for city-specific hooks so "most
   // talked about in Parrish" can't pull Saint Pete (30 miles away).
   const LOCAL_MILES = 15;
   const local = places.filter((p) => p.distMi == null || p.distMi <= LOCAL_MILES);
-  const localByScore = [...local].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const localByScore = [...local].sort((a, b) => promOf(b) - promOf(a));
 
   // #1 — absolute best (local first, fall back to all)
   const best = localByScore[0] || byScore[0];
@@ -2652,7 +2659,7 @@ function relatedPicks(allSrc, subject, n) {
 function placesForHook(hook, allSrc) {
   const theme = (hook && hook.theme) || "best";
   const primaryId = hook && hook.placeId;
-  const byScore = [...allSrc].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
+  const byScore = [...allSrc].sort((a, b) => promOf(b) - promOf(a));
   let out = [];
   if (theme === "top5" || theme === "best") out = (hook && hook._ctx) ? Ranking.rankByConditions(allSrc, hook._ctx).slice(0, 10) : byScore.slice(0, 10);
   else if (theme === "gem") {
