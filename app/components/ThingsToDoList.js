@@ -52,7 +52,18 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
     <div style={{ display: "flex" }}>
       <div style={{ position: "relative", width: 96, alignSelf: "stretch", minHeight: 96, flexShrink: 0, background: "#10141d" }}>
         {img && <img src={img} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
-        {first && !isTour ? <span style={{ position: "absolute", top: 7, left: 7, background: "rgba(0,0,0,.55)", border: `1px solid ${CHAMPAGNE.base}`, color: CHAMPAGNE.base, fontSize: 9, fontWeight: 800, letterSpacing: ".4px", borderRadius: 999, padding: "2px 7px", backdropFilter: "blur(4px)" }}>✦ Wayfind Pick</span> : null}
+        {/* v6.72 (owner): the pick badge is a MEDALLION, not a pill. The
+            rectangular chip was wider than the 96px thumbnail it sat on, so it
+            wrapped to two lines and bled over the photo. A 34px champagne seal
+            fits the corner at any thumbnail size and reads as an award rather
+            than a label. The words stay in aria-label/title so the meaning is
+            still announced and still hoverable. */}
+        {first && !isTour ? (
+          <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — our top-ranked spot right now" style={{ position: "absolute", top: 6, left: 6, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: "0 2px 9px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.07)", color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
+            <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
+            <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
+          </span>
+        ) : null}
         {isTour && r.selling_out ? <span style={{ position: "absolute", top: 7, left: 7, background: "#B33A2B", color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "2px 7px" }}>Selling fast</span> : null}
       </div>
       <div style={{ padding: "12px 12px", flex: 1, minWidth: 0, position: "relative" }}>
