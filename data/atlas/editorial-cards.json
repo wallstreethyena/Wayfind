@@ -2951,5 +2951,27 @@
       "https://www.lbvfs.com/",
       "https://www.lbvfs.com/stores/"
     ]
+  },
+  {
+    "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
+    "name": "SeaWorld Orlando",
+    "num": 609,
+    "category": "attractions",
+    "vibeCheck": "Half marine park, half coaster park — orcas and a shark tunnel on one side, record-breaking rides on the other.",
+    "whyGo": "You get genuine animal encounters and serious coasters on one ticket, which no other Orlando park offers.",
+    "bestFor": "Families mixing animals with thrill rides. Visitors uneasy about marine mammals in human care should read up first.",
+    "knownFor": "Dolphin Cove, Orca Underwater Viewing, Shark Encounter, Sesame Street Land and its roller coasters.",
+    "powerhouseProof": "Fewer than 10% of the approximately 2,800 animal exhibitors licensed by the USDA have met AZA standards, and SeaWorld is one of them.",
+    "foodMove": "Red, White, and BBQ runs weekends July 4 to August 23, 2026, with BBQ from the most iconic regions across the US.",
+    "drinkMove": "The Fireworks and Drone Show VIP Viewing adds a happy hour with premium tapas and cocktails on the waterfront patio at Lakeside Grill.",
+    "insiderMove": "Go late in summer: Electric Ocean runs select dates now to September 7, 2026, and staying past dark is how you get the fireworks and drone show.",
+    "verifiedStory": null,
+    "funFact": "With more than 43,000 rescues to date, SeaWorld is one of the largest marine animal rescue organizations in the world.",
+    "currentUsefulDetail": "Baby Shark at SeaWorld runs now to September 7. Active-duty military get FREE tickets.",
+    "watchOut": "Annual Pass perks like free parking do not extend to single-day tickets, and the up-close animal tours and Quick Queue passes are all paid add-ons.",
+    "officialWebsite": "https://seaworld.com/orlando/",
+    "sourceUrls": [
+      "https://seaworld.com/orlando/"
+    ]
   }
 ]

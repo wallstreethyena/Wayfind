@@ -81,6 +81,17 @@ for (const [field, text] of [
   ok(probs.length === 0, `no false positive on ${JSON.stringify(text)} (got ${JSON.stringify(probs)})`);
 }
 
+// Possessives must survive normalisation. norm("Minnie's") is "minnies", and a
+// naive -ies rule turned that into "minny" — so "Mickey and Minnie's Runaway
+// Railway" failed against a corpus that contains it verbatim. Every possessive
+// ending -ies had the same false failure.
+{
+  const c = "Ride Mickey and Minnie's Runaway Railway, then Tiana's Bayou Adventure in Andy's backyard.";
+  const probs = verifyAtlasEditorial({ local_tip: c, facts: [] }, CORPUS + " " + c, URLS)
+    .filter((p) => p.check === "unsourced-entity");
+  ok(probs.length === 0, `possessives resolve to their stem (got ${JSON.stringify(probs)})`);
+}
+
 // A fully-sourced card passes clean — the gate must not reject good work.
 ok(verifyAtlasEditorial({
   hook: "Fifty acres of camellias three miles from downtown.",
