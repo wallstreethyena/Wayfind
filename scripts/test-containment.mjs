@@ -180,5 +180,55 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
   ok(landing.indexOf("localCategoryBoost(p)") >= 0, "the archetype boost is applied in the ranking pass, not at render");
 }
 
+
+/* ── complexes: real Orlando data that survived the first pass ─────────── */
+{
+  // Live /things-to-do/orlando (2026-07-28) showed three Universal cards at one
+  // street address and three ICON Park cards, because (a) a park could never
+  // nest inside a park and (b) ICON Park is typed only tourist_attraction so it
+  // was never an anchor despite 51k reviews.
+  const UOR  = { id: "uor",  name: "Universal Orlando Resort",     types: ["tourist_attraction", "amusement_park"], reviews: 191760, address: "6000 Universal Blvd, Orlando, FL 32819, USA", lat: 28.4750, lng: -81.4680 };
+  const IOA  = { id: "ioa",  name: "Universal Islands of Adventure", types: ["tourist_attraction", "amusement_park"], reviews: 108574, address: "6000 Universal Blvd, Orlando, FL 32819, USA", lat: 28.4722, lng: -81.4704 };
+  const VB   = { id: "vb",   name: "Universal Volcano Bay",        types: ["water_park"], reviews: 31729, address: "6000 Universal Blvd, Orlando, FL 32819, USA", lat: 28.4650, lng: -81.4720 };
+  const ICON = { id: "icon", name: "ICON Park",                    types: ["tourist_attraction"], reviews: 51062, address: "Orlando, FL 32819, USA", lat: 28.4432, lng: -81.4690 };
+  const EYE  = { id: "eye",  name: "The Orlando Eye",              types: ["tourist_attraction"], reviews: 21763, address: "8387 International Dr, Orlando, FL 32819, USA", lat: 28.4434, lng: -81.4692 };
+  const SF   = { id: "sf",   name: "Orlando Starflyer",            types: ["tourist_attraction"], reviews: 2023, address: "8265 International Dr Unit c suite 108, Orlando, FL 32819, USA", lat: 28.4430, lng: -81.4688 };
+  const MK2  = { id: "mk2",  name: "Magic Kingdom Park",           types: ["amusement_park"], reviews: 90000, address: "Base Dr, Lake Buena Vista, FL 32830, USA", lat: 28.4177, lng: -81.5812 };
+  const EP   = { id: "ep",   name: "EPCOT",                        types: ["amusement_park"], reviews: 88000, address: "200 Epcot Center Dr, Orlando, FL 32821, USA", lat: 28.3747, lng: -81.5494 };
+
+  ok(C.isParentVenue(ICON) === true, "a 51k-review attraction is an anchor even without a theme-park type");
+
+  const { groups } = C.groupByContainment([UOR, IOA, VB, ICON, EYE, SF, MK2, EP]);
+  const top = groups.map((g) => g.place.id);
+
+  // The complex survives and keeps its rank; its sub-parks fold in.
+  ok(top.indexOf("uor") >= 0, "the Universal complex stays a top-level card");
+  const uor = groups.find((g) => g.place.id === "uor");
+  ok(uor.children.some((c) => c.id === "ioa"), "Islands of Adventure folds into the resort");
+  ok(uor.children.some((c) => c.id === "vb"), "Volcano Bay folds into the resort");
+  ok(top.indexOf("ioa") < 0 && top.indexOf("vb") < 0, "no duplicate Universal rows remain");
+
+  const icon = groups.find((g) => g.place.id === "icon");
+  ok(!!icon && icon.children.length === 2, "ICON Park absorbs the Eye and the Starflyer");
+
+  // THE GUARD: two comparable parks must never swallow each other.
+  ok(top.indexOf("mk2") >= 0 && top.indexOf("ep") >= 0, "Magic Kingdom and EPCOT both stay top-level — peer parks never nest");
+
+  // Direction matters. The bigger venue is always the parent, whatever the
+  // iteration order — a probe on real data once made the 191k resort a child of
+  // its own 108k sub-park and dropped it off the list entirely.
+  ok(C.canBeChild(UOR, IOA) === false, "the larger complex is NEVER nested under its smaller sub-park");
+  ok(C.canBeChild(IOA, UOR) === true, "the smaller sub-park nests under the complex");
+  const reversed = C.groupByContainment([IOA, VB, UOR]);
+  ok(reversed.groups.some((g) => g.place.id === "uor"), "result order cannot change who the parent is");
+
+  // Address key normalisation.
+  ok(C.addressKey(SF) === C.addressKey({ address: "8265 International Dr, Orlando, FL" }), "suite/unit noise is stripped from the address key");
+  ok(C.addressKey(UOR) === C.addressKey(IOA), "same street address yields the same key");
+  ok(C.addressKey(UOR) !== C.addressKey(EYE), "different streets yield different keys");
+  ok(C.addressKey({ address: "Orlando, FL 32819, USA" }) === null, "a city-only address is not distinctive enough to merge on");
+  ok(C.addressKey({}) === null && C.addressKey(null) === null, "missing address is never a key");
+}
+
 if (failures) { console.error(`test-containment: ${failures} failure(s)`); process.exit(1); }
 console.log("test-containment: OK");
