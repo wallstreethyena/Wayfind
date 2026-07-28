@@ -85,10 +85,10 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   // `isCuratorPick` boolean computed straight off `_members.ownerPick`
   // (app/home.js ~8250) instead of the inline `p._members && p._members.ownerPick && <span`
   // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`.
-  // The compact seal's copy ("Wayfind" / "Pick") is inlined directly in JSX.
+  // The compact owl seal's copy ("Curated") is inlined directly in JSX.
   ok(/const isCuratorPick = !!\(p\._members && p\._members\.ownerPick\);/.test(home), "isCuratorPick is derived SOLELY from the server's _members.ownerPick (false -> stays false)");
   ok(/isCuratorPick && \(\s*<span className="wf-place-card-owner"/.test(home), "the chip is gated SOLELY on isCuratorPick (ownerPick=false -> renders nothing)");
-  ok(/<span>Wayfind<\/span>\s*<strong>Pick<\/strong>/.test(home), "the compact seal renders clear Wayfind Pick copy inline");
+  ok(/aria-label="Curated by Wayfind"/.test(home) && /className="wf-place-card-owner-owl"/.test(home) && /<strong className="wf-place-card-owner-copy">Curated<\/strong>/.test(home), "the compact seal renders its owl mark and clear one-word Curated copy");
   ok(/!isCuratorPick && curatedFor\(p\)/.test(home), "an owner pick suppresses the duplicate generic Wayfind Pick chip");
   // v6.44 REGRESSION LOCK (owner-reported with a photo), RE-PINNED for the #384
   // compact seal. The original chip shipped at bottom:12px/left:12px — the exact
