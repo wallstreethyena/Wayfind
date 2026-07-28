@@ -14,6 +14,9 @@ import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareM
 // Google bridge. PostHog remains the source of truth — forwardToGoogle only
 // MIRRORS an already-captured event to GA4/Ads and never captures to PostHog
 // itself, so existing event names and history stay exactly as they are.
+// One destination, one card: rides/shops inside a theme park render INSIDE the
+// park's card instead of as peer rows. Ranking is untouched — presentation only.
+import { groupByContainment } from "../lib/venueContainment";
 import { forwardToGoogle } from "../lib/analytics";
 import { attributionParams } from "../lib/attribution";
 // Primary metric: activated sessions. See lib/activation.js for why page depth
@@ -6807,7 +6810,16 @@ function PageInner({ initialEvents = null }) {
   // place you can actually go to now; the rest of the ranked list follows below.
   const exHero = (!loading && view.length > 0) ? (view.find((p) => liveOpen(p) === true) || view[0]) : null;
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
-  const restView = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
+  const restView0 = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
+  // Collapse in-venue results (rides, in-park shops) into their parent card.
+  // The parent keeps its rank; children ride along on `_children` so every
+  // PlaceCard render site picks them up without threading a new prop.
+  const restView = (() => {
+    try {
+      const { groups } = groupByContainment(restView0);
+      return groups.map(({ place, children }) => (children && children.length ? { ...place, _children: children } : place));
+    } catch (e) { return restView0; }
+  })();
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -8674,6 +8686,27 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT=1) still surfaces coverage gaps;
               production hides an absent chip, so this is a pure disclosure add. */}
           {(() => { const _prov = cardAffiliateProvider(p); return (_prov || AFFILIATE_AUDIT) ? <div style={{ marginTop: 8 }}><AffiliateChip provider={_prov} /></div> : null; })()}
+          {/* What's inside. Rides and in-park venues used to occupy their own
+              cards, so one theme park could fill half the feed and a visitor had
+              to scroll past four rows describing the same place. They live here
+              now: a ride is not somewhere you can go, it is a REASON to pick the
+              park. Tapping one opens the park (that is the bookable thing), so
+              this adds decision detail without adding dead ends. */}
+          {Array.isArray(p._children) && p._children.length ? (
+            <div style={{ marginTop: 10, paddingTop: 9, borderTop: `1px solid ${C.border}` }}>
+              <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: C.muted, marginBottom: 7 }}>
+                Top rated inside
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {p._children.slice(0, 6).map((c) => (
+                  <span key={c.id || c.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 10px", fontSize: 12, fontWeight: 600, color: C.light, maxWidth: "100%" }}>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 150 }}>{c.name}</span>
+                    {c.rating != null ? <span style={{ color: C.gold, fontWeight: 800, flexShrink: 0 }}>{c.rating}\u2605</span> : null}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
