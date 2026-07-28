@@ -1,15 +1,22 @@
-// scripts/test-seasonal-picks.mjs — locks the v6.52 Seasonal Picks feature.
+// scripts/test-seasonal-picks.mjs — locks the Seasonal Picks feature (v6.52,
+// extended in v6.55).
 //
-// Owner (voice memo): talking to a friend about wanting a vineyard and apple
-// picking in the fall, and wanting the app to rank/show that kind of thing
-// automatically for "whatever season you're in" — with its own hero card,
-// positioned second, ahead of the featured concert event.
+// Owner (voice memo, v6.52): talking to a friend about wanting a vineyard and
+// apple picking in the fall, and wanting the app to rank/show that kind of
+// thing automatically for "whatever season you're in."
+//
+// v6.55 (owner, with a dog-with-sunglasses photo): "everyone loves a puppy!"
+// — summer now has a real hero photo (SEASON_META.summer.heroImage), and the
+// hero card moved to LEAD both hero rails ("where the user sees it right
+// away," ahead of even the orientation card) AND repeat as the LAST slide in
+// both ("at the end will be the reminder, so we engage with them technically
+// twice").
 //
 // Two things are locked: the pure season logic in lib/seasons.js (behavioral,
 // imported directly), and the home.js wiring (structural — the sheet-fetch
-// path, the EXPERIENCES entry, and both hero-rail insertion points), matching
-// how this codebase already locks server routes and cron pipelines it can't
-// invoke directly without mocking live upstreams.
+// path, the EXPERIENCES entry, and all four hero-rail insertion points),
+// matching how this codebase already locks server routes and cron pipelines
+// it can't invoke directly without mocking live upstreams.
 import { readFileSync } from "fs";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META, SEASONS } from "../lib/seasons.js";
 
@@ -33,6 +40,15 @@ for (const s of SEASONS) {
   ok(Array.isArray(seasonQueries(s)) && seasonQueries(s).length > 0, `${s} has at least one search query`);
   ok(seasonQueries(s).every((q) => q && typeof q.cat === "string" && typeof q.keyword === "string"), `${s}'s queries are all valid {cat,keyword} pairs`);
   ok(SEASON_META[s] && SEASON_META[s].label && SEASON_META[s].emoji && SEASON_META[s].color, `${s} has a complete SEASON_META entry (label, emoji, color)`);
+}
+
+// v6.55 (owner, uploaded photo: "everyone loves a puppy!"): a real photo for
+// the hero-rail slide + the opened sheet, so far only for summer (the one the
+// owner actually supplied). Never fabricate a photo for a season that
+// doesn't have one — the others keep the gradient+icon fallback honestly.
+ok(typeof SEASON_META.summer.heroImage === "string" && SEASON_META.summer.heroImage.length > 0, "summer has a real hero photo");
+for (const s of SEASONS.filter((s) => s !== "summer")) {
+  ok(!SEASON_META[s].heroImage, `${s} has no fabricated hero photo — it still falls back to the gradient+icon card`);
 }
 
 ok(seasonalFit({ name: "Sunny Hill Pumpkin Patch", types: ["tourist_attraction"] }, "fall") > 0, "a genuine fall match (pumpkin patch) scores > 0 in fall");
@@ -79,31 +95,53 @@ const openAt = home.indexOf("function openExpSheet(key)");
 const openBody = openAt >= 0 ? home.slice(openAt, home.indexOf("\n  }", openAt)) : "";
 ok(/const seasonNow = key === "seasonal" \? currentSeason\(\) : null;/.test(openBody), "openExpSheet computes the season live, only for the seasonal key — every other key is unaffected");
 ok(/label: sm \? sm\.label \+ " Picks" : cityFix\(e\.label\)/.test(openBody), "the sheet's title names the actual current season (e.g. \"Fall Picks\"), not a generic label");
+// v6.55: opening the SHEET (not just the rail card) also shows the real
+// summer photo, so the rail card and the opened sheet stay visually
+// consistent — seasons with no photo yet keep the sheet's existing
+// accent-colored gradient header, unaffected.
+ok(/heroImage: heroImageOverride \|\| heroImage \|\| \(sm && sm\.heroImage\) \|\| null,/.test(openBody), "openExpSheet's heroImage falls back to SEASON_META's real photo when the current season has one");
 
-// 4. Both hero-rail insertion points carry the new slide, positioned SECOND
-//    (right after the orientation card) — the empty-events rail AND the
-//    featured-event rail, ahead of Beach day / the concert respectively.
+// 4. v6.55 (owner, with 4 screenshots + a dog photo): "place it at the top...
+//    where the user sees it right away" AND "at the end will be the
+//    reminder, so we engage with them technically twice." Seasonal Picks now
+//    LEADS both hero rails (ahead of even the orientation card, not merely
+//    second) AND repeats as the LAST slide in both. One seasonalHeroSlide()
+//    helper renders every placement, so the four call sites can never drift
+//    out of sync with each other.
 ok(home.includes('openExpSheet("seasonal")'), "the hero slide opens the seasonal experience sheet");
+ok(/function seasonalHeroSlide\(srcTag\)/.test(home), "one seasonalHeroSlide(srcTag) helper renders every placement — no duplicated inline slides to drift out of sync");
+const topCalls = (home.match(/\{seasonalHeroSlide\("top"\)\}/g) || []).length;
+const endCalls = (home.match(/\{seasonalHeroSlide\("end"\)\}/g) || []).length;
+ok(topCalls === 2, `the seasonal slide leads BOTH hero rails (found ${topCalls} "top" call sites)`);
+ok(endCalls === 2, `the seasonal slide also closes BOTH hero rails — engaging the user twice, per the owner's request (found ${endCalls} "end" call sites)`);
 const heroOccurrences = home.split('badge={_s.label + " Picks"}').length - 1;
-ok(heroOccurrences === 2, `the Seasonal Picks hero slide is wired into exactly 2 places — the no-events rail and the featured-event rail (found ${heroOccurrences})`);
-// Position: DiscoveryHeroCard must immediately precede the seasonal slide in
-// BOTH real rails (nothing else allowed to slot in between). The loading
-// EventsRailSkeleton also renders <DiscoveryHeroCard />, deliberately without
-// a seasonal slide (it is a skeleton with no data yet) — anchored on each
-// real rail's own distinguishing context instead of position, so the skeleton
-// can never be mistaken for a missed insertion.
+ok(heroOccurrences === 1, `the seasonal slide's JSX is defined exactly ONCE, inside seasonalHeroSlide, and reused at all 4 call sites rather than copy-pasted per rail (found ${heroOccurrences} definitions)`);
+
+// Position: seasonal must be the very FIRST child of each <HeroRail> — ahead
+// of DiscoveryHeroCard, the orientation card — AND the very LAST child,
+// right before that rail's own closing </HeroRail>, in BOTH real rails. The
+// loading EventsRailSkeleton also renders <DiscoveryHeroCard />, deliberately
+// without a seasonal slide (it's a skeleton with no data yet) — anchored on
+// each real rail's own distinguishing context instead of position, so the
+// skeleton can never be mistaken for a missed insertion.
 const noEventsRailAt = home.indexOf("THE 23-MILE RULE (owner, 2026-07-28)");
-const eventsRailAt = home.indexOf("date-night + family slides always follow");
+const eventsRailAt = home.indexOf("LEADS this rail too");
 ok(noEventsRailAt >= 0 && eventsRailAt >= 0, "both real hero-rail anchors are present");
+const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,500}?\*\/\}\s*)?\{seasonalHeroSlide\("top"\)\}\s*<DiscoveryHeroCard \/>/;
 for (const [name, anchor] of [["no-events rail", noEventsRailAt], ["featured-event rail", eventsRailAt]]) {
-  const discoAt = home.lastIndexOf("<DiscoveryHeroCard />", anchor);
-  const seasonalIdx = home.indexOf('badge={_s.label + " Picks"}', discoAt);
-  ok(discoAt >= 0 && seasonalIdx >= 0 && seasonalIdx < anchor && seasonalIdx - discoAt < 500, `Seasonal Picks is the slide immediately following DiscoveryHeroCard in the ${name}, not buried later or missing`);
+  const heroRailAt = home.lastIndexOf("<HeroRail>", anchor);
+  ok(heroRailAt >= 0 && anchor - heroRailAt < 600, `the ${name}'s own <HeroRail> opening tag is found near its anchor`);
+  ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 700)), `Seasonal Picks leads the ${name}, immediately ahead of DiscoveryHeroCard — not second, not missing`);
+  const closeAt = home.indexOf("</HeroRail>", heroRailAt);
+  ok(closeAt >= 0, `the ${name}'s closing </HeroRail> is found`);
+  const endAt = home.lastIndexOf('{seasonalHeroSlide("end")}', closeAt);
+  ok(endAt >= 0 && closeAt - endAt < 200, `Seasonal Picks closes the ${name} as the very last slide, right before its own </HeroRail>`);
 }
-const eventRailAt = home.indexOf("The orientation card leads the same rail");
+// In the featured-event rail specifically, the concert card still follows
+// (event/beach/date-night/family/trending keep their own order — only the
+// rail's own start and end gained a seasonal slide).
 const eventCardAt = home.indexOf('src: "foryou_hero"');
-const seasonalInEventRailAt = home.indexOf('badge={_s.label + " Picks"}', eventRailAt);
-ok(eventRailAt >= 0 && eventCardAt >= 0 && seasonalInEventRailAt >= 0 && seasonalInEventRailAt < eventCardAt, "in the featured-event rail, Seasonal Picks sits BEFORE the concert/event slide — \"the second hero card before the concert\"");
+ok(eventCardAt > eventsRailAt, "in the featured-event rail, the concert/event slide still follows Seasonal Picks and the orientation card, unmoved");
 
 // 5. LocalPlanHeroCard's image is optional now (gradient fallback), and
 //    every PRE-EXISTING caller still passes a real photo — the fallback is
@@ -119,4 +157,4 @@ for (const badge of ["Beach day", "Hidden gems", "Date night", "Family", "Trendi
   ok(nearbyImage, `existing hero slide "${badge}" still supplies a real photo — the new optional-image fallback did not remove it`);
 }
 
-console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; hero-rail wiring at slide 2 in both rails; ranking is rating + a bounded seasonal nudge, never a replacement)`);
+console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; hero-rail wiring leads AND closes both rails; ranking is rating + a bounded seasonal nudge, never a replacement)`);

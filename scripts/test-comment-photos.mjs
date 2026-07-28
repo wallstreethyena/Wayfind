@@ -27,8 +27,17 @@ ok(/check \(char_length\(body\) <= 4000\)/.test(sql), "the database itself caps 
 ok(/check \(jsonb_array_length\(photos\) <= 4\)/.test(sql), "the database itself caps photo count — not just the browser's picker");
 ok(/insert into storage\.buckets \(id, name, public\)/.test(sql) && /'comment-photos', 'comment-photos', true/.test(sql), "a public comment-photos storage bucket is created (public read — a photo on a public comment is not more sensitive than the text next to it)");
 ok(/\(storage\.foldername\(name\)\)\[1\] = auth\.uid\(\)::text/.test(sql), "storage insert/delete policies key off the uploader's OWN auth.uid() folder — this is what actually prevents one user overwriting/deleting another's photos, independent of what the client sends");
+// v6.55 (Supabase security advisor, run against the real project after this
+// migration first shipped): a bucket marked `public` already serves reads off
+// the public CDN URL (see getPublicUrl in Detail.js) WITHOUT going through
+// storage.objects RLS at all — a SELECT policy here does nothing for that
+// read path. Its only real effect was granting `list`/enumerate access over
+// the REST API (public_bucket_allows_listing), letting anyone walk every
+// uploader's folder — strictly more exposure than the feature needs, so it
+// was dropped rather than kept as unused attack surface.
+ok(!/create policy "public read comment photos"/.test(sql), "no SELECT policy on storage.objects for comment-photos — public reads come from the public bucket URL, not RLS, and a SELECT policy would only grant unwanted bucket-listing");
 const policyCount = (sql.match(/create policy/g) || []).length;
-ok(policyCount === 3, `exactly 3 storage policies exist (public read, own-folder insert, own-folder delete) — found ${policyCount}`);
+ok(policyCount === 2, `exactly 2 storage policies exist (own-folder insert, own-folder delete) — read access is via the public bucket URL, not a policy (found ${policyCount})`);
 
 // --- app/home.js: the comment fetch carries photos along -------------------
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");

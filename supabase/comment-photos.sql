@@ -32,18 +32,21 @@ end $$;
 
 -- ── Storage: a public bucket for community-take photos ──────────────────────
 -- Public READ (comments are already publicly readable — a photo attached to
--- one is no more sensitive than the text next to it). Authenticated users may
--- only write/delete under their OWN user-id folder — app code enforces this
--- by construction (every upload path is `${user.id}/...`, see
--- uploadPendingPhotos in Detail.js), and these policies enforce it for real,
--- independent of what the client sends.
+-- one is no more sensitive than the text next to it) comes from the bucket
+-- itself being `public` — Supabase serves public buckets' objects straight
+-- off the public CDN URL (see getPublicUrl in Detail.js), which is NOT gated
+-- by storage.objects RLS at all. A SELECT policy here would do nothing for
+-- that read path; its only real effect is granting `list`/enumerate access
+-- over the REST API, letting anyone walk every uploader's folder — flagged by
+-- Supabase's own security advisor (public_bucket_allows_listing) the first
+-- time this shipped, and removed rather than kept as unused surface area.
+-- Authenticated users may only write/delete under their OWN user-id folder —
+-- app code enforces this by construction (every upload path is
+-- `${user.id}/...`, see uploadPendingPhotos in Detail.js), and these two
+-- policies enforce it for real, independent of what the client sends.
 insert into storage.buckets (id, name, public)
 values ('comment-photos', 'comment-photos', true)
 on conflict (id) do nothing;
-
-drop policy if exists "public read comment photos" on storage.objects;
-create policy "public read comment photos" on storage.objects
-  for select using (bucket_id = 'comment-photos');
 
 drop policy if exists "own-folder insert comment photos" on storage.objects;
 create policy "own-folder insert comment photos" on storage.objects

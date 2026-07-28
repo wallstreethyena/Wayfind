@@ -161,7 +161,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.54";
+const BUILD_ID = "v6.55";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3619,10 +3619,15 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tasteVer]);
   function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  // v6.55: `val` may now be a single raw value OR an array of raw values —
+  // the taste panel merges multiple raw Google tags onto one clean chip (see
+  // the chip-merge loop below), so "forget" on a merged chip must erase every
+  // raw value that fed it, not just one, or the chip would silently reappear.
   async function forgetTasteItem(dim, val) {
+    const vals = Array.isArray(val) ? val : [val];
     try {
-      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
-      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).in("value", vals); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; for (const v of vals) delete l[dim + "|" + v]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
     } catch (e) {}
     setTasteVer((n) => n + 1);
   }
@@ -3635,10 +3640,14 @@ function PageInner({ initialEvents = null }) {
   }
   // v6.50 (owner, with screenshot: "the export data that is weird"): the raw
   // JSON download was a feature nobody asked for and read as an unexplained,
-  // slightly alarming control in a two-button row. Erasure — the actual legal
-  // promise this panel makes ("yours alone, never sold") — still ships via
-  // resetTaste()/wf_taste_wipe below; a portability download is a separate ask
-  // and can come back deliberately if the owner wants it, not as a default.
+  // slightly alarming control in a two-button row. Erasure — letting someone
+  // wipe their own taste vector — still ships via resetTaste()/wf_taste_wipe
+  // below; a portability download is a separate ask and can come back
+  // deliberately if the owner wants it, not as a default. (v6.55: this panel
+  // no longer makes any data-sale promise in casual copy — see
+  // app/privacy/page.js for the actual, legally-worded disclosure of the
+  // company's right to sell or share data in the future; this UI just states
+  // what the panel does.)
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -4139,10 +4148,10 @@ function PageInner({ initialEvents = null }) {
         : null;
     // v6.52: Seasonal Picks names itself after whatever season it actually is
     // right now \u2014 computed at open time (never a stale hardcoded season) so
-    // "Fall Picks" only ever shows in fall. No dedicated hero photo exists yet
-    // (see lib/seasons.js) so this intentionally leaves heroImage unset \u2014 the
-    // sheet already falls back to an accent-colored gradient header for every
-    // key that doesn't set one (outdoors, datenight, ...).
+    // "Fall Picks" only ever shows in fall. v6.55: uses SEASON_META's real
+    // photo when the current season has one (summer, so far); seasons without
+    // one still fall back to the sheet's existing accent-colored gradient
+    // header, same as outdoors/datenight/etc.
     const seasonNow = key === "seasonal" ? currentSeason() : null;
     const sm = seasonNow ? SEASON_META[seasonNow] : null;
     const cityShort = locName ? String(locName).split(",")[0] : "your area";
@@ -4156,10 +4165,31 @@ function PageInner({ initialEvents = null }) {
       cta: m.cta || "Explore \u2192",
       themeTitle: sm ? sm.label + " Picks Near You" : cityFix(e.title),
       themeBody: e.lead,
-      heroImage: heroImageOverride || heroImage,
+      heroImage: heroImageOverride || heroImage || (sm && sm.heroImage) || null,
       places: null,
     });
     try { window.scrollTo(0, 0); } catch {}
+  }
+  // v6.55 (owner): "everyone loves a puppy!" — place Seasonal Picks where the
+  // user sees it right away (the very first slide, ahead of even the
+  // orientation card) AND repeat it as the last slide, a closing reminder —
+  // "engage with them technically twice." One implementation, reused at both
+  // ends of both hero rails, so the two placements can never drift apart.
+  // srcTag ("top" | "end") only distinguishes the two spots in analytics.
+  function seasonalHeroSlide(srcTag) {
+    const _s = SEASON_META[currentSeason()];
+    return (
+      <LocalPlanHeroCard
+        image={_s.heroImage}
+        badge={_s.label + " Picks"}
+        badgeColor={_s.color}
+        icon="leaf"
+        title={_s.label + " picks near you"}
+        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+        ariaLabel={_s.label + " picks near you"}
+        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} openExpSheet("seasonal"); }}
+      />
+    );
   }
   function openMoment(sel) {
     try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
@@ -7218,21 +7248,30 @@ function PageInner({ initialEvents = null }) {
           if (personalize === null && ld >= 2) return (
             <div style={{ margin: "2px 0 13px", background: "linear-gradient(160deg, #232C3C 0%, #1C2230 62%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.22)" }}>
               <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. You can turn it off or delete it anytime.</div>
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
                 <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
               </div>
             </div>
           );
+          // v6.55 (owner, screenshot: this sat as a heavy gray boxed "card"
+          // wedged directly under the search bar's rounded submit button and
+          // sparkle circle — three separate rounded shapes stacked in a few
+          // pixels read as visual clutter, not a coherent header. Once
+          // personalization is actually on, this is a STATUS LINE, not a
+          // decision card asking for input (that's the consent-ask card just
+          // above, which keeps its box) — so it drops the card chrome
+          // (background/border/shadow) entirely and reads as a slim inline
+          // strip, same treatment as "Explore other areas" just above it.
           if (personalize === "on") return (
-            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+            <div style={{ margin: "0 0 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "2px 1px" }}>
               <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
               <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
             </div>
           );
           if (personalize === "off" && ld >= 2) return (
-            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
+            <div style={{ margin: "0 0 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "2px 1px" }}>
               <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
               <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
             </div>
@@ -7389,22 +7428,11 @@ function PageInner({ initialEvents = null }) {
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                   </div>
                   <HeroRail>
+                    {/* v6.55 (owner): "place it at the top... where the user
+                        sees it right away" — Seasonal Picks now LEADS this
+                        rail, ahead of even the orientation card. */}
+                    {seasonalHeroSlide("top")}
                     <DiscoveryHeroCard />
-                    {/* v6.52 (owner): Seasonal Picks — 2nd slide, ahead of
-                        Beach day / the featured concert / everything else.
-                        Names itself after whatever season it actually is
-                        right now; see lib/seasons.js. */}
-                    {(() => { const _s = SEASON_META[currentSeason()]; return (
-                      <LocalPlanHeroCard
-                        badge={_s.label + " Picks"}
-                        badgeColor={_s.color}
-                        icon="leaf"
-                        title={_s.label + " picks near you"}
-                        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
-                        ariaLabel={_s.label + " picks near you"}
-                        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_swipe" }); } catch (e2) {} openExpSheet("seasonal"); }}
-                      />
-                    ); })()}
                     {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
                         render unconditionally and only swap its COPY when no
                         beach was found — so an Orlando user got "Beach day,
@@ -7465,6 +7493,10 @@ function PageInner({ initialEvents = null }) {
                       ariaLabel="Trending near you"
                       onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} openExpSheet("entertainment"); }}
                     />
+                    {/* v6.55 (owner): "...at the end will be the reminder, so
+                        we engage with them technically twice" — the same
+                        Seasonal Picks slide repeats as the closing card. */}
+                    {seasonalHeroSlide("end")}
                   </HeroRail>
                   {discoveryMenu}
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
@@ -7506,24 +7538,14 @@ function PageInner({ initialEvents = null }) {
                       // separate sibling control layered on top, never nested.
                       return (
                         <HeroRail>
-                        {/* The orientation card leads the same rail; the event, beach,
-                            date-night, family, and trending cards keep their existing
-                            destinations and behavior as the following slides. */}
+                        {/* v6.55 (owner): "place it at the top... where the
+                            user sees it right away" — Seasonal Picks now
+                            LEADS this rail too, ahead of the orientation
+                            card; the event, beach, date-night, family, and
+                            trending cards keep their existing destinations
+                            and behavior as the following slides. */}
+                        {seasonalHeroSlide("top")}
                         <DiscoveryHeroCard />
-                        {/* v6.52 (owner): "make the hero for that... the second
-                            hero card before the concert" — Seasonal Picks
-                            slots in right here, ahead of the featured event. */}
-                        {(() => { const _s = SEASON_META[currentSeason()]; return (
-                          <LocalPlanHeroCard
-                            badge={_s.label + " Picks"}
-                            badgeColor={_s.color}
-                            icon="leaf"
-                            title={_s.label + " picks near you"}
-                            subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
-                            ariaLabel={_s.label + " picks near you"}
-                            onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_swipe" }); } catch (e2) {} openExpSheet("seasonal"); }}
-                          />
-                        ); })()}
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={eventCategoryArt(eventBucket(featured), featured) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
@@ -7615,6 +7637,10 @@ function PageInner({ initialEvents = null }) {
                             }
                           }}
                         />
+                        {/* v6.55 (owner): "...at the end will be the reminder, so
+                            we engage with them technically twice" — the same
+                            Seasonal Picks slide repeats as the closing card. */}
+                        {seasonalHeroSlide("end")}
                         </HeroRail>
                       );
                     })()}
@@ -8180,7 +8206,6 @@ function PageInner({ initialEvents = null }) {
       {accountOpen && user && <AccountSheet ctx={ctx} />}
       {tasteOpen && (() => {
         const vec = tasteVecState || {};
-        const chips = [];
         // v6.45 (owner: "Wtf is this") — FILTER ON READ, not only on write.
         // The panel was rendering whatever happened to be in the stored vector,
         // so a numeric token learned before the write-path fix ("2") kept
@@ -8188,6 +8213,19 @@ function PageInner({ initialEvents = null }) {
         // which junk survived. isLearnableValue is the same rule the writer
         // uses, applied here so bad rows retire the moment this ships instead
         // of waiting for the user to generate a new signal.
+        //
+        // v6.55 (owner, screenshot: overlapping near-duplicate chips like
+        // "californian restaurant" / "american restaurant" / "brunch
+        // restaurant" / "breakfast restaurant" / "food store" all shown
+        // separately) — TAG_LABEL (lib/taste.js) now maps several raw Google
+        // tag tokens onto the SAME clean label on purpose, so this groups
+        // chips by `dim + "|" + label` instead of by raw value: every raw
+        // value that shares a label merges into ONE chip, its weight summed,
+        // and every contributing raw value kept in `vals` so "forget" can
+        // erase all of them (see forgetTasteItem). Category and price already
+        // have a 1:1 value→label mapping, so this grouping is a no-op for
+        // them — only the tag dimension actually merges anything.
+        const groups = new Map();
         for (const dim of ["category", "tag", "price"]) {
           const m = vec[dim];
           if (!m) continue;
@@ -8195,9 +8233,13 @@ function PageInner({ initialEvents = null }) {
             if (!isLearnableValue(dim, val)) continue;
             const label = tasteLabel(dim, val);
             if (!label) continue;
-            chips.push({ dim, val, label, w: Number(w) || 0 });
+            const key = dim + "|" + label;
+            const g = groups.get(key);
+            if (g) { g.w += Number(w) || 0; g.vals.push(val); }
+            else groups.set(key, { dim, label, w: Number(w) || 0, vals: [val] });
           }
         }
+        const chips = [...groups.values()];
         chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
         const top = chips.slice(0, 24);
         return (
@@ -8212,17 +8254,20 @@ function PageInner({ initialEvents = null }) {
                   </div>
                   <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ flexShrink: 0, minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
                 </div>
-                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
+                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share. Remove anything, or clear it all.</p>
                 {top.length ? (
                   <div className="wf-taste-cloud">
                     {top.map((c) => (
                       /* The chip SHOWS tasteLabel but every action still carries
-                         the RAW stored value — forgetting by the label would
-                         quietly delete nothing. */
-                      <span key={c.dim + "|" + c.val} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
+                         the RAW stored value(s) in c.vals — forgetting by the
+                         label alone would quietly delete nothing. A merged chip
+                         (e.g. "American") can carry more than one raw value
+                         (american_restaurant + californian_restaurant), and
+                         forgetTasteItem deletes all of them together. */
+                      <span key={c.dim + "|" + c.label} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
                         {c.w >= 0 ? null : <span className="wf-taste-chip-neg">not</span>}
                         {c.label}
-                        <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.label} className="wf-taste-x">✕</button>
+                        <button onClick={() => forgetTasteItem(c.dim, c.vals)} aria-label={"Forget " + c.label} className="wf-taste-x">✕</button>
                       </span>
                     ))}
                   </div>
