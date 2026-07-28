@@ -98,6 +98,17 @@ const GRANDFATHERED_UGC = ["yelp.com", "tripadvisor.com", "toasttab.com", "faceb
 // covers it. That is the difference between a rule and three more hostnames.)
 const GRANDFATHERED_UNVETTED = ["lidoislandgrill.com", "mayaspeaktiki.com"];
 
+// RATCHET. Both grandfather lists are frozen at exactly these entries. They may
+// SHRINK — removing a host once its card is re-sourced is the goal — but never
+// grow. A grandfather list with no pressure on it silently becomes the policy,
+// which is how "temporary debt" turns permanent. Adding an entry fails the
+// build and forces the conversation instead of quietly widening what is allowed.
+// Drive both to zero: see the tracking issue.
+const RATCHET = {
+  GRANDFATHERED_UGC: ["facebook.com", "toasttab.com", "tripadvisor.com", "yelp.com"],
+  GRANDFATHERED_UNVETTED: ["lidoislandgrill.com", "mayaspeaktiki.com"],
+};
+
 // ── hostname handling ─────────────────────────────────────────────────────
 /** Parse a candidate source to a normalised hostname, or null if not an http(s) URL. */
 export function hostOf(raw) {
@@ -122,6 +133,37 @@ export function isDisneyHost(host) {
   if (!host) return false;
   if (DISNEY_PROPERTIES.some((d) => under(host, d))) return true;
   return host.split(".").some((label) => label.includes("disney"));
+}
+
+/**
+ * Why a host was permitted or refused — the rule that decided, by name.
+ * Over-blocking is the right default, but only if the block is legible: when the
+ * "disney" token eventually false-positives on an unrelated host, this makes it
+ * one read instead of a bisect.
+ * @returns {{ok: boolean, rule: string}}
+ */
+export function explainSource(host, officialWebsiteHost, vettedVenueHosts) {
+  if (!host) return { ok: false, rule: "unparseable-source" };
+  if (DISNEY_PROPERTIES.some((d) => under(host, d))) {
+    return { ok: false, rule: `disney-property-suffix (${DISNEY_PROPERTIES.find((d) => under(host, d))})` };
+  }
+  const tok = host.split(".").find((l) => l.includes("disney"));
+  if (tok) return { ok: false, rule: `disney-token-in-label ("${tok}")` };
+  const g = GOOGLE_SOURCES.find((d) => under(host, d));
+  if (g) return { ok: true, rule: `google-source (${g})` };
+  if (officialWebsiteHost && reg(host) === reg(officialWebsiteHost)) {
+    return { ok: true, rule: "card-own-official-site" };
+  }
+  if (vettedVenueHosts && vettedVenueHosts.has(reg(host))) {
+    return { ok: true, rule: "official-site-of-a-vetted-venue" };
+  }
+  const t = ALLOWED_THIRD_PARTY.find((d) => under(host, d));
+  if (t) return { ok: true, rule: `allowed-third-party (${t})` };
+  const u = GRANDFATHERED_UGC.find((d) => under(host, d));
+  if (u) return { ok: true, rule: `grandfathered-ugc (${u}) — pending replacement` };
+  const v = GRANDFATHERED_UNVETTED.find((d) => under(host, d));
+  if (v) return { ok: true, rule: `grandfathered-unvetted (${v}) — pending replacement` };
+  return { ok: false, rule: "not-in-any-permitted-set" };
 }
 
 /** Affirmatively permitted, given the card that cites it. */
@@ -189,8 +231,9 @@ for (const p of files.filter((f) => f.endsWith(".json"))) {
     for (const ref of refs) {
       const h = hostOf(ref);
       if (h === null) { problems.push(`${rel}: "${who}" has an unparseable source (${String(ref).slice(0, 80)})`); continue; }
-      if (isDisneyHost(h)) { problems.push(`${rel}: "${who}" is sourced from a Disney property — ${h} (AGENTS.md §7)`); continue; }
-      if (!isPermittedSource(h, owHost, VETTED_VENUE_HOSTS)) { problems.push(`${rel}: "${who}" cites an unvetted source — ${h} (add to ALLOWED_THIRD_PARTY only after vetting)`); continue; }
+      const verdict = explainSource(h, owHost, VETTED_VENUE_HOSTS);
+      if (isDisneyHost(h)) { problems.push(`${rel}: "${who}" is sourced from a Disney property — ${h}\n      blocked by: ${verdict.rule}  (AGENTS.md §7)`); continue; }
+      if (!verdict.ok) { problems.push(`${rel}: "${who}" cites an unvetted source — ${h}\n      blocked by: ${verdict.rule}  (add to ALLOWED_THIRD_PARTY only after vetting)`); continue; }
       if (GRANDFATHERED_UGC.some((d) => under(h, d))) ugcRefs++;
       if (GRANDFATHERED_UNVETTED.some((d) => under(h, d))) grandfatheredRefs++;
       pass++;
@@ -214,6 +257,25 @@ for (const p of files.filter((f) => /\.(js|mjs|jsx|ts|tsx)$/.test(f))) {
   }
 }
 pass++;
+
+// ── ratchet: the grandfather lists may shrink, never grow ─────────────────
+{
+  const sorted = (a) => [...a].sort().join(",");
+  for (const [name, frozen] of Object.entries(RATCHET)) {
+    const live = name === "GRANDFATHERED_UGC" ? GRANDFATHERED_UGC : GRANDFATHERED_UNVETTED;
+    const added = live.filter((h) => !frozen.includes(h));
+    if (added.length) {
+      console.error(`check-no-disney-sources: FAIL — ${name} grew: ${added.join(", ")}`);
+      console.error("  Grandfather lists are a ratchet. They may shrink as cards are re-sourced,");
+      console.error("  never grow. Re-source the card, or make the case for ALLOWED_THIRD_PARTY.");
+      process.exit(1);
+    }
+    // Shrinking is the goal — allowed, and worth saying out loud.
+    const removed = frozen.filter((h) => !live.includes(h));
+    if (removed.length) console.log(`check-no-disney-sources: ${name} shrank by ${removed.length} (${removed.join(", ")}) — update RATCHET to lock it in.`);
+    if (sorted(live) === sorted(frozen)) pass++;
+  }
+}
 
 // ── self-test: prove the RULE, not the list ───────────────────────────────
 // None of these is a literal entry in DISNEY_PROPERTIES. If any passes, this
@@ -256,6 +318,24 @@ pass++;
     process.exit(1);
   }
   pass++;
+
+  // Every block must name the rule that produced it.
+  const REASONS = [
+    ["https://booking.disneyworld.disney.go.com/x", "disney-property-suffix"],
+    ["https://disneyparks-reservations.net/x", "disney-token-in-label"],
+    ["https://random-blog.example/x", "not-in-any-permitted-set"],
+    ["https://places.googleapis.com/x", "google-source"],
+    ["https://www.nps.gov/x", "allowed-third-party"],
+    ["https://www.yelp.com/biz/x", "grandfathered-ugc"],
+  ];
+  for (const [url, expect] of REASONS) {
+    const r = explainSource(hostOf(url), null, new Set());
+    if (!r.rule.startsWith(expect)) {
+      console.error(`check-no-disney-sources: FAIL — self-test: ${url} reported rule "${r.rule}", expected "${expect}*"`);
+      process.exit(1);
+    }
+    pass++;
+  }
 
   // A curated outbound link is not a request.
   const LINK = `{ text: "check the calendar", url: "https://disneyworld.disney.go.com/calendars/", label: "Park schedule" }`;
