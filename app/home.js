@@ -146,7 +146,7 @@ import { creatorVideosFor } from "../lib/creatorVideos";
 // isLearnableValue retires junk already sitting in localStorage/Supabase, and
 // tasteLabel is the ONE place that knows the price dimension stores a Google
 // bucket index. Neither belongs in the view.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue } from "../lib/taste";
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -226,7 +226,6 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
   );
 }
 // Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
-const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
 function FeaturedTag({ p }) {
   // Takes the PLACE — Detail.js passes p={detail}; featuredBoost geo-gates on
   // its coords. (It was reverted to a {name} prop while Detail kept passing p —
@@ -3570,6 +3569,11 @@ function PageInner({ initialEvents = null }) {
   const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
   const tasteVecRef = useRef({});                        // durable per-user vector
   const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
+  const [tasteEditOpen, setTasteEditOpen] = useState(false);
+  const [tasteDirection, setTasteDirection] = useState("more");
+  const [tasteDetailsOpen, setTasteDetailsOpen] = useState(false); // retained for the retired panel until its code split is removed
+  const [tasteSaving, setTasteSaving] = useState("");
+  const [tasteResetConfirm, setTasteResetConfirm] = useState(false);
 
   // Consent is remembered; the durable vector loads per user/session (not per
   // action — the session signals give instant feel; this is the slow layer).
@@ -3598,6 +3602,48 @@ function PageInner({ initialEvents = null }) {
       else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
     } catch (e) {}
     setTasteVer((n) => n + 1);
+  }
+  async function forgetTasteGroup(group) {
+    const keys = group && Array.isArray(group.keys) ? group.keys : [];
+    if (!keys.length) return;
+    try {
+      if (supabase && user) {
+        for (const key of keys) await supabase.from("wf_taste").delete().eq("dimension", key.dimension).eq("value", key.value);
+      } else {
+        const local = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {};
+        for (const key of keys) delete local[key.dimension + "|" + key.value];
+        localStorage.setItem("wf_taste_local", JSON.stringify(local));
+      }
+      try { logEvent("taste_preference_remove", null, { preference: group.id }); } catch (e) {}
+    } catch (e) {}
+    setTasteVer((n) => n + 1);
+  }
+  async function addTastePreference(optionId) {
+    if (tasteSaving) return;
+    const option = TASTE_EDITOR_OPTIONS.find((x) => x.id === optionId);
+    const signals = manualTasteSignals(optionId, tasteDirection);
+    if (!option || !signals.length) return;
+    setTasteSaving(optionId);
+    try {
+      if (supabase && user) {
+        // A direct edit means "set my preference", not "add another opaque
+        // weight." Clear the learned values represented by this group first,
+        // then write the user's explicit direction.
+        for (const [dimension, value] of option.signals) await supabase.from("wf_taste").delete().eq("dimension", dimension).eq("value", value);
+        await supabase.rpc("wf_taste_bump", { p_signals: signals });
+      } else {
+        const local = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {};
+        for (const [dimension, value] of option.signals) delete local[dimension + "|" + value];
+        localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(local, signals, Date.now())));
+      }
+      setConsent("on");
+      setTasteVer((n) => n + 1);
+      try { logEvent("taste_preference_add", null, { preference: optionId, direction: tasteDirection }); } catch (e) {}
+    } catch (e) {
+      showToast("Could not update your taste — try again");
+    } finally {
+      setTasteSaving("");
+    }
   }
   async function resetTaste() {
     try {
@@ -7035,6 +7081,155 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
+        {screen === "suggested" && (() => {
+          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
+          if (personalize === null && ld >= 2) return (
+            <div style={{ marginTop: 10, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px" }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
+                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
+              </div>
+            </div>
+          );
+          if (personalize === "on") {
+            const summary = summarizeTasteVector(tasteVecState || {});
+            const hasProfile = summary.more.length || summary.less.length;
+            const moreLabels = summary.more.slice(0, 3).map((x) => x.label);
+            const lessLabels = summary.less.slice(0, 2).map((x) => x.label);
+            const profileLine = moreLabels.length
+              ? `${moreLabels.join(" · ")}${summary.more.length > 3 ? ` · +${summary.more.length - 3}` : ""}`
+              : lessLabels.length ? `Less ${lessLabels.join(" · ")}` : "Ready for your first preference";
+            const preferenceRow = (group, direction) => (
+              <div key={direction + "|" + group.id} className={"wf-taste-inline-pref " + (direction === "less" ? "is-less" : "is-more")}>
+                <span className="wf-taste-inline-pref-mark" aria-hidden="true">{direction === "less" ? "−" : "+"}</span>
+                <span>{group.label}</span>
+                <button onClick={() => forgetTasteGroup(group)} aria-label={"Remove " + group.label + " from your taste profile"}>✕</button>
+              </div>
+            );
+            return (
+              <section className={"wf-taste-inline" + (tasteOpen ? " is-open" : "")} aria-label="Your Wayfind taste">
+                <style dangerouslySetInnerHTML={{ __html: `
+                  .wf-taste-inline{position:relative;margin-top:10px;overflow:hidden;border:1px solid rgba(223,184,96,.32);border-radius:18px;background:radial-gradient(circle at 0 0,rgba(249,115,22,.12),transparent 34%),linear-gradient(145deg,#171F2B,#111824 58%,#0D141E);box-shadow:0 16px 36px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.05)}
+                  .wf-taste-inline:before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,#F1D08A,rgba(249,115,22,.75),transparent)}
+                  .wf-taste-inline-head{position:relative;width:100%;min-height:72px;display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;background:transparent;color:${C.text};text-align:left;cursor:pointer}
+                  .wf-taste-inline-seal{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border:1px solid rgba(244,211,132,.55);border-radius:12px;background:linear-gradient(145deg,#F6D77E,#A9660E);color:#211505;box-shadow:0 8px 18px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.55)}
+                  .wf-taste-inline-copy{min-width:0;flex:1}
+                  .wf-taste-inline-kicker{display:block;color:#E9C977;font-size:8px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+                  .wf-taste-inline-title{display:block;margin-top:4px;overflow:hidden;color:${C.text};font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:400;letter-spacing:-.02em;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}
+                  .wf-taste-inline-status{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;color:#F7A15E;font-size:9.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+                  .wf-taste-inline-status:before{content:"";width:6px;height:6px;border-radius:50%;background:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
+                  .wf-taste-inline-chevron{display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border:1px solid rgba(255,255,255,.08);border-radius:50%;color:${C.muted};font-size:15px;transition:transform .2s ease}
+                  .wf-taste-inline.is-open .wf-taste-inline-chevron{transform:rotate(180deg)}
+                  .wf-taste-inline-body{position:relative;padding:0 16px 17px}
+                  .wf-taste-inline-rule{height:1px;margin:0 0 15px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(223,184,96,.28),rgba(255,255,255,.04))}
+                  .wf-taste-inline-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;margin-bottom:15px}
+                  .wf-taste-inline-intro strong{display:block;color:${C.text};font-size:12.5px}
+                  .wf-taste-inline-intro p{margin:4px 0 0;max-width:420px;color:${C.muted};font-size:10.5px;line-height:1.45}
+                  .wf-taste-inline-score{max-width:170px;color:#D4B973;font-size:9px;font-weight:750;line-height:1.4;text-align:right}
+                  .wf-taste-inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+                  .wf-taste-inline-lane{min-width:0;padding:12px;border:1px solid rgba(255,255,255,.075);border-radius:14px;background:rgba(255,255,255,.023)}
+                  .wf-taste-inline-lane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+                  .wf-taste-inline-lane-head strong{color:${C.text};font-size:10px;letter-spacing:.02em}
+                  .wf-taste-inline-lane-head span{color:${C.muted};font-size:8.5px}
+                  .wf-taste-inline-prefs{display:flex;flex-wrap:wrap;gap:6px}
+                  .wf-taste-inline-pref{display:inline-flex;min-height:30px;align-items:center;gap:6px;padding:3px 4px 3px 6px;border:1px solid rgba(249,115,22,.28);border-radius:999px;background:rgba(249,115,22,.06);color:${C.light};font-size:9.5px;font-weight:750}
+                  .wf-taste-inline-pref.is-less{border-color:rgba(148,163,184,.2);background:rgba(148,163,184,.045);color:${C.muted}}
+                  .wf-taste-inline-pref-mark{display:grid;width:17px;height:17px;place-items:center;border-radius:50%;background:rgba(249,115,22,.14);color:${C.accent};font-size:11px;font-weight:900}
+                  .wf-taste-inline-pref.is-less .wf-taste-inline-pref-mark{background:rgba(148,163,184,.1);color:${C.muted}}
+                  .wf-taste-inline-pref button{display:grid;width:22px;height:22px;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.05);color:${C.muted};font-size:9px;cursor:pointer}
+                  .wf-taste-inline-empty{margin:0;color:${C.muted};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-add{width:100%;min-height:42px;margin-top:10px;border:1px solid rgba(223,184,96,.3);border-radius:12px;background:linear-gradient(180deg,rgba(223,184,96,.1),rgba(223,184,96,.035));color:#F1D28A;font-size:10.5px;font-weight:850;cursor:pointer}
+                  .wf-taste-inline-editor{margin-top:9px;padding:12px;border:1px solid rgba(249,115,22,.2);border-radius:14px;background:rgba(5,9,15,.4)}
+                  .wf-taste-inline-editor-title{color:${C.text};font-size:11px;font-weight:850}
+                  .wf-taste-inline-editor-copy{margin-top:3px;color:${C.muted};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-direction{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0;padding:4px;border-radius:10px;background:${C.bg}}
+                  .wf-taste-inline-direction button{min-height:34px;border:0;border-radius:8px;background:transparent;color:${C.muted};font-size:9.5px;font-weight:800;cursor:pointer}
+                  .wf-taste-inline-direction button.is-active{background:#1A2230;color:${C.text};box-shadow:0 3px 9px rgba(0,0,0,.2)}
+                  .wf-taste-inline-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+                  .wf-taste-inline-option{min-height:38px;padding:6px 8px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.025);color:${C.light};font-size:9.5px;font-weight:720;text-align:left;cursor:pointer}
+                  .wf-taste-inline-option:hover{border-color:rgba(249,115,22,.38);color:${C.text}}
+                  .wf-taste-inline-option:disabled{opacity:.55;cursor:wait}
+                  .wf-taste-inline-data{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+                  .wf-taste-inline-private{display:flex;align-items:center;gap:6px;color:${C.muted};font-size:8.5px;line-height:1.35}
+                  .wf-taste-inline-actions{display:flex;gap:4px}
+                  .wf-taste-inline-actions button{min-height:34px;padding:0 9px;border:0;background:transparent;color:${C.muted};font-size:9px;font-weight:780;cursor:pointer}
+                  .wf-taste-inline-actions button:last-child{color:#F68B8B}
+                  .wf-taste-inline-reset{margin-top:8px;padding:10px;border:1px solid rgba(239,68,68,.24);border-radius:12px;background:rgba(239,68,68,.05)}
+                  .wf-taste-inline-reset p{margin:0 0 8px;color:${C.light};font-size:9.5px;line-height:1.4}
+                  .wf-taste-inline-reset div{display:flex;gap:6px}
+                  .wf-taste-inline-reset button{flex:1;min-height:36px;border-radius:9px;font-size:9.5px;font-weight:800;cursor:pointer}
+                  @media(max-width:520px){
+                    .wf-taste-inline-status{display:none}.wf-taste-inline-title{font-size:14.5px}.wf-taste-inline-grid{grid-template-columns:1fr}
+                    .wf-taste-inline-intro{grid-template-columns:1fr}.wf-taste-inline-score{max-width:none;text-align:left}
+                    .wf-taste-inline-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+                    .wf-taste-inline-data{align-items:flex-start;flex-direction:column}.wf-taste-inline-actions{width:100%;justify-content:space-between}
+                  }
+                  @media(prefers-reduced-motion:reduce){.wf-taste-inline-chevron{transition:none}}
+                ` }} />
+                <button className="wf-taste-inline-head" onClick={() => setTasteOpen((v) => !v)} aria-expanded={tasteOpen} aria-controls="wf-taste-inline-body">
+                  <span className="wf-taste-inline-seal" aria-hidden="true"><Icon name="sparkles" size={17} color="#211505" /></span>
+                  <span className="wf-taste-inline-copy">
+                    <span className="wf-taste-inline-kicker">Personalized for you</span>
+                    <span className="wf-taste-inline-title">{profileLine}</span>
+                  </span>
+                  <span className="wf-taste-inline-status">Taste active</span>
+                  <span className="wf-taste-inline-chevron" aria-hidden="true">⌄</span>
+                </button>
+                {tasteOpen ? (
+                  <div className="wf-taste-inline-body" id="wf-taste-inline-body">
+                    <div className="wf-taste-inline-rule" />
+                    <div className="wf-taste-inline-intro">
+                      <div><strong>Your taste, shaping this shortlist.</strong><p>Add what you want more or less of. Wayfind uses it only to reorder recommendations for you.</p></div>
+                      <div className="wf-taste-inline-score">A place’s Wayfind Score never changes.</div>
+                    </div>
+                    <div className="wf-taste-inline-grid">
+                      <section className="wf-taste-inline-lane">
+                        <div className="wf-taste-inline-lane-head"><strong>Show me more of</strong><span>Moves matches up</span></div>
+                        <div className="wf-taste-inline-prefs">{summary.more.length ? summary.more.map((g) => preferenceRow(g, "more")) : <p className="wf-taste-inline-empty">Add something you want to see more often.</p>}</div>
+                      </section>
+                      <section className="wf-taste-inline-lane">
+                        <div className="wf-taste-inline-lane-head"><strong>Show me less of</strong><span>Moves matches down</span></div>
+                        <div className="wf-taste-inline-prefs">{summary.less.length ? summary.less.map((g) => preferenceRow(g, "less")) : <p className="wf-taste-inline-empty">Nothing muted yet.</p>}</div>
+                      </section>
+                    </div>
+                    {!hasProfile ? <p className="wf-taste-inline-empty" style={{ marginTop: 10 }}>Nothing learned yet. Add a preference or keep using Wayfind and this will grow from your explicit actions.</p> : null}
+                    <button className="wf-taste-inline-add" onClick={() => setTasteEditOpen((v) => !v)}>{tasteEditOpen ? "Done tuning" : "+ Add or correct a preference"}</button>
+                    {tasteEditOpen ? (
+                      <div className="wf-taste-inline-editor">
+                        <div className="wf-taste-inline-editor-title">Tune your recommendations</div>
+                        <div className="wf-taste-inline-editor-copy">Choose a direction, then a preference. Your choice replaces Wayfind’s current guess for that topic.</div>
+                        <div className="wf-taste-inline-direction" role="group" aria-label="Preference direction">
+                          <button className={tasteDirection === "more" ? "is-active" : ""} aria-pressed={tasteDirection === "more"} onClick={() => setTasteDirection("more")}>Show me more</button>
+                          <button className={tasteDirection === "less" ? "is-active" : ""} aria-pressed={tasteDirection === "less"} onClick={() => setTasteDirection("less")}>Show me less</button>
+                        </div>
+                        <div className="wf-taste-inline-options">
+                          {TASTE_EDITOR_OPTIONS.map((option) => <button key={option.id} className="wf-taste-inline-option" disabled={!!tasteSaving} onClick={() => addTastePreference(option.id)}>{tasteSaving === option.id ? "Saving…" : option.label}</button>)}
+                        </div>
+                      </div>
+                    ) : null}
+                    <div className="wf-taste-inline-data">
+                      <div className="wf-taste-inline-private"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" /><path d="m9.5 12 1.6 1.6 3.5-4" /></svg><span>Private to your account or this device. Never sold.</span></div>
+                      <div className="wf-taste-inline-actions">
+                        <button onClick={exportTaste}>Export</button>
+                        <button onClick={() => setTasteResetConfirm(true)}>Reset profile</button>
+                      </div>
+                    </div>
+                    {tasteResetConfirm ? <div className="wf-taste-inline-reset"><p>This permanently clears Wayfind’s learned preferences and turns personalization off.</p><div><button onClick={() => setTasteResetConfirm(false)} style={{ border: `1px solid ${C.border}`, background: C.card, color: C.light }}>Keep my profile</button><button onClick={() => { resetTaste(); setTasteResetConfirm(false); setTasteOpen(false); }} style={{ border: `1px solid ${C.red}66`, background: C.red, color: "#fff" }}>Clear everything</button></div></div> : null}
+                  </div>
+                ) : null}
+              </section>
+            );
+          }
+          if (personalize === "off" && ld >= 2) return (
+            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
+              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
+              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
+            </div>
+          );
+          return null;
+        })()}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -8015,61 +8210,141 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
-      {tasteOpen && (() => {
+      {/* Retired: the former full-screen taste sheet. The premium editor now
+          expands inside the personalization strip above, so this overlay can
+          never render while its remaining markup is removed in the next shell
+          extraction. */}
+      {false && tasteOpen && (() => {
         const vec = tasteVecState || {};
-        const chips = [];
-        // v6.45 (owner: "Wtf is this") — FILTER ON READ, not only on write.
-        // The panel was rendering whatever happened to be in the stored vector,
-        // so a numeric token learned before the write-path fix ("2") kept
-        // showing up as a chip forever, and two renders could disagree about
-        // which junk survived. isLearnableValue is the same rule the writer
-        // uses, applied here so bad rows retire the moment this ships instead
-        // of waiting for the user to generate a new signal.
-        for (const dim of ["category", "tag", "price"]) {
-          const m = vec[dim];
-          if (!m) continue;
-          for (const [val, w] of Object.entries(m)) {
-            if (!isLearnableValue(dim, val)) continue;
-            const label = tasteLabel(dim, val);
-            if (!label) continue;
-            chips.push({ dim, val, label, w: Number(w) || 0 });
-          }
-        }
-        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
-        const top = chips.slice(0, 24);
+        const summary = summarizeTasteVector(vec);
+        const hasProfile = summary.more.length || summary.less.length || summary.details.length;
+        const previewLabels = summary.more.slice(0, 3).map((x) => x.label);
+        const profileLine = previewLabels.length
+          ? `Wayfind currently leans toward ${previewLabels.join(previewLabels.length > 1 ? previewLabels.length === 2 ? " and " : ", " : "")}${summary.more.length > 3 ? ` and ${summary.more.length - 3} more` : ""}.`
+          : summary.less.length ? "You have told Wayfind what to show less often." : "Your profile is ready for its first preference.";
+        const preferenceRow = (group, direction) => (
+          <div key={direction + "|" + group.id} className={"wf-taste-pref " + (direction === "less" ? "is-less" : "is-more")}>
+            <span className="wf-taste-pref-dot" aria-hidden="true" />
+            <span>{group.label}</span>
+            <button onClick={() => forgetTasteGroup(group)} aria-label={"Remove " + group.label + " from your taste profile"}>✕</button>
+          </div>
+        );
         return (
-          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
-            <div className="wf-taste-sheet" onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
+          <div role="dialog" aria-modal="true" aria-label="Your Wayfind profile" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
+            <style dangerouslySetInnerHTML={{ __html: `
+              .wf-taste-sheet{width:100%;max-width:520px;max-height:min(88dvh,820px);overflow-y:auto;overscroll-behavior-y:contain;padding:6px 20px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#171E29 0%,${C.panel} 34%,#121820 100%);border:1px solid ${C.border};border-bottom:0;border-radius:26px 26px 0 0;box-shadow:0 -24px 70px rgba(0,0,0,.52);transition:${SHEET_EASE}}
+              .wf-taste-kicker{font-size:9.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:${C.accent}}
+              .wf-taste-title{margin:7px 0 0;font-size:25px;font-weight:850;letter-spacing:-.035em;color:${C.text}}
+              .wf-taste-lead{margin:8px 0 0;max-width:430px;font-size:12.5px;line-height:1.55;color:${C.muted}}
+              .wf-taste-explainer{display:flex;gap:11px;margin:17px 0 18px;padding:13px 14px;border-radius:14px;border:1px solid rgba(249,115,22,.2);background:linear-gradient(135deg,rgba(249,115,22,.09),rgba(249,115,22,.025))}
+              .wf-taste-explainer-icon{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:rgba(249,115,22,.12)}
+              .wf-taste-explainer strong{display:block;font-size:12px;color:${C.text}}
+              .wf-taste-explainer div>span{display:block;margin-top:3px;font-size:10.5px;line-height:1.45;color:${C.muted}}
+              .wf-taste-summary{margin-bottom:18px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid ${C.border}}
+              .wf-taste-summary-label{font-size:9.5px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:${C.light}}
+              .wf-taste-summary p{margin:7px 0 0;font-size:13px;line-height:1.5;color:${C.text}}
+              .wf-taste-summary small{display:block;margin-top:5px;font-size:10.5px;line-height:1.4;color:${C.muted}}
+              .wf-taste-section{margin-top:17px}
+              .wf-taste-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:9px}
+              .wf-taste-section-head strong{font-size:12px;color:${C.text}}
+              .wf-taste-section-head span{font-size:9.5px;color:${C.muted}}
+              .wf-taste-prefs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+              .wf-taste-pref{min-height:46px;display:flex;align-items:center;gap:9px;padding:8px 8px 8px 11px;border-radius:13px;border:1px solid ${C.border};background:rgba(255,255,255,.025);color:${C.text};font-size:11.5px;font-weight:750}
+              .wf-taste-pref.is-more{border-color:rgba(249,115,22,.24)}
+              .wf-taste-pref.is-less{color:${C.light};border-color:rgba(148,163,184,.22)}
+              .wf-taste-pref-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:${C.accent};box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+              .wf-taste-pref.is-less .wf-taste-pref-dot{background:${C.muted};box-shadow:none}
+              .wf-taste-pref button{width:28px;height:28px;margin-left:auto;flex:0 0 auto;border:0;border-radius:50%;background:rgba(255,255,255,.045);color:${C.muted};cursor:pointer}
+              .wf-taste-add{width:100%;min-height:46px;margin-top:17px;border-radius:13px;border:1px solid rgba(249,115,22,.34);background:rgba(249,115,22,.08);color:${C.accent};font-size:12px;font-weight:850;cursor:pointer}
+              .wf-taste-editor{margin-top:10px;padding:14px;border-radius:16px;border:1px solid ${C.border};background:#101620}
+              .wf-taste-editor-title{font-size:12.5px;font-weight:800;color:${C.text}}
+              .wf-taste-editor-copy{margin-top:3px;font-size:10.5px;line-height:1.4;color:${C.muted}}
+              .wf-taste-direction{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:12px 0;padding:4px;border-radius:12px;background:${C.bg}}
+              .wf-taste-direction button{min-height:38px;border:0;border-radius:9px;background:transparent;color:${C.muted};font-size:11px;font-weight:800;cursor:pointer}
+              .wf-taste-direction button.is-active{background:${C.card};color:${C.text};box-shadow:0 2px 8px rgba(0,0,0,.24)}
+              .wf-taste-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+              .wf-taste-option{min-height:43px;padding:8px 10px;border-radius:11px;border:1px solid ${C.border};background:rgba(255,255,255,.02);color:${C.light};font-size:10.5px;font-weight:720;text-align:left;cursor:pointer}
+              .wf-taste-option:hover{border-color:rgba(249,115,22,.4);color:${C.text}}
+              .wf-taste-option:disabled{opacity:.55;cursor:wait}
+              .wf-taste-details-toggle{min-height:42px;margin-top:15px;padding:0;border:0;background:transparent;color:${C.muted};font-size:10.5px;font-weight:750;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(148,163,184,.3);text-underline-offset:3px}
+              .wf-taste-details{display:flex;flex-wrap:wrap;gap:6px;padding:11px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(148,163,184,.12)}
+              .wf-taste-detail{display:inline-flex;align-items:center;gap:5px;padding:5px 6px 5px 9px;border-radius:999px;border:1px solid ${C.border};color:${C.muted};font-size:9.5px}
+              .wf-taste-detail button{width:18px;height:18px;border:0;border-radius:50%;background:rgba(255,255,255,.05);color:${C.muted};font-size:9px;cursor:pointer}
+              .wf-taste-data{margin-top:20px;padding-top:17px;border-top:1px solid ${C.border}}
+              .wf-taste-data-label{font-size:9.5px;font-weight:850;letter-spacing:.11em;text-transform:uppercase;color:${C.muted}}
+              .wf-taste-actions{display:flex;gap:8px;margin-top:10px}
+              .wf-taste-actions button{flex:1;min-height:44px;border-radius:12px;background:${C.card};font-size:11px;font-weight:780;cursor:pointer}
+              .wf-taste-reset-confirm{margin-top:9px;padding:12px;border-radius:13px;border:1px solid rgba(239,68,68,.28);background:rgba(239,68,68,.055)}
+              .wf-taste-reset-confirm p{margin:0 0 9px;font-size:10.5px;line-height:1.45;color:${C.light}}
+              .wf-taste-reset-confirm div{display:flex;gap:7px}
+              .wf-taste-reset-confirm button{flex:1;min-height:40px;border-radius:10px;font-size:10.5px;font-weight:800;cursor:pointer}
+              @media(min-width:760px){.wf-taste-sheet{margin-bottom:24px;border-bottom:1px solid ${C.border};border-radius:26px}}
+              @media(max-width:380px){.wf-taste-sheet{padding-left:16px;padding-right:16px}.wf-taste-prefs,.wf-taste-options{grid-template-columns:1fr}}
+              @media(prefers-reduced-motion:reduce){.wf-taste-sheet{transition:none}}
+            ` }} />
+            <div onClick={(e) => e.stopPropagation()} className="wf-taste-sheet">
               <Grabber />
-              <div className="wf-taste-body">
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                    <span className="wf-taste-mark" aria-hidden="true">✦</span>
-                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.015em", color: C.text }}>Your taste</div>
-                  </div>
-                  <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ flexShrink: 0, minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
+                <div>
+                  <div className="wf-taste-kicker">Private personalization</div>
+                  <h2 className="wf-taste-title">Your Wayfind profile</h2>
                 </div>
-                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share — yours alone, never sold. Remove anything, or clear it all.</p>
-                {top.length ? (
-                  <div className="wf-taste-cloud">
-                    {top.map((c) => (
-                      /* The chip SHOWS tasteLabel but every action still carries
-                         the RAW stored value — forgetting by the label would
-                         quietly delete nothing. */
-                      <span key={c.dim + "|" + c.val} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
-                        {c.w >= 0 ? null : <span className="wf-taste-chip-neg">not</span>}
-                        {c.label}
-                        <button onClick={() => forgetTasteItem(c.dim, c.val)} aria-label={"Forget " + c.label} className="wf-taste-x">✕</button>
-                      </span>
-                    ))}
+                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ minWidth: 44, minHeight: 44, marginTop: -4, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+              </div>
+              <p className="wf-taste-lead">This is what Wayfind has learned from places you like, save, dislike, and share. You can correct it directly at any time.</p>
+              <div className="wf-taste-explainer">
+                <span className="wf-taste-explainer-icon"><Icon name="sparkles" size={15} color={C.accent} /></span>
+                <div><strong>What personalization changes</strong><span>It reorders recommendations to better fit you. A place’s Wayfind Score never changes.</span></div>
+              </div>
+              <div className="wf-taste-summary">
+                <div className="wf-taste-summary-label">What Wayfind understands</div>
+                <p>{profileLine}</p>
+                <small>Built only from your activity and edits. Private to your account or this device—never sold.</small>
+              </div>
+
+              {summary.more.length ? (
+                <section className="wf-taste-section">
+                  <div className="wf-taste-section-head"><strong>Show me more of</strong><span>Helps move matching places up</span></div>
+                  <div className="wf-taste-prefs">{summary.more.map((g) => preferenceRow(g, "more"))}</div>
+                </section>
+              ) : null}
+              {summary.less.length ? (
+                <section className="wf-taste-section">
+                  <div className="wf-taste-section-head"><strong>Show me less of</strong><span>Gently moves matches down</span></div>
+                  <div className="wf-taste-prefs">{summary.less.map((g) => preferenceRow(g, "less"))}</div>
+                </section>
+              ) : null}
+              {!hasProfile ? <p style={{ margin: "4px 0 0", fontSize: 12, lineHeight: 1.5, color: C.muted }}>Nothing learned yet. Add a preference below, or keep using Wayfind and your profile will grow from explicit actions.</p> : null}
+
+              <button className="wf-taste-add" onClick={() => setTasteEditOpen((v) => !v)}>{tasteEditOpen ? "Done tuning" : "+ Add or correct a preference"}</button>
+              {tasteEditOpen ? (
+                <div className="wf-taste-editor">
+                  <div className="wf-taste-editor-title">Tune your recommendations</div>
+                  <div className="wf-taste-editor-copy">Choose a direction, then a preference. Your choice replaces Wayfind’s current guess for that topic.</div>
+                  <div className="wf-taste-direction" role="group" aria-label="Preference direction">
+                    <button className={tasteDirection === "more" ? "is-active" : ""} aria-pressed={tasteDirection === "more"} onClick={() => setTasteDirection("more")}>Show me more</button>
+                    <button className={tasteDirection === "less" ? "is-active" : ""} aria-pressed={tasteDirection === "less"} onClick={() => setTasteDirection("less")}>Show me less</button>
                   </div>
-                ) : (
-                  <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
-                )}
-                <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
-                  <button onClick={exportTaste} className="wf-taste-btn is-primary">Export my data</button>
-                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset &amp; forget all</button>
+                  <div className="wf-taste-options">
+                    {TASTE_EDITOR_OPTIONS.map((option) => <button key={option.id} className="wf-taste-option" disabled={!!tasteSaving} onClick={() => addTastePreference(option.id)}>{tasteSaving === option.id ? "Saving…" : option.label}</button>)}
+                  </div>
                 </div>
+              ) : null}
+
+              {summary.details.length ? (
+                <>
+                  <button className="wf-taste-details-toggle" onClick={() => setTasteDetailsOpen((v) => !v)}>{tasteDetailsOpen ? "Hide learned details" : `Review ${summary.details.length} other learned signal${summary.details.length === 1 ? "" : "s"}`}</button>
+                  {tasteDetailsOpen ? <div className="wf-taste-details">{summary.details.map((c) => <span key={c.dimension + "|" + c.value} className="wf-taste-detail">{c.weight < 0 ? "Less " : ""}{c.label}<button onClick={() => forgetTasteItem(c.dimension, c.value)} aria-label={"Remove " + c.label}>✕</button></span>)}</div> : null}
+                </>
+              ) : null}
+
+              <div className="wf-taste-data">
+                <div className="wf-taste-data-label">Privacy &amp; data</div>
+                <div className="wf-taste-actions">
+                  <button onClick={exportTaste} style={{ border: `1px solid ${C.border}`, color: C.text }}>Export profile</button>
+                  <button onClick={() => setTasteResetConfirm(true)} style={{ border: `1px solid ${C.red}44`, color: C.red }}>Reset profile</button>
+                </div>
+                {tasteResetConfirm ? <div className="wf-taste-reset-confirm"><p>This permanently clears Wayfind’s learned preferences and turns personalization off.</p><div><button onClick={() => setTasteResetConfirm(false)} style={{ border: `1px solid ${C.border}`, background: C.card, color: C.light }}>Keep my profile</button><button onClick={() => { resetTaste(); setTasteResetConfirm(false); setTasteOpen(false); }} style={{ border: `1px solid ${C.red}66`, background: C.red, color: "#fff" }}>Clear everything</button></div></div> : null}
               </div>
             </div>
           </div>
@@ -8546,6 +8821,23 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
+      {/* Compact owl seal. It stays entirely inside the media rail so it
+          never competes with the title or Wayfind Score, including on 320px
+          screens and photo-less cards. Display-only, gated solely on the
+          server's ownerPick. */}
+      {isCuratorPick && (
+        <span className="wf-place-card-owner" title="Curated by Wayfind" aria-label="Curated by Wayfind">
+          <span className="wf-place-card-owner-mark" aria-hidden="true">
+            <svg className="wf-place-card-owner-owl" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5.5 8 4 5l4.15 1.35A7.55 7.55 0 0 1 12 5.4c1.4 0 2.72.34 3.85.95L20 5l-1.5 3v4.1a6.5 6.5 0 0 1-13 0V8Z" />
+              <circle cx="9" cy="11" r="2" />
+              <circle cx="15" cy="11" r="2" />
+              <path d="m12 12.8-1.15 1.35 1.15.7 1.15-.7L12 12.8Z" />
+            </svg>
+          </span>
+          <strong className="wf-place-card-owner-copy">Curated</strong>
+        </span>
+      )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
           ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -8573,7 +8865,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 instead of the old flat small-radius orange pill. Same editorial-pick
                 meaning (curatedFor), just dressed to the standard the rest of the
                 gold badge family (Featured, Curator's pick) already sets. */}
-            {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
+            {!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
                 with the Bayesian score and confused the ranking. The review
@@ -8709,6 +9001,13 @@ const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & marg
 const HOME_EXP_TITLE_FS = 13.5;
 const HOME_EXP_TITLE_LH = 1.35;
 const HOME_EXP_TITLE_MIN_H = HOME_EXP_TITLE_FS * HOME_EXP_TITLE_LH * 2; // exactly two lines
+// WF_LAYOUT_CSS lives in app/components/css.js (July 2026 decomposition).
+// Re-declaring it here renders the shell stylesheet — and the wordmark — twice.
+
+// WF_SEARCH_CSS lives in app/components/css.js (July 2026 decomposition).
+
+// WF_PLACE_CARD_CSS lives in app/components/css.js (July 2026 decomposition).
+
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "system-ui, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 

@@ -128,26 +128,34 @@ export const WF_PLACE_CARD_CSS = `
    .wf-place-card-award below (same inline-flex / width:max-content / 999px
    rhythm) so the two stack as one coherent column of credentials.
    scripts/test-curator-boost.mjs forbids position:absolute here. */
+/* Compact media-rail seal (#384). Absolute BY DESIGN and safe: width is
+   clamped to the media rail while .wf-place-card-actions lives in the
+   content column, so it can never cover the Save button (the v6.43
+   regression). Canonical home is here — a second definition in home.js
+   would let cascade order decide which wins. */
 .wf-place-card-owner{
-  position:relative;
+  position:absolute;
+  z-index:6;
+  bottom:9px;
+  left:8px;
   display:inline-flex;
-  width:max-content;
-  max-width:100%;
   align-items:center;
-  gap:6px;
-  min-height:25px;
-  margin:1px 0 7px;
-  padding:2px 11px 2px 3px;
+  width:calc(var(--wf-place-card-media) - 16px);
+  min-width:0;
+  height:27px;
+  box-sizing:border-box;
+  gap:5px;
+  padding:3px 6px 3px 4px;
   overflow:hidden;
-  border:1px solid rgba(255,218,126,.55);
+  border:1px solid rgba(249,115,22,.78);
   border-radius:999px;
   background:
-    linear-gradient(110deg,rgba(255,224,142,.20),rgba(255,224,142,.05) 46%,transparent 72%),
-    rgba(10,9,7,.72);
-  color:#F8D985;
-  box-shadow:0 6px 18px rgba(0,0,0,.34),0 0 18px rgba(223,174,53,.10),inset 0 1px rgba(255,248,217,.14);
-  backdrop-filter:blur(10px) saturate(1.2);
-  -webkit-backdrop-filter:blur(10px) saturate(1.2);
+    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
+    rgba(5,9,15,.76);
+  color:#FF8A35;
+  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
+  backdrop-filter:blur(10px) saturate(1.12);
+  -webkit-backdrop-filter:blur(10px) saturate(1.12);
   pointer-events:none;
 }
 .wf-place-card-owner:after{

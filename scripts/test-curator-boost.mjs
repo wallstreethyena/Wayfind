@@ -84,35 +84,37 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   // variable-extraction refactor). The gate now goes through an
   // `isCuratorPick` boolean computed straight off `_members.ownerPick`
   // (app/home.js ~8250) instead of the inline `p._members && p._members.ownerPick && <span`
-  // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`
-  // (~8270). CURATOR_CHIP_LABEL (line 191) is now dead — nothing references it
-  // anymore, the chip's copy ("Wayfind" / "Curator Select") is inlined directly
-  // in the JSX. We assert the label constant is truly unused (so we're not
-  // silently ignoring a real regression) and re-point the render assertion at
-  // what the JSX actually outputs.
+  // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`.
+  // The compact owl seal's copy ("Curated") is inlined directly in JSX.
   ok(/const isCuratorPick = !!\(p\._members && p\._members\.ownerPick\);/.test(home), "isCuratorPick is derived SOLELY from the server's _members.ownerPick (false -> stays false)");
   ok(/isCuratorPick && \(\s*<span className="wf-place-card-owner"/.test(home), "the chip is gated SOLELY on isCuratorPick (ownerPick=false -> renders nothing)");
+  ok(/aria-label="Curated by Wayfind"/.test(home) && /className="wf-place-card-owner-owl"/.test(home) && /<strong className="wf-place-card-owner-copy">Curated<\/strong>/.test(home), "the compact seal renders its owl mark and clear one-word Curated copy");
+  ok(/!isCuratorPick && curatedFor\(p\)/.test(home), "an owner pick suppresses the duplicate generic Wayfind Pick chip");
+  // v6.44 REGRESSION LOCK (owner-reported with a photo), RE-PINNED for the #384
+  // compact seal. The original chip shipped at bottom:12px/left:12px — the exact
+  // coordinates of the Save button in .wf-place-card-actions, which it covered
+  // completely on a phone.
+  //
+  // The lock used to assert "never absolute". #384's seal IS absolute, by design
+  // and safely: it is width-clamped to the media rail (96px column) while the
+  // action row lives in the content column, so they cannot overlap. Asserting
+  // the invariant that actually protects the user instead of the old
+  // implementation detail — stay inside the media rail, and never let two
+  // definitions of the class exist.
   {
-    const defCount = (home.match(/CURATOR_CHIP_LABEL/g) || []).length;
-    ok(defCount === 1, "CURATOR_CHIP_LABEL is dead (defined but never referenced) — confirms the chip copy moved inline to the JSX, not that the guarantee weakened (found " + defCount + " occurrence(s))");
-  }
-  ok(/<strong>Curator Select<\/strong>/.test(home), "the chip renders its Curator Select copy inline (CURATOR_CHIP_LABEL is dead, so we assert the actual rendered text)");
-  // v6.44 REGRESSION LOCK (owner-reported with a photo). The chip shipped as
-  // `position:absolute; bottom:12px; left:12px` — the exact coordinates of the
-  // Save button in .wf-place-card-actions, which it covered completely on a
-  // phone. It must stay IN FLOW. Anything absolute inside a card whose action
-  // row sits bottom-left will land on a control again.
-  {
-    // The place-card CSS moved to app/components/css.js (July 2026
-    // decomposition, wave 1) — same shell, same server-rendered <style> tag.
-    // The JSX assertions above stay pinned to home.js; only the stylesheet
-    // lookup follows the CSS.
-    const m = shellSrc().match(/\.wf-place-card-owner\s*\{[^}]*\}/);
-    ok(!!m, "the .wf-place-card-owner rule moved or changed shape — re-point this assertion before shipping");
-    ok(!/position\s*:\s*absolute/.test(m[0]),
-      "the Curator Select chip must NOT be absolutely positioned — it overlaid and blocked the Save button in v6.43. Keep it in normal flow above the award pill.");
-    ok(/border-radius\s*:\s*999px/.test(m[0]),
-      "the Curator Select chip is a pill, not a rectangle (owner: \"it looks really weird as a rectangle\")");
+    const src = shellSrc();
+    const defs = src.match(/\.wf-place-card-owner\s*\{[^}]*\}/g) || [];
+    ok(defs.length === 1,
+      "exactly ONE .wf-place-card-owner rule exists — two definitions let cascade order decide which wins, which is how a chip silently moves onto a control. Found " + defs.length);
+    const rule = defs[0] || "";
+    ok(/border-radius\s*:\s*\d/.test(rule),
+      "the seal is a rounded shape, not a bare rectangle (owner: \"it looks really weird as a rectangle\")");
+    if (/position\s*:\s*absolute/.test(rule)) {
+      ok(/width\s*:\s*calc\(var\(--wf-place-card-media\)/.test(rule),
+        "an absolutely-positioned seal MUST be width-clamped to the media rail, or it lands on the Save button again (the v6.43 regression)");
+      ok(!/right\s*:\s*\d/.test(rule),
+        "the seal must not stretch toward the content column, where the action row lives");
+    }
   }
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
