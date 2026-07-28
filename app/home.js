@@ -198,7 +198,6 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
   );
 }
 // Curator Boost: the owner-pick chip label in ONE place — final copy is a one-line rename.
-const CURATOR_CHIP_LABEL = "⭐ Curator's pick";
 function FeaturedTag({ p }) {
   // Takes the PLACE — Detail.js passes p={detail}; featuredBoost geo-gates on
   // its coords. (It was reverted to a {name} prop while Detail kept passing p —
@@ -8719,16 +8718,21 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
-      {/* Curator Boost chip — overlaid on the image corner (top-left, clear of the
-          top-right score badge), same gold visual system as the Featured badge.
-          Display-only, gated SOLELY on the server's ownerPick; the client never
-          decides owner status, so ownerPick=false can never render it. */}
+      {/* Compact editorial seal. It stays entirely inside the media rail so it
+          never competes with the title or Wayfind Score, including on 320px
+          screens and photo-less cards. Display-only, gated solely on the
+          server's ownerPick. */}
       {isCuratorPick && (
-        <span className="wf-place-card-owner" title="Personally selected by Wayfind's curator">
-          <span className="wf-place-card-owner-mark" aria-hidden="true">✦</span>
+        <span className="wf-place-card-owner" title="Personally selected by Wayfind" aria-label="Wayfind Pick — personally selected by Wayfind">
+          <span className="wf-place-card-owner-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2.75 14.2 9.8 21.25 12l-7.05 2.2L12 21.25 9.8 14.2 2.75 12 9.8 9.8 12 2.75Z" />
+              <circle cx="12" cy="12" r="1.65" fill="currentColor" stroke="none" />
+            </svg>
+          </span>
           <span className="wf-place-card-owner-copy">
             <span>Wayfind</span>
-            <strong>Curator Select</strong>
+            <strong>Pick</strong>
           </span>
         </span>
       )}
@@ -8759,7 +8763,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 instead of the old flat small-radius orange pill. Same editorial-pick
                 meaning (curatedFor), just dressed to the standard the rest of the
                 gold badge family (Featured, Curator's pick) already sets. */}
-            {curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
+            {!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
                 with the Bayesian score and confused the ranking. The review
@@ -8900,7 +8904,8 @@ const WF_PLACE_CARD_CSS = `
 }
 .wf-place-card:hover{transform:translateY(-1px);border-color:rgba(159,177,203,.37)!important;box-shadow:0 18px 42px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.05)}
 .wf-place-card:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:3px}
-.wf-place-card-layout{--wf-place-card-media:96px;display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
+.wf-place-card{--wf-place-card-media:96px}
+.wf-place-card-layout{display:grid!important;grid-template-columns:var(--wf-place-card-media) minmax(0,1fr);min-height:176px}
 .wf-place-card-layout>img{width:96px!important;height:100%!important;min-height:176px!important}
 .wf-place-card-monogram{
   position:relative;
@@ -8965,53 +8970,53 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card-owner{
   position:absolute;
   z-index:6;
-  bottom:12px;
-  left:12px;
+  bottom:9px;
+  left:8px;
   display:inline-flex;
   align-items:center;
-  gap:8px;
-  min-width:126px;
-  padding:6px 12px 6px 7px;
+  width:calc(var(--wf-place-card-media) - 16px);
+  min-width:0;
+  height:30px;
+  box-sizing:border-box;
+  gap:6px;
+  padding:4px 7px 4px 5px;
   overflow:hidden;
-  border:1px solid rgba(255,218,126,.72);
-  border-radius:14px;
+  border:1px solid rgba(244,211,132,.62);
+  border-radius:9px;
   background:
-    linear-gradient(110deg,rgba(255,224,142,.16),transparent 42%),
-    rgba(10,9,7,.86);
-  color:#F8D985;
-  box-shadow:0 10px 28px rgba(0,0,0,.52),0 0 22px rgba(223,174,53,.16),inset 0 1px rgba(255,248,217,.16);
-  backdrop-filter:blur(14px) saturate(1.25);
-  -webkit-backdrop-filter:blur(14px) saturate(1.25);
+    linear-gradient(115deg,rgba(255,238,191,.13),transparent 44%),
+    rgba(7,12,19,.88);
+  color:#F4D384;
+  box-shadow:0 8px 20px rgba(0,0,0,.48),inset 0 1px rgba(255,250,231,.13);
+  backdrop-filter:blur(12px) saturate(1.18);
+  -webkit-backdrop-filter:blur(12px) saturate(1.18);
   pointer-events:none;
 }
 .wf-place-card-owner:after{
   content:"";
   position:absolute;
-  top:-55%;
-  left:-24%;
-  width:42%;
-  height:220%;
-  transform:rotate(20deg);
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(105deg,rgba(255,255,255,.08),transparent 34%);
+  pointer-events:none;
 }
 .wf-place-card-owner-mark{
   position:relative;
   display:grid;
-  width:28px;
-  height:28px;
-  flex:0 0 28px;
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
   place-items:center;
-  border:1px solid rgba(255,238,181,.82);
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);
-  color:#2A1A03;
-  font-size:15px;
-  text-shadow:0 1px rgba(255,255,255,.35);
-  box-shadow:0 4px 12px rgba(0,0,0,.38),inset 0 1px 2px rgba(255,255,255,.7);
+  border:1px solid rgba(255,229,161,.7);
+  border-radius:6px;
+  background:linear-gradient(145deg,#F7D983,#B97912);
+  color:#201505;
+  box-shadow:0 3px 9px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.5);
 }
-.wf-place-card-owner-copy{display:flex;min-width:0;flex-direction:column;gap:2px;text-transform:uppercase}
-.wf-place-card-owner-copy>span{color:#BDAE8C;font-size:6.5px;font-weight:900;letter-spacing:.19em;line-height:1}
-.wf-place-card-owner-copy>strong{color:#FFE19A;font-size:9px;font-weight:950;letter-spacing:.105em;line-height:1;white-space:nowrap}
+.wf-place-card-owner-mark svg{display:block}
+.wf-place-card-owner-copy{position:relative;z-index:1;display:flex;min-width:0;flex-direction:column;gap:1px;text-transform:uppercase}
+.wf-place-card-owner-copy>span{overflow:hidden;color:#C5B994;font-size:5.5px;font-weight:900;letter-spacing:.15em;line-height:1;white-space:nowrap}
+.wf-place-card-owner-copy>strong{color:#FFE5A2;font-size:8px;font-weight:950;letter-spacing:.12em;line-height:1;white-space:nowrap}
 .wf-place-card-heading{flex:1;min-width:0}
 .wf-place-card-category{
   display:flex;
@@ -9221,7 +9226,7 @@ const WF_PLACE_CARD_CSS = `
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
-  .wf-place-card-layout{--wf-place-card-media:88px}
+  .wf-place-card{--wf-place-card-media:88px}
   .wf-place-card-layout>img{width:88px!important}
   .wf-place-card-content{padding-inline:10px!important}
   .wf-place-card-name{font-size:15px!important}
@@ -9229,7 +9234,7 @@ const WF_PLACE_CARD_CSS = `
   .wf-place-card-highlights>button{font-size:9px!important}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
-  .wf-place-card-layout{--wf-place-card-media:108px}
+  .wf-place-card{--wf-place-card-media:108px}
   .wf-place-card-layout>img{width:108px!important}
   .wf-place-card-name{font-size:17px!important}
 }

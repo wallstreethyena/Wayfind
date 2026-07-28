@@ -83,19 +83,12 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   // variable-extraction refactor). The gate now goes through an
   // `isCuratorPick` boolean computed straight off `_members.ownerPick`
   // (app/home.js ~8250) instead of the inline `p._members && p._members.ownerPick && <span`
-  // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`
-  // (~8270). CURATOR_CHIP_LABEL (line 191) is now dead — nothing references it
-  // anymore, the chip's copy ("Wayfind" / "Curator Select") is inlined directly
-  // in the JSX. We assert the label constant is truly unused (so we're not
-  // silently ignoring a real regression) and re-point the render assertion at
-  // what the JSX actually outputs.
+  // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`.
+  // The compact seal's copy ("Wayfind" / "Pick") is inlined directly in JSX.
   ok(/const isCuratorPick = !!\(p\._members && p\._members\.ownerPick\);/.test(home), "isCuratorPick is derived SOLELY from the server's _members.ownerPick (false -> stays false)");
   ok(/isCuratorPick && \(\s*<span className="wf-place-card-owner"/.test(home), "the chip is gated SOLELY on isCuratorPick (ownerPick=false -> renders nothing)");
-  {
-    const defCount = (home.match(/CURATOR_CHIP_LABEL/g) || []).length;
-    ok(defCount === 1, "CURATOR_CHIP_LABEL is dead (defined but never referenced) — confirms the chip copy moved inline to the JSX, not that the guarantee weakened (found " + defCount + " occurrence(s))");
-  }
-  ok(/<strong>Curator Select<\/strong>/.test(home), "the chip renders its Curator Select copy inline (CURATOR_CHIP_LABEL is dead, so we assert the actual rendered text)");
+  ok(/<span>Wayfind<\/span>\s*<strong>Pick<\/strong>/.test(home), "the compact seal renders clear Wayfind Pick copy inline");
+  ok(/!isCuratorPick && curatedFor\(p\)/.test(home), "an owner pick suppresses the duplicate generic Wayfind Pick chip");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
   const i = home.indexOf("function refreshOwnerPick(");
