@@ -14,6 +14,7 @@
 // arrive, and let Places fill in independently. Re-adding the `suggested` gate,
 // or dropping the skeleton, restores a blank first screen — so it fails here.
 import { readFileSync } from "node:fs";
+import { shellSrc } from "./lib/shellSrc.mjs";
 
 let passed = 0;
 const fail = (m) => { console.error("test-first-screen: FAIL — " + m); process.exit(1); };
@@ -73,7 +74,9 @@ ok(/aria-hidden="true"/.test(skel), "the decorative shimmer blocks must be aria-
 ok(/Happening near you/.test(skel), "skeleton must show the real section heading — a section of grey boxes with no label reads as broken, not loading");
 
 // 6. Motion respects the reduced-motion preference (repo-wide rule).
-const cssM = code.match(/const WF_LAYOUT_CSS = `([^`]*)`/);
+// WF_LAYOUT_CSS moved to app/components/css.js (decomposition wave 1) — still
+// the same shell, still the same inline <style> tag, so read the shell.
+const cssM = shellSrc().match(/const WF_LAYOUT_CSS = `([^`]*)`/);
 ok(!!cssM, "WF_LAYOUT_CSS missing");
 ok(/\.wf-sk\{/.test(cssM[1]), "the .wf-sk shimmer style is missing");
 ok(/prefers-reduced-motion:reduce\)\{\.wf-sk\{animation:none\}/.test(cssM[1].replace(/\s/g, "")),
