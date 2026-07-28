@@ -2,7 +2,7 @@
 // from EXPLICIT signals, decays honestly, stays bounded, and — the brand rule —
 // NEVER touches the Wayfind Score. Ranking is unchanged in Phase 1.
 import { readFileSync } from "fs";
-import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, TASTE_TAU_MS, SIGNAL_WEIGHT } from "../lib/taste.js";
+import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, TASTE_TAU_MS, SIGNAL_WEIGHT, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -44,6 +44,17 @@ ok(affinityFor({ category: "food" }, dvec) < 1 && affinityFor({ category: "food"
 ok(affinityFor({ category: "beach" }, vec) === 1, "an unseen dimension is neutral (1.0) — no guessing");
 ok(affinityFor({ category: "food" }, null) === 1 && affinityFor(null, vec) === 1, "no taste / no place -> neutral");
 
+// --- human-editable profile: readable groups + explicit correction ---
+ok(TASTE_EDITOR_OPTIONS.length >= 10 && new Set(TASTE_EDITOR_OPTIONS.map((x) => x.id)).size === TASTE_EDITOR_OPTIONS.length, "taste editor offers a useful, unique controlled vocabulary");
+{ const moreCoffee = manualTasteSignals("coffee", "more"); const lessCoffee = manualTasteSignals("coffee", "less"); ok(moreCoffee.length === 2 && moreCoffee.every((x) => x.delta > 0) && lessCoffee.every((x) => x.delta < 0), "manual preference supports explicit more/less direction"); }
+ok(manualTasteSignals("not-a-real-option", "more").length === 0, "manual preference fails closed for unknown options");
+{
+  const summary = summarizeTasteVector({ tag: { "coffee shop": 2, cafe: 1, "brunch restaurant": 3, "raw service token": -2 }, category: { beach: 4 } });
+  ok(summary.more.some((x) => x.id === "coffee" && x.label === "Coffee & cafés"), "technical coffee tags collapse into one human-readable preference");
+  ok(summary.more.some((x) => x.id === "brunch") && summary.more.some((x) => x.id === "beaches"), "known tags/categories become readable profile groups");
+  ok(summary.details.length === 1 && summary.details[0].label === "Raw Service Token" && summary.details[0].weight < 0, "unmatched values remain inspectable/removable under details");
+}
+
 // --- THE BRAND LOCKS (home.js) ---
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes("function recordTaste(action, p)"), "the taste recorder is wired");
@@ -68,7 +79,7 @@ ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforc
 // --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
 ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY with explicit consent — off = same for everyone");
 ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
-ok(home.includes('Picked for you — tuned to what you like'), "when on, the personalization is LABELED (never silent)");
+ok(home.includes("Personalized for you") && home.includes("Your taste profile is reordering these picks"), "when on, personalization is labeled and explained (never silent)");
 ok(home.includes("Personalize my feed") && home.includes("No thanks"), "the consent ask is a real choice, not a dark pattern");
 ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
 ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
@@ -77,45 +88,29 @@ ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable
 ok(home.includes("function resetTaste") && home.includes('supabase.rpc("wf_taste_wipe")'), "Reset wipes the server vector");
 ok(home.includes("function exportTaste") && home.includes("wayfind-my-taste.json"), "export-my-data ships");
 ok(home.includes("function forgetTasteItem"), "per-item forget ships");
-ok(home.includes("Your taste") && home.includes("never sold"), "the transparency panel exists and states the promise");
+ok(home.includes("function addTastePreference") && home.includes("function forgetTasteGroup"), "users can add, correct, and remove summarized preferences");
+ok(home.includes("Your Wayfind profile") && home.includes("never sold"), "the transparency panel exists and states the promise");
+ok(home.includes("A place’s Wayfind Score never changes"), "the editor explains that personalization changes order, never the score");
+ok(home.includes("tasteResetConfirm"), "destructive reset requires confirmation");
 
-// --- v6.45 (owner, with screenshots: "Wtf is this how can we fix it?") ------
-// Three separate defects sat behind one panel, and every one of them was a
-// WIRING gap: lib/taste.js already shipped the fix and home.js never imported
-// it. These assertions pin the wiring, not the implementation.
-ok(/import \{[^}]*\btasteLabel\b[^}]*\bisLearnableValue\b[^}]*\} from "\.\.\/lib\/taste"/.test(home), "home.js imports BOTH read-path helpers — the panel must not re-implement labelling or filtering");
-// 1. FILTER ON READ. A write-path-only fix leaves junk already sitting in
-//    localStorage wf_taste_local and Supabase wf_taste rendering forever — that
-//    is exactly the chip that just read "2".
-ok(/if \(!isLearnableValue\(dim, val\)\) continue;/.test(home), "the panel filters the STORED vector on read, so junk learned before the fix retires the moment this ships");
-// 2. LABEL, don't dump. The panel showed raw taxonomy rows: food, coffee shop,
-//    food store, and a bare price bucket index.
-ok(/chips\.push\(\{ dim, val, label, w: Number\(w\) \|\| 0 \}\)/.test(home), "each chip carries BOTH the raw stored value and its human label");
-ok(!/\{c\.w >= 0 \? "" : "not "\}\{c\.val\}/.test(home), "the panel no longer renders the RAW stored value as the chip body");
-// 3. ...but act on the RAW value. Forgetting by the label would silently
-//    delete nothing at all, and the user would think it worked.
-ok(/forgetTasteItem\(c\.dim, c\.val\)/.test(home), "forget still addresses the RAW stored key — deleting by label would no-op and lie");
-ok(/aria-label=\{"Forget " \+ c\.label\}/.test(home), "…while the accessible name is the human label, not the database token");
-// The premium styling shipped in WF_TASTE_CSS but nothing consumed it, and the
-// inline remove control was an 18px dot (WCAG 2.5.8 requires 24).
-const css = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
-for (const cls of ["wf-taste-sheet", "wf-taste-body", "wf-taste-mark", "wf-taste-cloud", "wf-taste-chip", "wf-taste-x", "wf-taste-btn"]) {
-  ok(css.includes("." + cls) && home.includes(cls), `${cls} is both defined in css.js and USED by the panel — no dead CSS, no orphan class`);
-}
-ok(!/width: 18, height: 18, borderRadius: "50%"/.test(home), "the 18px remove dot is gone — .wf-taste-x is 24px, the WCAG 2.5.8 minimum");
-// EXPORT: it is a legal promise, so it must produce a real file — and it must
-// not hand the user back the junk the panel just filtered out.
-ok(/URL\.revokeObjectURL\(url\)/.test(home), "the export revokes its object URL — every export used to pin its blob for the life of the page");
-ok(/document\.body\.appendChild\(a\); a\.click\(\); a\.remove\(\)/.test(home), "the download anchor is in the document when clicked (Firefox ignores a detached one)");
-ok(/\(taste\[dim\] \|\| \(taste\[dim\] = \{\}\)\)\[val\] = \{ label: tasteLabel\(dim, val\), weight/.test(home), "the exported file carries the same filtered, labelled data the panel shows — the two can never disagree");
-// THE HEADER. The consent card rendered inside .wf-topbar, where it inherited
-// the topbar's shadow and its orange :after hairline and ate half the phone
-// viewport. It is a statement about the FEED and now lives in the feed.
+// --- v6.45 guarantee, re-pinned after the editor rewrite ---------------------
+// main asserted these against the OLD panel's code shape (isLearnableValue
+// called inline in the view). #384 replaced that panel, so the rule moved into
+// summarizeTasteVector. Same promise, asserted behaviourally instead of by
+// regex, so a future rewrite of the view cannot silently drop it again.
 {
-  const topbarAt = home.indexOf('className="wf-topbar"');
-  const bodyAt = home.indexOf("{/* Body */}");
-  const bannerAt = home.indexOf("Want a feed that learns what you like?");
-  ok(topbarAt > 0 && bodyAt > topbarAt && bannerAt > bodyAt, "the personalization consent card lives in the scrolling BODY, never inside .wf-topbar");
+  const T = await import("../lib/taste.js");
+  const junk = T.summarizeTasteVector({ tag: { "2": 5, "24 7": 4, "coffee shop": 6 }, price: { "2": 3 } });
+  const labels = [...junk.more, ...junk.less, ...junk.details].map((x) => x.label || x.value);
+  ok(!labels.includes("2"), "a stored numeric tag never renders as a chip (the chip that just read \"2\")");
+  ok(!labels.includes("24 7"), "other numeric junk is retired on read too");
+  ok(labels.some((l) => /coffee/i.test(l)), "a real preference still surfaces");
+  ok(labels.some((l) => /moderate|\$\$/i.test(l)), "the price bucket renders as a human label, not a raw index");
+  ok(T.isLearnableValue("price", "2") === true, "price legitimately stores 1..4");
+  ok(T.isLearnableValue("tag", "2") === false, "a bare number is not a taste");
+  ok(/if \(!isLearnableValue\(dimension, value\)\) continue;/.test(
+       readFileSync(new URL("../lib/taste.js", import.meta.url), "utf8")),
+     "the read-path filter lives in summarizeTasteVector, applied to every consumer");
 }
 
 // The Score honesty lock STILL holds after activation.
