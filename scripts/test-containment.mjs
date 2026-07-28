@@ -230,5 +230,44 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
   ok(C.addressKey({}) === null && C.addressKey(null) === null, "missing address is never a key");
 }
 
+
+/* ── market-relative review floor ──────────────────────────────────────── */
+{
+  const F = await import("../lib/marketFloor.js");
+  // Real Orlando review counts from the live list (2026-07-28).
+  const orlando = [4727, 24634, 5746, 1014, 287, 191760, 108574, 61, 17273, 2023, 31729, 21763, 51062, 14623].map((r) => ({ rating: 4.5, reviews: r }));
+  const parrish = [45, 120, 61, 200, 310, 88, 150].map((r) => ({ rating: 4.5, reviews: r }));
+
+  const oFloor = F.marketReviewFloor(orlando);
+  const pFloor = F.marketReviewFloor(parrish);
+  ok(oFloor > 100, "a major market sets a real bar, got " + oFloor);
+  ok(pFloor === F.REL_FLOOR_MIN, "a small market is unchanged at the original floor, got " + pFloor);
+
+  // The case that started this: a building, not a destination.
+  ok(F.passesMarketFloor({ rating: 4.4, reviews: 61 }, oFloor, false) === false,
+    "Historic Angebilt Building (61 reviews) no longer clears the Orlando bar");
+  // ...without cutting a small but real venue.
+  ok(F.passesMarketFloor({ rating: 4.8, reviews: 287 }, oFloor, false) === true,
+    "CityArts (287 reviews) still clears it");
+  // ...and without changing small-town behaviour.
+  ok(F.passesMarketFloor({ rating: 4.5, reviews: 61 }, pFloor, false) === true,
+    "the same 61-review place is still valid in a small market");
+
+  // Guards.
+  ok(F.passesMarketFloor({ rating: 4.0, reviews: 3 }, oFloor, true) === true, "a curated pick is never dropped by the floor");
+  ok(F.passesMarketFloor({ rating: null, reviews: 0 }, oFloor, false) === true, "an unrated POI is judged by floorOk, not by this");
+  ok(F.marketReviewFloor([]) === F.REL_FLOOR_MIN, "an empty pool falls back to the original floor");
+  ok(F.marketReviewFloor([{ reviews: 5 }, { reviews: 9 }]) === F.REL_FLOOR_MIN, "too few samples to infer a bar => original floor");
+  // One mega-venue must not raise the bar out of reach.
+  const skewed = [{ reviews: 5 }, { reviews: 8 }, { reviews: 12 }, { reviews: 20 }, { reviews: 40 }, { reviews: 5000000 }];
+  ok(F.marketReviewFloor(skewed) <= F.REL_FLOOR_MAX, "the floor is clamped so an outlier cannot wipe a market");
+  ok(F.passesMarketFloor(null, oFloor, false) === false, "null place never passes");
+
+  // The list must never be emptied to enforce a bar.
+  const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8");
+  ok(/if \(_kept\.length >= 5\) pool = _kept;/.test(landing),
+    "a floor that would wipe the market is not applied — a thin market gets the honest unfiltered pool");
+}
+
 if (failures) { console.error(`test-containment: ${failures} failure(s)`); process.exit(1); }
 console.log("test-containment: OK");
