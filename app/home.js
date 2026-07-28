@@ -142,12 +142,13 @@ import { creatorVideosFor } from "../lib/creatorVideos";
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
 // v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
 // that read like raw database rows — `food`, `coffee shop`, `food store`).
-// lib/taste.js already carried the fix; home.js simply never imported it. The
-// two additions are the READ path of the same rule the write path uses:
-// isLearnableValue retires junk already sitting in localStorage/Supabase, and
-// tasteLabel is the ONE place that knows the price dimension stores a Google
-// bucket index. Neither belongs in the view.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue } from "../lib/taste";
+// lib/taste.js already carried the fix; home.js simply never imported it.
+// v6.56: the whole READ path — filter stored junk, label it, merge tokens that
+// share a label — is now one exported helper, tasteChips(), because the
+// Favorites entry row needs the same answer to count what has been learned.
+// The view calls it and renders; it knows nothing about how the price
+// dimension is stored or which Google tokens collapse together.
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -161,7 +162,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.55";
+const BUILD_ID = "v6.56";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -205,7 +206,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ position: "relative" }}>
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
             <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
             <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
           </button>
@@ -4400,7 +4401,12 @@ function PageInner({ initialEvents = null }) {
       const sig = tasteSignals(action, place);
       if (!sig.length) return;
       const now = Date.now();
-      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
+      // v6.56: nothing is learned about a signed-out visitor. Personalization
+      // is sign-in-only now (owner), so while signed out there is no surface
+      // that reads this vector and no control that can erase it — recording it
+      // would be collection with no purpose and no off switch. Signed in, the
+      // local copy stays the device mirror that Reset clears.
+      if (user) { try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {} }
       if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
     } catch (e) {}
   }
@@ -7029,6 +7035,11 @@ function PageInner({ initialEvents = null }) {
     cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    // personalization (v6.56): the taste consent + entry point live at the
+    // bottom of Favorites, not on the home feed — and only for signed-in
+    // users, which is why nothing here needs the auth primitives: the
+    // Favorites render site already walls the whole screen.
+    personalize, setConsent, setTasteOpen, tasteVecState,
     // itinerary
     activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
     // shared list
@@ -7235,49 +7246,19 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {/* v6.45 (owner, screenshot: the consent card tangled up with the
-            wordmark and the search field). This block used to render INSIDE
-            .wf-topbar — the app chrome — where it inherited the topbar's drop
-            shadow and its orange :after hairline, and pushed the header to
-            roughly half the viewport on a phone. It is a statement about the
-            FEED, so it belongs in the feed: it now lives in the scrolling body
-            above the list, scrolls away like any other card, and cannot
-            interact with the header at all. Locked by scripts/test-taste.mjs. */}
-        {screen === "suggested" && (() => {
-          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
-          if (personalize === null && ld >= 2) return (
-            <div style={{ margin: "2px 0 13px", background: "linear-gradient(160deg, #232C3C 0%, #1C2230 62%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.22)" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. You can turn it off or delete it anytime.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
-                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
-              </div>
-            </div>
-          );
-          // v6.55 (owner, screenshot: this sat as a heavy gray boxed "card"
-          // wedged directly under the search bar's rounded submit button and
-          // sparkle circle — three separate rounded shapes stacked in a few
-          // pixels read as visual clutter, not a coherent header. Once
-          // personalization is actually on, this is a STATUS LINE, not a
-          // decision card asking for input (that's the consent-ask card just
-          // above, which keeps its box) — so it drops the card chrome
-          // (background/border/shadow) entirely and reads as a slim inline
-          // strip, same treatment as "Explore other areas" just above it.
-          if (personalize === "on") return (
-            <div style={{ margin: "0 0 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "2px 1px" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
-            </div>
-          );
-          if (personalize === "off" && ld >= 2) return (
-            <div style={{ margin: "0 0 12px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "2px 1px" }}>
-              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
-            </div>
-          );
-          return null;
-        })()}
+        {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
+            personalization under the favorites ... not in their face at the
+            main page that is too much and it messes with the flow").
+            Everything that used to live here — the consent ask, the "Picked
+            for you" status strip, and the "personalization is off" strip —
+            moved to the bottom of Favorites (app/components/screens/Saved.js).
+            The home feed is now the feed. Personalization is a SETTING about
+            the feed, and a setting interrupting the thing it configures, on
+            every single load, is exactly the clutter this removes.
+            The honesty rule is unchanged, only relocated: whenever the feed is
+            re-ranked by taste the app still says so in plain language and puts
+            the off switch one tap away — see the Personalization row in
+            SavedScreen, locked by scripts/test-taste.mjs. */}
         {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
@@ -7300,7 +7281,14 @@ function PageInner({ initialEvents = null }) {
           // Personalize ONLY with explicit consent (Phase 2). Without it, the
           // feed is pure moment/Score order — same for everyone.
           const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
-          const personalized = personalize === "on" && hasTaste;
+          // v6.56 (owner: "make the personalization only available after the
+          // user signs in"). `user &&` is the load-bearing half of that
+          // instruction. The switch now lives inside Favorites, which is
+          // sign-in walled — so if the re-ranking still ran while signed out, a
+          // visitor would have a feed quietly reordered by a setting they can
+          // neither see nor turn off. Signed out is now genuinely neutral:
+          // pure moment/Score order, the same feed everyone else gets.
+          const personalized = !!user && personalize === "on" && hasTaste;
           const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
@@ -8205,43 +8193,14 @@ function PageInner({ initialEvents = null }) {
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
       {tasteOpen && (() => {
-        const vec = tasteVecState || {};
-        // v6.45 (owner: "Wtf is this") — FILTER ON READ, not only on write.
-        // The panel was rendering whatever happened to be in the stored vector,
-        // so a numeric token learned before the write-path fix ("2") kept
-        // showing up as a chip forever, and two renders could disagree about
-        // which junk survived. isLearnableValue is the same rule the writer
-        // uses, applied here so bad rows retire the moment this ships instead
-        // of waiting for the user to generate a new signal.
-        //
-        // v6.55 (owner, screenshot: overlapping near-duplicate chips like
-        // "californian restaurant" / "american restaurant" / "brunch
-        // restaurant" / "breakfast restaurant" / "food store" all shown
-        // separately) — TAG_LABEL (lib/taste.js) now maps several raw Google
-        // tag tokens onto the SAME clean label on purpose, so this groups
-        // chips by `dim + "|" + label` instead of by raw value: every raw
-        // value that shares a label merges into ONE chip, its weight summed,
-        // and every contributing raw value kept in `vals` so "forget" can
-        // erase all of them (see forgetTasteItem). Category and price already
-        // have a 1:1 value→label mapping, so this grouping is a no-op for
-        // them — only the tag dimension actually merges anything.
-        const groups = new Map();
-        for (const dim of ["category", "tag", "price"]) {
-          const m = vec[dim];
-          if (!m) continue;
-          for (const [val, w] of Object.entries(m)) {
-            if (!isLearnableValue(dim, val)) continue;
-            const label = tasteLabel(dim, val);
-            if (!label) continue;
-            const key = dim + "|" + label;
-            const g = groups.get(key);
-            if (g) { g.w += Number(w) || 0; g.vals.push(val); }
-            else groups.set(key, { dim, label, w: Number(w) || 0, vals: [val] });
-          }
-        }
-        const chips = [...groups.values()];
-        chips.sort((a, b) => Math.abs(b.w) - Math.abs(a.w));
-        const top = chips.slice(0, 24);
+        // FILTER ON READ, LABEL, MERGE — all three live in tasteChips()
+        // (lib/taste.js), not here. See that function for why each one exists;
+        // the short version is that the view must never render a raw taxonomy
+        // token, must never show two chips that mean the same thing, and must
+        // never trust that what is already in storage was written under the
+        // current rules. v6.56 moved the loop out of this closure so the
+        // Favorites entry row can count exactly what this panel will show.
+        const top = tasteChips(tasteVecState || {}).slice(0, 24);
         return (
           <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
             <div className="wf-taste-sheet" onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
@@ -8275,6 +8234,13 @@ function PageInner({ initialEvents = null }) {
                   <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
                 )}
                 <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
+                  {/* v6.56: "turn it off" and "erase it" were the SAME button
+                      until now — resetTaste() sets consent to off AND wipes the
+                      vector. The Favorites row promises a person can stop the
+                      re-ranking, and a promise whose only implementation also
+                      deletes everything they taught the app is a lie by
+                      omission. Two buttons, two verbs, both honest. */}
+                  <button onClick={() => { setConsent("off"); setTasteOpen(false); try { logEvent("taste_consent", null, { v: "off", from: "sheet" }); } catch (e) {} }} className="wf-taste-btn is-quiet">Turn off</button>
                   <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset</button>
                 </div>
               </div>

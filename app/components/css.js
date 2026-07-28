@@ -533,6 +533,19 @@ export const WF_TASTE_CSS = `
 }
 .wf-taste-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .wf-taste-btn:active{transform:translateY(0) scale(.99)}
+/* v6.56: the neutral sibling of is-danger. "Turn off" stops the re-ranking and
+   keeps what was learned; "Reset" erases the vector. Those are genuinely
+   different acts, so they must not look the same — only the destructive one
+   gets the red treatment. Deliberately NOT called .is-primary: v6.50 removed
+   that class and scripts/test-taste.mjs asserts it stays gone, because nothing
+   in this sheet should be styled as the recommended action. */
+.wf-taste-btn.is-quiet{
+  border:1px solid #2D3748;
+  background:linear-gradient(135deg,rgba(28,34,48,.94),rgba(11,14,20,.92));
+  color:#CBD5E1;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),inset 0 -1px 0 rgba(0,0,0,.3),0 12px 24px rgba(0,0,0,.22);
+}
+.wf-taste-btn.is-quiet:hover{border-color:#3E4A5F;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 26px rgba(0,0,0,.28)}
 .wf-taste-btn.is-danger{
   border:1px solid rgba(248,113,113,.46);
   background:linear-gradient(135deg,rgba(46,22,26,.94),rgba(11,14,20,.92));

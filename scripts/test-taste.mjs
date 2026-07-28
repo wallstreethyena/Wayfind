@@ -2,7 +2,7 @@
 // from EXPLICIT signals, decays honestly, stays bounded, and — the brand rule —
 // NEVER touches the Wayfind Score. Ranking is unchanged in Phase 1.
 import { readFileSync } from "fs";
-import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, isLearnableValue, tasteLabel, TAG_LABEL, TASTE_TAU_MS, SIGNAL_WEIGHT } from "../lib/taste.js";
+import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, isLearnableValue, tasteLabel, tasteChips, TAG_LABEL, TASTE_TAU_MS, SIGNAL_WEIGHT } from "../lib/taste.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -72,7 +72,12 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes("function recordTaste(action, p)"), "the taste recorder is wired");
 ok(home.includes('supabase.rpc("wf_taste_bump"'), "signed-in signals persist to the per-user server vector");
 ok(/action !== "open" && supabase && user/.test(home), "server persistence is gated on signed-in; 'open' stays device-local");
-ok(home.includes('localStorage.setItem("wf_taste_local"'), "anonymous users get a first-party local vector (respects deletion)");
+// v6.56 (owner: "make the personalization only available after the user signs
+// in"). The local vector is no longer written for anonymous visitors: with the
+// switch behind sign-in, nothing signed-out reads it and no signed-out control
+// can erase it, so writing it would be collection with neither purpose nor an
+// off switch. Signed in, it stays the device mirror that Reset clears.
+ok(/if \(user\) \{ try \{ const cur = JSON\.parse\(localStorage\.getItem\("wf_taste_local"/.test(home), "the first-party local vector is written for signed-in users only — nothing is learned about a signed-out visitor");
 ok(home.includes('recordSignal(p, "save")') && home.includes('recordSignal(p, "share")'), "save + share now feed the model, alongside like/dislike/open");
 // The Score must stay global — taste/affinity must NOT flow into the displayed score.
 ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit|affinityFor[\s\S]{0,60}(toDisplayScore|wayfindScore)/.test(home), "affinity must NEVER feed the Wayfind Score — the number stays global and honest");
@@ -89,10 +94,24 @@ ok(sql.includes("wf_taste_wipe"), "delete-my-taste ships now — legal by design
 ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforce ownership");
 
 // --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
-ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY with explicit consent — off = same for everyone");
+ok(/const personalized = !!user && personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY for a signed-in user who gave explicit consent — off, or signed out, = same for everyone");
 ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
-ok(home.includes('Picked for you — tuned to what you like'), "when on, the personalization is LABELED (never silent)");
-ok(home.includes("Personalize my feed") && home.includes("No thanks"), "the consent ask is a real choice, not a dark pattern");
+// v6.56 (owner: "remove the item on image 2 ... put the personalization under
+// the favorites ... not in their face at the main page"). The consent ask and
+// the "picked for you" status strip left the home feed. The RULES they enforced
+// did not leave with them — a feed that silently reorders itself is the thing
+// this file exists to prevent — so both assertions now point at the surface
+// that owns them: the Personalization row at the bottom of Favorites.
+const saved = readFileSync(new URL("../app/components/screens/Saved.js", import.meta.url), "utf8");
+ok(!home.includes("Picked for you") && !home.includes("Personalize my feed") && !home.includes("Want a feed that learns what you like?"), "the home feed carries NO personalization surface — the feed is the feed");
+ok(/const on = personalize === "on";/.test(saved) && /On · \$\{learned\} thing/.test(saved) && /Off · same feed for everyone/.test(saved), "when on, the personalization is LABELED (never silent) — the Favorites row states on/off in plain language");
+// v6.56: the on/off subtitle IS the disclosure, so it must not be truncatable.
+// A row that reads "Off · your feed is ranked the s…" has told the reader
+// nothing. Locked to wrapping rather than ellipsis.
+ok(!/textOverflow: "ellipsis" \}\}>\{sub\}/.test(saved), "…and that label can never be cut off with an ellipsis on a narrow screen");
+ok(/never changes a place's Wayfind Score/.test(saved), "…and says, where a person can actually read it, that taste never touches the Score");
+ok(/Turn on personalization/.test(saved) && /setConsent\("on"\)/.test(saved), "the consent ask is a real choice — opt-IN, and off is the default until tapped");
+ok(/className="wf-taste-btn is-quiet">Turn off</.test(home) && /setConsent\("off"\); setTasteOpen\(false\)/.test(home), "'turn it off' is a real control that STOPS re-ranking without erasing — separate from Reset, which wipes");
 ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
 ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
 ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable vector loads from their OWN rows");
@@ -110,19 +129,36 @@ ok(!home.includes("never sold") && !home.includes("never sold, never shared"), "
 // Three separate defects sat behind one panel, and every one of them was a
 // WIRING gap: lib/taste.js already shipped the fix and home.js never imported
 // it. These assertions pin the wiring, not the implementation.
-ok(/import \{[^}]*\btasteLabel\b[^}]*\bisLearnableValue\b[^}]*\} from "\.\.\/lib\/taste"/.test(home), "home.js imports BOTH read-path helpers — the panel must not re-implement labelling or filtering");
+// v6.56: the read path is one exported function, tasteChips(), because TWO
+// callers now need the identical answer — the sheet renders the chips and the
+// Favorites row counts them. So these three rules are asserted against the
+// FUNCTION (real behaviour, not a grep), and the views are asserted to call it
+// rather than re-implement it. That is strictly stronger than the v6.45 wiring
+// greps it replaces.
+ok(/import \{[^}]*\btasteChips\b[^}]*\} from "\.\.\/lib\/taste"/.test(home), "home.js imports the read-path helper — the panel must not re-implement labelling, filtering or merging");
+ok(/import \{ tasteChips \} from "\.\.\/\.\.\/\.\.\/lib\/taste"/.test(saved) && /tasteChips\(tasteVecState \|\| \{\}\)\.length/.test(saved), "the Favorites row counts with the SAME helper the sheet renders — a count that disagreed with its list would be a small lie");
+ok(!/isLearnableValue\(dim, val\)/.test(home) && !/groups\.set\(key, \{ dim, label/.test(home) && !/groups\.set\(key, \{ dim, label/.test(saved), "…and neither view keeps a second copy of the loop, which would drift");
 // 1. FILTER ON READ. A write-path-only fix leaves junk already sitting in
 //    localStorage wf_taste_local and Supabase wf_taste rendering forever — that
 //    is exactly the chip that just read "2".
-ok(/if \(!isLearnableValue\(dim, val\)\) continue;/.test(home), "the panel filters the STORED vector on read, so junk learned before the fix retires the moment this ships");
+ok(tasteChips({ tag: { food_store: 5, american_restaurant: 1 } }).every((c) => c.label !== "" && c.vals.indexOf("food_store") < 0), "the read path filters the STORED vector, so junk learned before a labelling fix retires the moment the fix ships");
 // 2. LABEL, don't dump. The panel showed raw taxonomy rows: food, coffee shop,
 //    food store, and a bare price bucket index.
-// v6.55: chips are now grouped BY LABEL (dim + "|" + label), not by raw
-// value — TAG_LABEL deliberately maps several raw Google tokens onto the
-// same clean label (e.g. american_restaurant + californian_restaurant ->
-// "American"), and this is what merges them into one chip with combined
-// weight and every contributing raw value kept in `vals`.
-ok(/const g = groups\.get\(key\);/.test(home) && /g\.vals\.push\(val\)/.test(home), "each merged chip accumulates weight and collects every contributing raw value");
+// v6.55: chips are grouped BY LABEL (dim + "|" + label), not by raw value —
+// TAG_LABEL deliberately maps several raw Google tokens onto the same clean
+// label (e.g. american_restaurant + californian_restaurant -> "American"), and
+// this is what merges them into one chip with combined weight and every
+// contributing raw value kept in `vals`.
+{
+  const merged = tasteChips({ tag: { american_restaurant: 2, californian_restaurant: 3, bar: 1 } });
+  const amer = merged.find((c) => c.label === "American");
+  ok(merged.length === 2, "near-duplicate Google tokens collapse into ONE chip, never two that mean the same thing");
+  ok(amer && amer.w === 5, "…with the contributing weights summed");
+  ok(amer && amer.vals.length === 2 && amer.vals.indexOf("californian_restaurant") >= 0, "…and every contributing RAW value carried along, so forget can address them all");
+  ok(merged[0].label === "American", "chips are ordered by absolute weight — strongest taste first");
+  ok(tasteChips({ tag: { bar: -4, american_restaurant: 1 } })[0].w === -4, "a strong NEGATIVE outranks a weak positive — |w|, not w");
+}
+ok(tasteChips(null).length === 0 && tasteChips({}).length === 0 && tasteChips({ nonsense: { x: 1 } }).length === 0, "no vector / empty vector / unknown dimension -> no chips, no throw");
 ok(!/\{c\.w >= 0 \? "" : "not "\}\{c\.val\}/.test(home), "the panel no longer renders the RAW stored value as the chip body");
 // 3. ...but act on the RAW value(s). Forgetting by the label would silently
 //    delete nothing at all, and the user would think it worked.
@@ -147,14 +183,35 @@ ok(!home.includes("wayfind-my-taste.json") && !home.includes("Export my data"), 
 ok(!/wf-taste-btn is-primary/.test(home), "the now-unused is-primary button variant is gone from the markup, not just unreferenced");
 ok(!/\.wf-taste-btn\.is-primary\{/.test(css), "…and its CSS rule is gone too — no dead styling left behind");
 ok(/className="wf-taste-btn is-danger">Reset</.test(home), "the sole remaining control is a plain \"Reset\", not \"Reset & forget all\" — one honest verb, not two");
-// THE HEADER. The consent card rendered inside .wf-topbar, where it inherited
-// the topbar's shadow and its orange :after hairline and ate half the phone
-// viewport. It is a statement about the FEED and now lives in the feed.
+// WHERE IT LIVES. v6.50 moved the consent card out of .wf-topbar and into the
+// scrolling body; v6.56 took it off the home feed entirely (owner: "not in
+// their face at the main page that is too much and it messes with the flow").
+// It is now the LAST section of the Favorites root view — below the lists,
+// below the activity folders, below saved experiences — because it is a
+// setting about the feed, not an announcement. This ordering is the whole
+// point of the change, so it is locked rather than left to drift back up.
 {
-  const topbarAt = home.indexOf('className="wf-topbar"');
-  const bodyAt = home.indexOf("{/* Body */}");
-  const bannerAt = home.indexOf("Want a feed that learns what you like?");
-  ok(topbarAt > 0 && bodyAt > topbarAt && bannerAt > bodyAt, "the personalization consent card lives in the scrolling BODY, never inside .wf-topbar");
+  const listsAt = saved.indexOf("Your lists");
+  const activityAt = saved.indexOf("From your activity");
+  const personalAt = saved.indexOf(">Personalization<");
+  const sysAt = saved.indexOf("{sysFolder && (() => {");
+  ok(listsAt > 0 && activityAt > listsAt && personalAt > activityAt, "Personalization is the LAST section of Favorites, under the lists and the activity folders");
+  ok(sysAt > personalAt, "…and inside the root (!activeList && !sysFolder) branch, so it never shows inside an opened list");
+}
+ok(/personalize, setConsent, setTasteOpen, tasteVecState/.test(home) && /personalize, setConsent, setTasteOpen, tasteVecState/.test(saved), "the consent state reaches SavedScreen through the one ctx bag — no second source of truth");
+// v6.56 (owner: "make the personalization only available after the user signs
+// in"). Two locks, and the second is the one that matters: the ROW is gated on
+// `user`, and so is the RE-RANKING (see the `!!user &&` assertion above). A
+// switch a person cannot reach is the same as no switch, so the behaviour it
+// controls must be gated exactly as tightly as the control itself — otherwise
+// a signed-out visitor gets a feed quietly reordered by a setting that is
+// invisible to them. The Favorites tab keeps its original whole-screen wall.
+{
+  const personalAt = saved.indexOf(">Personalization<");
+  const gateAt = saved.indexOf("{user && (");
+  ok(/\{screen === "saved" && \(authReady && !user \? <AuthWall label="your Favorites"/.test(home), "the Favorites tab is sign-in walled as a whole — the personalization surface is behind it");
+  ok(gateAt > 0 && personalAt > gateAt, "…and the row carries its OWN `user &&` guard, so it cannot flash before authReady resolves");
+  ok(!/authReady, AuthWall,/.test(home.slice(home.indexOf("personalize, setConsent"), home.indexOf("personalize, setConsent") + 200)), "…and SavedScreen no longer needs the auth primitives passed through ctx");
 }
 
 // The Score honesty lock STILL holds after activation.
