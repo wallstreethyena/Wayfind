@@ -75,7 +75,6 @@ ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is r
 ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable vector loads from their OWN rows");
 // Phase 3 control
 ok(home.includes("function resetTaste") && home.includes('supabase.rpc("wf_taste_wipe")'), "Reset wipes the server vector");
-ok(home.includes("function exportTaste") && home.includes("wayfind-my-taste.json"), "export-my-data ships");
 ok(home.includes("function forgetTasteItem"), "per-item forget ships");
 ok(home.includes("Your taste") && home.includes("never sold"), "the transparency panel exists and states the promise");
 
@@ -103,11 +102,18 @@ for (const cls of ["wf-taste-sheet", "wf-taste-body", "wf-taste-mark", "wf-taste
   ok(css.includes("." + cls) && home.includes(cls), `${cls} is both defined in css.js and USED by the panel — no dead CSS, no orphan class`);
 }
 ok(!/width: 18, height: 18, borderRadius: "50%"/.test(home), "the 18px remove dot is gone — .wf-taste-x is 24px, the WCAG 2.5.8 minimum");
-// EXPORT: it is a legal promise, so it must produce a real file — and it must
-// not hand the user back the junk the panel just filtered out.
-ok(/URL\.revokeObjectURL\(url\)/.test(home), "the export revokes its object URL — every export used to pin its blob for the life of the page");
-ok(/document\.body\.appendChild\(a\); a\.click\(\); a\.remove\(\)/.test(home), "the download anchor is in the document when clicked (Firefox ignores a detached one)");
-ok(/\(taste\[dim\] \|\| \(taste\[dim\] = \{\}\)\)\[val\] = \{ label: tasteLabel\(dim, val\), weight/.test(home), "the exported file carries the same filtered, labelled data the panel shows — the two can never disagree");
+
+// --- v6.50 (owner, with screenshot: "the export data that is weird / just say
+// Reset") — the raw-JSON download read as an unexplained, alarming control in
+// a two-button row and nobody had asked for it. Erasure (the actual legal
+// promise this panel states — "never sold") still ships via resetTaste(); a
+// portability download is a separate feature and, if it comes back, should be
+// a deliberate re-add, not a silent regression of this removal.
+ok(!home.includes("function exportTaste"), "the raw-JSON export was removed per owner request — it is not just hidden, the code is gone");
+ok(!home.includes("wayfind-my-taste.json") && !home.includes("Export my data"), "no trace of the export control remains in the panel");
+ok(!/wf-taste-btn is-primary/.test(home), "the now-unused is-primary button variant is gone from the markup, not just unreferenced");
+ok(!/\.wf-taste-btn\.is-primary\{/.test(css), "…and its CSS rule is gone too — no dead styling left behind");
+ok(/className="wf-taste-btn is-danger">Reset</.test(home), "the sole remaining control is a plain \"Reset\", not \"Reset & forget all\" — one honest verb, not two");
 // THE HEADER. The consent card rendered inside .wf-topbar, where it inherited
 // the topbar's shadow and its orange :after hairline and ate half the phone
 // viewport. It is a statement about the FEED and now lives in the feed.

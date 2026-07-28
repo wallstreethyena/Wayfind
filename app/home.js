@@ -160,7 +160,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.49";
+const BUILD_ID = "v6.50";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3599,38 +3599,12 @@ function PageInner({ initialEvents = null }) {
     } catch (e) {}
     setConsent("off"); setTasteVer((n) => n + 1);
   }
-  function exportTaste() {
-    try {
-      const vec = tasteVecRef.current || {};
-      // v6.45: export what the PANEL shows, not the raw store. Handing someone
-      // a file full of tokens we already know are junk ("2", "food") is a worse
-      // answer to "what do you have on me" than handing them the real answer.
-      // Same rule as the panel, so the two can never disagree; the raw value is
-      // kept alongside the label because it IS their data.
-      const taste = {};
-      for (const dim of Object.keys(vec)) {
-        const m = vec[dim];
-        if (!m || typeof m !== "object") continue;
-        for (const [val, w] of Object.entries(m)) {
-          if (!isLearnableValue(dim, val)) continue;
-          (taste[dim] || (taste[dim] = {}))[val] = { label: tasteLabel(dim, val), weight: Number(w) || 0 };
-        }
-      }
-      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste }, null, 2)], { type: "application/json" });
-      // v6.45: the anchor has to be IN the document for Firefox to honour the
-      // click, and the object URL has to be revoked or every export pins its
-      // blob in memory for the life of the page.
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "wayfind-my-taste.json"; a.rel = "noopener"; a.style.display = "none";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 0);
-      // iOS opens a share/download sheet with no context of its own — say what
-      // just happened so the prompt is expected instead of alarming.
-      try { showToast("Downloading wayfind-my-taste.json"); } catch (e) {}
-      try { logEvent("taste_export"); } catch (e) {}
-    } catch (e) {}
-  }
+  // v6.50 (owner, with screenshot: "the export data that is weird"): the raw
+  // JSON download was a feature nobody asked for and read as an unexplained,
+  // slightly alarming control in a two-button row. Erasure — the actual legal
+  // promise this panel makes ("yours alone, never sold") — still ships via
+  // resetTaste()/wf_taste_wipe below; a portability download is a separate ask
+  // and can come back deliberately if the owner wants it, not as a default.
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -8060,8 +8034,7 @@ function PageInner({ initialEvents = null }) {
                   <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
                 )}
                 <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
-                  <button onClick={exportTaste} className="wf-taste-btn is-primary">Export my data</button>
-                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset &amp; forget all</button>
+                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset</button>
                 </div>
               </div>
             </div>

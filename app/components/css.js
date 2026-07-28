@@ -533,12 +533,6 @@ export const WF_TASTE_CSS = `
 }
 .wf-taste-btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
 .wf-taste-btn:active{transform:translateY(0) scale(.99)}
-.wf-taste-btn.is-primary{
-  border:1px solid rgba(255,168,90,.88);
-  background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%);
-  color:#1A0C02;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.34),inset 0 -1px 0 rgba(0,0,0,.22),0 12px 24px rgba(0,0,0,.3),0 5px 18px rgba(249,115,22,.26);
-}
 .wf-taste-btn.is-danger{
   border:1px solid rgba(248,113,113,.46);
   background:linear-gradient(135deg,rgba(46,22,26,.94),rgba(11,14,20,.92));
