@@ -87,7 +87,11 @@ const E = await import("../lib/experiment.js");
   // Exposure uses PostHog's native flag-exposure event, once per session.
   ok(exp.indexOf("$feature_flag_called") >= 0, "exposure uses PostHog's native feature-flag event");
   ok(exp.indexOf("$feature_flag_response") >= 0, "the variant rides on the standard property");
-  ok(/if \(already\) return variant/.test(exp), "exposure fires at most once per session");
+  // Once per ANALYTICS session (not per tab): re-fires when the session id
+  // changes, suppressed when it matches.
+  ok(/prevExposedSid && sid && prevExposedSid === sid\) return variant/.test(exp),
+    "exposure is suppressed within one analytics session");
+  ok(exp.indexOf("setItem(K_EXPOSED, sid") >= 0, "the exposure marker stores the session id it belongs to");
 
   // Control must render NOTHING.
   ok(/if \(variant !== "treatment"\) return null/.test(comp), "control (and SSR) render nothing at all");
@@ -127,6 +131,62 @@ const E = await import("../lib/experiment.js");
   ok(guide.indexOf("<ExploreBridge") < guide.indexOf("g.picks.map"), "the bridge renders ABOVE the guide's long-form body");
   // SEO must be untouched: no canonical/robots change on either page.
   ok(!/robots:/.test(guide) && !/robots:/.test(culture), "no robots directive added to either content page");
+}
+
+
+/* ── SESSION SEMANTICS — the defect that would have biased the result ───── */
+{
+  // contextIsCurrent is the pure core of entry-attribution expiry.
+  ok(E.contextIsCurrent({ session_id: "s1" }, "s1") === true, "context is valid inside its own analytics session");
+  ok(E.contextIsCurrent({ session_id: "s1" }, "s2") === false, "context EXPIRES when PostHog rolls the session (tab outlived it)");
+  ok(E.contextIsCurrent({ session_id: "s1" }, null) === false, "unknown current session => refuse to claim attribution");
+  ok(E.contextIsCurrent({ entry_page: "/guides/x" }, "s1") === false, "context with no session stamp is never claimed");
+  ok(E.contextIsCurrent(null, "s1") === false, "absent context is not current");
+}
+
+/* ── rollout percentage ────────────────────────────────────────────────── */
+{
+  ok(E.TREATMENT_PCT === 50, "ships as a 50/50 test, not a full rollout");
+  let t = 0; for (let i = 0; i < 4000; i++) if (E.variantForId("r" + i, E.EXPERIMENT_KEY, 100) === "treatment") t++;
+  ok(t === 4000, "100% => everyone treatment (ship-to-all mode works)");
+  let z = 0; for (let i = 0; i < 4000; i++) if (E.variantForId("r" + i, E.EXPERIMENT_KEY, 0) === "treatment") z++;
+  ok(z === 0, "0% => nobody treatment (kill switch works)");
+  let q = 0; for (let i = 0; i < 20000; i++) if (E.variantForId("q" + i, E.EXPERIMENT_KEY, 10) === "treatment") q++;
+  ok(q / 20000 > 0.085 && q / 20000 < 0.115, "an arbitrary split lands near its target, got " + ((q / 20000) * 100).toFixed(1) + "%");
+}
+
+/* ── experiment versioning ─────────────────────────────────────────────── */
+{
+  ok(/-v\d+$/.test(E.EXPERIMENT_KEY), "the experiment key is versioned so a restart re-buckets everyone");
+  let same = 0;
+  for (let i = 0; i < 2000; i++) if (E.variantForId("v" + i, "explore-bridge-v1") === E.variantForId("v" + i, "explore-bridge-v2")) same++;
+  ok(same / 2000 > 0.4 && same / 2000 < 0.6, "a version bump re-randomizes independently, overlap " + ((same / 2000) * 100).toFixed(1) + "%");
+}
+
+/* ── automation exclusion (failure mode 5) ─────────────────────────────── */
+{
+  ok(E.looksAutomated({ webdriver: true, userAgent: "Mozilla/5.0" }) === true, "webdriver is treated as automation");
+  ok(E.looksAutomated({ userAgent: "Mozilla/5.0 (compatible; Googlebot/2.1)" }) === true, "a crawler UA is automation");
+  ok(E.looksAutomated({ userAgent: "HeadlessChrome/120" }) === true, "headless is automation");
+  ok(E.looksAutomated({ userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0)" }) === false, "a real phone is not automation");
+  ok(E.looksAutomated(null) === false, "absent navigator is not treated as automation");
+  ok(E.recordExposure({ entry_page: "/guides/x" }, () => {}, { navigator: { webdriver: true } }) === null, "a bot is never assigned or exposed");
+}
+
+/* ── weak-id fallback is detectable (failure mode 6) ───────────────────── */
+{
+  const id = E.randomId();
+  ok(typeof id === "string" && id.length >= 16, "generated ids are long enough to hash well");
+  ok(id.indexOf("weak-") !== 0, "a crypto-capable runtime never uses the weak fallback");
+}
+
+/* ── PostHog native-compat (verified against posthog-js 1.407.2) ───────── */
+{
+  ok(E.FEATURE_PROP === "$feature/" + E.EXPERIMENT_KEY, "the flag property uses PostHog's $feature/<key> convention");
+  const exp = readFileSync(join(ROOT, "lib/experiment.js"), "utf8");
+  ok(exp.indexOf("ph.register(") >= 0, "the variant is registered as a SUPER property so autocaptured events carry it");
+  ok(exp.indexOf("get_session_id") >= 0, "exposure is keyed to the PostHog analytics session, not the tab");
+  ok(/prevExposedSid && sid && prevExposedSid === sid/.test(exp), "exposure re-fires when PostHog rolls the session");
 }
 
 if (failures) { console.error(`test-experiment: ${failures} failure(s)`); process.exit(1); }
