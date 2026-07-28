@@ -7,7 +7,22 @@ import { readFileSync } from "fs";
 let pass = 0;
 const fail = (m) => { console.error("test-atlas-build: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
-const r = readFileSync(new URL("../app/api/cron/atlas-build/route.js", import.meta.url), "utf8");
+// The pipeline's surface is now two files: the route (when to give up on a
+// place) and lib/atlasEditorial.js (whether what came back is publishable). The
+// row builder moved there in v6.49 so the publish decision could be unit-tested
+// with real inputs — scripts/test-atlas-editorial-row.mjs. Read both; the rules
+// below are unchanged.
+//
+// Whole-line comments are stripped first. This file used to assert
+// `verified: false` and kept passing after that line was DELETED, because a
+// comment nearby quoted it — a green test asserting the opposite of the truth,
+// which is worse than no test.
+const src = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
+const r = [src("../app/api/cron/atlas-build/route.js"), src("../lib/atlasEditorial.js")]
+  .join("\n")
+  .split("\n")
+  .filter((l) => !/^\s*\/\//.test(l))
+  .join("\n");
 
 // Auth: fail-CLOSED (unset secret never opens).
 ok(/if \(!secret \|\| \(auth !== "Bearer " \+ secret/.test(r), "CRON_SECRET gated, fail-closed");
@@ -16,7 +31,13 @@ ok(/if \(!secret \|\| \(auth !== "Bearer " \+ secret/.test(r), "CRON_SECRET gate
 // 373 existing editorials.
 ok(/rpc\/wf_atlas_missing/.test(r), "selects missing places via the resumable IS-NULL RPC");
 ok(/on_conflict=place_id/.test(r) && /resolution=ignore-duplicates/.test(r), "ON CONFLICT (place_id) DO NOTHING — never overwrites existing rows");
-ok(/verified: false/.test(r) && /standard_version: "atlas-590-v1"/.test(r), "writes verified=false + standard_version=atlas-590-v1");
+// v6.49: `verified` is DERIVED from the row's own issue list, not hardcoded.
+// It was `verified: false` and nothing ever set it true, so the fleet wrote 169
+// clean rows no user could see. scripts/check-editorial-publish.mjs owns the
+// full rule (derived here AND still gated in every reader); this keeps the
+// pipeline's own test honest about what it writes.
+ok(/verified: flags === null/.test(r) && !/verified: (false|true)/.test(r), "publish flag is derived from the row's issues, never hardcoded");
+ok(/standard_version: "atlas-590-v1"/.test(r), "stamps standard_version=atlas-590-v1");
 
 // Sourcing: real Places Details + Claude; never fabricates.
 ok(/places\.googleapis\.com\/v1\/places\//.test(r) && /X-Goog-FieldMask/.test(r), "sources facts from Google Places Details");

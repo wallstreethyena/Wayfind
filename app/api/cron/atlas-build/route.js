@@ -1,8 +1,15 @@
 // app/api/cron/atlas-build/route.js — bulk-builds the Wayfind "Atlas" editorial
 // (atlas-590-v1) for places that don't have one yet. Sources facts from the
 // Google Places Details API, writes each entry with Claude, and upserts to
-// wf_editorial ON CONFLICT (place_id) DO NOTHING — idempotent + resumable, so the
-// owner just re-triggers it until a category reads 0 missing.
+// wf_editorial ON CONFLICT (place_id) DO NOTHING — idempotent + resumable.
+//
+// v6.49: it now runs on a SCHEDULE (vercel.json, hourly at :15). It was
+// hand-triggered only, which is why coverage froze on 2026-07-24 at 503 rows
+// against 3,457 inventory places — 6.7% of cards had a reason to go, and the
+// owner's report ("lots of detail cards do not have any information as to why
+// someone should go") was the pipeline having simply stopped. Each run is
+// bounded and self-terminating: once wf_atlas_missing returns empty for every
+// category the route returns {done:true} and spends nothing but the RPC.
 //
 // Cost: metered (Google Places Details + Anthropic per place). CRON_SECRET-gated
 // (fail-closed). Bounded per call (?limit, ≤25) so each invocation is cheap and
@@ -13,6 +20,7 @@
 // set ATLAS_MODEL=claude-sonnet-5 in the env for higher editorial quality.
 import { aiKey } from "../../../../lib/aiKey";
 import { sbEnv } from "../../../../lib/serverCache";
+import { editorialRow } from "../../../../lib/atlasEditorial";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -105,24 +113,10 @@ async function pool(items, limit, fn) {
   return out;
 }
 
-function editorialRow(place, parsed, nowIso, issues) {
-  const facts = parsed && Array.isArray(parsed.facts)
-    ? parsed.facts.filter((f) => f && f.claim && typeof f.source === "string" && /^https?:\/\//.test(f.source)).slice(0, 6)
-    : [];
-  return {
-    place_id: place.place_id,
-    hook: (parsed && parsed.hook) || null,
-    why_here: (parsed && parsed.why_here) || null,
-    know_before: (parsed && parsed.know_before) || null,
-    best_time: (parsed && parsed.best_time) || null,
-    local_tip: (parsed && parsed.local_tip) || null,
-    facts,
-    verified: false,
-    issues: issues || null,
-    standard_version: "atlas-590-v1",
-    written_at: nowIso,
-  };
-}
+// The row shape and the publish decision live in lib/atlasEditorial.js — pure,
+// and unit-tested with real inputs by scripts/test-atlas-editorial-row.mjs. This
+// route decides WHEN to give up on a place; that module decides whether what came
+// back is publishable.
 
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
@@ -163,9 +157,28 @@ export async function GET(req) {
 
   const nowIso = new Date().toISOString();
   const rows = [];
-  let rides = 0, sourced = 0, pending = 0;
+  let rides = 0, sourced = 0, pending = 0, deferred = 0;
+
+  // v6.49 DEADLINE GUARD. The upsert happens once, after every place resolves,
+  // so a run that overruns maxDuration loses the WHOLE batch — every Places
+  // Details call and every model call in it, paid for and thrown away.
+  //
+  // The arithmetic that makes this reachable: pool() runs 6 at a time, so
+  // limit=25 is 5 rounds, and one round can cost the placeDetails timeout (8s)
+  // plus the writeEditorial timeout (20s) = 28s. Five slow rounds is 140s
+  // against a 60s budget. It has not bitten yet only because the model usually
+  // answers in a few seconds — i.e. we were relying on latency luck, and this
+  // route is about to run unattended on a schedule instead of by hand.
+  //
+  // So: stop DISPATCHING new places at 45s and keep the remaining 15s for the
+  // upsert and the response. A deferred place simply gets no row, which means
+  // wf_atlas_missing hands it back on the next run — the file's stated
+  // resumable design, now actually load-bearing rather than incidental.
+  const startedAt = Date.now();
+  const DISPATCH_DEADLINE_MS = 45000;
 
   await pool(places, 6, async (place) => {
+    if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; }
     // ride-level → store as RIDE-LEVEL, never written/sourced
     if (RIDE_RX.test(String(place.name || ""))) {
       rides++;
@@ -214,7 +227,18 @@ export async function GET(req) {
 
   const left = await missing(category);
   return Response.json({
-    ok: !upErr, category, processed: places.length, written, sourced, pending, rides, opportunities: opps,
+    // `processed` counts places that actually produced a row. It used to report
+    // places.length, which silently equalled the batch size even when the run
+    // fell over — with the deadline guard live, `deferred` is the difference and
+    // a persistently non-zero deferred is the signal to lower ?limit.
+    ok: !upErr, category, processed: rows.length, deferred, written,
+    // `sourced` is "the model answered"; `published` is "it cleared the content
+    // bar and a user will see it". They used to be the same number by
+    // assumption; a gap between them is the run telling you the model is
+    // producing thin cards, which is worth knowing before 2,900 of them exist.
+    published: rows.filter((r) => r.verified).length,
+    sourced, pending, rides, opportunities: opps,
+    took_ms: Date.now() - startedAt,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
   }, { headers: { "Cache-Control": "no-store" } });
 }
