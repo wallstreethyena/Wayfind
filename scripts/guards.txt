@@ -181,3 +181,4 @@ node scripts/test-atlas-ride-filter.mjs
 node scripts/test-event-category-art.mjs
 node scripts/test-personalization.mjs
 node scripts/test-promote-index.mjs
+node scripts/test-prominence.mjs
