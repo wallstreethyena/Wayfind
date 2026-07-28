@@ -37,26 +37,41 @@ const organic = read("app/things-to-do/[city]/page.js");
 /* ── above the fold ────────────────────────────────────────────────────── */
 {
   ok(comp.indexOf('"use client"') === 0, "PaidLanding is a client component");
-  ok(/Explore \{cityLabel\}/.test(comp), "a prominent primary CTA exists");
-  for (const f of ["Tonight", "Free", "Family", "Near me"]) {
-    ok(comp.indexOf(f) >= 0, "quick filter present: " + f);
+  ok(comp.indexOf("Show my 3 best matches") >= 0, "a prominent decision CTA exists");
+  for (const f of ["Tonight", "Family day", "Outside", "Orlando icons"]) {
+    ok(comp.indexOf(f) >= 0, "decision intent present: " + f);
   }
-  ok(comp.indexOf("?go=map") >= 0, "the map is one tap away");
-  ok(/no paid placement/i.test(comp), "benefit/trust language is present");
-  ok(/real guest reviews/i.test(comp), "review-honesty language is present");
-  // The whole point: the CTA must be above the card list in source order.
-  ok(comp.indexOf("Explore {cityLabel}") < comp.indexOf("Top rated in"), "the CTA sits ABOVE the recommendations");
+  ok(/nobody pays to rank/i.test(comp), "benefit/trust language is present");
+  ok(/real guest ratings/i.test(comp), "review-honesty language is present");
+  ok(comp.indexOf("Show my 3 best matches") < comp.indexOf('className="matches"'), "the CTA sits ABOVE the recommendations");
+  for (const image of [
+    "orlando-epcot-portrait.jpg", "orlando-roller-coaster-portrait.jpg",
+    "orlando-paddleboard-portrait.jpg", "orlando-night-wheel-portrait.jpg",
+  ]) ok(comp.indexOf(image) >= 0, "Orlando slideshow includes supplied image: " + image);
+  ok(comp.indexOf("wayfind-official-white.png") >= 0, "the supplied official Wayfind logo is used");
+  ok((comp.match(/wayfind-official-white\.png/g) || []).length === 1, "the logo appears in the header only, never over the changing photograph");
+  ok(comp.indexOf("Orlando is big.") < 0 && comp.indexOf("YOUR LOCAL DECISION CONCIERGE") < 0, "no editorial text overlays the photographs");
+  ok(/setInterval\([^]*5000\)/.test(comp), "Orlando hero advances every five seconds");
+  ok(comp.indexOf("prefers-reduced-motion: reduce") >= 0, "slideshow respects reduced-motion preferences");
+  ok(comp.indexOf("visualControls") >= 0 && comp.indexOf("Show image") >= 0, "slideshow has manual accessible controls");
+  ok(comp.indexOf("card-lake-eola-kayaking.jpg") >= 0, "Lake Eola uses the supplied kayaking photograph");
+  ok(comp.indexOf("card-harry-p-leu-gardens.jpg") >= 0, "Harry P Leu Gardens uses the supplied garden photograph");
+  ok(comp.indexOf("card-great-escape-room.jpg") >= 0, "The Great Escape Room uses the supplied escape-room photograph");
+  ok(comp.indexOf("const CURATED_WHY") >= 0, "verified venue facts are explicitly curated");
+  ok(comp.indexOf("if (curated) return curated[language] || curated.en") >= 0, "curated facts are used only for known venues");
+  ok(/Unknown places keep the quantitative fallback/.test(comp), "unknown venues retain the non-invented quantitative explanation");
 }
 
 /* ── cards are real, clickable, and tracked exactly once ───────────────── */
 {
-  ok(comp.indexOf('"/?place=" + encodeURIComponent(p.id)') >= 0, "each card links into the app's detail view");
+  ok(comp.indexOf('`/?place=${encodeURIComponent(active.id)}`') >= 0, "each detail drawer links into the app's detail view");
   ok(comp.indexOf('go("detail_open"') >= 0, "a card click is tracked as detail_open");
   // Decision information.
   for (const [needle, what] of [
-    ["p.photoRef", "photo"], ["p.rating", "rating"], ["p.reviews", "review count"],
-    ["p.distMi", "distance"], ["p.openNow", "hours / open-now"], ["CAT_OF(p.types)", "category"],
+    ["place?.photoRef", "photo"], ["place?.rating", "rating"], ["place?.reviews", "review count"],
+    ["place?.distMi", "distance"], ["place?.openNow", "hours / open-now"], ["categoryOf(place)", "category"],
   ]) ok(comp.indexOf(needle) >= 0, "cards show " + what);
+  ok(comp.indexOf(".match:not(.best) .actions") >= 0, "narrow-card actions stack instead of compressing their labels");
 
   // One action => one tracking call. `go()` is the only tracker in the
   // component, and it calls track() exactly once.
@@ -108,7 +123,7 @@ const organic = read("app/things-to-do/[city]/page.js");
 {
   ok(/\^places\\\/\[A-Za-z0-9_-\]\+\\\/photos\\\/\[A-Za-z0-9_-\]\+\$/.test(landing) || landing.indexOf("places\\/[A-Za-z0-9_-]+\\/photos\\/[A-Za-z0-9_-]+") >= 0,
     "photo refs are shape-validated at the source (SSRF guard parity with /api/photo)");
-  ok(comp.indexOf('"/api/photo?ref=" + encodeURIComponent(p.photoRef)') >= 0, "photos go through the first-party proxy, never a raw Google URL with a key");
+  ok(comp.indexOf('`/api/photo?ref=${encodeURIComponent(place.photoRef)}') >= 0, "photos go through the first-party proxy, never a raw Google URL with a key");
 }
 
 if (failures) { console.error(`test-paid-landing: ${failures} failure(s)`); process.exit(1); }

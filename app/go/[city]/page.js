@@ -26,6 +26,16 @@ export const dynamicParams = true;
 // pointing at it and the page gets prebuilt instead of cold-rendered.
 const PAID_CITIES = ["orlando"];
 
+// Local-only preview rows. The live route always uses the current ranked
+// inventory; these simply keep the design review useful when a developer does
+// not have the metered Places key in their local environment.
+const DEV_PREVIEW = [
+  { id: "ChIJu3hNU-N654gR0x0I9_3iNvc", name: "Lake Eola Park", rating: 4.7, reviews: 24666, openNow: true, distMi: 0.6, types: ["park", "tourist_attraction"] },
+  { id: "ChIJdd8VlMN-54gRoaU0d_zYhfk", name: "Universal Studios Florida", rating: 4.7, reviews: 161138, openNow: null, distMi: 6.8, types: ["amusement_park", "tourist_attraction"] },
+  { id: "ChIJCRCYGrx654gR3G9qoVbWlpY", name: "Harry P Leu Gardens", rating: 4.7, reviews: 5757, openNow: null, distMi: 2.4, types: ["park", "tourist_attraction"] },
+  { id: "ChIJgWr-M_x654gRRd7J_Abj-SY", name: "The Great Escape Room Orlando", rating: 5, reviews: 4769, openNow: null, distMi: 0.2, types: ["amusement_park"] },
+];
+
 export function generateStaticParams() {
   return PAID_CITIES.filter((c) => LANDING_CITIES[c]).map((city) => ({ city }));
 }
@@ -66,7 +76,7 @@ export default async function Page({ params }) {
 
   // Eight is the most a phone can show before the page becomes the wall of text
   // this route exists to replace. The full ranked list lives on the organic page.
-  const picks = Array.isArray(list) ? list.slice(0, 8) : [];
+  const picks = Array.isArray(list) && list.length ? list.slice(0, 8) : process.env.NODE_ENV === "development" ? DEV_PREVIEW : [];
 
   return (
     <>
