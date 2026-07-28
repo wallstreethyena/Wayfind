@@ -18,7 +18,7 @@ const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart
 
 // A destination-led editorial scene makes the welcome feel like the beginning
 // of a night out, not a generic onboarding panel.
-const INTRO_VISUAL = "/brand/wayfind-welcome-local-discovery-v1.png";
+const INTRO_VISUAL = "/brand/wayfind-welcome-follow-that-dream.jpg";
 
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
@@ -70,7 +70,7 @@ export default function IntroSheet({ ctx }) {
             .wf-intro-desc{max-width:350px;margin-top:18px;color:var(--wf-intro-light);font-size:13.5px;line-height:1.62;font-weight:520}
             .wf-intro-body{position:relative;display:flex;flex-direction:column;padding:45px 48px 32px;color:var(--wf-intro-ink);overflow-y:auto;background:radial-gradient(circle at 100% 0%,rgba(249,115,22,.055),transparent 42%),#F7F3EA}
             .wf-intro-meta{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;padding-right:44px;color:#4E5A6D;font-size:9.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase}
-            .wf-intro-location{display:flex;align-items:center;gap:6px;max-width:56%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#B94E0B;letter-spacing:.08em}
+            .wf-intro-location{display:flex;align-items:center;gap:7px;max-width:60%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#B94E0B;font-size:11.5px;letter-spacing:.075em}
             .wf-intro-location:before{content:"";width:5px;height:5px;border-radius:999px;background:var(--wf-intro-accent);box-shadow:0 0 0 3px rgba(249,115,22,.12)}
             .wf-intro-prompt{margin:0;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:34px;font-weight:500;letter-spacing:-.04em;line-height:1.03;color:var(--wf-intro-ink);text-wrap:balance}
             .wf-intro-sub{margin:13px 0 24px;max-width:390px;color:#4E5A6D;font-size:13px;line-height:1.62}
@@ -106,6 +106,7 @@ export default function IntroSheet({ ctx }) {
               .wf-intro-desc{display:none}
               .wf-intro-body{padding:25px 20px 19px;overflow:visible}
               .wf-intro-meta{margin-bottom:19px;padding-right:0}
+              .wf-intro-location{font-size:10.5px}
               .wf-intro-prompt{font-size:25px}
               .wf-intro-sub{margin:8px 0 17px;font-size:12.5px}
               .wf-mood-grid{column-gap:12px;row-gap:0}
