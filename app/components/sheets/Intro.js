@@ -19,6 +19,7 @@ const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart
 // A destination-led editorial scene makes the welcome feel like the beginning
 // of a night out, not a generic onboarding panel.
 const INTRO_VISUAL = "/brand/wayfind-welcome-follow-that-dream.jpg";
+const INTRO_VISUAL_MOBILE = "/brand/wayfind-welcome-paddle-mobile.jpg";
 
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
@@ -59,7 +60,8 @@ export default function IntroSheet({ ctx }) {
             .wf-intro-backdrop{position:fixed;inset:0;z-index:90;background:rgba(5,15,23,.64);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
             .wf-intro-pop{--wf-intro-text:${C.text};--wf-intro-muted:${C.muted};--wf-intro-light:${C.light};--wf-intro-accent:${C.accent};--wf-intro-ink:#111824;--wf-intro-border:${C.border};isolation:isolate;outline:none;position:relative;z-index:1;width:100%;max-width:960px;max-height:calc(100dvh - 48px);display:grid;grid-template-columns:minmax(0,.9fr) minmax(470px,1.1fr);overflow:hidden;border-radius:36px;background:#F7F3EA;border:1px solid rgba(255,255,255,.74);box-shadow:0 46px 120px rgba(3,13,20,.46),0 4px 16px rgba(3,13,20,.16);animation:wfIntroIn .48s cubic-bezier(.16,1,.3,1) both}
             .wf-intro-visual{position:relative;min-height:604px;overflow:hidden;background:${C.bg}}
-            .wf-intro-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% center}
+            .wf-intro-picture,.wf-intro-picture>img{position:absolute;inset:0;width:100%;height:100%}
+            .wf-intro-picture>img{object-fit:cover;object-position:47% center}
             .wf-intro-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,16,24,.08) 20%,rgba(5,16,24,.24) 54%,rgba(5,16,24,.88) 100%)}
             .wf-intro-brand{position:absolute;z-index:1;left:32px;top:28px;width:142px;height:48px}
             .wf-intro-brand img{display:block;width:100%;height:100%;object-fit:contain}
@@ -97,7 +99,7 @@ export default function IntroSheet({ ctx }) {
               .wf-intro-backdrop{align-items:flex-end;padding:10px}
               .wf-intro-pop{display:block;max-width:520px;max-height:calc(100dvh - 10px);border-radius:26px 26px 20px 20px;overflow-y:auto}
               .wf-intro-visual{min-height:205px}
-              .wf-intro-visual>img{object-position:50% 57%}
+              .wf-intro-picture>img{object-position:50% 58%}
               .wf-intro-brand{left:22px;top:18px;width:118px;height:38px}
               .wf-intro-copy{left:22px;right:58px;bottom:20px}
               .wf-intro-kicker{font-size:9px}
@@ -141,8 +143,11 @@ export default function IntroSheet({ ctx }) {
           ` }} />
           <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop">
             <button onClick={dismissIntro} aria-label="Close" className="wf-intro-close">{"\u2715"}</button>
-            <section className="wf-intro-visual" aria-label="A local evening waiting to be discovered">
-              <img aria-hidden="true" src={INTRO_VISUAL} alt="" />
+            <section className="wf-intro-visual" aria-label="A local moment waiting to be discovered">
+              <picture className="wf-intro-picture" aria-hidden="true">
+                <source media="(max-width: 760px)" srcSet={INTRO_VISUAL_MOBILE} />
+                <img src={INTRO_VISUAL} alt="" />
+              </picture>
               <div className="wf-intro-brand"><img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" /></div>
               <div className="wf-intro-copy">
                 <div className="wf-intro-kicker">Your local concierge</div>
