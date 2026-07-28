@@ -186,3 +186,4 @@ node scripts/test-idle-defer.mjs
 node scripts/check-pick-medallion.mjs
 node scripts/check-editorial-publish.mjs
 node scripts/test-atlas-editorial-row.mjs
+node scripts/test-outdoors-budget.mjs
