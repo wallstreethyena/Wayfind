@@ -41,6 +41,7 @@ import { saveItem as saveMonetized } from "../lib/savedItems";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
+import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
 import { HOOK_BANK, pickHook } from "../lib/hooks";
 import * as Meals from "../lib/meals";
@@ -143,12 +144,13 @@ import { creatorVideosFor } from "../lib/creatorVideos";
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
 // v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
 // that read like raw database rows — `food`, `coffee shop`, `food store`).
-// lib/taste.js already carried the fix; home.js simply never imported it. The
-// two additions are the READ path of the same rule the write path uses:
-// isLearnableValue retires junk already sitting in localStorage/Supabase, and
-// tasteLabel is the ONE place that knows the price dimension stores a Google
-// bucket index. Neither belongs in the view.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteLabel, isLearnableValue, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste";
+// lib/taste.js already carried the fix; home.js simply never imported it.
+// v6.56: the whole READ path — filter stored junk, label it, merge tokens that
+// share a label — is now one exported helper, tasteChips(), because the
+// Favorites entry row needs the same answer to count what has been learned.
+// The view calls it and renders; it knows nothing about how the price
+// dimension is stored or which Google tokens collapse together.
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips } from "../lib/taste";
 
 const BUILD = "beta";
 
@@ -162,7 +164,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.49";
+const BUILD_ID = "v6.56";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -206,7 +208,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }
       <div style={{ position: "relative" }}>
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: "opacity .18s ease" }}>
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
             <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
             <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
           </button>
@@ -904,6 +906,13 @@ const EXPERIENCES = {
   // water-venue boost so beaches rank at the top when the weather is genuinely
   // beach weather (and still stay present when it isn't).
   outdoors: { icon: "🌳", label: "Great Outdoors", title: "The Great Outdoors", mood: true, radius: 48280, lead: "Beaches, parks, trails, gardens, farms, food-truck parks, markets, festivals and waterfront near you.", queries: [{ cat: "beach", keyword: "" }, { cat: "beach", keyword: "public beach" }, { cat: "attractions", keyword: "parks" }, { cat: "attractions", keyword: "botanical garden" }, { cat: "attractions", keyword: "nature trails preserve" }, { cat: "attractions", keyword: "farm u-pick orchard" }, { cat: "food", keyword: "food truck park food trucks" }, { cat: "shopping", keyword: "farmers market" }, { cat: "attractions", keyword: "outdoor festival community event" }, { cat: "attractions", keyword: "national monument landmark" }, { cat: "attractions", keyword: "waterfront boardwalk pier" }], boost: (p, w) => { const v = Ranking.venueLean(p); if (!v.water) return 0; const felt = w ? (w.feels != null ? w.feels : w.temp) : null; const good = w && !w.wet && !(w.rain != null && w.rain >= 55) && !/storm|rain|shower/i.test(w.label || "") && felt != null && felt >= 62 && felt <= 98; return good ? 22 : 8; }, filter: (p) => { const v = Ranking.venueLean(p); if (v.water || v.lean === "outdoor") return true; return /food.?truck|farmers.?market|u.?pick|\bfarm\b|festival|fairground|monument|landmark|boardwalk|\bpier\b/i.test((p.name || "") + " " + (p.types || []).join(" ")); } },
+  // v6.52 (owner): "vineyard and apple picking in the fall" — a dedicated
+  // seasonal experience, named after whatever season it actually is right
+  // now (see lib/seasons.js). queries/filter/boost all live there so the fit
+  // logic is pure and unit-tested; label/title/lead here are the fallback
+  // used if this entry is ever opened outside the dynamic hero (openExpSheet
+  // special-cases "seasonal" to compute the live season name at open time).
+  seasonal: { icon: "🍂", label: "Seasonal Picks", title: "Seasonal Picks Near You", mood: true, lead: "What actually fits the season you're in right now — pumpkin patches and vineyards in fall, holiday lights in winter, beaches and water parks in summer.", queries: () => seasonQueries(currentSeason()), boost: (p) => seasonalFit(p, currentSeason()), filter: (p) => (p.rating || 0) >= 4.0 },
   hiddengems: { icon: "💎", label: "Hidden Gems", title: "Hidden Gems Near You", mood: true, lead: "The spots locals keep to themselves — hidden restaurants, secret beaches, speakeasies and one-off finds.", viator: true, viatorMode: "gems", queries: [{ cat: "food", keyword: "hidden gem restaurant" }, { cat: "beach", keyword: "secret hidden" }, { cat: "nightlife", keyword: "speakeasy" }, { cat: "food", keyword: "unique cafe" }, { cat: "attractions", keyword: "off the beaten path" }, { cat: "attractions", keyword: "instagrammable unique spot" }, { cat: "attractions", keyword: "unique experience" }], filter: (p) => p.rating >= 4.6 && (p.reviews || 0) >= 50 && (p.reviews || 0) <= 3000 && !GEM_CHAIN_RX.test(p.name || "") },
   bucketlist: { icon: "✨", label: "Bucket List", title: "Bucket List", lead: "Memory-for-life experiences: theme parks, iconic local traditions, one-of-a-kind adventures and top attractions.", radius: 110000 /* worth-the-drive class: intentionally wider than the 17-mi default */, viator: true, queries: [{ cat: "attractions", keyword: "amusement theme park" }, { cat: "attractions", keyword: "" }, { cat: "attractions", keyword: "iconic landmark tradition" }, { cat: "attractions", keyword: "once in a lifetime adventure" }, { cat: "attractions", keyword: "unique activity tour" }], filter: (p) => p.rating >= 4.5 && (p.reviews || 0) >= 100 },
   familyfun: { icon: "👨‍👩‍👧", label: "Family Fun", title: "Family Fun", mood: true, lead: "Kid-approved and pet-friendly: attractions, splash pads, playgrounds, museums, shows, zoos and aquariums.", queries: [{ cat: "attractions", keyword: "family" }, { cat: "attractions", keyword: "kids activities" }, { cat: "attractions", keyword: "splash pad playground park" }, { cat: "attractions", keyword: "children's museum" }, { cat: "attractions", keyword: "zoo aquarium" }, { cat: "attractions", keyword: "library kids events story time" }, { cat: "attractions", keyword: "kids theater family show movie" }, { cat: "attractions", keyword: "pet friendly dog park" }], filter: (p) => { const t = (p.types || []).join(" "); if (/night_club|casino|liquor_store|\bbar\b/.test(t)) return false; return (p.rating || 0) >= 4.2; } },
@@ -2178,10 +2187,19 @@ function HeroRail({ children }) {
 }
 
 function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, title, subtitle, ariaLabel, onOpen }) {
+  // v6.52 (Seasonal Picks): no dedicated stock photo exists for this slide yet
+  // (see lib/seasons.js) and inventing/reusing an unrelated one would be
+  // dishonest about what the card is showing — same "never fabricate" rule
+  // this codebase already applies to editorial and curated data. `image` is
+  // now optional: a themed gradient + a large watermark of the badge icon
+  // stands in until real seasonal photography exists, every existing caller
+  // is unaffected since they all still pass a real photo.
   return (
-    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: C.card }}>
-      <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" }} />
+    <div role="button" tabIndex={0} onKeyDown={KB_CLICK} onClick={onOpen} aria-label={ariaLabel} style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: image ? C.card : `linear-gradient(135deg, ${badgeColor}3D 0%, #171C26 55%, #0B0E14 100%)` }}>
+      {image
+        ? <img src={image} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        : <Icon name={icon} size={150} color={badgeColor} style={{ position: "absolute", right: -20, bottom: -20, opacity: 0.16 }} />}
+      <div style={{ position: "absolute", inset: 0, background: image ? "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)" : "linear-gradient(180deg, rgba(0,0,0,.05) 0%, rgba(0,0,0,.3) 55%, rgba(0,0,0,.82) 100%)" }} />
       <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${badgeColor}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
         {navIcon ? <NavIcon name={icon} size={12} strokeWidth={2} color={badgeColor} /> : <Icon name={icon} size={12} color={badgeColor} />}<span style={{ fontSize: 10.5, fontWeight: 800, color: badgeColor, letterSpacing: "0.4px", textTransform: "uppercase" }}>{badge}</span>
       </div>
@@ -3382,7 +3400,7 @@ function PageInner({ initialEvents = null }) {
     setPlacePosts([]); setConfirmDel(false);
     if (!supabase || !detail || detail._event || !detail.id) return;
     (async () => { try {
-      const { data } = await supabase.from("comments").select("id,place_id,user_id,author,type,body,created_at").eq("place_id", detail.id).order("created_at", { ascending: false }).limit(20);
+      const { data } = await supabase.from("comments").select("id,place_id,user_id,author,type,body,photos,created_at").eq("place_id", detail.id).order("created_at", { ascending: false }).limit(20);
       if (live && Array.isArray(data)) setPlacePosts(data);
     } catch (e) {} })();
     return () => { live = false; };
@@ -3393,11 +3411,26 @@ function PageInner({ initialEvents = null }) {
   const [hkSort, setHkSort] = useState("rated");
   const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
+  // Place-suggestion flow (v6.53, owner: "the user tell the app a place they
+  // want to be added to a particular experience... it has to be stored and
+  // ...we identify the report places and if it is indeed a place we should
+  // place in the list"). A user proposes a REAL Google place for the themed
+  // list they're currently looking at; it's stored pending review — never
+  // auto-added (see submitPlaceSuggestion + supabase/place-suggestions.sql).
+  // Local UI state only, deliberately separate from the main search box's
+  // query/suggestions/tokenRef so the two surfaces never clobber each other.
+  const [sugOpen, setSugOpen] = useState(false);
+  const [sugQuery, setSugQuery] = useState("");
+  const [sugSuggestions, setSugSuggestions] = useState([]);
+  const [sugPicked, setSugPicked] = useState(null);
+  const [sugNote, setSugNote] = useState("");
+  const [sugBusy, setSugBusy] = useState(false);
+  const [sugDone, setSugDone] = useState(false);
   // v6.12: the sheet opens sorted by a REAL option — presetSort "curated" (Stay
   // Tonight etc.) isn't one of the control's three values, so it fell through
   // unsorted AND mislabeled the pill as "Closest first". Coerce any non-option
   // preset to "rated" so the list is actually ordered and the pill matches.
-  useEffect(() => { const _ps = hookDetail && hookDetail.presetSort; setHkSort(["near", "rated", "price"].includes(_ps) ? _ps : "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { const _ps = hookDetail && hookDetail.presetSort; setHkSort(["near", "rated", "price"].includes(_ps) ? _ps : "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); setSugOpen(false); setSugQuery(""); setSugSuggestions([]); setSugPicked(null); setSugNote(""); setSugBusy(false); setSugDone(false); }, [hookDetail && hookDetail.id]);
   // v4.85: never show "Not enough data" at 17 mi when the sheet's wide fetch
   // already found real places a few miles farther — bump the sheet radius up
   // the ladder until enough places are visible. Manual slider changes win
@@ -3432,6 +3465,8 @@ function PageInner({ initialEvents = null }) {
   }
   const debounceRef = useRef(null);
   const tokenRef = useRef(null);
+  const sugDebounceRef = useRef(null);
+  const sugTokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
   const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
@@ -3571,11 +3606,10 @@ function PageInner({ initialEvents = null }) {
   const [tasteVer, setTasteVer] = useState(0);           // bump to reload the vector
   const tasteVecRef = useRef({});                        // durable per-user vector
   const [tasteVecState, setTasteVecState] = useState({}); // rendered copy (panel)
-  const [tasteEditOpen, setTasteEditOpen] = useState(false);
-  const [tasteDirection, setTasteDirection] = useState("more");
-  const [tasteDetailsOpen, setTasteDetailsOpen] = useState(false); // retained for the retired panel until its code split is removed
-  const [tasteSaving, setTasteSaving] = useState("");
-  const [tasteResetConfirm, setTasteResetConfirm] = useState(false);
+  // v6.56: the home-feed preference editor is gone (owner), and with it the
+  // five pieces of UI state it owned — tasteEditOpen / tasteDirection /
+  // tasteDetailsOpen / tasteSaving / tasteResetConfirm. The sheet that
+  // survives reads the vector and forgets from it; it holds no draft state.
 
   // Consent is remembered; the durable vector loads per user/session (not per
   // action — the session signals give instant feel; this is the slow layer).
@@ -3598,54 +3632,17 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tasteVer]);
   function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  // v6.55: `val` may now be a single raw value OR an array of raw values —
+  // the taste panel merges multiple raw Google tags onto one clean chip (see
+  // the chip-merge loop below), so "forget" on a merged chip must erase every
+  // raw value that fed it, not just one, or the chip would silently reappear.
   async function forgetTasteItem(dim, val) {
+    const vals = Array.isArray(val) ? val : [val];
     try {
-      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).eq("value", val); }
-      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; delete l[dim + "|" + val]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+      if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).in("value", vals); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; for (const v of vals) delete l[dim + "|" + v]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
     } catch (e) {}
     setTasteVer((n) => n + 1);
-  }
-  async function forgetTasteGroup(group) {
-    const keys = group && Array.isArray(group.keys) ? group.keys : [];
-    if (!keys.length) return;
-    try {
-      if (supabase && user) {
-        for (const key of keys) await supabase.from("wf_taste").delete().eq("dimension", key.dimension).eq("value", key.value);
-      } else {
-        const local = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {};
-        for (const key of keys) delete local[key.dimension + "|" + key.value];
-        localStorage.setItem("wf_taste_local", JSON.stringify(local));
-      }
-      try { logEvent("taste_preference_remove", null, { preference: group.id }); } catch (e) {}
-    } catch (e) {}
-    setTasteVer((n) => n + 1);
-  }
-  async function addTastePreference(optionId) {
-    if (tasteSaving) return;
-    const option = TASTE_EDITOR_OPTIONS.find((x) => x.id === optionId);
-    const signals = manualTasteSignals(optionId, tasteDirection);
-    if (!option || !signals.length) return;
-    setTasteSaving(optionId);
-    try {
-      if (supabase && user) {
-        // A direct edit means "set my preference", not "add another opaque
-        // weight." Clear the learned values represented by this group first,
-        // then write the user's explicit direction.
-        for (const [dimension, value] of option.signals) await supabase.from("wf_taste").delete().eq("dimension", dimension).eq("value", value);
-        await supabase.rpc("wf_taste_bump", { p_signals: signals });
-      } else {
-        const local = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {};
-        for (const [dimension, value] of option.signals) delete local[dimension + "|" + value];
-        localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(local, signals, Date.now())));
-      }
-      setConsent("on");
-      setTasteVer((n) => n + 1);
-      try { logEvent("taste_preference_add", null, { preference: optionId, direction: tasteDirection }); } catch (e) {}
-    } catch (e) {
-      showToast("Could not update your taste — try again");
-    } finally {
-      setTasteSaving("");
-    }
   }
   async function resetTaste() {
     try {
@@ -3654,38 +3651,16 @@ function PageInner({ initialEvents = null }) {
     } catch (e) {}
     setConsent("off"); setTasteVer((n) => n + 1);
   }
-  function exportTaste() {
-    try {
-      const vec = tasteVecRef.current || {};
-      // v6.45: export what the PANEL shows, not the raw store. Handing someone
-      // a file full of tokens we already know are junk ("2", "food") is a worse
-      // answer to "what do you have on me" than handing them the real answer.
-      // Same rule as the panel, so the two can never disagree; the raw value is
-      // kept alongside the label because it IS their data.
-      const taste = {};
-      for (const dim of Object.keys(vec)) {
-        const m = vec[dim];
-        if (!m || typeof m !== "object") continue;
-        for (const [val, w] of Object.entries(m)) {
-          if (!isLearnableValue(dim, val)) continue;
-          (taste[dim] || (taste[dim] = {}))[val] = { label: tasteLabel(dim, val), weight: Number(w) || 0 };
-        }
-      }
-      const blob = new Blob([JSON.stringify({ exported_at: new Date().toISOString(), scope: "your Wayfind taste — personal, never sold", taste }, null, 2)], { type: "application/json" });
-      // v6.45: the anchor has to be IN the document for Firefox to honour the
-      // click, and the object URL has to be revoked or every export pins its
-      // blob in memory for the life of the page.
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = "wayfind-my-taste.json"; a.rel = "noopener"; a.style.display = "none";
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) {} }, 0);
-      // iOS opens a share/download sheet with no context of its own — say what
-      // just happened so the prompt is expected instead of alarming.
-      try { showToast("Downloading wayfind-my-taste.json"); } catch (e) {}
-      try { logEvent("taste_export"); } catch (e) {}
-    } catch (e) {}
-  }
+  // v6.50 (owner, with screenshot: "the export data that is weird"): the raw
+  // JSON download was a feature nobody asked for and read as an unexplained,
+  // slightly alarming control in a two-button row. Erasure — letting someone
+  // wipe their own taste vector — still ships via resetTaste()/wf_taste_wipe
+  // below; a portability download is a separate ask and can come back
+  // deliberately if the owner wants it, not as a default. (v6.55: this panel
+  // no longer makes any data-sale promise in casual copy — see
+  // app/privacy/page.js for the actual, legally-worded disclosure of the
+  // company's right to sell or share data in the future; this UI just states
+  // what the panel does.)
 
   // Restore session on load and listen for sign-in / sign-out.
   useEffect(() => {
@@ -4184,8 +4159,50 @@ function PageInner({ initialEvents = null }) {
       : key === "entertainment"
         ? "/cards/trending-near-you-adobestock-434128766.jpeg"
         : null;
-    setHookDetail({ id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent, emoji: e.icon, label: cityFix(e.label), highlightWord: m.hl || "", hook: m.hook || e.lead || e.title, subtitle: m.sub || "", cta: m.cta || "Explore \u2192", themeTitle: cityFix(e.title), themeBody: e.lead, heroImage: heroImageOverride || heroImage, places: null });
+    // v6.52: Seasonal Picks names itself after whatever season it actually is
+    // right now \u2014 computed at open time (never a stale hardcoded season) so
+    // "Fall Picks" only ever shows in fall. v6.55: uses SEASON_META's real
+    // photo when the current season has one (summer, so far); seasons without
+    // one still fall back to the sheet's existing accent-colored gradient
+    // header, same as outdoors/datenight/etc.
+    const seasonNow = key === "seasonal" ? currentSeason() : null;
+    const sm = seasonNow ? SEASON_META[seasonNow] : null;
+    const cityShort = locName ? String(locName).split(",")[0] : "your area";
+    setHookDetail({
+      id: "exp-" + key, theme: key, fetchKey: key, accent: m.accent || C.accent,
+      emoji: sm ? sm.emoji : e.icon,
+      label: sm ? sm.label + " Picks" : cityFix(e.label),
+      highlightWord: m.hl || "",
+      hook: sm ? "The best of " + cityShort + " for " + sm.label.toLowerCase() + " " + sm.emoji : (m.hook || e.lead || e.title),
+      subtitle: m.sub || "",
+      cta: m.cta || "Explore \u2192",
+      themeTitle: sm ? sm.label + " Picks Near You" : cityFix(e.title),
+      themeBody: e.lead,
+      heroImage: heroImageOverride || heroImage || (sm && sm.heroImage) || null,
+      places: null,
+    });
     try { window.scrollTo(0, 0); } catch {}
+  }
+  // v6.55 (owner): "everyone loves a puppy!" — place Seasonal Picks where the
+  // user sees it right away (the very first slide, ahead of even the
+  // orientation card) AND repeat it as the last slide, a closing reminder —
+  // "engage with them technically twice." One implementation, reused at both
+  // ends of both hero rails, so the two placements can never drift apart.
+  // srcTag ("top" | "end") only distinguishes the two spots in analytics.
+  function seasonalHeroSlide(srcTag) {
+    const _s = SEASON_META[currentSeason()];
+    return (
+      <LocalPlanHeroCard
+        image={_s.heroImage}
+        badge={_s.label + " Picks"}
+        badgeColor={_s.color}
+        icon="leaf"
+        title={_s.label + " picks near you"}
+        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+        ariaLabel={_s.label + " picks near you"}
+        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} openExpSheet("seasonal"); }}
+      />
+    );
   }
   function openMoment(sel) {
     try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
@@ -4396,7 +4413,12 @@ function PageInner({ initialEvents = null }) {
       const sig = tasteSignals(action, place);
       if (!sig.length) return;
       const now = Date.now();
-      try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {}
+      // v6.56: nothing is learned about a signed-out visitor. Personalization
+      // is sign-in-only now (owner), so while signed out there is no surface
+      // that reads this vector and no control that can erase it — recording it
+      // would be collection with no purpose and no off switch. Signed in, the
+      // local copy stays the device mirror that Reset clears.
+      if (user) { try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {} }
       if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
     } catch (e) {}
   }
@@ -5655,8 +5677,26 @@ function PageInner({ initialEvents = null }) {
         }
         const _rad = hd.radiusOverride || 110000;
         const _kw = ((exp.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim();
-        let raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        // v6.52 (Seasonal Picks): a sheet's experience MAY declare `queries` —
+        // the same {cat,keyword}[] (or time/season-aware function) shape the
+        // legacy moment screen already supports for `outdoors`, `datenight`,
+        // etc. — instead of one blended cat+keyword string. Absent for every
+        // pre-existing key, so this changes nothing for them.
+        const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries;
+        let raw;
+        if (_qs && _qs.length) {
+          const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", ((qd.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim()).catch(() => [])));
+          raw = dedupePlaces(_b.flat().filter(Boolean), true);
+        } else {
+          raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
+        }
+        // v6.52: an experience MAY also declare a bounded context boost — same
+        // exp.boost(place) shape the legacy moment screen honors via
+        // _ctxBoost (e.g. outdoors' weather boost). Absent for every
+        // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
+        // them; Seasonal Picks is the first sheet-path experience to use it.
+        const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -6613,6 +6653,98 @@ function PageInner({ initialEvents = null }) {
     });
     showToast(existed ? "Removed from your lists" : "❤️ Saved to your lists");
   }
+
+  // Place-suggestion flow (v6.53) — lets a user propose a real place for the
+  // themed list they're currently viewing. Deliberately mirrors
+  // fetchSuggestions/resolvePlaceDetails (same guarded /api/places/* proxy —
+  // "Google Places API is the only source of identifiers" stays true here
+  // too) but with its OWN state, so opening this mini-search never disturbs
+  // the main search box if both happen to be mounted. Never writes the
+  // suggestion into any list itself — it only POSTs to /api/place-suggestions
+  // for the owner to review (see supabase/place-suggestions.sql +
+  // scripts/review-place-suggestions.mjs).
+  async function sugFetchSuggestions(q) {
+    if (typeof sugTokenRef.current !== "string") {
+      sugTokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+    }
+    try {
+      const r = await fetch("/api/places/autocomplete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: q, sessionToken: sugTokenRef.current, ...(center ? { lat: center.lat, lng: center.lng } : {}) }),
+      });
+      if (!r.ok) { setSugSuggestions([]); return; }
+      const data = await r.json();
+      // Only real establishments belong in a themed list — an "area" result
+      // (a city/neighborhood) from the same endpoint is filtered out here.
+      setSugSuggestions((data.suggestions || []).filter((s) => s && s.kind !== "area").slice(0, 6));
+    } catch { setSugSuggestions([]); }
+  }
+  function onSugQueryChange(v) {
+    setSugQuery(v);
+    setSugPicked(null);
+    if (sugDebounceRef.current) clearTimeout(sugDebounceRef.current);
+    if (!v || v.trim().length < 3) { setSugSuggestions([]); return; }
+    sugDebounceRef.current = setTimeout(() => sugFetchSuggestions(v.trim()), 250);
+  }
+  async function pickSugSuggestion(item) {
+    setSugSuggestions([]);
+    setSugBusy(true);
+    const sessionToken = sugTokenRef.current;
+    sugTokenRef.current = null;
+    try {
+      const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
+      const loc = place.location || {};
+      const name = ((place.displayName && (place.displayName.text || place.displayName)) || item.text || "").toString();
+      setSugPicked({
+        id: place.id,
+        name,
+        address: place.formattedAddress || "",
+        lat: typeof loc.lat === "number" ? loc.lat : loc.latitude,
+        lng: typeof loc.lng === "number" ? loc.lng : loc.longitude,
+      });
+      setSugQuery(name);
+    } catch {
+      showToast("Could not load that place — try again");
+    } finally {
+      setSugBusy(false);
+    }
+  }
+  async function submitPlaceSuggestion() {
+    if (!sugPicked || !hookDetail || sugBusy) return;
+    setSugBusy(true);
+    try {
+      const r = await fetch("/api/place-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          placeId: sugPicked.id,
+          placeName: sugPicked.name,
+          lat: sugPicked.lat,
+          lng: sugPicked.lng,
+          experienceKey: hookDetail.id,
+          note: sugNote.trim().slice(0, 280),
+          city: locName || cityNow || null,
+          deviceId: deviceId(),
+        }),
+      });
+      if (!r.ok) throw new Error("submit failed");
+      const data = await r.json().catch(() => ({}));
+      if (data && data.ok === false) throw new Error(data.error || "submit failed");
+      setSugDone(true);
+      setSugOpen(false);
+      setSugQuery(""); setSugPicked(null); setSugNote(""); setSugSuggestions([]);
+      showToast("Thanks — we'll take a look 🙌");
+      try { logEvent("place_suggest", null, { exp: hookDetail.id }); } catch (e) {}
+    } catch {
+      showToast("Couldn't send that — try again in a bit");
+    } finally {
+      setSugBusy(false);
+    }
+  }
+
   // Heart on a recommendation card: like it AND save the full list to Favorites.
   function onHookHeart(hookId) {
     if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
@@ -6926,6 +7058,11 @@ function PageInner({ initialEvents = null }) {
     cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
+    // personalization (v6.56): the taste consent + entry point live at the
+    // bottom of Favorites, not on the home feed — and only for signed-in
+    // users, which is why nothing here needs the auth primitives: the
+    // Favorites render site already walls the whole screen.
+    personalize, setConsent, setTasteOpen, tasteVecState,
     // itinerary
     activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, pickBrowse, reservations, removeRes, saveResConf,
     // shared list
@@ -6937,6 +7074,8 @@ function PageInner({ initialEvents = null }) {
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
     hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
+    // place-suggestion flow (v6.53) — user-submitted places, stored pending review
+    sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
     // account sheet
     accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
@@ -7094,155 +7233,12 @@ function PageInner({ initialEvents = null }) {
           </button>
         </div>
         )}
-        {screen === "suggested" && (() => {
-          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
-          if (personalize === null && ld >= 2) return (
-            <div style={{ marginTop: 10, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 62%)`, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
-                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
-              </div>
-            </div>
-          );
-          if (personalize === "on") {
-            const summary = summarizeTasteVector(tasteVecState || {});
-            const hasProfile = summary.more.length || summary.less.length;
-            const moreLabels = summary.more.slice(0, 3).map((x) => x.label);
-            const lessLabels = summary.less.slice(0, 2).map((x) => x.label);
-            const profileLine = moreLabels.length
-              ? `${moreLabels.join(" · ")}${summary.more.length > 3 ? ` · +${summary.more.length - 3}` : ""}`
-              : lessLabels.length ? `Less ${lessLabels.join(" · ")}` : "Ready for your first preference";
-            const preferenceRow = (group, direction) => (
-              <div key={direction + "|" + group.id} className={"wf-taste-inline-pref " + (direction === "less" ? "is-less" : "is-more")}>
-                <span className="wf-taste-inline-pref-mark" aria-hidden="true">{direction === "less" ? "−" : "+"}</span>
-                <span>{group.label}</span>
-                <button onClick={() => forgetTasteGroup(group)} aria-label={"Remove " + group.label + " from your taste profile"}>✕</button>
-              </div>
-            );
-            return (
-              <section className={"wf-taste-inline" + (tasteOpen ? " is-open" : "")} aria-label="Your Wayfind taste">
-                <style dangerouslySetInnerHTML={{ __html: `
-                  .wf-taste-inline{position:relative;margin-top:10px;overflow:hidden;border:1px solid rgba(223,184,96,.32);border-radius:18px;background:radial-gradient(circle at 0 0,rgba(249,115,22,.12),transparent 34%),linear-gradient(145deg,#171F2B,#111824 58%,#0D141E);box-shadow:0 16px 36px rgba(0,0,0,.2),inset 0 1px rgba(255,255,255,.05)}
-                  .wf-taste-inline:before{content:"";position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,#F1D08A,rgba(249,115,22,.75),transparent)}
-                  .wf-taste-inline-head{position:relative;width:100%;min-height:72px;display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;background:transparent;color:${C.text};text-align:left;cursor:pointer}
-                  .wf-taste-inline-seal{display:grid;width:38px;height:38px;flex:0 0 38px;place-items:center;border:1px solid rgba(244,211,132,.55);border-radius:12px;background:linear-gradient(145deg,#F6D77E,#A9660E);color:#211505;box-shadow:0 8px 18px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.55)}
-                  .wf-taste-inline-copy{min-width:0;flex:1}
-                  .wf-taste-inline-kicker{display:block;color:#E9C977;font-size:8px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
-                  .wf-taste-inline-title{display:block;margin-top:4px;overflow:hidden;color:${C.text};font-family:Georgia,'Times New Roman',serif;font-size:16px;font-weight:400;letter-spacing:-.02em;line-height:1.1;text-overflow:ellipsis;white-space:nowrap}
-                  .wf-taste-inline-status{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;color:#F7A15E;font-size:9.5px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
-                  .wf-taste-inline-status:before{content:"";width:6px;height:6px;border-radius:50%;background:#F97316;box-shadow:0 0 0 3px rgba(249,115,22,.12)}
-                  .wf-taste-inline-chevron{display:grid;width:28px;height:28px;flex:0 0 28px;place-items:center;border:1px solid rgba(255,255,255,.08);border-radius:50%;color:${C.muted};font-size:15px;transition:transform .2s ease}
-                  .wf-taste-inline.is-open .wf-taste-inline-chevron{transform:rotate(180deg)}
-                  .wf-taste-inline-body{position:relative;padding:0 16px 17px}
-                  .wf-taste-inline-rule{height:1px;margin:0 0 15px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(223,184,96,.28),rgba(255,255,255,.04))}
-                  .wf-taste-inline-intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start;margin-bottom:15px}
-                  .wf-taste-inline-intro strong{display:block;color:${C.text};font-size:12.5px}
-                  .wf-taste-inline-intro p{margin:4px 0 0;max-width:420px;color:${C.muted};font-size:10.5px;line-height:1.45}
-                  .wf-taste-inline-score{max-width:170px;color:#D4B973;font-size:9px;font-weight:750;line-height:1.4;text-align:right}
-                  .wf-taste-inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-                  .wf-taste-inline-lane{min-width:0;padding:12px;border:1px solid rgba(255,255,255,.075);border-radius:14px;background:rgba(255,255,255,.023)}
-                  .wf-taste-inline-lane-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
-                  .wf-taste-inline-lane-head strong{color:${C.text};font-size:10px;letter-spacing:.02em}
-                  .wf-taste-inline-lane-head span{color:${C.muted};font-size:8.5px}
-                  .wf-taste-inline-prefs{display:flex;flex-wrap:wrap;gap:6px}
-                  .wf-taste-inline-pref{display:inline-flex;min-height:30px;align-items:center;gap:6px;padding:3px 4px 3px 6px;border:1px solid rgba(249,115,22,.28);border-radius:999px;background:rgba(249,115,22,.06);color:${C.light};font-size:9.5px;font-weight:750}
-                  .wf-taste-inline-pref.is-less{border-color:rgba(148,163,184,.2);background:rgba(148,163,184,.045);color:${C.muted}}
-                  .wf-taste-inline-pref-mark{display:grid;width:17px;height:17px;place-items:center;border-radius:50%;background:rgba(249,115,22,.14);color:${C.accent};font-size:11px;font-weight:900}
-                  .wf-taste-inline-pref.is-less .wf-taste-inline-pref-mark{background:rgba(148,163,184,.1);color:${C.muted}}
-                  .wf-taste-inline-pref button{display:grid;width:22px;height:22px;place-items:center;border:0;border-radius:50%;background:rgba(255,255,255,.05);color:${C.muted};font-size:9px;cursor:pointer}
-                  .wf-taste-inline-empty{margin:0;color:${C.muted};font-size:9.5px;line-height:1.4}
-                  .wf-taste-inline-add{width:100%;min-height:42px;margin-top:10px;border:1px solid rgba(223,184,96,.3);border-radius:12px;background:linear-gradient(180deg,rgba(223,184,96,.1),rgba(223,184,96,.035));color:#F1D28A;font-size:10.5px;font-weight:850;cursor:pointer}
-                  .wf-taste-inline-editor{margin-top:9px;padding:12px;border:1px solid rgba(249,115,22,.2);border-radius:14px;background:rgba(5,9,15,.4)}
-                  .wf-taste-inline-editor-title{color:${C.text};font-size:11px;font-weight:850}
-                  .wf-taste-inline-editor-copy{margin-top:3px;color:${C.muted};font-size:9.5px;line-height:1.4}
-                  .wf-taste-inline-direction{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:10px 0;padding:4px;border-radius:10px;background:${C.bg}}
-                  .wf-taste-inline-direction button{min-height:34px;border:0;border-radius:8px;background:transparent;color:${C.muted};font-size:9.5px;font-weight:800;cursor:pointer}
-                  .wf-taste-inline-direction button.is-active{background:#1A2230;color:${C.text};box-shadow:0 3px 9px rgba(0,0,0,.2)}
-                  .wf-taste-inline-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-                  .wf-taste-inline-option{min-height:38px;padding:6px 8px;border:1px solid rgba(255,255,255,.09);border-radius:10px;background:rgba(255,255,255,.025);color:${C.light};font-size:9.5px;font-weight:720;text-align:left;cursor:pointer}
-                  .wf-taste-inline-option:hover{border-color:rgba(249,115,22,.38);color:${C.text}}
-                  .wf-taste-inline-option:disabled{opacity:.55;cursor:wait}
-                  .wf-taste-inline-data{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
-                  .wf-taste-inline-private{display:flex;align-items:center;gap:6px;color:${C.muted};font-size:8.5px;line-height:1.35}
-                  .wf-taste-inline-actions{display:flex;gap:4px}
-                  .wf-taste-inline-actions button{min-height:34px;padding:0 9px;border:0;background:transparent;color:${C.muted};font-size:9px;font-weight:780;cursor:pointer}
-                  .wf-taste-inline-actions button:last-child{color:#F68B8B}
-                  .wf-taste-inline-reset{margin-top:8px;padding:10px;border:1px solid rgba(239,68,68,.24);border-radius:12px;background:rgba(239,68,68,.05)}
-                  .wf-taste-inline-reset p{margin:0 0 8px;color:${C.light};font-size:9.5px;line-height:1.4}
-                  .wf-taste-inline-reset div{display:flex;gap:6px}
-                  .wf-taste-inline-reset button{flex:1;min-height:36px;border-radius:9px;font-size:9.5px;font-weight:800;cursor:pointer}
-                  @media(max-width:520px){
-                    .wf-taste-inline-status{display:none}.wf-taste-inline-title{font-size:14.5px}.wf-taste-inline-grid{grid-template-columns:1fr}
-                    .wf-taste-inline-intro{grid-template-columns:1fr}.wf-taste-inline-score{max-width:none;text-align:left}
-                    .wf-taste-inline-options{grid-template-columns:repeat(2,minmax(0,1fr))}
-                    .wf-taste-inline-data{align-items:flex-start;flex-direction:column}.wf-taste-inline-actions{width:100%;justify-content:space-between}
-                  }
-                  @media(prefers-reduced-motion:reduce){.wf-taste-inline-chevron{transition:none}}
-                ` }} />
-                <button className="wf-taste-inline-head" onClick={() => setTasteOpen((v) => !v)} aria-expanded={tasteOpen} aria-controls="wf-taste-inline-body">
-                  <span className="wf-taste-inline-seal" aria-hidden="true"><Icon name="sparkles" size={17} color="#211505" /></span>
-                  <span className="wf-taste-inline-copy">
-                    <span className="wf-taste-inline-kicker">Personalized for you</span>
-                    <span className="wf-taste-inline-title">{profileLine}</span>
-                  </span>
-                  <span className="wf-taste-inline-status">Taste active</span>
-                  <span className="wf-taste-inline-chevron" aria-hidden="true">⌄</span>
-                </button>
-                {tasteOpen ? (
-                  <div className="wf-taste-inline-body" id="wf-taste-inline-body">
-                    <div className="wf-taste-inline-rule" />
-                    <div className="wf-taste-inline-intro">
-                      <div><strong>Your taste, shaping this shortlist.</strong><p>Add what you want more or less of. Wayfind uses it only to reorder recommendations for you.</p></div>
-                      <div className="wf-taste-inline-score">A place’s Wayfind Score never changes.</div>
-                    </div>
-                    <div className="wf-taste-inline-grid">
-                      <section className="wf-taste-inline-lane">
-                        <div className="wf-taste-inline-lane-head"><strong>Show me more of</strong><span>Moves matches up</span></div>
-                        <div className="wf-taste-inline-prefs">{summary.more.length ? summary.more.map((g) => preferenceRow(g, "more")) : <p className="wf-taste-inline-empty">Add something you want to see more often.</p>}</div>
-                      </section>
-                      <section className="wf-taste-inline-lane">
-                        <div className="wf-taste-inline-lane-head"><strong>Show me less of</strong><span>Moves matches down</span></div>
-                        <div className="wf-taste-inline-prefs">{summary.less.length ? summary.less.map((g) => preferenceRow(g, "less")) : <p className="wf-taste-inline-empty">Nothing muted yet.</p>}</div>
-                      </section>
-                    </div>
-                    {!hasProfile ? <p className="wf-taste-inline-empty" style={{ marginTop: 10 }}>Nothing learned yet. Add a preference or keep using Wayfind and this will grow from your explicit actions.</p> : null}
-                    <button className="wf-taste-inline-add" onClick={() => setTasteEditOpen((v) => !v)}>{tasteEditOpen ? "Done tuning" : "+ Add or correct a preference"}</button>
-                    {tasteEditOpen ? (
-                      <div className="wf-taste-inline-editor">
-                        <div className="wf-taste-inline-editor-title">Tune your recommendations</div>
-                        <div className="wf-taste-inline-editor-copy">Choose a direction, then a preference. Your choice replaces Wayfind’s current guess for that topic.</div>
-                        <div className="wf-taste-inline-direction" role="group" aria-label="Preference direction">
-                          <button className={tasteDirection === "more" ? "is-active" : ""} aria-pressed={tasteDirection === "more"} onClick={() => setTasteDirection("more")}>Show me more</button>
-                          <button className={tasteDirection === "less" ? "is-active" : ""} aria-pressed={tasteDirection === "less"} onClick={() => setTasteDirection("less")}>Show me less</button>
-                        </div>
-                        <div className="wf-taste-inline-options">
-                          {TASTE_EDITOR_OPTIONS.map((option) => <button key={option.id} className="wf-taste-inline-option" disabled={!!tasteSaving} onClick={() => addTastePreference(option.id)}>{tasteSaving === option.id ? "Saving…" : option.label}</button>)}
-                        </div>
-                      </div>
-                    ) : null}
-                    <div className="wf-taste-inline-data">
-                      <div className="wf-taste-inline-private"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" /><path d="m9.5 12 1.6 1.6 3.5-4" /></svg><span>Private to your account or this device. Never sold.</span></div>
-                      <div className="wf-taste-inline-actions">
-                        <button onClick={exportTaste}>Export</button>
-                        <button onClick={() => setTasteResetConfirm(true)}>Reset profile</button>
-                      </div>
-                    </div>
-                    {tasteResetConfirm ? <div className="wf-taste-inline-reset"><p>This permanently clears Wayfind’s learned preferences and turns personalization off.</p><div><button onClick={() => setTasteResetConfirm(false)} style={{ border: `1px solid ${C.border}`, background: C.card, color: C.light }}>Keep my profile</button><button onClick={() => { resetTaste(); setTasteResetConfirm(false); setTasteOpen(false); }} style={{ border: `1px solid ${C.red}66`, background: C.red, color: "#fff" }}>Clear everything</button></div></div> : null}
-                  </div>
-                ) : null}
-              </section>
-            );
-          }
-          if (personalize === "off" && ld >= 2) return (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px" }}>
-              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
-            </div>
-          );
-          return null;
-        })()}
+        {/* v6.56 (owner): personalization no longer appears in the home feed.
+            The consent prompt, the "taste active" expander and the "turn it
+            back on" nudge all lived here and all interrupted the same scroll —
+            the one moment a visitor is deciding where to go. The whole surface
+            now sits at the BOTTOM of Favorites, behind sign-in, where someone
+            has already opted into having a profile at all. See Saved.js. */}
         {screen === "suggested" && FEATURED_AREAS.length > 0 && (
         <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, flexShrink: 0 }}>Explore other areas:</span>
@@ -7279,40 +7275,19 @@ function PageInner({ initialEvents = null }) {
             {screen === "map" && <MapScreen ctx={ctx} />}
           </>
 
-        {/* v6.45 (owner, screenshot: the consent card tangled up with the
-            wordmark and the search field). This block used to render INSIDE
-            .wf-topbar — the app chrome — where it inherited the topbar's drop
-            shadow and its orange :after hairline, and pushed the header to
-            roughly half the viewport on a phone. It is a statement about the
-            FEED, so it belongs in the feed: it now lives in the scrolling body
-            above the list, scrolls away like any other card, and cannot
-            interact with the header at all. Locked by scripts/test-taste.mjs. */}
-        {screen === "suggested" && (() => {
-          const ld = signals.filter((s) => s.action === "like" || s.action === "dislike").length;
-          if (personalize === null && ld >= 2) return (
-            <div style={{ margin: "2px 0 13px", background: "linear-gradient(160deg, #232C3C 0%, #1C2230 62%)", border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "13px 15px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.05), 0 8px 20px rgba(0,0,0,.22)" }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>✨ Want a feed that learns what you like?</div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "5px 0 10px" }}>Wayfind can tune your suggestions to your taste. It is yours alone — never sold, never shared — and you can turn it off or delete it anytime.</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => { setConsent("on"); try { logEvent("taste_consent_on"); } catch (e) {} }} style={{ flex: 1, minHeight: TARGET, borderRadius: RADII.control, border: "none", background: C.accent, color: "#0D1117", fontSize: 13, fontWeight: 800, cursor: "pointer", transition: `background ${MOTION.fast} ${MOTION.ease}` }}>Personalize my feed</button>
-                <button onClick={() => { setConsent("off"); try { logEvent("taste_consent_off"); } catch (e) {} }} style={{ minHeight: TARGET, padding: "0 16px", borderRadius: RADII.control, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer", transition: `border-color ${MOTION.fast} ${MOTION.ease}` }}>No thanks</button>
-              </div>
-            </div>
-          );
-          if (personalize === "on") return (
-            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: C.gold }}>✨ Picked for you — tuned to what you like</span>
-              <button onClick={() => setTasteOpen(true)} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Manage</button>
-            </div>
-          );
-          if (personalize === "off" && ld >= 2) return (
-            <div style={{ margin: "2px 0 13px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, padding: "9px 13px", boxShadow: "inset 0 1px 0 rgba(255,255,255,.045)" }}>
-              <span style={{ fontSize: 12, color: C.muted }}>Personalization is off — your feed is the same for everyone.</span>
-              <button onClick={() => setConsent("on")} style={{ flexShrink: 0, minHeight: 40, padding: "0 4px", display: "inline-flex", alignItems: "center", background: "transparent", border: "none", color: C.accent, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>Turn on</button>
-            </div>
-          );
-          return null;
-        })()}
+        {/* v6.56 (owner, screenshot + "remove the item on image 2 ... put the
+            personalization under the favorites ... not in their face at the
+            main page that is too much and it messes with the flow").
+            Everything that used to live here — the consent ask, the "Picked
+            for you" status strip, and the "personalization is off" strip —
+            moved to the bottom of Favorites (app/components/screens/Saved.js).
+            The home feed is now the feed. Personalization is a SETTING about
+            the feed, and a setting interrupting the thing it configures, on
+            every single load, is exactly the clutter this removes.
+            The honesty rule is unchanged, only relocated: whenever the feed is
+            re-ranked by taste the app still says so in plain language and puts
+            the off switch one tap away — see the Personalization row in
+            SavedScreen, locked by scripts/test-taste.mjs. */}
         {/* Coverage door: alert (signed OUT) → sign-in / notify; unlock (signed
             IN) → unlock-this-city. It re-fetches on sign-in (user is in the gate
             effect deps) so the alert card swaps to the unlock card immediately —
@@ -7335,7 +7310,14 @@ function PageInner({ initialEvents = null }) {
           // Personalize ONLY with explicit consent (Phase 2). Without it, the
           // feed is pure moment/Score order — same for everyone.
           const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
-          const personalized = personalize === "on" && hasTaste;
+          // v6.56 (owner: "make the personalization only available after the
+          // user signs in"). `user &&` is the load-bearing half of that
+          // instruction. The switch now lives inside Favorites, which is
+          // sign-in walled — so if the re-ranking still ran while signed out, a
+          // visitor would have a feed quietly reordered by a setting they can
+          // neither see nor turn off. Signed out is now genuinely neutral:
+          // pure moment/Score order, the same feed everyone else gets.
+          const personalized = !!user && personalize === "on" && hasTaste;
           const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = new Date().getHours();
@@ -7463,6 +7445,10 @@ function PageInner({ initialEvents = null }) {
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                   </div>
                   <HeroRail>
+                    {/* v6.55 (owner): "place it at the top... where the user
+                        sees it right away" — Seasonal Picks now LEADS this
+                        rail, ahead of even the orientation card. */}
+                    {seasonalHeroSlide("top")}
                     <DiscoveryHeroCard />
                     {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
                         render unconditionally and only swap its COPY when no
@@ -7524,6 +7510,10 @@ function PageInner({ initialEvents = null }) {
                       ariaLabel="Trending near you"
                       onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} openExpSheet("entertainment"); }}
                     />
+                    {/* v6.55 (owner): "...at the end will be the reminder, so
+                        we engage with them technically twice" — the same
+                        Seasonal Picks slide repeats as the closing card. */}
+                    {seasonalHeroSlide("end")}
                   </HeroRail>
                   {discoveryMenu}
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
@@ -7565,9 +7555,13 @@ function PageInner({ initialEvents = null }) {
                       // separate sibling control layered on top, never nested.
                       return (
                         <HeroRail>
-                        {/* The orientation card leads the same rail; the event, beach,
-                            date-night, family, and trending cards keep their existing
-                            destinations and behavior as the following slides. */}
+                        {/* v6.55 (owner): "place it at the top... where the
+                            user sees it right away" — Seasonal Picks now
+                            LEADS this rail too, ahead of the orientation
+                            card; the event, beach, date-night, family, and
+                            trending cards keep their existing destinations
+                            and behavior as the following slides. */}
+                        {seasonalHeroSlide("top")}
                         <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
@@ -7660,6 +7654,10 @@ function PageInner({ initialEvents = null }) {
                             }
                           }}
                         />
+                        {/* v6.55 (owner): "...at the end will be the reminder, so
+                            we engage with them technically twice" — the same
+                            Seasonal Picks slide repeats as the closing card. */}
+                        {seasonalHeroSlide("end")}
                         </HeroRail>
                       );
                     })()}
@@ -8223,141 +8221,57 @@ function PageInner({ initialEvents = null }) {
 
       {/* Account menu — opens from the header avatar so a tap no longer signs you out by accident */}
       {accountOpen && user && <AccountSheet ctx={ctx} />}
-      {/* Retired: the former full-screen taste sheet. The premium editor now
-          expands inside the personalization strip above, so this overlay can
-          never render while its remaining markup is removed in the next shell
-          extraction. */}
-      {false && tasteOpen && (() => {
-        const vec = tasteVecState || {};
-        const summary = summarizeTasteVector(vec);
-        const hasProfile = summary.more.length || summary.less.length || summary.details.length;
-        const previewLabels = summary.more.slice(0, 3).map((x) => x.label);
-        const profileLine = previewLabels.length
-          ? `Wayfind currently leans toward ${previewLabels.join(previewLabels.length > 1 ? previewLabels.length === 2 ? " and " : ", " : "")}${summary.more.length > 3 ? ` and ${summary.more.length - 3} more` : ""}.`
-          : summary.less.length ? "You have told Wayfind what to show less often." : "Your profile is ready for its first preference.";
-        const preferenceRow = (group, direction) => (
-          <div key={direction + "|" + group.id} className={"wf-taste-pref " + (direction === "less" ? "is-less" : "is-more")}>
-            <span className="wf-taste-pref-dot" aria-hidden="true" />
-            <span>{group.label}</span>
-            <button onClick={() => forgetTasteGroup(group)} aria-label={"Remove " + group.label + " from your taste profile"}>✕</button>
-          </div>
-        );
+      {tasteOpen && (() => {
+        // FILTER ON READ, LABEL, MERGE — all three live in tasteChips()
+        // (lib/taste.js), not here. See that function for why each one exists;
+        // the short version is that the view must never render a raw taxonomy
+        // token, must never show two chips that mean the same thing, and must
+        // never trust that what is already in storage was written under the
+        // current rules. v6.56 moved the loop out of this closure so the
+        // Favorites entry row can count exactly what this panel will show.
+        const top = tasteChips(tasteVecState || {}).slice(0, 24);
         return (
-          <div role="dialog" aria-modal="true" aria-label="Your Wayfind profile" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
-            <style dangerouslySetInnerHTML={{ __html: `
-              .wf-taste-sheet{width:100%;max-width:520px;max-height:min(88dvh,820px);overflow-y:auto;overscroll-behavior-y:contain;padding:6px 20px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#171E29 0%,${C.panel} 34%,#121820 100%);border:1px solid ${C.border};border-bottom:0;border-radius:26px 26px 0 0;box-shadow:0 -24px 70px rgba(0,0,0,.52);transition:${SHEET_EASE}}
-              .wf-taste-kicker{font-size:9.5px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:${C.accent}}
-              .wf-taste-title{margin:7px 0 0;font-size:25px;font-weight:850;letter-spacing:-.035em;color:${C.text}}
-              .wf-taste-lead{margin:8px 0 0;max-width:430px;font-size:12.5px;line-height:1.55;color:${C.muted}}
-              .wf-taste-explainer{display:flex;gap:11px;margin:17px 0 18px;padding:13px 14px;border-radius:14px;border:1px solid rgba(249,115,22,.2);background:linear-gradient(135deg,rgba(249,115,22,.09),rgba(249,115,22,.025))}
-              .wf-taste-explainer-icon{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:rgba(249,115,22,.12)}
-              .wf-taste-explainer strong{display:block;font-size:12px;color:${C.text}}
-              .wf-taste-explainer div>span{display:block;margin-top:3px;font-size:10.5px;line-height:1.45;color:${C.muted}}
-              .wf-taste-summary{margin-bottom:18px;padding:15px 16px;border-radius:16px;background:rgba(255,255,255,.025);border:1px solid ${C.border}}
-              .wf-taste-summary-label{font-size:9.5px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:${C.light}}
-              .wf-taste-summary p{margin:7px 0 0;font-size:13px;line-height:1.5;color:${C.text}}
-              .wf-taste-summary small{display:block;margin-top:5px;font-size:10.5px;line-height:1.4;color:${C.muted}}
-              .wf-taste-section{margin-top:17px}
-              .wf-taste-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:9px}
-              .wf-taste-section-head strong{font-size:12px;color:${C.text}}
-              .wf-taste-section-head span{font-size:9.5px;color:${C.muted}}
-              .wf-taste-prefs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-              .wf-taste-pref{min-height:46px;display:flex;align-items:center;gap:9px;padding:8px 8px 8px 11px;border-radius:13px;border:1px solid ${C.border};background:rgba(255,255,255,.025);color:${C.text};font-size:11.5px;font-weight:750}
-              .wf-taste-pref.is-more{border-color:rgba(249,115,22,.24)}
-              .wf-taste-pref.is-less{color:${C.light};border-color:rgba(148,163,184,.22)}
-              .wf-taste-pref-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;background:${C.accent};box-shadow:0 0 0 3px rgba(249,115,22,.1)}
-              .wf-taste-pref.is-less .wf-taste-pref-dot{background:${C.muted};box-shadow:none}
-              .wf-taste-pref button{width:28px;height:28px;margin-left:auto;flex:0 0 auto;border:0;border-radius:50%;background:rgba(255,255,255,.045);color:${C.muted};cursor:pointer}
-              .wf-taste-add{width:100%;min-height:46px;margin-top:17px;border-radius:13px;border:1px solid rgba(249,115,22,.34);background:rgba(249,115,22,.08);color:${C.accent};font-size:12px;font-weight:850;cursor:pointer}
-              .wf-taste-editor{margin-top:10px;padding:14px;border-radius:16px;border:1px solid ${C.border};background:#101620}
-              .wf-taste-editor-title{font-size:12.5px;font-weight:800;color:${C.text}}
-              .wf-taste-editor-copy{margin-top:3px;font-size:10.5px;line-height:1.4;color:${C.muted}}
-              .wf-taste-direction{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:12px 0;padding:4px;border-radius:12px;background:${C.bg}}
-              .wf-taste-direction button{min-height:38px;border:0;border-radius:9px;background:transparent;color:${C.muted};font-size:11px;font-weight:800;cursor:pointer}
-              .wf-taste-direction button.is-active{background:${C.card};color:${C.text};box-shadow:0 2px 8px rgba(0,0,0,.24)}
-              .wf-taste-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-              .wf-taste-option{min-height:43px;padding:8px 10px;border-radius:11px;border:1px solid ${C.border};background:rgba(255,255,255,.02);color:${C.light};font-size:10.5px;font-weight:720;text-align:left;cursor:pointer}
-              .wf-taste-option:hover{border-color:rgba(249,115,22,.4);color:${C.text}}
-              .wf-taste-option:disabled{opacity:.55;cursor:wait}
-              .wf-taste-details-toggle{min-height:42px;margin-top:15px;padding:0;border:0;background:transparent;color:${C.muted};font-size:10.5px;font-weight:750;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(148,163,184,.3);text-underline-offset:3px}
-              .wf-taste-details{display:flex;flex-wrap:wrap;gap:6px;padding:11px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(148,163,184,.12)}
-              .wf-taste-detail{display:inline-flex;align-items:center;gap:5px;padding:5px 6px 5px 9px;border-radius:999px;border:1px solid ${C.border};color:${C.muted};font-size:9.5px}
-              .wf-taste-detail button{width:18px;height:18px;border:0;border-radius:50%;background:rgba(255,255,255,.05);color:${C.muted};font-size:9px;cursor:pointer}
-              .wf-taste-data{margin-top:20px;padding-top:17px;border-top:1px solid ${C.border}}
-              .wf-taste-data-label{font-size:9.5px;font-weight:850;letter-spacing:.11em;text-transform:uppercase;color:${C.muted}}
-              .wf-taste-actions{display:flex;gap:8px;margin-top:10px}
-              .wf-taste-actions button{flex:1;min-height:44px;border-radius:12px;background:${C.card};font-size:11px;font-weight:780;cursor:pointer}
-              .wf-taste-reset-confirm{margin-top:9px;padding:12px;border-radius:13px;border:1px solid rgba(239,68,68,.28);background:rgba(239,68,68,.055)}
-              .wf-taste-reset-confirm p{margin:0 0 9px;font-size:10.5px;line-height:1.45;color:${C.light}}
-              .wf-taste-reset-confirm div{display:flex;gap:7px}
-              .wf-taste-reset-confirm button{flex:1;min-height:40px;border-radius:10px;font-size:10.5px;font-weight:800;cursor:pointer}
-              @media(min-width:760px){.wf-taste-sheet{margin-bottom:24px;border-bottom:1px solid ${C.border};border-radius:26px}}
-              @media(max-width:380px){.wf-taste-sheet{padding-left:16px;padding-right:16px}.wf-taste-prefs,.wf-taste-options{grid-template-columns:1fr}}
-              @media(prefers-reduced-motion:reduce){.wf-taste-sheet{transition:none}}
-            ` }} />
-            <div onClick={(e) => e.stopPropagation()} className="wf-taste-sheet">
+          <div role="dialog" aria-label="Your taste" onClick={() => setTasteOpen(false)} style={{ ...sheetBg }}>
+            <div className="wf-taste-sheet" onClick={(e) => e.stopPropagation()} style={{ ...sheet, maxWidth: 480, maxHeight: "82vh", padding: "6px 18px calc(22px + env(safe-area-inset-bottom))", overscrollBehaviorY: "contain", transition: SHEET_EASE }}>
               <Grabber />
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
-                <div>
-                  <div className="wf-taste-kicker">Private personalization</div>
-                  <h2 className="wf-taste-title">Your Wayfind profile</h2>
-                </div>
-                <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ minWidth: 44, minHeight: 44, marginTop: -4, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
-              </div>
-              <p className="wf-taste-lead">This is what Wayfind has learned from places you like, save, dislike, and share. You can correct it directly at any time.</p>
-              <div className="wf-taste-explainer">
-                <span className="wf-taste-explainer-icon"><Icon name="sparkles" size={15} color={C.accent} /></span>
-                <div><strong>What personalization changes</strong><span>It reorders recommendations to better fit you. A place’s Wayfind Score never changes.</span></div>
-              </div>
-              <div className="wf-taste-summary">
-                <div className="wf-taste-summary-label">What Wayfind understands</div>
-                <p>{profileLine}</p>
-                <small>Built only from your activity and edits. Private to your account or this device—never sold.</small>
-              </div>
-
-              {summary.more.length ? (
-                <section className="wf-taste-section">
-                  <div className="wf-taste-section-head"><strong>Show me more of</strong><span>Helps move matching places up</span></div>
-                  <div className="wf-taste-prefs">{summary.more.map((g) => preferenceRow(g, "more"))}</div>
-                </section>
-              ) : null}
-              {summary.less.length ? (
-                <section className="wf-taste-section">
-                  <div className="wf-taste-section-head"><strong>Show me less of</strong><span>Gently moves matches down</span></div>
-                  <div className="wf-taste-prefs">{summary.less.map((g) => preferenceRow(g, "less"))}</div>
-                </section>
-              ) : null}
-              {!hasProfile ? <p style={{ margin: "4px 0 0", fontSize: 12, lineHeight: 1.5, color: C.muted }}>Nothing learned yet. Add a preference below, or keep using Wayfind and your profile will grow from explicit actions.</p> : null}
-
-              <button className="wf-taste-add" onClick={() => setTasteEditOpen((v) => !v)}>{tasteEditOpen ? "Done tuning" : "+ Add or correct a preference"}</button>
-              {tasteEditOpen ? (
-                <div className="wf-taste-editor">
-                  <div className="wf-taste-editor-title">Tune your recommendations</div>
-                  <div className="wf-taste-editor-copy">Choose a direction, then a preference. Your choice replaces Wayfind’s current guess for that topic.</div>
-                  <div className="wf-taste-direction" role="group" aria-label="Preference direction">
-                    <button className={tasteDirection === "more" ? "is-active" : ""} aria-pressed={tasteDirection === "more"} onClick={() => setTasteDirection("more")}>Show me more</button>
-                    <button className={tasteDirection === "less" ? "is-active" : ""} aria-pressed={tasteDirection === "less"} onClick={() => setTasteDirection("less")}>Show me less</button>
+              <div className="wf-taste-body">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                    <span className="wf-taste-mark" aria-hidden="true">✦</span>
+                    <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-.015em", color: C.text }}>Your taste</div>
                   </div>
-                  <div className="wf-taste-options">
-                    {TASTE_EDITOR_OPTIONS.map((option) => <button key={option.id} className="wf-taste-option" disabled={!!tasteSaving} onClick={() => addTastePreference(option.id)}>{tasteSaving === option.id ? "Saving…" : option.label}</button>)}
+                  <button onClick={() => setTasteOpen(false)} aria-label="Close" style={{ flexShrink: 0, minWidth: 40, minHeight: 40, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "transparent", border: "none", color: C.muted, fontSize: 20, cursor: "pointer" }}>✕</button>
+                </div>
+                <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: "0 0 14px" }}>Everything Wayfind has learned from what you like, save, and share. Remove anything, or clear it all.</p>
+                {top.length ? (
+                  <div className="wf-taste-cloud">
+                    {top.map((c) => (
+                      /* The chip SHOWS tasteLabel but every action still carries
+                         the RAW stored value(s) in c.vals — forgetting by the
+                         label alone would quietly delete nothing. A merged chip
+                         (e.g. "American") can carry more than one raw value
+                         (american_restaurant + californian_restaurant), and
+                         forgetTasteItem deletes all of them together. */
+                      <span key={c.dim + "|" + c.label} className={"wf-taste-chip" + (c.w >= 0 ? "" : " is-neg")}>
+                        {c.w >= 0 ? null : <span className="wf-taste-chip-neg">not</span>}
+                        {c.label}
+                        <button onClick={() => forgetTasteItem(c.dim, c.vals)} aria-label={"Forget " + c.label} className="wf-taste-x">✕</button>
+                      </span>
+                    ))}
                   </div>
+                ) : (
+                  <p style={{ fontSize: 13, color: C.muted }}>Nothing learned yet. Like, save, and share a few places and your taste shows up here.</p>
+                )}
+                <div style={{ display: "flex", gap: 9, marginTop: 20 }}>
+                  {/* v6.56: "turn it off" and "erase it" were the SAME button
+                      until now — resetTaste() sets consent to off AND wipes the
+                      vector. The Favorites row promises a person can stop the
+                      re-ranking, and a promise whose only implementation also
+                      deletes everything they taught the app is a lie by
+                      omission. Two buttons, two verbs, both honest. */}
+                  <button onClick={() => { setConsent("off"); setTasteOpen(false); try { logEvent("taste_consent", null, { v: "off", from: "sheet" }); } catch (e) {} }} className="wf-taste-btn is-quiet">Turn off</button>
+                  <button onClick={() => { resetTaste(); setTasteOpen(false); }} className="wf-taste-btn is-danger">Reset</button>
                 </div>
-              ) : null}
-
-              {summary.details.length ? (
-                <>
-                  <button className="wf-taste-details-toggle" onClick={() => setTasteDetailsOpen((v) => !v)}>{tasteDetailsOpen ? "Hide learned details" : `Review ${summary.details.length} other learned signal${summary.details.length === 1 ? "" : "s"}`}</button>
-                  {tasteDetailsOpen ? <div className="wf-taste-details">{summary.details.map((c) => <span key={c.dimension + "|" + c.value} className="wf-taste-detail">{c.weight < 0 ? "Less " : ""}{c.label}<button onClick={() => forgetTasteItem(c.dimension, c.value)} aria-label={"Remove " + c.label}>✕</button></span>)}</div> : null}
-                </>
-              ) : null}
-
-              <div className="wf-taste-data">
-                <div className="wf-taste-data-label">Privacy &amp; data</div>
-                <div className="wf-taste-actions">
-                  <button onClick={exportTaste} style={{ border: `1px solid ${C.border}`, color: C.text }}>Export profile</button>
-                  <button onClick={() => setTasteResetConfirm(true)} style={{ border: `1px solid ${C.red}44`, color: C.red }}>Reset profile</button>
-                </div>
-                {tasteResetConfirm ? <div className="wf-taste-reset-confirm"><p>This permanently clears Wayfind’s learned preferences and turns personalization off.</p><div><button onClick={() => setTasteResetConfirm(false)} style={{ border: `1px solid ${C.border}`, background: C.card, color: C.light }}>Keep my profile</button><button onClick={() => { resetTaste(); setTasteResetConfirm(false); setTasteOpen(false); }} style={{ border: `1px solid ${C.red}66`, background: C.red, color: "#fff" }}>Clear everything</button></div></div> : null}
               </div>
             </div>
           </div>
