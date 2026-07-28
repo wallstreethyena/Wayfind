@@ -54,6 +54,21 @@ export const FOCUS = { outline: `2px solid ${C.accent}`, outlineOffset: "2px" };
 // orange+champagne pairing is FLAGGED FOR OWNER REVIEW — do not spread
 // champagne into general chrome without that decision.
 export const CHAMPAGNE = { base: "#E8C97A", deep: "#B98A2F", dim: "rgba(232,201,122,.14)" };
+// v6.48: the drop shadow under the Wayfind Pick medallion — the 34px champagne
+// seal that sits on a PHOTO, on the home PlaceCard and on the rank-1
+// ThingsToDoList row. Shared for the same reason as the threshold below: two
+// hand-maintained copies of one seal drift.
+//
+// Why five layers instead of the one it started with. The medallion's job is to
+// read as a struck coin over an image we do not control, and the original
+// `0 2px 9px rgba(0,0,0,.55)` did nothing on the images that matter — shot side
+// by side against bright sand and a neon-orange storefront, the champagne ring
+// dissolved into both and the badge read as a smudge. The fix is not a heavier
+// blur (that just greys the photo); it is the 1px near-black hairline, which
+// gives the gold a dark edge to sit against on ANY background, plus the inset
+// top bevel, which is what makes a flat disc look struck rather than printed.
+// The soft champagne bloom is the only cosmetic layer of the five.
+export const MEDALLION_SHADOW = "0 2px 10px rgba(0,0,0,.6), 0 0 0 1px rgba(4,8,16,.55), 0 0 12px rgba(232,201,122,.22), inset 0 0 0 1px rgba(255,255,255,.1), inset 0 7px 9px -7px rgba(255,255,255,.35)";
 // v6.57: the "🔥 Trending" flame renders when a place's tier2_popularity
 // percent-rank (wf_place_popularity_scored, metro-relative) clears this bar.
 // Shared by PlaceCard (home.js) and DetailSheet so the threshold can't drift

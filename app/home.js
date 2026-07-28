@@ -113,7 +113,7 @@ import { CURATED } from "../lib/curated";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
-import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
+import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
@@ -162,7 +162,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.47";
+const BUILD_ID = "v6.48";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8819,6 +8819,18 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const cardCuisineCanTap = !!(cardShowsCuisine && onCuisineTap);
   const cardRank = Number(rank);
   const isCuratorPick = !!(p._members && p._members.ownerPick);
+  // v6.48: hoisted out of the meta row so the medallion on the thumbnail and any
+  // future consumer read ONE predicate. The gate is unchanged from the pill it
+  // replaces — editorially curated AND either unscored or scoring high enough to
+  // deserve the seal, so a curated-but-weak place never wears it.
+  // The `!isCuratorPick` term is load-bearing and predates the medallion. It
+  // used to live on the meta-row chip this medallion replaced (v6.48), and it
+  // enforces one rule: an OWNER pick suppresses the generic editorial pick, so
+  // a card that is both never wears two "this is a pick" badges. Dropping it
+  // when the chip moved would have shipped the owl seal (bottom-left) and the
+  // medallion (top-left) on the same card — different corners, so it would not
+  // have looked broken, just duplicated. test-curator-boost asserts this.
+  const isWayfindPick = !!(!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)));
   const cardAward = cardRank >= 1 && cardRank <= 3
     ? {
         rank: cardRank,
@@ -8851,6 +8863,37 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <strong className="wf-place-card-owner-copy">Curated</strong>
         </span>
       )}
+      {/* v6.48 — THE WAYFIND PICK MEDALLION. Owner: "we should make it a
+          circular badge so it fits and make it look nice instead of the
+          rectangle."
+
+          It is absolutely positioned against THE CARD ROOT, not against a
+          wrapper around the photo, and that is load-bearing. css.js:63 makes
+          .wf-place-card-layout a `display:grid!important` two-column track and
+          css.js:64/391/399 size the photo through a DIRECT-CHILD selector
+          (`.wf-place-card-layout>img`) at 96/88/108px per breakpoint. Wrapping
+          the <img> in a positioning div orphans all four rules and the photo
+          collapses. The card root already carries position:relative, so it is
+          the correct containing block and costs nothing.
+
+          Safe from the v6.44 "curator logo blocking the save button" bug for a
+          structural reason, not a lucky one: that overlay was pinned
+          bottom-left, on top of .wf-place-card-actions. This one sits top-left
+          over the media column, which holds only the photo (or the monogram) —
+          no controls live there. It also clears .wf-place-card:before (the 2px
+          orange hairline at top:0, z-index:3) by 6px.
+
+          Deliberately NOT pointer-events:none. The card root is the click
+          target and this span carries no handler of its own, so a tap on the
+          medallion bubbles straight to onDetail and opens the sheet exactly as
+          a tap on the photo would — while keeping the hover title, which is
+          the only place a sighted mouse user learns what ✦ PICK means. */}
+      {isWayfindPick && (
+        <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — editorially curated by Wayfind" style={{ position: "absolute", top: 8, left: 8, zIndex: 2, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: MEDALLION_SHADOW, color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
+          <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
+          <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
+        </span>
+      )}
       <div className="wf-place-card-layout" style={{ display: "flex" }}>
         {p.photo
           ? <FallbackImg src={cardPhoto || p.photo} icon={iconForPlace(p)} style={{ width: 96, height: "auto", minHeight: 96, objectFit: "cover", flexShrink: 0 }} />
@@ -8873,12 +8916,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
             {offer && <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>{offerLabel(offer)}</span>}
             {!offer && (() => { const cpn = couponForPlaceName(p.name); /* v6.17: owner-curated coupon pill — same slot as Supabase offers; placeholder chip until the badge logo lands */ return cpn ? <span title={cpn.title} style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 8px" }}>🏷️ Deal</span> : null; })()}
-            {/* v6.56: premium pass — matches the CHAMPAGNE-gold "✦ Wayfind Pick" chip
-                already used on rank-1 ThingsToDoList cards (kit.js's CHAMPAGNE token),
-                instead of the old flat small-radius orange pill. Same editorial-pick
-                meaning (curatedFor), just dressed to the standard the rest of the
-                gold badge family (Featured, Curator's pick) already sets. */}
-            {!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)) && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, letterSpacing: "0.4px", textTransform: "uppercase", color: CHAMPAGNE.base, background: CHAMPAGNE.dim, border: `1px solid ${CHAMPAGNE.base}`, borderRadius: 999, padding: "3px 10px" }}>★ Wayfind Pick</span>}
+            {/* v6.48: the "★ Wayfind Pick" chip that used to sit HERE is now the
+                34px champagne medallion over the thumbnail (see the
+                isWayfindPick block at the top of this card). v6.56 had already
+                restyled it from an orange rectangle to a champagne pill, but the
+                real defect was positional, not cosmetic: sharing this flex-wrap
+                row with reviews, price, open/closed and distance meant it
+                wrapped to its own line on any narrow card. Off the row, it
+                cannot wrap. */}
             {/* v6.30 GLOBAL RULE: the Wayfind Score badge (top-right) is the ONE
                 score on the card. The raw Google star is removed — it competed
                 with the Bayesian score and confused the ranking. The review
