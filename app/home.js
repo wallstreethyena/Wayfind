@@ -161,7 +161,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.52";
+const BUILD_ID = "v6.53";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -3402,11 +3402,26 @@ function PageInner({ initialEvents = null }) {
   const [hkSort, setHkSort] = useState("rated");
   const [hkMi, setHkMi] = useState(DEFAULT_RADIUS_MI);
   const [hkDeals, setHkDeals] = useState(false);
+  // Place-suggestion flow (v6.53, owner: "the user tell the app a place they
+  // want to be added to a particular experience... it has to be stored and
+  // ...we identify the report places and if it is indeed a place we should
+  // place in the list"). A user proposes a REAL Google place for the themed
+  // list they're currently looking at; it's stored pending review — never
+  // auto-added (see submitPlaceSuggestion + supabase/place-suggestions.sql).
+  // Local UI state only, deliberately separate from the main search box's
+  // query/suggestions/tokenRef so the two surfaces never clobber each other.
+  const [sugOpen, setSugOpen] = useState(false);
+  const [sugQuery, setSugQuery] = useState("");
+  const [sugSuggestions, setSugSuggestions] = useState([]);
+  const [sugPicked, setSugPicked] = useState(null);
+  const [sugNote, setSugNote] = useState("");
+  const [sugBusy, setSugBusy] = useState(false);
+  const [sugDone, setSugDone] = useState(false);
   // v6.12: the sheet opens sorted by a REAL option — presetSort "curated" (Stay
   // Tonight etc.) isn't one of the control's three values, so it fell through
   // unsorted AND mislabeled the pill as "Closest first". Coerce any non-option
   // preset to "rated" so the list is actually ordered and the pill matches.
-  useEffect(() => { const _ps = hookDetail && hookDetail.presetSort; setHkSort(["near", "rated", "price"].includes(_ps) ? _ps : "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); }, [hookDetail && hookDetail.id]);
+  useEffect(() => { const _ps = hookDetail && hookDetail.presetSort; setHkSort(["near", "rated", "price"].includes(_ps) ? _ps : "rated"); setHkMi((hookDetail && hookDetail.presetMi) || DEFAULT_RADIUS_MI); setHkDeals(false); setSugOpen(false); setSugQuery(""); setSugSuggestions([]); setSugPicked(null); setSugNote(""); setSugBusy(false); setSugDone(false); }, [hookDetail && hookDetail.id]);
   // v4.85: never show "Not enough data" at 17 mi when the sheet's wide fetch
   // already found real places a few miles farther — bump the sheet radius up
   // the ladder until enough places are visible. Manual slider changes win
@@ -3441,6 +3456,8 @@ function PageInner({ initialEvents = null }) {
   }
   const debounceRef = useRef(null);
   const tokenRef = useRef(null);
+  const sugDebounceRef = useRef(null);
+  const sugTokenRef = useRef(null);
   const insightCache = useRef({});
   const scrollRef = useRef(null);
   const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
@@ -6577,6 +6594,98 @@ function PageInner({ initialEvents = null }) {
     });
     showToast(existed ? "Removed from your lists" : "❤️ Saved to your lists");
   }
+
+  // Place-suggestion flow (v6.53) — lets a user propose a real place for the
+  // themed list they're currently viewing. Deliberately mirrors
+  // fetchSuggestions/resolvePlaceDetails (same guarded /api/places/* proxy —
+  // "Google Places API is the only source of identifiers" stays true here
+  // too) but with its OWN state, so opening this mini-search never disturbs
+  // the main search box if both happen to be mounted. Never writes the
+  // suggestion into any list itself — it only POSTs to /api/place-suggestions
+  // for the owner to review (see supabase/place-suggestions.sql +
+  // scripts/review-place-suggestions.mjs).
+  async function sugFetchSuggestions(q) {
+    if (typeof sugTokenRef.current !== "string") {
+      sugTokenRef.current = (typeof crypto !== "undefined" && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : (Math.random().toString(36).slice(2) + Date.now().toString(36));
+    }
+    try {
+      const r = await fetch("/api/places/autocomplete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: q, sessionToken: sugTokenRef.current, ...(center ? { lat: center.lat, lng: center.lng } : {}) }),
+      });
+      if (!r.ok) { setSugSuggestions([]); return; }
+      const data = await r.json();
+      // Only real establishments belong in a themed list — an "area" result
+      // (a city/neighborhood) from the same endpoint is filtered out here.
+      setSugSuggestions((data.suggestions || []).filter((s) => s && s.kind !== "area").slice(0, 6));
+    } catch { setSugSuggestions([]); }
+  }
+  function onSugQueryChange(v) {
+    setSugQuery(v);
+    setSugPicked(null);
+    if (sugDebounceRef.current) clearTimeout(sugDebounceRef.current);
+    if (!v || v.trim().length < 3) { setSugSuggestions([]); return; }
+    sugDebounceRef.current = setTimeout(() => sugFetchSuggestions(v.trim()), 250);
+  }
+  async function pickSugSuggestion(item) {
+    setSugSuggestions([]);
+    setSugBusy(true);
+    const sessionToken = sugTokenRef.current;
+    sugTokenRef.current = null;
+    try {
+      const place = await resolvePlaceDetails(item.placeId, "place", sessionToken);
+      const loc = place.location || {};
+      const name = ((place.displayName && (place.displayName.text || place.displayName)) || item.text || "").toString();
+      setSugPicked({
+        id: place.id,
+        name,
+        address: place.formattedAddress || "",
+        lat: typeof loc.lat === "number" ? loc.lat : loc.latitude,
+        lng: typeof loc.lng === "number" ? loc.lng : loc.longitude,
+      });
+      setSugQuery(name);
+    } catch {
+      showToast("Could not load that place — try again");
+    } finally {
+      setSugBusy(false);
+    }
+  }
+  async function submitPlaceSuggestion() {
+    if (!sugPicked || !hookDetail || sugBusy) return;
+    setSugBusy(true);
+    try {
+      const r = await fetch("/api/place-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          placeId: sugPicked.id,
+          placeName: sugPicked.name,
+          lat: sugPicked.lat,
+          lng: sugPicked.lng,
+          experienceKey: hookDetail.id,
+          note: sugNote.trim().slice(0, 280),
+          city: locName || cityNow || null,
+          deviceId: deviceId(),
+        }),
+      });
+      if (!r.ok) throw new Error("submit failed");
+      const data = await r.json().catch(() => ({}));
+      if (data && data.ok === false) throw new Error(data.error || "submit failed");
+      setSugDone(true);
+      setSugOpen(false);
+      setSugQuery(""); setSugPicked(null); setSugNote(""); setSugSuggestions([]);
+      showToast("Thanks — we'll take a look 🙌");
+      try { logEvent("place_suggest", null, { exp: hookDetail.id }); } catch (e) {}
+    } catch {
+      showToast("Couldn't send that — try again in a bit");
+    } finally {
+      setSugBusy(false);
+    }
+  }
+
   // Heart on a recommendation card: like it AND save the full list to Favorites.
   function onHookHeart(hookId) {
     if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;
@@ -6901,6 +7010,8 @@ function PageInner({ initialEvents = null }) {
     sheetDragStart, sheetDragMove, sheetDragEnd,
     // hookDetail sheet
     hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, toggleHookLike, saveHookList, setMapListOverride, listShareUrl, shareLink, showToast, buildListShareUrl, whyFirst, Critter, SortControl, openCurated,
+    // place-suggestion flow (v6.53) — user-submitted places, stored pending review
+    sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion,
     // account sheet
     accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
