@@ -16,6 +16,10 @@ import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareM
 // itself, so existing event names and history stay exactly as they are.
 import { forwardToGoogle } from "../lib/analytics";
 import { attributionParams } from "../lib/attribution";
+// Primary metric: activated sessions. See lib/activation.js for why page depth
+// is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
+// map interactions never mint a second $pageview).
+import { noteSessionProgress } from "../lib/activation";
 // Restored 2026-07-25: dropped from the design-release-01 rewrite (merge
 // 46be253) along with UTDealsRail below — both existed and worked pre-redesign,
 // the homepage rebuild just never re-imported them. See lib/cardAffiliate.js /
@@ -4535,6 +4539,10 @@ function PageInner({ initialEvents = null }) {
         place_name: (place && place.name) || null,
       }, extra || {}, attributionParams()));
     } catch (e1) {}
+    // Session-scoped milestones — the PRIMARY metric (activated sessions).
+    // Fires at most one first_intent and one session_activated per session.
+    // Strictly additive: no existing event name, payload, or history changes.
+    try { noteSessionProgress(action, Object.assign({}, extra || {}, attributionParams())); } catch (e2) {}
     try {
       if (!supabase) return;
       const row = {
