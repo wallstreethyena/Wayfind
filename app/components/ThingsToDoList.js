@@ -12,7 +12,7 @@
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
 import { useEffect, useState } from "react";
-import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge, TRENDING_POPULARITY_THRESHOLD } from "./kit";
+import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge, TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
@@ -79,7 +79,7 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
             than a label. The words stay in aria-label/title so the meaning is
             still announced and still hoverable. */}
         {first && !isTour ? (
-          <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — our top-ranked spot right now" style={{ position: "absolute", top: 6, left: 6, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: "0 2px 9px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.07)", color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
+          <span role="img" aria-label="Wayfind Pick" title="Wayfind Pick — our top-ranked spot right now" style={{ position: "absolute", top: 6, left: 6, width: 34, height: 34, borderRadius: "50%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, background: "radial-gradient(circle at 50% 26%, rgba(232,201,122,.3), rgba(8,11,17,.86) 74%)", border: `1.5px solid ${CHAMPAGNE.base}`, boxShadow: MEDALLION_SHADOW, color: CHAMPAGNE.base, backdropFilter: "blur(4px)" }}>
             <span aria-hidden="true" style={{ fontSize: 12, lineHeight: 1 }}>✦</span>
             <span aria-hidden="true" style={{ fontSize: 6.5, fontWeight: 900, letterSpacing: ".09em", lineHeight: 1 }}>PICK</span>
           </span>
