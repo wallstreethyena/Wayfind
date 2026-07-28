@@ -35,7 +35,28 @@ const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
 const PLACE_FIELDS = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,regularOpeningHours,editorialSummary,types,priceLevel,googleMapsUri";
 
 // Individual rides inside a park — the spec says skip these (merge into parent).
-const RIDE_RX = /soarin|river adventure|roller ?coaster|\bcoaster\b|log flume|water ?slide|drop tower|\bthe ride\b|flight of|expedition everest|space mountain|tower of terror|rock ?n ?roller|mako|kraken|montu|cheetah hunt|cobra's curse|sheikra/i;
+// This is a denylist and needs upkeep: the original missed 9 of 11 sampled
+// headline rides, including Cosmic Rewind, which ranks as one of Orlando's
+// highest-reviewed "places". `coaster` is deliberately un-anchored so
+// VelociCoaster and Rip Ride Rockit match. scripts/test-atlas-ride-filter.mjs
+// locks the sample.
+const RIDE_RX = new RegExp([
+  // generic ride-shaped names
+  "coaster", "log flume", "water ?slide", "drop tower", "\\bthe ride\\b", "mine train",
+  "\\bsafaris?\\b", "river adventure", "motorbike adventure",
+  // Disney
+  "soarin", "flight of passage", "expedition everest", "space mountain", "tower of terror",
+  "rock ?n ?roller", "cosmic rewind", "guardians of the galaxy", "rise of the resistance",
+  "ratatouille", "\\bremy'?s\\b", "slinky dog", "tron lightcycle", "seven dwarfs",
+  "haunted mansion", "big thunder", "splash mountain", "thunder mountain", "test track",
+  "mission: ?space", "spaceship earth", "pirates of the caribbean", "jungle cruise",
+  "small world", "frozen ever after", "toy story mania", "star tours", "millennium falcon",
+  "smugglers run", "kilimanjaro",
+  // Universal / SeaWorld
+  "hagrid", "gringotts", "men in black", "revenge of the mummy", "incredible hulk",
+  "spider-?man", "rip ride rockit", "velocicoaster", "mako", "kraken", "montu",
+  "cheetah hunt", "cobra'?s curse", "sheikra", "manta", "ice breaker", "pipeline",
+].join("|"), "i");
 
 const SYSTEM =
   "You write the Wayfind \"Atlas\" editorial for ONE place, to the atlas-590-v1 standard. " +
@@ -88,6 +109,9 @@ async function officialPage(url, timeoutMs = 5000) {
     if (!r.ok) return null;
     const ct = r.headers.get("content-type") || "";
     if (!/text\/html|text\/plain/i.test(ct)) return null;
+    // Never pull an unbounded body into a 60s function's memory.
+    const len = parseInt(r.headers.get("content-length") || "0", 10);
+    if (len > 3_000_000) return null;
     const text = pageText(await r.text());
     return text.length > 200 ? { url, text } : null;
   } catch (e) {
@@ -214,9 +238,19 @@ export async function GET(req) {
 
   const nowIso = new Date().toISOString();
   const rows = [];
-  let rides = 0, sourced = 0, pending = 0, unverified = 0, withPage = 0;
+  let rides = 0, sourced = 0, pending = 0, unverified = 0, withPage = 0, skipped = 0;
+
+  // Wall-clock budget. The upsert runs only AFTER the whole pool settles, so a
+  // function killed at maxDuration writes NOTHING and every Places + model call
+  // in the batch is paid for and thrown away. Worst case per place is ~33s
+  // (8s Places + 5s page + 20s model), so even a 10-place batch at concurrency 6
+  // can cross 60s. Stop starting new work with headroom to spare and let the
+  // resumable design pick the rest up next call — a short batch that WRITES
+  // beats a full batch that dies.
+  const deadline = Date.now() + 42_000;
 
   await pool(places, 6, async (place) => {
+    if (Date.now() > deadline) { skipped++; return; } // stays in wf_atlas_missing
     // ride-level → store as RIDE-LEVEL, never written/sourced
     if (RIDE_RX.test(String(place.name || ""))) {
       rides++;
@@ -291,7 +325,7 @@ export async function GET(req) {
   const left = await missing(category);
   return Response.json({
     ok: !upErr, category, processed: places.length, written, sourced, pending, rides,
-    unverified, with_page: withPage, opportunities: opps,
+    unverified, skipped, with_page: withPage, opportunities: opps,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
   }, { headers: { "Cache-Control": "no-store" } });
 }
