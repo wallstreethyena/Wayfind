@@ -79,7 +79,7 @@ ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforc
 // --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
 ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY with explicit consent — off = same for everyone");
 ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
-ok(home.includes("Personalized for you") && home.includes("Your taste profile is reordering these picks"), "when on, personalization is labeled and explained (never silent)");
+ok(home.includes("Personalized for you") && home.includes("Your taste, shaping this shortlist."), "when on, personalization is labeled and explained (never silent)");
 ok(home.includes("Personalize my feed") && home.includes("No thanks"), "the consent ask is a real choice, not a dark pattern");
 ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
 ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
@@ -92,6 +92,8 @@ ok(home.includes("function addTastePreference") && home.includes("function forge
 ok(home.includes("Your Wayfind profile") && home.includes("never sold"), "the transparency panel exists and states the promise");
 ok(home.includes("A place’s Wayfind Score never changes"), "the editor explains that personalization changes order, never the score");
 ok(home.includes("tasteResetConfirm"), "destructive reset requires confirmation");
+ok(home.includes("wf-taste-inline") && home.includes('aria-controls="wf-taste-inline-body"'), "taste controls expand inside the personalization strip");
+ok(home.includes("{false && tasteOpen && (() => {"), "the retired modal taste sheet can never render");
 
 // --- v6.45 guarantee, re-pinned after the editor rewrite ---------------------
 // main asserted these against the OLD panel's code shape (isLearnableValue
