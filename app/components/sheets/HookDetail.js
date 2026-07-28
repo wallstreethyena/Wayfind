@@ -7,7 +7,7 @@ import * as Fam from "../../../lib/family";
 import * as WCC from "../../../lib/wc";
 
 export default function HookDetailSheet({ ctx }) {
-  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated } = ctx;
+  const { hookDetail, setHookDetail, hookLikes, suggested, places, offers, isDesktop, hkSort, setHkSort, hkMi, setHkMi, hkDeals, setHkDeals, weather, locName, cityNow, dedupePlaces, placesForHook, pickReason, isNightNow, isSaved, quickSaveFavorite, toggleHookLike, saveHookList, openDetail, setMapListOverride, setScreen, logEvent, listShareUrl, shareLink, showToast, giveawayMark, buildListShareUrl, liveOpen, iconForPlace, cityFixM, experienceBadges, whyFirst, Loader, Critter, FallbackImg, SortControl, openCurated, sugOpen, setSugOpen, sugQuery, setSugQuery, onSugQueryChange, sugSuggestions, setSugSuggestions, sugPicked, setSugPicked, sugNote, setSugNote, sugBusy, sugDone, pickSugSuggestion, submitPlaceSuggestion } = ctx;
         // Merge the two source lists, but de-dupe by id — a place that appears
         // in both the suggested feed and the nearby search would otherwise show
         // up twice in a themed list.
@@ -214,6 +214,85 @@ export default function HookDetailSheet({ ctx }) {
                   >
                     ↗ Share
                   </button>
+                </div>
+              )}
+
+              {/* Suggest a place for this list (v6.53, owner: "the user tell
+                  the app a place they want to be added to a particular
+                  experience... it has to be stored and... we identify the
+                  report places and if it is indeed a place we should place
+                  in the list"). Sits BELOW the list itself — surfaced only
+                  after someone has scrolled through what's already here, so
+                  it reads as part of exploring rather than an interruption.
+                  Never adds the place directly; it's stored pending review
+                  (see app/api/place-suggestions/route.js). */}
+              {!sheetLoading && (
+                <div style={{ marginTop: 14, padding: 14, borderRadius: 16, border: `1px dashed ${C.border}` }}>
+                  {sugDone ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: C.light, fontWeight: 600 }}>
+                      <span style={{ fontSize: 16 }}>🙌</span> Thanks — we'll take a look and add it if it's a fit.
+                    </div>
+                  ) : !sugOpen ? (
+                    <button onClick={() => setSugOpen(true)} style={{ width: "100%", background: "none", border: "none", padding: 0, display: "flex", alignItems: "center", justifyContent: "space-between", color: C.light, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                      <span>📍 Know a place that belongs here? Suggest it</span>
+                      <span style={{ color: acc, fontSize: 16 }}>+</span>
+                    </button>
+                  ) : (
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>Suggest a place for {hookDetail.label || "this list"}</div>
+                      {!sugPicked ? (
+                        <>
+                          <input
+                            autoFocus
+                            value={sugQuery}
+                            onChange={(e) => onSugQueryChange(e.target.value)}
+                            placeholder="Search for a place…"
+                            style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 14, marginBottom: 8 }}
+                          />
+                          {sugSuggestions.length > 0 && (
+                            <ul role="listbox" aria-label="Place suggestions" style={{ listStyle: "none", margin: 0, padding: 0, marginBottom: 8, borderRadius: 10, overflow: "hidden", border: `1px solid ${C.border}` }}>
+                              {sugSuggestions.map((s) => (
+                                <li
+                                  key={s.placeId}
+                                  role="option"
+                                  aria-selected={false}
+                                  tabIndex={0}
+                                  onClick={() => pickSugSuggestion(s)}
+                                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickSugSuggestion(s); } }}
+                                  style={{ padding: "9px 10px", cursor: "pointer", fontSize: 13.5, color: C.light, borderBottom: `1px solid ${C.border}` }}
+                                >
+                                  {s.text}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </>
+                      ) : (
+                        <div style={{ marginBottom: 8 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{sugPicked.name}</div>
+                          {sugPicked.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{sugPicked.address}</div>}
+                          <button onClick={() => { setSugPicked(null); setSugQuery(""); setSugSuggestions([]); }} style={{ marginTop: 6, background: "none", border: "none", color: acc, fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }}>Not this — search again</button>
+                          <textarea
+                            value={sugNote}
+                            onChange={(e) => setSugNote(e.target.value.slice(0, 280))}
+                            placeholder="Why does it belong here? (optional)"
+                            rows={2}
+                            style={{ width: "100%", boxSizing: "border-box", marginTop: 8, padding: "9px 11px", borderRadius: 10, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, resize: "none", fontFamily: "inherit" }}
+                          />
+                        </div>
+                      )}
+                      <div style={{ display: "flex", gap: 8 }}>
+                        <button onClick={() => { setSugOpen(false); setSugPicked(null); setSugQuery(""); setSugSuggestions([]); }} style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
+                        <button
+                          disabled={!sugPicked || sugBusy}
+                          onClick={submitPlaceSuggestion}
+                          style={{ flex: 1, padding: "10px 0", borderRadius: 12, border: "none", background: sugPicked ? acc : C.border, color: sugPicked ? "#0D1117" : C.muted, fontSize: 13, fontWeight: 800, cursor: sugPicked && !sugBusy ? "pointer" : "default" }}
+                        >
+                          {sugBusy ? "Sending…" : "Submit"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

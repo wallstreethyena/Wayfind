@@ -87,6 +87,13 @@ export const config = {
     // uncovered city for population (writes wf_city_requests). Same-origin
     // guarded so the demand/pull queue can't be poked cross-origin.
     "/api/city/unlock",
+    // Place suggestions (v6.53): /api/place-suggestions is a same-origin POST
+    // that writes wf_place_suggestions via the service role — the "suggest a
+    // place for this list" flow in HookDetail.js. ANTI-SPAM, not a cost gate
+    // (no metered upstream, just a Supabase insert) — same-origin + the per-IP
+    // rate limit stop a script from queuing junk rows cross-origin; the
+    // per-device daily cap in the route itself is the second layer.
+    "/api/place-suggestions",
     // Beach Intelligence (§0): /api/beach/conditions is a same-origin XHR that
     // assembles keyless marine + UV + NWS-alert + tide data. ANTI-SCRAPING, not a
     // cost gate — every upstream is free — but the assembled view is ours.

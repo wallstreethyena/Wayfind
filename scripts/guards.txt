@@ -187,3 +187,11 @@ node scripts/check-pick-medallion.mjs
 node scripts/check-editorial-publish.mjs
 node scripts/test-atlas-editorial-row.mjs
 node scripts/check-no-disney-sources.mjs
+
+# Wired in with v6.50–v6.56: these guards ship WITH the code they protect, so
+# they go in the manifest in the same change. #391 built this file precisely so
+# a guard could not be written and then silently left out of prebuild.
+node scripts/test-seasonal-picks.mjs
+node scripts/test-place-suggestions.mjs
+node scripts/test-comment-photos.mjs
+node scripts/check-outdoors-cache-first.mjs

@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { supabase } from "../../../lib/supabase";
 import { fetchSavedItems, removeSavedItem } from "../../../lib/savedItems";
+// v6.56: the SAME read model the taste sheet renders its chips from, so the
+// "N things learned" count can never disagree with the list it counts.
+import { tasteChips } from "../../../lib/taste";
 
 const SAVED_CSS = `
 .wf-saved-shell{padding:4px 0 28px}
@@ -297,7 +300,7 @@ function SavedGlyph({ kind }) {
 }
 
 export default function SavedScreen({ ctx }) {
-  const { activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, openExperience, openCuisine, shareList, deleteList, rollDice, PlaceCard, requireAuth } = ctx;
+  const { activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, openExperience, openCuisine, shareList, deleteList, rollDice, PlaceCard, requireAuth, personalize, setConsent, setTasteOpen, tasteVecState, logEvent } = ctx;
   // Saved experiences & deals (wf_saved_items) — separate from the place lists
   // above (saved_places). Loads for the signed-in user; empty when signed out.
   const [savedItems, setSavedItems] = useState([]);
@@ -425,6 +428,65 @@ export default function SavedScreen({ ctx }) {
                   ))}
                 </div>
               </section>
+            )}
+            {/* v6.56 (owner: "remove the item on image 2 ... put the
+                personalization under the favorites ... not in their face at the
+                main page that is too much and it messes with the flow ... also
+                still looks bulky", then: "make the personalization only
+                available after the user signs in").
+                This is the whole personalization surface now. It used to be
+                three separate blocks at the top of the home feed — a consent
+                ask, an "on" status strip and an "off" status strip — which is a
+                setting interrupting the thing it configures on every load. It
+                is built as ONE of this file's standard rows (48px circle,
+                title, subtitle, right-hand control) so it reads as a setting.
+                SIGNED IN ONLY, by explicit instruction. That is a real
+                constraint, not a display rule: the re-ranking itself is gated
+                on `user` in home.js. A control a person cannot reach is the
+                same as no control, so if the switch is behind sign-in then the
+                behaviour it switches must be too — otherwise a signed-out
+                visitor would have a silently re-ranked feed and nowhere to
+                turn it off. `user &&` rather than relying on the surrounding
+                AuthWall: the wall waits for authReady, this must not flash. */}
+            {user && (
+              <>
+                <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 2 }}>Personalization</div>
+                {(() => {
+                  const on = personalize === "on";
+                  const learned = on ? tasteChips(tasteVecState || {}).length : 0;
+                  const sub = on
+                    ? (learned ? `On · ${learned} thing${learned === 1 ? "" : "s"} learned` : "On · nothing learned yet")
+                    : "Off · same feed for everyone";
+                  return (
+                    <>
+                      <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}` }}>
+                        <div onClick={on ? () => setTasteOpen(true) : undefined} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1, minWidth: 0, cursor: on ? "pointer" : "default" }}>
+                          <div style={{ width: 48, height: 48, borderRadius: "50%", background: C.adim, border: `1px solid ${C.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: on ? C.gold : C.muted, flexShrink: 0 }} aria-hidden="true">✦</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 15, fontWeight: 600, color: C.text }}>Your taste</div>
+                            {/* Deliberately NOT truncated: this subtitle IS the
+                                disclosure — the one place that states whether the
+                                feed is being re-ranked — so it must never be able
+                                to end in an ellipsis on a narrow screen or at a
+                                large text size. It wraps instead. */}
+                            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.35 }}>{sub}</div>
+                          </div>
+                        </div>
+                        {on ? (
+                          <button onClick={() => setTasteOpen(true)} aria-label="Manage your taste" style={{ flexShrink: 0, background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>Manage</button>
+                        ) : (
+                          <button onClick={() => { setConsent("on"); try { logEvent("taste_consent", null, { v: "on", from: "saved" }); } catch (e) {} }} aria-label="Turn on personalization" style={{ flexShrink: 0, background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 13, fontWeight: 700, padding: "7px 14px", borderRadius: 20, cursor: "pointer" }}>Turn on</button>
+                        )}
+                      </div>
+                      <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, margin: "10px 0 0" }}>
+                        {on
+                          ? "Your feed is ordered to match what you like, save and share. It never changes a place's Wayfind Score — only the order you see them in. Open it to remove anything, or turn it off."
+                          : "Turn this on and your feed gets ordered to match what you like, save and share. It never changes a place's Wayfind Score — only the order you see them in, and you can turn it off or erase it anytime."}
+                      </p>
+                    </>
+                  );
+                })()}
+              </>
             )}
           </div>
         )}
