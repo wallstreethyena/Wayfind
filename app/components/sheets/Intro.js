@@ -18,7 +18,13 @@ const MOOD_ICON = { outdoors: "leaf", cozyindoor: "cloudrain", datenight: "heart
 
 // A destination-led editorial scene makes the welcome feel like the beginning
 // of a night out, not a generic onboarding panel.
-const INTRO_VISUAL = "/brand/wayfind-welcome-local-discovery-v1.png";
+// v2 is the SAME scene, re-encoded. The v1 PNG was 2.24 MB — 60% of the
+// homepage's entire 3.7 MB first load — for a decorative (aria-hidden) image
+// inside a popup only a few hundred px wide. JPEG q80 at 1200x800 is 273 KB:
+// an 88% cut, ~1.96 MB saved, no visible difference at display size. It is the
+// first thing a first-time visitor downloads, so it was the single largest
+// drag on perceived speed. Measured live 2026-07-28.
+const INTRO_VISUAL = "/brand/wayfind-welcome-local-discovery-v2.jpg";
 
 const INTRO_PATHS = {
   family: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM3.5 19c0-2.8 2.5-4.6 5.5-4.6s5.5 1.8 5.5 4.6M14.8 15c2.4.2 4.7 1.7 4.7 4",
