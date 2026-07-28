@@ -115,6 +115,34 @@ ok(beachesWithin(FAR, null, 48).length === 1, "beachesWithin takes the same over
 ok(/vetBeachDistance\(\(Array\.isArray\(data\) \? data : \[\]\)\.filter\(isRenderableThing\), \{ lat, lng \}\)/.test(tb), "wf_things_to_do searches 30 mi — its beach rows are vetted to 23");
 ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDistance\(ranked, \{ lat, lng \}\)/.test(tb), "wf_best_picks searches 25 mi — the beach SECTION is held to 23, and every other section still vets beach-named rows");
 
+// ── THE SEARCHED LOCATION, not just the device location ────────────────────
+// The owner, asked to settle the scope, drew the line himself: "we dont show a
+// beach hero card for someone who is currently not within 23 miles from a beach
+// OR SEARCH FOR A PLACE that is not 23 miles from a beach — we keep the beach
+// menu live for the user to search; the hero cards are recommendations."
+//
+// So the rule has to follow `center`, which is the ONE thing both the device
+// fix and the search box write to. It already does. Nothing pinned it, which
+// means a future refactor could pin the hero to geolocation and pass every
+// other assertion in this file while quietly reintroducing the bug: search
+// Orlando from the coast and still get a beach card.
+{
+  const eff = home.indexOf("setBestBeach(bPool.length");
+  ok(eff > 0, "the beach hero effect is still findable");
+  const deps = home.slice(eff, eff + 700).match(/\}, \[([^\]]*)\]\);/);
+  ok(!!deps && /\bcenter\b/.test(deps[1]), "the beach hero re-runs on `center` — searching a city re-applies the 23-mile rule from the SEARCHED point, not the device");
+}
+ok(/const \[center, setCenter\] = useState\(DEFAULT_CENTER\)/.test(home), "`center` is one piece of state — the single source of truth the rule measures from");
+{
+  // Every path a user can take to name a place must land on the same `center`:
+  // picking a suggestion, submitting a freetext search that geocodes, and
+  // jumping to a featured area. If any one of them stopped writing center, the
+  // hero would keep showing beaches from wherever the user physically is.
+  const pick = home.indexOf("async function pickSuggestion(item)");
+  ok(pick > 0, "pickSuggestion is still the search-suggestion handler");
+  ok(/setCenter\(/.test(home.slice(pick, pick + 4000)), "picking a search suggestion writes `center`, so a searched city is subject to the same rule as a located one");
+}
+
 // ── the cost constraint, asserted ───────────────────────────────────────────
 ok(!/fetch\(/.test(readFileSync(new URL("../lib/beaches.js", import.meta.url), "utf8")), "lib/beaches.js makes NO network call — the geographic pull is arithmetic on data we already paid for");
 
