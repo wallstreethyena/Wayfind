@@ -52,6 +52,22 @@ ok(has(verifyAtlasEditorial(
   { why_here: "Offering additional hand sanitizer stations throughout the park.", facts: [] }, CORPUS, URLS),
   "boilerplate", "sanitiz"), "catches COVID/hygiene boilerplate presented as editorial");
 
+// ...but the output-side check must stay conservative. Stripping a source is
+// greedy (a dropped nav sentence costs nothing); rejecting a card is not.
+// "Sign up for X before you shop" is real advice — the greedy pattern rejected
+// it once, which was a false positive, not a catch.
+for (const legit of [
+  "Sign up for the loyalty program before you shop.",
+  "The newsletter carries the coupon codes worth having.",
+]) {
+  const probs = verifyAtlasEditorial({ local_tip: legit, facts: [] }, CORPUS + " " + legit, URLS)
+    .filter((p) => p.check === "boilerplate");
+  ok(probs.length === 0, `output-side boilerplate check stays conservative: ${JSON.stringify(legit)}`);
+}
+// The greedy source-stripping pattern still drops those sentences from a page.
+ok(!pageText("<p>Sign up for our newsletter. Open daily at 9am.</p>").includes("newsletter"),
+  "source stripping stays greedy");
+
 // ── the false positives an earlier version produced (regression guard) ──────
 // Sentence-initial ordinary words, and plurals against a singular corpus.
 for (const [field, text] of [
