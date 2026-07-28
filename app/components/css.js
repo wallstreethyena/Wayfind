@@ -128,28 +128,9 @@ export const WF_PLACE_CARD_CSS = `
    .wf-place-card-award below (same inline-flex / width:max-content / 999px
    rhythm) so the two stack as one coherent column of credentials.
    scripts/test-curator-boost.mjs forbids position:absolute here. */
-.wf-place-card-owner{
-  position:relative;
-  display:inline-flex;
-  width:max-content;
-  max-width:100%;
-  align-items:center;
-  gap:6px;
-  min-height:25px;
-  margin:1px 0 7px;
-  padding:2px 11px 2px 3px;
-  overflow:hidden;
-  border:1px solid rgba(255,218,126,.55);
-  border-radius:999px;
-  background:
-    linear-gradient(110deg,rgba(255,224,142,.20),rgba(255,224,142,.05) 46%,transparent 72%),
-    rgba(10,9,7,.72);
-  color:#F8D985;
-  box-shadow:0 6px 18px rgba(0,0,0,.34),0 0 18px rgba(223,174,53,.10),inset 0 1px rgba(255,248,217,.14);
-  backdrop-filter:blur(10px) saturate(1.2);
-  -webkit-backdrop-filter:blur(10px) saturate(1.2);
-  pointer-events:none;
-}
+/* .wf-place-card-owner — superseded by the compact media-rail seal
+   defined in app/home.js (#384). Two competing definitions of the same class
+   let cascade ORDER decide which wins, which is how a chip silently moves. */
 .wf-place-card-owner:after{
   content:"";
   position:absolute;
