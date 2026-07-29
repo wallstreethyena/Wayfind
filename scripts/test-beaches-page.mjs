@@ -112,7 +112,14 @@ ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
   ok(src.includes("The Best Beaches Near {NEAR_LABEL[params.metro]"), "H1 lost the search-language Near form");
   ok(src.includes("Looking for a quick answer?") && src.includes("Best overall:"), "the quick-answer block is gone — decision-first is the page's whole point");
   ok(src.includes("QUICK_LABEL[b.id]") && !/Best sand:.*hardcoded/.test(src), "quick answers render ONLY for beaches actually present and serving");
-  ok(src.includes("wf-beach-premium-hero") && src.includes("wf-beach-premium-panel") && src.includes("wf-beach-premium-media"), "premium split hero lost its image/panel composition");
+  // v6.72: the hero's markup and CSS moved to app/components/EditorialLandingHero
+  // so the cuisine chooser inherits this look instead of copying it. The
+  // composition RULE is unchanged — the split image/panel hero must still exist —
+  // but it is now the page PLUS the template, read together. Same treatment
+  // test-brand.mjs already applies to the ranked shell.
+  const composed = src + "\n" + readFileSync(new URL("../app/components/EditorialLandingHero.js", import.meta.url), "utf8");
+  ok(composed.includes("-hero`") && composed.includes("-panel`") && composed.includes("-media`"), "premium split hero lost its image/panel composition");
+  ok(/prefix = "wf-beach-premium"/.test(composed), "the beaches page still renders under its original class prefix — the extraction was proven byte-identical against it");
   ok(src.includes('variant="premium"') && src.includes("No paid placement. No sponsored rankings."), "premium hero lost its share action or trust signal");
   ok(src.includes("Stop searching. Start choosing.") && src.includes("the shortlist we’d send a friend"), "premium hero lost its confident editorial hook");
   ok(src.includes("How we verified this") && src.includes("<details"), "the depth must collapse behind How-we-verified-this — too many words on a phone otherwise");

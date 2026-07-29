@@ -70,6 +70,25 @@ when it is neither — run `git fetch --prune --all` before trusting `git branch
 6. Prefer many small, single-purpose PRs over one big one. Sequence two fixes that touch the
    same file/anchor (rebuild the 2nd on the merged 1st).
 
+### `gh` merge mechanics that will waste your time (2026-07-29)
+
+- **`--delete-branch` fails from a DETACHED HEAD.** This is a *second*, separate trigger from
+  the already-known "a worktree holds the branch" case. The failure is nasty because
+  **the merge SUCCEEDS and only the cleanup is skipped** — `gh` prints
+  `could not determine current branch: failed to run git: not on any branch` after the PR
+  has already landed. Read it as "merged, branch survived", not "nothing happened", or you
+  will try to merge again and be told it was already merged. Be on a real branch that is
+  **not** the PR's own before merging.
+- **`mergeable=CONFLICTING` is not proof of a conflict.** GitHub lags after a force-push and
+  reported `CONFLICTING` / `DIRTY` twice on branches where `git rebase origin/main` then said
+  *"Current branch is up to date"* — there was nothing to resolve either time. Likewise
+  `GraphQL: Pull Request is not mergeable` immediately after a push. **Poll `gh pr view <#>
+  --json mergeable` until it leaves `UNKNOWN` and settles before believing it**, and confirm
+  against a real rebase rather than re-deriving a conflict that does not exist.
+- **Never trust a merge's exit code — verify by content.** `git show origin/main:<file>` and
+  grep for the thing the PR was supposed to add. A PR reported as merged manually turned out
+  to still be `state=OPEN` with its content absent from `origin/main`.
+
 ---
 
 ## 🧠 Gotchas / patterns — do NOT re-break these
