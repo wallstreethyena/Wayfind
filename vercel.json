@@ -56,6 +56,10 @@
     {
       "path": "/api/cron/atlas-build?limit=3",
       "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/cuisine-classify?limit=200",
+      "schedule": "25 * * * *"
     }
   ]
 }
