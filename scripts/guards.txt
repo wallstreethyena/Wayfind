@@ -210,3 +210,4 @@ node scripts/check-census-tos-boundary.mjs
 node scripts/check-atlas-diag-not-live.mjs
 node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
+node scripts/check-editorial-retry-state.mjs
