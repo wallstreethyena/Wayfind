@@ -10,6 +10,7 @@ import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
+import PremiumIntentHero from "../../components/PremiumIntentHero";
 
 // v5.04: ISR so the render-time Viator product resolution below stays fresh.
 export const revalidate = 86400;
@@ -30,12 +31,12 @@ export function generateMetadata({ params }) {
 }
 
 const S = {
-  page: { maxWidth: 760, margin: "0 auto", padding: "28px 18px 60px", background: "#0D1117", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
+  page: { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#050B14", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#2EC9A6" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
   sub: { fontSize: 16, color: "#8B949E", marginBottom: 22 },
   h2: { fontSize: 21, fontWeight: 800, color: "#FFFFFF", margin: "26px 0 10px" },
-  item: { margin: "0 0 14px" },
+  item: { margin: "0 0 14px", padding: "18px 20px", borderRadius: 18, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #26384B" },
   name: { fontSize: 16.5, fontWeight: 800, color: "#FFFFFF", margin: 0 },
   story: { fontSize: 15, color: "#C9D1D9", margin: "2px 0 0" },
   book: { display: "inline-block", marginTop: 6, padding: "6px 13px", borderRadius: 999, background: "#2EC9A6", color: "#0D1117", fontWeight: 800, fontSize: 13, textDecoration: "none" },
@@ -43,6 +44,12 @@ const S = {
   meaning: { fontSize: 15, color: "#C9D1D9" },
   disclosure: { fontSize: 12, color: "#8B949E", margin: "22px 0 0", padding: "10px 14px", background: "#161B22", borderRadius: 10 },
   footerLink: { color: "#2EC9A6", textDecoration: "none", fontWeight: 700 },
+};
+
+const CULTURE_HERO = {
+  orlando: "/brand/orlando-night-wheel-portrait.jpg",
+  sarasota: "/cards/beach-adobestock-216195684.jpeg",
+  tampa: "/cards/night-out.jpg",
 };
 
 export default async function CulturePage({ params }) {
@@ -73,9 +80,21 @@ export default async function CulturePage({ params }) {
           with no structured data. Moved here, onto the actual page Google reads. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} />
-      <div style={S.kicker}>Know before you go · {c.tag}</div>
-      <h1 style={S.h1}>What {c.title} Is Known For</h1>
-      <p style={S.sub}>The local food, the experiences you shouldn&apos;t leave without, the sights worth your eyes, and how the locals actually talk.</p>
+      <PremiumIntentHero
+        eyebrow="Know before you go"
+        location={c.title}
+        title={`Know ${c.title} like someone sent you.`}
+        description="The food locals defend, the experiences worth crossing town for, and the details that turn a visit into a story—not another generic city guide."
+        image={CULTURE_HERO[params.metro] || "/cards/hidden-gems-adobestock-321810820.jpeg"}
+        primaryHref={"/?intent=" + encodeURIComponent("local favorites in " + c.title)}
+        primaryLabel="Build my local shortlist"
+        secondaryHref="#local-edit"
+        secondaryLabel="Read the local edit"
+      />
+      <article id="local-edit" style={{ maxWidth: 860, margin: "0 auto" }}>
+      <div style={{ ...S.kicker, marginBottom: 8 }}>The local edit</div>
+      <h2 style={{ ...S.h1, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 42, lineHeight: 1.05 }}>Arrive knowing what matters.</h2>
+      <p style={{ ...S.sub, maxWidth: 680 }}>Wayfind gives you the context a search result cannot: what deserves your time, what locals actually order, and the small details that make the day better.</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/culture/" + params.metro} pageType="culture" />
       <h2 style={S.h2}>Eat like a local</h2>
       {c.eat.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
@@ -141,6 +160,7 @@ export default async function CulturePage({ params }) {
         Visiting {c.title}? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores{params.metro === "orlando" ? <>, and our <a href="/guides/things-to-do-orlando-not-theme-parks" style={S.footerLink}>non-theme-park Orlando guide</a> covers the days between parks</> : null}.
       </p>
       <OpenAppCTA to="/" label="Open Wayfind" />
+      </article>
     </main>
   );
 }

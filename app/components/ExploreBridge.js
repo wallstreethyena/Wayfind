@@ -42,17 +42,17 @@ import { recordExposure } from "../../lib/experiment";
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const S = {
-  wrap: { margin: "18px 0 24px", padding: "15px 15px 13px", background: "#161B22", border: "1px solid #2D3748", borderRadius: 16 },
-  q: { fontSize: 16.5, fontWeight: 900, color: "#F1F5F9", margin: "0 0 11px", letterSpacing: "-0.2px" },
+  wrap: { margin: "17px 0 24px", padding: "16px 19px", background: "#F6EFE5", borderTop: "3px solid #D66320", borderRadius: 4, boxShadow: "0 16px 42px rgba(0,0,0,.15)" },
+  q: { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, fontWeight: 500, color: "#111B29", margin: 0, letterSpacing: "-0.35px" },
   chips: { display: "flex", gap: 7, overflowX: "auto", padding: "0 0 3px", WebkitOverflowScrolling: "touch" },
-  chip: { flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, background: "#1C2230", border: "1px solid #2D3748", borderRadius: 999, padding: "9px 13px", color: "#F1F5F9", textDecoration: "none", fontSize: 13.5, fontWeight: 700, minHeight: 44 },
-  pickHead: { fontSize: 11, fontWeight: 800, letterSpacing: ".5px", textTransform: "uppercase", color: "#94A3B8", margin: "14px 0 7px" },
-  card: { display: "flex", gap: 10, alignItems: "stretch", background: "#1C2230", border: "1px solid #2D3748", borderRadius: 13, overflow: "hidden", textDecoration: "none", color: "#F1F5F9", marginBottom: 7 },
+  chip: { flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", borderBottom: "1px solid #CFC4B6", padding: "7px 5px", color: "#263448", textDecoration: "none", fontSize: 12.5, fontWeight: 800, minHeight: 36 },
+  pickHead: { fontSize: 10.5, fontWeight: 900, letterSpacing: "1.3px", textTransform: "uppercase", color: "#C85E1D", margin: "14px 0 7px" },
+  card: { display: "flex", gap: 10, alignItems: "stretch", background: "rgba(255,255,255,.5)", border: "1px solid #DDD4C9", borderRadius: 13, overflow: "hidden", textDecoration: "none", color: "#111B29", marginBottom: 7 },
   body: { padding: "8px 10px 8px 0", flex: 1, minWidth: 0 },
   name: { fontSize: 14.5, fontWeight: 800, lineHeight: 1.25, marginBottom: 2, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  meta: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", fontSize: 12, color: "#CBD5E1" },
-  reason: { fontSize: 11.5, color: "#94A3B8", marginTop: 3, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  all: { display: "flex", alignItems: "center", justifyContent: "center", marginTop: 9, background: "#F97316", color: "#0D1117", fontWeight: 900, fontSize: 15, padding: "13px 18px", borderRadius: 12, textDecoration: "none", minHeight: 48 },
+  meta: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", fontSize: 12, color: "#627086" },
+  reason: { fontSize: 11.5, color: "#657287", marginTop: 3, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
+  all: { display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 9, background: "#F67822", color: "#101720", fontWeight: 900, fontSize: 12.5, padding: "9px 15px", borderRadius: 999, textDecoration: "none", minHeight: 38 },
 };
 
 export default function ExploreBridge({ city, picks, entryPage, pageType }) {
@@ -105,14 +105,18 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
 
   return (
     <aside style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
-      <p style={S.q}>What are you looking for{where ? " in " + where : ""}?</p>
-
-      <div style={S.chips}>
-        {intents.map((i) => (
-          <a key={i.k} href={dh(i.href)} onClick={() => go("intent_chip", { kind: i.k, city: where || null })} style={S.chip}>
-            <span aria-hidden="true">{i.icon}</span>{i.label}
-          </a>
-        ))}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
+        <div>
+          <div style={{ color: "#C85E1D", fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", marginBottom: 4 }}>Choose your lens</div>
+          <p style={S.q}>What are you looking for{where ? " in " + where : ""}?</p>
+        </div>
+        <div style={S.chips}>
+          {intents.map((i) => (
+            <a key={i.k} href={dh(i.href)} onClick={() => go("intent_chip", { kind: i.k, city: where || null })} style={S.chip}>
+              <span aria-hidden="true">{i.icon}</span>{i.label}
+            </a>
+          ))}
+        </div>
       </div>
 
       {list.length ? (
