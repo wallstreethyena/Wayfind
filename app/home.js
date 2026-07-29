@@ -4824,11 +4824,17 @@ function PageInner({ initialEvents = null }) {
       setDetailExtra(null);
       extra = await fetchPlaceDetail(p.id);
       // v6.31: never cache a bare null — that leaves the sheet stuck on
-      // "Loading hours…" forever (null reads as "still fetching"). On a failed
-      // or empty fetch, store a resolved sentinel so the sheet settles into
-      // "Hours not listed" (or the search-time weekday text) instead of spinning.
-      if (!extra) extra = { editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true };
-      detailCache.current[p.id] = extra;
+      // "Loading hours…" forever (null reads as "still fetching"). A resolved
+      // sentinel settles the sheet into "Hours not listed" (or the search-time
+      // weekday text) instead of spinning. fetchPlaceDetail now always returns a
+      // resolved shape, so this line is defensive only.
+      if (!extra) extra = { ok: false, editorial: null, reviews: [], hours: null, phone: null, website: null, _resolved: true };
+      // v6.74: cache the ANSWER, never the FAILURE. Storing the failure sentinel
+      // froze one transient error for the whole session — every reopen read the
+      // cache, so a place kept saying "Hours unavailable" long after the cause
+      // had passed. An unsuccessful fetch stays uncached so the next open really
+      // retries.
+      if (extra.ok) detailCache.current[p.id] = extra;
     }
     setDetailExtra(extra);
     if (extra) { const rt = Array.isArray(extra.reviews) ? extra.reviews.slice(0, 4).map((r) => (r.text || "").slice(0, 300)).filter(Boolean) : []; HINTS[p.id] = ((extra.editorial || "") + " " + rt.join(" ")).toLowerCase(); }
@@ -4968,7 +4974,10 @@ function PageInner({ initialEvents = null }) {
       let extra = detailCache.current[p.id];
       if (extra === undefined) {
         try { extra = await fetchPlaceDetail(p.id); } catch { extra = null; }
-        detailCache.current[p.id] = extra;
+        // v6.74: same rule as openDetail — only a successful fetch is cacheable.
+        // This path feeds the blurb model's reviewText, so caching a failure here
+        // taught the model "no reviews" for the rest of the session.
+        if (extra && extra.ok) detailCache.current[p.id] = extra;
       }
       const reviewText = extra && Array.isArray(extra.reviews) ? extra.reviews.slice(0, 4).map((r) => (r.text || "").slice(0, 300)).filter(Boolean) : [];
       HINTS[p.id] = (((extra && extra.editorial) || "") + " " + reviewText.join(" ")).toLowerCase();
@@ -5013,8 +5022,16 @@ function PageInner({ initialEvents = null }) {
         }),
       });
       const data = await res.json();
-      insightCache.current[p.id] = data;
-      if (data && !data.error && !data.unavailable) setCachedInsight(p.id, data);
+      // v6.74: an insight computed from a FAILED detail fetch is not a fact
+      // about the place — it is the shape of our own outage. /api/insight takes
+      // its no-reviews branch on an empty `reviews`, and that verdict was being
+      // persisted for THIRTY DAYS, so one broken fetch flattened "Why Wayfind
+      // picked this" to a single descriptive sentence long after the fetch was
+      // fixed. Render it (better than an empty block), but never memoise it and
+      // never persist it — the next open re-asks with real reviews.
+      const detailFailed = !!(extra && extra.ok === false);
+      if (!detailFailed) insightCache.current[p.id] = data;
+      if (data && !data.error && !data.unavailable && !detailFailed) setCachedInsight(p.id, data);
       setInsight(data);
     } catch {
       setInsight({ error: true });
@@ -5044,8 +5061,11 @@ function PageInner({ initialEvents = null }) {
         }),
       });
       const data = await res.json();
-      insightFullCache.current[p.id] = data;
-      if (data && !data.error && !data.unavailable) setCachedInsight(p.id + "::full", data);
+      // Same rule as loadInsight: do not turn our own failed fetch into a
+      // 30-day cached verdict about the place.
+      const detailFailedFull = !!(extra && extra.ok === false);
+      if (!detailFailedFull) insightFullCache.current[p.id] = data;
+      if (data && !data.error && !data.unavailable && !detailFailedFull) setCachedInsight(p.id + "::full", data);
       setInsightFull(data);
     } catch {
       setInsightFull({ error: true });
