@@ -3,7 +3,7 @@
 // plain <article>, not a control. Dynamic + personal, so noindex.
 import { Suspense } from "react";
 import Client from "./client";
-import { INTENT_PAGES } from "../../lib/intentPages";
+import { INTENT_PAGES, intentEyebrow, intentSub } from "../../lib/intentPages";
 
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
@@ -11,8 +11,8 @@ export async function generateMetadata({ searchParams }) {
   const refOk = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
   const og = "/api/og/intent?intent=nearby" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
   const def = INTENT_PAGES.nearby;
-  const title = def.eyebrow + (city ? " — " + city : "") + " | Wayfind";
-  const description = def.sub(city || "your town");
+  const title = intentEyebrow(def) + (city ? " — " + city : "") + " | Wayfind";
+  const description = intentSub(def, city || "your town");
   return {
     title, description,
     robots: { index: false, follow: false },
