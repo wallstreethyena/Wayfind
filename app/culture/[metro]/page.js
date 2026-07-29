@@ -10,7 +10,7 @@ import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
-import CollectionHero, { HeroCta } from "../../components/CollectionHero";
+import PremiumIntentHero from "../../components/PremiumIntentHero";
 
 // v5.04: ISR so the render-time Viator product resolution below stays fresh.
 export const revalidate = 86400;
@@ -80,17 +80,16 @@ export default async function CulturePage({ params }) {
           with no structured data. Moved here, onto the actual page Google reads. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: "What " + c.title + " Is Known For", description: "What to eat in " + c.title + ", must-do experiences, and how locals talk.", author: { "@type": "Organization", name: "Wayfind" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/culture/" + params.metro }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Cities", item: SITE_URL }, { "@type": "ListItem", position: 3, name: c.title, item: SITE_URL + "/culture/" + params.metro }] }) }} />
-      <CollectionHero
-        eyebrow={`Know before you go · ${c.tag}`}
-        titleTop={`What ${c.title}`}
-        titleBottom="is really known for"
-        subtitle="The food locals defend, the experiences worth crossing town for, and the details that turn a visit into a story."
-        heroImg={CULTURE_HERO[params.metro] || "/cards/hidden-gems-adobestock-321810820.jpeg"}
-        height={450}
-        radius={28}
-        bleed="0 -18px 34px"
-        maxWidth={920}
-        cta={<HeroCta href="#local-edit">See the local edit ↓</HeroCta>}
+      <PremiumIntentHero
+        eyebrow="Know before you go"
+        location={c.title}
+        title={`Know ${c.title} like someone sent you.`}
+        description="The food locals defend, the experiences worth crossing town for, and the details that turn a visit into a story—not another generic city guide."
+        image={CULTURE_HERO[params.metro] || "/cards/hidden-gems-adobestock-321810820.jpeg"}
+        primaryHref={"/?intent=" + encodeURIComponent("local favorites in " + c.title)}
+        primaryLabel="Build my local shortlist"
+        secondaryHref="#local-edit"
+        secondaryLabel="Read the local edit"
       />
       <article id="local-edit" style={{ maxWidth: 860, margin: "0 auto" }}>
       <div style={{ ...S.kicker, marginBottom: 8 }}>The local edit</div>

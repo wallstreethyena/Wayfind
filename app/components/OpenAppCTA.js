@@ -15,23 +15,37 @@ export default function OpenAppCTA({ to = "/", label = "Open Wayfind" }) {
   }, []);
   if (hidden) return null;
   return (
+    <>
+    <style dangerouslySetInnerHTML={{ __html: `
+      .wf-open-app-cta{
+        position:fixed;right:22px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);
+        z-index:2147483000;display:inline-flex;align-items:center;gap:7px;
+        background:rgba(246,120,34,.94);color:#0D1117;font-weight:850;font-size:13px;
+        padding:10px 15px;border-radius:999px;text-decoration:none;
+        box-shadow:0 10px 28px rgba(0,0,0,.38),0 0 0 1px rgba(255,255,255,.16);
+        backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+        max-width:calc(100vw - 28px);white-space:nowrap;
+        transition:transform .18s ease,box-shadow .18s ease;
+      }
+      .wf-open-app-cta:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(0,0,0,.43),0 0 0 1px rgba(255,255,255,.2)}
+      .wf-open-app-mark{font-size:14px;font-weight:900;letter-spacing:-.3px}
+      @media(max-width:760px){
+        .wf-open-app-cta{right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);font-size:12px;padding:9px 13px}
+        .wf-open-app-mark{display:none}
+        .wf-open-app-dot{display:none}
+      }
+      @media(prefers-reduced-motion:reduce){.wf-open-app-cta{transition:none}}
+    ` }} />
     <a
       href={to}
       aria-label={label}
-      style={{
-        position: "fixed", left: "50%", transform: "translateX(-50%)",
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)", zIndex: 2147483000,
-        display: "inline-flex", alignItems: "center", gap: 9,
-        background: "#F98626", color: "#0D1117", fontWeight: 800, fontSize: 15,
-        padding: "13px 22px", borderRadius: 999, textDecoration: "none",
-        boxShadow: "0 10px 30px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.25)",
-        fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",
-        maxWidth: "calc(100vw - 32px)", whiteSpace: "nowrap",
-      }}
+      className="wf-open-app-cta"
     >
-      <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: "-0.3px" }}>wayfind</span>
-      <span style={{ opacity: 0.85 }}>·</span>
+      <span className="wf-open-app-mark">wayfind</span>
+      <span className="wf-open-app-dot" style={{ opacity: 0.7 }}>·</span>
       <span>{label} →</span>
     </a>
+    </>
   );
 }

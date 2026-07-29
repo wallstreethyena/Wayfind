@@ -8,7 +8,7 @@ import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
 import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
-import CollectionHero, { HeroCta } from "../../components/CollectionHero";
+import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
@@ -95,37 +95,66 @@ export default async function GuidePage({ params }) {
 
   return (
     <main style={S.page}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .wf-guide-article{max-width:860px;margin:0 auto}
+        .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#f1ede5}
+        .wf-guide-disclosure{font-size:11px;color:#8f98a5;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #263445}
+        .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #263445;box-shadow:none;color:#eef1f5}
+        .wf-guide-pick:last-of-type{border-bottom:1px solid #263445}
+        .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
+        .wf-guide-pick h2{font-size:31px;color:#f7f2ea!important}
+        .wf-guide-pick>p{color:#aeb8c7!important}
+        .wf-guide-pick .wf-guide-tip{color:#a64f1b!important}
+        .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .wf-guide-actions a{border-radius:4px!important}
+        @media(max-width:760px){
+          .wf-guide-article{padding-top:2px}
+          .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
+          .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:10.5px!important;line-height:1.4!important}
+          .wf-guide-pick{grid-template-columns:35px minmax(0,1fr);gap:11px;padding:21px 2px!important}
+          .wf-guide-number{font-size:29px;letter-spacing:-1px;color:#7f8da1}
+          .wf-guide-pick h2{font-size:22px!important;line-height:1.15!important;margin:3px 0 8px!important}
+          .wf-guide-pick p{font-size:14px!important;line-height:1.5!important;margin-bottom:10px!important}
+          .wf-guide-pick .wf-guide-tip{font-size:13px!important;margin:6px 0 2px!important}
+          .wf-guide-actions a{margin:7px 0 0!important;padding:8px 13px!important;font-size:12.5px!important}
+        }
+      ` }} />
       {faqLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: g.title, description: g.description, datePublished: g.updated || "2026-06-01", dateModified: g.updated || "2026-06-01", author: { "@type": "Person", name: "Gabriel Pereira", url: SITE_URL + "/about" }, publisher: { "@type": "Organization", name: "WAYFIND LLC", logo: { "@type": "ImageObject", url: SITE_URL + "/icon-512.png" } }, mainEntityOfPage: SITE_URL + "/guides/" + params.slug }) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Wayfind", item: SITE_URL }, { "@type": "ListItem", position: 2, name: "Guides", item: SITE_URL + "/guides" }, { "@type": "ListItem", position: 3, name: g.title, item: SITE_URL + "/guides/" + params.slug }] }) }} />
-      <CollectionHero
-        eyebrow={`Wayfind field guide · ${g.region || "Orlando"}`}
-        titleTop={g.title}
-        subtitle={g.description}
-        heroImg={guideHero(g)}
-        height={450}
-        radius={28}
-        bleed="0 -18px 34px"
-        maxWidth={920}
-        cta={<HeroCta href="#guide">Read the local edit ↓</HeroCta>}
+      <PremiumIntentHero
+        eyebrow="Your local decision concierge"
+        location={g.region || "Orlando"}
+        title="Stop searching. Start choosing."
+        description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
+        image={guideHero(g)}
+        primaryHref={"/?intent=" + encodeURIComponent(g.keyword || g.title)}
+        primaryLabel="Personalize these picks"
+        secondaryHref="#guide"
+        secondaryLabel="Read the local edit"
       />
-      <article id="guide" style={{ maxWidth: 860, margin: "0 auto" }}>
+      <article id="guide" className="wf-guide-article">
       <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
-      <p style={{ ...S.p, maxWidth: 760, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 21, lineHeight: 1.55, color: "#F1EDE5" }}>{g.intro}</p>
+      <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
-      <div style={S.disclosure}>Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
+      <div className="wf-guide-disclosure">Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
       {g.picks.map((pick, i) => {
         const book = pick.viatorUrl ? viatorDirectUrl(pick.viatorUrl) : (pick.bookQuery ? experienceGoUrl(pick.bookQuery, g.region || "Orlando") : null);
         const rates = pick.hotel ? hotelSearchUrl(pick.name + " " + (g.region || "Orlando")) : null;
         return (
-          <section key={i} style={S.pick}>
-            <div style={{ fontSize: 10.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#FF8A3D" }}>{i === 0 ? "Start here" : `Local edit ${String(i + 1).padStart(2, "0")}`}</div>
-            <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28 }}>{pick.name}</h2>
-            <p style={S.p}>{pick.blurb}</p>
-            {pick.tip ? <p style={S.tip}>Insider tip: {pick.tip}</p> : null}
-            {book ? <a href={book} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check tours &amp; tickets ↗</a> : null}
-            {rates ? <a href={rates} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check rates ↗</a> : null}
-            {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={S.btnGhost}>Open in Wayfind</a> : null}
+          <section key={i} className="wf-guide-pick">
+            <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
+            <div>
+              <div style={{ fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", color: "#FF8A3D" }}>{i === 0 ? "The essential" : "The local edit"}</div>
+              <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28 }}>{pick.name}</h2>
+              <p style={S.p}>{pick.blurb}</p>
+              {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
+              <div className="wf-guide-actions">
+                {book ? <a href={book} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check tours &amp; tickets ↗</a> : null}
+                {rates ? <a href={rates} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check rates ↗</a> : null}
+                {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
+              </div>
+            </div>
           </section>
         );
       })}
