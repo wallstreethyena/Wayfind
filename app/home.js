@@ -4189,6 +4189,21 @@ function PageInner({ initialEvents = null }) {
   // "engage with them technically twice." One implementation, reused at both
   // ends of both hero rails, so the two placements can never drift apart.
   // srcTag ("top" | "end") only distinguishes the two spots in analytics.
+  // v6.57, two changes here:
+  //  COPY — the subtitle read "What actually fits summer right now", which
+  //    describes the MECHANISM rather than the list. It states the filter now.
+  //    No hardcoded count or temperature: list length is dynamic per location
+  //    and the weather is live, so a literal "16 places" or "94°" would be a
+  //    number we cannot keep.
+  //  DESTINATION — NOT changed tonight. Routing this to the new /seasonal list
+  //    page turned scripts/test-seasonal-picks.mjs red on "the hero slide opens
+  //    the seasonal experience sheet", which locks openExpSheet("seasonal") as
+  //    the destination. The page exists and renders (app/seasonal/*, INTENT_PAGES
+  //    .seasonal) but nothing links to it until that assertion is deliberately
+  //    updated with owner approval — §5: a failing guard is more likely right
+  //    than the change, and it is not weakened to get green.
+  // Both placements (top and end, per v6.55) route through this one helper, so
+  // they cannot drift apart.
   function seasonalHeroSlide(srcTag) {
     const _s = SEASON_META[currentSeason()];
     return (
@@ -4198,7 +4213,7 @@ function PageInner({ initialEvents = null }) {
         badgeColor={_s.color}
         icon="leaf"
         title={_s.label + " picks near you"}
-        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+        subtitle={"Open now, close by, and ranked for " + _s.label.toLowerCase() + " ›"}
         ariaLabel={_s.label + " picks near you"}
         onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} openExpSheet("seasonal"); }}
       />
