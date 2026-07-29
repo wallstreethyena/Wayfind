@@ -31,7 +31,16 @@ ok((homePage.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 
 // RULE is unchanged (that surface still shows the official transparent wordmark
 // and never the banned period-after-d form); only the file it lives in moved.
 const RANKED_SHELL = ["../app/components/RankedExperiencePage.js", "../app/components/CollectionHero.js"];
-for (const [files, label] of [[RANKED_SHELL, "ranked shell"], [["../app/best-beaches/[metro]/page.js"], "beaches page"]]) {
+// v6.72, the same decomposition again, one surface later: the beaches page no
+// longer owns its editorial hero markup — the <header>, and with it the
+// wordmark, moved to app/components/EditorialLandingHero.js so a second
+// editorial landing (the cuisine chooser) wears identical chrome instead of a
+// copy. "The beaches page" is now those two files read together. The RULE is
+// unchanged; only the file the wordmark lives in moved. This guard catching the
+// move is the guard working — it is a brand decision, so it gets updated
+// deliberately, not relaxed.
+const BEACH_SHELL = ["../app/best-beaches/[metro]/page.js", "../app/components/EditorialLandingHero.js"];
+for (const [files, label] of [[RANKED_SHELL, "ranked shell"], [BEACH_SHELL, "beaches page"]]) {
   const s = files.map((f) => readFileSync(new URL(f, import.meta.url), "utf8")).join("\n");
   ok(!/wayfind<span[^>]*>\.<\/span>/.test(s), label + " uses the banned period-after-d wordmark");
   ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png"), label + " lost the transparent official wordmark");

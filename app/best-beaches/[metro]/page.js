@@ -7,6 +7,7 @@
 import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
+import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
 import TourStrip from "../../components/TourStrip";
@@ -108,79 +109,11 @@ const firstSentence = (t) => { const m = String(t || "").match(/^.*?[.!?](\s|$)/
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
-const BEACH_PREMIUM_CSS = `
-.wf-beach-premium-wrap{padding:22px 22px 8px}
-.wf-beach-premium-hero{
-  position:relative;
-  display:grid;
-  grid-template-columns:minmax(0,.92fr) minmax(500px,1.08fr);
-  width:min(1180px,100%);
-  min-height:620px;
-  margin:0 auto;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.32);
-  border-radius:30px;
-  background:#F5EFE5;
-  box-shadow:0 32px 90px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.7);
-}
-.wf-beach-premium-media{position:relative;min-height:620px;overflow:hidden;background:#101923}
-.wf-beach-premium-media>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.wf-beach-premium-media:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,rgba(2,8,15,.12),rgba(2,8,15,.08) 35%,rgba(2,8,15,.82) 100%),linear-gradient(90deg,transparent 70%,rgba(5,10,16,.16));
-}
-.wf-beach-premium-brand{position:absolute;z-index:2;top:24px;left:50%;width:132px;height:50px;transform:translateX(-50%)}
-.wf-beach-premium-brand img{display:block;width:100%;height:100%;object-fit:contain}
-.wf-beach-premium-image-copy{position:absolute;z-index:2;left:42px;right:36px;bottom:42px}
-.wf-beach-premium-image-kicker{display:flex;align-items:center;gap:9px;color:#FFC08F;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
-.wf-beach-premium-image-kicker:before{content:"";width:28px;height:1px;background:#F97316}
-.wf-beach-premium-image-title{max-width:430px;margin:13px 0 0;color:#FFF;font-family:Georgia,'Times New Roman',serif;font-size:45px;font-weight:400;letter-spacing:-.035em;line-height:.98;text-wrap:balance;text-shadow:0 3px 18px rgba(0,0,0,.52)}
-.wf-beach-premium-panel{display:flex;min-width:0;flex-direction:column;padding:54px 58px 38px;color:#111824;background:radial-gradient(circle at 100% 0,rgba(249,115,22,.07),transparent 33%),linear-gradient(145deg,#FBF7EF,#F3EBDD)}
-.wf-beach-premium-topline{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#5D6878;font-size:9.5px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
-.wf-beach-premium-location{display:inline-flex;align-items:center;gap:7px;color:#B84E0D;letter-spacing:.12em;white-space:nowrap}
-.wf-beach-premium-location:before{content:"";width:7px;height:7px;border-radius:50%;background:#F97316;box-shadow:0 0 0 4px rgba(249,115,22,.12)}
-.wf-beach-premium-panel h1{max-width:620px;margin:28px 0 14px;color:#111824;font-family:Georgia,'Times New Roman',serif;font-size:47px;font-weight:400;letter-spacing:-.045em;line-height:1.01;text-wrap:balance}
-.wf-beach-premium-dek{max-width:590px;margin:0;color:#596476;font-size:14.5px;font-weight:520;line-height:1.52}
-.wf-beach-premium-dek strong{display:block;margin-bottom:5px;color:#B84E0D;font-size:16px;font-weight:850;letter-spacing:-.015em}
-.wf-beach-premium-rule{height:1px;margin:26px 0 20px;background:rgba(17,24,36,.16)}
-.wf-beach-premium-quick-title{margin-bottom:12px;color:#596476;font-size:9.5px;font-weight:850;letter-spacing:.17em;text-transform:uppercase}
-.wf-beach-premium-picks{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(17,24,36,.13)}
-.wf-beach-premium-pick{min-width:0;padding:12px 12px 11px 0;border-bottom:1px solid rgba(17,24,36,.13)}
-.wf-beach-premium-pick:nth-child(even){padding-left:18px;border-left:1px solid rgba(17,24,36,.13)}
-.wf-beach-premium-pick-label{display:block;margin-bottom:3px;color:#B85515;font-size:8px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
-.wf-beach-premium-pick-name{display:block;overflow:hidden;color:#111824;font-size:12.5px;font-weight:760;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
-.wf-beach-premium-footer{display:flex;align-items:center;gap:16px;margin-top:auto;padding-top:24px}
-.wf-beach-premium-trust{display:flex;align-items:flex-start;gap:8px;color:#6B7585;font-size:10.5px;font-weight:650;line-height:1.35}
-.wf-beach-premium-trust svg{flex:0 0 auto;margin-top:1px;color:#A87A21}
-.wf-beach-premium-hero .wf-back-control{position:absolute!important;z-index:5!important;top:18px!important;left:18px!important;margin:0!important;background:rgba(4,8,16,.54)!important;box-shadow:0 8px 24px rgba(0,0,0,.24)}
-@media(max-width:860px){
-  .wf-beach-premium-wrap{padding:12px 12px 4px}
-  .wf-beach-premium-hero{grid-template-columns:1fr;min-height:0;border-radius:24px}
-  .wf-beach-premium-media{min-height:330px}
-  .wf-beach-premium-image-copy{left:24px;right:24px;bottom:26px}
-  .wf-beach-premium-image-title{max-width:360px;font-size:38px}
-  .wf-beach-premium-panel{padding:34px 30px 30px}
-  .wf-beach-premium-panel h1{margin-top:20px;font-size:40px}
-}
-@media(max-width:520px){
-  .wf-beach-premium-wrap{padding:0}
-  .wf-beach-premium-hero{border-width:0 0 1px;border-radius:0}
-  .wf-beach-premium-media{min-height:280px}
-  .wf-beach-premium-brand{top:17px;width:112px;height:42px}
-  .wf-beach-premium-image-copy{left:22px;right:20px;bottom:23px}
-  .wf-beach-premium-image-title{font-size:34px}
-  .wf-beach-premium-panel{padding:28px 22px 26px}
-  .wf-beach-premium-topline{align-items:flex-start;flex-direction:column;gap:8px}
-  .wf-beach-premium-panel h1{margin:18px 0 12px;font-size:36px}
-  .wf-beach-premium-dek{font-size:13.5px}
-  .wf-beach-premium-rule{margin:22px 0 18px}
-  .wf-beach-premium-picks{grid-template-columns:1fr}
-  .wf-beach-premium-pick:nth-child(even){padding-left:0;border-left:0}
-  .wf-beach-premium-footer{align-items:stretch;flex-direction:column-reverse;gap:13px;padding-top:21px}
-}
-`;
+// The editorial-landing look now lives in app/components/EditorialLandingHero.
+// This page is its REFERENCE IMPLEMENTATION: it keeps the original class
+// prefix so the extraction could be proven byte-identical, and any future
+// surface passes its own prefix instead of copying this markup.
+const BEACH_PREMIUM_CSS = editorialHeroCss();
 
 export default async function BeachesPage({ params }) {
   const meta = BEACH_METROS[params.metro];
@@ -216,50 +149,22 @@ export default async function BeachesPage({ params }) {
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <style dangerouslySetInnerHTML={{ __html: BEACH_PREMIUM_CSS }} />
-      <header className="wf-beach-premium-wrap">
-        <section className="wf-beach-premium-hero" aria-labelledby="wf-beach-title">
-          <BackControl fallback="/" />
-          <div className="wf-beach-premium-media">
-            {heroImg && <img src={heroImg} alt="" />}
-            <a className="wf-beach-premium-brand" href="/" aria-label="Wayfind home">
-              <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
-            </a>
-            <div className="wf-beach-premium-image-copy">
-              <div className="wf-beach-premium-image-kicker">The Wayfind coastal edition</div>
-              <div className="wf-beach-premium-image-title">The right beach changes the whole day.</div>
-            </div>
-          </div>
-          <div className="wf-beach-premium-panel">
-            <div className="wf-beach-premium-topline">
-              <span>The definitive beach ranking</span>
-              <span className="wf-beach-premium-location">{NEAR_LABEL[params.metro] || meta.label}</span>
-            </div>
-            <h1 id="wf-beach-title">The Best Beaches Near {NEAR_LABEL[params.metro] || meta.label}</h1>
-            <p className="wf-beach-premium-dek"><strong>Stop searching. Start choosing.</strong>This isn’t another list of beaches—it’s the shortlist we’d send a friend, with clear winners, honest tradeoffs, and the right shoreline for the day you actually want.</p>
-            <div className="wf-beach-premium-rule" />
-            {quickPicks.length ? (
-              <>
-                <div className="wf-beach-premium-quick-title">Looking for a quick answer?</div>
-                <div className="wf-beach-premium-picks">
-                  {quickPicks.map((pick) => (
-                    <div className="wf-beach-premium-pick" key={pick.label + pick.name}>
-                      <span className="wf-beach-premium-pick-label">{pick.label}</span>
-                      <span className="wf-beach-premium-pick-name">{pick.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : null}
-            <div className="wf-beach-premium-footer">
-              <BeachPageClient topBeach={beaches[0] ? { id: beaches[0].id, name: beaches[0].name, lat: beaches[0].lat, lng: beaches[0].lng } : null} metro={params.metro} label={meta.label} variant="premium" />
-              <div className="wf-beach-premium-trust">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.9 8-7 10-4.1-2-7-5.4-7-10V6l7-3Z" /><path d="m9.5 12 1.6 1.6 3.5-4" /></svg>
-                <span>No paid placement. No sponsored rankings.<br />Just the beach that fits your day.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </header>
+      <EditorialLandingHero
+        backControl={<BackControl fallback="/" />}
+        heroImg={heroImg}
+        imageKicker="The Wayfind coastal edition"
+        imageTitle="The right beach changes the whole day."
+        toplineLeft="The definitive beach ranking"
+        toplineRight={NEAR_LABEL[params.metro] || meta.label}
+        headlineId="wf-beach-title"
+        headline={<>The Best Beaches Near {NEAR_LABEL[params.metro] || meta.label}</>}
+        dekLead="Stop searching. Start choosing."
+        dekBody="This isn’t another list of beaches—it’s the shortlist we’d send a friend, with clear winners, honest tradeoffs, and the right shoreline for the day you actually want."
+        quickTitle="Looking for a quick answer?"
+        quickPicks={quickPicks}
+        actionSlot={<BeachPageClient topBeach={beaches[0] ? { id: beaches[0].id, name: beaches[0].name, lat: beaches[0].lat, lng: beaches[0].lng } : null} metro={params.metro} label={meta.label} variant="premium" />}
+        trustLines={["No paid placement. No sponsored rankings.", "Just the beach that fits your day."]}
+      />
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
