@@ -232,6 +232,20 @@ for (const p of files.filter((f) => f.endsWith(".json"))) {
       ...(Array.isArray(row.source_urls) ? row.source_urls : []),
       ...(Array.isArray(row.facts) ? row.facts.map((f) => f && f.source).filter(Boolean) : []),
     ];
+    // officialWebsite is PUBLISHED, so it is as much a §7 surface as a source.
+    // It was previously read only as context (to build VETTED_VENUE_HOSTS) and
+    // never validated as a value — a card carrying
+    // officialWebsite: "https://www.disneysprings.com/..." shipped green.
+    // Proven by injection on 2026-07-29. Disney Springs is a Disney-owned
+    // district full of venues that are NOT Disney-operated (House of Blues is
+    // Live Nation, The Edison and Paradiso 37 are independent, Splitsville is
+    // independent) so this is checked PER VENUE against the resolved host,
+    // never by blanket-omitting a district.
+    if (row.officialWebsite) {
+      const owh = hostOf(row.officialWebsite);
+      if (owh === null) problems.push(`${rel}: "${row.name || row.placeId || "?"}" has an unparseable officialWebsite`);
+      else if (isDisneyHost(owh)) problems.push(`${rel}: "${row.name || row.placeId || "?"}" publishes a Disney officialWebsite — ${owh}\n      blocked by: ${explainSource(owh, null, null).rule}  (AGENTS.md §7)`);
+    }
     if (!refs.length) continue;
     const owHost = row.officialWebsite ? hostOf(row.officialWebsite) : null;
     const who = row.name || row.placeId || "?";

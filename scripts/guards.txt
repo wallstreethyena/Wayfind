@@ -198,3 +198,4 @@ node scripts/test-comment-photos.mjs
 node scripts/check-outdoors-cache-first.mjs
 node scripts/check-env-discipline.mjs
 node scripts/check-intent-copy-matches-filter.mjs
+node scripts/test-nightlife-ranking.mjs
