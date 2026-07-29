@@ -269,7 +269,8 @@ async function main() {
     await post("https://places.googleapis.com/v1/places:searchNearby",
       { includedTypes: ["cafe"], maxResultCount: 1, locationRestriction: { circle: { center: { latitude: city.lat, longitude: city.lng }, radius: 5000 } } }, "places.id", key);
     CALLS.nearby++;
-    console.log("  preflight: both SKUs answering\n");
+    console.log(`  preflight: both SKUs answering (2 calls, $0.07)\n`);
+    if (process.argv.includes("--preflight")) { console.log("--preflight: quota is available; stopping before the sweep."); return; }
   } catch (e) {
     if (e instanceof QuotaExhausted) { console.error(`FATAL: quota already exhausted before the sweep started.\n  ${String(e.message).slice(0, 200)}\n  Nothing was swept. Raise the per-day limit or wait for reset.`); process.exit(1); }
     throw e;

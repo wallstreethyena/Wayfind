@@ -29,6 +29,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { placeAllowed } from "../lib/placeFilter.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DRY = process.argv.includes("--dry");
@@ -133,7 +134,7 @@ const CATS = {
   },
 };
 
-const FIELDS_NEARBY = "places.id,places.displayName,places.primaryType,places.types,places.rating,places.userRatingCount,places.location";
+const FIELDS_NEARBY = "places.id,places.displayName,places.primaryType,places.types,places.rating,places.userRatingCount,places.location,places.businessStatus";
 const FIELDS_TEXT = FIELDS_NEARBY + ",nextPageToken";
 const MAX_PAGES = 3; // searchText ceiling is ~60 results = 3 pages of 20
 
@@ -167,6 +168,7 @@ function absorb(into, places, strategy, provenance) {
         // tell a genuine A/B difference from out-of-metro contamination.
         lat: p.location ? p.location.latitude : null,
         lng: p.location ? p.location.longitude : null,
+        businessStatus: p.businessStatus || null,
         distMi: null, inMetro: null,
         foundBy: new Set(),
         provenance: [],
@@ -302,11 +304,32 @@ async function main() {
   const idsB = new Set(inMetro.filter((v) => v.foundBy.includes("B")).map((v) => v.id));
   const onlyA = [...idsA].filter((i) => !idsB.has(i)), onlyB = [...idsB].filter((i) => !idsA.has(i));
 
-  // The candidate top-20: in-metro, passes the category predicate where we have
-  // one, ranked by review volume. Nightlife uses the #412 predicate; restaurants
-  // has no shipped predicate, so volume alone (stated, not hidden).
-  const pred = catSlug === "nightlife" ? isNightlifeVenue : () => true;
-  const top20 = inMetro.filter(pred).sort((x, y) => y.reviews - x.reviews).slice(0, 20);
+  // The candidate top-20. The first version of this ranked by review volume with
+  // NO gate for any category without a shipped predicate, and "stated, not
+  // hidden" was treated as sufficient. It was not: the Orlando restaurants
+  // top-20 came back Rainforest Cafe / STK / WALMART SUPERCENTER / McDonald's /
+  // IHOP x3, the page was correct to omit all of them, and the resulting 0/20
+  // was arithmetically right and meaningless. A disclosed broken instrument
+  // produces the same wrong number as an undisclosed one.
+  //
+  // Now gated by the SHIPPED classifier (lib/placeFilter.placeAllowed) — the
+  // same gate lib/landing.js rankedFor() applies — and restricted to
+  // OPERATIONAL venues per #411's single closed-place predicate. A yardstick
+  // that admits what the page is right to reject measures nothing.
+  const GATE = { nightlife: "nightlife", restaurants: "food", "things-to-do": "attractions", beaches: "beach" };
+  const gateCat = GATE[catSlug];
+  if (!gateCat) { console.error(`FATAL: no shipped gate for --cat ${catSlug}`); process.exit(1); }
+  const operational = (p) => p.businessStatus == null || p.businessStatus === "OPERATIONAL";
+  const gated = inMetro.filter((p) => operational(p) && placeAllowed(gateCat, null, { name: p.name, primaryType: p.primaryType, types: p.types, rating: p.rating, userRatingCount: p.reviews }));
+  // POSITIVE CONTROL: a gate that admits everything or nothing is broken, not
+  // permissive. Refuse to emit a coverage number from a degenerate yardstick.
+  if (gated.length === 0 || gated.length === inMetro.length) {
+    console.error(`FATAL: gate '${gateCat}' returned ${gated.length} of ${inMetro.length} — all-or-nothing means the gate is broken, not the data.`);
+    process.exit(1);
+  }
+  const closed = inMetro.filter((p) => !operational(p)).length;
+  console.log(`  gate '${gateCat}': ${gated.length} of ${inMetro.length} in-metro rows admitted; ${closed} non-OPERATIONAL excluded`);
+  const top20 = gated.sort((x, y) => y.reviews - x.reviews).slice(0, 20);
 
   const renderedAll = JSON.parse(readFileSync(join(ROOT, "tmp", "rendered-cells.json"), "utf8"));
   const rendered = renderedAll.cells[`${citySlug}/${catSlug}`] || [];
