@@ -59,45 +59,79 @@ function isNightlifeVenue(p) {
   return BAR_PRIMARY_TYPES.includes(p.primaryType);
 }
 
-// ── Orlando districts. NOT a uniform grid and NOT the landing centre.
-// lib/landing.js puts "orlando" at 28.5384,-81.3789 (downtown). Disney Springs
-// is ~15mi SW of that and CityWalk ~9mi SW — the highest-volume nightlife in the
-// metro sits outside a downtown-anchored radius entirely. That is the whole
-// point of anchoring on districts rather than a city centroid.
-const DISTRICTS = [
-  { key: "disney-springs", lat: 28.3705, lng: -81.5194, radius: 2000 },
-  { key: "citywalk",       lat: 28.4726, lng: -81.4694, radius: 2000 },
-  { key: "i-drive",        lat: 28.4432, lng: -81.4682, radius: 3000 },
-  { key: "downtown",       lat: 28.5421, lng: -81.3790, radius: 2000 },
-  { key: "mills-50",       lat: 28.5560, lng: -81.3620, radius: 2000 },
-  { key: "winter-park",    lat: 28.5999, lng: -81.3517, radius: 2500 },
-];
-
-// Strategy A: three type groups so each gets its own 20-result budget per
-// district. One call with all 19 types would still return only 20 rows total —
-// splitting is what buys coverage under a hard, unpaginated cap.
+// ── per-metro district centres ────────────────────────────────────────────
+// NOT a uniform grid and NOT the city centroid. lib/landing.js:171 rankedFor()
+// runs ONE text query from the centroid at 27,359m. Phase 0 proved that shape
+// cannot reach Orlando's highest-volume nightlife: Twin Peaks is reachable only
+// from the I-Drive centre, Tom's Watch Bar only from CityWalk/I-Drive.
 //
-// `dive_bar` is DELIBERATELY ABSENT here while remaining in the predicate above.
-// Places rejects it: `400 Unsupported types: dive_bar`. It exists in a place's
-// returned types[] but is not in Table A, so it cannot be used as an
-// includedTypes filter. Consequence, and it is a Phase 0 finding in its own
-// right: a venue whose ONLY nightlife signal is `dive_bar` is structurally
-// unreachable by strategy A no matter how many centres it sweeps. Strategy B is
-// the only way such a venue can enter the union.
-const TYPE_GROUPS = [
-  ["night_club", "live_music_venue", "concert_hall", "comedy_club", "dance_hall", "karaoke"],
-  ["bar", "cocktail_bar", "lounge_bar", "hookah_bar"],
-  ["pub", "irish_pub", "brewery", "brewpub", "beer_garden", "gastropub", "sports_bar", "wine_bar"],
-];
+// metroMi is the in-metro TAG radius, Orlando-calibrated at 35. It is NOT
+// global — see SPEC-per-metro-radius below. Nothing is dropped for exceeding
+// it; rows are TAGGED. Only CONTAMINATION_MI is a hard drop.
+//
+// SPEC-per-metro-radius (Phase 3): derive metroMi per city rather than choose
+// it — e.g. the radius containing the 90th percentile of that metro's own
+// candidate distance distribution, floored at ~10mi and capped at ~50mi. A
+// constant tuned on Orlando is too tight for a sprawling metro and absurd for
+// a small one, exactly as RAIL_MIN_REVIEWS is Orlando-calibrated (#412).
+const CONTAMINATION_MI = 150; // implausible at ANY distance -> hard drop
+const CITIES = {
+  orlando: { lat: 28.5384, lng: -81.3789, metroMi: 35, districts: [
+    { key: "disney-springs", lat: 28.3705, lng: -81.5194, radius: 2000 },
+    { key: "citywalk",       lat: 28.4726, lng: -81.4694, radius: 2000 },
+    { key: "i-drive",        lat: 28.4432, lng: -81.4682, radius: 3000 },
+    { key: "downtown",       lat: 28.5421, lng: -81.3790, radius: 2000 },
+    { key: "mills-50",       lat: 28.5560, lng: -81.3620, radius: 2000 },
+    { key: "winter-park",    lat: 28.5999, lng: -81.3517, radius: 2500 },
+  ]},
+  honolulu: { lat: 21.3069, lng: -157.8583, metroMi: 20, districts: [
+    { key: "waikiki",     lat: 21.2793, lng: -157.8294, radius: 2000 },
+    { key: "downtown",    lat: 21.3114, lng: -157.8636, radius: 1500 },
+    { key: "kakaako",     lat: 21.2950, lng: -157.8580, radius: 1500 },
+    { key: "ala-moana",   lat: 21.2911, lng: -157.8434, radius: 1500 },
+    { key: "kaimuki",     lat: 21.2820, lng: -157.8130, radius: 2000 },
+    { key: "manoa",       lat: 21.3100, lng: -157.8100, radius: 2000 },
+  ]},
+  tampa: { lat: 27.9506, lng: -82.4572, metroMi: 30, districts: [
+    { key: "ybor-city",   lat: 27.9606, lng: -82.4370, radius: 1500 },
+    { key: "downtown",    lat: 27.9506, lng: -82.4572, radius: 1500 },
+    { key: "hyde-park",   lat: 27.9370, lng: -82.4820, radius: 2000 },
+    { key: "channelside", lat: 27.9420, lng: -82.4470, radius: 1500 },
+    { key: "seminole-hts",lat: 28.0100, lng: -82.4600, radius: 2000 },
+    { key: "westshore",   lat: 27.9580, lng: -82.5250, radius: 2500 },
+  ]},
+  venice: { lat: 27.0998, lng: -82.4543, metroMi: 15, districts: [
+    { key: "downtown",    lat: 27.0998, lng: -82.4543, radius: 2000 },
+    { key: "venice-isle", lat: 27.0980, lng: -82.4620, radius: 2000 },
+    { key: "nokomis",     lat: 27.1200, lng: -82.4450, radius: 2500 },
+    { key: "jacaranda",   lat: 27.0800, lng: -82.4100, radius: 3000 },
+  ]},
+};
 
-// Strategy B: phrasings chosen to vary the LANGUAGE axis, not the type axis.
-const PHRASINGS = [
-  "best bars and nightlife",
-  "live music venue",
-  "night club",
-  "brewery and taproom",
-  "comedy club and entertainment",
-];
+// ── per-category retrieval config ─────────────────────────────────────────
+// `dive_bar` is DELIBERATELY ABSENT from the nightlife groups while remaining in
+// the predicate. Places rejects it: `400 Unsupported types: dive_bar` — it is
+// not in Table A, so it cannot be an includedTypes filter. A venue whose ONLY
+// nightlife signal is dive_bar is structurally unreachable by strategy A. Filed
+// as issue #416 against #412.
+const CATS = {
+  nightlife: {
+    typeGroups: [
+      ["night_club", "live_music_venue", "concert_hall", "comedy_club", "dance_hall", "karaoke"],
+      ["bar", "cocktail_bar", "lounge_bar", "hookah_bar"],
+      ["pub", "irish_pub", "brewery", "brewpub", "beer_garden", "gastropub", "sports_bar", "wine_bar"],
+    ],
+    phrasings: ["best bars and nightlife", "live music venue", "night club", "brewery and taproom", "comedy club and entertainment"],
+  },
+  restaurants: {
+    typeGroups: [
+      ["restaurant", "fine_dining_restaurant", "steak_house", "seafood_restaurant"],
+      ["italian_restaurant", "mexican_restaurant", "japanese_restaurant", "sushi_restaurant", "chinese_restaurant", "thai_restaurant"],
+      ["american_restaurant", "breakfast_restaurant", "brunch_restaurant", "pizza_restaurant", "cafe", "bakery"],
+    ],
+    phrasings: ["best restaurants", "fine dining", "where to eat dinner", "brunch and breakfast", "seafood restaurant"],
+  },
+};
 
 const FIELDS_NEARBY = "places.id,places.displayName,places.primaryType,places.types,places.rating,places.userRatingCount,places.location";
 const FIELDS_TEXT = FIELDS_NEARBY + ",nextPageToken";
@@ -133,6 +167,7 @@ function absorb(into, places, strategy, provenance) {
         // tell a genuine A/B difference from out-of-metro contamination.
         lat: p.location ? p.location.latitude : null,
         lng: p.location ? p.location.longitude : null,
+        distMi: null, inMetro: null,
         foundBy: new Set(),
         provenance: [],
       });
@@ -146,12 +181,12 @@ function absorb(into, places, strategy, provenance) {
 }
 
 // ── Strategy A — taxonomy-driven ──────────────────────────────────────────
-async function strategyA(key, curve) {
+async function strategyA(key, curve, city, cat) {
   const found = new Map();
-  for (const d of DISTRICTS) {
-    for (let gi = 0; gi < TYPE_GROUPS.length; gi++) {
+  for (const d of city.districts) {
+    for (let gi = 0; gi < cat.typeGroups.length; gi++) {
       const body = {
-        includedTypes: TYPE_GROUPS[gi],
+        includedTypes: cat.typeGroups[gi],
         maxResultCount: 20,
         rankPreference: "POPULARITY",
         locationRestriction: { circle: { center: { latitude: d.lat, longitude: d.lng }, radius: d.radius } },
@@ -168,10 +203,10 @@ async function strategyA(key, curve) {
 }
 
 // ── Strategy B — language-driven ──────────────────────────────────────────
-async function strategyB(key, curve) {
+async function strategyB(key, curve, city, cat) {
   const found = new Map();
-  for (const d of DISTRICTS) {
-    for (const phrase of PHRASINGS) {
+  for (const d of city.districts) {
+    for (const phrase of cat.phrasings) {
       let pageToken = null;
       for (let page = 0; page < MAX_PAGES; page++) {
         const body = {
@@ -194,85 +229,110 @@ async function strategyB(key, curve) {
   return found;
 }
 
-// ── the venues Phase 0 exists to explain ──────────────────────────────────
-const KNOWN_MISSING = [
-  ["Twin Peaks", 13009], ["House of Blues", 7546], ["Tom's Watch Bar", 6738],
-  ["Ole Red", 5927], ["Edison", 5271], ["Tin Roof", 4563], ["ICEBAR", 2918],
-  ["Howl at the Moon", 2739], ["Wall Street Plaza", 2478], ["SAK Comedy", 1746],
-];
+// ── geo ──────────────────────────────────────────────────────────────────
+function distMi(a, b) {
+  const R = 3958.8, r = (x) => x * Math.PI / 180;
+  const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+  const s2 = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s2));
+}
+// Name normalisation for rendered-vs-candidate matching. Rendered names come
+// from the live page; candidate names from Places. Both are Google-sourced but
+// punctuation and suffixes drift ("Fete" vs "Fête", "Tom's Watch Bar- Sky Bar").
+const nn = (x) => String(x || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9]+/g, " ").trim();
+function renderedMatches(renderedName, candName) {
+  const a = nn(renderedName), b = nn(candName);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return a.length >= 8 && b.length >= 8 && (a.startsWith(b) || b.startsWith(a) || a.includes(b) || b.includes(a));
+}
 
 function priced() {
   const total = CALLS.nearby + CALLS.text;
   return { ...CALLS, total, usd: (total * 0.035).toFixed(2) };
 }
 
+function arg(name, def) {
+  const i = process.argv.indexOf("--" + name);
+  return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
+}
+
 async function main() {
-  const plannedA = DISTRICTS.length * TYPE_GROUPS.length;
-  const plannedBmax = DISTRICTS.length * PHRASINGS.length * MAX_PAGES;
-  console.log(`PLAN  strategy A (taxonomy): ${plannedA} searchNearby calls`);
-  console.log(`PLAN  strategy B (language): up to ${plannedBmax} searchText calls`);
-  console.log(`PLAN  worst case ${plannedA + plannedBmax} calls @ $0.035 (Enterprise) = $${((plannedA + plannedBmax) * 0.035).toFixed(2)}\n`);
+  const citySlug = arg("city", "orlando"), catSlug = arg("cat", "nightlife");
+  const city = CITIES[citySlug], cat = CATS[catSlug];
+  if (!city || !cat) { console.error(`unknown --city ${citySlug} / --cat ${catSlug}`); process.exit(1); }
+
+  const plannedA = city.districts.length * cat.typeGroups.length;
+  const plannedBmax = city.districts.length * cat.phrasings.length * MAX_PAGES;
+  console.log(`CELL  ${citySlug} x ${catSlug}   (${city.districts.length} districts, metroMi=${city.metroMi})`);
+  console.log(`PLAN  A ${plannedA} searchNearby + B up to ${plannedBmax} searchText = worst case $${((plannedA + plannedBmax) * 0.035).toFixed(2)}`);
   if (DRY) { console.log("--dry: no API calls made."); return; }
 
   const key = loadKey();
-  if (!key) { console.error("FATAL: no GOOGLE_MAPS_SERVER_KEY (env or .env.local)"); process.exit(1); }
+  if (!key) { console.error("FATAL: no GOOGLE_MAPS_SERVER_KEY"); process.exit(1); }
 
   const curve = [];
-  const A = await strategyA(key, curve);
-  const B = await strategyB(key, curve);
-
-  // ASSERT THE PROBE RAN. Two empty sets compare equal; that is absence, not
-  // agreement. Refuse to report a diff either side failed to produce.
+  const A = await strategyA(key, curve, city, cat);
+  const B = await strategyB(key, curve, city, cat);
   if (A.size === 0 || B.size === 0) {
     console.error(`FATAL: a strategy returned nothing (A=${A.size} B=${B.size}). No diff is meaningful.`);
     process.exit(1);
   }
 
-  const idsA = new Set(A.keys()), idsB = new Set(B.keys());
-  const onlyA = [...idsA].filter((i) => !idsB.has(i));
-  const onlyB = [...idsB].filter((i) => !idsA.has(i));
-  const both = [...idsA].filter((i) => idsB.has(i));
-
+  // Union, then TAG distance. Per Decision 1: nothing is deleted for being
+  // outside metroMi — a 93mi regional venue is "Worth the drive" inventory, not
+  // contamination. Only CONTAMINATION_MI (implausible at ANY distance) drops.
   const union = new Map([...A, ...B]);
-  for (const [id, rec] of union) { const a = A.get(id), b = B.get(id); rec.foundBy = new Set([...(a?.foundBy || []), ...(b?.foundBy || [])]); }
-  const nightlife = [...union.values()].filter(isNightlifeVenue);
-
-  console.log("═══ PHASE 0 — symmetric difference, Orlando × nightlife ═══\n");
-  console.log(`  A (taxonomy) unique place_ids : ${idsA.size}`);
-  console.log(`  B (language) unique place_ids : ${idsB.size}`);
-  console.log(`  in BOTH                       : ${both.length}`);
-  console.log(`  ONLY A (B missed these)       : ${onlyA.length}`);
-  console.log(`  ONLY B (A missed these)       : ${onlyB.length}`);
-  console.log(`  symmetric difference          : ${onlyA.length + onlyB.length}`);
-  console.log(`  union                         : ${union.size}   (nightlife-predicate: ${nightlife.length})\n`);
-
-  const top = (ids, n) => ids.map((i) => union.get(i)).sort((x, y) => y.reviews - x.reviews).slice(0, n);
-  console.log("  Highest-volume venues ONLY strategy A found (language sweep blind to these):");
-  for (const v of top(onlyA, 8)) console.log(`    ${String(v.reviews).padStart(6)}  ${v.name}  [primaryType=${v.primaryType}]`);
-  console.log("\n  Highest-volume venues ONLY strategy B found (taxonomy sweep blind to these):");
-  for (const v of top(onlyB, 8)) console.log(`    ${String(v.reviews).padStart(6)}  ${v.name}  [primaryType=${v.primaryType}]`);
-
-  console.log("\n═══ the ten venues that are missing from the live page ═══");
-  for (const [needle, vol] of KNOWN_MISSING) {
-    const hit = [...union.values()].find((v) => v.name && v.name.toLowerCase().includes(needle.toLowerCase()));
-    const by = hit ? [...hit.foundBy].sort().join("+") : "—";
-    const pred = hit ? (isNightlifeVenue(hit) ? "passes" : "FAILS predicate") : "—";
-    console.log(`  ${String(vol).padStart(6)}  ${needle.padEnd(20)} ${hit ? `FOUND by ${by.padEnd(4)} primaryType=${String(hit.primaryType).padEnd(22)} ${pred}` : "NOT FOUND by either strategy"}`);
+  for (const [id, rec] of union) {
+    const a = A.get(id), b = B.get(id);
+    rec.foundBy = [...new Set([...(a ? [...a.foundBy] : []), ...(b ? [...b.foundBy] : [])])].sort();
+    rec.distMi = (rec.lat != null && rec.lng != null) ? distMi(city, { lat: rec.lat, lng: rec.lng }) : null;
+    rec.inMetro = rec.distMi != null ? rec.distMi <= city.metroMi : null;
   }
+  const contaminated = [...union.values()].filter((v) => v.distMi != null && v.distMi > CONTAMINATION_MI);
+  for (const v of contaminated) union.delete(v.id);
 
+  const kept = [...union.values()];
+  const withLoc = kept.filter((v) => v.distMi != null).length;
+  if (withLoc === 0) { console.error("FATAL: zero rows carry coordinates — distance probe is broken, not the data."); process.exit(1); }
+
+  const inMetro = kept.filter((v) => v.inMetro);
+  const idsA = new Set(inMetro.filter((v) => v.foundBy.includes("A")).map((v) => v.id));
+  const idsB = new Set(inMetro.filter((v) => v.foundBy.includes("B")).map((v) => v.id));
+  const onlyA = [...idsA].filter((i) => !idsB.has(i)), onlyB = [...idsB].filter((i) => !idsA.has(i));
+
+  // The candidate top-20: in-metro, passes the category predicate where we have
+  // one, ranked by review volume. Nightlife uses the #412 predicate; restaurants
+  // has no shipped predicate, so volume alone (stated, not hidden).
+  const pred = catSlug === "nightlife" ? isNightlifeVenue : () => true;
+  const top20 = inMetro.filter(pred).sort((x, y) => y.reviews - x.reviews).slice(0, 20);
+
+  const renderedAll = JSON.parse(readFileSync(join(ROOT, "tmp", "rendered-cells.json"), "utf8"));
+  const rendered = renderedAll.cells[`${citySlug}/${catSlug}`] || [];
+  if (!rendered.length) { console.error(`FATAL: no rendered list for ${citySlug}/${catSlug}`); process.exit(1); }
+
+  const shown = top20.filter((c) => rendered.some((r) => renderedMatches(r, c.name)));
+  const missing = top20.filter((c) => !shown.includes(c));
+
+  console.log(`\n═══ ${citySlug} × ${catSlug} ═══`);
+  console.log(`  A ${idsA.size}  B ${idsB.size}  onlyA ${onlyA.length}  onlyB ${onlyB.length}  symdiff ${onlyA.length + onlyB.length}`);
+  console.log(`  union ${kept.length}  in-metro ${inMetro.length}  out-of-metro(TAGGED, kept) ${kept.length - inMetro.length}  contamination(dropped) ${contaminated.length}`);
+  console.log(`\n  COVERAGE: ${shown.length} of ${top20.length} genuine top-20 are rendered  (page shows ${rendered.length} venues)`);
+  if (missing.length) {
+    console.log(`\n  MISSING from the page (rank by reviews):`);
+    for (const m of missing) console.log(`    ${String(m.reviews).padStart(6)}  ${(m.name || "").slice(0, 34).padEnd(34)} ${m.distMi.toFixed(1).padStart(5)} mi  found=${m.foundBy.join("+")}`);
+  }
   const p = priced();
-  console.log(`\n═══ cost ═══\n  searchNearby ${p.nearby} + searchText ${p.text} = ${p.total} calls @ $0.035 = $${p.usd}`);
+  console.log(`\n  cost: ${p.total} calls = $${p.usd}`);
 
   mkdirSync(join(ROOT, "tmp"), { recursive: true });
-  const out = join(ROOT, "tmp", "census-phase0.json");
-  writeFileSync(out, JSON.stringify({
-    generatedFor: "orlando/nightlife",
-    counts: { a: idsA.size, b: idsB.size, both: both.length, onlyA: onlyA.length, onlyB: onlyB.length, union: union.size, nightlife: nightlife.length },
-    calls: p,
-    curve,
-    places: [...union.values()].map((v) => ({ ...v, foundBy: [...v.foundBy].sort() })),
+  writeFileSync(join(ROOT, "tmp", `census-${citySlug}-${catSlug}.json`), JSON.stringify({
+    cell: `${citySlug}/${catSlug}`,
+    coverage: { shown: shown.length, of: top20.length, renderedCount: rendered.length },
+    counts: { a: idsA.size, b: idsB.size, onlyA: onlyA.length, onlyB: onlyB.length, union: kept.length, inMetro: inMetro.length, outOfMetroTagged: kept.length - inMetro.length, contaminationDropped: contaminated.length },
+    calls: p, top20, missing, curve,
   }, null, 2));
-  console.log(`  raw -> ${out}`);
 }
 
 main().catch((e) => { console.error("FATAL", e); process.exit(1); });
