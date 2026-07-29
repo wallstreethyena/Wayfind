@@ -140,10 +140,42 @@ function distMi(a, b) {
   return 2 * R * Math.asin(Math.sqrt(s));
 }
 
+class QuotaExhausted extends Error {}
+
 async function post(url, body, mask, key) {
   const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask }, body: JSON.stringify(body) });
-  if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 180)}`);
+  if (!r.ok) {
+    const txt = (await r.text()).slice(0, 240);
+    // A daily-quota 429 killed a run that had six districts saturated and wrote
+    // nothing, because the only write was at the end of main(). ~627 paid calls
+    // bought zero durable output. A 429 is now a STOP, not a crash: it unwinds
+    // to the checkpoint writer so everything already paid for survives.
+    if (r.status === 429) throw new QuotaExhausted(txt);
+    throw new Error(`${r.status} ${txt}`);
+  }
   return r.json();
+}
+
+// ── checkpointing ─────────────────────────────────────────────────────────
+// Written after EVERY district. A long sweep must never be one 429 away from
+// total loss.
+function ckptPath(slug) { return join(ROOT, "tmp", `census-${slug}.checkpoint.json`); }
+function saveCheckpoint(slug, districtSaturated, districtCalls) {
+  mkdirSync(join(ROOT, "tmp"), { recursive: true });
+  writeFileSync(ckptPath(slug), JSON.stringify({
+    slug, calls: CALLS, districtSaturated, districtCalls, curve: CURVE,
+    rows: [...CENSUS.values()].map((r) => ({ ...r, foundBy: [...r.foundBy] })),
+  }));
+}
+function loadCheckpoint(slug) {
+  try {
+    const c = JSON.parse(readFileSync(ckptPath(slug), "utf8"));
+    for (const r of c.rows) CENSUS.set(r.place_id, { ...r, foundBy: new Set(r.foundBy) });
+    CURVE.push(...(c.curve || []));
+    CALLS = { ...c.calls };
+    console.log(`  RESUMED from checkpoint: ${CENSUS.size} place_ids, ${c.calls.total} calls already paid for`);
+    return c;
+  } catch { return null; }
 }
 
 const CENSUS = new Map();
@@ -227,9 +259,27 @@ async function main() {
   const key = loadKey();
   if (!key) { console.error("FATAL: no GOOGLE_MAPS_SERVER_KEY"); process.exit(1); }
 
+  // PREFLIGHT — one call per SKU before committing to a plan of hundreds.
+  // Tonight's run discovered the daily SearchTextRequest ceiling 627 calls in.
+  // Two calls up front turn that into an immediate, cheap refusal.
+  try {
+    await post("https://places.googleapis.com/v1/places:searchText",
+      { textQuery: "coffee", pageSize: 1, locationBias: { circle: { center: { latitude: city.lat, longitude: city.lng }, radius: 5000 } } }, "places.id", key);
+    CALLS.text++;
+    await post("https://places.googleapis.com/v1/places:searchNearby",
+      { includedTypes: ["cafe"], maxResultCount: 1, locationRestriction: { circle: { center: { latitude: city.lat, longitude: city.lng }, radius: 5000 } } }, "places.id", key);
+    CALLS.nearby++;
+    console.log("  preflight: both SKUs answering\n");
+  } catch (e) {
+    if (e instanceof QuotaExhausted) { console.error(`FATAL: quota already exhausted before the sweep started.\n  ${String(e.message).slice(0, 200)}\n  Nothing was swept. Raise the per-day limit or wait for reset.`); process.exit(1); }
+    throw e;
+  }
+
+  const resumed = process.argv.includes("--resume") ? loadCheckpoint(slug) : null;
+
   // C — landmarks FIRST. Cheapest, and it guarantees the obvious is present
   // before any saturation rule can stop the sweep early.
-  for (const name of city.landmarks) {
+  for (const name of (resumed ? [] : city.landmarks)) {
     const data = await post("https://places.googleapis.com/v1/places:searchText",
       // 50000 is Google's hard ceiling: "Radius must be in the range of
       // [0, 50000] inclusively." 60000 returns 400 INVALID_ARGUMENT.
@@ -255,8 +305,12 @@ async function main() {
   }
 
   let budgetHit = false;
+  if (resumed) Object.assign(districtSaturated, resumed.districtSaturated || {}, {}), Object.assign(districtCalls, resumed.districtCalls || {});
+  let quotaStopped = false;
   for (const d of city.districts) {
+    if (districtSaturated[d.key]) { console.log(`  ${d.key.padEnd(16)} already saturated (checkpoint) — skipped`); continue; }
     const before = priced().total;
+    try {
     for (let level = 0; level <= MAX_SUBDIV && !districtSaturated[d.key]; level++) {
       for (const tile of subdivide(d, level)) {
         if (priced().total >= MAX_CALLS) { budgetHit = true; break; }
@@ -285,10 +339,18 @@ async function main() {
       }
       if (budgetHit) break;
     }
+    } catch (e) {
+      if (!(e instanceof QuotaExhausted)) throw e;
+      // Daily quota hit mid-district. Everything paid for so far is already in
+      // CENSUS; checkpoint it and stop cleanly instead of losing the run.
+      quotaStopped = true;
+      console.log(`  ${d.key.padEnd(16)} QUOTA EXHAUSTED mid-district — checkpointing ${CENSUS.size} place_ids`);
+    }
     if (districtSaturated[d.key] === undefined) districtSaturated[d.key] = false;
     districtCalls[d.key] = priced().total - before;
     console.log(`  ${d.key.padEnd(16)} ${districtSaturated[d.key] ? "SATURATED" : "not saturated"}  (+${districtCalls[d.key]} calls, census ${CENSUS.size})`);
-    if (budgetHit) break;
+    saveCheckpoint(slug, districtSaturated, districtCalls); // <- after EVERY district
+    if (budgetHit || quotaStopped) break;
   }
   const stoppedEarly = city.districts.every((d) => districtSaturated[d.key]);
 
@@ -330,6 +392,7 @@ async function main() {
 
   console.log(`\n  districts individually saturated: ${Object.entries(districtSaturated).filter(([, v]) => v).map(([k]) => k).join(", ") || "NONE"}`);
   console.log(`  METRO SATURATED: ${stoppedEarly ? "yes" : "NO — exit criterion NOT met"}`);
+  if (quotaStopped) console.log(`  *** DAILY QUOTA EXHAUSTED — sweep INCOMPLETE. Checkpoint saved; resume with --resume once quota resets. Figures below are a FLOOR. ***`);
   if (budgetHit) console.log(`  *** CALL BUDGET ${MAX_CALLS} BOUND — the sweep was TRUNCATED, not completed. Coverage below is a floor. ***`);
   const p = priced();
   console.log(`\n  cost: ${p.total} calls = $${p.usd}`);
