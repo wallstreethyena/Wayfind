@@ -316,19 +316,30 @@ async function main() {
   // same gate lib/landing.js rankedFor() applies — and restricted to
   // OPERATIONAL venues per #411's single closed-place predicate. A yardstick
   // that admits what the page is right to reject measures nothing.
-  const GATE = { nightlife: "nightlife", restaurants: "food", "things-to-do": "attractions", beaches: "beach" };
+  // NIGHTLIFE uses isNightlifeVenue() from #412, NOT placeAllowed('nightlife').
+  // This is a deliberate revert. placeAllowed('nightlife') admits 54% of the
+  // Orlando census including Rainforest Cafe (102,353 reviews), McDonald's and
+  // IHOP; isNightlifeVenue() is the two-tier types[]/primaryType predicate that
+  // rejects them. The locked Phase 1 baseline (venice 7/20, honolulu 5/20,
+  // orlando 1/20) was measured with isNightlifeVenue, and reproducibility of
+  // that baseline matters more than keeping both categories on one predicate.
+  // Do not "unify" these back onto placeAllowed.
+  const GATE = { restaurants: "food", "things-to-do": "attractions", beaches: "beach" };
   const gateCat = GATE[catSlug];
-  if (!gateCat) { console.error(`FATAL: no shipped gate for --cat ${catSlug}`); process.exit(1); }
+  if (catSlug !== "nightlife" && !gateCat) { console.error(`FATAL: no shipped gate for --cat ${catSlug}`); process.exit(1); }
   const operational = (p) => p.businessStatus == null || p.businessStatus === "OPERATIONAL";
-  const gated = inMetro.filter((p) => operational(p) && placeAllowed(gateCat, null, { name: p.name, primaryType: p.primaryType, types: p.types, rating: p.rating, userRatingCount: p.reviews }));
+  const admits = catSlug === "nightlife"
+    ? (p) => isNightlifeVenue(p)
+    : (p) => placeAllowed(gateCat, null, { name: p.name, primaryType: p.primaryType, types: p.types, rating: p.rating, userRatingCount: p.reviews });
+  const gated = inMetro.filter((p) => operational(p) && admits(p));
   // POSITIVE CONTROL: a gate that admits everything or nothing is broken, not
   // permissive. Refuse to emit a coverage number from a degenerate yardstick.
   if (gated.length === 0 || gated.length === inMetro.length) {
-    console.error(`FATAL: gate '${gateCat}' returned ${gated.length} of ${inMetro.length} — all-or-nothing means the gate is broken, not the data.`);
+    console.error(`FATAL: gate '${catSlug === "nightlife" ? "isNightlifeVenue" : gateCat}' returned ${gated.length} of ${inMetro.length} — all-or-nothing means the gate is broken, not the data.`);
     process.exit(1);
   }
   const closed = inMetro.filter((p) => !operational(p)).length;
-  console.log(`  gate '${gateCat}': ${gated.length} of ${inMetro.length} in-metro rows admitted; ${closed} non-OPERATIONAL excluded`);
+  console.log(`  gate '${catSlug === "nightlife" ? "isNightlifeVenue (#412)" : gateCat}': ${gated.length} of ${inMetro.length} in-metro rows admitted; ${closed} non-OPERATIONAL excluded`);
   const top20 = gated.sort((x, y) => y.reviews - x.reviews).slice(0, 20);
 
   const renderedAll = JSON.parse(readFileSync(join(ROOT, "tmp", "rendered-cells.json"), "utf8"));

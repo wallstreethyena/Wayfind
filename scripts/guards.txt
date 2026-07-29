@@ -205,3 +205,4 @@ node scripts/check-area-seasonal-context.mjs
 node scripts/check-one-price-source.mjs
 node scripts/test-editorial-rollout.mjs
 node scripts/check-parity-formula-lock.mjs
+node scripts/check-floor-derivation.mjs
