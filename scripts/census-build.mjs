@@ -53,6 +53,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { reserve, settle, release, describe } from "../lib/quotaLedger.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DRY = process.argv.includes("--dry");
@@ -259,21 +260,59 @@ async function main() {
   const key = loadKey();
   if (!key) { console.error("FATAL: no GOOGLE_MAPS_SERVER_KEY"); process.exit(1); }
 
-  // PREFLIGHT — one call per SKU before committing to a plan of hundreds.
-  // Tonight's run discovered the daily SearchTextRequest ceiling 627 calls in.
-  // Two calls up front turn that into an immediate, cheap refusal.
-  try {
-    await post("https://places.googleapis.com/v1/places:searchText",
-      { textQuery: "coffee", pageSize: 1, locationBias: { circle: { center: { latitude: city.lat, longitude: city.lng }, radius: 5000 } } }, "places.id", key);
-    CALLS.text++;
-    await post("https://places.googleapis.com/v1/places:searchNearby",
-      { includedTypes: ["cafe"], maxResultCount: 1, locationRestriction: { circle: { center: { latitude: city.lat, longitude: city.lng }, radius: 5000 } } }, "places.id", key);
-    CALLS.nearby++;
-    console.log(`  preflight: both SKUs answering (2 calls, $0.07)\n`);
-    if (process.argv.includes("--preflight")) { console.log("--preflight: quota is available; stopping before the sweep."); return; }
-  } catch (e) {
-    if (e instanceof QuotaExhausted) { console.error(`FATAL: quota already exhausted before the sweep started.\n  ${String(e.message).slice(0, 200)}\n  Nothing was swept. Raise the per-day limit or wait for reset.`); process.exit(1); }
-    throw e;
+  // ── PREFLIGHT: RESERVE the budget. Do not prove liveness. ───────────────
+  //
+  // The first version made one call per SKU and reported "quota is available"
+  // on two 200s. A 244-call sweep then died on its FIRST call with
+  // 429 SearchNearbyRequest per day. One 200 is consistent with one call of
+  // headroom, so the check could not fail in the way that mattered (#444).
+  //
+  // Reserve the HARD CEILING (MAX_CALLS), not the level-0 estimate: subdivision
+  // multiplies the plan up to 9x per level, and reserving the smaller number is
+  // how a sweep overruns a cap it was told it fitted inside. Unused budget is
+  // released on settle, so over-reserving costs a stricter gate and nothing else.
+  // Split MAX_CALLS between the two SKUs using the sweep's OWN loop structure,
+  // not a guess. Per tile the inner loops issue TYPE_GROUPS.length searchNearby
+  // calls and up to PHRASINGS.length * MAX_PAGES searchText calls, so that ratio
+  // is what the budget actually gets spent in.
+  //
+  // The first version reserved `nA * (1 + 9 * MAX_SUBDIV)` = 1520 searchNearby —
+  // more than the entire 1500 cap, and more than MAX_CALLS(1600) leaves room for
+  // once searchText is counted. It refused every run on a bad arithmetic guess.
+  // A gate that always refuses is as useless as one that always permits.
+  const perTileNearby = TYPE_GROUPS.length;
+  const perTileText = PHRASINGS.length * MAX_PAGES;
+  const nearbyShare = perTileNearby / (perTileNearby + perTileText);
+  const planNearby = Math.ceil(MAX_CALLS * nearbyShare);
+  const planText = MAX_CALLS - planNearby + nC; // + the landmark pass, all searchText
+  console.log(`  budget split from loop structure: ${perTileNearby} nearby : ${perTileText} text per tile -> reserving ${planNearby} / ${planText}`);
+  const res = reserve({ label: `census-${slug}`, calls: { searchNearby: planNearby, searchText: planText } });
+  if (!res.ok) {
+    console.error(`FATAL: quota reservation REFUSED — ${res.reason}`);
+    for (const d of res.detail || []) console.error(`  ${d}`);
+    if (res.outstanding && res.outstanding.length) {
+      console.error(`  outstanding reservations held by other sweeps:`);
+      for (const o of res.outstanding) console.error(`    ${o.label} (${o.ageMin}m old) nearby=${o.calls.searchNearby} text=${o.calls.searchText}`);
+    }
+    console.error("\n" + describe());
+    console.error(`\nNothing swept, no calls made. Wait for the Pacific-midnight reset, raise the cap, or wait for the other sweep to settle.`);
+    process.exit(1);
+  }
+  console.log(`  RESERVED  searchNearby ${res.reserved.searchNearby}  searchText ${res.reserved.searchText}`);
+  console.log(`  remaining after this reservation: nearby ${res.available.searchNearby}, text ${res.available.searchText}`);
+  console.log(`  ledger ${res.ledger}\n`);
+
+  // Settle on EVERY exit path. A sweep that 429s partway still SPENT what it
+  // made, and a reservation left outstanding blocks the next lane for 2h.
+  let settled = false;
+  const settleNow = () => { if (settled) return; settled = true; settle(res.id, { searchNearby: CALLS.nearby, searchText: CALLS.text }); };
+  process.on("exit", settleNow);
+
+  if (process.argv.includes("--preflight")) {
+    release(res.id); settled = true;
+    console.log("--preflight: a reservation of this size WOULD BE GRANTED. Released; nothing swept.");
+    console.log(describe());
+    return;
   }
 
   const resumed = process.argv.includes("--resume") ? loadCheckpoint(slug) : null;
@@ -406,7 +445,9 @@ async function main() {
     calls: p, saturation: { buckets, curve: CURVE, districtSaturated, districtCalls, budgetHit, maxCalls: MAX_CALLS, window: SATURATION_WINDOW, threshold: SATURATION_YIELD, stoppedEarly },
     rows: rows.map((r) => ({ ...r, foundBy: [...r.foundBy].sort() })),
   }, null, 2));
+  settleNow();
   console.log(`  census -> tmp/census-${slug}.json`);
+  console.log("\n" + describe());
 }
 
 main().catch((e) => { console.error("FATAL", e); process.exit(1); });
