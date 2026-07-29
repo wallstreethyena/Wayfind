@@ -216,3 +216,6 @@ node scripts/check-art-assets.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-share-art-source.mjs
+node scripts/check-cuisine-never-queried.mjs
+node scripts/test-cuisine-classify.mjs
+node scripts/check-cuisine-sql-in-sync.mjs
