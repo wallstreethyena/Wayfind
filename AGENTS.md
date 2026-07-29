@@ -96,33 +96,57 @@ have shown that. **If you can test a claim, test it before you report it.**
 ### A verification must prove it ran before it reports
 
 The most expensive failure on this repo is not a check that fails. It is a check that
-returns a reassuring answer **because it ran against nothing**. Three agents hit this on
-2026-07-28, by three unrelated mechanisms, within hours:
+returns a reassuring answer it did not earn. Four distinct shapes have hit us, and they
+need different defences — a guard against one does not catch the others:
 
-- A `/private/tmp` worktree was probed at a stale path. `git -C` errored, the error was
-  suppressed, `wc -l` counted zero lines, and the report read "0 uncommitted changes" — a
-  clean reading of a directory that did not exist. The real tree had five uncommitted files.
-- A `zsh` loop did not word-split, so five deletions silently no-oped. The verification
-  block printed OK because it compared two empty strings.
-- `git worktree list` run from the wrong tree reported three paths prunable. They were not;
-  they simply were not visible from where it ran.
+**(a) Ran against nothing, reported success.**
+A `/private/tmp` worktree probed at a stale path: `git -C` errored, the error was
+suppressed, `wc -l` counted zero lines, and the report read "0 uncommitted changes" for a
+directory that did not exist — the real tree had five uncommitted files. A `zsh` loop that
+did not word-split, so five deletions silently no-oped and the verification block printed
+OK comparing two empty strings. `git worktree list` run from the wrong tree, calling three
+live paths prunable.
 
-So, before you conclude anything from a check:
+- Assert the target exists before probing it.
+- Never suppress an error on the command whose output becomes your answer.
+- Assert both sides of a comparison are non-empty before comparing. Two empty strings are
+  equal; that is absence, not agreement.
+- Count loop iterations against the input count and fail when they differ. A loop that ran
+  zero times exits 0.
 
-1. **Assert the target exists.** `[ -d "$P" ] || { echo "MISSING: $P"; exit 1; }` before you
-   probe a path you are about to draw a conclusion from.
-2. **Never suppress an error on something you will conclude from.** No `2>/dev/null` on the
-   command whose output becomes your answer. Suppress noise, never the signal.
-3. **Assert both sides of a comparison are non-empty before comparing.** Two empty strings
-   are equal. That is not agreement, it is absence.
-4. **Count the iterations.** If a loop should process N items, count them and fail when the
-   count differs. A loop that ran zero times exits 0.
-5. **Prove the check can fail.** Break the thing on purpose, watch it go red, put it back.
-   A guard that has never failed in front of you is a guard you are guessing about.
+**(b) Silently did not achieve the stated condition.**
+A pane asked Chrome to resize to 390px. macOS clamped it to 506. The check reported the
+width it had *requested*, not the width it *got*.
+
+- Re-read the achieved state from the source of truth, never from your own input.
+- If you asked for X, assert X is now true — do not assert that you asked.
+
+**(c) Ran correctly, answered a different question.**
+`git diff HEAD origin/main -- <paths>` ran fine and reported honestly. It answers "which
+files differ between these refs", not "which files did #401 touch". Every rule in (a)
+passes here: the command existed, ran, and returned real output. It was simply not the
+question.
+
+- State the question in words first, then check the command actually answers *that*.
+- Prefer a command scoped to the claim: to ask what a commit touched, ask the commit
+  (`git show --name-only <sha>`), not a diff between two refs.
+- This is the shape that survives every "did my check run" guard. Assume you are making it.
+
+**(d) False negative — reported absent for something present.**
+A line-oriented `grep` for a phrase that wrapped across a newline returned 0. The text was
+there.
+
+- Match the tool to the shape of the data: line tools find line-shaped things.
+- Before trusting an absence, prove the probe can find a positive — search for something
+  you know is present in the same file, the same way.
+
+**And for all four: prove the check can fail.** Break the thing on purpose, watch it go
+red, put it back. A guard that has never failed in front of you is a guard you are guessing
+about.
 
 **A check that cannot fail is worse than no check, because it launders an unknown into a
-green.** When you report a verification, say what you ran and what it returned — not that it
-passed.
+green.** When you report a verification, say what you ran and what it returned — not that
+it passed.
 
 ## 5. Guards are the product decisions. Do not route around them.
 
