@@ -57,7 +57,17 @@ ok(/comment on column public\.wf_editorial\.attempt_count/.test(mig),
       const p = path.join(dir, e.name);
       if (e.isDirectory()) { walk(p); continue; }
       if (!e.name.endsWith(".js") && !e.name.endsWith(".sql")) continue;
-      const src = raw(p);
+      // Decide on CODE, not prose. A file may legitimately discuss the retry
+      // queue in a comment without being a retry selector — atlas-build now
+      // does exactly that, explaining why a §7-blocked row must not sit in the
+      // retry queue forever. Third time this trap has fired in this codebase
+      // (see check-editorial-publish and check-env-value-overrides); strip
+      // first, always.
+      const rawSrc = raw(p);
+      const src = rawSrc
+        .replace(/\/\*[\s\S]*?\*\//g, " ")
+        .split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n")
+        .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
       // A "retry selector" is anything that reads back failed editorial rows in
       // order to act on them again.
       if (!/wf_editorial/.test(src)) continue;
