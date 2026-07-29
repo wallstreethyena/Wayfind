@@ -97,31 +97,19 @@ for (const m of ip.matchAll(/\n {2}"?([a-z-]+)"?:\s*\{([\s\S]*?)\n {2}\},/g)) {
 }
 ok(byArt.size >= 5, `parsed the INTENT_PAGES art entries (got ${byArt.size}) — an empty parse makes the uniqueness check vacuous`);
 
-// ── Grandfathered shared art. DRIVE THIS TO ZERO. ──────────────────────────
-// KNOWN, 2026-07-29: /best-of and /budget both render the hidden-gems photo.
-// They already did before this guard existed, so listing them ships the guard
-// today instead of blocking it on stock photography — the same trade
-// check-env-discipline made with its 11-file list, and removing a line here is
-// the unit of progress. The owner is supplying distinct art for both.
+// NO EXEMPTIONS. This briefly shipped with a grandfather list holding /best-of
+// and /budget, which both rendered the hidden-gems photo; distinct art arrived
+// the same day, so the list went to zero and was removed rather than left empty
+// as an invitation. Every intent page has its own image, full stop — if that
+// has to change, argue for the exemption in review, do not add a set here.
 //
-// Do NOT resolve this by pointing either page at
-// /cards/beach-adobestock-955441300.jpeg. That image is beach-specific, and
-// using it for "best of" or "budget" would be the same category error this
-// guard exists to catch. It stays unassigned until there is a beach surface.
-const SHARED_ART_GRANDFATHERED = new Set(["best-of", "budget"]);
-
+// Do NOT resolve a future collision with /cards/beach-adobestock-955441300.jpeg.
+// It is beach-specific, and using it for a non-beach surface would be the same
+// category error this guard exists to catch. It stays unassigned until there is
+// a beach surface for it.
 for (const [art, keys] of byArt) {
-  if (keys.length > 1 && keys.every((k) => SHARED_ART_GRANDFATHERED.has(k))) continue;
   ok(keys.length === 1,
     `${keys.join(" and ")} both use ${art} — two destination pages rendering one image reads as the same page twice; give each its own`);
-}
-// The list must not outlive the problem: a grandfathered key that no longer
-// shares its art is a stale exemption, and a stale exemption silently widens
-// the hole for the next entry that lands on that name.
-for (const key of SHARED_ART_GRANDFATHERED) {
-  const stillShared = [...byArt.values()].some((keys) => keys.length > 1 && keys.includes(key));
-  ok(stillShared,
-    `"${key}" is grandfathered in SHARED_ART_GRANDFATHERED but no longer shares its art — delete it from the list, that is the progress this list measures`);
 }
 
 if (fail.length) {
