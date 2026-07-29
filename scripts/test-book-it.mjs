@@ -30,7 +30,7 @@ ok(Mz.bookItTarget(attraction, {}) === null, "missing available → no target (d
 // Wave 1 is live; everything else must still be dark. Both directions asserted —
 // a check that only proves what is ON cannot catch a program lighting up early.
 ok(Tp.isTpProgramLive("tiqets") === true && Tp.isTpProgramLive("klook") === true, "Wave-1 tiqets + klook are LIVE");
-ok(Tp.isTpProgramLive("gocity") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Wave-2 and in-review programs are still DARK");
+ok(Tp.isTpProgramLive("gocity") === false && Tp.isTpProgramLive("kiwitaxi") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Wave-2, transfers, and in-review programs are still DARK");
 
 // ── When a VERIFIED program is supplied live, a bookable place resolves ──────
 // The probe place is an EVENT VENUE, not an attraction, because ticketnetwork is
