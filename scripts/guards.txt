@@ -173,6 +173,7 @@ node scripts/test-beach-geo.mjs
 node scripts/check-app-viewport.mjs
 node scripts/check-shell-decomposition.mjs
 node scripts/check-collection-look.mjs
+node scripts/check-place-detail-honest.mjs
 node scripts/test-atlas-verify.mjs
 node scripts/test-atlas-ride-filter.mjs
 
