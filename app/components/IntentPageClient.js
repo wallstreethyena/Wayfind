@@ -10,7 +10,8 @@ import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount } from "../../lib/intentPages";
+import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
@@ -23,6 +24,7 @@ export default function IntentPageClient({ intent }) {
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
+  const [variant, setVariant] = useState(0); // 0 = canonical; SSR and first client render must agree
   // v6.71 (Wave 2): date-night/family never QUERY for beaches, but a text
   // search like "waterfront dinner sunset views" or "scenic sunset spot" can
   // still surface a real one (toRow now keeps `types`). Batched once per
@@ -125,6 +127,40 @@ export default function IntentPageClient({ intent }) {
     return () => { dead = true; };
   }, [rows]);
 
+  // COPY ROTATION — deliberately in an effect, not in render.
+  // This component is server-rendered to HTML before it hydrates, so picking a
+  // variant during render would emit one headline on the server and a different
+  // one on the client. That is a hydration mismatch, and on this codebase a
+  // mismatch does not garble the headline — it kills the page's interactivity
+  // (the 3d95dd7 outage class). Variant 0 is what SSR and the first client
+  // render both produce; the rotation swaps in immediately after mount.
+  //
+  // Random without immediate repeat, remembered per intent, same contract as
+  // lib/hooks.js pickHook for the hero cards: a returning visitor never sees the
+  // same line twice running, which is the reason to reopen the page.
+  useEffect(() => {
+    if (!def) return;
+    const n = intentVariantCount(def);
+    let pick = 0;
+    if (n > 1) {
+      let last = -1;
+      try { last = (JSON.parse(localStorage.getItem("wf_intent_copy_last") || "{}") || {})[intent]; } catch (e) {}
+      pick = Math.floor(Math.random() * n);
+      if (pick === last) pick = (pick + 1) % n;
+      try {
+        const m = JSON.parse(localStorage.getItem("wf_intent_copy_last") || "{}") || {};
+        m[intent] = pick;
+        localStorage.setItem("wf_intent_copy_last", JSON.stringify(m));
+      } catch (e) {}
+    }
+    setVariant(pick);
+    // The impression carries the variant so click-through can be measured per
+    // line and winners promoted. Fired once per mount, after the variant is
+    // decided — firing before would attribute every impression to variant 0.
+    track("intent_copy_impression", { intent, variant: pick, variants: n });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intent]);
+
   if (!def) return null;
   const h = new Date().getHours() + new Date().getMinutes() / 60;
   const share = async () => {
@@ -137,17 +173,17 @@ export default function IntentPageClient({ intent }) {
       const heroRef = passedRef || (rows && rows[0] && rows[0].photoRef) || null;
       if (heroRef && !u.searchParams.get("img")) { u.searchParams.set("img", heroRef); url = u.toString(); }
     } catch (e) {}
-    try { if (navigator.share) { await navigator.share({ title: def.eyebrow + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    try { if (navigator.share) { await navigator.share({ title: intentEyebrow(def, variant) + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
 
   return (
     <RankedExperiencePage
       topLeft={<BackControl fallback="/" />}
-      eyebrow={def.eyebrow}
-      titleTop={def.title(h, loc.city)}
+      eyebrow={intentEyebrow(def, variant)}
+      titleTop={intentTitle(def, h, loc.city, variant)}
       titleBottom={loc.city}
-      subtitle={def.sub(loc.city)}
+      subtitle={intentSub(def, loc.city, variant)}
       heroImg={def.art}
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
