@@ -15,7 +15,7 @@
 import {
   railFloorFor, RAIL_FLOOR_MIN, RAIL_FLOOR_CAP, isNightlifeVenue, railProminence,
   rankNightlife, isOperational, publishableWebsite, hostOfUrl, isDeniedHost,
-  BAR_PRIMARY_TYPES,
+  BAR_PRIMARY_TYPES, diningWeight, isDiningType, DINING_VETO_THRESHOLD,
 } from "../lib/nightlifeRail.js";
 
 let pass = 0;
@@ -130,4 +130,56 @@ for (const h of ["booking.disneyworld.disney.go.com", "reservations.disney.com",
 }
 ok(!isDeniedHost(hostOfUrl("https://splitsvillelanes.com/")), "a non-Disney venue in a Disney district is not denied by association");
 
-console.log(`test-nightlife-ranking: OK — ${pass} assertions (market-relative floor [${RAIL_FLOOR_MIN}..${RAIL_FLOOR_CAP}], prominence over stars, zero restaurant leaks, §7 host rule)`);
+// ── the dining-weight veto ────────────────────────────────────────────────
+// Every types[] array below is a VERBATIM Places response captured 2026-07-29.
+// The table proves BOTH sides: a threshold that only demonstrates what it
+// excludes has not been calibrated, it has been asserted.
+const DINING_FIXTURES = [
+  // name                         primaryType            types[]                                                                        dining  keep
+  ["Cafe 34 Istanbul",            "turkish_restaurant",  ["turkish_restaurant","halal_restaurant","hookah_bar","mediterranean_restaurant","bar","restaurant","food"],            4, false],
+  ["Eddie V's Prime Seafood",     "seafood_restaurant",  ["seafood_restaurant","oyster_bar_restaurant","cocktail_bar","fine_dining_restaurant","lounge_bar","steak_house","live_music_venue","night_club","american_restaurant","bar","restaurant","food"], 6, false],
+  ["Ocean Prime",                 "seafood_restaurant",  ["seafood_restaurant","sushi_restaurant","fine_dining_restaurant","lounge_bar","steak_house","night_club","american_restaurant","japanese_restaurant","bar","restaurant","food"],                  7, false],
+  ["KaLa Rooftop",                "restaurant",          ["restaurant","brunch_restaurant","hookah_bar","halal_restaurant","fine_dining_restaurant","lounge_bar","night_club","seafood_restaurant","bar","food"],                                           5, false],
+  // ...and the venues that must SURVIVE. These are why the threshold is 4 and not 3.
+  ["Ole Red",                     "restaurant",          ["restaurant","live_music_venue","event_venue","bar","food"],                                                            1, true],
+  ["House of Blues Orlando",      "american_restaurant", ["american_restaurant","restaurant","live_music_venue","bar","food"],                                                    2, true],
+  ["Senor Frog's",                "mexican_restaurant",  ["mexican_restaurant","latin_american_restaurant","restaurant","night_club","bar","food"],                               3, true],
+  ["Jimmy Buffett's Margaritaville","bar_and_grill",     ["bar_and_grill","hamburger_restaurant","american_restaurant","restaurant","live_music_venue","bar","food"],             3, true],
+  ["Splitsville Luxury Lanes",    "bowling_alley",       ["bowling_alley","sushi_restaurant","japanese_restaurant","restaurant","night_club","bar","food"],                       3, true],
+];
+for (const [name, primaryType, types, expectDining, expectKeep] of DINING_FIXTURES) {
+  const place = { displayName: { text: name }, primaryType, types };
+  ok(diningWeight(place) === expectDining,
+    `${name}: dining weight ${expectDining} (got ${diningWeight(place)})`);
+  ok(isNightlifeVenue(place) === expectKeep,
+    `${name}: ${expectKeep ? "SURVIVES" : "VETOED"} at threshold ${DINING_VETO_THRESHOLD} (dining ${expectDining})`);
+}
+// Both sides of the table are non-empty, or the loop above proves nothing.
+ok(DINING_FIXTURES.some(([, , , , k]) => k), "the fixture table contains venues that must survive");
+ok(DINING_FIXTURES.some(([, , , , k]) => !k), "the fixture table contains venues that must be vetoed");
+ok(DINING_FIXTURES.length >= 9, `fixture table covers >=9 measured venues (got ${DINING_FIXTURES.length})`);
+
+// The veto applies to tier 1 ONLY. A bar-family primaryType is the venue's own
+// identity and food volume cannot override it — this is what keeps Twin Peaks
+// (sports_bar + american_restaurant + restaurant) and Tom's Watch Bar on the rail.
+ok(isNightlifeVenue({ primaryType: "sports_bar", types: ["sports_bar","american_restaurant","restaurant","food","bar"] }),
+  "Twin Peaks: bar-family primaryType is never vetoed by dining weight");
+ok(isNightlifeVenue({ primaryType: "bar", types: ["sports_bar","bar","live_music_venue","event_venue","restaurant","food"] }),
+  "Tin Roof: bar primaryType survives regardless of restaurant/food types");
+ok(isNightlifeVenue({ primaryType: "bar", types: Array.from({ length: 9 }, (_, i) => `x${i}_restaurant`).concat("bar") }),
+  "even 9 dining types cannot veto a bar-family primaryType — the veto is tier-1 only");
+
+// The classifier itself.
+for (const t of ["seafood_restaurant", "turkish_restaurant", "restaurant", "steak_house", "cafe", "brunch_restaurant"])
+  ok(isDiningType(t), `${t} counts as dining`);
+for (const t of ["bar", "night_club", "live_music_venue", "bowling_alley", "event_venue", "point_of_interest", "food"])
+  ok(!isDiningType(t), `${t} does NOT count as dining`);
+ok(!isDiningType(undefined) && !isDiningType(null) && !isDiningType(42), "isDiningType is total over junk input");
+ok(diningWeight({}) === 0 && diningWeight(null) === 0, "diningWeight handles a missing types[] as 0, not a throw");
+
+// A venue with NO venue-identity type and a non-bar primary is still out —
+// the veto must not accidentally become an admission path.
+ok(!isNightlifeVenue({ primaryType: "italian_restaurant", types: ["italian_restaurant","restaurant","food"] }),
+  "a plain restaurant with 0 venue types stays out (the veto is not an allow)");
+
+console.log(`test-nightlife-ranking: OK — ${pass} assertions (market-relative floor [${RAIL_FLOOR_MIN}..${RAIL_FLOOR_CAP}], prominence over stars, dining-weight veto >=${DINING_VETO_THRESHOLD}, §7 host rule)`);
