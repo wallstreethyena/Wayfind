@@ -3,6 +3,7 @@
 // into one clear choice, two alternatives, and a lightweight local shortlist.
 // Attribution and the existing analytics event names intentionally stay intact.
 import { useEffect, useMemo, useState } from "react";
+import { placeDecision, openStateBonus } from "../../lib/placePolicy.js";
 import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
 
@@ -197,11 +198,32 @@ function categoryOf(place) {
   return "Orlando experience";
 }
 
+// Status for this card, computed from structured hours + venue offset. Falls
+// back to the legacy boolean only while a cached payload still carries it.
+function placeState(place) {
+  try {
+    const d = placeDecision(place, Date.now(), { surface: "paid_landing" });
+    return d.state;
+  } catch (e) {
+    if (place?.openNow === true) return "open";
+    if (place?.openNow === false) return "closed";
+    return "unknown";
+  }
+}
+function closedLabel(place) {
+  try { return placeDecision(place, Date.now(), { surface: "landing" }).label || "Closed"; }
+  catch (e) { return "Closed"; }
+}
+
 function fit(place, intent) {
   const haystack = `${place?.name || ""} ${(place?.types || []).join(" ")}`.toLowerCase();
   let n = Number(place?.rating || 0) * 8 + Math.log10(Number(place?.reviews || 0) + 1) * 5;
-  if (place?.openNow === true) n += intent === "tonight" ? 28 : 7;
-  if (place?.openNow === false) n -= 24;
+  // THREE-WAY, preserved deliberately. openStateBonus keeps open / closed /
+  // unknown distinct; a two-way `open ? + : -24` would drop every place with no
+  // structured hours to -24 — all 21 beach pages, plus parks and trails.
+  // Guarded behaviourally by scripts/test-closed-policy.mjs (fixture 9), which
+  // was proven red by collapsing this to two-way before it was written.
+  n += openStateBonus(placeState(place), intent);
   if (intent === "family" && /park|zoo|aquarium|garden|museum|theme|attraction/.test(haystack)) n += 18;
   if (intent === "outdoors" && /park|garden|natural|outdoor|lake/.test(haystack)) n += 25;
   if (intent === "tours" && /tour|boat|cruise|ghost/.test(haystack)) n += 30;
@@ -245,7 +267,7 @@ function Meta({ place }) {
       {place?.rating != null ? <span className="star">{place.rating} ★</span> : null}
       {place?.reviews ? <span>{Number(place.reviews).toLocaleString()} reviews</span> : null}
       {place?.openNow === true ? <><i>·</i><span className="open">Open now</span></> : null}
-      {place?.openNow === false ? <><i>·</i><span>Hours vary</span></> : null}
+      {placeState(place) === "closed" ? <><i>·</i><span>{closedLabel(place)}</span></> : null}
       {place?.distMi != null ? <><i>·</i><span>{Number(place.distMi).toFixed(1)} mi</span></> : null}
     </div>
   );
