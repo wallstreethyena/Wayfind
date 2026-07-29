@@ -11,7 +11,7 @@
 // bounded and self-terminating: once wf_atlas_missing returns empty for every
 // category the route returns {done:true} and spends nothing but the RPC.
 //
-// ┌─ v6.66 — VERIFICATION RUN. REDUCED RATE, DIAGNOSTICS DELIBERATELY LIVE. ──
+// ┌─ v6.68 — THE SCHEDULE IS DISABLED AGAIN. SECOND DEFECT, NOT THE FIRST. ────
 // │
 // │ The v6.49 note above diagnosed "coverage froze on 2026-07-24" as the
 // │ pipeline having STOPPED, and fixed it by adding a schedule. The schedule
@@ -48,17 +48,25 @@
 // │ confirmed: credits began draining again after the redeploy, $24.70 ->
 // │ $24.67, after five days of exactly zero spend.
 // │
-// │ THIS IS THE VERIFICATION RUN. The schedule is restored at ?limit=3, not 25,
-// │ and ATLAS-DIAG stays live through it ON PURPOSE — the point is to see the
-// │ Anthropic branch be SILENT rather than to infer it from a credit balance.
-// │ Worst case at three rows an hour is recoverable; waiting on a human to fire
-// │ a curl costs more than that. check-atlas-diag-not-live.mjs enforces the
-// │ reduced rate: diagnostics may only ride a schedule capped at 5.
+// │ THE VERIFICATION RUN ANSWERED ITS QUESTION AND FOUND A SECOND DEFECT.
+// │ Three fires at ?limit=3 (20:15, 21:15, 22:15 on 2026-07-29), 9 rows:
+// │     published            0
+// │     FAILED VERIFICATION  7
+// │     PENDING SOURCE       2
+// │ The Anthropic branch IS FIXED, and FAILED VERIFICATION is the proof: that
+// │ label can only be written after the model successfully returned a card. The
+// │ key was the first defect and it is closed.
 // │
-// │ WHEN THE RUN COMES BACK CLEAN (written > 0, pending 0, no ATLAS-DIAG
-// │ anthropic line): delete every ATLAS-DIAG line and set the limit back to 25
-// │ in ONE change. The guard requires exactly that pairing.
-// │ IF IT DOES NOT: remove the vercel.json entry again immediately.
+// │ The second defect is in lib/atlasVerify, and it was rejecting CORRECTLY
+// │ SOURCED hours. Almost every rejection was a clock time:
+// │     unsourced-number:know_before:11 AM
+// │ Google's weekdayDescriptions say "11:00 AM"; the model writes "11 AM"; norm()
+// │ strips ':' so those became "1100am" vs "11am" and never matched. Fixed in
+// │ this change by canonicalising ":00" on BOTH sides before comparison.
+// │
+// │ The schedule is disabled while that fix goes unverified against live data.
+// │ Re-arm with ?limit=3 and watch one fire; if rows land published, strip
+// │ ATLAS-DIAG and restore ?limit=25 in ONE change.
 // └────────────────────────────────────────────────────────────────────────────
 //
 // Cost: metered (Google Places Details + Anthropic per place). CRON_SECRET-gated
