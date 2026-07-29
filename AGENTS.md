@@ -162,7 +162,24 @@ there.
 - Before trusting an absence, prove the probe can find a positive — search for something
   you know is present in the same file, the same way.
 
-**And for all four: prove the check can fail.** Break the thing on purpose, watch it go
+**(e) Stopped early, reported done.**
+A sweep that stops when a measured condition is met can stop for the wrong reason and still
+report success. A census sweep watched marginal yield over the last 12 queries and declared
+saturation — but the window sat entirely inside one district's exhausted phrasing, so a
+local trough read as metro-wide completion. It stopped in a district that had reached 154
+place_ids where every other district reached 685–841, and the district visited immediately
+before it had just contributed 223 place_ids nobody else reached. The verdict said "done";
+the sweep had run out of plan, not out of venues.
+
+- Scope the stopping condition to the axis it claims to cover. A per-metro claim cannot be
+  measured on a window that only ever sees one district.
+- **A stopping condition you cannot audit afterward is a stopping condition you have to
+  trust. Persist the curve, not just the verdict.** The bad stop above survived only because
+  the run saved its conclusion and threw away the per-query series behind it.
+- A budget or cap that binds must say so loudly. A truncated run must never render as a
+  completed one.
+
+**And for all five: prove the check can fail.** Break the thing on purpose, watch it go
 red, put it back. A guard that has never failed in front of you is a guard you are guessing
 about.
 

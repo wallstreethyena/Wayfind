@@ -124,6 +124,10 @@ const FIELDS_TEXT = FIELDS + ",nextPageToken";
 const MAX_PAGES = 3;
 const SATURATION_WINDOW = 12;   // consecutive queries examined
 const SATURATION_YIELD = 0.02;  // <2% of queried rows being new == collapsed
+// Hard call budget. If it binds, the run says so LOUDLY and reports NOT
+// saturated — a truncated sweep must never read as a completed one.
+const MAX_CALLS = Number(process.env.CENSUS_MAX_CALLS || 1600);
+const MAX_SUBDIV = 2; // subdivision depth when a district refuses to go quiet
 
 let CALLS = { nearby: 0, text: 0 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -195,7 +199,7 @@ function absorb(places, strategy, provenance) {
 // So saturation is now per-district AND global: every district must individually
 // go quiet before the metro is called saturated.
 function saturatedIn(districtKey) {
-  const w = CURVE.filter((c) => c.q.includes(":" + districtKey + ":")).slice(-SATURATION_WINDOW);
+  const w = CURVE.filter((c) => c.q.startsWith("A:" + districtKey + ":") || c.q.startsWith("B:" + districtKey + ":")).slice(-SATURATION_WINDOW);
   if (w.length < SATURATION_WINDOW) return false;
   const seen = w.reduce((a, x) => a + x.returned, 0);
   const fresh = w.reduce((a, x) => a + x.fresh, 0);
@@ -212,8 +216,12 @@ async function main() {
   const nB = city.districts.length * PHRASINGS.length * MAX_PAGES;
   const nC = city.landmarks.length;
   console.log(`CENSUS ${slug}: ${city.districts.length} districts x ${TYPE_GROUPS.length} type groups, ${PHRASINGS.length} phrasings, ${nC} landmarks`);
-  console.log(`PLAN   worst case A ${nA} + B ${nB} + C ${nC} = ${nA + nB + nC} calls @ $0.035 = $${((nA + nB + nC) * 0.035).toFixed(2)}`);
-  console.log(`       (saturation stop should land well under this)\n`);
+  // Level-0 only. Subdivision multiplies this by up to 9 per level, so the
+  // BUDGET is the real ceiling, not this figure — say both rather than let the
+  // smaller number read as the cost.
+  console.log(`PLAN   level-0 A ${nA} + B ${nB} + C ${nC} = ${nA + nB + nC} calls @ $0.035 = $${((nA + nB + nC) * 0.035).toFixed(2)}`);
+  console.log(`       subdivision adds up to ${MAX_SUBDIV} levels (x9 tiles each) where a district will not go quiet`);
+  console.log(`       HARD BUDGET ${MAX_CALLS} calls = $${(MAX_CALLS * 0.035).toFixed(2)} — this is the ceiling that actually binds\n`);
   if (DRY) { console.log("--dry: no API calls."); return; }
 
   const key = loadKey();
@@ -230,35 +238,59 @@ async function main() {
   }
   console.log(`  C landmarks: ${CENSUS.size} place_ids after ${CALLS.text} calls`);
 
-  // A — taxonomy over every district x type group.
-  for (const d of city.districts) {
-    for (let gi = 0; gi < TYPE_GROUPS.length; gi++) {
-      const data = await post("https://places.googleapis.com/v1/places:searchNearby",
-        { includedTypes: TYPE_GROUPS[gi], maxResultCount: 20, rankPreference: "POPULARITY",
-          locationRestriction: { circle: { center: { latitude: d.lat, longitude: d.lng }, radius: d.radius } } }, FIELDS, key);
-      CALLS.nearby++; absorb(data.places, "A", `A:${d.key}:g${gi}`); await sleep(110);
-    }
-  }
-  console.log(`  A taxonomy : ${CENSUS.size} place_ids after ${priced().total} calls`);
+  // ── per-district saturation engine ──────────────────────────────────────
+  // A district that will not go quiet is SUBDIVIDED rather than abandoned. Both
+  // caps that bind here are structural: searchNearby returns at most 20 rows and
+  // cannot paginate, and searchText tops out around 60. Smaller circles are the
+  // only way past either, so each subdivision level buys a fresh 20/60 per tile.
+  const districtSaturated = {}, districtCalls = {};
 
-  // B — language, paged to exhaustion, until saturation.
-  const districtSaturated = {};
+  function subdivide(d, level) {
+    if (level === 0) return [d];
+    const tiles = [], step = d.radius / 1.5, r = Math.max(600, d.radius / 2);
+    const dLat = step / 111320, dLng = step / (111320 * Math.cos(d.lat * Math.PI / 180));
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++)
+      tiles.push({ key: `${d.key}/L${level}_${i}${j}`, lat: d.lat + i * dLat, lng: d.lng + j * dLng, radius: r });
+    return tiles;
+  }
+
+  let budgetHit = false;
   for (const d of city.districts) {
-    for (const phrase of PHRASINGS) {
-      let token = null;
-      for (let page = 0; page < MAX_PAGES; page++) {
-        const data = await post("https://places.googleapis.com/v1/places:searchText",
-          { textQuery: phrase, pageSize: 20, locationBias: { circle: { center: { latitude: d.lat, longitude: d.lng }, radius: d.radius } }, ...(token ? { pageToken: token } : {}) }, FIELDS_TEXT, key);
-        CALLS.text++; absorb(data.places, "B", `B:${d.key}:${phrase.slice(0, 16)}:p${page}`);
-        token = data.nextPageToken || null; await sleep(110);
-        if (!token) break;
+    const before = priced().total;
+    for (let level = 0; level <= MAX_SUBDIV && !districtSaturated[d.key]; level++) {
+      for (const tile of subdivide(d, level)) {
+        if (priced().total >= MAX_CALLS) { budgetHit = true; break; }
+        // A — taxonomy
+        for (let gi = 0; gi < TYPE_GROUPS.length; gi++) {
+          if (priced().total >= MAX_CALLS) { budgetHit = true; break; }
+          const data = await post("https://places.googleapis.com/v1/places:searchNearby",
+            { includedTypes: TYPE_GROUPS[gi], maxResultCount: 20, rankPreference: "POPULARITY",
+              locationRestriction: { circle: { center: { latitude: tile.lat, longitude: tile.lng }, radius: tile.radius } } }, FIELDS, key);
+          CALLS.nearby++; absorb(data.places, "A", `A:${d.key}:${tile.key}:g${gi}`); await sleep(90);
+        }
+        // B — language, paged
+        for (const phrase of PHRASINGS) {
+          if (priced().total >= MAX_CALLS) { budgetHit = true; break; }
+          let token = null;
+          for (let page = 0; page < MAX_PAGES; page++) {
+            const data = await post("https://places.googleapis.com/v1/places:searchText",
+              { textQuery: phrase, pageSize: 20, locationBias: { circle: { center: { latitude: tile.lat, longitude: tile.lng }, radius: tile.radius } }, ...(token ? { pageToken: token } : {}) }, FIELDS_TEXT, key);
+            CALLS.text++; absorb(data.places, "B", `B:${d.key}:${tile.key}:${phrase.slice(0, 14)}:p${page}`);
+            token = data.nextPageToken || null; await sleep(90);
+            if (!token) break;
+          }
+          if (saturatedIn(d.key)) { districtSaturated[d.key] = true; break; }
+        }
+        if (districtSaturated[d.key] || budgetHit) break;
       }
-      if (saturatedIn(d.key)) { districtSaturated[d.key] = true; break; }
+      if (budgetHit) break;
     }
     if (districtSaturated[d.key] === undefined) districtSaturated[d.key] = false;
+    districtCalls[d.key] = priced().total - before;
+    console.log(`  ${d.key.padEnd(16)} ${districtSaturated[d.key] ? "SATURATED" : "not saturated"}  (+${districtCalls[d.key]} calls, census ${CENSUS.size})`);
+    if (budgetHit) break;
   }
-  const stoppedEarly = Object.values(districtSaturated).every(Boolean);
-  console.log(`  B language : ${CENSUS.size} place_ids after ${priced().total} calls  (districts saturated: ${Object.values(districtSaturated).filter(Boolean).length}/${city.districts.length})`);
+  const stoppedEarly = city.districts.every((d) => districtSaturated[d.key]);
 
   // Geo tag. Nothing dropped for exceeding metroMi — only contamination.
   for (const rec of CENSUS.values()) {
@@ -298,6 +330,7 @@ async function main() {
 
   console.log(`\n  districts individually saturated: ${Object.entries(districtSaturated).filter(([, v]) => v).map(([k]) => k).join(", ") || "NONE"}`);
   console.log(`  METRO SATURATED: ${stoppedEarly ? "yes" : "NO — exit criterion NOT met"}`);
+  if (budgetHit) console.log(`  *** CALL BUDGET ${MAX_CALLS} BOUND — the sweep was TRUNCATED, not completed. Coverage below is a floor. ***`);
   const p = priced();
   console.log(`\n  cost: ${p.total} calls = $${p.usd}`);
 
@@ -306,7 +339,7 @@ async function main() {
     city: slug, builtAt: null,
     counts: { total: rows.length, inMetro: rows.filter((r) => r.inMetro).length, outOfMetroTagged: rows.filter((r) => r.inMetro === false).length, contaminationDropped: contaminated.length, uncategorised: rows.filter((r) => r.category === null).length },
     strategies: { a: SA.size, b: SB.size, c: SC.size, onlyA: only(SA, SB, SC), onlyB: only(SB, SA, SC), onlyC: only(SC, SA, SB) },
-    calls: p, saturation: { buckets, curve: CURVE, districtSaturated, window: SATURATION_WINDOW, threshold: SATURATION_YIELD, stoppedEarly },
+    calls: p, saturation: { buckets, curve: CURVE, districtSaturated, districtCalls, budgetHit, maxCalls: MAX_CALLS, window: SATURATION_WINDOW, threshold: SATURATION_YIELD, stoppedEarly },
     rows: rows.map((r) => ({ ...r, foundBy: [...r.foundBy].sort() })),
   }, null, 2));
   console.log(`  census -> tmp/census-${slug}.json`);
