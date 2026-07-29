@@ -52,13 +52,20 @@ const S = {
   pick: { margin: "0 0 16px", padding: "22px", borderRadius: 20, background: "linear-gradient(145deg,#101C2B,#0A1421)", border: "1px solid #26384B", boxShadow: "0 18px 45px rgba(0,0,0,.2)" },
 };
 
+const NEUTRAL_HERO = "/brand/wayfind-default-hero-adobestock-289023289.jpeg";
+
 function guideHero(g) {
   const haystack = `${g.title} ${g.keyword || ""}`.toLowerCase();
   if (/restaurant|food|cuban|pie/.test(haystack)) return "/cards/date-night-dining-hero.jpg";
   if (/beach|siesta|lido/.test(haystack)) return "/cards/beach-adobestock-216195684.jpeg";
   if (/night|bar|cocktail/.test(haystack)) return "/cards/night-out.jpg";
   if (/boat|kayak|spring|airboat/.test(haystack)) return "/brand/orlando-paddleboard-portrait.jpg";
-  return g.region === "Orlando" ? "/brand/orlando-night-wheel-portrait.jpg" : "/cards/hidden-gems-adobestock-321810820.jpeg";
+  // The keyword branches above assign art that MATCHES the guide. This last
+  // line is what a guide gets when none matched, so it must assert no
+  // category — it used to hand out the hidden-gems photo, which is why the
+  // Ybor City, Tampa Riverwalk, Myakka River and De Soto guides all opened
+  // on an image claiming they were hidden gems.
+  return g.region === "Orlando" ? "/brand/orlando-night-wheel-portrait.jpg" : NEUTRAL_HERO;
 }
 
 export default async function GuidePage({ params }) {
