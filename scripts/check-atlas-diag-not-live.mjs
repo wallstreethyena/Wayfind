@@ -2,21 +2,20 @@
 /**
  * check-atlas-diag-not-live — temporary debug logging may never run on a live cron.
  *
- * atlas-build is disabled in vercel.json and carries ATLAS-DIAG logging while we
- * find out why it failed 525 times in a row without ever raising an error (see
- * the header of app/api/cron/atlas-build/route.js and issue #438).
+ * atlas-build carries ATLAS-DIAG logging because it failed 525 times in a row
+ * without ever raising an error (see the route header and issue #438).
  *
- * Two ways that ends badly, and this guard blocks both:
+ * Three ways that ends badly, and this guard blocks all three:
  *
- *   1. Someone restores the schedule while ATLAS-DIAG is still in the file, and
- *      production runs debug logging on an hourly metered job.
+ *   1. Someone restores the schedule at FULL rate while ATLAS-DIAG is still in
+ *      the file, and production runs debug logging on an hourly metered job.
  *   2. Someone deletes ATLAS-DIAG as "cleanup" without fixing anything, and the
  *      route goes back to the exact silence that hid a 100% failure rate for
  *      five days.
+ *   3. A "verification run" quietly becomes the resting state — notice still in
+ *      the header, rate crept back up, nobody actually reading the output.
  *
- * So the rule is a COUPLING, not a ban: diagnostics present <=> cron disabled.
- * Re-enabling the schedule requires removing the diagnostics in the same change,
- * which is only defensible once the cause is actually fixed.
+ * The rule is a three-state COUPLING, not a ban. See the state table below.
  *
  * Also enforces the thing that makes ATLAS-DIAG safe to ship at all: it logs a
  * key LENGTH, never a key.
@@ -32,16 +31,50 @@ const route = readFileSync(path.resolve("app/api/cron/atlas-build/route.js"), "u
 const vercel = JSON.parse(readFileSync(path.resolve("vercel.json"), "utf8"));
 
 const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
-const scheduled = crons.some((c) => String(c && c.path || "").includes("/api/cron/atlas-build"));
+const atlasCron = crons.find((c) => String(c && c.path || "").includes("/api/cron/atlas-build"));
+const scheduled = !!atlasCron;
 const diag = /ATLAS-DIAG/.test(route);
 
-// The coupling.
-ok(!(scheduled && diag),
-  "atlas-build is SCHEDULED while ATLAS-DIAG debug logging is still in the route — " +
-  "remove the diagnostics in the same change that restores the schedule, and only after the cause is fixed");
-ok(scheduled || diag,
-  "atlas-build is disabled AND the ATLAS-DIAG diagnostics are gone — if the cause is fixed, restore the " +
-  "vercel.json entry in this change; if it is not, keep the diagnostics. Silence is what hid the failure.");
+// v6.66 — A THIRD STATE, because two were not enough.
+//
+// The first version said: diagnostics present XOR scheduled. That blocked the
+// one thing actually needed to close the incident — running the job under
+// diagnostics and watching the failing branch go silent. Proving the fix from a
+// credit balance instead would be inference, which is what caused this episode.
+//
+// The states are:
+//   disabled     + diagnostics   the halt (cause unknown)
+//   VERIFICATION + diagnostics   scheduled at a REDUCED rate, deliberately watched
+//   scheduled    + no diagnostics the healthy resting state
+// The forbidden one is full-rate unattended with debug logging still on.
+//
+// The rate cap is what makes the middle state safe: at ?limit=3 a bad hour costs
+// three rows, not twenty-five.
+const VERIFICATION_LIMIT_CAP = 5;
+const schedLimit = Number(
+  new URLSearchParams(String((atlasCron && atlasCron.path) || "").split("?")[1] || "").get("limit") || 0);
+const verifying = /VERIFICATION RUN/.test(route);
+
+if (scheduled && diag) {
+  ok(verifying,
+    "atlas-build is SCHEDULED with ATLAS-DIAG still live and no 'VERIFICATION RUN' notice in the route — " +
+    "either this is a deliberate watched run and it must say so, or the diagnostics belong in the same change that restored the schedule");
+  ok(schedLimit > 0 && schedLimit <= VERIFICATION_LIMIT_CAP,
+    `a verification run must be RATE-LIMITED: ?limit=${schedLimit} exceeds ${VERIFICATION_LIMIT_CAP}. ` +
+    "The point is that a bad hour costs three rows instead of twenty-five");
+} else {
+  ok(scheduled || diag,
+    "atlas-build is disabled AND the ATLAS-DIAG diagnostics are gone — if the cause is fixed, restore the " +
+    "vercel.json entry in this change; if it is not, keep the diagnostics. Silence is what hid the failure.");
+}
+// A verification notice may not outlive the diagnostics: once ATLAS-DIAG is
+// stripped, the route would be claiming to be a watched run with nothing watching.
+ok(!(verifying && !diag),
+  "the route still calls itself a VERIFICATION RUN but the ATLAS-DIAG diagnostics are gone — " +
+  "when you strip the diagnostics, restore the normal limit and drop the verification notice in the same change");
+// ...and a verification run must not quietly become the resting state at full rate.
+ok(!(verifying && schedLimit > VERIFICATION_LIMIT_CAP),
+  `a VERIFICATION RUN notice is present but the schedule is at ?limit=${schedLimit} — that is the resting state, not a watched run`);
 
 // Both failure branches must be instrumented, or the diagnostic answers nothing:
 // the whole point is telling Google's failure apart from Anthropic's.
@@ -67,4 +100,4 @@ if (fail.length) {
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`check-atlas-diag-not-live: OK — ${pass} assertions (cron disabled while diagnostics are live, both branches instrumented, no key in a log line)`);
+console.log(`check-atlas-diag-not-live: OK — ${pass} assertions (halt-or-verification coupling, both branches instrumented, no key in a log line)`);
