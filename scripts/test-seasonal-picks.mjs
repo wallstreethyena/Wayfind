@@ -131,8 +131,15 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
 ok(/function seasonalHeroSlide\(srcTag\)/.test(home), "one seasonalHeroSlide(srcTag) helper renders every placement — no duplicated inline slides to drift out of sync");
 const topCalls = (home.match(/\{seasonalHeroSlide\("top"\)\}/g) || []).length;
 const endCalls = (home.match(/\{seasonalHeroSlide\("end"\)\}/g) || []).length;
-ok(topCalls === 2, `the seasonal slide leads BOTH hero rails (found ${topCalls} "top" call sites)`);
-ok(endCalls === 2, `the seasonal slide also closes BOTH hero rails — engaging the user twice, per the owner's request (found ${endCalls} "end" call sites)`);
+ok(topCalls === 2, `the seasonal slide appears once per hero rail (found ${topCalls} "top" call sites)`);
+// v6.61 (owner, on the record): "there should not be another hero seasonal card
+// at the end it is duplicated only one seasonal hero card."
+//
+// This REVERSES the v6.55 decision ("at the end will be the reminder, so we
+// engage with them technically twice"), which this same assertion used to lock
+// at endCalls === 2. Re-pointed, not deleted: it now pins the opposite number,
+// so a re-added end slide fails just as loudly as a removed one used to.
+ok(endCalls === 0, `the seasonal slide does NOT repeat at the end of either rail — one seasonal card per rail (found ${endCalls} "end" call sites)`);
 const heroOccurrences = home.split('badge={_s.label + " Picks"}').length - 1;
 ok(heroOccurrences === 1, `the seasonal slide's JSX is defined exactly ONCE, inside seasonalHeroSlide, and reused at all 4 call sites rather than copy-pasted per rail (found ${heroOccurrences} definitions)`);
 
@@ -164,8 +171,13 @@ for (const [name, anchor] of [["no-events rail", noEventsRailAt], ["featured-eve
   ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 1400)), `the orientation card leads the ${name} and OPENS a page, with Seasonal Picks immediately after — deterministic JSX order, no rotation`);
   const closeAt = home.indexOf("</HeroRail>", heroRailAt);
   ok(closeAt >= 0, `the ${name}'s closing </HeroRail> is found`);
-  const endAt = home.lastIndexOf('{seasonalHeroSlide("end")}', closeAt);
-  ok(endAt >= 0 && closeAt - endAt < 200, `Seasonal Picks closes the ${name} as the very last slide, right before its own </HeroRail>`);
+  // v6.61: the end-slide is gone (owner: "only one seasonal hero card"), so this
+  // now asserts the ABSENCE within this rail's own span rather than its
+  // presence. Scoped to heroRailAt..closeAt so it cannot be satisfied by the
+  // other rail happening to be clean.
+  const railBody = home.slice(heroRailAt, closeAt);
+  ok(!railBody.includes('{seasonalHeroSlide("end")}'), `the ${name} does not repeat Seasonal Picks at its end — one seasonal card in this rail`);
+  ok((railBody.match(/\{seasonalHeroSlide\("(top|end)"\)\}/g) || []).length === 1, `the ${name} renders EXACTLY ONE seasonal slide`);
 }
 // In the featured-event rail specifically, the concert card still follows
 // (event/beach/date-night/family/trending keep their own order — only the

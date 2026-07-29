@@ -7562,7 +7562,6 @@ function PageInner({ initialEvents = null }) {
                     {/* v6.55 (owner): "...at the end will be the reminder, so
                         we engage with them technically twice" — the same
                         Seasonal Picks slide repeats as the closing card. */}
-                    {seasonalHeroSlide("end")}
                   </HeroRail>
                   {discoveryMenu}
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
@@ -7706,7 +7705,6 @@ function PageInner({ initialEvents = null }) {
                         {/* v6.55 (owner): "...at the end will be the reminder, so
                             we engage with them technically twice" — the same
                             Seasonal Picks slide repeats as the closing card. */}
-                        {seasonalHeroSlide("end")}
                         </HeroRail>
                       );
                     })()}
