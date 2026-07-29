@@ -23,12 +23,25 @@ export function Trophy({ i }) {
   );
 }
 
-export function RankedRow({ i, href, img, title, score, why, editorial, badge }) {
-  return (
-    <li style={{ borderTop: "1px solid " + C.border }}>
-      <a href={href} style={{ display: "flex", gap: 14, padding: "16px 0", alignItems: "flex-start", textDecoration: "none", color: "inherit" }}>
-        <div style={{ width: 30, flexShrink: 0, textAlign: "center", paddingTop: 2 }}><Trophy i={i} /></div>
-        {img ? <img src={img} alt="" loading="lazy" style={{ width: 72, height: 72, borderRadius: 12, objectFit: "cover", flexShrink: 0, border: "1px solid " + C.border }} /> : null}
+// `onClick` and `rank` exist for surfaces that are not ranked lists — the
+// in-app Surprise screen offers ALTERNATIVES to one pick, so its rows swap the
+// pick in place (no href to navigate to) and carry no medal (an alternative is
+// not a rank). Both follow CollectionHero's rule: the default renders the
+// byte-identical anchor-with-trophy the nine ranked routes already ship, so a
+// caller that does not opt in cannot be restyled by this.
+// Exported so a caller supplying its own <img> element (see imgEl) cannot let
+// the thumbnail geometry drift away from the nine ranked routes.
+export const ROW_IMG_STYLE = { width: 72, height: 72, borderRadius: 12, objectFit: "cover", flexShrink: 0, border: "1px solid " + C.border };
+
+export function RankedRow({ i, href, onClick, img, imgEl, title, score, why, editorial, badge, rank = true }) {
+  const inner = (
+    <>
+        {rank ? <div style={{ width: 30, flexShrink: 0, textAlign: "center", paddingTop: 2 }}><Trophy i={i} /></div> : null}
+        {/* imgEl is the same caller-supplied-node escape hatch as `badge`: the
+            in-app screens need their FallbackImg (icon on a missing or broken
+            photo), and building that here would drag app state into this
+            pure shell. Geometry stays shared via ROW_IMG_STYLE. */}
+        {imgEl || (img ? <img src={img} alt="" loading="lazy" style={ROW_IMG_STYLE} /> : null)}
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 17, fontWeight: 750, color: C.text }}>{title}</span>
@@ -42,7 +55,19 @@ export function RankedRow({ i, href, img, title, score, why, editorial, badge })
           {editorial ? <p style={{ fontSize: 12.5, color: "rgba(241,245,249,.75)", lineHeight: 1.5, margin: "5px 0 0" }}>{editorial}</p> : null}
         </div>
         <span aria-hidden="true" style={{ alignSelf: "center", color: "rgba(255,255,255,.3)", fontSize: 18, flexShrink: 0 }}>›</span>
-      </a>
+    </>
+  );
+  const box = { display: "flex", gap: 14, padding: "16px 0", alignItems: "flex-start", textDecoration: "none", color: "inherit" };
+  return (
+    <li style={{ borderTop: "1px solid " + C.border }}>
+      {href ? (
+        <a href={href} style={box}>{inner}</a>
+      ) : (
+        // A row that swaps state is a button, not a link to nowhere: an <a>
+        // without href is not keyboard-focusable and reads as plain text to a
+        // screen reader. Resets keep it visually identical to the anchor.
+        <button type="button" onClick={onClick} style={{ ...box, width: "100%", background: "none", border: 0, font: "inherit", textAlign: "left", cursor: "pointer" }}>{inner}</button>
+      )}
     </li>
   );
 }
