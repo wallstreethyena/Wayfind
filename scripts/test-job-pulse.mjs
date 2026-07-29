@@ -84,7 +84,14 @@ ok(classifyHealth([]).incidents.length === 0 && classifyHealth(null).incidents.l
 // This is the whole lesson. Every layer that was watching counted writes.
 {
   const atlas = read("app/api/cron/atlas-build/route.js");
-  ok(/recordPulse\("atlas-build"/.test(atlas), "atlas-build reports a pulse — a watcher with nothing reporting is the same blindness");
+  // v6.67 — the route pulses under a job name chosen by mode. Assert BOTH names
+  // reach the pulse: if retry rolled up under "atlas-build", a healthy build
+  // path would mask a dead retry path in the watcher, which is the same
+  // masking this whole layer exists to prevent.
+  ok(/recordPulse\((?:"atlas-build"|retryMode \? "atlas-retry" : "atlas-build")/.test(atlas),
+    "atlas-build reports a pulse — a watcher with nothing reporting is the same blindness");
+  ok(/"atlas-retry"/.test(atlas) && /"atlas-build"/.test(atlas),
+    "build and retry pulse under DISTINCT job names — one healthy path must not mask the other");
   ok(/succeeded: publishedCount/.test(atlas),
     "the pulse's `succeeded` is PUBLISHED rows, not written rows — 525 written / 0 published is precisely the state that must register as failure");
   ok(/attempted: 0, succeeded: 0/.test(atlas), "the idle path pulses too, with attempted 0, so a self-terminating run is not an incident");

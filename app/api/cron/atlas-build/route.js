@@ -336,12 +336,20 @@ export async function GET(req) {
 
   const limit = Math.max(1, Math.min(parseInt(url.searchParams.get("limit") || "10", 10) || 10, 25));
   const reqCat = (url.searchParams.get("category") || "").trim();
+  // RETRY MODE. Same generation machinery, different selector and different
+  // write. wf_atlas_missing returns places with NO row; wf_atlas_retryable
+  // returns places whose row says PENDING SOURCE and which pass the four rules
+  // (survived reclassification, not §7-blocked, attempt_count < 2 with a
+  // cooldown, operational, ordered by reviews desc). Reusing this route rather
+  // than forking one means the §7 gate, the verifier and the deadline guard
+  // cannot drift between the two paths.
+  const retryMode = url.searchParams.get("retry") === "1";
 
   // Pick the category to work: the requested one, else the first (in owner order)
   // that still has missing rows.
   async function missing(cat) {
     try {
-      const r = await fetch(`${s.url}/rest/v1/rpc/wf_atlas_missing`, {
+      const r = await fetch(`${s.url}/rest/v1/rpc/${retryMode ? "wf_atlas_retryable" : "wf_atlas_missing"}`, {
         method: "POST", headers: svcH, cache: "no-store",
         body: JSON.stringify({ p_category: cat, p_metros: METROS, p_limit: limit }),
       });
@@ -350,7 +358,12 @@ export async function GET(req) {
   }
 
   let category = reqCat, places = [];
-  if (category) {
+  if (retryMode && !category) {
+    // The backlog is worked by VALUE, not category by category: these rows
+    // failed for a reason that had nothing to do with what they are.
+    category = "(retry)";
+    places = await missing("");
+  } else if (category) {
     places = await missing(category);
   } else {
     for (const c of CATS) { const rows = await missing(c); if (Array.isArray(rows) && rows.length) { category = c; places = rows; break; } }
@@ -358,7 +371,7 @@ export async function GET(req) {
   if (!category || !places.length) {
     // Idle, not broken. attempted:0 is what stops a self-terminating job from
     // reading as an incident in /api/cron/job-watch.
-    await recordPulse("atlas-build", { attempted: 0, succeeded: 0, note: "no missing rows in target categories/metros" });
+    await recordPulse(retryMode ? "atlas-retry" : "atlas-build", { attempted: 0, succeeded: 0, note: "no missing rows in target categories/metros" });
     return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
   }
 
@@ -453,9 +466,29 @@ export async function GET(req) {
   // Upsert — ON CONFLICT (place_id) DO NOTHING keeps the 373 existing rows safe.
   let written = 0, upErr = null;
   if (rows.length) {
-    const h = { ...svcH, Prefer: "resolution=ignore-duplicates,return=minimal" };
-    const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
-    if (r.ok) written = rows.length; else upErr = `upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
+    if (retryMode) {
+      // These rows ALREADY EXIST, so the insert path (resolution=ignore-duplicates)
+      // would silently do nothing — the retry would report success and change
+      // not one row. Update each, and bump attempt_count/last_attempted_at on
+      // EVERY outcome: a retry that failed is still an attempt, and not counting
+      // it is how a bounded retry quietly becomes an unbounded one.
+      let okCount = 0;
+      for (const row of rows) {
+        try {
+          const rr = await fetch(`${s.url}/rest/v1/rpc/wf_editorial_record_attempt`, {
+            method: "POST", headers: { ...svcH, "content-type": "application/json" },
+            body: JSON.stringify({ p_place_id: row.place_id, p_issues: row.issues && row.issues.length ? row.issues : null }),
+            cache: "no-store",
+          });
+          if (rr.ok) okCount++; else upErr = `retry update http ${rr.status}`;
+        } catch (e) { upErr = `retry update threw ${String(e && e.message).slice(0, 100)}`; }
+      }
+      written = okCount;
+    } else {
+      const h = { ...svcH, Prefer: "resolution=ignore-duplicates,return=minimal" };
+      const r = await fetch(`${s.url}/rest/v1/wf_editorial?on_conflict=place_id`, { method: "POST", headers: h, body: JSON.stringify(rows), cache: "no-store" });
+      if (r.ok) written = rows.length; else upErr = `upsert http ${r.status}: ${(await r.text()).slice(0, 160)}`;
+    }
   }
 
   // Affiliate opportunities: bookable places (attractions/hotels) with no verified
@@ -486,7 +519,7 @@ export async function GET(req) {
   // every path including failures; a job that only pulses when it succeeds is
   // exactly as blind as one that never pulses.
   const publishedCount = rows.filter((r) => r.verified).length;
-  await recordPulse("atlas-build", {
+  await recordPulse(retryMode ? "atlas-retry" : "atlas-build", {
     attempted: rows.length,
     succeeded: publishedCount,
     note: publishedCount === 0 && rows.length > 0
@@ -499,7 +532,7 @@ export async function GET(req) {
     // places.length, which silently equalled the batch size even when the run
     // fell over — with the deadline guard live, `deferred` is the difference and
     // a persistently non-zero deferred is the signal to lower ?limit.
-    ok: !upErr, category, processed: rows.length, deferred, written,
+    ok: !upErr, mode: retryMode ? "retry" : "build", category, processed: rows.length, deferred, written,
     // `sourced` is "the model answered"; `published` is "it cleared the content
     // bar and a user will see it". They used to be the same number by
     // assumption; a gap between them is the run telling you the model is

@@ -73,8 +73,32 @@ ok(/comment on column public\.wf_editorial\.attempt_count/.test(mig),
       if (!/wf_editorial/.test(src)) continue;
       if (!/retry|reattempt|re-attempt/i.test(src)) continue;
       selectors.push(p);
-      const hasCount = /attempt_count/.test(src);
-      const hasWhen = /last_attempted_at/.test(src);
+      let hasCount = /attempt_count/.test(src);
+      let hasWhen = /last_attempted_at/.test(src);
+      // A selector may DELEGATE the bounds to a SQL function instead of bounding
+      // inline — which is better, because a bound in SQL cannot drift from the
+      // selector that uses it. So follow the delegation and verify the bound
+      // exists in the function's definition, rather than demanding the column
+      // names appear in the JS. Checking for the words in the caller would pass
+      // on a comment; this checks the actual WHERE clause.
+      const delegated = [...src.matchAll(/rpc\/(?:\$\{[^}]*?["']([a-z_]+)["'][^}]*\}|([a-z_]+))/g)]
+        .flatMap((m) => [m[1], m[2]]).filter(Boolean);
+      for (const fn of delegated) {
+        if (!/retry|retryable/i.test(fn)) continue;
+        const migDir = path.resolve("supabase/migrations");
+        if (!existsSync(migDir)) continue;
+        for (const f of readdirSync(migDir)) {
+          // .sql ONLY. This bit the guard during its own break-test: a
+          // `.sql.bak` left in the directory still contained the bound, so
+          // removing it from the live migration left the check green. A scanner
+          // that accepts any file in a directory can be satisfied by a backup.
+          if (!f.endsWith(".sql")) continue;
+          const def = readFileSync(path.join(migDir, f), "utf8");
+          if (!new RegExp(`function public\\.${fn}\\(`).test(def)) continue;
+          if (/e\.attempt_count\s*<\s*\d/.test(def)) hasCount = true;
+          if (/e\.last_attempted_at/.test(def)) hasWhen = true;
+        }
+      }
       if (!(hasCount && hasWhen)) {
         offenders.push(`${p}: bounds on ${hasCount ? "attempt_count" : ""}${hasCount && hasWhen ? " and " : ""}${hasWhen ? "last_attempted_at" : ""}${!hasCount && !hasWhen ? "NEITHER column" : ""} — needs both`);
       }

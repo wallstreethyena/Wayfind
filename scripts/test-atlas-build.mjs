@@ -27,9 +27,24 @@ const r = [src("../app/api/cron/atlas-build/route.js"), src("../lib/atlasEditori
 // Auth: fail-CLOSED (unset secret never opens).
 ok(/if \(!secret \|\| \(auth !== "Bearer " \+ secret/.test(r), "CRON_SECRET gated, fail-closed");
 
-// Resumable + non-destructive: selects only MISSING rows and never overwrites the
-// 373 existing editorials.
-ok(/rpc\/wf_atlas_missing/.test(r), "selects missing places via the resumable IS-NULL RPC");
+// Resumable + non-destructive: the BUILD path selects only MISSING rows and never
+// overwrites an existing editorial.
+//
+// v6.67 — the route now has two modes. `?retry=1` deliberately DOES overwrite,
+// because the retry path exists to re-attempt rows that already carry a failed
+// record (515 of them, all failed against a rejected API key). So the assertion
+// is no longer "the route only ever mentions wf_atlas_missing" — it is that the
+// two selectors are chosen by mode, and that the DESTRUCTIVE one is reachable
+// only under retryMode. A guard that just checked for the old literal would have
+// been satisfied by deleting the branch.
+ok(/rpc\/\$\{retryMode \? "wf_atlas_retryable" : "wf_atlas_missing"\}/.test(r),
+  "the selector is chosen by mode: wf_atlas_missing for the build path, wf_atlas_retryable for retry");
+ok(/const retryMode = url\.searchParams\.get\("retry"\) === "1"/.test(r),
+  "retry mode is opt-in per request and defaults OFF — the scheduled build path can never overwrite by accident");
+ok(/if \(retryMode\) \{[\s\S]{0,900}?\} else \{[\s\S]{0,300}?ignore-duplicates/.test(r),
+  "the OVERWRITING write is inside the retryMode branch; the default branch is still insert-with-ignore-duplicates");
+ok(/wf_editorial_record_attempt/.test(r),
+  "the overwrite goes through the attempt-recording RPC, so a retry cannot rewrite a row without also counting the attempt");
 ok(/on_conflict=place_id/.test(r) && /resolution=ignore-duplicates/.test(r), "ON CONFLICT (place_id) DO NOTHING — never overwrites existing rows");
 // v6.49: `verified` is DERIVED from the row's own issue list, not hardcoded.
 // It was `verified: false` and nothing ever set it true, so the fleet wrote 169
