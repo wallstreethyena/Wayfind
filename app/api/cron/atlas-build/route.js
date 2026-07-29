@@ -80,6 +80,7 @@
 import { aiKey } from "../../../../lib/aiKey";
 import { sbEnv } from "../../../../lib/serverCache";
 import { resolveOverride } from "../../../../lib/envAudit";
+import { recordPulse } from "../../../../lib/jobPulse";
 // Two halves of ONE pipeline, not alternatives:
 //   atlasVerify   — fetches the venue's own page and returns the issue list
 //                   (this is what catches invented founding dates).
@@ -353,7 +354,12 @@ export async function GET(req) {
   } else {
     for (const c of CATS) { const rows = await missing(c); if (Array.isArray(rows) && rows.length) { category = c; places = rows; break; } }
   }
-  if (!category || !places.length) return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
+  if (!category || !places.length) {
+    // Idle, not broken. attempted:0 is what stops a self-terminating job from
+    // reading as an incident in /api/cron/job-watch.
+    await recordPulse("atlas-build", { attempted: 0, succeeded: 0, note: "no missing rows in target categories/metros" });
+    return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
+  }
 
   const nowIso = new Date().toISOString();
   const rows = [];
@@ -466,6 +472,21 @@ export async function GET(req) {
   }
 
   const left = await missing(category);
+
+  // THE PULSE. `succeeded` is PUBLISHED rows, not written ones — that distinction
+  // is the entire lesson of the five-day outage: 525 rows were written and zero
+  // published, and every layer that was watching counted the writes. Recorded on
+  // every path including failures; a job that only pulses when it succeeds is
+  // exactly as blind as one that never pulses.
+  const publishedCount = rows.filter((r) => r.verified).length;
+  await recordPulse("atlas-build", {
+    attempted: rows.length,
+    succeeded: publishedCount,
+    note: publishedCount === 0 && rows.length > 0
+      ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
+      : null,
+  });
+
   return Response.json({
     // `processed` counts places that actually produced a row. It used to report
     // places.length, which silently equalled the batch size even when the run
