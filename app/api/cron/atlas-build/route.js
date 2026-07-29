@@ -64,6 +64,7 @@
 //      invented founding date (three seen across two runs) reaching a row.
 import { aiKey } from "../../../../lib/aiKey";
 import { sbEnv } from "../../../../lib/serverCache";
+import { resolveOverride } from "../../../../lib/envAudit";
 // Two halves of ONE pipeline, not alternatives:
 //   atlasVerify   — fetches the venue's own page and returns the issue list
 //                   (this is what catches invented founding dates).
@@ -92,7 +93,27 @@ export const maxDuration = 60;
 // Owner order, 2026-07-29: Food first, Shopping (incl. Gift Shops) last.
 const CATS = ["food", "attractions", "nightlife", "hotels", "shopping"];
 const METROS = ["tampa", "orlando", "manatee-sarasota"];
-const MODEL = () => (process.env.ATLAS_MODEL || "claude-haiku-4-5").trim();
+// ATLAS_MODEL is a VALUE override, not a presence flag — absent is correct and
+// means "use the default". The old form was
+//   const MODEL = () => (process.env.ATLAS_MODEL || "claude-haiku-4-5").trim();
+// which appeared in NO env audit list at all. Set it to a retired or mistyped
+// model and this route hands that string to Anthropic, takes a 404, returns null
+// from writeEditorial, and stores the row as PENDING SOURCE — identical in the
+// data to a place that genuinely could not be sourced. A typo in an env var must
+// not be able to masquerade as a sourcing problem, which is exactly the shape
+// that hid 525 failed runs for five days (#440).
+//
+// resolveOverride classifies rather than throws (lib/envAudit.js owns the
+// known-model list). Loud once per process at the point of USE, so it lands in
+// this route's own logs and not only in whichever request booted the process.
+function MODEL() {
+  const o = resolveOverride("ATLAS_MODEL");
+  if ((o.status === "unknown" || o.status === "malformed") && !globalThis.__wfAtlasModelWarned) {
+    globalThis.__wfAtlasModelWarned = true;
+    console.error(`[atlas] ATLAS_MODEL="${o.value}" is ${o.status === "malformed" ? "not a valid model id" : "not a recognised model"} — ${o.spec.consequence}. Unset it to use ${o.spec.fallback}.`);
+  }
+  return o.value;
+}
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
 const PLACE_FIELDS = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,regularOpeningHours,editorialSummary,types,priceLevel,googleMapsUri";
 
