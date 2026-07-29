@@ -137,6 +137,31 @@ ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableEx
 ok(/Aff\.viatorDirectUrl\(t\.url\) \|\| t\.url/.test(home), "rail hrefs lost the affiliate wrapper");
 ok(ttd.includes("viatorDirectUrl(r.booking_url) || r.booking_url"), "TTD tour cards lost the affiliate wrapper — unattributed bookings earn nothing");
 ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook line");
+
+// THE TASTE CONTROLS. This rail is what the homepage's Activities tab leans on,
+// and it shipped without like/dislike while PlaceCard, the detail sheet, Saved
+// and Itinerary all had them — so the highest-traffic list was the one surface
+// where a user could not teach Wayfind anything, and the taste model never heard
+// a signal from it. Each property below is one edit away from going silent again.
+ok(/onLike/.test(ttd) && /onDislike/.test(ttd), "the TTD rail still renders like/dislike — without them this list contributes nothing to the taste model");
+ok(/liked \? "Remove like"/.test(ttd) && /aria-pressed=/.test(ttd), "the taste pills still announce their state (aria-pressed + a label that flips) — an unlabelled icon toggle is unusable without sight");
+// Gated on !isTour for two INDEPENDENT reasons, so assert it rather than trust it.
+for (const p of ["onLike", "onDislike"]) {
+  ok(new RegExp(`!isTour && ${p}`).test(ttd), `${p} stays gated on !isTour: a tour row's id is a Viator PRODUCT id (a like would write a taste row nothing can resolve), and the tour card IS an <a>, so a <button> inside it nests interactive elements`);
+}
+// One row->place mapping. toggleLike stores `{ place: p }`, and the Saved
+// screen's Liked folder renders that stored object later — so a thin mapping at
+// one call site shows up as a placeholder card in a folder somewhere else.
+ok(/export function ttdPlace\(/.test(ttd), "ttdPlace is still the single row->place mapping");
+ok(!/onOpenPlace\(\{ id: r\.id/.test(ttd), "no call site rebuilds the place shape inline — they all go through ttdPlace");
+for (const p of ["onSave(ttdPlace(r))", "onLike(e, ttdPlace(r))", "onDislike(e, ttdPlace(r))"]) {
+  ok(ttd.includes(p), `${p} hands the MAPPED place to app/home.js, not the raw row`);
+}
+ok(/photo: tbPhotoUrl\(r\.photo_ref/.test(ttd), "ttdPlace still carries the photo — it is what the Liked/Saved folder renders for these rows");
+ok(/category: r\.category/.test(ttd), "ttdPlace still carries `category` — isBeach(detail) resolves a beach row from it alone (these rows carry no coordinates or types)");
+ok(/liked=\{liked\}/.test(home) && /disliked=\{disliked\}/.test(home), "app/home.js still passes liked/disliked into the rail, or the pills can never render their state");
+ok(/onLike=\{\(e, p\) => \{ try \{ toggleLike\(e, p\)/.test(home), "the rail's like goes through the SAME toggleLike as every other surface — a second implementation would be a second source of taste truth");
+
 const tb = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 ok(tb.includes('.eq("verified", true).in("place_id", ids)'), "fetchThingsToDo lost the one-call verified-hook join");
 ok(!/editorial_hook = /.test(tb.replace('r.editorial_hook = h','')) , "hooks attach only from verified rows");
