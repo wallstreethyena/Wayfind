@@ -24,7 +24,14 @@ function curatedOf(name) {
 
 export async function POST(req) {
   try {
-    const { places, city } = await req.json();
+    // v6.63 — cacheOnly is the RENDER-PATH contract. The shared 30-day pool
+    // meant a WARM area cost nothing, but a COLD one generated while the user
+    // waited: an LLM call sitting in front of a page view. Callers that render
+    // (IntentPageClient) pass cacheOnly:true and receive only what the pool
+    // already holds, plus a `pending` count so a warmer can be scheduled.
+    // Callers allowed to spend (cron, an explicit warm) omit it and behave
+    // exactly as before.
+    const { places, city, cacheOnly } = await req.json();
     const key = aiKey();
     if (!Array.isArray(places) || !places.length) return Response.json({ blurbs: {} }, { status: 200 });
 
@@ -60,6 +67,11 @@ export async function POST(req) {
       need.push(p);
     }
     if (!need.length) return Response.json({ blurbs: cachedBlurbs, cached: true }, { status: 200 });
+    // RENDER PATH STOPS HERE. Everything below this line can call the model, so
+    // a caller that renders must never reach it. `pending` reports how many
+    // places the pool is missing, so a warm job can be scheduled off it without
+    // the user paying the latency.
+    if (cacheOnly) return Response.json({ blurbs: cachedBlurbs, cached: true, pending: need.length }, { status: 200 });
     // No key: the shared pool still serves what it has (no invention, no spend).
     if (!key) return Response.json({ unavailable: true, blurbs: cachedBlurbs }, { status: 200 });
 
