@@ -23,7 +23,17 @@ const C = { text: "#F1F5F9", gold: "#E8C97A" };
 // The in-app screens pass wordmark={false}: the app's own topbar carries the
 // logo two rows above, and stamping a second one over the photo is the exact
 // "curator logo blocking the save button" problem the owner flagged in July.
-export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, topLeft, topRight, cta, height = 300, radius = 0, bleed = null, maxWidth = 680, wordmarkHref = "/", wordmark = true }) {
+// `titleSize` / `titleLines` exist because the headline slot took on unbounded
+// content. Every original caller passes an AUTHORED collection title ("Great
+// Outdoors", "Date night, decided") — short by construction, so a fixed 34px
+// over three lines always fit. The single-pick screen puts a PLACE NAME here,
+// and those run long: "Basilica of the National Shrine of Mary, Queen of the
+// Universe" takes four lines at 34px, and since this block is bottom-anchored
+// it grows UPWARD — measured 31px into the Back pill, which then sat on top of
+// the eyebrow. Same shape of bug as the mobile intent hero: a fixed size
+// against content nobody bounded.
+// Defaults keep every existing caller byte-identical: 34px and no clamp.
+export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, topLeft, topRight, cta, height = 300, radius = 0, bleed = null, maxWidth = 680, wordmarkHref = "/", wordmark = true, titleSize = 34, titleLines = 0 }) {
   return (
     <header style={{ position: "relative", height, overflow: "hidden", ...(radius ? { borderRadius: radius } : null), ...(bleed ? { margin: bleed } : null) }}>
       {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
@@ -38,7 +48,7 @@ export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitl
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
         <div style={{ maxWidth, margin: "0 auto", padding: "0 20px" }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: accent || C.gold }}>{eyebrow}</div>
-          <h1 style={{ fontSize: 34, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)", color: C.text }}>{titleTop}{titleBottom ? <><br />{titleBottom}</> : null}</h1>
+          <h1 style={{ fontSize: titleSize, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)", color: C.text, ...(titleLines ? { display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: titleLines, overflow: "hidden" } : null) }}>{titleTop}{titleBottom ? <><br />{titleBottom}</> : null}</h1>
           <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.85)", margin: 0, maxWidth: 430 }}>{subtitle}</p>
           {cta || null}
         </div>
