@@ -23,9 +23,13 @@ const src = readFileSync(path.resolve("lib/areaSeasonalContext.js"), "utf8");
 const mod = await import(path.resolve("lib/areaSeasonalContext.js"));
 const { AREA_SEASONAL_CONTEXT, areaSeasonalContext } = mod;
 
+const { TOWN_PROFILES, TOWN_ALIASES } = await import(path.resolve("lib/culture.js"));
+
 const SEASONS = ["winter", "spring", "summer", "fall"];
 const cities = Object.keys(AREA_SEASONAL_CONTEXT);
-ok(cities.length >= 3, `at least three cities are seeded (got ${cities.length})`);
+// A floor, not an exact count: towns may legitimately be added or dropped, but
+// a collapse to a handful means the build step broke, not that coverage shrank.
+ok(cities.length >= 15, `the corridor coverage is seeded (got ${cities.length} cities)`);
 
 // Banned in prose. Each pattern is a STRUCTURED field that lives elsewhere.
 const BANNED = [
@@ -59,9 +63,48 @@ for (const city of cities) {
 // If headline_context were identical across seasons it would be area copy
 // wearing a season label.
 for (const city of cities) {
-  const heads = SEASONS.map((s) => AREA_SEASONAL_CONTEXT[city][s].headline_context);
-  ok(new Set(heads).size === SEASONS.length, `${city}: headline_context differs across all four seasons — otherwise it is not seasonal context`);
+  // Null-safe on purpose. A town missing a season is already reported above,
+  // but this line used to dereference it and throw a TypeError — which exits
+  // nonzero, so it looked like a working guard, while actually discarding the
+  // guard's own report and skipping every assertion after it. A guard must
+  // FAIL, not crash: the message is the product.
+  const heads = SEASONS.map((s) => (AREA_SEASONAL_CONTEXT[city][s] || {}).headline_context).filter(Boolean);
+  ok(heads.length === SEASONS.length && new Set(heads).size === SEASONS.length,
+    `${city}: headline_context is present and differs across all four seasons — otherwise it is not seasonal context`);
 }
+
+// ONE DESCRIPTION PER TOWN. area_known_for is derived from the culture profile
+// rather than written again here. A town used to carry two hand-written
+// descriptions of itself in two modules — Tampa's Ybor/Cuban-sandwich line and
+// Sarasota's Ringling/quartz line existed in both, worded differently, either
+// editable without the other. This asserts the derivation still holds, so the
+// second copy cannot come back by hand.
+let derived = 0;
+for (const city of cities) {
+  const profile = TOWN_PROFILES[city];
+  if (!profile) continue; // Orlando is a CULTURE metro, not a corridor town
+  derived++;
+  for (const season of SEASONS) {
+    // Null-safe for the same reason as the distinctness check below: a missing
+    // season is reported above, and this must not turn that report into a crash.
+    ok((AREA_SEASONAL_CONTEXT[city][season] || {}).area_known_for === profile.one,
+      `${city}.${season}.area_known_for is the culture profile's line verbatim — not a second, drifting copy of it`);
+  }
+}
+ok(derived >= 15, `most seeded towns derive their area line from a culture profile (got ${derived})`);
+
+// ALIASES RESOLVE. The neighbourhood names that actually arrive from page
+// context must reach the town holding the content. Before the vocabularies were
+// unified, keys here were hyphenated and alias-free, so "St. Petersburg"
+// normalised to "st.-petersburg" and matched nothing.
+for (const [alias, target] of Object.entries(TOWN_ALIASES)) {
+  if (!AREA_SEASONAL_CONTEXT[target]) continue; // target not seeded yet — fine
+  const viaAlias = areaSeasonalContext(alias, "summer");
+  ok(viaAlias !== null && viaAlias.area_known_for === AREA_SEASONAL_CONTEXT[target].summer.area_known_for,
+    `"${alias}" resolves to ${target} — a neighbourhood name must not render an empty header`);
+}
+ok(areaSeasonalContext("St. Petersburg", "winter") !== null,
+  "a multi-word, punctuated city name resolves (this is the exact string page context supplies)");
 
 // Unknown city -> nothing. No generic default is allowed to creep in.
 ok(areaSeasonalContext("Nowheresville", "summer") === null, "an unseeded city returns null — coverage is partial on purpose, and a generic default is what this replaces");
