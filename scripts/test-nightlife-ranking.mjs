@@ -13,8 +13,9 @@
 // Every fixture below is a REAL Google Places row from the Orlando candidate
 // pool (2026-07-29), with its real types and review count — not invented.
 import {
-  RAIL_MIN_REVIEWS, isNightlifeVenue, railProminence, rankNightlife,
-  isOperational, publishableWebsite, hostOfUrl, isDeniedHost, BAR_PRIMARY_TYPES,
+  railFloorFor, RAIL_FLOOR_MIN, RAIL_FLOOR_CAP, isNightlifeVenue, railProminence,
+  rankNightlife, isOperational, publishableWebsite, hostOfUrl, isDeniedHost,
+  BAR_PRIMARY_TYPES,
 } from "../lib/nightlifeRail.js";
 
 let pass = 0;
@@ -79,15 +80,32 @@ ok(!BAR_PRIMARY_TYPES.includes("bar_and_grill"), "bar_and_grill is NOT a bar-fam
 ok(!isNightlifeVenue(NBC_GRILL), "NBC Sports Grill & Brew (bar_and_grill) must not enter the rail");
 
 // ── the floor ─────────────────────────────────────────────────────────────
-ok(RAIL_MIN_REVIEWS === 250, "floor is the Orlando-derived 250");
-ok(rankNightlife([{ ...SAK, reviews: RAIL_MIN_REVIEWS - 1 }]).length === 0, "one review below the floor is ineligible");
-ok(rankNightlife([{ ...SAK, reviews: RAIL_MIN_REVIEWS }]).length === 1, "exactly at the floor is eligible");
-ok(rankNightlife([TIMUCUA]).length === 1, "Timucua (292) clears the floor — it is why the floor is not 500");
+// The floor is MARKET-RELATIVE — derived from the pool, clamped both ends.
+{
+  const mk = (n, reviews) => ({ name: "v" + n, rating: 4.5, reviews, primaryType: "bar", types: ["bar"] });
+  // p10 INSIDE the band is used as-is. 20 rows -> index floor(20*0.10)=2.
+  const inBand = [100, 110, 120, 200, 300, 400, 500, 700, 900, 1200,
+                  1500, 1800, 2200, 2800, 3500, 4400, 5600, 7000, 9000, 13000].map((r, i) => mk(i, r));
+  ok(railFloorFor(inBand) === 120, `p10 inside the band is used as-is (got ${railFloorFor(inBand)}, expected 120)`);
+  // Thin market: p10 is tiny -> clamped UP, so the speakeasy still cannot enter.
+  const thin = [12, 18, 22, 30, 41, 55, 70, 88, 120, 190].map((r, i) => mk(i, r));
+  ok(railFloorFor(thin) === RAIL_FLOOR_MIN, `thin market clamps up to ${RAIL_FLOOR_MIN} (got ${railFloorFor(thin)})`);
+  ok(rankNightlife(thin).length > 0, "a thin market still returns a rail — the floor does not empty it");
+  // Dense market: p10 is huge -> clamped DOWN, no market stricter than Orlando.
+  const dense = [900, 1200, 2000, 3000, 5000, 8000, 12000, 20000, 30000, 40000].map((r, i) => mk(i, r));
+  ok(railFloorFor(dense) === RAIL_FLOOR_CAP, `dense market clamps down to ${RAIL_FLOOR_CAP} (got ${railFloorFor(dense)})`);
+  // Too few rows to infer anything -> the absolute minimum, never zero.
+  ok(railFloorFor([mk(0, 500), mk(1, 600)]) === RAIL_FLOOR_MIN, "a 2-row pool falls back to the minimum, not to 0");
+  ok(railFloorFor([]) === RAIL_FLOOR_MIN, "an empty pool falls back to the minimum");
+}
+ok(rankNightlife([SAK, HOUSE_OF_BLUES, WILLS_PUB, MATHERS, THE_BEACHAM, TIMUCUA]).some((p) => p.name === TIMUCUA.name),
+  "Timucua (292) survives in a pool of real venues — the floor is not 500");
 
 // ── null in, null out — never a fabricated 0 ──────────────────────────────
 ok(railProminence(null, 99999) === null, "no rating -> no prominence");
 ok(railProminence(0, 500) === null, "a zero rating yields null, not 0");
 ok(rankNightlife([{ ...SAK, rating: null }]).length === 0, "an unrated venue never reaches the rail");
+ok(rankNightlife([{ ...SAK, reviews: 5 }], 250).length === 0, "an explicit floor override is honoured");
 
 // ── business status is an ALLOWLIST, not a denylist of CLOSED_* ───────────
 ok(isOperational({ businessStatus: "OPERATIONAL" }), "OPERATIONAL passes");
@@ -112,4 +130,4 @@ for (const h of ["booking.disneyworld.disney.go.com", "reservations.disney.com",
 }
 ok(!isDeniedHost(hostOfUrl("https://splitsvillelanes.com/")), "a non-Disney venue in a Disney district is not denied by association");
 
-console.log(`test-nightlife-ranking: OK — ${pass} assertions (floor ${RAIL_MIN_REVIEWS}, prominence over stars, zero restaurant leaks, §7 host rule)`);
+console.log(`test-nightlife-ranking: OK — ${pass} assertions (market-relative floor [${RAIL_FLOOR_MIN}..${RAIL_FLOOR_CAP}], prominence over stars, zero restaurant leaks, §7 host rule)`);
