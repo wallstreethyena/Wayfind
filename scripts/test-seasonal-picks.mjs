@@ -108,7 +108,26 @@ ok(/heroImage: heroImageOverride \|\| heroImage \|\| \(sm && sm\.heroImage\) \|\
 //    second) AND repeats as the LAST slide in both. One seasonalHeroSlide()
 //    helper renders every placement, so the four call sites can never drift
 //    out of sync with each other.
-ok(home.includes('openExpSheet("seasonal")'), "the hero slide opens the seasonal experience sheet");
+// v6.57 (owner, 2026-07-29): "Find the component /date-night uses. Point the
+// Summer Picks page at it." The DESTINATION changed. The slide used to open
+// openExpSheet("seasonal") — a hero card, a sort control and one detail card —
+// and now routes to /seasonal, which renders IntentPageClient: the same
+// template as /family and /date-night.
+//
+// Re-pointed, NOT removed. This assertion was the only thing keeping the hero
+// and its destination in sync, so it now locks the new one just as tightly.
+// The PLACEMENT decision above (top + end, v6.55) is untouched.
+ok(/window\.location\.assign\("\/seasonal"/.test(home),
+  "the hero slide routes to the /seasonal LIST PAGE (the /family + /date-night template)");
+ok(!home.includes('openExpSheet("seasonal")'),
+  "…and the old sheet path is gone, not merely bypassed — one destination, no dead branch");
+// The destination must exist and be wired to the shared template, or the hero
+// navigates into a 404.
+const intentPagesSrc = readFileSync(new URL("../lib/intentPages.js", import.meta.url), "utf8");
+ok(/\n\s{2}seasonal:\s*\{/.test(intentPagesSrc),
+  "INTENT_PAGES carries a seasonal entry, so /seasonal renders on the shared template");
+ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
+  "the page's rating floor matches EXPERIENCES.seasonal (4.0) — page and sheet cannot disagree about what qualifies");
 ok(/function seasonalHeroSlide\(srcTag\)/.test(home), "one seasonalHeroSlide(srcTag) helper renders every placement — no duplicated inline slides to drift out of sync");
 const topCalls = (home.match(/\{seasonalHeroSlide\("top"\)\}/g) || []).length;
 const endCalls = (home.match(/\{seasonalHeroSlide\("end"\)\}/g) || []).length;
