@@ -131,10 +131,39 @@ ok(/if \(!row \|\| row\.verified !== true\) return null;/.test(rule),
 // Coverage froze at 503/3457 on 2026-07-24 for one reason: nothing scheduled
 // this route. It was documented as "the owner just re-triggers it", which is a
 // process, not a system.
+//
+// v6.65 — THIS ASSERTION WAS HALF RIGHT, AND THE HALF IT GOT WRONG COST FIVE
+// DAYS. It treated "scheduled" as equivalent to "working". On 2026-07-29 the
+// route was scheduled, returned HTTP 200 on every invocation, and logged zero
+// errors in seven days — while having published NOTHING since 2026-07-24: 525
+// rows written, 0 published, 515 stored PENDING SOURCE. Because
+// wf_atlas_missing skips any place that already has a row, each run
+// permanently removed 25 eligible places from its own future queue.
+// Scheduled-and-failing was strictly worse than not scheduled, and this guard
+// was green the whole time.
+//
+// So the rule is no longer "always scheduled". It is: scheduled UNLESS the
+// route carries an explicit, documented halt. A halt is not a free pass —
+// check-atlas-diag-not-live.mjs makes it valid only while the ATLAS-DIAG
+// diagnostics are present, so "disabled" cannot quietly become the resting
+// state. Silence in either direction is what this pair of guards forbids.
 const crons = Array.isArray(vercel.crons) ? vercel.crons : [];
 const atlasCron = crons.find((c) => c && typeof c.path === "string" && c.path.startsWith("/api/cron/atlas-build"));
-ok(!!atlasCron, "vercel.json schedules /api/cron/atlas-build — without a schedule editorial coverage only advances when someone remembers to poke it, which is how it stalled for four days");
-ok(!!atlasCron && /^\S+ \S+ \S+ \S+ \S+$/.test(String(atlasCron.schedule || "")), "the atlas-build cron carries a well-formed 5-field schedule");
+// Read the RAW file: the halt notice is a comment, and read() strips comments.
+const halted = /THE SCHEDULE IS DISABLED/.test(raw("app/api/cron/atlas-build/route.js"));
+ok(!!atlasCron || halted,
+  "vercel.json schedules /api/cron/atlas-build, OR the route carries an explicit 'THE SCHEDULE IS DISABLED' notice saying why — " +
+  "without one of the two, coverage only advances when someone remembers to poke it, which is how it stalled for four days");
+ok(!(atlasCron && halted),
+  "the route says the schedule is DISABLED while vercel.json still schedules it — the notice and the config disagree, and the config is what runs");
+ok(!atlasCron || /^\S+ \S+ \S+ \S+ \S+$/.test(String(atlasCron.schedule || "")), "the atlas-build cron carries a well-formed 5-field schedule");
+if (halted) {
+  // A halt must say when it started and what ends it, or it is just an outage
+  // with better handwriting.
+  const hdr = raw("app/api/cron/atlas-build/route.js");
+  ok(/last successfully published row/i.test(hdr), "the halt notice records when the route last actually succeeded");
+  ok(/issue #\d+/i.test(hdr), "the halt notice cites the issue tracking the fix — a halt needs an owner and an exit");
+}
 // The schedule may pass ?limit — it does, to move the backlog at a useful rate.
 // That number multiplies a metered Google Places call and a metered model call
 // by 24 runs a day, so it is bounded here as well as in the route.

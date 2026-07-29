@@ -48,10 +48,6 @@
     {
       "path": "/api/cron/booking-audit",
       "schedule": "40 10 * * *"
-    },
-    {
-      "path": "/api/cron/atlas-build?limit=25",
-      "schedule": "15 * * * *"
     }
   ]
 }

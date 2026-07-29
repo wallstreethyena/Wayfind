@@ -11,6 +11,41 @@
 // bounded and self-terminating: once wf_atlas_missing returns empty for every
 // category the route returns {done:true} and spends nothing but the RPC.
 //
+// ┌─ v6.65 — THE SCHEDULE IS DISABLED. READ THIS BEFORE RE-ENABLING IT. ───────
+// │
+// │ The v6.49 note above diagnosed "coverage froze on 2026-07-24" as the
+// │ pipeline having STOPPED, and fixed it by adding a schedule. The schedule
+// │ works. The generation has failed on every single run since. Measured
+// │ 2026-07-29:
+// │
+// │     last successfully published row   2026-07-24 18:38 UTC
+// │     rows written since                525
+// │     of which published                0
+// │     of which PENDING SOURCE           515
+// │
+// │ Vercel reports HTTP 200 on every invocation and zero errors in 7 days,
+// │ because both failure branches below did `return null` and logged nothing.
+// │ A 100% failure rate reads, in every metric anyone was watching, as a
+// │ healthy pipeline. The v6.49 fix converted a VISIBLE stop into an INVISIBLE
+// │ total failure on the same date.
+// │
+// │ Worse than idle: wf_atlas_missing skips any row that already has a
+// │ wf_editorial record, so each run took 25 eligible places, failed to source
+// │ them, wrote PENDING SOURCE, and permanently removed them from its own
+// │ future queue — 25 rows/hour of destroyed eligibility plus 50 metered API
+// │ calls, for nothing. See issue #438.
+// │
+// │ THE DESIGN DEFECT: the two failure branches below are completely different
+// │ causes (Google Places vs Anthropic) that wrote the SAME label. From the
+// │ data you could not tell which service was broken. That is why ATLAS-DIAG
+// │ logging exists at both sites.
+// │
+// │ ATLAS-DIAG is TEMPORARY. Once the cause is known: fix it, delete every
+// │ ATLAS-DIAG line, and only then restore the vercel.json entry
+// │   { "path": "/api/cron/atlas-build?limit=25", "schedule": "15 * * * *" }
+// │ Do not re-enable the schedule while the failure rate is unknown.
+// └────────────────────────────────────────────────────────────────────────────
+//
 // Cost: metered (Google Places Details + Anthropic per place). CRON_SECRET-gated
 // (fail-closed). Bounded per call (?limit, ≤25) so each invocation is cheap and
 // safe to loop. Never fabricates: every facts[].claim cites a real source; if a
@@ -111,9 +146,17 @@ async function placeDetails(placeId, key, timeoutMs = 8000) {
       signal: ctrl.signal,
       headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": PLACE_FIELDS },
     });
-    if (!r.ok) return null;
+    // TEMPORARY DIAGNOSTIC — see the ATLAS-DIAG note in the file header.
+    // Status + Google's own message. The key is in a header we never read back.
+    if (!r.ok) {
+      let msg = "";
+      try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e2) { msg = "(unparseable body)"; }
+      console.error(`ATLAS-DIAG places status=${r.status} keyLen=${(key || "").length} msg=${msg}`);
+      return null;
+    }
     return await r.json();
   } catch (e) {
+    console.error(`ATLAS-DIAG places threw name=${e && e.name} msg=${String(e && e.message).slice(0, 160)}`);
     return null;
   } finally {
     clearTimeout(t);
@@ -201,13 +244,25 @@ async function writeEditorial(place, d, key, sources, timeoutMs = 20000) {
         messages: [{ role: "user", content: "Write the atlas-590-v1 editorial for this place. Source every claim from the website or Google Maps URL provided; invent nothing.\n\n" + JSON.stringify(ctx) }],
       }),
     });
-    if (!r.ok) return null;
+    // TEMPORARY DIAGNOSTIC — remove once the 100%-failure cause is identified.
+    // See the ATLAS-DIAG note in the file header. Status + provider message only;
+    // the key is never read here and must never be logged.
+    if (!r.ok) {
+      let msg = "";
+      try { msg = String(((await r.json()) || {}).error?.message || "").slice(0, 200); } catch (e) { msg = "(unparseable body)"; }
+      console.error(`ATLAS-DIAG anthropic status=${r.status} model=${MODEL()} msg=${msg}`);
+      return null;
+    }
     const j = await r.json();
     const txt = (j && j.content && j.content[0] && j.content[0].text) || "";
     const m = txt.match(/\{[\s\S]*\}/);
-    if (!m) return null;
+    if (!m) {
+      console.error(`ATLAS-DIAG anthropic ok-but-no-json len=${txt.length} head=${txt.slice(0, 120)}`);
+      return null;
+    }
     return JSON.parse(m[0]);
   } catch (e) {
+    console.error(`ATLAS-DIAG anthropic threw name=${e && e.name} msg=${String(e && e.message).slice(0, 160)}`);
     return null;
   } finally {
     clearTimeout(t);
