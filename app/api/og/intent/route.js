@@ -1,23 +1,34 @@
 import { ImageResponse } from "next/og";
 import { SITE_URL } from "../../../../lib/site";
+import { INTENT_PAGES } from "../../../../lib/intentPages";
 
 export const runtime = "edge";
 
 // Share card for the intent pages (/date-night, /family) — the card IS the
 // marketing (owner). Full-bleed brand art, hard legibility band, one promise
 // in big type, the brand row. Fails soft to a dark card.
+// Art for these entries is NOT stored here. Three of these keys are intent
+// pages, and holding a second copy of the path is what made /hidden-gems
+// unfurl a different photo than the page showed. They derive from
+// INTENT_PAGES below. "trending" has no intent page, so it keeps its own.
 const INTENTS = {
-  "date-night": { art: "/cards/date-night-adobestock-190984224.jpeg", accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
-  family: { art: "/cards/family-adobestock-794890098.jpeg", accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
+  "date-night": { accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
+  family: { accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
   trending: { art: "/cards/trending-near-you-adobestock-434128766.jpeg", accent: "#FF6B6B", eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now." },
-  "hidden-gems": { art: "/cards/hidden-gems-adobestock-321810820.jpeg", accent: "#A78BFA", eyebrow: "Hidden gems", line1: "Hidden gems", promise: "The spots locals keep to themselves — loved, not overrun." },
+  "hidden-gems": { accent: "#A78BFA", eyebrow: "Hidden gems", line1: "Hidden gems", promise: "The spots locals keep to themselves — loved, not overrun." },
 };
 
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const def = INTENTS[(searchParams.get("intent") || "").slice(0, 24)];
+  const intentKey = (searchParams.get("intent") || "").slice(0, 24);
+  const def = INTENTS[intentKey];
+  // ONE ART SOURCE. The unfurl for /hidden-gems rendered a different photo
+  // than the page did, because this map held its own copy of the path. Art now
+  // comes from INTENT_PAGES whenever the key IS an intent page; the local art
+  // below stays only for share-only surfaces like "trending", which has no page.
+  const defArt = ((INTENT_PAGES[intentKey] || {}).art) || (def && def.art);
   const city = (searchParams.get("city") || "").slice(0, 32);
   // THE SHARE-CARD MARKETING STANDARD (owner, 2026-07-22): image-led with the
   // BEST REAL photo of the actual top place (?img=<photo_ref>, the same ref
@@ -30,7 +41,7 @@ export async function GET(req) {
     return new ImageResponse(
       (
         <div style={{ width: 1200, height: 630, display: "flex", position: "relative", background: "#040810" }}>
-          <img src={realImg || SITE_URL + def.art} width={1200} height={630} style={{ position: "absolute", objectFit: "cover" }} />
+          <img src={realImg || SITE_URL + defArt} width={1200} height={630} style={{ position: "absolute", objectFit: "cover" }} />
           <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(180deg, rgba(4,8,16,0) 22%, rgba(4,8,16,.55) 46%, rgba(4,8,16,.94) 68%, #040810 100%)" }} />
           <div style={{ position: "absolute", left: 64, right: 64, bottom: 44, display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center" }}>

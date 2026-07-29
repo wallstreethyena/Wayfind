@@ -215,3 +215,4 @@ node scripts/test-atlas-reclassify.mjs
 node scripts/check-art-assets.mjs
 node scripts/test-atlas-retry.mjs
 node scripts/test-atlas-verify-timefmt.mjs
+node scripts/check-share-art-source.mjs
