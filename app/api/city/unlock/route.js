@@ -11,6 +11,7 @@
 // middleware. Fail-soft: never throws to the client. Needs GOOGLE_MAPS_SERVER_KEY
 // + the Supabase service env; verified against a real unlock.
 import { sbEnv } from "../../../../lib/serverCache";
+import { isOperational } from "../../../../lib/businessStatus.js";
 import { pullViatorCityRows } from "../../../../lib/viatorIngest";
 
 export const runtime = "nodejs";
@@ -24,7 +25,7 @@ export const maxDuration = 60;
 const HOURLY_CAP = 80;
 const EXP_FRESH_DAYS = 90;
 
-const FIELD_MASK = ["places.id", "places.displayName", "places.location", "places.rating", "places.userRatingCount", "places.types", "places.businessStatus"].join(",");
+const FIELD_MASK = ["places.id", "places.displayName", "places.location", "places.rating", "places.userRatingCount", "places.types", "places.businessStatus", "places.regularOpeningHours", "places.utcOffsetMinutes"].join(",");
 // Category searches that establish coverage for a new city (query → app category).
 const PULLS = [
   { q: "best restaurants", cat: "food" },
@@ -108,7 +109,13 @@ export async function POST(req) {
         if (!r.ok) return;
         const d = await r.json();
         for (const p of (d.places || [])) {
-          if (!p || !p.id || p.businessStatus === "CLOSED") continue;
+          // Was `p.businessStatus === "CLOSED"` — a value the Places API never
+      // returns. The enum is OPERATIONAL | CLOSED_TEMPORARILY |
+      // CLOSED_PERMANENTLY (documented at lib/google.js:537), so that comparison
+      // matched zero records for its entire life and this route has been
+      // unlocking cities with dead businesses in them. isOperational() is the
+      // same allowlist lib/inventoryServe.js has always used.
+      if (!p || !p.id || !isOperational(p)) continue;
           const types = Array.isArray(p.types) ? p.types : [];
           if (types.some((t) => SERVICE_TYPE.test(t))) continue;      // skip service places
           if (!byId.has(p.id)) byId.set(p.id, { p, cat: pl.cat });     // first category wins
