@@ -35,7 +35,12 @@ export default function ExperienceScreen({ ctx }) {
           // `list`: reading the sorted view would swap the hero photo every time
           // the user changes sort or drags the radius, which is a full image
           // reload behind the headline for no informational gain.
-          const heroImg = (((expPlaces || []).find((pp) => pp && pp.photo) || {}).photo) || ((expTours || []).find((t) => t && t.image_url) || {}).image_url || null;
+          // v6.72: an EXPERIENCES row MAY now declare a fixed heroImage, and it wins.
+            // Great Outdoors was rendering whatever photo the top result carried,
+            // which surfaced a theme-park MAP rather than a photograph — not a weak
+            // photo, the wrong kind of image. The dynamic chain below is unchanged,
+            // so every row WITHOUT a heroImage behaves exactly as it did.
+            const heroImg = (exp && exp.heroImage) || (((expPlaces || []).find((pp) => pp && pp.photo) || {}).photo) || ((expTours || []).find((t) => t && t.image_url) || {}).image_url || null;
           const listLiked = hookLikes.has("badge-" + activeBadge);
           const mappable = list.filter((pp) => pp && pp.lat != null);
           const shareThisList = () => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), shareTextFor(activeBadge, cityFixM(exp.title)), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); };

@@ -212,3 +212,4 @@ node scripts/check-env-value-overrides.mjs
 node scripts/test-job-pulse.mjs
 node scripts/check-editorial-retry-state.mjs
 node scripts/test-atlas-reclassify.mjs
+node scripts/check-art-assets.mjs
