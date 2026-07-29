@@ -91,6 +91,36 @@ when it is neither — run `git fetch --prune --all` before trusting `git branch
 
 ---
 
+## ✅ Writing an assertion: the identifier must play its ROLE, not merely appear
+
+**A guard that greps for a name passes as soon as the name appears anywhere in the
+file — including in the very code the guard is supposed to be protecting.** This is a
+distinct failure from AGENTS.md §4's "did it run": the check runs, reads real content,
+and returns a truthful answer to the wrong question. It has now produced four false
+greens on this repo in a single day:
+
+| the assertion | why it passed anyway |
+|---|---|
+| `/NEUTRAL_HERO/.test(src)` — "the constant is declared" | the **use site** still mentioned the name after the declaration was deleted |
+| `includes('prefix = "wf-beach-premium"')` — "the default is unchanged" | there were **two** defaults; one changed, the other still matched |
+| `/\bquickTitle\b/` — "the prop is accepted" | the prop was gone from the signature but still referenced in the JSX body |
+| `/EditorialLandingHero/` — "the page uses the template" | the page only **stringified** it; nothing rendered |
+
+**The rule: assert the syntactic position, not the substring.**
+
+- a declaration → `/(?:const|export const)\s+NAME\s*=/`, never `/NAME/`
+- a prop → match inside the destructuring block, not the whole file
+- a rendered component → `/<Name[\s/>]/`, never `/Name/`
+- a value that exists N times → **count** it (`match(...g).length`) and assert N; `includes`
+  cannot tell 1 from 2
+- an absence → prove the probe finds a known positive first (AGENTS.md §4d)
+
+**And red-prove by breaking the thing the assertion protects, not by editing the
+assertion.** All four above were caught exactly that way — the fixture went green when
+it should have gone red, which is the only signal that separates these from real checks.
+
+---
+
 ## 🧠 Gotchas / patterns — do NOT re-break these
 
 - **"Today" / any date cutoff** → use `lib/siteTime.siteTodayStr()` (venue-local US Eastern,
