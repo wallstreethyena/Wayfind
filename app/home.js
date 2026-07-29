@@ -2149,12 +2149,24 @@ function renderHookText(text, highlightWord, color) {
 // EV_RAIL_MIN_H), so the skeleton -> events swap changes no layout and adds no
 // CLS. The heading is real text, not a grey box, so the section announces what
 // is coming instead of looking broken.
-function DiscoveryHeroCard() {
+// v6.59: the orientation card is now a CONTROL. It promised "Wayfind ranks the
+// local places worth your time" and then opened nothing — it was a plain
+// <article> with no handler, the only card in the rail that did not go
+// anywhere. onOpen routes it to /nearby, which is that promise made good: the
+// general ranked list, no category filter.
+//
+// role/tabIndex/onKeyDown match the other interactive cards so the keyboard path
+// is identical (test-card-a11y asserts the keyboard route to open a place).
+function DiscoveryHeroCard({ onOpen }) {
   return (
     <article
       className="wf-discovery-visual wf-discovery-hero-card"
       aria-label="Know what is around you"
-      style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start" }}
+      role={onOpen ? "button" : undefined}
+      tabIndex={onOpen ? 0 : undefined}
+      onClick={onOpen}
+      onKeyDown={onOpen ? KB_CLICK : undefined}
+      style={{ position: "relative", flexShrink: 0, width: "93%", height: EV_HERO_H, minHeight: EV_HERO_H, scrollSnapAlign: "start", cursor: onOpen ? "pointer" : undefined }}
     >
       <img src="/brand/wayfind-default-hero-adobestock-289023289.jpeg" alt="" loading="eager" fetchPriority="high" />
       <div className="wf-discovery-copy" style={{ height: EV_HERO_H, maxWidth: 360, boxSizing: "border-box", padding: "18px 20px 48px" }}>
@@ -7481,11 +7493,12 @@ function PageInner({ initialEvents = null }) {
                     <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
                   </div>
                   <HeroRail>
-                    {/* v6.55 (owner): "place it at the top... where the user
-                        sees it right away" — Seasonal Picks now LEADS this
-                        rail, ahead of even the orientation card. */}
+                    {/* v6.59 (owner): explainer FIRST, deterministically, and it
+                        opens its own page. Reverses the v6.55 lead order;
+                        seasonal still closes the rail. Literal JSX order — no
+                        rotation. */}
+                    <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
                     {seasonalHeroSlide("top")}
-                    <DiscoveryHeroCard />
                     {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
                         render unconditionally and only swap its COPY when no
                         beach was found — so an Orlando user got "Beach day,
@@ -7597,8 +7610,8 @@ function PageInner({ initialEvents = null }) {
                             card; the event, beach, date-night, family, and
                             trending cards keep their existing destinations
                             and behavior as the following slides. */}
+                        <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
                         {seasonalHeroSlide("top")}
-                        <DiscoveryHeroCard />
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
                             <EventHeroBg image={eventCategoryArt(eventBucket(featured), featured) || featured.image} acc={acc} venue={cleanVenueName(featured.venue) || featured.venue} near={center} />
