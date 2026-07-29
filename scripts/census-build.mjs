@@ -53,7 +53,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { reserve, settle, release, describe } from "../lib/quotaLedger.js";
+import { reserve, settle, release, describe, noteQuotaExhausted, read as readLedger, capWarnings } from "../lib/quotaLedger.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DRY = process.argv.includes("--dry");
@@ -151,7 +151,16 @@ async function post(url, body, mask, key) {
     // nothing, because the only write was at the end of main(). ~627 paid calls
     // bought zero durable output. A 429 is now a STOP, not a crash: it unwinds
     // to the checkpoint writer so everything already paid for survives.
-    if (r.status === 429) throw new QuotaExhausted(txt);
+    if (r.status === 429) {
+      const e = new QuotaExhausted(txt);
+      // Which SKU 429'd matters: clamping the wrong one would hide a real cap
+      // drift and invent a fake one. Read it from Google's own message, and fall
+      // back to the endpoint when the message shape changes.
+      e.sku = /SearchNearbyRequest/.test(txt) ? "searchNearby"
+            : /SearchTextRequest/.test(txt) ? "searchText"
+            : url.includes("searchNearby") ? "searchNearby" : "searchText";
+      throw e;
+    }
     throw new Error(`${r.status} ${txt}`);
   }
   return r.json();
@@ -381,6 +390,20 @@ async function main() {
     }
     } catch (e) {
       if (!(e instanceof QuotaExhausted)) throw e;
+      // #461 interim: the call count at which Google 429'd is EVIDENCE about the
+      // real cap, and we were going to eat this 429 anyway. Record it so the rest
+      // of today is clamped to what we observed instead of what we assumed.
+      // Our count is a LOWER BOUND — another key on the project is invisible.
+      {
+        const sku = e.sku || "searchNearby";
+        const madeBySweep = sku === "searchNearby" ? CALLS.nearby : CALLS.text;
+        const observed = (readLedger().spent[sku] || 0) + madeBySweep;
+        const noted = noteQuotaExhausted(sku, observed);
+        if (noted.recorded) {
+          console.log(`  quota 429 on ${sku} at ~${observed} calls — recorded; today's effective cap clamped to ${noted.effectiveCap}`);
+          for (const w of noted.warnings || []) console.log(`  *** ${w}`);
+        }
+      }
       // Daily quota hit mid-district. Everything paid for so far is already in
       // CENSUS; checkpoint it and stop cleanly instead of losing the run.
       quotaStopped = true;

@@ -155,6 +155,47 @@ ok(Q.read().corrupt === false, "a ledger this module just wrote reads back as VA
 const rt = Q.read();
 ok(rt.reservations && Object.keys(rt.reservations).length === 1, "and the reservation survives the round trip");
 
+// ── 11e. CAP DRIFT — a 429 is evidence about the real cap (#461 interim) ──
+// CAPS is a hardcoded record of a console value nobody has re-verified. A wrong
+// cap makes the ledger confidently wrong: it grants against headroom that does
+// not exist and the green preflight vouches for the 429 that follows.
+reset();
+ok(Q.effectiveCap("searchNearby") === 1000, "with no observed 429, effectiveCap == configured cap");
+const noted = Q.noteQuotaExhausted("searchNearby", 400);
+ok(noted.recorded === true, "a 429 observation is recorded");
+ok(Q.effectiveCap("searchNearby") === 400, `effectiveCap CLAMPS to the observed 429 point (got ${Q.effectiveCap("searchNearby")})`);
+ok(Q.remaining().searchNearby === 400, "remaining headroom follows the clamp, not the stale cap");
+const w = Q.capWarnings();
+ok(w.length === 1 && /CAP DRIFT/.test(w[0]), "a drift warning is raised");
+ok(/at most 400/i.test(w[0]) && /600/.test(w[0]), `warning states the ceiling and the size of the error (got: ${w[0]})`);
+ok(/another key on the project/i.test(w[0]), "warning names the likeliest cause — quota is per-project, not per-key");
+ok(/CLAMPED/.test(Q.describe()), "describe() shows the clamp rather than the stale cap");
+
+// The clamp must actually GATE, not just warn.
+const afterClamp = Q.reserve({ label: "tooBig", calls: { searchNearby: 500, searchText: 0 } });
+ok(afterClamp.ok === false, "a reservation above the CLAMPED cap is refused — the clamp gates, it does not merely warn");
+ok(Q.reserve({ label: "fits", calls: { searchNearby: 300, searchText: 0 } }).ok === true, "…and one below it is still granted");
+
+// Lowest observation wins — the tightest evidence about the ceiling.
+reset();
+Q.noteQuotaExhausted("searchNearby", 700);
+Q.noteQuotaExhausted("searchNearby", 500);
+ok(Q.effectiveCap("searchNearby") === 500, `the LOWEST observation is kept (got ${Q.effectiveCap("searchNearby")})`);
+Q.noteQuotaExhausted("searchNearby", 900);
+ok(Q.effectiveCap("searchNearby") === 500, "a HIGHER later observation does not loosen the clamp");
+
+// Clamping the wrong SKU would hide a real drift and invent a fake one.
+reset();
+Q.noteQuotaExhausted("searchText", 100);
+ok(Q.effectiveCap("searchText") === 100, "searchText clamps");
+ok(Q.effectiveCap("searchNearby") === 1000, "searchNearby is UNAFFECTED — the clamp is per-SKU");
+ok(Q.noteQuotaExhausted("nonsenseSku", 5).recorded === false, "an unknown SKU is refused, not silently recorded");
+
+// A corrupt ledger must not accept drift evidence either.
+reset();
+writeFileSync(LEDGER, "{not json");
+ok(Q.noteQuotaExhausted("searchNearby", 10).recorded === false, "a corrupt ledger refuses to record drift — nothing may be trusted from it");
+
 // ── 12. census-build must RESERVE, not probe ─────────────────────────────
 const src = readFileSync("scripts/census-build.mjs", "utf8");
 const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -162,6 +203,8 @@ ok(/reserve\(\{/.test(code), "census-build calls reserve()");
 ok(/settle\(/.test(code) && /release\(/.test(code), "census-build settles and releases");
 ok(!/preflight: both SKUs answering/.test(code), "the old liveness-preflight message is gone");
 ok(/process\.on\("exit"/.test(code), "settle is wired to process exit — a crashed sweep must not hold budget");
+ok(/noteQuotaExhausted\(/.test(code), "census-build records 429 evidence for cap-drift detection");
+ok(/SearchNearbyRequest/.test(code) && /SearchTextRequest/.test(code), "census-build reads WHICH sku 429'd from Google's message — clamping the wrong one hides a real drift");
 
 reset();
 if (fails) { console.error(`check-quota-reservation: ${fails} failure(s)`); process.exit(1); }
