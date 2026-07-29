@@ -39,12 +39,23 @@ import { sbEnv } from "../../../../lib/serverCache";
 //                   invisible to users.
 import { pageText, verifyAtlasEditorial } from "../../../../lib/atlasVerify";
 import { editorialRow } from "../../../../lib/atlasEditorial";
+import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const CATS = ["attractions", "nightlife", "hotels", "food"]; // owner's order
+// ROLLOUT ORDER. The route works CATS front-to-back and only moves on when a
+// category has no missing rows left, so this array is the rollout schedule, not
+// a label. Two things were wrong with the previous value
+// ["attractions","nightlife","hotels","food"]:
+//   - `shopping` was ABSENT, which is why it sits at 13.5% coverage in Orlando
+//     while attractions is at 68.3%. It was never eligible to be worked.
+//   - `food` was LAST, and food is the largest and least-covered real category
+//     (243 places, 21.8%). The job would have spent weeks on the tail before
+//     reaching the thing users open first.
+// Owner order, 2026-07-29: Food first, Shopping (incl. Gift Shops) last.
+const CATS = ["food", "attractions", "nightlife", "hotels", "shopping"];
 const METROS = ["tampa", "orlando", "manatee-sarasota"];
 const MODEL = () => (process.env.ATLAS_MODEL || "claude-haiku-4-5").trim();
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
@@ -115,6 +126,21 @@ async function placeDetails(placeId, key, timeoutMs = 8000) {
 // On failure we fall through to Places-only — exactly the v1 behaviour.
 async function officialPage(url, timeoutMs = 5000) {
   if (!/^https?:\/\//i.test(String(url || ""))) return null;
+  // AGENTS.md §7 — no automated requests against Disney hosts, whatever the
+  // reason. This function fetches whatever websiteUri Places returns, and until
+  // now nothing stopped it: adding `shopping` to CATS puts World of Disney, The
+  // Art of Disney, DisneyStyle, Creations Shop, Disney's Character Warehouse and
+  // the Cirque du Soleil Store into the work queue, and their websiteUri is a
+  // disney.go.com URL. The rule would have been broken by a config change that
+  // never mentioned Disney. Gate the FETCH, not the category list, so the same
+  // thing cannot happen again the next time a category is added.
+  //
+  // Same entity rule as lib/nightlifeRail.isDeniedHost and
+  // scripts/check-no-disney-sources.mjs — suffix match on a known property OR
+  // any label containing the token "disney". Falling through returns null, which
+  // is the existing Places-only path: the place still gets an editorial, written
+  // from Google Places data alone.
+  if (isDeniedHost(hostOfUrl(url))) return null;
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -301,7 +327,13 @@ export async function GET(req) {
       rating: typeof d.rating === "number" ? d.rating : null,
       reviews: typeof d.userRatingCount === "number" ? d.userRatingCount : null,
     };
-    const allowed = [d.websiteUri, d.googleMapsUri, ...(sources.map((s) => s.url))].filter(Boolean);
+    // §7 again, on the CITATION side. officialPage() no longer fetches a Disney
+    // host, but websiteUri was still being handed to the verifier as a permitted
+    // source — so a card could cite a page we are not allowed to have read, and
+    // the guard's whole point is that a Disney URL never appears as a source.
+    const allowed = [d.websiteUri, d.googleMapsUri, ...(sources.map((s) => s.url))]
+      .filter(Boolean)
+      .filter((u) => !isDeniedHost(hostOfUrl(u)));
     const problems = verifyAtlasEditorial(parsed, corpusOf(ctxForCheck, sources), allowed);
     if (problems.length) {
       unverified++;
