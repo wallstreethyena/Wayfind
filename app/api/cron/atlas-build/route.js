@@ -11,7 +11,7 @@
 // bounded and self-terminating: once wf_atlas_missing returns empty for every
 // category the route returns {done:true} and spends nothing but the RPC.
 //
-// ┌─ v6.65 — THE SCHEDULE IS DISABLED. READ THIS BEFORE RE-ENABLING IT. ───────
+// ┌─ v6.66 — VERIFICATION RUN. REDUCED RATE, DIAGNOSTICS DELIBERATELY LIVE. ──
 // │
 // │ The v6.49 note above diagnosed "coverage froze on 2026-07-24" as the
 // │ pipeline having STOPPED, and fixed it by adding a schedule. The schedule
@@ -40,10 +40,25 @@
 // │ data you could not tell which service was broken. That is why ATLAS-DIAG
 // │ logging exists at both sites.
 // │
-// │ ATLAS-DIAG is TEMPORARY. Once the cause is known: fix it, delete every
-// │ ATLAS-DIAG line, and only then restore the vercel.json entry
-// │   { "path": "/api/cron/atlas-build?limit=25", "schedule": "15 * * * *" }
-// │ Do not re-enable the schedule while the failure rate is unknown.
+// │ ROOT CAUSE, CONFIRMED: an Anthropic key created 2026-07-22 whose value in
+// │ Vercel never matched it — the console shows that key "Last used: never"
+// │ while the previous one went cold the same day. Credits sat at $24.70
+// │ throughout, so never a balance problem, and Google was never involved
+// │ (GOOGLE_MAPS_SERVER_KEY untouched since Jul 6). Fixed and independently
+// │ confirmed: credits began draining again after the redeploy, $24.70 ->
+// │ $24.67, after five days of exactly zero spend.
+// │
+// │ THIS IS THE VERIFICATION RUN. The schedule is restored at ?limit=3, not 25,
+// │ and ATLAS-DIAG stays live through it ON PURPOSE — the point is to see the
+// │ Anthropic branch be SILENT rather than to infer it from a credit balance.
+// │ Worst case at three rows an hour is recoverable; waiting on a human to fire
+// │ a curl costs more than that. check-atlas-diag-not-live.mjs enforces the
+// │ reduced rate: diagnostics may only ride a schedule capped at 5.
+// │
+// │ WHEN THE RUN COMES BACK CLEAN (written > 0, pending 0, no ATLAS-DIAG
+// │ anthropic line): delete every ATLAS-DIAG line and set the limit back to 25
+// │ in ONE change. The guard requires exactly that pairing.
+// │ IF IT DOES NOT: remove the vercel.json entry again immediately.
 // └────────────────────────────────────────────────────────────────────────────
 //
 // Cost: metered (Google Places Details + Anthropic per place). CRON_SECRET-gated
