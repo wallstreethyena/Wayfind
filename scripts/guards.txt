@@ -196,3 +196,4 @@ node scripts/test-seasonal-picks.mjs
 node scripts/test-place-suggestions.mjs
 node scripts/test-comment-photos.mjs
 node scripts/check-outdoors-cache-first.mjs
+node scripts/check-env-discipline.mjs

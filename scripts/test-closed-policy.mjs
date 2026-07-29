@@ -160,5 +160,49 @@ const P = (over) => ({ id: over.id || "p", name: over.name || "Place", utcOffset
   ok(!/Hours vary/.test(src), '"Hours vary" is gone — it laundered known-closed into ambiguous');
 }
 
+
+/* ── 11: RENDER-LEVEL. N closed places in, N cards out, never zero ───────── */
+{
+  // The fixtures above guard the SCORE (does unknown collapse into closed).
+  // This guards the RENDER (does a closed-or-unknown place survive to the DOM).
+  // They are different questions, and a passing score fixture answers only the
+  // first — a second filter in the display path is invisible to it. The 2026-07-28
+  // blank page turned out to be an unconfigured env rather than a filter, but the
+  // gap is real and this closes it.
+  const closedAt2pm = (i) => P({ id: "c" + i, name: "Venue " + i, oh: hours(20, 0, 23, 59) });
+
+  for (const surface of ["home", "map", "landing", "search", "guide", "paid_landing"]) {
+    for (const n of [1, 3, 6, 8, 15]) {
+      const input = Array.from({ length: n }, (_, i) => closedAt2pm(i));
+      const r = applyPolicy(input, NOW, { surface, floor: RAIL_FLOOR });
+
+      // Non-empty FIRST, then what is in it (AGENTS.md §4).
+      ok(r.places.length > 0,
+        `RENDER: ${n} closed places on "${surface}" must never render zero cards — got ${r.places.length}`);
+      ok(r.places.length === n,
+        `RENDER: all ${n} survive to the DOM on "${surface}" (demoted, not deleted) — got ${r.places.length}`);
+      ok(r.decisions.length === r.places.length,
+        `RENDER: one decision per rendered card on "${surface}"`);
+      ok(r.decisions.every((d) => typeof d.label === "string" && d.label.length > 0),
+        `RENDER: every closed card carries a non-empty label on "${surface}"`);
+    }
+  }
+
+  // Mixed pool: the operational ones must never be deleted by the presence of dead ones.
+  const mixed = [
+    P({ id: "live1", oh: hours(9, 0, 22, 0) }),                                   // open
+    P({ id: "dead1", businessStatus: "CLOSED_PERMANENTLY", oh: hours(9, 0, 22, 0) }),
+    P({ id: "shut1", oh: hours(20, 0, 23, 59) }),                                 // closed
+    P({ id: "unk1", oh: null, utcOffset: null }),                                 // unknown
+  ];
+  const rm = applyPolicy(mixed, NOW, { surface: "home", floor: RAIL_FLOOR });
+  ok(rm.places.length > 0, "RENDER: a mixed pool never renders zero");
+  ok(rm.places.some((p) => p.id === "live1"), "RENDER: the open place renders");
+  ok(rm.places.some((p) => p.id === "unk1"), "RENDER: the unknown-hours place renders");
+  ok(rm.places.some((p) => p.id === "shut1"), "RENDER: the closed place renders (demoted, not deleted)");
+  ok(!rm.places.some((p) => p.id === "dead1"), "RENDER: the permanently-closed place does NOT render");
+  ok(rm.places.length === 3, "RENDER: exactly the three visitable places render — got " + rm.places.length);
+}
+
 if (failures) { console.error(`test-closed-policy: ${failures} failure(s)`); process.exit(1); }
 console.log("test-closed-policy: OK — non-operational never shown; unknown shown and scores 0; countdown band; floor after demote, never resurrecting the dead");
