@@ -8,6 +8,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
 import { BackControl } from "../best-beaches/[metro]/parts";
+import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
+import { currentSeason } from "../../lib/seasons";
 import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
@@ -45,6 +47,12 @@ export default function IntentPageClient({ intent }) {
     return { lat, lng, city: city || "your town" };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // v6.64: city x season editorial context for the header. Declared AFTER loc —
+  // it reads loc.city, and referencing a const before its declaration is a
+  // temporal-dead-zone throw, not a silent undefined. Cache-free: a hand-seeded
+  // module, no fetch, no LLM, nothing in the request path.
+  const areaCtx = areaSeasonalContext(loc && loc.city, currentSeason());
 
   useEffect(() => {
     if (!def || !isFinite(loc.lat)) { setRows([]); return; }
@@ -144,6 +152,20 @@ export default function IntentPageClient({ intent }) {
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
     >
+      {areaCtx ? (
+        // v6.64 AreaSeasonalContext. The seasonal header read as a weather
+        // widget with a place name attached: city, then a filter explanation.
+        // This is ADDITIVE and sits above the filter line, which keeps doing its
+        // job (every subhead states the filter applied). Order is deliberate:
+        // where you are (title) -> why this season matters HERE -> what the area
+        // is known for -> what we filtered out.
+        // Renders nothing when the city has no entry: an absent line is honest,
+        // a generic one that fits any city is exactly what this replaces.
+        <div style={{ marginBottom: 16, maxWidth: 620 }}>
+          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: "#C9D1D9" }}>{areaCtx.headline_context}</p>
+          <p style={{ margin: "7px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "#8B949E" }}>{areaCtx.area_known_for}</p>
+        </div>
+      ) : null}
       <button onClick={share} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: def.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
         {copied ? "Link copied" : "Share this list"}
       </button>
