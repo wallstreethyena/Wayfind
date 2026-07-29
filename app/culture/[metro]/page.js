@@ -46,6 +46,14 @@ const S = {
   footerLink: { color: "#2EC9A6", textDecoration: "none", fontWeight: 700 },
 };
 
+// The fallback for a metro with no hero of its own MUST assert no category.
+// It used to be the hidden-gems photo, so /culture/miami, /keys, /boston and
+// /hawaii each opened with a Sarasota-area image branded "hidden gems" —
+// the same category error as /hidden-gems once rendering date-night.jpg,
+// but silent, because a fallback looks deliberate. This is the app's own
+// default hero, already the neutral choice in home.js and for /nearby.
+export const NEUTRAL_HERO = "/brand/wayfind-default-hero-adobestock-289023289.jpeg";
+
 const CULTURE_HERO = {
   orlando: "/brand/orlando-night-wheel-portrait.jpg",
   sarasota: "/cards/beach-adobestock-216195684.jpeg",
@@ -85,7 +93,7 @@ export default async function CulturePage({ params }) {
         location={c.title}
         title={`Know ${c.title} like someone sent you.`}
         description="The food locals defend, the experiences worth crossing town for, and the details that turn a visit into a story—not another generic city guide."
-        image={CULTURE_HERO[params.metro] || "/cards/hidden-gems-adobestock-321810820.jpeg"}
+        image={CULTURE_HERO[params.metro] || NEUTRAL_HERO}
         primaryHref={"/?intent=" + encodeURIComponent("local favorites in " + c.title)}
         primaryLabel="Build my local shortlist"
         secondaryHref="#local-edit"

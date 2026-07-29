@@ -44,7 +44,20 @@ const tracked = new Set(
 );
 ok(tracked.size > 0, "read the tracked asset list from git (an empty list would make every check below vacuous)");
 
-const SOURCES = ["lib/intentPages.js", "app/home.js", "app/components/screens/Experience.js", "lib/shareCards.js", "app/api/og/intent/route.js"];
+const SOURCES = ["lib/intentPages.js", "app/home.js", "app/components/screens/Experience.js", "lib/shareCards.js", "app/api/og/intent/route.js",
+  // Added 2026-07-29: these two were NOT scanned, and both held art paths —
+  // including a fallback that quietly branded 8 pages. An unscanned file with
+  // art literals is exactly where the next uncommitted path will hide.
+  "app/culture/[metro]/page.js", "app/guides/[slug]/page.js"];
+
+// A CATEGORY-BRANDED asset must never be the fallback for arbitrary pages.
+// /culture/miami, /keys, /boston, /hawaii and four guides all opened on a photo
+// named "hidden gems" because that was the default. A wrong fallback is harder
+// to spot than a wrong assignment: it looks deliberate, and it scales silently
+// with every page added. Keyword branches assigning matching art are fine —
+// only the final default is constrained.
+const CATEGORY_BRANDED = /hidden-gems|date-night|night-out|family-|budget-|best-of-|outdoors-hero/;
+const FALLBACK_FILES = ["app/culture/[metro]/page.js", "app/guides/[slug]/page.js"];
 
 // Any string literal assigned to an art/hero slot, plus the bare "/cards/..."
 // and "/brand/..." literals in home.js's heroImage ternary, which is a chain of
@@ -110,6 +123,25 @@ ok(byArt.size >= 5, `parsed the INTENT_PAGES art entries (got ${byArt.size}) —
 for (const [art, keys] of byArt) {
   ok(keys.length === 1,
     `${keys.join(" and ")} both use ${art} — two destination pages rendering one image reads as the same page twice; give each its own`);
+}
+
+// The fallback position specifically: whatever a page gets when nothing matched.
+for (const rel of FALLBACK_FILES) {
+  let src = "";
+  try { src = readFileSync(path.resolve(rel), "utf8"); } catch { continue; }
+  // Match the DECLARATION, not the identifier. Testing /NEUTRAL_HERO/ passed
+  // even with the declaration deleted, because the use site still mentions the
+  // name — a check that claimed more than it verified.
+  ok(/(?:const|export const)\s+NEUTRAL_HERO\s*=\s*"/.test(src),
+    `${rel} must DECLARE NEUTRAL_HERO — the default a page gets when no rule matched has to be named, not inlined, so it stays greppable`);
+  for (const [i, line] of src.split("\n").entries()) {
+    if (/^\s*(\/\/|\*|\/\*)/.test(line)) continue;
+    // A default position is `|| "<path>"` or a bare `: "<path>";` on a return.
+    const m = line.match(/\|\|\s*"((?:\/cards|\/brand)\/[^"]+)"/) || line.match(/:\s*"((?:\/cards|\/brand)\/[^"]+)"\s*;/);
+    if (!m) continue;
+    ok(!CATEGORY_BRANDED.test(m[1]),
+      `${rel}:${i + 1} uses the category-branded ${m[1]} as a FALLBACK. A page that matched no rule must not be handed art that asserts a category — use NEUTRAL_HERO`);
+  }
 }
 
 if (fail.length) {
