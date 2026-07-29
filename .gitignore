@@ -24,3 +24,11 @@ wf-inventory-list.txt
 .claude/*
 !.claude/agents/
 .claude/settings.local.json
+
+# local agent scratch — not shared
+.worktrees/
+_to_delete/
+_incoming/
+tmp/
+.cowork-parked/
+.claude-backup/
