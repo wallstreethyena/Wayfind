@@ -7527,7 +7527,7 @@ function PageInner({ initialEvents = null }) {
                       title="Worth finding. Easy to miss."
                       subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
                       ariaLabel="Explore hidden gems"
-                      onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                      onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} goIntent("/hidden-gems"); }}
                     />
                     <LocalPlanHeroCard
                       image="/cards/date-night-adobestock-190984224.jpeg"
@@ -7557,7 +7557,7 @@ function PageInner({ initialEvents = null }) {
                       title="What everyone's talking about"
                       subtitle="Popular local picks worth seeing now ›"
                       ariaLabel="Trending near you"
-                      onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} openExpSheet("entertainment"); }}
+                      onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} goIntent("/trending-now"); }}
                     />
                     {/* v6.55 (owner): "...at the end will be the reminder, so
                         we engage with them technically twice" — the same
@@ -7656,7 +7656,7 @@ function PageInner({ initialEvents = null }) {
                           title="Worth finding. Easy to miss."
                           subtitle={`Hidden gems around ${locName ? locName.split(",")[0] : "your town"}, picked for you ›`}
                           ariaLabel="Explore hidden gems"
-                          onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} openExpSheet("gem"); }}
+                          onOpen={() => { try { logEvent("hidden_gems_hero_open", null, { src: "hero_swipe" }); } catch (e2) {} goIntent("/hidden-gems"); }}
                         />
                         {/* v6.52 (owner): slides 3+4 — date night and family, each the
                             best of the town for that intent, opening the luxury ranked
@@ -7698,7 +7698,12 @@ function PageInner({ initialEvents = null }) {
                             if (buzzPick) {
                               try { window.location.assign("/trending-now?lat=" + center.lat.toFixed(4) + "&lng=" + center.lng.toFixed(4) + "&city=" + encodeURIComponent(locName ? locName.split(",")[0] : "") + (buzzPick.photo_ref ? "&img=" + encodeURIComponent(buzzPick.photo_ref) : "")); } catch (e2) {}
                             } else {
-                              openExpSheet("entertainment");
+                              // v6.62: with no resolved buzz pick this used to
+                              // drop to the experience SHEET while the branch
+                              // above went to a page — the same card had two
+                              // different surfaces depending on data. Both
+                              // branches now land on /trending-now.
+                              goIntent("/trending-now");
                             }
                           }}
                         />
