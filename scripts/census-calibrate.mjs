@@ -1,9 +1,13 @@
 // scripts/census-calibrate.mjs — PHASE 2 calibration. ZERO API calls.
 //
-// Reads one saturated per-metro census and derives, PER CATEGORY, where the
-// head/tail boundary actually sits. This is the whole point of paying for one
-// full metro: the floor for the other twenty gets set from evidence instead of
-// from somebody's judgement.
+// Reads one saturated per-metro census and reports, PER CATEGORY, the review-count
+// distribution — so a floor for the other twenty metros is chosen against evidence
+// instead of judgement.
+//
+// RESULT ON ORLANDO: there is no boundary to derive. The decay is smooth at every
+// floor, in all four categories. Where the head ends is a PRODUCT decision, not a
+// discoverable fact. This script therefore reports the distribution and refuses to
+// print a number that would look like a measurement.
 //
 // Why per category and not one constant: Orlando restaurants had 750 candidates
 // against nightlife's 516 and scored 0/20 against nightlife's 1/20. Their
@@ -87,18 +91,35 @@ for (const c of CATS) {
   console.log(`    ${c.slug.padEnd(14)}${line}`);
 }
 
-// The operative number: the review floor above which a category's top-20 is
-// stable — i.e. the 20th-ranked venue's review count. Anything below it cannot
-// enter that top-20 no matter how much more we sweep.
-console.log(`\n  DERIVED per-category floor (reviews of the 20th-ranked venue —`);
-console.log(`  below this a row cannot reach that category's top-20):\n`);
+// ── NO DERIVED FLOOR IS REPORTED, AND THAT IS THE FINDING ────────────────
+// An earlier version printed "the review count of the 20th-ranked venue" as a
+// derived per-category floor. It ranked by review volume — reproducing exactly
+// the metric that was withdrawn for the food cells, one layer down. At full
+// metro scale it returns, for NIGHTLIFE:
+//
+//   102353 Rainforest Cafe   38106 STK Steakhouse   27911 McDonald's   21342 IHOP
+//
+// and puts the venues this lane exists to surface at rank 37 (Twin Peaks),
+// 97 (House of Blues), 133 (Ole Red), 489 (SAK Comedy Lab). A "floor" of 16,512
+// reviews derived from that would exclude every one of them. The number was
+// arithmetically correct and would have misdirected the fix.
+//
+// The distribution table above is the honest output. Read down any column and
+// the decay is SMOOTH — 1495, 1255, 1097, 902, 674, 454, 315, 173, 64 for
+// nightlife, and the same shape for the other three. There is no knee.
+//
+// So: where the head ends is a PRODUCT decision, not a discoverable fact. The
+// census must therefore keep the tail, which is what "Hidden gems" (<3,000
+// reviews) and #414's new rooms are made of.
+console.log(`\n  NO DERIVED FLOOR — the distribution has no knee.`);
+console.log(`  Cumulative counts decay smoothly at every floor in the table above, so`);
+console.log(`  there is no boundary to discover; only one to choose. Reporting a number`);
+console.log(`  here would be a product decision wearing a measurement's clothes.\n`);
 for (const c of CATS) {
-  const sorted = [...c.rows].sort((a, b) => b.reviews - a.reviews);
-  const cut = sorted[19] ? sorted[19].reviews : null;
   const hidden = c.rows.filter((r) => r.reviews < 3000).length;
-  console.log(`    ${c.slug.padEnd(14)} top20-cut ${String(cut ?? "n/a").padStart(6)}   head(>=cut) ${String(sorted.filter((r) => cut != null && r.reviews >= cut).length).padStart(4)}   tail(<3000, Hidden-gems pool) ${String(hidden).padStart(5)}`);
+  console.log(`    ${c.slug.padEnd(14)} ${String(c.rows.length).padStart(5)} rows   tail(<3000, the Hidden-gems pool) ${String(hidden).padStart(5)}  = ${(100 * hidden / (c.rows.length || 1)).toFixed(0)}% of the category`);
 }
 
-console.log(`\n  NOTE: these floors bound the TOP-20 surface only. They are not a`);
-console.log(`  census cutoff — Hidden gems (<3,000 reviews) and #414 new rooms are`);
-console.log(`  tail rows, so a head-only census would make both impossible.`);
+console.log(`\n  NOTE: nothing above is a census cutoff. Hidden gems (<3,000 reviews) and`);
+console.log(`  #414's new rooms are tail rows — 79-86% of every category — so a`);
+console.log(`  head-only census would make both structurally impossible.`);
