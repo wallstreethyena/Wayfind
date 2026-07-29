@@ -204,3 +204,4 @@ node scripts/check-no-llm-in-render-path.mjs
 node scripts/check-area-seasonal-context.mjs
 node scripts/check-one-price-source.mjs
 node scripts/test-editorial-rollout.mjs
+node scripts/check-parity-formula-lock.mjs

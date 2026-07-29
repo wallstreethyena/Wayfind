@@ -187,6 +187,23 @@ about.
 green.** When you report a verification, say what you ran and what it returned — not that
 it passed.
 
+**A known-weak check blocks the headline claim. It does not footnote it.** Disclosing that
+an instrument is weak and then leading with its number is the same failure as not
+disclosing it — the caveat and the result travel separately, and one report later only the
+result survives. A coverage measurement was published with "this category has no shipped
+predicate, so volume alone (stated, not hidden)" attached, and its number became the
+report's headline anyway. If a check is too weak to carry a claim, it is too weak to
+publish the claim beside.
+
+**A wrong metric does not merely mismeasure — it misdirects the fix.** This is a distinct
+failure from a weak check, and more expensive. The same measurement ranked restaurants by
+review volume and scored the page 0/20; the venues it said were "missing" were Rainforest
+Cafe, McDonald's and IHOP, which the page is correct to omit. Had that been reported as a
+coverage defect, the remedy would have been to make the product surface McDonald's. Before
+acting on a gap, check that the yardstick's definition of "right answer" is the product's
+definition of "right answer" — a number can be arithmetically correct, reproducible, and
+still be pointing at the wrong repair.
+
 Assertions written before a rule exists are the ones the rule cannot reach retroactively. When a
 §4-class rule lands, a repo-wide sweep for prior violations is mandatory, not optional.
 
