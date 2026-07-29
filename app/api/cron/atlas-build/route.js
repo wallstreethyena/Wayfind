@@ -11,7 +11,7 @@
 // bounded and self-terminating: once wf_atlas_missing returns empty for every
 // category the route returns {done:true} and spends nothing but the RPC.
 //
-// ┌─ v6.68 — THE SCHEDULE IS DISABLED AGAIN. SECOND DEFECT, NOT THE FIRST. ────
+// ┌─ v6.69 — VERIFICATION RUN #2. REDUCED RATE, DIAGNOSTICS DELIBERATELY LIVE. 
 // │
 // │ The v6.49 note above diagnosed "coverage froze on 2026-07-24" as the
 // │ pipeline having STOPPED, and fixed it by adding a schedule. The schedule
@@ -64,9 +64,14 @@
 // │ strips ':' so those became "1100am" vs "11am" and never matched. Fixed in
 // │ this change by canonicalising ":00" on BOTH sides before comparison.
 // │
-// │ The schedule is disabled while that fix goes unverified against live data.
-// │ Re-arm with ?limit=3 and watch one fire; if rows land published, strip
-// │ ATLAS-DIAG and restore ?limit=25 in ONE change.
+// │ RE-ARMED at ?limit=3 to verify that fix against live data. Run #1 proved the
+// │ Anthropic key (FAILED VERIFICATION can only be written after the model
+// │ answers); run #2 is testing whether the time canonicalisation lets those
+// │ cards publish. Clean = rows landing with issues NULL.
+// │
+// │ WHEN IT COMES BACK CLEAN: delete every ATLAS-DIAG line, restore ?limit=25
+// │ and drop this notice in ONE change — check-atlas-diag-not-live enforces that
+// │ pairing. IF NOT: remove the vercel.json entry again immediately.
 // └────────────────────────────────────────────────────────────────────────────
 //
 // Cost: metered (Google Places Details + Anthropic per place). CRON_SECRET-gated
