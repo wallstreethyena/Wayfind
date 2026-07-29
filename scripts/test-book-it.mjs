@@ -19,12 +19,17 @@ const restaurant = { name: "Owen's Fish Camp", types: ["restaurant"] };
 const beach = { name: "Siesta Key Beach", types: ["natural_feature"] };
 const hotel = { name: "The Ritz-Carlton", types: ["lodging"] };
 
-// ── Ships dark: with NO live Travelpayouts program there is no target ──────────
-ok(Mz.bookItTarget(attraction, { available: [], city: "Sarasota" }) === null, "no live program → no target (dark)");
+// ── Dark WITHOUT an offer — still the guarantee, and it is now the only one ───
+// Until 2026-07-29 this file also asserted that NO TP program was live, because
+// every promoId/campaignId was null. Four Wave-1 programs are now lit, so that
+// assertion described the outage rather than the contract. What survives is the
+// real invariant: no offer available -> no target, regardless of program state.
+ok(Mz.bookItTarget(attraction, { available: [], city: "Sarasota" }) === null, "no offer available → no target (dark)");
 ok(Mz.bookItTarget(attraction, {}) === null, "missing available → no target (dark)");
-// The real production guarantee: no program is live in code (ids unset), and
-// tpDeepLink refuses to build a link — so nothing can render in prod today.
-ok(Tp.isTpProgramLive("tiqets") === false && Tp.isTpProgramLive("klook") === false, "no TP program is live in code (ids unset)");
+// Wave 1 is live; everything else must still be dark. Both directions asserted —
+// a check that only proves what is ON cannot catch a program lighting up early.
+ok(Tp.isTpProgramLive("tiqets") === true && Tp.isTpProgramLive("klook") === true, "Wave-1 tiqets + klook are LIVE");
+ok(Tp.isTpProgramLive("gocity") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Wave-2 and in-review programs are still DARK");
 
 // ── When a program IS supplied live, a bookable place resolves to it ──────────
 const t = Mz.bookItTarget(attraction, { available: ["tiqets"], city: "Sarasota" });
@@ -42,8 +47,16 @@ ok(Mz.bookItTarget(attraction, { available: ["viator"] }) === null, "viator excl
 ok(Mz.bookItTarget(attraction, { available: ["gyg"] }) === null, "gyg excluded — Viator family");
 ok(Mz.bookItTarget(attraction, { available: ["viator", "tiqets"] })?.provider === "tiqets", "viator filtered out even when mixed with a real TP program");
 
-// ── End-to-end dark: even a real target yields no tracked link until ids exist ─
-ok(Tp.tpDeepLink("tiqets", t.url, "place123") === null, "tpDeepLink is null until program ids exist → the component renders nothing in prod");
+// ── End-to-end LIVE: a real target now yields a tracked link ─────────────────
+const tracked = Tp.tpDeepLink("tiqets", t.url, "place123");
+ok(!!tracked, "tpDeepLink builds a tracked link for a resolved target — Book-it can now render");
+const tu = new URL(tracked);
+ok(tu.origin + tu.pathname === "https://tp.media/r", "Book-it's tracked link uses the tp.media/r endpoint");
+ok(tu.searchParams.get("marker") === "750791", "Book-it's link carries the EARNING marker 750791, not the account id");
+ok(tu.searchParams.get("trs") === "550160", "…and 550160 only as trs");
+ok(tu.searchParams.get("u") === t.url, "the resolved provider url is preserved intact inside the wrapper");
+// A dark program must still refuse, even with a perfectly good target.
+ok(Tp.tpDeepLink("gocity", t.url, "place123") === null, "a DARK program still returns null for the same target — ships-dark discipline intact");
 
 if (fails) { console.error(`test-book-it: ${fails} failure(s)`); process.exit(1); }
-console.log("test-book-it: OK — Book-it ships dark, resolves the right provider when live, never duplicates Viator, never wraps non-bookable places");
+console.log("test-book-it: OK — Book-it renders only with an offer, resolves the right provider, emits tp.media/r with marker 750791, keeps Wave-2 dark, never duplicates Viator, never wraps non-bookable places");
