@@ -12,6 +12,6 @@ ok(/eds\[p\.id\] && eds\[p\.id\]\.local_tip/.test(s), "local_tip renders as the 
 // the Google-number sentence lives ONLY inside whyLine, and whyLine is the FALLBACK.
 const wl = readFileSync(new URL("../lib/landing.js", import.meta.url), "utf8");
 ok(/\$\{p\.rating\}★ across/.test(wl), "whyLine keeps the honest Google summary as the no-editorial fallback");
-ok(!/\$\{p\.rating\}★ across[\s\S]{0,200}eds\[p\.id\]/.test(wl) || true, "the star-number cannot render alongside an editorial (why_here wins)");
+ok(!/\$\{p\.rating\}★ across[\s\S]{0,200}eds\[p\.id\]/.test(wl), "the star-number cannot render alongside an editorial (why_here wins)");
 console.log(`test-ranking-editorial: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

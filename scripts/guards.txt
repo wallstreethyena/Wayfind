@@ -243,3 +243,4 @@ node scripts/check-ut-crawler-clicks.mjs
 node scripts/check-hero-chrome.mjs
 node scripts/check-money-funnel.mjs
 node scripts/check-deal-sheet.mjs
+node scripts/check-guards-can-fail.mjs
