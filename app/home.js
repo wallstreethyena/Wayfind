@@ -4971,7 +4971,12 @@ function PageInner({ initialEvents = null }) {
       const res = await fetch("/api/blurbs", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ city: locName, places: enriched }),
+        // v6.63 cacheOnly: RENDER PATH. Reads the shared 30-day pool only — a
+        // cold area falls back to no line rather than generating while the user
+        // waits. This caller was MISSED on the first pass and found by
+        // check-no-llm-in-render-path, which is why that guard walks every
+        // client component instead of trusting one known call site.
+        body: JSON.stringify({ cacheOnly: true, city: locName, places: enriched }),
       });
       const data = await res.json();
       if (data && data.blurbs && typeof data.blurbs === "object") {

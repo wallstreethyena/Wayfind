@@ -200,3 +200,4 @@ node scripts/check-env-discipline.mjs
 node scripts/check-intent-copy-matches-filter.mjs
 node scripts/test-nightlife-ranking.mjs
 node scripts/test-nightlife-census.mjs
+node scripts/check-no-llm-in-render-path.mjs
