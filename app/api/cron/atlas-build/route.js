@@ -92,6 +92,7 @@ import { recordPulse } from "../../../../lib/jobPulse";
 import { pageText, verifyAtlasEditorial } from "../../../../lib/atlasVerify";
 import { editorialRow } from "../../../../lib/atlasEditorial";
 import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
+import { isInsidePark } from "../../../../lib/parkZones";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -157,7 +158,7 @@ const RIDE_RX = new RegExp([
   "cheetah hunt", "cobra'?s curse", "sheikra", "manta", "ice breaker", "pipeline",
 ].join("|"), "i");
 
-const SYSTEM =
+const SYSTEM =const SYSTEM =
   "You write the Wayfind \"Atlas\" editorial for ONE place, to the atlas-590-v1 standard. " +
   "Voice: specific, honest, a little wry, second person, no marketing fluff — give an OPINION, not a description. " +
   "Return ONLY compact JSON, no prose, no code fence: " +
@@ -395,7 +396,8 @@ export async function GET(req) {
   await pool(places, 6, async (place) => {
     if (Date.now() - startedAt > DISPATCH_DEADLINE_MS) { deferred++; return; } // stays in wf_atlas_missing, picked up next run
     // ride-level → store as RIDE-LEVEL, never written/sourced
-    if (RIDE_RX.test(String(place.name || ""))) {
+    const parkZone = isInsidePark(place.lat, place.lng, place.name);
+    if (RIDE_RX.test(String(place.name || "")) || parkZone) {
       rides++;
       rows.push(editorialRow(place, null, nowIso, ["RIDE-LEVEL — merge into parent park"]));
       return;
@@ -410,8 +412,13 @@ export async function GET(req) {
 
     const parsed = await writeEditorial(place, d, akey, sources);
     if (!parsed || parsed.pending === true || !parsed.hook) {
+      // A venue whose only official source is a Disney host can NEVER be sourced
+      // — §7 forbids the fetch, permanently. Labelling that PENDING SOURCE put it
+      // in the retry queue forever, where every attempt is a guaranteed no-op
+      // that still costs a Places call. Say which it is.
+      const blocked = isDeniedHost(hostOfUrl(d.websiteUri));
       pending++;
-      rows.push(editorialRow(place, null, nowIso, ["PENDING SOURCE"]));
+      rows.push(editorialRow(place, null, nowIso, [blocked ? "BLOCKED — §7 source" : "PENDING SOURCE"]));
       return;
     }
 
