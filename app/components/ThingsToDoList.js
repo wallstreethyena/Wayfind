@@ -49,7 +49,34 @@ const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60)
 // Standard-card trust dot (home.js confidenceOf thresholds, verbatim).
 const confColor = (n) => (n >= 500 ? "#22C55E" : n >= 100 ? "#FBBF24" : "#94A3B8");
 
-function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare }) {
+// The Save/Share/Like/Dislike pill. One shape for all four so the row reads as
+// a set — the taste controls are not a different kind of thing from Save.
+function ActionPill({ label, ariaLabel, active, onClick, children }) {
+  return (
+    <button type="button" aria-label={ariaLabel || label} aria-pressed={active ? "true" : "false"} onClick={onClick}
+      style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${active ? C.light : C.border}`, borderRadius: 999, padding: "7px 14px", background: active ? C.adim : "transparent", color: active ? C.light : C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", minHeight: 36 }}>
+      {children}{label ? <span>{label}</span> : null}
+    </button>
+  );
+}
+// Same thumbs as the detail sheet — an SVG rather than an emoji so the icon does
+// not change shape between platforms next to a text label.
+const ThumbUp = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg>);
+const ThumbDown = () => (<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17 14V3" /><path d="M17 14l-4 7c-1.5 0-2.5-1-2.5-2.5V14H5.9a2 2 0 0 1-2-2.4l1.2-6A2 2 0 0 1 7 4h10" /></svg>);
+
+// ONE row -> place mapping. Every consumer that hands a row to app/home.js (the
+// detail sheet, Save, Like, Dislike) goes through here, because those consumers
+// store what they are given: toggleLike keeps `{ place: p }` in wf_liked_items
+// and that object is what the Saved screen's Liked folder later renders. When
+// this mapping was inline per call site, Save stored a row with no photo and no
+// category and the folder rendered a placeholder.
+// v6.57: `category` is load-bearing — isBeach(detail) identifies a beach row
+// from it alone, since wf_things_to_do rows carry no coordinates or types.
+export function ttdPlace(r) {
+  return { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640), category: r.category };
+}
+
+function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const isTour = r.kind === "experience";
   const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
   const open = () => {
@@ -60,7 +87,7 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
     // coordinates, so the detail sheet's water-quality/popularity signals
     // (keyed by place_id alone) still resolve even though live wind/wave/red
     // tide (which need coordinates) won't for places opened from this list.
-    onOpenPlace && onOpenPlace({ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640), category: r.category });
+    onOpenPlace && onOpenPlace(ttdPlace(r));
   };
   // v6.56 (owner): EXACTLY the standard Wayfind card shell — photo-left 96px,
   // rank ring (medal colors), title row carrying the WayfindScoreBadge in-flow,
@@ -131,7 +158,22 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
         {r.editorial_hook ? <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div> : (rankReason(r, rank) || blurb) ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{rankReason(r, rank) || blurb}</div> : null}
         <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
           {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
-          {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}
+          {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(ttdPlace(r)); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}
+          {/* Like / dislike were missing here while every other place surface
+              (PlaceCard, the detail sheet, Saved, Itinerary) carried them — so
+              the rail the homepage leans on was the one place a user could not
+              teach Wayfind anything, and the taste model never heard from it.
+              Gated on !isTour for the same reason Save is: a tour row's id is a
+              Viator PRODUCT id, not a Google place id, so a like on one would
+              write a row the taste model and the Liked folder cannot resolve.
+              The tour row is also an <a>, and a <button> inside it would be the
+              nested-interactive problem the category chips already dodge. */}
+          {!isTour && onLike ? (
+            <ActionPill ariaLabel={liked ? "Remove like" : "Like this place"} active={!!liked} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onLike(e, ttdPlace(r)); }}><ThumbUp /></ActionPill>
+          ) : null}
+          {!isTour && onDislike ? (
+            <ActionPill ariaLabel={disliked ? "Remove dislike" : "Show me fewer like this"} active={!!disliked} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDislike(e, ttdPlace(r)); }}><ThumbDown /></ActionPill>
+          ) : null}
           {onShare ? <span role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); onShare(r); } }} onClick={(e) => { e.stopPropagation(); e.preventDefault(); onShare(r); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>↗ Share</span> : null}
         </div>
       </div>
@@ -143,7 +185,7 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 
-export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare }) {
+export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const [list, setList] = useState(null); // null = loading
   // v6.71 (Wave 2): batched water-quality + popularity for whichever beach
   // rows land in this ranked list — same wf_beach_water / wf_place_popularity_scored
@@ -207,7 +249,7 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, bl
         </>
       ) : shown.length ? (
         <>
-          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} />)}
+          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} liked={!!(liked && liked[r.id])} disliked={!!(disliked && disliked[r.id])} onLike={onLike} onDislike={onDislike} />)}
           {hasTours ? <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Some links are affiliate links; it never changes our rankings.</div> : null}
         </>
       ) : (
