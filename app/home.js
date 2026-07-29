@@ -4189,6 +4189,25 @@ function PageInner({ initialEvents = null }) {
   // "engage with them technically twice." One implementation, reused at both
   // ends of both hero rails, so the two placements can never drift apart.
   // srcTag ("top" | "end") only distinguishes the two spots in analytics.
+  // v6.57, two changes here:
+  //  COPY — the subtitle read "What actually fits summer right now", which
+  //    describes the MECHANISM rather than the list. It states the filter now.
+  //    No hardcoded count or temperature: list length is dynamic per location
+  //    and the weather is live, so a literal "16 places" or "94°" would be a
+  //    number we cannot keep.
+  //  DESTINATION — routes to the /seasonal LIST PAGE (IntentPageClient, the
+  //    /family and /date-night template) instead of openExpSheet's
+  //    hero-card-plus-one-detail-card sheet, so Seasonal Picks is the same kind
+  //    of object as every other list surface. This was the ONLY caller of the
+  //    old seasonal sheet path, so that path is retired rather than bypassed.
+  //    scripts/test-seasonal-picks.mjs was re-pointed (not deleted) to lock the
+  //    new destination, on owner instruction: "Find the component /date-night
+  //    uses. Point the Summer Picks page at it."
+  //    NOTE: do not name the old sheet call literally in these comments — the
+  //    guard asserts that string is absent from this file, and a comment
+  //    mentioning it is indistinguishable from a live call to a text search.
+  // Both placements (top and end, per v6.55) route through this one helper, so
+  // they cannot drift apart.
   function seasonalHeroSlide(srcTag) {
     const _s = SEASON_META[currentSeason()];
     return (
@@ -4198,9 +4217,9 @@ function PageInner({ initialEvents = null }) {
         badgeColor={_s.color}
         icon="leaf"
         title={_s.label + " picks near you"}
-        subtitle={`What actually fits ${_s.label.toLowerCase()} right now ›`}
+        subtitle={"Open now, close by, and ranked for " + _s.label.toLowerCase() + " ›"}
         ariaLabel={_s.label + " picks near you"}
-        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} openExpSheet("seasonal"); }}
+        onOpen={() => { try { logEvent("seasonal_hero_open", null, { season: currentSeason(), src: "hero_" + srcTag }); } catch (e2) {} try { window.location.assign("/seasonal" + (locName ? "?city=" + encodeURIComponent(locName.split(",")[0]) : "")); } catch (e2) {} }}
       />
     );
   }
