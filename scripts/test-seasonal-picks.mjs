@@ -146,11 +146,22 @@ ok(heroOccurrences === 1, `the seasonal slide's JSX is defined exactly ONCE, ins
 const noEventsRailAt = home.indexOf("THE 23-MILE RULE (owner, 2026-07-28)");
 const eventsRailAt = home.indexOf("LEADS this rail too");
 ok(noEventsRailAt >= 0 && eventsRailAt >= 0, "both real hero-rail anchors are present");
-const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,500}?\*\/\}\s*)?\{seasonalHeroSlide\("top"\)\}\s*<DiscoveryHeroCard \/>/;
+// v6.59 (owner, on the record): "THE EXPLAINER CARD GOES FIRST IN THE RAIL,
+// DETERMINISTICALLY, and it opens its own page. I told you earlier to lift
+// DiscoveryHeroCard out of the rail — that was my misreading of the instruction
+// and it's reversed."
+//
+// The ORDER therefore flips: the orientation card leads, Seasonal Picks second.
+// Re-pointed, NOT weakened — it still pins an exact adjacency, just the other
+// way round, and it now additionally requires the orientation card to carry an
+// onOpen (it opened nothing before). Seasonal must still CLOSE the rail, which
+// is asserted below, so the v6.55 "engage them technically twice" decision is
+// intact.
+const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,900}?\*\/\}\s*)?<DiscoveryHeroCard onOpen=\{[\s\S]{0,400}?\/>\s*\{seasonalHeroSlide\("top"\)\}/;
 for (const [name, anchor] of [["no-events rail", noEventsRailAt], ["featured-event rail", eventsRailAt]]) {
   const heroRailAt = home.lastIndexOf("<HeroRail>", anchor);
   ok(heroRailAt >= 0 && anchor - heroRailAt < 600, `the ${name}'s own <HeroRail> opening tag is found near its anchor`);
-  ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 700)), `Seasonal Picks leads the ${name}, immediately ahead of DiscoveryHeroCard — not second, not missing`);
+  ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 1400)), `the orientation card leads the ${name} and OPENS a page, with Seasonal Picks immediately after — deterministic JSX order, no rotation`);
   const closeAt = home.indexOf("</HeroRail>", heroRailAt);
   ok(closeAt >= 0, `the ${name}'s closing </HeroRail> is found`);
   const endAt = home.lastIndexOf('{seasonalHeroSlide("end")}', closeAt);
