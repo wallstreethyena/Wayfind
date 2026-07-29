@@ -202,3 +202,4 @@ node scripts/test-nightlife-ranking.mjs
 node scripts/test-nightlife-census.mjs
 node scripts/check-no-llm-in-render-path.mjs
 node scripts/check-area-seasonal-context.mjs
+node scripts/check-one-price-source.mjs

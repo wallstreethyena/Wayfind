@@ -11,6 +11,7 @@ import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+import { priceWord } from "../lib/price";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 import { onIdle } from "../lib/idleTask";
 // Google bridge. PostHog remains the source of truth — forwardToGoogle only
@@ -1483,7 +1484,13 @@ function StateBadge({ code, size }) {
   );
 }
 
-const PRICE_WORD = { 0: "Free", 1: "Inexpensive", 2: "Moderate", 3: "Pricey", 4: "High-end" };
+// v6.65: PRICE_WORD used to be a local map here — {3:"Pricey", 4:"High-end"} —
+// while lib/taste.js held a SECOND one saying {3:"Expensive", 4:"Very
+// expensive"} for the same input. Two maps for one fact, allowed to drift, is
+// all the $$$$/Moderate contradiction from the 07-09 audit ever was. The word
+// now comes from lib/price, which is the only place a qualitative label may be
+// derived. check-one-price-source.mjs fails the build if a second map appears.
+const PRICE_WORD = { 1: priceWord(1), 2: priceWord(2), 3: priceWord(3), 4: priceWord(4) };
 function PriceMeter({ level, word }) {
   if (level == null) return null;
   if (level === 0) return <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>Free</span>;
