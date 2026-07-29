@@ -27,11 +27,11 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         .wf-intent-secondary{border:1px solid #b8b0a6;color:#46546a}
         .wf-intent-trust{font-size:11.5px;color:#748095;margin:24px 0 0}
         @media(max-width:760px){
-          .wf-intent-hero{grid-template-columns:1fr;min-height:0;border-radius:24px}
+          .wf-intent-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:24px}
           .wf-intent-photo{min-height:270px}.wf-intent-brand{left:22px;top:20px;width:116px}
           .wf-intent-caption{left:24px;right:24px;bottom:22px;font-size:29px}
           .wf-intent-panel{padding:25px 24px 28px}.wf-intent-top{margin-bottom:16px}
-          .wf-intent-title{font-size:39px;letter-spacing:-1.35px;margin-bottom:14px}.wf-intent-copy{font-size:15px;line-height:1.45;margin-bottom:17px}
+          .wf-intent-title{font-size:clamp(21px,6.8vw,39px);letter-spacing:-1.35px;margin-bottom:14px}.wf-intent-copy{font-size:15px;line-height:1.45;margin-bottom:17px}
           .wf-intent-proof{display:flex;gap:7px;border:0;margin:0 0 20px;overflow-x:auto;padding-bottom:2px}
           .wf-intent-proof>div{flex:0 0 auto;padding:7px 11px;border:1px solid #d7cec2;border-radius:999px;font-size:0;color:transparent}
           .wf-intent-proof strong{display:inline;font-size:11.5px;margin:0;color:#344054;white-space:nowrap}
