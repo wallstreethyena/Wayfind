@@ -158,7 +158,7 @@ const RIDE_RX = new RegExp([
   "cheetah hunt", "cobra'?s curse", "sheikra", "manta", "ice breaker", "pipeline",
 ].join("|"), "i");
 
-const SYSTEM =const SYSTEM =
+const SYSTEM =
   "You write the Wayfind \"Atlas\" editorial for ONE place, to the atlas-590-v1 standard. " +
   "Voice: specific, honest, a little wry, second person, no marketing fluff — give an OPINION, not a description. " +
   "Return ONLY compact JSON, no prose, no code fence: " +
