@@ -4208,6 +4208,23 @@ function PageInner({ initialEvents = null }) {
   //    mentioning it is indistinguishable from a live call to a text search.
   // Both placements (top and end, per v6.55) route through this one helper, so
   // they cannot drift apart.
+  // v6.58 — ONE destination helper for every list surface.
+  //
+  // Before this, the quick-link tiles and the hero cards opened openExpSheet:
+  // eyebrow, headline, "N curated picks", a Top-rated dropdown, then big
+  // stacked photo cards. IntentPageClient (/date-night, /family, /seasonal,
+  // /hidden-gems) is the list template. Both existed, so the SAME content had
+  // two looks — Date night was reachable as a sheet from its tile AND as a page
+  // at /date-night, which is the duplication in miniature.
+  //
+  // Every tile now routes here, and the city rides along so the page can name
+  // it (the pages read ?city=).
+  function goIntent(path) {
+    try {
+      const q = locName ? "?city=" + encodeURIComponent(locName.split(",")[0]) : "";
+      window.location.assign(path + q);
+    } catch (e) {}
+  }
   function seasonalHeroSlide(srcTag) {
     const _s = SEASON_META[currentSeason()];
     return (
@@ -7435,13 +7452,13 @@ function PageInner({ initialEvents = null }) {
           const discoveryMenu = (
             <DiscoveryMenu
               locName={locName}
-              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} openCurated("today"); }}
-              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} openExpSheet("gem"); }}
-              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} openExpSheet("family"); }}
-              onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} openExpSheet("romantic"); }}
-              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} setScreen("events"); }}
-              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} openExpSheet("entertainment", "/cards/worth-the-drive-roadtrip-hero.jpg"); }}
-              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} openExpSheet("budget"); }}
+              onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} goIntent("/best-of"); }}
+              onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} goIntent("/hidden-gems"); }}
+              onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} goIntent("/family"); }}
+              onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} goIntent("/date-night"); }}
+              onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} goIntent("/tonight"); }}
+              onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
+              onBudget={() => { try { logEvent("discovery_tile", null, { tile: "Big fun, small budget" }); } catch (e) {} goIntent("/budget"); }}
               onSurprise={() => { try { logEvent("discovery_tile", null, { tile: "Surprise me" }); } catch (e) {} setMenuSheet("pick"); }}
             />
           );
