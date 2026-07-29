@@ -3,6 +3,28 @@
 Paste this at the start of every session, in every terminal (Claude, GWEN, DeepSeek, LLAMA).
 If anything below conflicts with your own reasoning, this file wins.
 
+> **⚠ SECTION NUMBERS CHANGED — 2026-07-29, in the commit that added §5.** §5 ("Absent configuration fails loudly") was
+> INSERTED, which shifted every section after it by one. Any citation written before this
+> commit points at the wrong section. Mapping:
+>
+> | Was | Is now | Title |
+> |---|---|---|
+> | §1–§4 | unchanged | One writer · Claim the work · Branch from main · Verify by running |
+> | — | **§5** | **Absent configuration fails loudly. Never silently.** ← new |
+> | §5 | §6 | Guards are the product decisions |
+> | §6 | §7 | A clean merge is not a correct merge |
+> | §7 | §8 | Standing product constraints |
+> | §8 | §9 | Secrets |
+> | §9 | §10 | Finish the same way every time |
+> | §10 | **§11** | Ask before anything outward-facing |
+>
+> Known casualty: "§10 says I ask before a production write" — that rule is now **§11**.
+> §10 is now "Finish the same way every time."
+>
+> **From here on, APPEND. Do not insert.** Renumbering invalidates every citation in every open
+> PR, issue and agent transcript at once, and there is no way to tell a stale citation from a
+> correct one by reading it.
+
 Repo: `~/Projects/wayfind` · remote `origin` = `wallstreethyena/Wayfind` · trunk = `main`.
 
 ---
@@ -148,7 +170,32 @@ about.
 green.** When you report a verification, say what you ran and what it returned — not that
 it passed.
 
-## 5. Guards are the product decisions. Do not route around them.
+## 5. Absent configuration fails loudly. Never silently.
+
+A missing or empty required value is an error, not a default. The failure names the variable and
+stops the process. It never falls back to a placeholder, never substitutes a literal, and never
+degrades into output that looks like a normal answer.
+
+The failure shapes this prevents:
+
+(a) **The silent fallback.** `process.env.X || "some-literal"`. A hardcoded default makes the
+    resulting behaviour unfalsifiable — you cannot tell "configured correctly" from "configured not
+    at all" by looking at the output.
+(b) **The plausible empty.** A missing data-source key that yields an empty pool, rendered to users
+    as an ordinary "nothing found" state. A misconfiguration wearing the costume of a product state
+    is undiagnosable from the outside.
+(c) **The unlabelled build.** Placeholder config is legitimate for e2e. A build made with it that is
+    indistinguishable from a production build is not.
+
+**Corollary:** a zero has two causes and they get opposite treatment. Zero because the source is
+unconfigured is an operator error and must be loud. Zero because everything was filtered is a
+product state and gets product handling. Code that cannot tell them apart is the bug.
+
+Recorded instances, 2026-07-28: `DEFAULT_ADS_ID` made "0 conversions" unfalsifiable;
+`NEXT_PUBLIC_SUPABASE_URL` fell through to a nonexistent placeholder host; a production build with
+`GOOGLE_MAPS_SERVER_KEY` at length 0 compiled, booted, and rendered "0 curated picks."
+
+## 6. Guards are the product decisions. Do not route around them.
 
 A failing guard is far more likely to be right than your change is. If a guard blocks you,
 find the decision it encodes — the comment above it says why it exists — and either honour it
@@ -158,7 +205,7 @@ a guard to get green.
 New guard file ⇒ add it to `scripts/guards.txt` in the **same commit**. That is what
 `check-guard-manifest.mjs` enforces and why it exists.
 
-## 6. A clean merge is not a correct merge
+## 7. A clean merge is not a correct merge
 
 Git preserving a block of code is evidence about *text*, not about *intent*. When a change is
 "remove X", a 3-way merge will happily keep someone else's newer copy of X, because it looks
@@ -168,7 +215,7 @@ the owner explicitly asked to delete — nearly shipped back.
 After any merge/rebase/`am`, grep for the thing the change was supposed to remove and confirm
 it is gone. Zero, not "probably".
 
-## 7. Standing product constraints — never negotiate these
+## 8. Standing product constraints — never negotiate these
 
 - **Affinity may reorder results. It must NEVER feed a displayed Wayfind Score.**
 - **No scraping, polling, or automated requests** against `disneyworld.disney.go.com`,
@@ -182,17 +229,17 @@ it is gone. Zero, not "probably".
 - Personalization is **signed-in only**, and lives at the bottom of Favorites — never in the
   home feed. Locked by `scripts/test-taste.mjs`.
 
-## 8. Secrets
+## 9. Secrets
 
 Never print, commit, echo, or paste a real key. Never read `.env*` into your output. If you
 need a value to make something run, use the placeholders in §4.
 
-## 9. Finish the same way every time
+## 10. Finish the same way every time
 
 State: **what changed, why, risks, follow-ups.** No "should work". If you did not run it, say
 you did not run it.
 
-## 10. Ask before anything outward-facing
+## 11. Ask before anything outward-facing
 
 Pushing to a shared branch, opening or merging a PR, deploying, deleting remote refs,
 force-pushing: confirm with the owner first. Everything else — read, build, test, branch
