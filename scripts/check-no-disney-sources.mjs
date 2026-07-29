@@ -196,7 +196,14 @@ function walk(dir, acc = []) {
   return acc;
 }
 
+// --verbose prints the deciding rule for every PERMITTED source too, not just
+// blocks. That is what lets the grandfathered inventory regenerate itself: run
+// `node scripts/check-no-disney-sources.mjs --verbose | grep grandfathered`
+// instead of maintaining a hand-built list that goes stale the moment someone
+// adds a card. #407 closes when that output is empty.
+const VERBOSE = process.argv.includes("--verbose") || process.argv.includes("-v");
 let pass = 0, ugcRefs = 0, grandfatheredRefs = 0;
+const permits = [];
 const problems = [];
 const files = walk(ROOT);
 
@@ -234,8 +241,16 @@ for (const p of files.filter((f) => f.endsWith(".json"))) {
       const verdict = explainSource(h, owHost, VETTED_VENUE_HOSTS);
       if (isDisneyHost(h)) { problems.push(`${rel}: "${who}" is sourced from a Disney property — ${h}\n      blocked by: ${verdict.rule}  (AGENTS.md §7)`); continue; }
       if (!verdict.ok) { problems.push(`${rel}: "${who}" cites an unvetted source — ${h}\n      blocked by: ${verdict.rule}  (add to ALLOWED_THIRD_PARTY only after vetting)`); continue; }
-      if (GRANDFATHERED_UGC.some((d) => under(h, d))) ugcRefs++;
-      if (GRANDFATHERED_UNVETTED.some((d) => under(h, d))) grandfatheredRefs++;
+      // Count by the DECIDING rule, not by list membership. These disagreed:
+      // Green Turtle Shell & Gift Shop's officialWebsite IS its facebook page —
+      // its only web presence — so that ref is permitted as the card's own
+      // official site, not as grandfathered UGC. Counting membership reported
+      // 4 UGC refs while the inventory showed 3, and the inventory was right.
+      // A number that disagrees with the list it summarises is worse than no
+      // number: #407 is scoped off this count.
+      if (verdict.rule.startsWith("grandfathered-ugc")) ugcRefs++;
+      if (verdict.rule.startsWith("grandfathered-unvetted")) grandfatheredRefs++;
+      if (VERBOSE) permits.push(`  permitted by ${verdict.rule.padEnd(46)} ${h.padEnd(30)} "${who}"`);
       pass++;
     }
   }
@@ -354,6 +369,14 @@ if (problems.length) {
   console.error("  Disney parks have no compliant automated source: their domains are prohibited here, and");
   console.error("  Google Places supplies identifiers, not editorial detail. Those cards are hand-written or absent.");
   process.exit(1);
+}
+
+if (VERBOSE) {
+  // Grandfathered first — that is the list anyone running this wants to see.
+  const rank = (l) => (l.includes("grandfathered") ? 0 : 1);
+  permits.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  for (const line of permits) console.log(line);
+  console.log("");
 }
 
 console.log(
