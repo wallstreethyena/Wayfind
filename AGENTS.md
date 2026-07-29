@@ -170,6 +170,9 @@ about.
 green.** When you report a verification, say what you ran and what it returned — not that
 it passed.
 
+Assertions written before a rule exists are the ones the rule cannot reach retroactively. When a
+§4-class rule lands, a repo-wide sweep for prior violations is mandatory, not optional.
+
 ## 5. Absent configuration fails loudly. Never silently.
 
 A missing or empty required value is an error, not a default. The failure names the variable and
