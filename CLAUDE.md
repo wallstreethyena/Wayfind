@@ -119,6 +119,74 @@ greens on this repo in a single day:
 assertion.** All four above were caught exactly that way — the fixture went green when
 it should have gone red, which is the only signal that separates these from real checks.
 
+### The mutation itself must be proven to have applied
+
+Red-proving only means something if the sabotage actually landed. **A mutation that
+silently fails to apply is indistinguishable from a guard that correctly passed** — same
+output, opposite meaning.
+
+Concretely, on 2026-07-29: a "surviving legacy cache read" mutation was written as
+`sed -i '' '0,/re/s//new/'`. The `0,/re/` address is a **GNU extension that BSD sed
+(macOS) ignores** — the file was never modified, the guard printed OK, and that read as
+a passing red-prove. It only surfaced because the same mutation was re-run in python and
+immediately failed.
+
+- prefer **python** (or any tool that can `assert` its target is present) over `sed` for
+  mutations; `sed` reports success when it matches nothing
+- have the mutation **print what it changed**, and assert the target string existed first
+- never accept a green from a red-prove you did not watch turn red
+
+### Verify with a warm cache too when the fix involves cached data
+
+**A fresh browser profile has no cache, so it cannot show you a stale-client bug.** When
+a fix is upstream of anything cached client-side, the automated check passes on a clean
+profile while returning users stay broken — correct code, stale clients, green tests.
+
+This shipped once, on 2026-07-29: #466 fixed `fetchPlaceDetail` (`websiteUri` →
+`websiteURI`), and the live Playwright verification came back clean and was **reported as
+verified**. But `wf_lines` and `wf_insights` are 30-day **localStorage** caches that had
+already been filled from the broken fetch, so every returning user kept the degraded
+"Why Wayfind picked this" for up to a month. The clean result was real and also not the
+whole picture.
+
+- if a fix changes what goes INTO a cache, ship a **cache-key bump with it** — see
+  `CACHE_EPOCH` in `app/home.js`, locked by `scripts/check-cache-epoch.mjs`
+- verify twice: once on a clean profile, once with the **pre-fix cache seeded**
+- seed a **known-good control** under the new key at the same time. "The poison did not
+  render" is equally consistent with *nothing* having rendered — the control is what
+  separates those two
+
+### Reachability is transitive — one hop is not proof
+
+**"An entry point exists" is not "the surface can be opened."** A grep for the setter
+stops after one hop; the setter's own call site may be dead.
+
+Both halves happened on 2026-07-29, converting "the last surface on the old sheet":
+
+- the *"All experiences"* sheet (`app/home.js`) was picked as the target, then found
+  unreachable — `setAllExpOpen(true)` appeared **zero** times and the state was never
+  exposed through `ctx`. Deleted.
+- *Occasions* was picked to replace it **because** `sheets/Menu.js` has a
+  `setMenuSheet("experiences")` button — but that button lives inside the
+  `menuSheet === "menu"` block, and nothing sets `menuSheet` to `"menu"`. Five of
+  MenuSheet's six sub-states (`menu`, `community`, `explore`, `experiences`, `weather`)
+  cannot be opened. Only `"pick"` can.
+
+I reported the first finding as proof and made the second mistake in the same breath.
+
+- trace the chain to a **user-visible** trigger: a nav button, a URL param, a card tap —
+  not to another conditional block
+- for state that gates a render, enumerate **every write**, then ask what renders each
+  write's call site. `grep -n "setFoo("` and read all of them, including the ones with
+  variable arguments
+- confirm it in the browser before believing it. Static analysis found these; a click
+  would have found them faster
+
+These five are the same failure in five costumes: **the check ran, and answered a
+question you were not asking.** §4's "did it run", the role-vs-substring trap, the
+mutation that never applied, the cache that was never warm, and the entry point that was
+itself unreachable.
+
 ---
 
 ## 🧠 Gotchas / patterns — do NOT re-break these

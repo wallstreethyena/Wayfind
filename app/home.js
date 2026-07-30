@@ -3186,7 +3186,6 @@ function PageInner({ initialEvents = null }) {
   const [beachCond, setBeachCond] = useState(null);
   const [beachCondLoading, setBeachCondLoading] = useState(false);
   const [beachSignals, setBeachSignals] = useState({}); // v6.57: batched water-quality + popularity, keyed by place_id — see effect near `restView`
-  const [allExpOpen, setAllExpOpen] = useState(false);
   const recentRef = useRef([]);
   const [blurbs, setBlurbs] = useState({});
   const [quickFilter, setQuickFilter] = useState(null);
@@ -5625,7 +5624,6 @@ function PageInner({ initialEvents = null }) {
       if (e.key !== "Escape") return;
       if (lightbox) return setLightbox(null);
       if (cuisineSheet) return setCuisineSheet(null);
-      if (allExpOpen) return setAllExpOpen(false);
       if (diceChoose) return setDiceChoose(false);
       if (hookDetail) return setHookDetail(null);
       if (newListOpen) return setNewListOpen(false);
@@ -5638,7 +5636,7 @@ function PageInner({ initialEvents = null }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [lightbox, cuisineSheet, allExpOpen, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
+  }, [lightbox, cuisineSheet, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
   useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
   useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
   // v5.37: "value seen" — results actually rendered for this visitor. The
@@ -8234,28 +8232,6 @@ function PageInner({ initialEvents = null }) {
       {/* Detail sheet */}
       {detail && <DetailSheet ctx={ctx} />}
 
-      {allExpOpen && (
-        <div onClick={() => setAllExpOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.7)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
-          <div onClick={(ev) => ev.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => setAllExpOpen(false))} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd} style={{ background: C.panel, borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 480, maxHeight: "82dvh", overflowY: "auto", overscrollBehaviorY: "contain", transition: SHEET_EASE, padding: "6px 16px calc(18px + env(safe-area-inset-bottom))" }}>
-            <Grabber />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>All experiences</div>
-              <button onClick={() => setAllExpOpen(false)} aria-label="Close" style={{ background: C.card, border: `1px solid ${C.border}`, color: C.text, borderRadius: 999, width: 34, height: 34, fontSize: 16, cursor: "pointer" }}>✕</button>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-              {Object.keys(EXPERIENCES).map((k) => {
-                const e = EXPERIENCES[k];
-                return (
-                  <button key={k} onClick={() => { setAllExpOpen(false); openExperience(k); }} style={{ display: "flex", alignItems: "center", gap: 9, textAlign: "left", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px", cursor: "pointer" }}>
-                    <span style={{ fontSize: 20, flexShrink: 0 }}>{e.icon}</span>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{e.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Hook editorial page — full-screen themed experience, not a sheet */}
       {cuisineSheet && (() => {
