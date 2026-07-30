@@ -118,14 +118,26 @@ for (const [label, detail, kind, viaTours] of CASES) {
   if (existsSync(chunks)) {
     const NEVER_LITERAL = ["hasVerifiedTours", "bookingTargets"];
     const offenders = [];
-    for (const f of readdirSync(chunks)) {
-      if (!f.endsWith(".js")) continue;
+    // PRODUCTION CHUNKS ONLY. The premise above — "a minifier cannot rename a free
+    // variable" — holds for a `next build` chunk and is FALSE for a `next dev`
+    // one, because dev output is not minified at all: every local name survives
+    // literally whether it is bound or not. Webpack names dev chunks
+    // `_app-pages-browser_…`, and they land in this same directory, so a worktree
+    // where anyone ran `next dev` made this guard fail on a correct tree.
+    // Observed 2026-07-30: 19 stale dev chunks turned a green tree red and were
+    // briefly mistaken for a broken main. A guard that fires on correct code gets
+    // switched off, so the sweep now reads only what its own premise applies to.
+    const isDevChunk = (f) => f.startsWith("_app-pages-browser_") || f.startsWith("app-pages-internals") || f.includes("_ssr_");
+    const prodChunks = readdirSync(chunks).filter((f) => f.endsWith(".js") && !isDevChunk(f));
+    ok(prodChunks.length > 0,
+      `found production chunks to sweep (got ${prodChunks.length}) — if this is 0 the tree has only dev output and the sweep proves nothing; run \`next build\``);
+    for (const f of prodChunks) {
       const src = readFileSync(path.join(chunks, f), "utf8");
       for (const name of NEVER_LITERAL) if (src.includes(name)) offenders.push(`${f}: ${name}`);
     }
     ok(offenders.length === 0,
       "no module-local helper survives MINIFICATION as a literal name — a minifier cannot rename a FREE variable, so a surviving literal means an unbound reference:\n      " + offenders.join("\n      "));
-    ok(readdirSync(chunks).some((f) => f.endsWith(".js")), "the chunk sweep actually read chunks");
+
   } else {
     console.warn("test-detail-render-smoke: no .next build present — skipping the built-artifact check (run after `next build` for the full assertion)");
   }
