@@ -1,0 +1,120 @@
+// scripts/test-booking-resolve-extraction.mjs — the extraction changed NOTHING.
+//
+// bookingTargets()/hasBookingCTA() moved out of app/components/BookingCTA.js (a
+// "use client" component) and down into lib/bookingResolve.js, so the SERVER-side
+// guide pages can use the same predicate instead of calling Aff.experienceGoUrl()
+// per pick — which is the parallel resolution path the booking-integrity contract
+// forbids, and how an earning link once rendered with no FTC disclosure.
+//
+// This is a live commerce component, so the extraction is held to the #464
+// standard: prove the resolved output is byte-identical before and after, across
+// every branch, and prove the disclosure still travels with the CTA in BOTH
+// callers.
+import { readFileSync } from "fs";
+import { bookingTargets, hasBookingCTA, BOOKABLE_KINDS } from "../lib/bookingResolve.js";
+
+let pass = 0;
+const fail = (m) => { console.error("test-booking-resolve-extraction: FAIL — " + m); process.exit(1); };
+const ok = (c, m) => { if (!c) fail(m); pass++; };
+const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
+
+// ── the resolver is SERVER-SAFE ───────────────────────────────────────────
+// The whole point of moving it. A "use client" directive or a React import here
+// and the guide page 500s the way /eat/[metro]/[cuisine] did.
+{
+  const src = read("lib/bookingResolve.js");
+  ok(!/^["']use client["']/m.test(src), 'lib/bookingResolve.js has NO "use client" — it must import cleanly into a server component');
+  ok(!/from ["']react["']|require\(["']react/.test(src), "it imports no React");
+  ok(!/\bwindow\b|\bdocument\b|localStorage/.test(src.replace(/\/\/[^\n]*/g, "")), "it touches no browser globals");
+  ok(/from "\.\/affiliates(\.js)?"/.test(src), "it imports only lib/affiliates, which is already server-safe");
+  ok(/from "\.\/affiliates\.js"/.test(src),
+    "...with an explicit .js extension, so plain-node guards can import it (lib/google.js's extensionless imports are why several guards must read source as text instead)");
+}
+
+// ── ONE predicate, TWO callers — not a second path ─────────────────────────
+{
+  const cta = read("app/components/BookingCTA.js");
+  ok(/from "\.\.\/\.\.\/lib\/bookingResolve"/.test(cta), "BookingCTA imports the resolver rather than defining it");
+  ok(!/^function bookingTargets\(/m.test(cta), "BookingCTA no longer defines bookingTargets — one definition only");
+  ok(!/^const BOOKABLE_KINDS =/m.test(cta), "BOOKABLE_KINDS lives in one place");
+  ok(/export \{ hasBookingCTA \}/.test(cta), "hasBookingCTA is re-exported so app/components/sheets/Detail.js keeps working untouched");
+  const guide = read("app/guides/[slug]/page.js");
+  ok(/from "\.\.\/\.\.\/\.\.\/lib\/bookingResolve"/.test(guide), "the guide page resolves through the SAME module");
+  // The parallel path this whole refactor removes.
+  const guideCode = guide.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+  ok(!/experienceGoUrl\(/.test(guideCode),
+    "the guide page no longer calls experienceGoUrl() directly — that was the parallel resolution path");
+  ok(!/hotelSearchUrl\(/.test(guideCode), "...nor hotelSearchUrl() directly");
+}
+
+// ── BYTE-IDENTICAL across every branch ────────────────────────────────────
+// The four outcomes bookingTargets can produce, with real shapes.
+const D = (o) => ({ id: "ChIJx", name: "Test Place", address: "1 Main St, Orlando, FL", ...o });
+const VT = (id, items) => ({ [id]: { loading: false, items } });
+const CASES = [
+  // [label, detail, kind, viaTours, locName]
+  ["verified Viator product", D({ types: ["museum", "tourist_attraction"] }), "museum",
+    VT("ChIJx", [{ url: "https://www.viator.com/tours/Orlando/x/d123-456" }]), "Orlando, FL"],
+  ["bookable kind, no product -> tracked search", D({ types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
+  ["BEACH is never bookable (the Coquina->Mumbai bug)", D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" }), "beach", null, "Sarasota, FL"],
+  ["hotel -> Stay22", D({ types: ["lodging", "hotel"] }), "hotels", null, "Orlando, FL"],
+  ["restaurant -> nothing monetized", D({ types: ["restaurant", "food"] }), "food", null, "Tampa, FL"],
+  ["no address falls back to locName", D({ address: "", types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL"],
+];
+// The pre-extraction implementation, transcribed from git history, run side by
+// side. If these ever disagree the extraction changed behaviour.
+const BEFORE_KINDS = ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"];
+const Aff = await import("../lib/affiliates.js");
+function bookingTargetsBefore(detail, kind, topItem, locName) {
+  const bcity = (() => { try { const parts = String(detail.address || "").split(",").map((x) => x.trim()); return parts.length >= 3 ? parts[1] : (locName ? locName.split(",")[0] : ""); } catch (e) { return ""; } })();
+  const verifiedUrl = (topItem && Aff.ticketsUrl(detail)) ? (Aff.viatorDirectUrl(topItem.url) || topItem.url) : null;
+  const goFallback = (!verifiedUrl && BEFORE_KINDS.includes(kind) && Aff.isTicketyPlace(detail)) ? Aff.experienceGoUrl(detail.name, bcity, kind, detail.id) : null;
+  const tk = verifiedUrl || goFallback;
+  const tu = tk || Aff.hotelUrl(detail);
+  return { verifiedUrl, goFallback, tk, tu };
+}
+let branchesExercised = 0;
+for (const [label, detail, kind, viaTours, locName] of CASES) {
+  const hasTours = !!(viaTours && viaTours[detail.id] && viaTours[detail.id].items && viaTours[detail.id].items.length);
+  const topItem = hasTours ? viaTours[detail.id].items[0] : null;
+  const after = bookingTargets(detail, kind, topItem, locName);
+  const before = bookingTargetsBefore(detail, kind, topItem, locName);
+  ok(JSON.stringify(after) === JSON.stringify(before),
+    `${label}: BYTE-IDENTICAL before/after\n      before ${JSON.stringify(before)}\n      after  ${JSON.stringify(after)}`);
+  if (after.tu) branchesExercised++;
+}
+// Both outcomes must occur, or "identical" is a claim about one branch.
+ok(branchesExercised >= 3, `at least 3 cases resolved a monetized target (got ${branchesExercised})`);
+ok(CASES.length - branchesExercised >= 1, "at least one case resolved NOTHING — the null branch is exercised too");
+ok(BOOKABLE_KINDS.join(",") === BEFORE_KINDS.join(","), "BOOKABLE_KINDS is unchanged, in order");
+
+// The beach gate is the one that shipped a real bug; assert it directly.
+{
+  const beach = D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" });
+  ok(bookingTargets(beach, "beach", null, "Sarasota, FL").goFallback === null,
+    "a BEACH gets no Viator fallback — this is the Coquina->Mumbai bug and it must stay dead");
+}
+// hasBookingCTA returns a BOOLEAN, never a URL — so it cannot become a second
+// way to construct a booking href.
+{
+  const v = hasBookingCTA(D({ types: ["museum", "tourist_attraction"] }), "museum", null, "Orlando, FL");
+  ok(typeof v === "boolean", `hasBookingCTA returns a boolean (got ${typeof v})`);
+  ok(hasBookingCTA(null, "museum", null, "x") === false, "null detail -> false, no throw");
+}
+
+// ── the FTC disclosure travels with the CTA in BOTH callers ───────────────
+{
+  const cta = read("app/components/BookingCTA.js");
+  ok(/commission|disclosure/i.test(cta), "the client caller still carries its commission disclosure");
+  const guide = read("app/guides/[slug]/page.js");
+  ok(/may earn a commission/i.test(guide), "the guide caller carries the commission disclosure");
+  // The CTA itself renders in the client conversion block, so that is where the
+  // sponsored rel and the click instrumentation live.
+  const conv = read("app/guides/[slug]/GuideConversion.js");
+  ok(/rel: "noreferrer sponsored"/.test(conv),
+    "the guide's monetized CTA carries rel=noreferrer sponsored");
+  ok(/cta\.sponsored \? \{ target/.test(conv),
+    "...and only when the resolver marked it sponsored, so a non-monetized Directions link is not falsely tagged");
+}
+
+console.log(`test-booking-resolve-extraction: OK — ${pass} assertions (server-safe, one definition, byte-identical across ${CASES.length} branches, beach gate intact, disclosure in both callers)`);
