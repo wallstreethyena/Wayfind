@@ -34,8 +34,20 @@ as $function$
   with tagged as (
     select c.cuisine,
            count(*)::int as places_all,
-           count(*) filter (where i.cuisine_confidence >= 0.70)::int as places_hi,
-           round(avg(nullif(i.signals->>'rating','')::numeric) filter (where i.cuisine_confidence >= 0.70), 2) as avg_rating
+           -- PER-LABEL confidence, and this was a real bug. cuisine_confidence is
+           -- a row-level MAX across every label a row carries, so gating on it
+           -- counted a place as confident for EVERY cuisine it had. Measured
+           -- 2026-07-30: Cali Cafe scored 0.90 from `breakfast_restaurant` and
+           -- also carried a 0.55 editorial `cuban` tag, so it counted as a
+           -- confident CUBAN place. Cuban clears Tampa's 3-place floor by a
+           -- margin of one, so that one mis-attribution was load-bearing on
+           -- whether Tampa's signature cuisine rendered at all.
+           count(*) filter (
+             where coalesce((i.cuisine_conf ->> c.cuisine)::numeric, i.cuisine_confidence) >= 0.70
+           )::int as places_hi,
+           round(avg(nullif(i.signals->>'rating','')::numeric) filter (
+             where coalesce((i.cuisine_conf ->> c.cuisine)::numeric, i.cuisine_confidence) >= 0.70
+           ), 2) as avg_rating
     from public.wf_inventory i
     cross join lateral unnest(coalesce(i.cuisines, '{}')) as c(cuisine)
     where i.category = 'food'

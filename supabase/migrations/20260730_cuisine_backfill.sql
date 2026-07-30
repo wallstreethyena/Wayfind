@@ -60,10 +60,15 @@ type_map(ty, cuisine) as (values
   ('latin_american_restaurant','latin-american'),
   ('afghani_restaurant','afghan'),
   ('african_restaurant','african'),
-  ('indonesian_restaurant','indonesian')
+  ('indonesian_restaurant','indonesian'),
+  ('cuban_restaurant','cuban'),
+  ('colombian_restaurant','colombian'),
+  ('caribbean_restaurant','caribbean'),
+  ('peruvian_restaurant','peruvian'),
+  ('argentinian_restaurant','argentine')
 ),
 name_map(cuisine, rx) as (values
-  ('cuban','\y(cubana|cubano|cuban|habana|havana|ropa vieja|lechon|palomilla|medianoche|croqueta|croquetas|pastelito|vaca frita)\y'),
+  ('cuban','\y(cubana|cubano|cuban|kubana|kubano|habana|havana|ropa vieja|lechon|palomilla|medianoche|croqueta|croquetas|pastelito|vaca frita)\y'),
   ('puerto-rican','\y(puerto[ -]?rican|puerto[ -]?rico|boricua|borinquen|mofongo|lechonera|alcapurria|pernil|jibarito|tostones|piragua)\y'),
   ('colombian','\y(colombiana|colombiano|colombian|bandeja paisa|arepa|arepas|ajiaco|lechona|bunuelo|chuzo)\y'),
   ('venezuelan','\y(venezolana|venezuelan|pabellon|cachapas?|tequenos?|patacon(es)?|reina pepiada)\y'),
