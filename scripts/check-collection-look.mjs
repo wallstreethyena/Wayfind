@@ -80,7 +80,9 @@ ok(/wordmark=\{false\}/.test(expScreen), "the in-app hero suppresses the wordmar
 //    `menuSheet === "menu"` block, and NOTHING sets menuSheet to "menu".
 //    `menuSheet` only ever becomes "pick" (app/home.js) or "experiences" (from
 //    inside the dead "menu" block) — so five of MenuSheet's six sub-states
-//    (menu, community, explore, experiences, weather) cannot be opened today.
+//    could not be opened. Four of them (menu, community, explore, weather) were
+//    deleted; `experiences` was kept because it is the converted surface and its
+//    entry point is an open product question (docs/KIMI_QUEUE.md).
 //
 // So this surface is CORRECTLY STYLED AND CURRENTLY UNREACHABLE, and that is
 // stated rather than asserted: pinning "it is dead" would fail the moment
@@ -108,10 +110,16 @@ ok(/wordmark=\{false\}/.test(expScreen), "the in-app hero suppresses the wordmar
   ok(/INTENTS\.map\(/.test(occBlock), "the Occasions sheet still renders the INTENTS tiles — converting the chrome must not quietly change which tiles the surface offers");
   ok(/Surprise Me/.test(occBlock), "the Surprise Me tile survives the restyle");
   ok(/Pick an occasion and the feed reshapes around it\./.test(occBlock), "the Occasions subtitle copy is unchanged");
-  // The setter still exists. NOTE this does NOT prove the sheet is reachable —
-  // see the transitive-reachability note above. It is asserted only so that
-  // wiring an entry point later has something to point at.
-  ok(/setMenuSheet\("experiences"\)/.test(menu), 'the setMenuSheet("experiences") button still exists. This is NOT a reachability claim: it sits inside the `menuSheet === "menu"` block, which nothing opens.');
+  // The four unreachable sub-states stay deleted.
+  for (const dead of ["menu", "community", "explore", "weather"]) {
+    ok(!new RegExp(`menuSheet === "${dead}"`).test(menu), `the unreachable "${dead}" sub-state stays deleted — nothing ever set menuSheet to it, so it rendered for nobody`);
+  }
+  ok(!/SheetHero/.test(menu), "SheetHero is gone from Menu.js — its last three callers were the deleted blocks");
+  // The Occasions sheet currently has NO reachable setter (the one that existed
+  // lived inside the deleted "menu" block). That is tracked as a product
+  // question in docs/KIMI_QUEUE.md, not asserted here: pinning "it is dead"
+  // would fail the moment an entry point is wired, which is the goal.
+  ok(/experiences/.test(read("docs/KIMI_QUEUE.md")), "docs/KIMI_QUEUE.md still carries the entry-point question for the experiences chooser — a styled surface with no door is only acceptable while something is tracking it");
   // The deleted sheet stays deleted.
   const home2 = read("app/home.js");
   ok(!/allExpOpen/.test(home2), "the unreachable All-experiences sheet stays deleted — it was rendered but had no code path that could ever set its state to true");
