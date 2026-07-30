@@ -240,6 +240,32 @@ whole picture.
   render" is equally consistent with *nothing* having rendered — the control is what
   separates those two
 
+### Mobile verification means a real 390px viewport — render into an iframe
+
+**`resize_window` does not reliably change the captured viewport.** On 2026-07-30 a
+390px resize was issued, the tool reported success, and the screenshot came back
+**1512 px wide**. Two defects were invisible in it and appeared instantly at true phone
+width: a chrome bar inheriting a cream card background (pale grey on cream, illegible),
+and `/best-beaches` rendering **two stacked back affordances**. Both were owner-facing.
+
+Most Wayfind traffic is mobile, so a desktop screenshot is not evidence about the
+surface users actually see. The standard:
+
+```js
+// Render the page INTO a 390px iframe, then screenshot. The iframe's width is real
+// regardless of what the outer window does.
+document.body.style.cssText = "margin:0;background:#222";
+document.body.innerHTML =
+  '<iframe src="' + url + '" style="width:390px;height:844px;border:0;display:block;margin:0 auto"></iframe>';
+```
+
+- **assert the width you got, do not assume it** — read `innerWidth` back out of the
+  frame and print it. A resize that silently no-ops is the failure mode here, and it
+  reports success
+- 390 × 844 is the reference (iPhone 14/15). Check anything sticky, absolutely
+  positioned, or overlaid — those are what break first and only at width
+- a screenshot at 1512px is **not** a mobile verification, however the tool labels it
+
 ### Reachability is transitive — one hop is not proof
 
 **"An entry point exists" is not "the surface can be opened."** A grep for the setter
