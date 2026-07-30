@@ -44,8 +44,29 @@ const BUILDERS = [
   // ("still firing eats_out") until a template exists. That is a deliberate
   // decision to send unattributed traffic, not an oversight — flagged back to
   // the owner 2026-07-30. Flip mustFailClosed to true the moment that changes.
-  { fn: "uberEatsUrl", env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", mustFailClosed: false },
+  { fn: "uberEatsUrl", env: "NEXT_PUBLIC_UBEREATS_TEMPLATE", mustFailClosed: false, expires: "2026-08-13" },
 ];
+
+// ── THE EXEMPTION EXPIRES. A DATE, NOT A FLAG. ──────────────────────────────
+// Owner ruling 2026-07-30: keep the Uber Eats row rendering — suppressing it
+// costs no revenue (it earns nothing either way) and costs users real utility,
+// food ordering being high-intent across ~800 places in the core metros. That
+// holds ONLY while a template is actually coming; KIMI has "set the Uber Eats
+// template" as a ship-this-week item.
+//
+// So the exemption carries a deadline. A named exemption without one is how a
+// temporary decision becomes permanent, and this decision is literally "we have
+// chosen to send unattributed traffic" — which must never survive quietly. When
+// the date passes this guard FAILS, and somebody has to either wire the template
+// or consciously suppress the row. Extending the date is a visible act.
+for (const b of BUILDERS) {
+  if (b.mustFailClosed) continue;
+  ok(!!b.expires, `${b.fn} is exempt from failing closed and MUST carry an expiry date — an exemption without a deadline becomes permanent`);
+  const due = Date.parse(b.expires + "T00:00:00Z");
+  ok(Number.isFinite(due), `${b.fn}'s expiry "${b.expires}" is not a parseable date`);
+  ok(Date.now() < due,
+    `THE ${b.fn} EXEMPTION EXPIRED ON ${b.expires}. It renders a WORKING, UNTRACKED link because ${b.env} is unset — donating traffic to the partner. Either wire ${b.env}, or set mustFailClosed:true to suppress the row. Extending the date is allowed but must be deliberate and explained in the PR.`);
+}
 ok(BUILDERS.length >= 2, "the builder list is populated");
 // The exemption list must stay SMALL and deliberate. A third untracked builder
 // is a new leak, not a new exception.
