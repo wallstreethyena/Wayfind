@@ -1,8 +1,45 @@
 "use client";
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only.
+import { Fragment } from "react";
 import { C } from "../kit";
 import { COUPONS } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
+import { emitCommerce, rankBucket } from "../../../lib/commerce";
+import { useCommerceImpression } from "../useCommerceImpression";
+import AffiliateChip from "../AffiliateChip";
+
+// The commerce-instrumented wrapper for a coupon card.
+//
+// WHY A COMPONENT AND NOT A FEW LINES IN Cpn(): useCommerceImpression is a HOOK,
+// and Cpn is a plain function called from inside .map() — a hook there would run
+// a different number of times per render depending on how many coupons are live.
+// Giving each monetized card its own component instance is also what makes "one
+// impression per offer per view" a well-defined statement.
+//
+// THE DISCLOSURE LIVES HERE, next to the CTA it describes. The tab-footer line
+// stays where it is, but a footer is not adjacency: on a long list the earning
+// card and the disclosure sit several screens apart, which is the same FTC gap
+// AffiliateChip and BookingCTA exist to close on the other monetized surfaces.
+function CommerceCoupon({ c, position, render }) {
+  const cctx = {
+    surface: "coupons",
+    provider: c.commerce.provider,
+    offer_id: c.commerce.offerId,
+    content_id: c.id,
+    category: "dining",
+    rank_bucket: rankBucket(position),
+  };
+  const ref = useCommerceImpression(cctx);
+  return (
+    <div ref={ref}>
+      {render(cctx)}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "-6px 0 12px", flexWrap: "wrap" }}>
+        <AffiliateChip provider={c.commerce.provider} />
+        <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Wayfind earns a commission if you buy — your price is the same.</span>
+      </div>
+    </div>
+  );
+}
 
 export default function CouponsScreen({ ctx }) {
   const { cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, logEvent, walletOpen, setWalletOpen, openExternal } = ctx;
@@ -12,10 +49,10 @@ export default function CouponsScreen({ ctx }) {
           const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
           const savedIds = new Set(savedList.map((c) => c.id));
           const fresh = live.filter((c) => !savedIds.has(c.id));
-          const Cpn = (c) => {
+          const Cpn = (c, i) => {
             const isSaved = !!savedCoupons[c.id];
-            return (
-              <div key={c.id} style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.light : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+            const body = (cctx) => (
+              <div style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.light : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ minWidth: 0 }}>
                     {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
@@ -32,11 +69,19 @@ export default function CouponsScreen({ ctx }) {
                 </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
                   {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
-                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
+                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} if (cctx) { try { emitCommerce("commerce_cta_clicked", cctx); } catch (er) {} } openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
                   {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
                 </div>
               </div>
             );
+            // coupon_out keeps firing for every coupon (it is the historical
+            // series and the Ads conversion). commerce_cta_clicked is additive
+            // and only on commerce-backed cards, so the new funnel has a
+            // consistent numerator/denominator pair and the old chart does not
+            // change shape underneath the owner.
+            return c.commerce
+              ? <CommerceCoupon key={c.id} c={c} position={(i | 0) + 1} render={body} />
+              : <Fragment key={c.id}>{body(null)}</Fragment>;
           };
           return (
             <div>

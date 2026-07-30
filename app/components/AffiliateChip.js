@@ -20,6 +20,10 @@ export const PROVIDER_LABELS = {
   ticketmaster: "Ticketmaster",
   ticketsmarter: "TicketSmarter",
   klook: "Klook",
+  // On-card merchant attribution is what Clipp's partner terms permit (and this
+  // chip is exactly that). What they forbid is the name/domain in SEO keywords,
+  // domains or misspellings — scripts/check-clipp-deals.mjs enforces that side.
+  clipp: "Clipp",
 };
 
 export default function AffiliateChip({ provider, label }) {

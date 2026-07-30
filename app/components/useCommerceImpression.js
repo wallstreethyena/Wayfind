@@ -1,0 +1,65 @@
+"use client";
+// useCommerceImpression — fires commerce_impression when a monetized CTA is
+// actually SEEN, and exactly once per offer per view.
+//
+// WHY THIS IS THE IMPORTANT EVENT, NOT THE CLICK
+// Every monetized click event in this codebase fires on click. So a zero-click
+// dashboard is unreadable: "nobody wanted it" and "nobody ever saw it" produce
+// the identical number, and fourteen days of PostHog currently show a zero we
+// cannot interpret. commerce_impression is the denominator that makes the zero
+// mean something. lib/commerce.js says the same thing at more length.
+//
+// "RENDERED" IS NOT "VIEWABLE", AND THE DIFFERENCE IS THE WHOLE POINT
+// A coupon card 4000px down a list is rendered on mount. Counting that as an
+// impression inflates the denominator with cards nobody scrolled to, which makes
+// a real conversion rate look like a broken one — the same failure as the click
+// event, in the opposite direction. So the impression waits for intersection.
+//
+// IntersectionObserver has been in every target browser for years, but if it is
+// genuinely absent the honest choice is to emit NOTHING rather than fall back to
+// a mount-time emit: a fabricated impression is worse than a missing one,
+// because it silently corrupts the ratio instead of just lowering the count.
+import { useEffect, useRef } from "react";
+import { emitCommerce } from "../../lib/commerce";
+
+const VISIBLE_RATIO = 0.5; // half the CTA on screen counts as seen
+
+/**
+ * @param {object|null} ctx  commerce context (surface, provider, offer_id, …).
+ *                           Falsy ctx = not a monetized card = no observer.
+ * @returns {import("react").RefObject} attach to the element wrapping the CTA.
+ */
+export function useCommerceImpression(ctx) {
+  const ref = useRef(null);
+  const firedRef = useRef(false);
+  // Serialize so the effect re-arms when the offer genuinely changes, without
+  // re-arming on every render because a fresh object literal was passed in.
+  const key = ctx ? JSON.stringify(ctx) : "";
+
+  useEffect(() => {
+    firedRef.current = false;
+    const el = ref.current;
+    if (!key || !el) return;
+    if (typeof IntersectionObserver === "undefined") return;
+
+    let obs = null;
+    try {
+      obs = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting || e.intersectionRatio < VISIBLE_RATIO) continue;
+          if (firedRef.current) return;
+          firedRef.current = true;
+          try { emitCommerce("commerce_impression", JSON.parse(key)); } catch (err) {}
+          // One per offer per view: stop observing the moment it counts.
+          if (obs) obs.disconnect();
+          return;
+        }
+      }, { threshold: [VISIBLE_RATIO] });
+      obs.observe(el);
+    } catch (err) { /* measurement must never take a revenue surface down */ }
+
+    return () => { try { if (obs) obs.disconnect(); } catch (err) {} };
+  }, [key]);
+
+  return ref;
+}
