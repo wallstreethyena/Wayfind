@@ -8,6 +8,8 @@
 import { useEffect, useRef } from "react";
 import { getScoreBand, isValidScore, BAND_COLOR, SCORE_TOKENS, pinGlyphColor, toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula — chips self-heal from rating signals when wfScore is missing
+// PriceBadge renders these; it never derives a label of its own. See lib/price.js.
+import { priceLabel, priceLevelOf } from "../../lib/price";
 
 export const C = {
   bg: "#040810", panel: "#161B22", card: "#1C2230", border: "#2D3748",
@@ -343,6 +345,53 @@ export function WayfindScoreBadge({ score, confidence, modelVersion, onOpen, siz
         </span>
       </span>
     </button>
+  );
+}
+
+// PriceBadge — the price counterpart to WayfindScoreBadge. Same job: take ONE
+// numeric field and draw it the same way everywhere, so a place cannot read
+// differently on two surfaces.
+//
+// It derives NOTHING. The text arrives whole from lib/price.priceLabel, the only
+// qualitative price source in the codebase (scripts/check-one-price-source.mjs
+// fails the build on a second one). That matters concretely: the $$$$/Moderate
+// contradiction the 2026-07-09 audit caught was three maps disagreeing, and a
+// badge building its own glyphs from `"$".repeat(n)` would be the fourth.
+// Glyphs live in lib/dining.priceGlyphs; the combined "$$ · Moderate" form lives
+// in lib/price. This file owns neither and must never start.
+//
+// Deliberately colorless, unlike the score badge. Score has quality bands, so
+// color carries meaning there. Price is not a rating — lib/price chose "Very
+// expensive" over "High-end" precisely because the latter reads as a compliment
+// — so tinting $$$$ red or green would editorialise a fact.
+//
+// Renders nothing on an unknown level — the same contract WayfindScoreBadge
+// keeps ("if one does, render nothing"). lib/price.PRICE_UNKNOWN is the right
+// answer for a surface with a dedicated, conspicuous price SLOT that would
+// otherwise sit visibly empty; neither caller here has one (both are
+// dot-separated inline rows where an absent fact just closes up), and adding a
+// prop with no caller to cover a surface nobody has written yet is how a
+// component starts carrying decisions its callers should be making.
+export function PriceBadge({ level, size = 1 }) {
+  const label = priceLabel(level);
+  if (!label) return null;
+  const s = (n) => Math.round(n * size);
+  return (
+    <span
+      className="wayfind-price-badge"
+      data-price-level={priceLevelOf(level)}
+      aria-label={`Price: ${label.replace(" · ", ", ")}`}
+      style={{
+        display: "inline-flex", alignItems: "center",
+        background: C.adim, border: `1px solid ${C.border}`, borderRadius: 999,
+        padding: `${s(3)}px ${s(9)}px`, lineHeight: 1.25,
+        fontSize: s(11.5), fontWeight: 700,
+        color: C.text,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {label}
+    </span>
   );
 }
 

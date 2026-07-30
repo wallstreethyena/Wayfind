@@ -7,7 +7,8 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { useEffect, useRef, useState } from "react";
-import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
+import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
+import { priceLevelOf } from "../../../lib/price";
 import { couponForPlaceName, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import * as Dining from "../../../lib/dining";
@@ -436,7 +437,7 @@ export default function DetailSheet({ ctx }) {
                 </>)}
                 {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.light, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
                 {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.light, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
-                {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (detail.price) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{detail.price}</span></>); return null; })()}
+                {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
               {!detail._event && Tags.requiresParkAdmission(detail.types) && (
                 <div style={{ fontSize: 11.5, fontWeight: 600, color: C.muted, marginTop: -4, marginBottom: 12 }}>May require park admission.</div>
