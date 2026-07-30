@@ -211,12 +211,15 @@ function LedgerRow({ c, ctx, today, last }) {
 /* ── the sheet ────────────────────────────────────────────────────────────── */
 
 export default function CouponsScreen({ ctx }) {
-  const { cpnOffers } = ctx;
+  const { cpnOffers, center } = ctx;
   const today = siteTodayStr(); // venue-local day, never UTC (lib/siteTime)
   // The Supabase `offers` rows this tab already merged stay merged — they are
   // registered deals too, entered from the dashboard rather than the file.
   const all = [...COUPONS, ...(Array.isArray(cpnOffers) ? cpnOffers : [])];
-  const { featured, ledger } = dealTiers(all, today);
+  // `center` is the app's persisted location (wf_center -> URL -> geolocation).
+  // It only ever feeds ORDER: dealTiers still partitions, so a deal cannot be
+  // hidden — or minted — by where the user happens to be standing.
+  const { featured, ledger } = dealTiers(all, today, center);
 
   return (
     <div>
