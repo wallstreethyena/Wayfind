@@ -11,7 +11,8 @@
 // job is just to refuse to render anything if that data is missing or
 // empty — it must never construct a booking URL from raw/unverified input.
 // scripts/check-booking-cta.mjs enforces both halves of this contract.
-import { useRef, useEffect } from "react";
+
+import { useEffect, useRef } from "react";
 import { C } from "./kit";
 import * as Aff from "../../lib/affiliates";
 // v6.71 — the resolver moved DOWN to lib/bookingResolve.js so the SERVER-side
@@ -21,8 +22,10 @@ import * as Aff from "../../lib/affiliates";
 // byte-identical, proven in scripts/test-booking-resolve-extraction.mjs.
 // hasBookingCTA is re-exported so existing importers (app/components/sheets/
 // Detail.js) keep working untouched.
-import { bookingTargets, hasBookingCTA, hasVerifiedTours } from "../../lib/bookingResolve";
+
 import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
+
+import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 export { hasBookingCTA };
 
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
@@ -36,7 +39,20 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   const hasTours = hasVerifiedTours(viaTours, placeId);
   const topItem = hasTours ? viaTours[placeId].items[0] : null;
   // One predicate drives both the primary earning CTA and its disclosure.
-  const targets = bookingTargets(detail, kind, topItem, locName);
+  const targets = bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) });
+
+  // Instrument the demotions. This is the measurement the gate exists to produce:
+  // if most attractions land here, the honest conclusion is that Viator cannot
+  // cover them and the attraction-ticket gap needs CityPASS/TicketSmarter rather
+  // than a search box. Fires once per place (the ref), primary variant only, and
+  // reads the reason straight off the ONE predicate — never a re-derivation.
+  const firedFor = useRef(null);
+  useEffect(() => {
+    if (variant !== "primary" || !targets.fallbackSuppressed) return;
+    if (firedFor.current === placeId) return;
+    firedFor.current = placeId;
+    try { logEvent && logEvent("fallback_suppressed", detail, { reason: targets.fallbackSuppressed, kind: kind || null }); } catch (e) {}
+  }, [variant, placeId, targets.fallbackSuppressed, kind]);
 
   if (variant === "primary") {
     // v6.42 (owner): a bookable-kind place ALWAYS offers a prominent booking
