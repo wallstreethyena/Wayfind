@@ -11,7 +11,7 @@
 // venezuelan_restaurant — all of it collapses into latin_american_restaurant or
 // plain restaurant. In Tampa and Orlando those are distinct and large. So the
 // test is not "do names work", it is "do names work WITHOUT being fooled".
-import { classifyCuisine, LOW_CONFIDENCE, ALL_CUISINES, NAME_CUISINE, TYPE_CUISINE } from "../lib/cuisine.js";
+import { classifyCuisine, LOW_CONFIDENCE, ALL_CUISINES, NAME_CUISINE, TYPE_CUISINE, dishMentions, CUISINE_DISH_RX } from "../lib/cuisine.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-cuisine-classify: FAIL — " + m); process.exit(1); };
@@ -51,6 +51,44 @@ for (const [name, cuisine] of [
   ["Mangu Dominican Kitchen", "dominican"],
   ["Griot Haitian Cuisine", "haitian"],
 ]) ok(has(C(name, ["restaurant"]), cuisine), `"${name}" -> ${cuisine} (Google has no type for this)`);
+
+// ── the types I wrongly said did not exist ────────────────────────────────
+// I asserted in three files that Google has no cuban_restaurant /
+// colombian_restaurant / peruvian_restaurant / caribbean_restaurant /
+// argentinian_restaurant. All five exist in the live inventory. The cost was not
+// cosmetic: Latin Touch Sandwich Shop CARRIES cuban_restaurant and was scored
+// 0.55 off an editorial guess, which nearly dropped Cuban below Tampa's chip
+// floor. Note the spelling — Google uses `argentinian_restaurant`.
+for (const [type, cuisine] of [
+  ["cuban_restaurant", "cuban"], ["colombian_restaurant", "colombian"],
+  ["peruvian_restaurant", "peruvian"], ["caribbean_restaurant", "caribbean"],
+  ["argentinian_restaurant", "argentine"],
+]) {
+  const r = C("Somewhere", [type, "restaurant"]);
+  ok(has(r, cuisine), `${type} -> ${cuisine} at type strength`);
+  ok(r.confidence === 0.9, `${type} scores 0.9, not an editorial guess (got ${r.confidence})`);
+}
+// ...and the ones that genuinely have no type still depend on names.
+for (const absent of ["puerto_rican_restaurant", "venezuelan_restaurant", "dominican_restaurant", "salvadoran_restaurant", "haitian_restaurant"])
+  ok(!Object.keys(TYPE_CUISINE).includes(absent),
+    `${absent} is NOT claimed as a type — names are the only route to it`);
+ok(has(C("Latin Touch Sandwich Shop", ["sandwich_shop", "cuban_restaurant", "breakfast_restaurant"]), "cuban"),
+  "the real row that exposed the gap now classifies at type strength");
+ok(has(C("Kubana Kafe", ["coffee_shop", "cafe"]), "cuban"),
+  "Kubana is a Cuban spelling the name pattern originally missed");
+
+// ── signal 4: review synthesis tests DISHES, not the word ─────────────────
+// A shop pouring one Cuban-style shot among many origins is not a Cuban kitchen.
+// Noble Brew's editorial calls its menu "a coffee atlas"; zero of five reviews
+// mentioned a Cuban dish. Kubana Kafe had two. That difference is invisible to a
+// name or word match.
+ok(dishMentions("cuban", ["The cubano here is unreal", "good wifi"]) === 1, "a real dish mention counts");
+ok(dishMentions("cuban", ["Cuban-style shot was fine", "matcha latte"]) === 0,
+  "the WORD Cuban is not a dish — this is what separates a kitchen from a coffee atlas");
+ok(dishMentions("cuban", ["ropa vieja", "lechon asado", "medianoche"]) === 3, "each mention counts once");
+ok(dishMentions("puerto-rican", ["the mofongo is the reason to come"]) === 1, "puerto-rican dishes are covered");
+ok(dishMentions("cuban", null) === 0 && dishMentions("nonesuch", ["x"]) === 0, "total over junk input");
+ok(Object.keys(CUISINE_DISH_RX).length >= 4, "dish patterns exist for the cuisines names alone cannot settle");
 
 // ── types[] still leads where it exists ───────────────────────────────────
 ok(C("Sushi Sake", ["sushi_restaurant", "japanese_restaurant"]).confidence === 0.9,

@@ -34,8 +34,14 @@ ok(!/places_hi >= 3\s*$/m.test(code) || /places_hi >= 1/.test(code),
   "the 1-2 band is not silently dropped by a single >=3 filter");
 
 // ── high-confidence only ──────────────────────────────────────────────────
-ok(/cuisine_confidence >= 0\.70/.test(code),
+ok(/>= 0\.70/.test(code),
   "only rows at 0.70+ count toward the gate — a 0.55 editorial guess can tag a place but must not promise a category exists");
+// PER-LABEL, not row-level. cuisine_confidence is a MAX across every label a row
+// carries, so gating on it alone made one strong label vouch for all of them.
+ok(/cuisine_conf ->> c\.cuisine/.test(code),
+  "the gate reads PER-LABEL confidence — gating on the row max let a 0.90 breakfast score vouch for a 0.55 cuban tag");
+ok(!/where i\.cuisine_confidence >= 0\.70/.test(code),
+  "the row-level gate is gone, not merely supplemented");
 ok(/places_all/.test(code),
   "places_all is returned beside places, so the gap between TAGGED and CONFIDENT stays visible instead of being averaged away");
 
