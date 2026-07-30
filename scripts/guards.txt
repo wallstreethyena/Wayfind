@@ -226,3 +226,4 @@ node scripts/check-editorial-template.mjs
 node scripts/check-cuisine-chip-floor.mjs
 node scripts/check-quota-reservation.mjs
 node scripts/check-commerce-events.mjs
+node scripts/check-cuisine-sheet.mjs
