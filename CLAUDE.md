@@ -187,6 +187,25 @@ question you were not asking.** §4's "did it run", the role-vs-substring trap, 
 mutation that never applied, the cache that was never warm, and the entry point that was
 itself unreachable.
 
+### The stronger form: assert on the CALL, not on the string
+
+Matching a better regex is still reading the source. **Where the thing can be executed,
+execute it and assert the RESULT.** A structural regex tells you the code looks right; a
+call tells you it behaves right, and only the second is what ships. Three instances on
+2026-07-30, all different domains, all the same shape:
+
+| what was asserted | why the string was not enough |
+|---|---|
+| "the guard's rule 2 fires" — proven by reading the rule | it **did not fire on explicit `.js` imports**; only running it against that import shape revealed the hole |
+| "`commerceHref` returns our own path" | asserted by **calling it** and parsing the returned URL — a regex over the function body would have passed on a partner domain built at runtime |
+| "the partner city page exists" — `curl` returned **HTTP 200** | the body was a soft-404 (`<title>404 Error</title>`, "there is no such page"). The status code was the substring; the page content was the call. Guessed WeGoTrip URLs "passed" while being dead |
+
+- prefer `import()` + invoke + assert the return over `readFileSync` + regex
+- for anything off-box (a partner URL, a webhook, an RPC), assert on the **response body**,
+  never on the status code alone — a 200 is not evidence a page exists
+- when you cannot execute it, say so in the assertion message, so the weaker check is
+  visible as weaker rather than reading as proof
+
 ---
 
 ## 🧠 Gotchas / patterns — do NOT re-break these
