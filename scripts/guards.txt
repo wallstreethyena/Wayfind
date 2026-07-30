@@ -239,3 +239,4 @@ node scripts/check-lib-call-imports.mjs
 node scripts/check-cuisine-shortlist.mjs
 node scripts/check-boundary-alert.mjs
 node scripts/check-ut-crawler-clicks.mjs
+node scripts/check-hero-chrome.mjs
