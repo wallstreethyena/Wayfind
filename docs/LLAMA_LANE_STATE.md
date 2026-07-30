@@ -84,7 +84,39 @@ concrete place-specific truth beats a weather generality in both places.
 
 **Column b stays honestly labeled as inferred** until a demand source is wired.
 **Wave 1's actual Search Console data is the calibration** — that is the first real read
-on whether my inference was any good, so go back and score it.
+on whether my inference was any good, so go back and score it. **Do not let anyone launder
+an inferred number into a fact** in the meantime.
+
+### The standing bar — revenue and premium are the SAME THING here, not a trade-off
+
+Owner's framing, build against it: **users have to love this, and that is how it earns.**
+
+- **Specificity is the moat.** *"Coquina Beach for shade, Siesta for the sand that stays
+  cool at midday"* is premium. *"Beautiful beaches await"* is worthless and **actively
+  cheapens the brand**.
+- **Honest trade-offs sell harder than praise. Say who should skip it.** A guide that only
+  raves reads as paid — and we carry a **no-paid-placement promise on every other
+  surface**, so breaking the voice here undermines all of them.
+- **Never state a number, price, hour or founding date that is not in the source.
+  Omitted beats invented, always.** (Local models invent founding dates; this is a known
+  failure, not a hypothetical.)
+
+### CTA routing — match the terminal to the intent, never default
+
+**Four Travelpayouts programs went live 2026-07-29 on marker `750791`. Before that date
+every one of these returned null**, so any older "no revenue" reading is not evidence about
+them.
+
+| intent | terminal | campaign |
+|---|---|---|
+| Attractions | **Tiqets** | 89 |
+| Events | **TicketNetwork** | 72 |
+| Tours | **Viator** or **WeGoTrip** | 150 |
+| Stays | **Stay22** + **VRBO** | — |
+
+**Owner deliverable, standing:** report **which guides have the WEAKEST terminal**. A guide
+with a thin CTA earns less than its traffic deserves, and **fixing a terminal beats writing
+a 21st guide**. This is an ongoing ask, not a one-off.
 
 ---
 
@@ -136,6 +168,33 @@ sheet in a metro ends the same way.
   bar.** "Great in the evening" is a fail; naming the cluster and what actually happens
   there is a pass.
 
+**RESOLVED by the owner 2026-07-30 — the collision dissolves once you separate two things
+that were one thing.** Read this instead of the open question below it.
+
+- **The CTA is not a place pick.** It renders on **intent**, always, and is unaffected by
+  everything else here. Tiqets / TicketNetwork / Viator / WeGoTrip / Stay22 / VRBO do not
+  depend on the pick list.
+- **No-duplicates wins, and it applies to PLACE PICKS.** A static metro fallback repeating
+  the same places across 20 guides is exactly the "converts but reads generic" failure the
+  quality bar rejects. Twenty guides closing on the same four Sarasota restaurants does not
+  read as a factory to us — **it reads as a content mill to the user**, and it is precisely
+  what stops a local from sending it to a friend.
+- **Degrade by showing FEWER, never by repeating.** If a guide cannot fill its closer with
+  places that are genuinely relevant **and** not already used, it shows fewer.
+  **Three honest picks beat six with two repeats.** If it can fill none, it shows **none**
+  and the guide **ends on its CTA**.
+- **Revenue does not move.** You keep the terminal, you lose the filler.
+
+**Consequence for the instrumentation — do not carry the old enum forward.**
+`sheet_closer_variant {scoped|fallback}` no longer describes reality, because "fallback"
+was the static metro line and that no longer exists. The enum becomes something like
+**`{scoped | reduced | none}`**, and the useful measure is now **how many picks rendered
+vs how many were wanted** — that is what tells us where coverage is thin. Confirm the
+final names when building, but the two-value enum is dead.
+
+<details>
+<summary>The open question as I originally posed it (superseded, kept for reasoning trail)</summary>
+
 **Design consequence to resolve before building — flag it to the owner, do not silently
 pick:** a global no-duplicates assertion collides with the idea of a static metro-level
 *fallback*. If two sheets in one metro both fall back, they emit the identical line and
@@ -151,6 +210,8 @@ My read is that these converge: under either, **a single static metro sentence r
 across instances can no longer ship**, so the fallback has to become per-instance
 derived. Confirm with the owner before building, because it changes what `fallback` means
 in the `sheet_closer_variant` instrumentation.
+
+</details>
 
 ### 2c. Quota-gated queue (blocked on Google Places quota, not on decisions)
 
