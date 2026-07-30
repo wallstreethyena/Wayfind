@@ -26,9 +26,71 @@ commit after a reboot — a fresh worktree does not inherit it.
 
 ---
 
+## 1b. SIGNED OFF 2026-07-30 — Wave 1 build order (this is the live work)
+
+Owner signed off on #501. **This supersedes "awaiting sign-off" in 2a below.**
+Build **2–3/day**, through the proof template, guards green, and **each PR carries its
+guide's primary CTA live-verified** — not assumed from `wf_place_products`, opened.
+
+**WAVE 1, in this order:**
+
+| order | # | guide | why it is here (owner's reasoning — keep it) |
+|---|---|---|---|
+| 1 | 5 | Orlando in the rain | raining in Orlando today; instantly relevant, evergreen after |
+| 2 | 18 | Sarasota half-price dining | funnels straight into the live **Clipp** cards, newest money surface |
+| 3 | 9 | Busch Gardens vs SeaWorld | both anchors verified, prime VS shape |
+| 4 | 7 | LEGOLAND vs Magic Kingdom | — |
+| 5 | 17 | Ringling free Monday vs paid | feeds the **Deal Sheet ledger** |
+| 6 | 16 | Fort De Soto vs Siesta | — |
+| 7 | 8 | Universal without Universal prices | **Stay22 hotel — highest-commission CTA class** |
+
+**WAVE 2, approved as listed:** #6, #10, #12, #15, #20, #11, #13.
+
+**HELD:** #19 Bradenton-in-a-day — parked on its own b=2. Revisit only when Wave 1's real
+traffic data shows Bradenton day-trip intent exists. The Clipp cert content it would have
+carried lives in **#18** anyway, so nothing is lost by holding it.
+
+**RESHAPE BEFORE BUILDING:** #14 — build "**A night out in Ybor**" as a straight guide
+with the city-tour coupon CTA. Drop the VS framing against downtown St. Pete: nobody
+searches that comparison. (Owner's call, and correct — my VS framing was shape-fitting.)
+
+### Cannibalisation — RESOLVED, both differentiate rather than cut
+
+Owner delegated the call and asked for the resolution noted in the PR. **Both affected
+rows are in Wave 1** (#5 is build 1, #16 is build 6), so this had to be settled up front.
+
+- **#5 vs the existing `things-to-do-orlando-not-theme-parks` (our #3 traffic page).**
+  I had recommended *cutting* #5 unless the rain framing could carry it alone. The owner
+  putting it **first, for a live weather reason**, answers that: the framing does carry
+  it. **Differentiate, do not cut — and the differentiation is load-bearing, not
+  cosmetic:** #5 is **indoor-only**. Zero outdoor picks, no overlap set with the existing
+  page's outdoor entries, weather-triggered intent throughout. If a pick would be
+  comfortable in sunshine it does not belong in #5. Cross-link both ways so the pair reads
+  as depth. **Do not let #5 drift into a general "not the parks" list — that is exactly
+  how it would eat the #3 page.**
+- **#16 vs the existing `siesta-key-vs-lido-key`.** **Narrow, do not cut.** #16's axis is
+  *ferry / fort / state-park day* vs *sand day* — a different question from Siesta-vs-Lido,
+  which is sand-vs-sand. Keep the comparison on that axis and cross-link the two.
+
+### Quality bar, owner-stated — this is the brand, not the template
+
+> Users should be **impressed**. Every guide passes the *"would a local send this to a
+> friend"* test.
+
+The template already gives us conversion; **the writing is what gives us the brand.** Real
+specifics, honest trade-offs, the premium voice. A guide that converts but reads generic
+has failed the bar. Note this shares a spine with the closer amendment in **2b** — a
+concrete place-specific truth beats a weather generality in both places.
+
+**Column b stays honestly labeled as inferred** until a demand source is wired.
+**Wave 1's actual Search Console data is the calibration** — that is the first real read
+on whether my inference was any good, so go back and score it.
+
+---
+
 ## 2. Open items
 
-### 2a. #501 — Guide Factory target list (OPEN PR, awaiting owner sign-off)
+### 2a. #501 — Guide Factory target list (SIGNED OFF — see 1b for the live order)
 
 `docs/GUIDE_FACTORY_TARGETS.md` on branch `docs/guide-factory-targets`. 20 targets, each
 gated on a **monetizable terminal that exists today** — a guide with no real CTA did not
