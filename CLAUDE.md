@@ -297,6 +297,38 @@ call tells you it behaves right, and only the second is what ships. Three instan
 - when you cannot execute it, say so in the assertion message, so the weaker check is
   visible as weaker rather than reading as proof
 
+### A guard that fires on CORRECT code is worse than no guard
+
+A guard nobody trusts gets commented out, and it takes its real catches with it. So a new
+guard is not finished when it catches the bug — it is finished when it catches the bug
+**and is silent on every correct file in the repo.** Run it against the whole tree before
+you believe it.
+
+`check-lib-call-imports` (2026-07-30) needed two rounds of this before it was shippable.
+Both false positives were the guard's model of the language being a convenient subset
+rather than the real thing:
+
+| it flagged | why it was wrong |
+|---|---|
+| `Detail.js` "calls `hasBookingCTA` without importing it" | the import was `import Comp, { hasBookingCTA } from …`; an `import\s*\{` regex only matches a **bare** named import, so default-plus-named imports read as absent. Destructured component props (`function C({ openExternal })`) were missed the same way — and destructured props are the commonest way a component legitimately has a name in scope |
+| `ui.js` "calls `devices()`", `eventMap.js` "calls `minutes()`" | both were **inside string literals** — a UI label `"devices (first-party)"` and a definition containing `"last 5 minutes (Wayfind's own event log"`. Prose is not code: blank string contents before scanning for calls |
+
+The rule that falls out: **model the scope, do not approximate it.** If the check asks
+"is this name in scope", it has to know every way a name gets into scope — named imports
+in all their forms, declarations, destructured locals, destructured parameters — and it
+has to look only at code, never at comments or strings.
+
+Two cheap habits that make this fast:
+
+- **Carry a positive and a negative control.** A check that reports `0` for everything,
+  including something you know exists, is broken — not clean. A `git grep -c` pipeline
+  reported "0 refs" for every identifier on a freshly merged union and briefly looked like
+  a merge-#346 feature loss; the real cause was `git grep -c` printing `path:count`
+  (2 fields) without a treeish and `treeish:path:count` (3) with one, so an `awk '{s+=$3}'`
+  summed nothing. The control caught it in one command.
+- **State the false-positive surface in the success line.** `331 files scanned against 612
+  lib export names` is a claim a reviewer can falsify; "guard added" is not.
+
 ---
 
 ## 🧠 Gotchas / patterns — do NOT re-break these
