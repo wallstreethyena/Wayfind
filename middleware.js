@@ -104,6 +104,12 @@ export const config = {
     // a Supabase read. Full same-origin guard keeps our own demand signal, the
     // one popularity number we actually own, from being harvested off-origin.
     "/api/events/demand",
+    // Commerce redirect (#469's missing half): /api/commerce/go is the GET-302
+    // every schema-approved money link resolves through. It is matched to get the
+    // per-IP rate limit — it mints a click_id and reads wf_experiences via the
+    // service role, so an unmetered script should not be able to spin it. It is a
+    // NAVIGATION, so it is rateLimitOnly below, never same-origin blocked.
+    "/api/commerce/go",
   ],
 };
 
