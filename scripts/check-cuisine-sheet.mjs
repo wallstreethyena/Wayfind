@@ -31,10 +31,37 @@ const home = readFileSync(path.resolve("app/home.js"), "utf8");
 for (const forbidden of ["textQuery", "searchText", "places.googleapis.com", "queryFor", "locationBias"]) {
   ok(!sheet.includes(forbidden), `the sheet must not contain "${forbidden}" — a cuisine is a filter, never a query`);
 }
-// Every chip links with a FILTER parameter, not a search term.
-ok(/cuisine=\$\{encodeURIComponent\(c\.cuisine\)\}/.test(sheet),
-  "chips link with a cuisine= FILTER param on the browse surface");
-ok(!/q=|query=|search=/.test(sheet), "no chip builds a q=/query=/search= link");
+// THE P0 BUG THIS GUARD MISSED. It asserted the link SHAPE (a cuisine= param, no
+// q=) and never that anything on the other end READ it. The chips pointed at
+// /?cat=food&cuisine=<slug>; home.js reads only go/date/cat and STRIPS unknown
+// params, so every chip landed back on the plain home page — dead UI on the newest
+// monetized surface. Text-presence dressed as behaviour, for the fourth time
+// today. So: resolve the target route and require that it exists.
+// Strip comments FIRST — chips.js documents the old dead URL in a comment, and a
+// raw-text check fails on that prose. Fifth time this trap has fired today.
+const chipsRaw = readFileSync(path.resolve("app/eat/[metro]/chips.js"), "utf8");
+const chipsSrc = chipsRaw.replace(/\/\*[\s\S]*?\*\//g, " ")
+  .split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n")
+  .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ");
+const hrefs = [...chipsSrc.matchAll(/href=\{`([^`]+)`\}/g)].map((m) => m[1]);
+ok(hrefs.length >= 1, `the chip component builds a link (${hrefs.length} found)`);
+for (const h of hrefs) {
+  ok(!/[?&](q|query|search)=/.test(h), `chip href "${h}" is not a search query`);
+  // Turn the template into a route directory and require the page to exist.
+  const route = h.replace(/^\//, "").replace(/\$\{[^}]*metro[^}]*\}/g, "[metro]")
+                 .replace(/\$\{[^}]*\}/g, "[cuisine]").replace(/\/+$/, "");
+  const target = path.resolve("app", route, "page.js");
+  ok(existsSync(target),
+    `chip href "${h}" resolves to a REAL page (expected app/${route}/page.js). A link to a route that does not exist is dead UI.`);
+}
+ok(!/\?cat=food&cuisine=/.test(chipsSrc),
+  "chips no longer point at /?cat=food&cuisine= — nothing ever read that param");
+// ...and the destination must actually filter by the cuisine it was handed.
+const dest = readFileSync(path.resolve("app/eat/[metro]/[cuisine]/page.js"), "utf8");
+ok(/wf_cuisine_places/.test(dest), "the destination filters inventory by the cuisine it was given");
+ok(/p_cuisine: params\.cuisine/.test(dest), "it uses the cuisine from the URL, not a hardcoded one");
+ok(/notFound\(\)/.test(dest), "an empty or unknown cuisine 404s rather than rendering an empty list");
+ok(/generateStaticParams/.test(dest), "SSG is intact — only (metro, cuisine) pairs with places get a route");
 
 // ── 2. derived, not hardcoded ─────────────────────────────────────────────
 // Assert the RPC is CALLED, not merely mentioned. Checking for the string
@@ -57,9 +84,19 @@ ok(/nearby/.test(sheet), "a thin chip shows its honest count");
 // Assert the thin rows are MAPPED into JSX. `thin.length` alone passed even with
 // the whole block disabled, because the empty-state ternary also references it.
 ok(/thin\.map\(/.test(sheet), "the thin rows are rendered — mapped into JSX, not just counted");
+ok(/tier="thin"/.test(sheet) && /tier="full"/.test(sheet),
+  "both tiers are passed to the chip component, so the visual hierarchy is data-driven");
 ok(/\{thin\.length \? \(/.test(sheet),
   "the thin row is gated on having thin chips, not on a constant — `{false ? (` passed a looser check");
-ok(/Only a couple nearby/.test(sheet), "the thin row is labelled so the count reads as honesty, not as an error");
+// Section headers: MAX 3 WORDS (owner). Longer ones read as system copy next to a
+// premium hero.
+{
+  const subs = [...sheet.matchAll(/className="wf-eat-sub">([^<]+)</g)].map((m) => m[1].trim());
+  ok(subs.length >= 2, `both section headers are present (${subs.length})`);
+  for (const h of subs) ok(h.split(/\s+/).length <= 3, `header "${h}" is 3 words or fewer`);
+  ok(subs.some((h) => /fewer|couple|few/i.test(h)),
+    "the thin row's header still signals scarcity, so the count reads as honesty rather than an error");
+}
 
 // ── the three states stay distinct ────────────────────────────────────────
 // null (could not ask) vs [] (asked, nothing there) vs rows. Collapsing the
@@ -81,6 +118,25 @@ ok(existsSync(path.resolve("public/cards/food-choices-adobestock-301125732.jpeg"
 // indexable URL per typo, every one of them empty.
 ok(/notFound\(\)/.test(sheet), "an unknown metro calls notFound() rather than rendering a 200");
 ok(!/No cuisine coverage for that area yet/.test(sheet), "...and does not render a soft-404 body");
+
+// ── the tap is instrumented (owner: show me which cuisines users want) ────
+ok(/track\("cuisine_chip"/.test(chipsSrc), "a chip tap emits cuisine_chip");
+for (const field of ["cuisine", "metro", "tier", "places"])
+  ok(new RegExp(field).test(chipsSrc), `the event carries ${field} — a 2-place thin tap must be distinguishable from a 38-place full one`);
+ok(/from "\.\.\/\.\.\/\.\.\/lib\/track"/.test(chipsSrc),
+  "it uses lib/track (the tracker for surfaces outside the app shell), not a second copy");
+const destParts = readFileSync(path.resolve("app/eat/[metro]/[cuisine]/parts.js"), "utf8");
+ok(/track\("cuisine_place_open"/.test(destParts), "opening a place from the filtered list is instrumented too");
+
+// ── the premium chip treatment ────────────────────────────────────────────
+ok(/\.wf-eat-chip-count\{[^}]*border-radius:999px/.test(sheet),
+  "the count is a BADGE, not trailing text");
+ok(/min-height:46px/.test(sheet), "full chips have a comfortable tap target");
+ok(/\.wf-eat-chip a:active/.test(sheet) && /:focus-visible/.test(sheet),
+  "press and keyboard-focus states exist, not just hover");
+ok(/\.wf-eat-thin a\{[\s\S]{0,200}?color:\$\{C\.muted\}/.test(sheet),
+  "thin chips are visually QUIETER than full chips so the hierarchy reads at a glance");
+ok(/@media \(max-width:420px\)/.test(sheet), "mobile spacing is tuned rather than inherited");
 
 // ── the tile swap ─────────────────────────────────────────────────────────
 ok(/eatMetro \? \["utensils", "What are you in the mood for\?", onEat\] : \["users", "Family favorites", onFamily\]/.test(home),

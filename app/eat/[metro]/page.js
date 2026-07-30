@@ -34,6 +34,7 @@
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
+import CuisineChips from "./chips";
 
 export const revalidate = 3600;
 
@@ -96,20 +97,54 @@ export async function generateMetadata({ params }) {
 }
 
 const CSS = editorialHeroCss("wf-eat-premium") + `
-.wf-eat-chips { display:flex; flex-wrap:wrap; gap:9px; margin:0; padding:0; list-style:none; }
-.wf-eat-chip { display:block; }
-.wf-eat-chip a {
-  display:inline-flex; align-items:baseline; gap:7px; text-decoration:none;
-  padding:10px 14px; border-radius:999px; border:1px solid ${C.line};
-  background:#111823; color:${C.text}; font-size:14.5px; font-weight:650;
-  transition:border-color .15s ease, background .15s ease;
+/* Chips, elevated to match the hero. The previous treatment was a flat pill with
+   the count as trailing text — it read as system output next to a premium hero.
+   Now: a card surface with a real border, generous tap target, and the count as a
+   quiet badge. Thin-row chips are deliberately quieter so the two tiers read as a
+   hierarchy at a glance rather than as one long list. */
+.wf-eat-chips{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.wf-eat-chip{display:block}
+.wf-eat-chip a{
+  display:inline-flex;align-items:center;gap:10px;text-decoration:none;
+  /* 46px min height keeps the tap target comfortable on mobile. */
+  min-height:46px;padding:11px 14px;border-radius:14px;
+  border:1px solid ${C.line};
+  background:linear-gradient(180deg,#141c27 0%,#101720 100%);
+  color:${C.text};font-size:15px;font-weight:680;letter-spacing:-.01em;
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 1px 2px rgba(0,0,0,.25);
+  transition:border-color .16s ease,transform .12s ease,box-shadow .16s ease;
 }
-.wf-eat-chip a:hover { border-color:${C.gold}; background:#141d29; }
-.wf-eat-chip-count { font-size:12px; font-weight:600; color:${C.muted}; }
-.wf-eat-thin a { font-weight:550; font-size:13.5px; padding:8px 12px; background:transparent; }
-.wf-eat-sub { font-size:12.5px; color:${C.muted}; margin:22px 0 9px; letter-spacing:.2px; text-transform:uppercase; font-weight:700; }
-.wf-eat-note { font-size:13px; color:${C.muted}; line-height:1.5; margin:18px 0 0; }
+.wf-eat-chip a:hover{border-color:${C.gold};transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 4px 12px rgba(0,0,0,.35)}
+.wf-eat-chip a:active{transform:translateY(0);box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
+.wf-eat-chip a:focus-visible{outline:2px solid ${C.gold};outline-offset:2px}
+.wf-eat-chip-name{line-height:1.15}
+/* The count as a quiet badge rather than trailing prose. */
+.wf-eat-chip-count{
+  flex:none;min-width:22px;padding:2px 7px;border-radius:999px;
+  background:rgba(232,201,122,.10);border:1px solid rgba(232,201,122,.20);
+  color:${C.gold};font-size:11.5px;font-weight:750;line-height:1.5;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+/* Thin tier: same shape, lower contrast. Hierarchy without a different component. */
+.wf-eat-thin a{
+  min-height:40px;padding:9px 12px;font-size:13.5px;font-weight:600;
+  background:transparent;border-color:rgba(28,37,48,.75);color:${C.muted};
+  box-shadow:none;
+}
+.wf-eat-thin a:hover{border-color:rgba(232,201,122,.45);color:${C.text};box-shadow:none;transform:translateY(-1px)}
+.wf-eat-thin .wf-eat-chip-count{
+  background:transparent;border-color:rgba(138,151,166,.28);color:${C.muted};font-weight:650;
+}
+.wf-eat-sub{font-size:12px;color:${C.muted};margin:26px 0 11px;letter-spacing:.9px;text-transform:uppercase;font-weight:750}
+.wf-eat-sub:first-of-type{margin-top:20px}
+.wf-eat-note{font-size:13px;color:${C.muted};line-height:1.55;margin:22px 0 0}
+@media (max-width:420px){
+  .wf-eat-chips{gap:8px}
+  .wf-eat-chip a{font-size:14.5px;padding:11px 13px}
+}
 `;
+
+
 
 export default async function EatPage({ params }) {
   const meta = METROS[params.metro];
@@ -182,18 +217,8 @@ export default async function EatPage({ params }) {
           <>
             {full.length ? (
               <>
-                <div className="wf-eat-sub">Plenty to choose from</div>
-                <ul className="wf-eat-chips">
-                  {full.map((c) => (
-                    <li className="wf-eat-chip" key={c.cuisine}>
-                      {/* A FILTER on the browse surface — never a search query. */}
-                      <a href={`/?cat=food&cuisine=${encodeURIComponent(c.cuisine)}`}>
-                        {pretty(c.cuisine)}
-                        <span className="wf-eat-chip-count">{c.places}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="wf-eat-sub">Popular here</div>
+                <CuisineChips chips={full.map((c) => ({ ...c, display: pretty(c.cuisine) }))} metro={params.metro} tier="full" />
               </>
             ) : null}
 
@@ -202,17 +227,8 @@ export default async function EatPage({ params }) {
                 {/* The 1-2 band, shown with its real count rather than hidden. An
                     honest thin chip still routes to a bookable place; hiding it
                     routes the user to Google. */}
-                <div className="wf-eat-sub">Only a couple nearby</div>
-                <ul className="wf-eat-chips">
-                  {thin.map((c) => (
-                    <li className="wf-eat-chip wf-eat-thin" key={c.cuisine}>
-                      <a href={`/?cat=food&cuisine=${encodeURIComponent(c.cuisine)}`}>
-                        {pretty(c.cuisine)}
-                        <span className="wf-eat-chip-count">{c.places} nearby</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+                <div className="wf-eat-sub">Fewer nearby</div>
+                <CuisineChips chips={thin.map((c) => ({ ...c, display: pretty(c.cuisine) }))} metro={params.metro} tier="thin" />
               </>
             ) : null}
 
