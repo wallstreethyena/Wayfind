@@ -299,6 +299,30 @@ call tells you it behaves right, and only the second is what ships. Three instan
 
 ---
 
+### Pipes swallow exit codes — a guard in a `&&` chain can pass while failing
+
+`node scripts/run-guards.mjs 2>&1 | tail -1 && git push && gh pr merge` **merges on a
+red suite.** The `&&` reads the exit status of `tail`, which is always 0. The failure
+line was printed and read as progress. That happened on 2026-07-30 and a PR was
+merged without a verified green.
+
+- pipe a guard through anything and you must `set -o pipefail`, or check
+  `${PIPESTATUS[0]}` explicitly
+- **a merge never proceeds without a green verified on the actual exit code** — not on
+  output that looked fine
+- prefer `node scripts/run-guards.mjs; echo "rc=$?"` over a pipeline whenever the
+  answer gates an irreversible action
+
+And the follow-on lesson from the same hour: **a red guard is not a red repo.** Before
+reporting a broken `main`, reproduce on a CLEAN tree. That failure was a polluted
+`.next` — 19 stale `next dev` chunks, which are unminified, so every local name
+survives literally and a built-artifact sweep reads them all as offenders. The bisect
+that "confirmed" it read the same stale artifacts and made a green main look broken
+twice, and another lane was nearly asked to fix a guard that was working.
+`rm -rf .next && npx next build` before blaming anyone.
+
+---
+
 ## 🧠 Gotchas / patterns — do NOT re-break these
 
 - **"Today" / any date cutoff** → use `lib/siteTime.siteTodayStr()` (venue-local US Eastern,
