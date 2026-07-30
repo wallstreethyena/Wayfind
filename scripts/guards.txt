@@ -235,3 +235,4 @@ node scripts/test-booking-resolve-extraction.mjs
 node scripts/check-guide-conversion.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-detail-render-smoke.mjs
+node scripts/check-lib-call-imports.mjs
