@@ -25,6 +25,10 @@ import { useEffect, useRef } from "react";
 import { track } from "../../../../lib/track";
 import { emitCommerce, rankBucket } from "../../../../lib/commerce";
 import { showsDisclosure } from "../../../../lib/rowCta";
+// funnelProps emits the COMMERCE dialect (city_id/category/canonical_place_id).
+// Sending `metro`/`cuisine` here would be silently DROPPED by the commerce
+// whitelist and the funnel breakdown would return nothing (lib/funnel.js).
+import { funnelProps } from "../../../../lib/funnel";
 
 const STARS = (r) => {
   if (r == null) return null;
@@ -49,8 +53,8 @@ export default function CuisineListClient({ places, metro, cuisine }) {
         if (!id || seen.current.has(id)) continue;
         seen.current.add(id);
         emitCommerce("commerce_impression", {
-          surface: "cuisine_shortlist", city_id: metro, category: cuisine,
-          canonical_place_id: id,
+          surface: "cuisine_shortlist",
+          ...funnelProps("commerce_impression", { metro, cuisine, placeId: id }),
           offer_id: el.getAttribute("data-cta") || undefined,
           rank_bucket: rankBucket(Number(el.getAttribute("data-rank"))),
         });
@@ -123,8 +127,9 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                   rel={cta.monetized ? "noopener sponsored nofollow" : "noopener noreferrer"}
                   onClick={() => {
                     emitCommerce("commerce_cta_clicked", {
-                      surface: "cuisine_shortlist", city_id: metro, category: cuisine,
-                      canonical_place_id: p.id, offer_id: cta.type,
+                      surface: "cuisine_shortlist",
+                      ...funnelProps("commerce_cta_clicked", { metro, cuisine, placeId: p.id }),
+                      offer_id: cta.type,
                       rank_bucket: rankBucket(i + 1),
                     });
                   }}
