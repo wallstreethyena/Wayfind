@@ -32,3 +32,6 @@ _incoming/
 tmp/
 .cowork-parked/
 .claude-backup/
+
+# Transient JSX compile output from scripts/lib/jsxLoad.mjs (guard-only, self-cleaning)
+.wf-jsx-*/
