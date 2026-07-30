@@ -2,6 +2,10 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
+// PURE metro resolver for the cuisine sheet. lib/cuisine.js never fetches and
+// never composes a query — check-cuisine-never-queried.mjs enforces both, and
+// verifies that no QUERY BUILDER imports it. home.js is not one.
+import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { wcRotation } from "../lib/shareCards";
@@ -2270,13 +2274,20 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   );
 }
 
-function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonight, onDrive, onBudget, onSurprise }) {
+function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonight, onDrive, onBudget, onSurprise, eatMetro, onEat }) {
   return (
     <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9, marginBottom: 12 }}>
       {[
         ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
         ["gem", "Hidden gems", onGems],
-        ["users", "Family favorites", onFamily],
+        // v6.70 — the cuisine chooser replaces "Family favorites" here, per spec.
+        // It falls back to Family favorites when no cuisine sheet serves this
+        // location: the sheet exists only for the three metros with real food
+        // inventory (Tampa 296, Manatee-Sarasota 261, Orlando 243; every other
+        // metro is at exactly 40, which is a seed). Routing a Miami user to
+        // Orlando's chip list would show them counts for restaurants 200 miles
+        // away — the same category of lie as widening a radius to pad a list.
+        eatMetro ? ["utensils", "What are you in the mood for?", onEat] : ["users", "Family favorites", onFamily],
         ["heart", "Date night ideas", onDateNight],
         ["ticket", "Perfect for tonight", onTonight],
         ["car", "Worth the drive", onDrive],
@@ -7493,12 +7504,17 @@ function PageInner({ initialEvents = null }) {
           const homeOpenRank = (p) => !p ? 4 : p.openNow === true ? 0 : p.openNow == null ? 1 : (p.nextOpen && p.nextOpen.today) ? 2 : 3;
           const homeBaseSorted = sortBy === "near" ? [...feedList].sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12)) : [...feedList];
           const homeFeed = homeBaseSorted.sort((a, b) => homeOpenRank(a) - homeOpenRank(b));
+          // Which cuisine sheet serves this location, if any. Null outside ~75mi
+          // of Orlando / Tampa / Sarasota, and null is the right answer there.
+          const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
           const discoveryMenu = (
             <DiscoveryMenu
               locName={locName}
               onBest={() => { try { logEvent("discovery_tile", null, { tile: "Best of " + (locName ? locName.split(",")[0] : "your area") }); } catch (e) {} goIntent("/best-of"); }}
               onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} goIntent("/hidden-gems"); }}
               onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} goIntent("/family"); }}
+              eatMetro={eatMetro}
+              onEat={() => { try { logEvent("discovery_tile", null, { tile: "What are you in the mood for?", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
               onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} goIntent("/date-night"); }}
               onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} goIntent("/tonight"); }}
               onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}
