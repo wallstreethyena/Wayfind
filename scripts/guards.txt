@@ -40,6 +40,7 @@ node scripts/check-legal.mjs
 node scripts/check-favorites-auth.mjs
 node scripts/test-booking-resolver.mjs
 node scripts/check-booking-cta.mjs
+node scripts/check-untracked-affiliate-links.mjs
 node scripts/test-resolver-word-boundary.mjs
 node scripts/test-viator-fanout.mjs
 node scripts/test-events-contract.mjs
