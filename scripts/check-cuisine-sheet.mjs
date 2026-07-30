@@ -37,9 +37,36 @@ for (const forbidden of ["textQuery", "searchText", "places.googleapis.com", "qu
 // params, so every chip landed back on the plain home page — dead UI on the newest
 // monetized surface. Text-presence dressed as behaviour, for the fourth time
 // today. So: resolve the target route and require that it exists.
-// Strip comments FIRST — chips.js documents the old dead URL in a comment, and a
-// raw-text check fails on that prose. Fifth time this trap has fired today.
-const chipsRaw = readFileSync(path.resolve("app/eat/[metro]/chips.js"), "utf8");
+// ─────────────────────────────────────────────────────────────────────────────
+// TRANSLATED FOR THE v3 REDESIGN (owner-signed, docs/mocks/eat-hero-chips-mock-v3.html)
+//
+// The chooser moved INSIDE the cream hero card and became two tiers — six
+// gold-framed featured cards plus a dotted-leader index — with NO pills anywhere.
+// Several assertions below were written against the old pill/thin markup and would
+// now fail on a design the owner signed. Each was REPLACED, not deleted, by one
+// protecting the SAME property under the new markup:
+//
+//   OLD assertion                        NEW assertion (same property)
+//   chips.js is the component       ->   CuisineMenu.js is the component
+//   tier="full" / tier="thin" props  ->   splitTiers() CALLED: 6 featured + rest
+//   thin.map( renders thin rows      ->   index.map( renders the index rows
+//   {thin.length ? ( gating          ->   {index.length ? ( gating
+//   a header matching /fewer|few/    ->   every index row renders its own count
+//   .wf-eat-chip-count has           ->   NO border-radius:999px anywhere: the
+//     border-radius:999px                  count is a serif numeral, not a pill
+//   .wf-eat-thin a is quieter        ->   featured cards carry a gold double
+//     ("hierarchy at a glance")            hairline the index rows do not
+//   .wf-eat-chip a:active/:focus     ->   :active and :focus-visible on both tiers
+//   @media (max-width:420px)         ->   the mock's 900px and 520px breakpoints
+//
+// Design-INDEPENDENT protections are unchanged: no cuisine may reach a query, the
+// list is derived and never literal, hrefs resolve to a real route, SSG is intact,
+// "could not ask" stays distinct from "nothing here", 46px tap targets, and the tap
+// is instrumented.
+// ─────────────────────────────────────────────────────────────────────────────
+// Strip comments FIRST — the component documents the old dead URL in a comment, and
+// a raw-text check fails on that prose. Fifth time this trap has fired today.
+const chipsRaw = readFileSync(path.resolve("app/eat/[metro]/CuisineMenu.js"), "utf8");
 const chipsSrc = chipsRaw.replace(/\/\*[\s\S]*?\*\//g, " ")
   .split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n")
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ");
@@ -75,27 +102,70 @@ ok(!/\[\s*\{\s*cuisine\s*:/.test(sheet),
   "no hardcoded array of chip objects — the list must be derived");
 ok(!/const (CHIPS|CUISINE_CHIPS|chips)\s*=\s*\[/.test(sheet), "chips are never assigned from a literal");
 ok(/tier === "full"/.test(sheet) && /tier === "thin"/.test(sheet),
-  "the sheet renders the tiers the RPC assigns rather than deciding the floor itself");
+  "the sheet still reads the tiers the RPC assigns rather than deciding the floor itself (they now drive structured data and the empty state)");
 ok(!/>= 3|>=3/.test(sheet),
   "the 3-place floor lives in SQL, not duplicated in the page — two copies of a threshold drift");
 
-// ── 3. the thin band is SHOWN ─────────────────────────────────────────────
-ok(/nearby/.test(sheet), "a thin chip shows its honest count");
-// Assert the thin rows are MAPPED into JSX. `thin.length` alone passed even with
-// the whole block disabled, because the empty-state ternary also references it.
-ok(/thin\.map\(/.test(sheet), "the thin rows are rendered — mapped into JSX, not just counted");
-ok(/tier="thin"/.test(sheet) && /tier="full"/.test(sheet),
-  "both tiers are passed to the chip component, so the visual hierarchy is data-driven");
-ok(/\{thin\.length \? \(/.test(sheet),
-  "the thin row is gated on having thin chips, not on a constant — `{false ? (` passed a looser check");
-// Section headers: MAX 3 WORDS (owner). Longer ones read as system copy next to a
-// premium hero.
+// ── 3. the two tiers, DERIVED — splitTiers is CALLED, not read ────────────
+// Replaces the old tier="full"/tier="thin" prop check. That asserted markup; this
+// asserts behaviour, which is what actually decides who gets a featured card.
+const { splitTiers, FEATURED_COUNT } = await import("../lib/cuisineTiers.js");
+ok(FEATURED_COUNT === 6, `six cuisines are featured, two rows of three (got ${FEATURED_COUNT})`);
 {
-  const subs = [...sheet.matchAll(/className="wf-eat-sub">([^<]+)</g)].map((m) => m[1].trim());
-  ok(subs.length >= 2, `both section headers are present (${subs.length})`);
-  for (const h of subs) ok(h.split(/\s+/).length <= 3, `header "${h}" is 3 words or fewer`);
-  ok(subs.some((h) => /fewer|couple|few/i.test(h)),
-    "the thin row's header still signals scarcity, so the count reads as honesty rather than an error");
+  // Real Orlando shape (2026-07-30), in the RPC's own order.
+  const live = [
+    { cuisine: "breakfast", places: 38 }, { cuisine: "american", places: 31 },
+    { cuisine: "steakhouse", places: 22 }, { cuisine: "seafood", places: 16 },
+    { cuisine: "brazilian", places: 12 }, { cuisine: "korean", places: 11 },
+    { cuisine: "mexican", places: 9 }, { cuisine: "vegetarian", places: 9 },
+    { cuisine: "cuban", places: 2 },
+  ];
+  const { featured, index } = splitTiers(live);
+  ok(featured.length === 6 && index.length === 3, `the split is 6 featured + the rest (${featured.length}/${index.length})`);
+  ok(featured[0].cuisine === "breakfast",
+    "Orlando features Breakfast — derived from its own counts, with no per-metro branching");
+  ok(featured.every((f, i) => i === 0 || f.places <= featured[i - 1].places),
+    "featured order follows the RPC's places-desc order — the page does not re-sort and become a second ordering authority");
+  ok(index.every((r) => live.some((l) => l.cuisine === r.cuisine)),
+    "the index is the REMAINDER of the same derived list, not a separate query");
+  // Tampa's shape, where Cuban sits exactly at rank 6 — the owner's prediction.
+  const tampa = [
+    { cuisine: "seafood", places: 20 }, { cuisine: "american", places: 18 },
+    { cuisine: "italian", places: 12 }, { cuisine: "breakfast", places: 9 },
+    { cuisine: "steakhouse", places: 5 }, { cuisine: "cuban", places: 3 },
+    { cuisine: "greek", places: 2 },
+  ];
+  ok(splitTiers(tampa).featured.some((f) => f.cuisine === "cuban"),
+    "Tampa features Cuban automatically — the derivation, not a special case");
+  // Degenerate inputs must not throw or invent rows.
+  ok(splitTiers([]).featured.length === 0 && splitTiers([]).index.length === 0, "an empty list yields no tiers");
+  ok(splitTiers(null).featured.length === 0, "a null list is handled rather than thrown on");
+  ok(splitTiers(live.slice(0, 3)).featured.length === 3 && splitTiers(live.slice(0, 3)).index.length === 0,
+    "fewer than six cuisines means fewer featured cards and an EMPTY index — never padding to six");
+}
+// No static list of featured cuisines anywhere.
+ok(!/\[\s*"(breakfast|cuban|seafood|american)"/i.test(chipsSrc + sheet),
+  "the featured six are never a hardcoded array of cuisine names");
+ok(!/params\.metro\s*===\s*["']/.test(chipsSrc) && !/metro\s*===\s*["'](tampa|orlando)/.test(chipsSrc),
+  "no per-metro branching in the chooser — one derivation serves every metro");
+
+// ── the honest count is still shown on EVERY row ──────────────────────────
+// Replaces "a thin chip shows its honest count" + the /fewer|couple|few/ header
+// check. The 1-2 band is no longer a separate section with a scarcity header; it
+// is merged into the index, where each row carries its real number. The property
+// — a 2-place cuisine is listed honestly rather than hidden — is unchanged.
+ok(/index\.map\(/.test(chipsSrc), "the index rows are rendered — mapped into JSX, not just counted");
+ok(/featured\.map\(/.test(chipsSrc), "the featured cards are mapped too");
+ok(/\{index\.length \? \(/.test(chipsSrc),
+  "the index is gated on having rows, not on a constant — `{false ? (` passed a looser check");
+ok(/\{c\.places\}/.test(chipsSrc),
+  "every row renders its own place count — the honesty that used to live in the 'fewer nearby' header");
+{
+  const tiers = [...chipsSrc.matchAll(/className="wf-eat-tiert">([^<]+)</g)].map((m) => m[1].trim());
+  ok(tiers.length === 2, `both tier headers are present (${tiers.length})`);
+  for (const h of tiers) ok(h.split(/\s+/).length <= 4, `tier header "${h}" stays short`);
+  ok(tiers.some((h) => /popular/i.test(h)) && tiers.some((h) => /also on the menu/i.test(h)),
+    "the two tiers read as one editorial system: 'Popular here' and 'Also on the menu'");
 }
 
 // ── the three states stay distinct ────────────────────────────────────────
@@ -129,14 +199,39 @@ const destParts = readFileSync(path.resolve("app/eat/[metro]/[cuisine]/parts.js"
 ok(/track\("cuisine_place_open"/.test(destParts), "opening a place from the filtered list is instrumented too");
 
 // ── the premium chip treatment ────────────────────────────────────────────
-ok(/\.wf-eat-chip-count\{[^}]*border-radius:999px/.test(sheet),
-  "the count is a BADGE, not trailing text");
-ok(/min-height:46px/.test(sheet), "full chips have a comfortable tap target");
-ok(/\.wf-eat-chip a:active/.test(sheet) && /:focus-visible/.test(sheet),
-  "press and keyboard-focus states exist, not just hover");
-ok(/\.wf-eat-thin a\{[\s\S]{0,200}?color:\$\{C\.muted\}/.test(sheet),
-  "thin chips are visually QUIETER than full chips so the hierarchy reads at a glance");
-ok(/@media \(max-width:420px\)/.test(sheet), "mobile spacing is tuned rather than inherited");
+// NO PILLS ANYWHERE — the inverse of the old "the count is a BADGE" assertion,
+// which required border-radius:999px. The signed mock renders counts as serif
+// numerals inside gold-framed cards and as italic figures on index rows; a pill
+// would put a third visual language into a card built to have one.
+ok(!/border-radius:999px/.test(sheet),
+  "no pill radius anywhere in the chooser CSS — the signed design has no pills");
+ok(/\.wf-eat-fnum\{[^}]*font-family:\$\{MOCK\.serif\}/.test(sheet),
+  "the featured count is a SERIF NUMERAL, per the mock");
+ok(/\.wf-eat-fnum small\{/.test(sheet), "…with 'places' as the small italic suffix, not a separate badge");
+// The double gold hairline is border + an inset ::before rule — the detail that
+// makes a featured card read as framed rather than merely bordered.
+ok(/\.wf-eat-featured a\{[\s\S]{0,400}?border:1px solid rgba\(185,138,47,\.35\)/.test(sheet),
+  "featured cards carry the mock's gold border");
+ok(/\.wf-eat-featured a::before\{[^}]*inset:6px[^}]*border:1px solid rgba\(185,138,47,\.18\)/.test(sheet),
+  "…and the inset second hairline, which is what makes the frame read as double");
+// Hierarchy, replacing the old "thin chips are quieter" check: the distinction is
+// now the frame itself — index rows are dotted-leader lines with no card at all.
+ok(/\.wf-eat-idots\{[^}]*border-bottom:1px dotted/.test(sheet),
+  "index rows use dotted leaders — visually a menu index, not a card, so the two tiers read as a hierarchy at a glance");
+ok(!/\.wf-eat-index a\{[^}]*border:1px solid rgba\(185,138,47/.test(sheet),
+  "index rows do NOT carry the featured gold frame — the hierarchy would collapse if both tiers were framed");
+// Tap targets and states.
+ok(/min-height:46px/.test(sheet), "46px tap targets on mobile");
+ok(/\.wf-eat-featured a:active/.test(sheet) && /\.wf-eat-featured a:focus-visible/.test(sheet),
+  "featured cards have press AND keyboard-focus states, not just hover");
+ok(/\.wf-eat-index a:focus-visible/.test(sheet),
+  "index rows are keyboard-focusable too — they are anchors, not decorative rows");
+ok(/@media \(max-width:900px\)/.test(sheet) && /@media \(max-width:520px\)/.test(sheet),
+  "the mock's two breakpoints are both implemented");
+ok(/\.wf-eat-featured\{grid-template-columns:1fr 1fr\}/.test(sheet.replace(/\s+/g, " ").replace(/ \{/g, "{")) ||
+   /grid-template-columns:1fr 1fr/.test(sheet),
+  "featured collapses to 2-up on mobile, per the mock and the directive");
+ok(/columns:2/.test(sheet), "the index drops to 2 columns on mobile");
 
 // ── the tile swap ─────────────────────────────────────────────────────────
 ok(/eatMetro \? \["utensils", "What are you in the mood for\?", onEat\] : \["users", "Family favorites", onFamily\]/.test(home),

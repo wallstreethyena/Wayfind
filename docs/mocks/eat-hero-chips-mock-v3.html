@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayfind — chips integrated into the hero card (mock v2)</title>
+<style>
+  :root{
+    --ink:#1e2430; --cream:#f7f1e6; --cream-deep:#efe6d3; --paper:#fffdf8;
+    --coral:#e8632e; --coral-deep:#c94f1f; --gold:#b98a2f; --gold-soft:#d8c39a;
+    --line:rgba(30,36,48,.12); --muted:#6b6355;
+    --serif:Georgia,'Times New Roman',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#141a24;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:48px 24px;display:flex;justify-content:center}
+  .sheet{max-width:1180px;width:100%}
+  .card{display:grid;grid-template-columns:40% 60%;background:var(--cream);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45)}
+  .photo{position:relative;background:
+    radial-gradient(120% 90% at 20% 15%, #f2b98a 0%, transparent 55%),
+    radial-gradient(120% 110% at 85% 80%, #7a3b1e 0%, transparent 60%),
+    linear-gradient(160deg,#d98e55 0%, #a75a2e 45%, #5c2f18 100%);
+    min-height:720px;display:flex;flex-direction:column;justify-content:flex-end;padding:36px}
+  .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(to top, rgba(20,14,8,.55), rgba(20,14,8,0) 55%)}
+  .wordmark{position:absolute;top:28px;left:0;right:0;text-align:center;color:#fff;font-weight:700;font-size:26px;letter-spacing:.5px}
+  .wordmark .pin{color:#ffb35c}
+  .kicker{position:relative;z-index:2;color:#ffd9b0;font-size:12px;letter-spacing:.22em;font-weight:700;text-transform:uppercase;margin-bottom:14px}
+  .kicker::before{content:"";display:inline-block;width:26px;height:2px;background:#ffb35c;margin-right:10px;vertical-align:middle}
+  .photo h2{position:relative;z-index:2;color:#fff;font-family:var(--serif);font-weight:600;font-size:42px;line-height:1.12}
+  .content{padding:42px 50px 38px}
+  .eyebrow-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;font-weight:700;color:var(--muted);text-transform:uppercase}
+  .city{font-size:12px;letter-spacing:.18em;font-weight:700;color:var(--coral);text-transform:uppercase}
+  .city::before{content:"●";margin-right:8px;font-size:10px}
+  h1{font-family:var(--serif);font-weight:600;font-size:48px;line-height:1.05;margin-bottom:12px}
+  .promise{color:var(--coral);font-weight:700;font-size:18px;margin-bottom:9px}
+  .lede{color:#4a4438;font-size:15.5px;line-height:1.55;max-width:58ch;margin-bottom:26px}
+
+  .tierhead{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+  .tierhead .orn{color:var(--gold);font-size:13px;letter-spacing:.05em}
+  .tierhead .t{font-family:var(--serif);font-size:19px;font-style:italic;color:#3c3628}
+  .tierhead .rule{height:1px;background:linear-gradient(to right, var(--gold-soft), transparent);flex:1;align-self:center}
+  .tierhead .hint{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a9080;font-weight:700}
+
+  /* Featured trio — editorial mini-cards */
+  .featured{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:26px}
+  .fcard{position:relative;background:linear-gradient(165deg, var(--paper) 0%, #f4ecdc 100%);border:1px solid rgba(185,138,47,.35);border-radius:14px;padding:16px 16px 14px;cursor:pointer;transition:transform .14s ease, box-shadow .14s ease;box-shadow:0 1px 2px rgba(30,36,48,.05)}
+  .fcard::before{content:"";position:absolute;inset:6px;border:1px solid rgba(185,138,47,.18);border-radius:9px;pointer-events:none}
+  .fcard:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(30,36,48,.16)}
+  .fcard .num{font-family:var(--serif);font-size:30px;line-height:1;color:var(--coral-deep);margin-bottom:6px}
+  .fcard .num small{font-family:inherit;font-size:13px;color:#8a7a55;font-style:italic;margin-left:4px}
+  .fcard .name{font-family:var(--serif);font-size:19px;color:var(--ink);margin-bottom:5px}
+  .fcard .go{font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:var(--coral)}
+  .fcard .go::after{content:" →"}
+
+  /* Remaining full-tier — refined pills */
+  .chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:26px}
+  .chip{display:inline-flex;align-items:baseline;gap:9px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:11px 15px 11px 17px;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;box-shadow:0 1px 2px rgba(30,36,48,.05)}
+  .chip .name{font-family:var(--serif);font-size:15.5px;color:var(--ink)}
+  .chip .n{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--gold)}
+  .chip:hover{transform:translateY(-1px);border-color:rgba(232,99,46,.5);box-shadow:0 6px 16px rgba(30,36,48,.12)}
+
+  /* Fewer nearby — engraved index, not pills */
+  .index{columns:3;column-gap:34px;margin-bottom:24px}
+  .idx{display:flex;align-items:baseline;gap:8px;padding:7px 2px;border-bottom:1px solid rgba(30,36,48,.08);cursor:pointer;break-inside:avoid;transition:color .12s ease}
+  .idx .name{font-family:var(--serif);font-size:14.5px;color:#5c5546;flex-shrink:0}
+  .idx .dots{flex:1;border-bottom:1px dotted rgba(107,99,85,.45);transform:translateY(-3px)}
+  .idx .n{font-family:var(--serif);font-style:italic;font-size:13px;color:#9a8a60}
+  .idx:hover .name{color:var(--coral-deep)}
+  .idx:hover .n{color:var(--coral)}
+
+  .trust{display:flex;gap:10px;align-items:flex-start;border-top:1px solid var(--line);padding-top:16px;color:#6b6355;font-size:13px;line-height:1.5}
+  .trust .shield{color:var(--gold);font-size:15px;line-height:1.2}
+  .note{color:#8b93a2;font-size:13px;text-align:center;margin-top:26px;max-width:74ch;margin-left:auto;margin-right:auto;line-height:1.6}
+  @media (max-width:900px){
+    .card{grid-template-columns:1fr}
+    .photo{min-height:300px}
+    .content{padding:28px 24px}
+    h1{font-size:36px}
+    .featured{grid-template-columns:1fr 1fr}
+    .index{columns:2}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="card">
+    <div class="photo">
+      <div class="wordmark">wayfind <span class="pin">&#9906;</span></div>
+      <div class="kicker">The Wayfind Table Edition</div>
+      <h2>Deciding what to eat is the hard part.</h2>
+    </div>
+    <div class="content">
+      <div class="eyebrow-row">
+        <span class="eyebrow">What are you in the mood for?</span>
+        <span class="city">Orlando</span>
+      </div>
+      <h1>What to Eat Near Orlando</h1>
+      <p class="promise">Pick a kind of food. We already did the ranking.</p>
+      <p class="lede">Every option below is somewhere near you that we hold real reviews for — not a search we ran on your behalf. Choose the food, and the shortlist is already built.</p>
+
+      <div class="tierhead"><span class="orn">❧</span><span class="t">Popular here</span><span class="rule"></span><span class="hint">Ranked &amp; ready</span></div>
+      <div class="featured">
+        <div class="fcard"><div class="num">38<small>places</small></div><div class="name">Breakfast</div><div class="go">See the shortlist</div></div>
+        <div class="fcard"><div class="num">31<small>places</small></div><div class="name">American</div><div class="go">See the shortlist</div></div>
+        <div class="fcard"><div class="num">22<small>places</small></div><div class="name">Steakhouse</div><div class="go">See the shortlist</div></div>
+        <div class="fcard"><div class="num">16<small>places</small></div><div class="name">Seafood</div><div class="go">See the shortlist</div></div>
+        <div class="fcard"><div class="num">12<small>places</small></div><div class="name">Brazilian</div><div class="go">See the shortlist</div></div>
+        <div class="fcard"><div class="num">11<small>places</small></div><div class="name">Korean</div><div class="go">See the shortlist</div></div>
+      </div>
+
+      <div class="tierhead"><span class="orn">❧</span><span class="t">Also on the menu</span><span class="rule"></span><span class="hint">Honest counts</span></div>
+      <div class="index">
+        <div class="idx"><span class="name">Mexican</span><span class="dots"></span><span class="n">9</span></div>
+        <div class="idx"><span class="name">Vegetarian</span><span class="dots"></span><span class="n">9</span></div>
+        <div class="idx"><span class="name">Barbecue</span><span class="dots"></span><span class="n">7</span></div>
+        <div class="idx"><span class="name">Japanese</span><span class="dots"></span><span class="n">7</span></div>
+        <div class="idx"><span class="name">Italian</span><span class="dots"></span><span class="n">6</span></div>
+        <div class="idx"><span class="name">Burgers</span><span class="dots"></span><span class="n">5</span></div>
+        <div class="idx"><span class="name">Cuban</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Greek</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Latin American</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Pizza</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Puerto Rican</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Ramen</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Spanish</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Vegan</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Venezuelan</span><span class="dots"></span><span class="n">2</span></div>
+        <div class="idx"><span class="name">Argentine</span><span class="dots"></span><span class="n">1</span></div>
+        <div class="idx"><span class="name">Thai</span><span class="dots"></span><span class="n">1</span></div>
+        <div class="idx"><span class="name">Turkish</span><span class="dots"></span><span class="n">1</span></div>
+        <div class="idx"><span class="name">Vietnamese</span><span class="dots"></span><span class="n">1</span></div>
+      </div>
+
+      <div class="trust">
+        <span class="shield">&#9679;</span>
+        <span>No paid placement. No sponsored rankings. Counts are places near Orlando we hold enough signal on to stand behind — we never widen the search to pad the list.</span>
+      </div>
+    </div>
+  </div>
+  <p class="note">Mock v3 — two clean tiers: the six deepest cuisines as gold-framed menu cards (serif numerals, “See the shortlist →”), and everything else in one menu-style dotted-leader index (“Also on the menu”), ordered by count. No pills anywhere — one editorial system, two levels of emphasis.</p>
+</div>
+</body>
+</html>
