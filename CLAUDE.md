@@ -92,6 +92,54 @@ per new worktree. Cheap, and the alternative is authorship that has to be rememb
 
 This lane is `claude.exe (Wayfind lane)`.
 
+### …and every commit carries a `Lane:` trailer (2026-07-30, owner-approved, ALL lanes)
+
+**The `--worktree` identity above only survives on branch refs. Squash-merge discards it.**
+
+Measured on `main` right after #482 landed:
+
+```
+$ git log origin/main -1 --format='author: %an  committer: %cn'
+author: wallstreethyena  committer: GitHub
+```
+
+Every lane's PR lands identically — eight consecutive commits on `main` (#472 through
+#482, across three lanes) all read `wallstreethyena`. GitHub rewrites the author to the
+PR's GitHub account, and the per-commit author is gone with the branch. So
+`git log --format='%an'` answers authorship for a **branch**, and answers nothing for
+`main`.
+
+What DOES survive is the commit **body**: GitHub's default squash message is the PR title
+plus the concatenated commit messages. #482's full body is intact inside `ff13673`, which
+is what makes this fix work. So every commit ends with a trailer naming its lane:
+
+```
+Lane: claude.exe (Wayfind lane)
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+```
+
+Then squashed history is greppable and authoritative:
+
+```
+git log origin/main --grep='Lane: ' --format='%h %s'          # every lane-attributed commit
+git log origin/main --grep='Lane: claude.exe' --format='%h %s' # just this lane
+```
+
+Three things to know so this does not quietly stop working:
+
+- **Two layers, not one.** `--worktree user.name` is the branch-ref layer; the trailer is
+  the squashed-history layer. Keep both — the trailer alone loses per-commit attribution
+  inside a multi-commit branch, and the identity alone loses everything at merge.
+- **A custom squash body drops it.** `gh pr merge --squash` with the default body preserves
+  the commit messages; passing `--body`, or editing the message in GitHub's UI, replaces
+  them. If you override the squash body, carry the trailer into it by hand.
+- **`Co-Authored-By` stays last** — it is a harness requirement. `Lane:` sits directly
+  above it. Both are trailers, so grep finds either regardless of order; consistency just
+  makes the log easier to read.
+
+A multi-commit PR yields one `Lane:` line per commit in the squash body. That is fine and
+still greppable — and it is a feature when two lanes contribute commits to one branch.
+
 ---
 
 ## ✅ How to ship a fix
