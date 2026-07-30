@@ -39,9 +39,29 @@ for (const variant of ["primary", "disclosure", "list"]) {
   if (!detailSrc.includes(`<BookingCTA variant="${variant}"`)) fail(`Detail.js is missing a <BookingCTA variant="${variant}"> render site`);
 }
 
-// 1c. BookingCTA.js itself must refuse to render without verified items —
+// v6.71 — THE RESOLVER MOVED. bookingTargets()/hasBookingCTA()/hasVerifiedTours()
+// now live in lib/bookingResolve.js so the SERVER-side guide pages can use the
+// SAME predicate instead of calling Aff.experienceGoUrl() per pick — which was a
+// parallel resolution path, exactly what this file exists to forbid.
+//
+// So every invariant below is checked against the UNION of the client component
+// and the resolver. That is stricter, not looser: the rule was "this invariant
+// holds", and it now has to hold wherever the code lives. A guard that only knew
+// the old file path would have gone green the moment the code left it.
+const bookingResolve = readFileSync(new URL("../lib/bookingResolve.js", import.meta.url), "utf8");
+const bookingUnion = bookingCTA + "\n" + bookingResolve;
+// ...and the resolver must stay server-safe, or the guide page 500s.
+if (/^["']use client["']/m.test(bookingResolve)) fail("lib/bookingResolve.js must not be a client module — the guide page imports it server-side");
+if (!/from "\.\/affiliates(\.js)?"/.test(bookingResolve)) fail("lib/bookingResolve.js must resolve hrefs through lib/affiliates only");
+// Exactly ONE definition of the predicate, or the parallel path is back.
+const defs = (bookingUnion.match(/function bookingTargets\(/g) || []).length;
+if (defs !== 1) fail(`bookingTargets() must be defined exactly once (found ${defs}) — two definitions IS the parallel path`);
+if (/function bookingTargets\(/.test(bookingCTA)) fail("BookingCTA.js must IMPORT bookingTargets, not define it");
+if (!/from "\.\.\/\.\.\/lib\/bookingResolve"/.test(bookingCTA)) fail("BookingCTA.js must import the resolver");
+
+// 1c. The component/resolver pair must refuse to render without verified items —
 // i.e. it must gate on viaTours[...].items, not assume any input is safe.
-if (!bookingCTA.includes("Array.isArray(vt.items)") || !bookingCTA.includes("vt.items.length > 0")) {
+if (!bookingUnion.includes("Array.isArray(vt.items)") || !bookingUnion.includes("vt.items.length > 0")) {
   fail("BookingCTA.js no longer gates on a non-empty verified items array");
 }
 
@@ -73,7 +93,7 @@ if (/results\.find\(\(?r\)? *=> *r *&& *r\.productUrl *&& *regionOk/.test(goSrc)
 // tracked-search fallback showed with NO proximate disclosure. Both now derive
 // from the one bookingTargets() predicate (gate on the same `tu`), and the
 // disclosure carries the full required commission text.
-if (!/function bookingTargets\(/.test(bookingCTA)) fail("BookingCTA.js must derive the CTA + disclosure from one bookingTargets() predicate (FTC parity)");
+if (!/function bookingTargets\(/.test(bookingUnion)) fail("the CTA + disclosure must derive from one bookingTargets() predicate (FTC parity)");
 if (!/variant === "disclosure"[\s\S]{0,340}targets\.tu/.test(bookingCTA)) fail("the disclosure variant must gate on the shared targets.tu — an earning CTA must never render without its disclosure");
 if (!/at no extra cost to you\. It never changes our scores or rankings/.test(bookingCTA)) fail("the commission disclosure is missing the required 'at no extra cost … never changes our scores or rankings' text");
 
@@ -81,7 +101,7 @@ if (!/at no extra cost to you\. It never changes our scores or rankings/.test(bo
 // Viator CTA. Both fallback paths in BookingCTA must gate on isTicketyPlace —
 // which already knows beaches aren't bookable. Without this the geo-less
 // "Search Viator" fallback defaulted to Viator's featured cities (Mumbai).
-if (!/BOOKABLE_KINDS\.includes\(kind\) && Aff\.isTicketyPlace\(detail\)/.test(bookingCTA)) fail("the primary/goFallback CTA must also clear Aff.isTicketyPlace — else beaches leak a wrong-geo Viator search");
+if (!/BOOKABLE_KINDS\.includes\(kind\) && Aff\.isTicketyPlace\(detail\)/.test(bookingUnion)) fail("the primary/goFallback CTA must also clear Aff.isTicketyPlace — else beaches leak a wrong-geo Viator search");
 if (!/if \(!Aff\.isTicketyPlace\(detail\)\) return null;/.test(bookingCTA)) fail("the list-variant Search-Viator fallback must return null for non-tickety places (beaches)");
 
 if (failures) process.exit(1);

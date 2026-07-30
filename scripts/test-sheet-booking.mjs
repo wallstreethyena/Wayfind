@@ -8,10 +8,21 @@ let pass = 0;
 const fail = (m) => { console.error("test-sheet-booking: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
-const bc = readFileSync(new URL("../app/components/BookingCTA.js", import.meta.url), "utf8");
+// v6.71 — BOOKABLE_KINDS and the goFallback moved into lib/bookingResolve.js so
+// the SERVER-side guide pages share THE predicate. This guard's job is kind-list
+// PARITY across the CTA, the sheet fetch and the card chip; it now reads the
+// union so parity is still enforced wherever the list lives. Reading only the old
+// path would have gone green the moment the list moved.
+const bcComponent = readFileSync(new URL("../app/components/BookingCTA.js", import.meta.url), "utf8");
+const bcResolver = readFileSync(new URL("../lib/bookingResolve.js", import.meta.url), "utf8");
+const bc = bcComponent + "\n" + bcResolver;
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 
-ok(/const BOOKABLE_KINDS = \[/.test(bc), "BookingCTA declares its bookable-kind gate");
+ok(/const BOOKABLE_KINDS = \[/.test(bc), "the bookable-kind gate is declared (component or resolver)");
+// Exactly one declaration — two copies of this list is how the CTA and the fetch
+// gate drifted apart the first time.
+ok((bc.match(/const BOOKABLE_KINDS = \[/g) || []).length === 1,
+  "BOOKABLE_KINDS is declared EXACTLY once across the component + resolver");
 const norm = (s) => s.split(",").map((x) => x.trim().replace(/["']/g, "")).filter(Boolean).sort().join("|");
 const bcKinds = bc.match(/const BOOKABLE_KINDS = \[([^\]]+)\];/);
 const sheetKinds = home.match(/const kinds = \[([^\]]+)\];/);
@@ -20,6 +31,13 @@ ok(bcKinds && sheetKinds, "kind lists present in BookingCTA + sheet fetch");
 ok(norm(bcKinds[1]) === norm(sheetKinds[1]), "CTA kinds IDENTICAL to the sheet tour-fetch gate");
 if (cardKinds) ok(norm(bcKinds[1]) === norm(cardKinds[1]), "CTA kinds IDENTICAL to the card chip gate");
 ok((bc.match(/experienceGoUrl\(/g) || []).length >= 2, "primary AND list variants both use the honest tracked-search fallback");
+// The guide page must NOT be a third caller of the raw helper — it goes through
+// the resolver like everyone else.
+{
+  const guide = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+  ok(!/experienceGoUrl\(/.test(guide), "the guide page does NOT call experienceGoUrl directly — one predicate, not three callers of the raw helper");
+}
 ok(/goFallback/.test(bc) && /verifiedUrl \|\| goFallback/.test(bc), "primary falls back instead of rendering nothing");
 ok(/if \(verifiedUrl \|\| !tk\) addReservation/.test(bc), "search-fallback clicks never fabricate a reservation entry");
 ok(/Tickets & tours/.test(bc), "the Tickets & tours label survives");

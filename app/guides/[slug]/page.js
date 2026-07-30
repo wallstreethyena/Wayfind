@@ -6,7 +6,15 @@
 import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
-import { experienceSearchUrl, hotelSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
+import { experienceSearchUrl } from "../../../lib/affiliates";
+// ONE primary CTA per guide, resolved through THE predicate in
+// lib/bookingResolve — the same one the app's Detail sheet uses. The per-pick
+// experienceGoUrl()/hotelSearchUrl() calls this file used to make were a PARALLEL
+// resolution path: two ways to turn a place into a booking href, which is how an
+// earning link once rendered with no FTC disclosure.
+import { bookingTargets } from "../../../lib/bookingResolve";
+import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
+import GuideConversion from "./GuideConversion";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -74,6 +82,62 @@ export default async function GuidePage({ params }) {
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
   const appUrl = (name) => "/?q=" + encodeURIComponent(name);
+
+  // ── the ONE primary CTA, resolved once, server-side ─────────────────────
+  const primaryCta = guidePrimaryCta(g);
+  const continueTo = guideContinue(g, params.slug, GUIDES);
+
+  // Social proof adjacent to the CTA — review count + rating, ONLY where the data
+  // actually exists. rankedFor() is the same ranked local inventory the landing
+  // pages use, so these are real Google counts, never a placeholder.
+  //
+  // THREE OUTCOMES, KEPT DISTINCT. My first version wrapped this in one try/catch
+  // that set social = null on every path, and I wrote a comment arguing that was
+  // acceptable because the render looks the same either way. It is not
+  // acceptable, and it is the specific thing §3 of the directive forbids: a
+  // caught failure must stay distinguishable from a legitimate empty. Rendering
+  // identically is fine; REPORTING identically is how a broken lookup hides for
+  // five days behind a page that looks merely sparse.
+  //   "ok"           matched a place with enough reviews to stand behind
+  //   "no-match"     the lookup ran and this place genuinely is not in inventory
+  //   "unavailable"  the lookup FAILED — a real error, logged, and carried into
+  //                  the impression event so the miss is countable
+  let social = null;
+  let socialStatus = "no-match";
+  if (primaryCta && primaryCta.place) {
+    const cityKey = (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando");
+    if (!LANDING_CITIES[cityKey]) {
+      socialStatus = "unavailable";
+      console.error(`[guide] social proof: no LANDING_CITIES entry for "${cityKey}" (${params.slug})`);
+    } else {
+      try {
+        const rows = await rankedFor("things-to-do", cityKey, LANDING_CITIES[cityKey]);
+        if (!Array.isArray(rows)) {
+          socialStatus = "unavailable";
+          console.error(`[guide] social proof: rankedFor returned ${rows === null ? "null" : typeof rows} for ${cityKey} (${params.slug})`);
+        } else if (!rows.length) {
+          // Zero rows is NOT a legitimate empty here — this metro has hundreds of
+          // attractions in inventory, so an empty result means the lookup is
+          // degraded (Places quota, cache miss), not that Orlando is empty.
+          socialStatus = "unavailable";
+          console.error(`[guide] social proof: rankedFor returned 0 rows for ${cityKey} — inventory is not empty, so this is a degraded lookup (${params.slug})`);
+        } else {
+          const want = String(primaryCta.place).toLowerCase();
+          const hit = rows.find((r) => {
+            const n = String(r.name || "").toLowerCase();
+            return n && (n.includes(want) || want.includes(n));
+          });
+          if (hit && hit.rating > 0 && hit.reviews >= 15) {
+            social = { rating: hit.rating, reviews: hit.reviews, name: hit.name };
+            socialStatus = "ok";
+          }
+        }
+      } catch (e) {
+        socialStatus = "unavailable";
+        console.error(`[guide] social proof threw for ${cityKey} (${params.slug}): ${String(e && e.message).slice(0, 160)}`);
+      }
+    }
+  }
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
   const faqLd = g.faq && g.faq.length ? {
@@ -145,9 +209,15 @@ export default async function GuidePage({ params }) {
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
       <div className="wf-guide-disclosure">Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
+      {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
+          "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
+          dwell here is 0-25s and bounce ~50%, so almost nobody reached the end
+          and those who did faced a wall of competing choices (Hick's law). The
+          monetized links are consolidated into ONE primary CTA below. "Open in
+          Wayfind" STAYS as the non-monetized navigation affordance.
+          This deliberately removes live monetized surface area — the bet is
+          instrumented in GuideConversion so it is falsifiable within a week. */}
       {g.picks.map((pick, i) => {
-        const book = pick.viatorUrl ? viatorDirectUrl(pick.viatorUrl) : (pick.bookQuery ? experienceGoUrl(pick.bookQuery, g.region || "Orlando") : null);
-        const rates = pick.hotel ? hotelSearchUrl(pick.name + " " + (g.region || "Orlando")) : null;
         return (
           <section key={i} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
@@ -157,8 +227,6 @@ export default async function GuidePage({ params }) {
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               <div className="wf-guide-actions">
-                {book ? <a href={book} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check tours &amp; tickets ↗</a> : null}
-                {rates ? <a href={rates} target="_blank" rel="noreferrer sponsored" style={S.btn}>Check rates ↗</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open in Wayfind</a> : null}
               </div>
             </div>
@@ -171,12 +239,18 @@ export default async function GuidePage({ params }) {
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
       ) : null}
-      <section>
-        <h2 style={S.h2}>More Wayfind guides</h2>
-        {Object.keys(GUIDES).filter((k) => k !== params.slug).slice(0, 4).map((k) => (
-          <p key={k} style={{ margin: "6px 0" }}><a href={"/guides/" + k} style={S.footerLink}>{GUIDES[k].title}</a></p>
-        ))}
-      </section>
+      {/* ONE monetized CTA + ONE continue card + the save prompt. The old
+          four-link "More Wayfind guides" list was itself a choice wall; the
+          continue card inside GuideConversion replaces it with a single
+          same-region next step. */}
+      <GuideConversion
+        slug={params.slug}
+        region={g.region || "Orlando"}
+        cta={primaryCta}
+        next={continueTo}
+        social={social}
+        socialStatus={socialStatus}
+      />
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>

@@ -9,7 +9,26 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
   if (!s.includes('"@type": "BreadcrumbList"')) fail(name + " missing Breadcrumb schema");
   if (!s.includes("alternates: { canonical:")) fail(name + " missing canonical");
   if (!s.includes("may earn a commission")) fail(name + " missing affiliate disclosure");
-  if (!s.includes('rel="noreferrer sponsored"')) fail(name + " monetized links missing sponsored rel");
+  // v6.71 — the guide page's monetized link moved into the client conversion
+  // block (ONE primary CTA per guide, replacing the per-pick link wall), so the
+  // rel lives there now. The RULE is unchanged: a monetized link carries
+  // rel=sponsored. Follow the component rather than loosening the assertion —
+  // deleting it would re-open the FTC gap it was written for.
+  const relHost = name === "guides"
+    ? readFileSync(new URL("../app/guides/[slug]/GuideConversion.js", import.meta.url), "utf8")
+    : s;
+  const hasRel = relHost.includes('rel="noreferrer sponsored"') || relHost.includes('rel: "noreferrer sponsored"');
+  if (!hasRel) fail(name + " monetized links missing sponsored rel");
+  if (name === "guides") {
+    // ...and it must be CONDITIONAL on the resolver marking the CTA sponsored, so
+    // the non-monetized Directions terminal is not falsely tagged as paid.
+    if (!/cta\.sponsored \? \{ target/.test(relHost)) fail("guides sponsored rel is not gated on cta.sponsored");
+    // ONE primary CTA: the per-pick book/rates wall must stay gone.
+    const code = s.replace(/\/\*[\s\S]*?\*\//g, " ").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
+    if (/experienceGoUrl\(|hotelSearchUrl\(/.test(code)) fail("guides still resolve booking hrefs directly — that is the parallel path bookingResolve replaced");
+    if (/Check tours &amp; tickets|Check rates/.test(code)) fail("the per-pick link wall is back");
+    if (!/Open in Wayfind/.test(code)) fail("Open in Wayfind must SURVIVE as the non-monetized navigation affordance");
+  }
 }
 if (!g.includes("More Wayfind guides")) fail("guides missing related-guides section");
 if (!c.includes("More cities:")) fail("culture missing related-cities links");
