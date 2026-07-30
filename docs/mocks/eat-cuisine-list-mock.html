@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayfind — Brazilian near Orlando (cuisine shortlist mock)</title>
+<style>
+  :root{
+    --ink:#1e2430; --cream:#f7f1e6; --cream-deep:#efe6d3; --paper:#fffdf8;
+    --coral:#e8632e; --coral-deep:#c94f1f; --gold:#b98a2f; --gold-soft:#d8c39a;
+    --line:rgba(30,36,48,.12); --muted:#6b6355; --serif:Georgia,'Times New Roman',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#141a24;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);padding:44px 24px;display:flex;justify-content:center}
+  .sheet{max-width:980px;width:100%}
+
+  /* Header card */
+  .head{background:var(--cream);border-radius:22px;padding:36px 44px 30px;box-shadow:0 24px 60px rgba(0,0,0,.4);margin-bottom:18px;position:relative;overflow:hidden}
+  .head::after{content:"❧";position:absolute;right:34px;bottom:18px;font-size:44px;color:rgba(185,138,47,.14)}
+  .crumb{font-size:12px;letter-spacing:.18em;font-weight:700;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+  .crumb a{color:var(--coral);text-decoration:none}
+  .crumb span{color:#b3aa98;margin:0 8px}
+  .head h1{font-family:var(--serif);font-weight:600;font-size:46px;line-height:1.05;margin-bottom:8px}
+  .head h1 em{font-style:italic;color:var(--coral-deep)}
+  .sub{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .sub .count{font-family:var(--serif);font-style:italic;font-size:17px;color:#7a6a45}
+  .sub .rulewrap{flex:1;height:1px;background:linear-gradient(to right,var(--gold-soft),transparent)}
+  .sub .ranked{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a9080;font-weight:700}
+
+  /* List card */
+  .list{background:var(--cream);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4);overflow:hidden}
+  .row{display:grid;grid-template-columns:64px 1fr auto;gap:20px;padding:26px 40px;border-bottom:1px solid var(--line);align-items:center;transition:background .15s ease;cursor:pointer}
+  .row:hover{background:rgba(255,253,248,.85)}
+  .row:last-child{border-bottom:none}
+  .rank{font-family:var(--serif);font-size:34px;color:rgba(30,36,48,.28);text-align:center;line-height:1}
+  .row.first .rank{color:var(--coral-deep)}
+  .info .name{font-family:var(--serif);font-size:23px;color:var(--ink);margin-bottom:5px}
+  .badges{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+  .stars{color:var(--gold);font-size:13px;letter-spacing:1px}
+  .rating{font-weight:700;font-size:14px}
+  .reviews{color:var(--muted);font-size:13.5px}
+  .dot{color:#c4bba8}
+  .price{font-size:13.5px;color:#7a6a45;font-weight:700}
+  .known{font-size:14.5px;color:#4a4438;line-height:1.5;max-width:52ch}
+  .known b{color:var(--coral-deep);font-weight:700}
+  .deal{display:inline-flex;align-items:center;gap:7px;margin-top:9px;background:rgba(232,99,46,.09);border:1px solid rgba(232,99,46,.3);color:var(--coral-deep);font-size:12.5px;font-weight:700;border-radius:999px;padding:5px 12px}
+  .deal .exp{font-weight:500;color:#a06a4a;font-style:italic}
+  .actions{display:flex;flex-direction:column;gap:9px;align-items:stretch;min-width:172px}
+  .cta{border:none;border-radius:12px;padding:13px 18px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;text-align:center}
+  .cta.primary{background:linear-gradient(170deg,var(--coral),var(--coral-deep));color:#fff;box-shadow:0 6px 16px rgba(201,79,31,.35)}
+  .cta.primary:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(201,79,31,.45)}
+  .cta.quiet{background:transparent;border:1px solid var(--line);color:#4a4438;font-weight:600}
+  .cta.quiet:hover{border-color:rgba(232,99,46,.45);color:var(--coral-deep)}
+  .ftc{font-size:10.5px;color:#9a9080;text-align:center;line-height:1.4}
+
+  /* Rail teaser */
+  .rail{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:linear-gradient(165deg,#243041,#1a2331);border:1px solid rgba(255,179,92,.25);border-radius:18px;padding:22px 28px;margin:18px 0;color:#e8e2d4}
+  .rail .tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:#ffb35c}
+  .rail .t{font-family:var(--serif);font-size:20px;color:#fff;margin-top:4px}
+  .rail .sub2{font-size:13.5px;color:#aeb6c4;margin-top:3px}
+  .rail .go{background:#ffb35c;color:#2a1a08;border:none;border-radius:12px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer;white-space:nowrap}
+  .trust{color:#8b93a2;font-size:13px;text-align:center;margin-top:22px;line-height:1.6}
+  .trust b{color:#b7c0cf}
+  @media (max-width:760px){
+    .head{padding:26px 24px}
+    .head h1{font-size:34px}
+    .row{grid-template-columns:40px 1fr;padding:20px 22px}
+    .rank{font-size:26px}
+    .actions{grid-column:1 / -1;flex-direction:row}
+    .actions .cta{flex:1}
+    .rail{grid-template-columns:1fr;text-align:left}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="head">
+    <div class="crumb"><a href="#">What to Eat Near Orlando</a><span>›</span>Brazilian</div>
+    <h1>The best <em>Brazilian</em> near Orlando</h1>
+    <div class="sub">
+      <span class="count">12 places · ranked by real reviews, not ads</span>
+      <span class="rulewrap"></span>
+      <span class="ranked">The shortlist is already built</span>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="row first">
+      <div class="rank">1</div>
+      <div class="info">
+        <div class="name">Nelore Churrascaria</div>
+        <div class="badges"><span class="stars">★★★★★</span><span class="rating">4.8</span><span class="reviews">2,431 reviews</span><span class="dot">·</span><span class="price">$$$</span><span class="dot">·</span><span class="reviews">I-Drive</span></div>
+        <div class="known">Known for <b>rodízio done properly</b> — unhurried gaúcho carvers, picanha that regulars plan the week around, and a salad bar that isn't an afterthought.</div>
+      </div>
+      <div class="actions">
+        <button class="cta primary">Reserve a table</button>
+        <button class="cta quiet">Directions</button>
+        <div class="ftc">We may earn a commission — never affects ranking.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rank">2</div>
+      <div class="info">
+        <div class="name">Camila's Restaurante</div>
+        <div class="badges"><span class="stars">★★★★★</span><span class="rating">4.7</span><span class="reviews">3,914 reviews</span><span class="dot">·</span><span class="price">$$</span><span class="dot">·</span><span class="reviews">Kissimmee</span></div>
+        <div class="known">Known for the <b>home-style buffet</b> Brazilian families drive across town for — feijoada Saturdays, fresh pão de queijo all day.</div>
+        <div class="deal">✦ Weekday lunch special <span class="exp">· Ends Aug 31</span></div>
+      </div>
+      <div class="actions">
+        <button class="cta primary">Claim the deal</button>
+        <button class="cta quiet">Directions</button>
+        <div class="ftc">We may earn a commission — never affects ranking.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rank">3</div>
+      <div class="info">
+        <div class="name">Pão Gostoso Bakery</div>
+        <div class="badges"><span class="stars">★★★★★</span><span class="rating">4.7</span><span class="reviews">1,208 reviews</span><span class="dot">·</span><span class="price">$</span><span class="dot">·</span><span class="reviews">Hunters Creek</span></div>
+        <div class="known">Known for <b>the counter that smells like Minas</b> — coxinha, brigadeiros, and cafezinho that expats call the real thing.</div>
+      </div>
+      <div class="actions">
+        <button class="cta primary">Order pickup</button>
+        <button class="cta quiet">Directions</button>
+        <div class="ftc">We may earn a commission — never affects ranking.</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="rank">4</div>
+      <div class="info">
+        <div class="name">Texas de Brazil</div>
+        <div class="badges"><span class="stars">★★★★☆</span><span class="rating">4.5</span><span class="reviews">5,102 reviews</span><span class="dot">·</span><span class="price">$$$</span><span class="dot">·</span><span class="reviews">I-Drive</span></div>
+        <div class="known">Known for <b>the polished churrasco experience</b> — reliable, celebratory, and easy to book for a group tonight.</div>
+      </div>
+      <div class="actions">
+        <button class="cta primary">Reserve a table</button>
+        <button class="cta quiet">Directions</button>
+        <div class="ftc">We may earn a commission — never affects ranking.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail">
+    <div>
+      <div class="tag">Taste it properly</div>
+      <div class="t">Little Brazil Food Walk — Orlando</div>
+      <div class="sub2">4.9 ★ (312) · 3 hrs · six stops with a local guide · from $89</div>
+    </div>
+    <div></div>
+    <button class="go">Book the food tour →</button>
+  </div>
+
+  <p class="trust"><b>No paid placement. No sponsored rankings.</b> Order comes from real reviews and our own signal — a place can never pay to move up. 8 more places on the full list ↓</p>
+</div>
+</body>
+</html>
