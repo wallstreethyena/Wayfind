@@ -56,6 +56,42 @@ when it is neither — run `git fetch --prune --all` before trusting `git branch
   `git status` shows **only your own files** before you commit.
 - Leave the other session's branches/worktrees alone.
 
+### Every lane sets its own git identity (2026-07-30, owner directive)
+
+**Authorship questions get answered by `git log --format='%an'`, never from memory.**
+
+On 2026-07-29 a relay chain credited this lane with `foodTours.js` and a food-tour rail it
+had never touched, and asked it to merge a PR whose contents did not match the description
+(#477 was commerce-redirect work; the praised matcher existed nowhere in the repo). Every
+lane commits as the same GitHub account, so the PR list alone cannot tell the lanes apart.
+Praise or blame routed to the wrong lane is corrosive in both directions, and merging
+another lane's PR on a garbled premise is how a merge-#346 happens.
+
+So each lane stamps its own `user.name`, keeping `user.email` as-is.
+
+**Use `--worktree`, not a bare `git config`.** Worktrees SHARE `.git/config` with the clone
+that owns them — a worktree's `.git` is a *file* pointing at
+`<clone>/.git/worktrees/<name>`. So a repo-local `git config user.name "…lane…"` inside a
+worktree of the OWNER's clone relabels **the owner's own commits too**, which defeats the
+entire point. Per-worktree config needs the extension enabled once per clone:
+
+```
+git config --local extensions.worktreeConfig true    # once, per clone
+git config --worktree user.name "<lane name>"        # in EACH new worktree
+```
+
+Verify the split before trusting it — the failure is silent otherwise:
+
+```
+git -C <owner clone>    config user.name   # -> the owner, unchanged
+git -C <your worktree>  config user.name   # -> your lane
+```
+
+`--worktree` settings do **not** propagate to worktrees created later, so this is one line
+per new worktree. Cheap, and the alternative is authorship that has to be remembered.
+
+This lane is `claude.exe (Wayfind lane)`.
+
 ---
 
 ## ✅ How to ship a fix
