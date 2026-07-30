@@ -233,3 +233,4 @@ node scripts/check-clipp-deals.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 node scripts/check-guide-conversion.mjs
+node scripts/check-guide-teasers.mjs
