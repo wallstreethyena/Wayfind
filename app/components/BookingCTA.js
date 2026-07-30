@@ -168,14 +168,19 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           </div>
           {items.map((t, i) => {
           // v6.44 (owner: "the person clicks on the viator button, we need to
-          // take them to the right place"). Every Viator list item now routes
-          // through the server redirect layer (/api/commerce/go) using the
-          // verified product code. The destination is resolved server-side from
-          // wf_experiences; no partner URL is accepted from the request.
-          const offerId = t.code || t.productCode;
-          const href = offerId
-            ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
-            : (Aff.viatorDirectUrl(t.url) || t.url);
+          // take them to the right place"). This was the ONLY Viator surface in
+          // the app rendering a RAW `t.url` — the primary variant above (:36),
+          // home.js (3 sites) and ThingsToDoList.js all wrap with
+          // viatorDirectUrl(). So the highest-intent click in the product, on a
+          // named product card, was the one click that carried no partner
+          // attribution: it still reached Viator, but as an anonymous visit, so
+          // the booking earned nothing. viatorDirectUrl returns null for any
+          // non-www.viator.com host (hence the `|| t.url` fallback — behavior
+          // never regresses) and withViatorTracking dedupes `pid`, so this is
+          // safe and idempotent even if the server already attributed the URL.
+          const href = Aff.viatorDirectUrl(t.url);
+          // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
+          if (!href) return null;
           return (
             <a
               key={offerId || i}

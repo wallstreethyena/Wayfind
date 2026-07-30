@@ -6,6 +6,12 @@ const checks = [
   ["NEXT_PUBLIC_SUPABASE_URL", (v) => /^https:\/\/[a-z0-9]+\.supabase\.co\/?$/.test(v || ""), "expected https://<ref>.supabase.co"],
   ["NEXT_PUBLIC_SUPABASE_ANON_KEY", (v) => (v || "").length > 20, "expected the anon key (eyJ... JWT or sb_publishable_...)"],
   ["NEXT_PUBLIC_GOOGLE_MAPS_KEY", (v) => (v || "").length > 20, "Places/Maps features need this"],
+  // v6.79: absence must be LOUD. Every viator link is attributed through this
+  // PID; with it unset, ticketsUrl()/experienceSearchUrl() correctly return null
+  // and every Viator CTA silently disappears — revenue going to zero with a
+  // green build. Six other revenue vars were in exactly this "happens to be set"
+  // state on 2026-07-30.
+  ["NEXT_PUBLIC_VIATOR_PID", (v) => (v || "").trim().length > 3, "every Viator CTA is attributed through this; unset means all Viator revenue silently stops"],
 ];
 let warned = 0;
 for (const [name, ok, hint] of checks) {

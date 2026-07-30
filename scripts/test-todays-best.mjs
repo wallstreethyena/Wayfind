@@ -134,8 +134,17 @@ ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engi
 // sub-menu — and the affiliate key on EVERY tour link.
 ok(/const SUB_TO_EXP = \{ all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme"/.test(home), "the sub-menu -> experience-catalog mapping drifted");
 ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub=\{sub\}/.test(home), "the bookable rail renders on a sub-filter only (the ALL view interleaves tours via ThingsToDoList — no duplicate cards; see check-ttd-dedup)");
-ok(home.includes("ViatorCommerceLink") && /BookableExpRail[\s\S]*<ViatorCommerceLink/.test(home), "bookable rail routes tour cards through ViatorCommerceLink");
-ok(ttd.includes("ViatorCommerceLink") && /isTour[\s\S]*<ViatorCommerceLink/.test(ttd), "TTD tour cards route through ViatorCommerceLink — every booking click touches the server redirect layer");
+// v6.79: these two assertions used to require the literal `|| t.url` /
+// `|| r.booking_url` fallback. The DECISION they encode is right — a tour href
+// must carry the affiliate wrapper — but pinning the fallback froze the leak in
+// place: `viatorDirectUrl(x) || x` renders the BARE viator.com URL whenever
+// NEXT_PUBLIC_VIATOR_PID is unset, which converts and pays us nothing. So the
+// intent is kept and inverted: the wrapper must be present, AND the raw-URL
+// fallback must be gone (AGENTS.md §6b — fail closed at the decision point).
+ok(/Aff\.viatorDirectUrl\(t\.url\)/.test(home), "rail hrefs still route through the affiliate wrapper");
+ok(!/Aff\.viatorDirectUrl\(t\.url\)\s*\|\|/.test(home), "rail hrefs must NOT fall back to the raw t.url — that is a working, unattributed link");
+ok(ttd.includes("viatorDirectUrl(r.booking_url)"), "TTD tour cards still route through the affiliate wrapper");
+ok(!/viatorDirectUrl\(r\.booking_url\)\s*\|\|/.test(ttd), "TTD tour cards must NOT fall back to the raw booking_url — unattributed bookings earn nothing");
 ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook line");
 
 // THE TASTE CONTROLS. This rail is what the homepage's Activities tab leans on,

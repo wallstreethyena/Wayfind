@@ -183,18 +183,11 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
     </div>
   );
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
-  return isTour
-    ? (
-      <ViatorCommerceLink
-        t={r}
-        city={r.city}
-        surface="ttd_list"
-        rank={rank}
-        onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}
-        className="wf-ttd-focus"
-        style={style}
-      >{body}</ViatorCommerceLink>
-    )
+  // v6.79 (AGENTS.md §6b): an unattributable tour link is not rendered as a
+  // link at all — the card stays, the booking anchor does not.
+  const tourHref = isTour ? viatorDirectUrl(r.booking_url) : null;
+  return (isTour && tourHref)
+    ? <a href={tourHref} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 

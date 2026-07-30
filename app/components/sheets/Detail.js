@@ -649,20 +649,6 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
 
                 {!detail._event && <VerdictPill verdict={verdict} />}
-                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (primaryCta.type === DETAIL_CTA_TYPES.plan ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))"), gap: 8 }}>
-                  {detail._event && detail._event.url ? (
-                    <a href={ticketUrl(detail._event.url, { surface: "detail_event_primary" })} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
-                  ) : (
-                    <>
-                      {primaryCta.type !== DETAIL_CTA_TYPES.plan && (
-                        <button onClick={addToPlan} style={{ minWidth: 0, height: 48, padding: "0 15px", background: "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                          <span>{isSaved(detail.id) ? "Saved" : "Add to plan"}</span>
-                        </button>
-                      )}
-                      <PrimaryActionButton primaryCta={primaryCta} detail={detail} kind={placeKind(detail)} viaTours={viaTours} locName={locName} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} ctaRef={ctaRef} onClick={handlePrimaryCtaClick} />
-                    </>
-
                 {/* v6.44: the second column exists only if BookingCTA will actually
                     render into it. Previously this was always 2 columns, so a place
                     with no booking target left "Directions" at half width beside an

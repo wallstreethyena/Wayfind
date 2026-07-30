@@ -25,6 +25,14 @@ const fail = (m) => { console.error("check-monetized-degrade: FAIL — " + m); p
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 const AFF = new URL("../lib/affiliates.js", import.meta.url).pathname;
 
+// WHERE THE LITERAL PROTECTION LIVES (asked 2026-07-30): NOT here. There is no
+// LOAD_BEARING_LITERALS section in this file — deleting TP marker "750791" turns
+// scripts/check-untracked-affiliate-links.mjs red, and that guard red-proves it
+// independently. Duplicating the assertion here would be two sources of truth
+// for one invariant, which is the anti-pattern this codebase keeps paying for.
+// One guard owns it; this comment is the pointer so nobody looks for it here.
+
+
 // Run one builder in a clean child with a specific env.
 function call(fn, args, env) {
   const src = `import * as A from ${JSON.stringify(AFF)};

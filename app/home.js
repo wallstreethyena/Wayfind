@@ -215,6 +215,16 @@ function iconForPlace(p) {
   try { const c = Ranking.coarseCat(p); if (c === "Food") return "\uD83C\uDF7D\uFE0F"; if (c === "Nightlife") return "\uD83C\uDF78"; } catch (e) {}
   return "\uD83D\uDCCD";
 }
+
+// v6.79 (AGENTS.md §6b) — ONE decision point for a Viator tour href. Returns the
+// attributed url, or null when NEXT_PUBLIC_VIATOR_PID is unset. Callers MUST NOT
+// write `|| t.url`: that renders the bare viator.com link, which converts and
+// pays us nothing. Anchors gate on the null (React omits a null href, and the
+// rails above skip the row), so an unattributable tour simply does not render.
+function viatorHrefOrNull(url) {
+  const h = Aff.viatorDirectUrl(url);
+  return h || null;
+}
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
@@ -8633,30 +8643,27 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
         <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>No bookable experiences in this category near you yet.</div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-          {st.items.map((t, i) => (
-            <ViatorCommerceLink
-              key={t.code}
-              t={t}
-              surface="home_exp_rail"
-              contentId={metro}
-              rank={i + 1}
-              onClick={(e, clickId) => { try { log("tickets_out", { kind: "exp_rail", cat, code: t.code, click_id: clickId }); } catch (er) {} }}
-              style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none", display: "block" }}
-            >
-              {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
-              {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
-              <div style={{ padding: "8px 10px" }}>
-                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
-                {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
-                    exactly like place cards — green /10, then the honest meta. */}
-                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
-                  {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                  <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
+          {st.items.map((t) => {
+            const href = Aff.viatorDirectUrl(t.url);
+            // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
+            if (!href) return null;
+            return (
+              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+                {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
+                {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
+                <div style={{ padding: "8px 10px" }}>
+                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
+                  {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
+                      exactly like place cards — green /10, then the honest meta. */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
+                    {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
+                    <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
+                  </div>
                 </div>
-              </div>
-            </ViatorCommerceLink>
-          ))}
+            </a>
+          );
+          })}
         </div>
       )}
       <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
@@ -8709,26 +8716,18 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {items.map((t, i) => (
-          <ViatorCommerceLink
-            key={t.code || t.url}
-            t={t}
-            surface="home_ttd_rail"
-            contentId={city || region || sub}
-            rank={i + 1}
-            onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "ttd_rail", sub: sub || "all", code: t.code, click_id: clickId }); } catch (er) {} }}
-            style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "block" }}
-          >
+        {items.map((t) => (
+          <a key={t.code || t.url} href={viatorHrefOrNull(t.url)} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "ttd_rail", sub: sub || "all", code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
             {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
               <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
                 {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
                 <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}</span>
-                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url) || t.url, provider: "viator" }); } catch (er) {} }} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
+                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url), provider: "viator" }); } catch (er) {} }} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
               </div>
             </div>
-          </ViatorCommerceLink>
+          </a>
         ))}
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
@@ -8799,6 +8798,48 @@ function UTDealsRail({ category, onSave, lat, lng }) {
   );
 }
 
+function ViatorRail({ title, items, theme }) {
+  if (!Array.isArray(items) || !items.length) return null;
+  const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
+  return (
+    <div style={{ margin: "4px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+        {items.map((t) => (
+          /* v6.44: this rail rendered a RAW t.url while its sibling rail (the
+             Things-to-do one, ~8389) wrapped the identical payload from the
+             identical /api/viator/tours endpoint with viatorDirectUrl(). Two
+             rails, same data, one attributed and one not — so every booking
+             from the Family browse earned nothing. Same class of hole as the
+             Detail sheet's tour list; fixed the same way.
+             NOTE: this is a plain block comment, not a braced JSX comment. The
+             arrow body here is a parenthesised EXPRESSION, not a JSX children
+             list, so a braced comment would be a second top-level expression
+             and the file stops parsing (TS2657 "JSX expressions must have one
+             parent element"). Caught by npm run check:jsx, 2026-07-28. */
+          <a key={t.code || t.url} href={viatorHrefOrNull(t.url)} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+            {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
+              <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
+              {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
+            </div> : null}
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+              {/* THE ONE SCORE: same Wayfind treatment as every place card. */}
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
+                {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
+                <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+    </div>
+  );
+}
 
 // v6.42 (owner): bookable Activities cards carry the PAID booking link at card
 // level — the same verified /api/viator/go gate the Detail sheet uses (exact
