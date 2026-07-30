@@ -206,6 +206,16 @@ export default async function GuidePage({ params }) {
       />
       <article id="guide" className="wf-guide-article">
       <div style={S.meta}>Written by the Wayfind team, led by <a href="/about" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>Gabriel Pereira</a> · Last verified {g.updated} · <a href="/how-wayfind-ranks" style={{ color: "#CBD5E1", textDecoration: "none", fontWeight: 700 }}>How we rank ›</a></div>
+      {/* §2 OPEN LOOP, above the fold. One honest line the body resolves — a
+          reader who wants the answer scrolls. Every teaser is derived from that
+          guide's own tips (lib/guides.js) and check-guide-teasers.mjs proves the
+          grounding, because a teaser promising something the body never delivers
+          is the dark pattern the directive rules out. */}
+      {g.teaser ? (
+        <p className="wf-guide-teaser" style={{ margin: "0 0 14px", fontSize: 16.5, lineHeight: 1.5, color: "#E8C97A", fontWeight: 650 }}>
+          {g.teaser}
+        </p>
+      ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
       <div className="wf-guide-disclosure">Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
