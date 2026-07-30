@@ -117,7 +117,15 @@ export const config = {
 // break a legitimate click-through (some browsers strip both Sec-Fetch-Site and
 // Referer on a fresh nav), so these get the per-IP rate limit WITHOUT the
 // same-origin block. All other matched routes get the full guard.
-const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go"]);
+// /api/commerce/go added 2026-07-30. #477 matched it above and its comment states
+// "It is a NAVIGATION, so it is rateLimitOnly below" — but the path was never
+// added to THIS Set, so it was getting the full same-origin guard. apiGuard.js:76
+// then 403s any request lacking Sec-Fetch-Site AND Referer, which is exactly what
+// a top-level click-through navigation can look like. Every schema-approved money
+// link resolves through this route, so the comment described the intent and the
+// code did the opposite. check-clipp-deals.mjs asserts membership in this Set, not
+// merely that the path appears somewhere in this file.
+const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go", "/api/commerce/go"]);
 // Image proxies loaded via <img> — including cross-origin OG/share-preview
 // crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but
