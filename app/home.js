@@ -593,8 +593,31 @@ function randCode() {
 }
 
 const LINE_TTL = 30 * 24 * 3600 * 1000; // 30 days
+// v6.75: ONE knob that invalidates both client caches below. Bump it whenever a
+// bug UPSTREAM of them made their contents wrong, because a 30-day per-device
+// cache means "fixed in production" and "fixed for a given user" are different
+// dates — up to a month apart.
+//
+// Epoch 2 exists because of #466. fetchPlaceDetail asked the Maps SDK for
+// "websiteUri" instead of "websiteURI"; fetchFields validates the whole array up
+// front, so reviews and hours were never fetched for ANY place. Both caches were
+// then filled from that nothing:
+//   wf_lines    — /api/blurbs was handed an empty reviewText, so the line was
+//                 written without the reviews it is supposed to be grounded in
+//   wf_insights — /api/insight took its no-reviews branch, so the flattened
+//                 one-sentence "Why Wayfind picked this" got persisted as fact
+// #466 stopped CACHING new failures. It could not evict what was already on
+// disk, and a fresh browser profile hides the whole problem — which is exactly
+// why verification looked clean while real users would have stayed degraded.
+//
+// The pre-epoch blobs are deliberately left in place rather than deleted: they
+// are never read again, and eviction code that runs on every visit is more risk
+// than the few hundred KB it reclaims.
+const CACHE_EPOCH = 2;
+const LINES_KEY = "wf_lines_v" + CACHE_EPOCH;
+const INSIGHTS_KEY = "wf_insights_v" + CACHE_EPOCH;
 function allCachedLines() {
-  try { return JSON.parse(localStorage.getItem("wf_lines") || "{}"); } catch { return {}; }
+  try { return JSON.parse(localStorage.getItem(LINES_KEY) || "{}"); } catch { return {}; }
 }
 function getCachedLine(id) {
   try {
@@ -608,21 +631,21 @@ function setCachedLines(map) {
     const c = allCachedLines();
     const now = Date.now();
     Object.keys(map || {}).forEach((id) => { if (map[id]) c[id] = { v: map[id], t: now }; });
-    localStorage.setItem("wf_lines", JSON.stringify(c));
+    localStorage.setItem(LINES_KEY, JSON.stringify(c));
   } catch {}
 }
 function getCachedInsight(id) {
   try {
-    const e = JSON.parse(localStorage.getItem("wf_insights") || "{}")[id];
+    const e = JSON.parse(localStorage.getItem(INSIGHTS_KEY) || "{}")[id];
     if (e && Date.now() - e.t < LINE_TTL) return e.v;
   } catch {}
   return null;
 }
 function setCachedInsight(id, data) {
   try {
-    const c = JSON.parse(localStorage.getItem("wf_insights") || "{}");
+    const c = JSON.parse(localStorage.getItem(INSIGHTS_KEY) || "{}");
     c[id] = { v: data, t: Date.now() };
-    localStorage.setItem("wf_insights", JSON.stringify(c));
+    localStorage.setItem(INSIGHTS_KEY, JSON.stringify(c));
   } catch {}
 }
 
