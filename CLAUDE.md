@@ -462,6 +462,15 @@ Two further habits from the same incident:
   module-local helper's name is a cheap, real check on the production artifact.
   Proven both ways: broken tree built exit-0 with the literal intact; fixed tree
   had zero occurrences.
+- **…but ASSERTIONS ABOUT BUILT OUTPUT MUST SCOPE TO PRODUCTION CHUNKS.** The premise
+  above holds only for `next build` output. `.next/static/chunks` also retains
+  **unminified `next dev` artifacts** (`_app-pages-browser_*`, `app-pages-internals*`,
+  `*_ssr_*`), which violate every property `next build` guarantees — nothing is
+  minified, so every local name survives literally whether bound or not, and the sweep
+  reads them all as offenders. **That is what made a green `main` look red** and get
+  escalated as a blocker across lanes on 2026-07-30. Exclude the dev prefixes, and
+  **assert that at least one production chunk was actually swept** so a dev-only tree
+  says "run `next build`" instead of silently proving nothing.
 
 ---
 
