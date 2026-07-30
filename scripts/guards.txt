@@ -241,3 +241,4 @@ node scripts/check-boundary-alert.mjs
 node scripts/check-ut-crawler-clicks.mjs
 node scripts/check-hero-chrome.mjs
 node scripts/check-money-funnel.mjs
+node scripts/check-deal-sheet.mjs

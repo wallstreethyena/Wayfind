@@ -1,147 +1,271 @@
 "use client";
-// Extracted from app/home.js (G1, July 2026 decomposition). Render-only.
-import { Fragment } from "react";
-import { C } from "../kit";
+// CouponsScreen — "The Deal Sheet".
+//
+// Design contract: docs/mocks/coupons-deal-sheet-mock.html (owner-signed, committed
+// beside this file). Values below are LIFTED from that mock's CSS, not
+// approximated. Deviations are listed in the PR, each with its reason.
+//
+// TWO TIERS, BOTH DERIVED. lib/dealSheet.js makes every decision — tier, seal,
+// schedule, proof point, disclosure, artwork. This file draws. That split is what
+// makes the work order's two hard rules checkable: the tiers are derived and never
+// hand-sorted, and an unregistered deal cannot render, because dealTiers() only
+// ever partitions the array it is given.
+//
+// THE FOOTER IS PINNED, AND THAT IS THE POINT OF THE FLEX COLUMN. Card bodies are
+// flex-column with the footer at margin-top:auto, so every CTA and every
+// disclosure lands on ONE baseline across the rail regardless of the content above
+// it. The code-chip card is the test case — it carries an extra element and must
+// still line up.
+//
+// ONE PROVIDER PER CARD, EVER (owner rule, 2026-07-30). A card maps to exactly one
+// offer id, one provider, one /api/commerce/go resolution. Two monetized hrefs on
+// one card is double attribution, and it is also a lie about who you are buying
+// from. There is exactly ONE monetized anchor in this file — the CTA — and
+// scripts/check-deal-sheet.mjs counts them.
+import { useRef, useEffect } from "react";
 import { COUPONS } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket } from "../../../lib/commerce";
 import { useCommerceImpression } from "../useCommerceImpression";
-import AffiliateChip from "../AffiliateChip";
+import {
+  dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealSchedule, dealDisclosure, dealArtwork,
+} from "../../../lib/dealSheet";
 
-// The commerce-instrumented wrapper for a coupon card.
-//
-// WHY A COMPONENT AND NOT A FEW LINES IN Cpn(): useCommerceImpression is a HOOK,
-// and Cpn is a plain function called from inside .map() — a hook there would run
-// a different number of times per render depending on how many coupons are live.
-// Giving each monetized card its own component instance is also what makes "one
-// impression per offer per view" a well-defined statement.
-//
-// THE DISCLOSURE LIVES HERE, next to the CTA it describes. The tab-footer line
-// stays where it is, but a footer is not adjacency: on a long list the earning
-// card and the disclosure sit several screens apart, which is the same FTC gap
-// AffiliateChip and BookingCTA exist to close on the other monetized surfaces.
-function CommerceCoupon({ c, position, render }) {
-  const cctx = {
-    surface: "coupons",
-    provider: c.commerce.provider,
-    offer_id: c.commerce.offerId,
-    content_id: c.id,
-    category: "dining",
-    rank_bucket: rankBucket(position),
-  };
-  const ref = useCommerceImpression(cctx);
-  // The ref wrapper is all this adds to the DOM. The chip + disclosure render
-  // INSIDE the card (see the cctx branch in Cpn's body) — floating them below the
-  // dashed border read as detached text between two cards, and the deals rail
-  // already puts AffiliateChip inside the card it describes.
-  return <div ref={ref}>{render(cctx)}</div>;
+/* ── tokens, lifted from the mock's :root and rules ───────────────────────── */
+const T = {
+  gold: "#b98a2f", goldSoft: "#d8c39a", amber: "#ffb35c",
+  coral: "#e8632e", coralDeep: "#c94f1f",
+  kick: "#a8935f", muted: "#9aa3b2", hint: "#8a93a4", ends: "#c8b98a",
+  serif: "Georgia,'Times New Roman',serif",
+  dots: "1px dotted rgba(200,194,178,.3)",
+};
+const RULE = { height: 3, borderTop: "1px solid rgba(216,195,154,.5)", borderBottom: "1px solid rgba(216,195,154,.16)", flex: 1, alignSelf: "center" };
+
+function TierHead({ title, hint }) {
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 11, margin: "26px 0 12px" }}>
+      <span aria-hidden="true" style={{ color: T.amber, fontSize: 13 }}>❧</span>
+      <span style={{ fontFamily: T.serif, fontSize: 18, fontStyle: "italic", color: "#f3ecdc" }}>{title}</span>
+      <span aria-hidden="true" style={RULE} />
+      <span style={{ fontSize: 10.5, letterSpacing: ".16em", textTransform: "uppercase", color: T.hint, fontWeight: 700 }}>{hint}</span>
+    </div>
+  );
 }
 
-export default function CouponsScreen({ ctx }) {
-  const { cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, logEvent, walletOpen, setWalletOpen, openExternal } = ctx;
-          const _today = siteTodayStr(); // C1: venue-local day, not UTC (lib/siteTime)
-          const _liveOk = (c) => c && c.id && c.title && (!c.expires || String(c.expires).slice(0, 10) >= _today);
-          const live = [...COUPONS, ...cpnOffers].filter(_liveOk);
-          const savedList = Object.values(savedCoupons).map((x) => x && x.c).filter(_liveOk).sort((a, b) => ((savedCoupons[b.id] || {}).ts || 0) - ((savedCoupons[a.id] || {}).ts || 0));
-          const savedIds = new Set(savedList.map((c) => c.id));
-          const fresh = live.filter((c) => !savedIds.has(c.id));
-          const Cpn = (c, i) => {
-            const isSaved = !!savedCoupons[c.id];
-            const body = (cctx) => (
-              <div style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.light : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
-                {/* Optional banner. Same chrome as the deals rail (UTDealsRail in
-                    app/home.js): center/cover background, badge pill top-right,
-                    gradient fallback — so a coupon card with art reads as the
-                    same object as a deal card with art, not as a new species.
-                    The field is GENERIC, not Clipp-specific: any coupon can carry
-                    an image, and one without renders exactly as it did before
-                    (the padding moved to the inner div, nothing else changed).
+const ShareGlyph = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" />
+  </svg>
+);
 
-                    boxSizing below is load-bearing: width:100% + padding:7 in the
-                    default content-box overflows the card by 14px, and the card's
-                    overflow:hidden then CLIPS the badge pill. */}
-                {c.image ? (
-                  <div style={{ width: "100%", boxSizing: "border-box", height: 88, background: `center/cover no-repeat url(${c.image})`, display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
-                    {c.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{c.badge}</span> : null}
-                  </div>
-                ) : null}
-                <div style={{ padding: "14px 16px" }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
-                  <div style={{ minWidth: 0 }}>
-                    {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
-                    <div style={{ fontSize: 16.5, fontWeight: 800, color: C.text, marginTop: 2, lineHeight: 1.3 }}>🏷️ {c.title}</div>
-                    {c.details ? <div style={{ fontSize: 13, color: C.light, marginTop: 4, lineHeight: 1.45 }}>{c.details}</div> : null}
-                    {c.expires ? <div style={{ fontSize: 11.5, color: C.muted, marginTop: 5 }}>Ends {String(c.expires).slice(0, 10)}</div> : null}
-                  </div>
-                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                    <button onClick={() => shareCoupon(c)} aria-label="Share coupon" title="Share this coupon" style={{ width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${C.border}`, background: "transparent", color: C.light, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg>
-                    </button>
-                    <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved coupon" : "Save coupon"} style={{ width: 40, height: 40, borderRadius: "50%", border: `1.5px solid ${isSaved ? C.light : C.border}`, background: isSaved ? C.adim : "transparent", color: isSaved ? C.light : C.muted, cursor: "pointer", fontSize: 16 }}>{isSaved ? "♥" : "♡"}</button>
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 11 }}>
-                  {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
-                  {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} if (cctx) { try { emitCommerce("commerce_cta_clicked", cctx); } catch (er) {} } openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
-                  {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
-                </div>
-                {/* FTC disclosure, inside the card and directly beneath the CTA it
-                    describes. The tab-footer line stays, but a footer several
-                    screens away is not adjacency. */}
-                {cctx ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-                    <AffiliateChip provider={cctx.provider} />
-                    <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Wayfind earns a commission if you buy — your price is the same.</span>
-                  </div>
-                ) : null}
-                </div>
-              </div>
-            );
-            // coupon_out keeps firing for every coupon (it is the historical
-            // series and the Ads conversion). commerce_cta_clicked is additive
-            // and only on commerce-backed cards, so the new funnel has a
-            // consistent numerator/denominator pair and the old chart does not
-            // change shape underneath the owner.
-            return c.commerce
-              ? <CommerceCoupon key={c.id} c={c} position={(i | 0) + 1} render={body} />
-              : <Fragment key={c.id}>{body(null)}</Fragment>;
-          };
-          return (
-            <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: C.text, margin: "4px 0 4px" }}>🏷️ Coupons</div>
-              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>Real deals at great local places, hand-picked by Wayfind — no junk offers. Tap ♡ to keep one; saved coupons stay on this device and in your account when you're signed in.</div>
-              {savedList.length > 0 && (
-                <>
-                  {/* v5.08 (user direction): saved coupons behave like cards in
-                      Apple Wallet — a collapsed stack showing each card's top
-                      band, tap to fan out, tap the header to restack. */}
-                  <div onClick={() => setWalletOpen((v) => !v)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, cursor: "pointer" }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase" }}>Your wallet · {savedList.length}</div>
-                    <span style={{ fontSize: 11.5, fontWeight: 800, color: C.light }}>{walletOpen ? "Stack ▴" : "Fan out ▾"}</span>
-                  </div>
-                  {walletOpen || savedList.length === 1 ? savedList.map(Cpn) : (
-                    <div onClick={() => setWalletOpen(true)} style={{ cursor: "pointer", marginBottom: 16 }}>
-                      {[...savedList.slice(0, 6)].reverse().map((c, i, arr) => (
-                        <div key={c.id} style={{ position: "relative", marginTop: i === 0 ? 0 : -58, zIndex: i + 1, background: "#1A2030", border: `1.5px solid ${C.border}`, borderRadius: 14, padding: i === arr.length - 1 ? "13px 16px 15px" : "13px 16px 74px", boxShadow: "0 -8px 20px rgba(0,0,0,.5)" }}>
-                          {c.business ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}</div> : null}
-                          <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>🏷️ {c.title}</div>
-                        </div>
-                      ))}
-                      <div style={{ textAlign: "center", fontSize: 11.5, color: C.muted, marginTop: 8 }}>{savedList.length > 6 ? `+${savedList.length - 6} more · ` : ""}Tap to open your wallet</div>
-                    </div>
-                  )}
-                  {fresh.length > 0 && <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", margin: "14px 0 8px" }}>More deals</div>}
-                </>
-              )}
-              {fresh.map(Cpn)}
-              {live.length === 0 && savedList.length === 0 && (
-                <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
-                  <div style={{ fontSize: 42, marginBottom: 12 }}>🏷️</div>
-                  <strong style={{ display: "block", color: C.light, marginBottom: 6 }}>New local deals land here</strong>
-                  <span style={{ fontSize: 13, lineHeight: 1.5, display: "block" }}>Wayfind is signing up local spots now. Every coupon here will be real — no junk offers, ever. Check back soon.</span>
-                </div>
-              )}
-              {live.length > 0 && <div style={{ fontSize: 11, color: C.muted, marginTop: 10, textAlign: "center" }}>Some deals may be affiliate offers. Wayfind may earn a commission at no cost to you.</div>}
+/* ── the poster card ──────────────────────────────────────────────────────── */
+
+function PosterCard({ c, position, ctx }) {
+  const { savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, logEvent, openExternal } = ctx;
+  const isSaved = !!savedCoupons[c.id];
+  const seal = dealSeal(c);
+  const art = dealArtwork(c);
+  const disc = dealDisclosure(c);
+  const ends = dealEndsLabel(c);
+  const proof = dealProofPoint(c);
+
+  // Commerce events only for cards that actually earn. An impression on a free
+  // community offer would pad the denominator of a monetization rate with rows
+  // that can never convert.
+  const cctx = disc.affiliate
+    ? {
+        surface: "coupons",
+        provider: (c.commerce && c.commerce.provider) || String(disc.network).toLowerCase(),
+        offer_id: (c.commerce && c.commerce.offerId) || c.id,
+        content_id: c.id,
+        category: "deal",
+        rank_bucket: rankBucket(position),
+      }
+    : null;
+  const impRef = useCommerceImpression(cctx);
+
+  const seenRef = useRef(false);
+  useEffect(() => {
+    if (!cctx || seenRef.current) return;
+    seenRef.current = true;
+    try { emitCommerce("disclosure_viewed", cctx); } catch (e) {}
+  }, [cctx]);
+
+  const SaveBtn = ({ onArt }) => (
+    <button
+      onClick={() => toggleSaveCoupon(c)}
+      aria-label={isSaved ? "Remove saved deal" : "Save deal"}
+      style={onArt
+        ? { position: "absolute", top: 12, right: 12, zIndex: 5, width: 36, height: 36, borderRadius: "50%", background: isSaved ? "rgba(232,99,46,.9)" : "rgba(16,12,8,.55)", backdropFilter: "blur(3px)", border: isSaved ? "1px solid transparent" : "1px solid rgba(255,255,255,.25)", color: "#fff", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }
+        : { flexShrink: 0, background: "none", border: "none", color: isSaved ? T.coral : "#6b7484", fontSize: 15, cursor: "pointer", padding: 0, lineHeight: 1 }}
+    >{isSaved ? "♥" : "♡"}</button>
+  );
+
+  // Share sits beside the ♡, quiet, reusing the existing handler and its event.
+  const ShareBtn = ({ onArt }) => (
+    <button
+      onClick={() => { try { shareCoupon(c); } catch (e) {} }}
+      aria-label="Share deal" title="Share this deal"
+      style={onArt
+        ? { position: "absolute", top: 12, right: 56, zIndex: 5, width: 36, height: 36, borderRadius: "50%", background: "rgba(16,12,8,.55)", backdropFilter: "blur(3px)", border: "1px solid rgba(255,255,255,.25)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }
+        : { flexShrink: 0, background: "none", border: "none", color: "#6b7484", cursor: "pointer", padding: 0, lineHeight: 1, display: "inline-flex" }}
+    ><ShareGlyph /></button>
+  );
+
+  return (
+    <div ref={impRef} style={{ flex: "0 0 316px", scrollSnapAlign: "start", position: "relative", background: "linear-gradient(168deg,#232c3c 0%, #1a212e 100%)", border: "1px solid rgba(185,138,47,.42)", borderRadius: 16, overflow: "hidden", boxShadow: "0 12px 32px rgba(0,0,0,.4)", display: "flex", flexDirection: "column" }}>
+      <span aria-hidden="true" style={{ position: "absolute", inset: 6, border: "1px solid rgba(185,138,47,.16)", borderRadius: 11, pointerEvents: "none", zIndex: 4 }} />
+
+      {/* Artwork band. ABSENT ENTIRELY when no usable image exists — never a
+          placeholder, never a stretched thumbnail (work order). The save/share
+          pair moves into the body in that case so neither is ever lost. */}
+      {art ? (
+        <div style={{ position: "relative", width: "100%", boxSizing: "border-box", aspectRatio: "3 / 2", display: "flex", alignItems: "flex-start", justifyContent: "flex-start", padding: "12px 14px", background: `center/cover no-repeat url(${art})` }}>
+          <span aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(18,15,10,.6), transparent 60%)" }} />
+          {seal ? (
+            <div style={{ position: "relative", zIndex: 3, width: 64, height: 64, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #ffd9a0, ${T.gold} 70%)`, color: "#3a2a08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, lineHeight: 1, boxShadow: "0 4px 12px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5)" }}>
+              {seal.big}<small style={{ fontSize: 8, fontWeight: 800, letterSpacing: ".08em" }}>{seal.small}</small>
             </div>
-          );
+          ) : null}
+          <ShareBtn onArt />
+          <SaveBtn onArt />
+        </div>
+      ) : null}
+
+      <div style={{ padding: "15px 17px 14px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ fontSize: 9.5, letterSpacing: ".22em", fontWeight: 700, textTransform: "uppercase", color: T.kick, marginBottom: 6 }}>
+            {c.business}{c.area ? " · " + c.area : ""}
+          </div>
+          {!art ? <div style={{ display: "flex", gap: 10, alignItems: "center", flexShrink: 0 }}><ShareBtn /><SaveBtn /></div> : null}
+        </div>
+        <div style={{ fontFamily: T.serif, fontSize: 19.5, color: "#fff", lineHeight: 1.2, marginBottom: 6 }}>{c.title}</div>
+        {c.details ? (
+          <div style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.45, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</div>
+        ) : null}
+
+        {c.code ? (
+          <div
+            onClick={() => copyCouponCode(c.code)} role="button" tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") copyCouponCode(c.code); }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 8, alignSelf: "flex-start", background: "#10151f", border: "1px dashed rgba(255,179,92,.5)", borderRadius: 9, padding: "7px 12px", fontFamily: "ui-monospace,Menlo,monospace", fontSize: 13, color: T.amber, letterSpacing: ".12em", marginBottom: 12, cursor: "pointer" }}
+          >
+            {c.code}<small style={{ fontFamily: "-apple-system,sans-serif", fontSize: 10, letterSpacing: ".08em", color: T.hint, textTransform: "uppercase" }}>tap to copy</small>
+          </div>
+        ) : null}
+
+        {/* THE PINNED FOOTER — margin-top:auto is what puts every CTA and every
+            disclosure on one baseline across the rail. */}
+        <div style={{ marginTop: "auto" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 12 }}>
+            {ends ? <span style={{ fontFamily: T.serif, fontStyle: "italic", fontSize: 12.5, color: T.ends }}>{ends}</span> : null}
+            <span aria-hidden="true" style={{ flex: 1, borderBottom: T.dots, transform: "translateY(-3px)" }} />
+            {proof ? <span style={{ fontFamily: T.serif, fontStyle: "italic", fontSize: 12.5, color: T.amber }}>{proof}</span> : null}
+          </div>
+          {c.url ? (
+            <a
+              href={c.url} target="_blank" rel="noreferrer sponsored nofollow"
+              onClick={(e) => {
+                e.preventDefault();
+                const live = (e.currentTarget && e.currentTarget.href) || c.url;
+                try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {}
+                if (cctx) { try { emitCommerce("commerce_cta_clicked", cctx); } catch (er) {} }
+                openExternal(live);
+              }}
+              style={{ display: "block", width: "100%", boxSizing: "border-box", background: `linear-gradient(170deg,#f07a42,${T.coral} 40%,${T.coralDeep})`, color: "#fff", border: "none", borderRadius: 11, padding: "12px 16px", fontSize: 14, fontWeight: 800, letterSpacing: ".02em", cursor: "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(201,79,31,.38)", textAlign: "center", textDecoration: "none" }}
+            >{c.cta || "Claim deal"} →</a>
+          ) : (
+            <div style={{ fontSize: 12.5, color: T.hint, textAlign: "center", padding: "12px 0" }}>Mention Wayfind when you order</div>
+          )}
+          <div style={{ marginTop: 9, fontSize: 10.5, color: "#7f8896", textAlign: "center", lineHeight: 1.4 }}>
+            {disc.before}<i style={{ fontStyle: "italic", color: T.muted }}>{disc.italic}</i>{disc.after}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── the ledger row ───────────────────────────────────────────────────────── */
+
+function LedgerRow({ c, ctx, today, last }) {
+  const { savedCoupons, toggleSaveCoupon, logEvent, openExternal } = ctx;
+  const isSaved = !!savedCoupons[c.id];
+  const when = dealSchedule(c, today);
+  const go = () => {
+    if (!c.url) return;
+    try { logEvent("coupon_out", null, { id: c.id }); } catch (e) {}
+    openExternal(c.url);
+  };
+  return (
+    <div style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "13px 2px", borderBottom: last ? "none" : "1px solid rgba(255,255,255,.06)" }}>
+      <span onClick={go} role={c.url ? "button" : undefined} tabIndex={c.url ? 0 : undefined} onKeyDown={(e) => { if (e.key === "Enter") go(); }} style={{ fontFamily: T.serif, fontSize: 15.5, color: "#f3ecdc", flexShrink: 0, cursor: c.url ? "pointer" : "default" }}>{c.business}</span>
+      <span style={{ fontSize: 12.5, color: T.muted, flexShrink: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.title}</span>
+      <span aria-hidden="true" style={{ flex: 1, borderBottom: T.dots, transform: "translateY(-3px)", minWidth: 18 }} />
+      {when ? <span style={{ fontFamily: T.serif, fontStyle: "italic", fontSize: 12.5, color: T.ends, whiteSpace: "nowrap" }}>{when}</span> : null}
+      <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove saved deal" : "Save deal"} style={{ background: "none", border: "none", color: isSaved ? T.coral : "#6b7484", fontSize: 14, cursor: "pointer", marginLeft: 2, padding: 0, lineHeight: 1 }}>{isSaved ? "♥" : "♡"}</button>
+    </div>
+  );
+}
+
+/* ── the sheet ────────────────────────────────────────────────────────────── */
+
+export default function CouponsScreen({ ctx }) {
+  const { cpnOffers } = ctx;
+  const today = siteTodayStr(); // venue-local day, never UTC (lib/siteTime)
+  // The Supabase `offers` rows this tab already merged stay merged — they are
+  // registered deals too, entered from the dashboard rather than the file.
+  const all = [...COUPONS, ...(Array.isArray(cpnOffers) ? cpnOffers : [])];
+  const { featured, ledger } = dealTiers(all, today);
+
+  return (
+    <div>
+      <div style={{ textAlign: "center", marginBottom: 26 }}>
+        <div style={{ fontSize: 11, letterSpacing: ".26em", fontWeight: 700, textTransform: "uppercase", color: T.kick, marginBottom: 10 }}>The Wayfind Deal Sheet</div>
+        <h1 style={{ fontFamily: T.serif, fontWeight: 600, fontSize: 40, color: "#fff", lineHeight: 1.05, marginBottom: 8 }}>
+          Real deals. <em style={{ fontStyle: "italic", color: T.amber }}>No junk offers.</em>
+        </h1>
+        <p style={{ fontSize: 14, color: T.muted, maxWidth: "52ch", margin: "0 auto", lineHeight: 1.55 }}>
+          Hand-picked at great local places — verified at the source, removed the day they expire. Tap ♡ to keep one.
+        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, margin: "18px auto 0", maxWidth: 420 }}>
+          <span aria-hidden="true" style={RULE} /><span aria-hidden="true" style={{ color: T.goldSoft, fontSize: 14 }}>❧</span><span aria-hidden="true" style={RULE} />
+        </div>
+      </div>
+
+      {featured.length > 0 && (
+        <>
+          <TierHead title="Worth money tonight" hint="Verified this week" />
+          <div style={{ display: "flex", gap: 14, overflowX: "auto", padding: "4px 2px 12px", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+            {featured.map((c, i) => <PosterCard key={c.id} c={c} position={i + 1} ctx={ctx} />)}
+          </div>
+        </>
+      )}
+
+      {ledger.length > 0 && (
+        <>
+          <TierHead title="Free &amp; local, standing offers" hint="The ledger" />
+          <div style={{ background: "linear-gradient(168deg,#202939 0%, #1a212e 100%)", border: "1px solid rgba(185,138,47,.3)", borderRadius: 16, padding: "8px 22px", boxShadow: "0 10px 28px rgba(0,0,0,.35)" }}>
+            {ledger.map((c, i) => <LedgerRow key={c.id} c={c} ctx={ctx} today={today} last={i === ledger.length - 1} />)}
+          </div>
+        </>
+      )}
+
+      {featured.length === 0 && ledger.length === 0 && (
+        <div style={{ textAlign: "center", padding: "48px 24px", color: T.hint }}>
+          <div style={{ fontSize: 42, marginBottom: 12 }}>🏷️</div>
+          <strong style={{ display: "block", color: T.goldSoft, marginBottom: 6 }}>New local deals land here</strong>
+          <span style={{ fontSize: 13, lineHeight: 1.5, display: "block" }}>Wayfind is signing up local spots now. Every deal here will be real — no junk offers, ever. Check back soon.</span>
+        </div>
+      )}
+
+      {(featured.length > 0 || ledger.length > 0) && (
+        <p style={{ color: "#78818f", fontSize: 12.5, textAlign: "center", marginTop: 26, lineHeight: 1.6 }}>
+          <span aria-hidden="true" style={{ color: T.gold }}>◆</span>{" "}
+          <b style={{ color: "#a7b0bf" }}>Every deal verified at its source, tracked to its expiry, and removed the day it lapses.</b>{" "}
+          Some are affiliate offers — marked where they are, never affecting what you pay or how we rank.
+        </p>
+      )}
+    </div>
+  );
 }

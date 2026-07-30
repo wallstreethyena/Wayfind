@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayfind — The Deal Sheet (coupons page mock)</title>
+<style>
+  :root{
+    --bg:#141a24; --panel:#1b2330; --panel-2:#212b3b;
+    --ink:#1e2430; --cream:#f7f1e6; --paper:#fffdf8;
+    --coral:#e8632e; --coral-deep:#c94f1f; --amber:#ffb35c;
+    --gold:#b98a2f; --gold-soft:#d8c39a;
+    --dline:rgba(255,255,255,.08); --dmuted:#9aa3b2; --serif:Georgia,'Times New Roman',serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(90% 60% at 50% -10%, #223048 0%, transparent 60%),var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#e8e2d4;display:flex;justify-content:center;padding:40px 22px 90px}
+  .page{max-width:860px;width:100%}
+
+  /* Masthead */
+  .mast{text-align:center;margin-bottom:26px}
+  .mast .kick{font-size:11px;letter-spacing:.26em;font-weight:700;text-transform:uppercase;color:#a8935f;margin-bottom:10px}
+  .mast h1{font-family:var(--serif);font-weight:600;font-size:40px;color:#fff;line-height:1.05;margin-bottom:8px}
+  .mast h1 em{font-style:italic;color:var(--amber)}
+  .mast .lede{font-size:14px;color:var(--dmuted);max-width:52ch;margin:0 auto;line-height:1.55}
+  .mast .rules{display:flex;align-items:center;gap:14px;margin:18px auto 0;max-width:420px}
+  .mast .rules .r{height:3px;border-top:1px solid rgba(216,195,154,.5);border-bottom:1px solid rgba(216,195,154,.16);flex:1}
+  .mast .rules .orn{color:var(--gold-soft);font-size:14px}
+
+  .tierhead{display:flex;align-items:baseline;gap:11px;margin:26px 0 12px}
+  .tierhead .orn{color:var(--amber);font-size:13px}
+  .tierhead .t{font-family:var(--serif);font-size:18px;font-style:italic;color:#f3ecdc}
+  .tierhead .rule{height:3px;border-top:1px solid rgba(216,195,154,.5);border-bottom:1px solid rgba(216,195,154,.16);flex:1;align-self:center}
+  .tierhead .hint{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#8a93a4;font-weight:700}
+
+  /* Featured deal cards */
+  .feat{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory}
+  .feat::-webkit-scrollbar{height:6px}
+  .feat::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+  .feat .deal{flex:0 0 316px;scroll-snap-align:start}
+  .deal{position:relative;background:linear-gradient(168deg,#232c3c 0%, #1a212e 100%);border:1px solid rgba(185,138,47,.42);border-radius:16px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.4);transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;display:flex;flex-direction:column}
+  .deal:hover{transform:translateY(-3px);border-color:rgba(255,179,92,.65);box-shadow:0 20px 46px rgba(0,0,0,.55)}
+  .deal .inner{position:absolute;inset:6px;border:1px solid rgba(185,138,47,.16);border-radius:11px;pointer-events:none;z-index:4}
+  .deal .img{position:relative;aspect-ratio:3/2;display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px}
+  .deal .img::after{content:"";position:absolute;inset:0;background:linear-gradient(to top, rgba(18,15,10,.6), transparent 60%)}
+  .i-dining{background:radial-gradient(110% 120% at 20% 10%, #f2b062 0%, transparent 55%),linear-gradient(150deg,#b06a2e,#5f3315 60%,#2c1608)}
+  .i-manatee{background:radial-gradient(110% 120% at 75% 10%, #7fb9d6 0%, transparent 55%),linear-gradient(150deg,#2e6a8f,#153a4d 60%,#081c26)}
+  .i-zoo{background:radial-gradient(110% 120% at 30% 10%, #9fd66a 0%, transparent 55%),linear-gradient(150deg,#4f7a2e,#2a4d15 60%,#122608)}
+  .i-klook{background:radial-gradient(110% 120% at 70% 10%, #d67f9b 0%, transparent 55%),linear-gradient(150deg,#8f2e56,#4d1530 60%,#260818)}
+  .seal{position:relative;z-index:3;width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #ffd9a0, var(--gold) 70%);color:#3a2a08;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:16px;line-height:1;box-shadow:0 4px 12px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5)}
+  .seal small{font-size:8px;font-weight:800;letter-spacing:.08em}
+  .imgnote{position:relative;z-index:3;align-self:flex-end;font-size:9.5px;letter-spacing:.06em;color:rgba(255,255,255,.5);text-transform:uppercase}
+  .deal .body{padding:15px 17px 14px;display:flex;flex-direction:column;flex:1}
+  .deal .foot{margin-top:auto}
+  .deal .kick{font-size:9.5px;letter-spacing:.22em;font-weight:700;text-transform:uppercase;color:#a8935f;margin-bottom:6px}
+  .deal .n{font-family:var(--serif);font-size:19.5px;color:#fff;line-height:1.2;margin-bottom:6px}
+  .deal .d{font-size:12.5px;color:var(--dmuted);line-height:1.45;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .deal .meta{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+  .deal .meta .ends{font-family:var(--serif);font-style:italic;font-size:12.5px;color:#c8b98a}
+  .deal .meta .dots{flex:1;border-bottom:1px dotted rgba(200,194,178,.3);transform:translateY(-3px)}
+  .deal .meta .save{font-family:var(--serif);font-style:italic;font-size:12.5px;color:var(--amber)}
+  .claim{display:block;width:100%;background:linear-gradient(170deg,#f07a42,var(--coral) 40%,var(--coral-deep));color:#fff;border:none;border-radius:11px;padding:12px 16px;font-size:14px;font-weight:800;letter-spacing:.02em;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(201,79,31,.38);transition:transform .12s ease}
+  .claim:hover{transform:translateY(-1px)}
+  .ftc{margin-top:9px;font-size:10.5px;color:#7f8896;text-align:center;line-height:1.4}
+  .ftc i{font-style:italic;color:#9aa3b2}
+  .code{display:inline-flex;align-items:center;gap:8px;background:#10151f;border:1px dashed rgba(255,179,92,.5);border-radius:9px;padding:7px 12px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--amber);letter-spacing:.12em;margin-bottom:12px;cursor:pointer}
+  .code small{font-family:-apple-system,sans-serif;font-size:10px;letter-spacing:.08em;color:#8a93a4;text-transform:uppercase}
+
+  .save-btn{position:absolute;top:12px;right:12px;z-index:5;width:36px;height:36px;border-radius:50%;background:rgba(16,12,8,.55);backdrop-filter:blur(3px);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s ease, background .12s ease, border-color .12s ease}
+  .save-btn:hover{transform:scale(1.08);border-color:rgba(255,179,92,.7)}
+  .save-btn.saved{background:rgba(232,99,46,.9);border-color:transparent}
+  .lrow .sv{color:#6b7484;font-size:14px;cursor:pointer;transition:color .12s ease;margin-left:2px}
+  .lrow .sv:hover{color:var(--coral)}
+  .lrow .sv.saved{color:var(--coral)}
+
+  /* Free & local — ledger */
+  .ledger{background:linear-gradient(168deg,#202939 0%, #1a212e 100%);border:1px solid rgba(185,138,47,.3);border-radius:16px;padding:8px 22px;box-shadow:0 10px 28px rgba(0,0,0,.35)}
+  .lrow{display:flex;align-items:baseline;gap:10px;padding:13px 2px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer}
+  .lrow:last-child{border-bottom:none}
+  .lrow .place{font-family:var(--serif);font-size:15.5px;color:#f3ecdc;flex-shrink:0}
+  .lrow .what{font-size:12.5px;color:var(--dmuted);flex-shrink:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lrow .dots{flex:1;border-bottom:1px dotted rgba(200,194,178,.3);transform:translateY(-3px);min-width:18px}
+  .lrow .when{font-family:var(--serif);font-style:italic;font-size:12.5px;color:#c8b98a;white-space:nowrap}
+  .lrow .go{color:var(--amber);font-weight:700;font-size:13px;opacity:0;transition:opacity .12s ease}
+  .lrow:hover .go{opacity:1}
+  .lrow:hover .place{color:var(--amber)}
+
+  .trust{color:#78818f;font-size:12.5px;text-align:center;margin-top:26px;line-height:1.6}
+  .trust b{color:#a7b0bf}
+  .note{color:#8b93a2;font-size:13px;text-align:center;margin-top:20px;max-width:76ch;margin-left:auto;margin-right:auto;line-height:1.6}
+  @media (max-width:760px){ .feat .deal{flex-basis:280px} .mast h1{font-size:31px} }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="mast">
+    <div class="kick">The Wayfind Deal Sheet</div>
+    <h1>Real deals. <em>No junk offers.</em></h1>
+    <p class="lede">Hand-picked at great local places — verified at the source, removed the day they expire. Tap ♡ to keep one.</p>
+    <div class="rules"><span class="r"></span><span class="orn">❧</span><span class="r"></span></div>
+  </div>
+
+  <div class="tierhead"><span class="orn">❧</span><span class="t">Worth money tonight</span><span class="rule"></span><span class="hint">Verified this week</span></div>
+  <div class="feat">
+    <div class="deal"><span class="inner"></span>
+      <div class="img i-dining"><button class="save-btn">♡</button><div class="seal">50%<small>OFF</small></div><span class="imgnote">partner artwork</span></div>
+      <div class="body">
+        <div class="kick">Clipp · Sarasota</div>
+        <div class="n">Half-price dining certificates</div>
+        <div class="d">Prepaid restaurant certificates — typically $15 for $30 of food — at Sarasota-area spots. Inventory rotates weekly.</div>
+        <div class="foot"><div class="meta"><span class="ends">Verified this week</span><span class="dots"></span><span class="save">36 offers live</span></div>
+        <button class="claim">See the deals →</button>
+        <div class="ftc">Wayfind earns a commission <i>via Clipp</i> — your price is the same.</div></div>
+      </div>
+    </div>
+
+    <div class="deal"><span class="inner"></span>
+      <div class="img i-manatee"><button class="save-btn saved">♥</button><div class="seal">$16<small>REG $19</small></div><span class="imgnote">partner artwork</span></div>
+      <div class="body">
+        <div class="kick">Viator · Bradenton</div>
+        <div class="n">Manatee walk, sighting guaranteed</div>
+        <div class="d">Guided manatee-watching walk with a guaranteed sighting — the rare tour that promises the animal.</div>
+        <div class="foot"><div class="meta"><span class="ends">Ends Aug 10</span><span class="dots"></span><span class="save">Save $3 · 4.7 ★</span></div>
+        <button class="claim">Book at $16 →</button>
+        <div class="ftc">Wayfind earns a commission <i>via Viator</i> — your price is the same.</div></div>
+      </div>
+    </div>
+
+    <div class="deal"><span class="inner"></span>
+      <div class="img i-klook"><button class="save-btn">♡</button><div class="seal">5%<small>OFF</small></div><span class="imgnote">partner artwork</span></div>
+      <div class="body">
+        <div class="kick">Klook · U.S. attractions</div>
+        <div class="n">5% off selected attraction tickets</div>
+        <div class="d">Theme parks, observation decks, museums and more. Enter the code at checkout.</div>
+        <div class="code">S3USATT <small>tap to copy</small></div>
+        <div class="foot"><div class="meta"><span class="ends">Ends Aug 2</span><span class="dots"></span><span class="save">Code verified</span></div>
+        <button class="claim">Book on Klook →</button>
+        <div class="ftc">Wayfind earns a commission <i>via Klook</i> — your price is the same.</div></div>
+      </div>
+    </div>
+
+    <div class="deal"><span class="inner"></span>
+      <div class="img i-zoo"><button class="save-btn">♡</button><div class="seal">FREE<small>HEROES</small></div><span class="imgnote">partner artwork</span></div>
+      <div class="body">
+        <div class="kick">ZooTampa · Summer</div>
+        <div class="n">Free admission for military &amp; community heroes</div>
+        <div class="d">Active-duty +3 dependents, Hillsborough gov &amp; HCPS teachers — plus 25% off up to 4 companions.</div>
+        <div class="foot"><div class="meta"><span class="ends">Through Sep 7</span><span class="dots"></span><span class="save">Verified at source</span></div>
+        <button class="claim">How it works →</button>
+        <div class="ftc"><i>Not an affiliate offer — just a good one.</i></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tierhead"><span class="orn">❧</span><span class="t">Free &amp; local, standing offers</span><span class="rule"></span><span class="hint">The ledger</span></div>
+  <div class="ledger">
+    <div class="lrow"><span class="place">The Ringling</span><span class="what">Free Mondays — art museum, gardens, glass pavilion</span><span class="dots"></span><span class="when">every Monday</span><span class="go">→</span><span class="sv saved">♥</span></div>
+    <div class="lrow"><span class="place">Gecko's Grill &amp; Pub</span><span class="what">Ultimate happy hour — all locations</span><span class="dots"></span><span class="when">daily 3–6pm</span><span class="go">→</span><span class="sv">♡</span></div>
+    <div class="lrow"><span class="place">Agave Bandido</span><span class="what">Taco Tuesday specials — Lakewood Ranch</span><span class="dots"></span><span class="when">Tuesdays thru Sep 29</span><span class="go">→</span><span class="sv">♡</span></div>
+    <div class="lrow"><span class="place">Sarasota Art Museum</span><span class="what">Free admission, second Sunday of the month</span><span class="dots"></span><span class="when">next: Aug 9</span><span class="go">→</span><span class="sv">♡</span></div>
+    <div class="lrow"><span class="place">Bradenton Marauders</span><span class="what">Thirsty Thursday at LECOM Park — select games</span><span class="dots"></span><span class="when">Aug 6 · 20 · Sep 3</span><span class="go">→</span><span class="sv">♡</span></div>
+    <div class="lrow"><span class="place">Pie On Main</span><span class="what">Weekday lunch special + sub of the day</span><span class="dots"></span><span class="when">weekdays</span><span class="go">→</span><span class="sv">♡</span></div>
+  </div>
+
+  <p class="trust"><span style="color:var(--gold)">◆</span> <b>Every deal verified at its source, tracked to its expiry, and removed the day it lapses.</b> Some are affiliate offers — marked where they are, never affecting what you pay or how we rank.</p>
+
+  <p class="note">Mock v6 (image slot snapped to 3:2 — 316×211 — the editorial photo ratio; pill removed — disclosure is one quiet centered line with the network in italics; card bodies are flex columns so every CTA and disclosure aligns to the same baseline across the rail; save affordance: frosted ♡ on every poster card — filled coral when saved — and quiet ♡ per ledger row; saved manatee + Ringling shown as examples) — the coupons page as “The Deal Sheet”: money deals as gold-sealed featured cards (partner artwork, serif titles, dotted-leader meta with real expiry and honest counts, code chip where a code exists), free/local standing offers as a ledger with dotted leaders and schedule italics. Same dark-first system as the homepage and eat sheet.</p>
+</div>
+</body>
+</html>
