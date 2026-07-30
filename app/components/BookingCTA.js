@@ -20,7 +20,7 @@ import * as Aff from "../../lib/affiliates";
 // byte-identical, proven in scripts/test-booking-resolve-extraction.mjs.
 // hasBookingCTA is re-exported so existing importers (app/components/sheets/
 // Detail.js) keep working untouched.
-import { bookingTargets, hasBookingCTA } from "../../lib/bookingResolve";
+import { bookingTargets, hasBookingCTA, hasVerifiedTours } from "../../lib/bookingResolve";
 export { hasBookingCTA };
 
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback }) {
