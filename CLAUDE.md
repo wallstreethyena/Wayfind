@@ -326,6 +326,53 @@ call tells you it behaves right, and only the second is what ships. Three instan
 
 ---
 
+## 🚨 Extraction PRs — the mandatory guard pair
+
+Moving a function between modules is the single most dangerous refactor in this
+repo, and 2026-07-30 proved it: #486 extracted `hasVerifiedTours()` into
+`lib/bookingResolve.js`, removed the definition, left the call site, and imported
+only the other two names. Every place-detail render threw `ReferenceError`. It sat
+in production for hours on the core surface while **six** checks reported green:
+four booking guards, `check:jsx`, and `next build`.
+
+The single property all six shared: **nothing ever called the component.**
+
+So any PR that moves a function between modules runs BOTH of these, and neither
+substitutes for the other:
+
+| guard | approach | what it catches |
+|---|---|---|
+| `test-detail-render-smoke` | **RENDERS** the component (compiles real JSX via `scripts/lib/jsxLoad.mjs`) across every variant × several data shapes | anything that throws on a path the test exercises |
+| `check-lib-call-imports` | **STATIC**, every source file against every name `lib/` exports | an unbound call in code no test happens to render |
+
+The first proves the paths we thought of. The second covers the ones we did not.
+
+Why each of the six missed it, because the pattern generalises:
+
+- **source-as-text guards** asked "does this identifier appear across component +
+  resolver" — it did, in the resolver. They never asked whether the COMPONENT
+  could reach it. One of those guards was written in the same PR that caused the
+  bug, and it encoded the bug as correct.
+- **`check:jsx`** is `tsc --noEmit` with `checkJs` off: syntax, no binding.
+- **`next build`** bundles a client component without EXECUTING it. An unbound
+  identifier inside a function body is legal JavaScript until it is called.
+- **the extraction's own test** imported the RESOLVER and proved it byte-identical.
+  It never imported the COMPONENT, which is where the break was.
+- **the live check** loaded pages that never mount the component.
+
+Two further habits from the same incident:
+
+- **Verify on a surface that actually mounts the thing you changed.** "Live-verified"
+  on a page that cannot reach the code is worse than no check, because it is
+  reported as evidence.
+- **A minifier cannot rename a free variable.** So an unbound identifier survives
+  into the built chunk as its literal name — grepping `.next/static/chunks` for a
+  module-local helper's name is a cheap, real check on the production artifact.
+  Proven both ways: broken tree built exit-0 with the literal intact; fixed tree
+  had zero occurrences.
+
+---
+
 ## 🧪 Guard pattern — assert the invariant, not the file path
 
 Learned the hard way on 2026-07-30 (#486). FOUR guards went red for the same
