@@ -35,6 +35,8 @@ import EditorialLandingHero, { editorialHeroCss } from "../../components/Editori
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
 import CuisineChips from "./chips";
+import FoodTourRail from "../../components/FoodTourRail";
+import { METRO_DESTS, pickFoodTours } from "../../../lib/foodTours";
 
 export const revalidate = 3600;
 
@@ -83,6 +85,48 @@ async function chipsFor(metro) {
     return Array.isArray(rows) ? rows : null;
   } catch (e) {
     return null;
+  }
+}
+
+/**
+ * The food tours for this metro. Read-only, anon, fail-soft to [].
+ *
+ * ANON, deliberately — the same reason chipsFor above uses it: the service-role
+ * key is a legacy JWT and legacy keys 401 on every call (lib/envAudit.js).
+ * wf_experiences carries wf_experiences_anon_read (SELECT USING true).
+ *
+ * SCOPED BY dest_id, NEVER by lat/lng: all 1,234 wf_experiences rows have a NULL
+ * lat, so a geo filter returns nothing at all — silently. The dest set per metro
+ * lives in lib/foodTours METRO_DESTS and mirrors the labels this page already
+ * shows: "Tampa Bay" covers St. Pete and Clearwater, "Sarasota & Bradenton" does
+ * not. Drawing wider than the label is the geo/entity mismatch class that shipped
+ * the Dalí→Barcelona bug.
+ */
+async function foodToursFor(metro) {
+  const dests = METRO_DESTS[metro];
+  if (!dests || !dests.length) return [];
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  if (!url || !anon) return [];
+  const cols = "product_code,title,image,rating,reviews,from_price,product_url,dest_id,link_ok";
+  const q = `${url}/rest/v1/wf_experiences?select=${cols}&dest_id=in.(${dests.join(",")})&limit=800`;
+  try {
+    const r = await fetch(q, {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      next: { revalidate: 3600 },
+    });
+    if (!r.ok) return [];
+    const rows = await r.json();
+    return pickFoodTours(Array.isArray(rows) ? rows : [], { metro, limit: 4 }).map((t) => ({
+      code: t.product_code,
+      title: t.title,
+      image: t.image || null,
+      rating: typeof t.rating === "number" ? t.rating : null,
+      reviews: typeof t.reviews === "number" ? t.reviews : 0,
+      fromPrice: typeof t.from_price === "number" ? t.from_price : null,
+    }));
+  } catch (e) {
+    return [];
   }
 }
 
@@ -152,7 +196,19 @@ export default async function EatPage({ params }) {
   // Google index one indexable URL per typo, all with the same empty body.
   if (!meta) notFound();
 
+  // Both reads run CONCURRENTLY — the rail must not add its latency to the chips,
+  // which are the page's primary content. Started before either is awaited, so
+  // this is parallel despite reading sequentially.
+  //
+  // Deliberately NOT Promise.all: scripts/check-cuisine-sheet.mjs (#479) asserts
+  // the literal `await chipsFor(params.metro)`, because a defined-but-uncalled
+  // fetch still contains the RPC name and would pass a text check. Promise.all is
+  // semantically identical but removes that literal, so it would have silently
+  // disarmed another lane's guard to save nothing. Their assertion protects a real
+  // property; the fix is to keep the shape it checks, not to loosen the check.
+  const toursPromise = foodToursFor(params.metro);
   const chips = await chipsFor(params.metro);
+  const foodTours = await toursPromise;
   // Three distinct states, kept distinct. `null` means we could not ask; an empty
   // array means we asked and this metro genuinely has nothing. Collapsing those
   // into one "no cuisines" message is the conflation that hid a five-day outage.
@@ -201,6 +257,16 @@ export default async function EatPage({ params }) {
         quickPicks={quickPicks}
         trustLines={["No paid placement. No sponsored rankings.", "Just the kind of food you actually want."]}
       />
+
+      {/* The money surface sits DIRECTLY under the hero and OUTSIDE the 680px
+          reading column — this is the highest position available without
+          restructuring the shared editorial template, which /best-beaches also
+          renders. On a phone the hero collapses to a 280px image plus its text
+          panel, so whether this clears the fold is a real-device question, not
+          one a resized desktop window can answer. It renders nothing at all when
+          there are no real tours: an empty "tours near you" frame costs trust and
+          would still measure as a viewed surface. */}
+      <FoodTourRail offers={foodTours} metro={params.metro} />
 
       <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
         {unavailable ? (
