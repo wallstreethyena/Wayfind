@@ -66,6 +66,57 @@ ok(expScreen.includes("../CollectionHero"), "screens/Experience.js imports Colle
 ok(/<CollectionHero\b/.test(expScreen), "screens/Experience.js renders CollectionHero");
 ok(/wordmark=\{false\}/.test(expScreen), "the in-app hero suppresses the wordmark — the app topbar already carries the logo one row above, and a second one over the photo is the 'logo blocking the save button' bug");
 
+// 4b) v6.75: the Occasions SHEET was the last surface still wearing the old
+// chrome (SheetHero's icon tile + 22px title). It wears CollectionHero now, so
+// "the Wayfind look" means one thing on screens AND sheets.
+//
+// TWO reachability findings, and the second one corrects the first.
+//
+// 1. The sheet believed to be the last hold-out was "All experiences" in
+//    app/home.js. It was UNREACHABLE — `setAllExpOpen(true)` appeared zero times
+//    and the state was never exposed through ctx. Deleted, not restyled.
+// 2. Occasions was then chosen BECAUSE it looked reachable: Menu.js has a
+//    `setMenuSheet("experiences")` button. But that button lives inside the
+//    `menuSheet === "menu"` block, and NOTHING sets menuSheet to "menu".
+//    `menuSheet` only ever becomes "pick" (app/home.js) or "experiences" (from
+//    inside the dead "menu" block) — so five of MenuSheet's six sub-states
+//    (menu, community, explore, experiences, weather) cannot be opened today.
+//
+// So this surface is CORRECTLY STYLED AND CURRENTLY UNREACHABLE, and that is
+// stated rather than asserted: pinning "it is dead" would fail the moment
+// someone wires the entry point, which is the outcome we want.
+//
+// The lesson is the one in CLAUDE.md, one level up: proving an entry point
+// EXISTS is not proving it is reachable. Reachability is transitive, and a
+// grep for the setter stops after one hop.
+{
+  const menu = read("app/components/sheets/Menu.js");
+  ok(menu.includes("../CollectionHero"), "sheets/Menu.js imports CollectionHero — the Occasions sheet renders the universal hero, not the old SheetHero");
+  const occ = menu.slice(menu.indexOf('menuSheet === "experiences"'));
+  const occBlock = occ.slice(0, occ.indexOf('menuSheet === "weather"') >= 0 ? occ.indexOf('menuSheet === "weather"') : 2600);
+  ok(occBlock.length > 400, `the Occasions block parsed to ${occBlock.length} chars — the slice is wrong, so the assertions below would be vacuous`);
+  ok(/<CollectionHero\b/.test(occBlock), "the Occasions sheet renders CollectionHero");
+  ok(!/<SheetHero\b/.test(occBlock), "the Occasions sheet no longer renders SheetHero — two heroes on one surface is the drift this file exists to stop");
+  ok(/wordmark=\{false\}/.test(occBlock), "the Occasions hero suppresses the wordmark, same reason as the in-app screens");
+  // Sheet geometry: the grabber owns the top edge, so a negative TOP bleed
+  // would slide the photo under it.
+  const bleed = occBlock.match(/bleed="([^"]+)"/);
+  ok(!!bleed, "the Occasions hero declares a bleed — without it the hero sits inside the sheet's 16px padding and reads as a card, not a hero");
+  ok(/^0\s/.test(bleed[1]), `the Occasions hero's bleed starts at 0, not a negative top (found "${bleed[1]}") — the sheet's grabber owns that edge`);
+  // CONTENT unchanged: this was a styling conversion, and swapping the tile set
+  // is a separate product decision.
+  ok(/INTENTS\.map\(/.test(occBlock), "the Occasions sheet still renders the INTENTS tiles — converting the chrome must not quietly change which tiles the surface offers");
+  ok(/Surprise Me/.test(occBlock), "the Surprise Me tile survives the restyle");
+  ok(/Pick an occasion and the feed reshapes around it\./.test(occBlock), "the Occasions subtitle copy is unchanged");
+  // The setter still exists. NOTE this does NOT prove the sheet is reachable —
+  // see the transitive-reachability note above. It is asserted only so that
+  // wiring an entry point later has something to point at.
+  ok(/setMenuSheet\("experiences"\)/.test(menu), 'the setMenuSheet("experiences") button still exists. This is NOT a reachability claim: it sits inside the `menuSheet === "menu"` block, which nothing opens.');
+  // The deleted sheet stays deleted.
+  const home2 = read("app/home.js");
+  ok(!/allExpOpen/.test(home2), "the unreachable All-experiences sheet stays deleted — it was rendered but had no code path that could ever set its state to true");
+}
+
 // 5) The old flat header is actually GONE, not merely bypassed. A leftover
 // 30px title block would render a second headline under the hero.
 ok(!/fontSize: 30, fontWeight: 800, color: C\.text/.test(expScreen), "the pre-v6.47 flat 30px title block is removed from screens/Experience.js");

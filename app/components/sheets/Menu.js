@@ -2,6 +2,7 @@
 // Extracted from app/home.js (G2, July 2026 decomposition). Render-only.
 // Six sub-states: menu, community, explore, pick, experiences, weather.
 import { C, CAT_COLOR, sheetBg, sheet, SHEET_EASE, Grabber, moonPhase, NavIcon, Icon, PlaceScoreChip } from "../kit";
+import CollectionHero from "../CollectionHero";
 import { openExternal } from "../../../lib/links";
 import { eventWhenLabel } from "../../../lib/eventTime";
 import { CATEGORIES } from "../../../lib/google";
@@ -202,7 +203,37 @@ export default function MenuSheet({ ctx }) {
             )}
             {menuSheet === "experiences" && (
               <>
-                <SheetHero icon="✨" title="Occasions" subtitle="Pick an occasion and the feed reshapes around it." color={C.gold} />
+                {/* v6.75: the last surface still wearing the old sheet chrome
+                    (icon tile + 22px title) now wears the SAME CollectionHero the
+                    experience screen, the single-pick screen and every standalone
+                    collection route wear — one hero, so "the Wayfind look" means
+                    one thing.
+                    Sheet-specific geometry, and why each value: no negative TOP
+                    bleed because the grabber owns the sheet's top edge, so the
+                    hero starts below it; -16px sides to escape the sheet's 16px
+                    padding and reach the full width; radius 0 for the same reason
+                    (the sheet already rounds its own top corners above the
+                    grabber); 176px rather than the 278px the screens use — a
+                    sheet must leave room for the grid it is introducing, and the
+                    content block is bottom-anchored, so a taller box on a
+                    photo-less hero is just void above the eyebrow (208px left
+                    ~60px of it).
+                    No heroImg: there is no art for "Occasions", and CollectionHero
+                    renders the scrim alone as a deliberate dark title block. The
+                    ✨ survives in the eyebrow, so nothing is lost in the move.
+                    CONTENT IS UNCHANGED — same INTENTS tiles, same Surprise Me
+                    tile, same copy. Swapping the tile set to EXPERIENCES is a
+                    product decision, not a styling one. */}
+                <CollectionHero
+                  wordmark={false}
+                  height={176}
+                  bleed="0 -16px 16px"
+                  radius={0}
+                  accent={C.gold}
+                  eyebrow="✨ Shape the feed"
+                  titleTop="Occasions"
+                  subtitle="Pick an occasion and the feed reshapes around it."
+                />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
                   {INTENTS.map((it) => {
                     const on = intent === it.id;
