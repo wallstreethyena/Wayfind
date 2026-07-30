@@ -237,3 +237,4 @@ node scripts/check-guide-teasers.mjs
 node scripts/test-detail-render-smoke.mjs
 node scripts/check-lib-call-imports.mjs
 node scripts/check-cuisine-shortlist.mjs
+node scripts/check-boundary-alert.mjs
