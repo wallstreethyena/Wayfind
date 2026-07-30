@@ -40,6 +40,7 @@ import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
+import { isCrawler } from "../../../../lib/crawler.js";
 
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
@@ -82,6 +83,10 @@ export async function GET(req) {
       },
     });
   };
+
+  // Refuse crawlers BEFORE resolving anything: no partner URL is even looked up,
+  // so there is no path from an automated request to a CJ click.
+  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
 
   if (!provider || !offerId) return fail("missing-provider-or-offer");
   if (!PROVIDERS[provider]) return fail("unknown-provider");
