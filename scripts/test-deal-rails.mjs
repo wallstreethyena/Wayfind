@@ -21,8 +21,33 @@ ok(rails.length === 2, "one rail per subcategory");
 ok(rails[0].subcategory === "theme_parks" && rails[1].subcategory === "seasonal_events", "rails are in the fixed priority order (theme_parks before seasonal_events)");
 ok(rails[0].label === "Theme-park tickets", "rail carries a human label");
 const disney = rails[0].items[0];
-ok(disney.href === rows[1].affiliate_url, "the affiliate link is passed through VERBATIM (never rebuilt)");
-ok(disney.href.includes("101643573"), "the rendered link carries our CJ PID");
+// ── TRANSLATED 2026-07-30 (bot-click fix), assertion by assertion ───────────
+// The two checks below used to read the RENDERED href. They cannot any more: the
+// rail deliberately no longer puts the partner URL in the DOM, because a crawler
+// following it was a billable CJ click (~144/day, 0% conversion — the click-fraud
+// shape). The PROTECTIONS are unchanged and now assert one layer deeper.
+//
+//   was: rendered href === row.affiliate_url  ("passed through VERBATIM")
+//   now: the rendered href is OUR redirect path carrying the row id, and the
+//        SERVER hands back that same affiliate_url verbatim at click time.
+//   was: rendered href includes the CJ PID     ("attribution survives")
+//   now: the provider REFUSES to redirect a row whose URL lost the PID
+//        (track() + requireTracking), which is strictly stronger than a substring
+//        check on a string we rendered ourselves.
+ok(disney.href === "/api/commerce/go?provider=undercover_tourist&offer=" + rows[1].id + "&surface=deal_rail&content=" + rows[1].id,
+  "the rail href is OUR redirect path, keyed to the row id (the partner URL is no longer in crawlable DOM)");
+ok(!/anrdoezrs|dpbolvw|tkqlhce|jdoqocy|kqzyfj|emjcd|dotomi|qksrv/.test(disney.href),
+  "no CJ domain survives into the rendered item, even though the input row carries one");
+{
+  const { PROVIDERS } = await import("../lib/commerceProviders.js");
+  const ut = PROVIDERS.undercover_tourist;
+  ok(ut.table === "wf_deals" && ut.idColumn === "id" && ut.urlColumn === "affiliate_url",
+    "the redirect resolves that id back to the SAME wf_deals.affiliate_url — verbatim, just server-side now");
+  ok(ut.track(rows[1].affiliate_url) === rows[1].affiliate_url,
+    "…and hands it back UNCHANGED (never rebuilt) — the original VERBATIM protection, one layer deeper");
+  ok(ut.track("https://www.anrdoezrs.net/links/999/type/dlg/sid/x/https://www.undercovertourist.com/x") === null && ut.requireTracking === true,
+    "a row that lost our CJ PID is REFUSED rather than redirected for free — the attribution protection, strengthened");
+}
 ok(disney.providerLabel === "Undercover Tourist", "provider display_name resolved for the disclosure chip");
 ok(disney.discount === "Discount tickets" && disney.badge === "Best seller", "discount + badge carried through");
 ok(disney.photoRef === "GOOG_REF_123", "photo_ref carried through (Google photo fallback when no image_url)");
@@ -47,7 +72,10 @@ const home = read("app/home.js");
 ok(/function UTDealsRail/.test(home), "UTDealsRail component exists");
 ok(/browseCat === "attractions" && center && <UTDealsRail category="attractions"/.test(home), "UT deal rail rendered on Things-to-do (attractions), geo-scoped");
 ok(/browseCat === "hotels" && center && <UTDealsRail category="stays"/.test(home), "UT hotel rail rendered on Stays, geo-scoped");
-ok(/href={d\.href}/.test(home) && /rel="noopener sponsored"/.test(home), "rail links render href verbatim with sponsored rel");
+// TRANSLATED: same anchor, same protection (the link is marked as paid), plus
+// nofollow — which is what was missing when crawlers were following it.
+ok(/href={d\.href}/.test(home) && /rel="sponsored nofollow noopener"/.test(home),
+  "rail links render our href with rel=\"sponsored nofollow\" — sponsored alone shipped, and non-Google crawlers ignore it entirely");
 ok(/kind: "ut_deal_rail"/.test(home), "outbound clicks are logged as ut_deal_rail");
 ok(/import AffiliateChip(?:, \{[^}]*\})? from "\.\/components\/AffiliateChip"/.test(home) && /<AffiliateChip provider={d\.provider}/.test(home), "the disclosure chip is imported and rendered on each deal card");
 
