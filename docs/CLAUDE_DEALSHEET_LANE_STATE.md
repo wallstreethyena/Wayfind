@@ -18,26 +18,29 @@ Branch `feat/coupons-deal-sheet`, PR #504. The screen, the derivation
 (`lib/dealSheet.js`), the guard (`scripts/check-deal-sheet.mjs`) and the
 byte-verified mock are **committed and pushed**. Three things remain.
 
-### 1a. THE STASH — read this before touching the branch
+### 1a. `wip/klook-cut-and-inverted-guard` — read this before touching the branch
 
-```
-stash@{0}: WIP on feat/coupons-deal-sheet: fc5e9e8
-```
+Pushed branch, commit `73bcca8`. **Was a stash; is not any more.** A stash is
+local-only, never pushed, invisible to `git status`, and silently reindexed the
+moment anything else is stashed — a worktree sweep looking for uncommitted changes
+reports clean and prunes straight past it. It now lives on a branch on origin.
 
-It holds work that is **done and verified but not yet committed**:
+It holds work that is **done and verified**, and one fact that cannot be
+reconstructed from the repo:
 
-- **the Klook cut.** The owner's 2026-07-29 directive removed three generic-travel
-  codes (`HOTELONAPP`, `EUPTPUS5OFF`, `EUMOBUS5OFF`); only `S3USATT` survives. The
-  cut had never reached code.
-- **`scripts/test-klook-coupons.mjs`, INVERTED.** This is the part worth
-  understanding before editing: the guard was *enforcing the pre-cut state*
-  (`klook.length >= 4`, all four codes required), so cutting the data alone turned
-  the suite red. It now asserts `klook.length === 1`, `S3USATT` verbatim, and the
-  three cut codes **absent** — a strengthened protection that stops them drifting
-  back, not a loosened one.
+- **the cut.** The owner's 2026-07-29 directive removed three generic-travel Klook
+  codes (`HOTELONAPP`, `EUPTPUS5OFF`, `EUMOBUS5OFF`), leaving only `S3USATT`. It
+  reached the registry and never reached code.
+- **the guard was enforcing the opposite.** `scripts/test-klook-coupons.mjs`
+  asserted `klook.length >= 4` and required all four codes by name, so removing the
+  data alone turns the suite red — and deleting the failing assertions would have
+  dropped the protection rather than moved it. It is now inverted: `S3USATT`
+  verbatim, the three cut codes asserted **absent**, `klook.length === 1`. Strictly
+  stronger — it stops them drifting back, which the old form could not do.
 
-Recover with `git stash pop` on `feat/coupons-deal-sheet`. It was stashed only to
-free the branch for an unrelated merge; nothing about it is in doubt.
+**The data change is two minutes. Knowing the guard fights you is the part that
+cost time.** Rebase this branch onto `feat/coupons-deal-sheet` (or onto current
+main) and carry on.
 
 ### 1b. Two-key sort (owner-approved, not yet implemented)
 
@@ -50,10 +53,12 @@ rail passes above Clipp Sarasota, because they expired soonest. Honest, and
 editorially wrong for a local-discovery app. The Klook cut removes most of it; the
 sort is the durable fix.
 
-### 1c. Re-run counts, then screenshots
+### 1c. Update the counts, then screenshots
 
-Counts in the PR body (**8 money + 12 ledger**) are **pre-Klook-cut and now stale**.
-Recompute after popping the stash and update the PR body.
+**Post-cut counts are already computed: 5 money cards, 12 ledger rows.** The 8+12
+in #504's body is pre-cut and stale — update it. Money tier after the cut is Clipp
+Sarasota, Clipp Bradenton, the manatee walk, Klook `S3USATT`, and Discover Sarasota
+`LOCAL`; nothing else passes the affiliate-or-monetary rule.
 
 Screenshots go to `docs/screenshots/deal-sheet-504/` and are **committed** — the PR
 carries its own visual evidence. Two known snags:
