@@ -77,6 +77,35 @@ for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "goci
   ok(M.tpDeepLink(key, "https://example.com/x") === null, `${key} tpDeepLink returns null`);
   ok(M.tpBrandLink(key) === null, `${key} tpBrandLink returns null`);
 }
+// ── 6b. a HALF-configured program FAILS THE BUILD ─────────────────────────
+// isTpProgramLive() requires BOTH ids, so a program carrying exactly one goes
+// silently DARK. That is the dangerous state, not a loud one: it is precisely
+// what a partial harvest produces — someone pastes Go City's promo_id, misses
+// campaign_id, and the program looks configured in this file while earning
+// nothing forever. Nothing reports it, because "dark" is ALSO the correct state
+// for a genuinely unharvested program, so the two are indistinguishable.
+//
+// Section 1 already catches this for the four Wave-1 keys (it asserts each is
+// LIVE with an exact id pair). The hole is the DARK ones: half-configuring
+// gocity leaves isTpProgramLive false, so section 6 stays green. Verified by
+// doing it — the suite passed with promoId "9999" and campaignId null.
+//
+// So the rule is XOR, applied to EVERY program regardless of wave: both tracking
+// ids, or neither.
+{
+  let checked = 0;
+  for (const [key, p] of Object.entries(M.TP_PROGRAMS)) {
+    const hasPromo = p.promoId != null && String(p.promoId) !== "";
+    const hasCampaign = p.campaignId != null && String(p.campaignId) !== "";
+    checked++;
+    ok(hasPromo === hasCampaign,
+      `${key}: promoId=${JSON.stringify(p.promoId)} campaignId=${JSON.stringify(p.campaignId)} — exactly ONE tracking id is present. ` +
+      "A program with one id and not the other ships dark SILENTLY and earns nothing. Paste both, or set both to null.");
+  }
+  // Without this the loop could "pass" by iterating nothing at all.
+  ok(checked >= 10, `XOR-checked every program (got ${checked}) — an empty loop would make the rule vacuous`);
+}
+
 const r = M.tpReadiness();
 ok(r.marker === "750791", `readiness marker 750791 (got ${r.marker})`);
 ok(r.live === 4, `exactly 4 programs live (got ${r.live})`);
