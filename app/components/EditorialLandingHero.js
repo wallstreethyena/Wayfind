@@ -51,8 +51,30 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
   inset:0;
   background:linear-gradient(180deg,rgba(2,8,15,.12),rgba(2,8,15,.08) 35%,rgba(2,8,15,.82) 100%),linear-gradient(90deg,transparent 70%,rgba(5,10,16,.16));
 }
-.${P}-brand{position:absolute;z-index:2;top:24px;left:50%;width:132px;height:50px;transform:translateX(-50%)}
+/* v6.73 — THE WORDMARK NEVER SITS INSIDE THE HERO PHOTO.
+   It was position:absolute at top:24px;left:50% — dead centre of the image, which
+   is exactly where a subject's face lands. Owner screenshot: the mark printed
+   across a person's forehead. Art-directing every hero image does not scale and
+   would break the moment someone swaps a photo, so the LAYOUT must not depend on
+   where faces are. The mark now lives in a slim bar ABOVE the media box, where no
+   photo can ever collide with it.
+   The same bar carries the back affordance — see .${P}-back below. */
+.${P}-chrome{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 4px 12px}
+.${P}-brand{display:block;width:118px;height:38px;flex:none}
 .${P}-brand img{display:block;width:100%;height:100%;object-fit:contain}
+/* NO WAY BACK (owner): a visitor arriving from Google had no path into the rest
+   of Wayfind except browser chrome — a dead end that ends the session instead of
+   feeding the funnel. This is the top-of-page half of the fix; the continue card
+   at the bottom is the other half. */
+.${P}-back{
+  display:inline-flex;align-items:center;gap:6px;flex:none;
+  padding:7px 12px 7px 9px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);
+  color:#CBD5E1;font-size:13px;font-weight:650;text-decoration:none;line-height:1;
+  transition:border-color .15s ease,color .15s ease,background .15s ease;
+}
+.${P}-back:hover{border-color:rgba(232,201,122,.5);color:#F4F6F8;background:rgba(255,255,255,.09)}
+.${P}-back:focus-visible{outline:2px solid #E8C97A;outline-offset:2px}
 .${P}-image-copy{position:absolute;z-index:2;left:42px;right:36px;bottom:42px}
 .${P}-image-kicker{display:flex;align-items:center;gap:9px;color:#FFC08F;font-size:10px;font-weight:850;letter-spacing:.2em;text-transform:uppercase}
 .${P}-image-kicker:before{content:"";width:28px;height:1px;background:#F97316}
@@ -88,7 +110,7 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
   .${P}-wrap{padding:0}
   .${P}-hero{border-width:0 0 1px;border-radius:0}
   .${P}-media{min-height:280px}
-  .${P}-brand{top:17px;width:112px;height:42px}
+  .${P}-chrome{padding:0 2px 10px}.${P}-brand{width:104px;height:34px}.${P}-back{padding:8px 12px;font-size:12.5px}
   .${P}-image-copy{left:22px;right:20px;bottom:23px}
   .${P}-image-title{font-size:34px}
   .${P}-panel{padding:28px 22px 26px}
@@ -133,6 +155,10 @@ export default function EditorialLandingHero({
   backControl = null,
   heroImg = null,
   brandHref = "/",
+  // Where "back" goes. Defaults to the app root so a surface that forgets to
+  // pass one still has a way out — a dead end is the bug being fixed.
+  backHref = "/",
+  backLabel = "Wayfind",
   imageKicker = null,
   imageTitle = null,
   toplineLeft = null,
@@ -150,13 +176,26 @@ export default function EditorialLandingHero({
   const picks = Array.isArray(quickPicks) ? quickPicks : [];
   return (
     <header className={`${P}-wrap`}>
+      {/* Chrome bar, OUTSIDE the hero card. It has to live here rather than inside
+          the card for two reasons found at 390px: inside, it inherited the cream
+          panel background and the light back-link text was barely legible; and the
+          wordmark must never sit over the photo (owner: the mark printed across a
+          subject's forehead). A page that already supplies its own backControl
+          renders THAT here instead of the default link — one back affordance per
+          page, never two stacked. */}
+      <div className={`${P}-chrome`}>
+        {backControl || (
+          <a className={`${P}-back`} href={backHref} aria-label={backLabel}>
+            <span aria-hidden="true">&#8249;</span>{backLabel}
+          </a>
+        )}
+        <a className={`${P}-brand`} href={brandHref} aria-label="Wayfind home">
+          <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
+        </a>
+      </div>
       <section className={`${P}-hero`} aria-labelledby={headlineId}>
-        {backControl}
         <div className={`${P}-media`}>
           {heroImg && <img src={heroImg} alt="" />}
-          <a className={`${P}-brand`} href={brandHref} aria-label="Wayfind home">
-            <img src="/brand/wayfind-wordmark-transparent-v2.png" alt="Wayfind" />
-          </a>
           <div className={`${P}-image-copy`}>
             <div className={`${P}-image-kicker`}>{imageKicker}</div>
             <div className={`${P}-image-title`}>{imageTitle}</div>

@@ -152,6 +152,8 @@ export default async function BeachesPage({ params }) {
       <EditorialLandingHero
         backControl={<BackControl fallback="/" />}
         heroImg={heroImg}
+        backHref="/"
+        backLabel="Wayfind"
         imageKicker="The Wayfind coastal edition"
         imageTitle="The right beach changes the whole day."
         toplineLeft="The definitive beach ranking"

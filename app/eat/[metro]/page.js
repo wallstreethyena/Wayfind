@@ -315,6 +315,8 @@ export default async function EatPage({ params }) {
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <EditorialLandingHero
         prefix="wf-eat-premium"
+        backHref="/"
+        backLabel="Wayfind"
         heroImg="/cards/food-choices-adobestock-301125732.jpeg"
         imageKicker="The Wayfind table edition"
         imageTitle="Deciding what to eat is the hard part."
