@@ -80,21 +80,63 @@ ok(!PROVIDERS.wegotrip && !PROVIDERS.klook,
   "WeGoTrip and Klook are NOT wired: verified 2026-07-30 they have no food inventory in any Wayfind metro (WeGoTrip has no Sarasota page at all), so a link would land on an empty page");
 ok(Object.keys(PROVIDERS).length >= 1, "at least one provider is live (an empty table would make the route pointless)");
 
+// ── the resolver reads with ANON, never the service role ─────────────────
+// Proven by running it with SUPABASE_SERVICE_ROLE_KEY deleted from the process:
+// the service-role key is still a legacy JWT and legacy keys 401 on every call
+// (lib/envAudit.js), so a resolver depending on it would have returned table-401
+// for EVERY click and fail-softed the user to the homepage — a dead money link
+// whose only trace is provider_redirect_failed. Asserting the source string says
+// nothing; removing the credential and watching it still work is the proof.
+const { readEnv } = await import("../lib/commerceProviders.js");
+const savedEnv = {
+  service: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  sUrl: process.env.SUPABASE_URL,
+  url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  anon: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+};
+delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+delete process.env.SUPABASE_URL;
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://anon.example.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "anon-key";
+const envNoService = readEnv();
+ok(!!envNoService, "readEnv resolves with NO service-role key present — the redirect does not depend on a credential that 401s");
+ok(envNoService && envNoService.key === "anon-key", "readEnv returns the ANON key, not the service role");
+let sentAuth = null;
+const spyFetch = async (u, init) => {
+  sentAuth = (init && init.headers && init.headers.apikey) || null;
+  return { ok: true, json: async () => [{ product_code: "x", product_url: "https://www.viator.com/tours/abc" }] };
+};
+const anonResolved = await resolveOffer("viator", "x", { fetch: spyFetch });
+ok(!anonResolved.error && /viator\.com/.test(anonResolved.dest || ""),
+  `an offer resolves end-to-end with only anon credentials (got ${anonResolved.error || anonResolved.dest})`);
+ok(sentAuth === "anon-key", `the request carried the anon key (sent: ${sentAuth})`);
+// Red-prove the probe: with NO supabase env at all it must refuse, otherwise the
+// assertions above would pass on a resolver that ignores credentials entirely.
+delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+ok(readEnv() === null, "with no supabase env readEnv returns null — so the positives above are real, not a resolver that never reads env");
+const noEnv = await resolveOffer("viator", "x", { fetch: spyFetch });
+ok(noEnv.error === "no-supabase-env", "and resolveOffer refuses rather than fetching unauthenticated");
+for (const [k, v] of [["SUPABASE_SERVICE_ROLE_KEY", savedEnv.service], ["SUPABASE_URL", savedEnv.sUrl], ["NEXT_PUBLIC_SUPABASE_URL", savedEnv.url], ["NEXT_PUBLIC_SUPABASE_ANON_KEY", savedEnv.anon]]) {
+  if (v === undefined) delete process.env[k]; else process.env[k] = v;
+}
+
 // ── resolveOffer refuses without ever reaching the network ───────────────
 const noFetch = () => { throw new Error("resolveOffer must not fetch before validating its inputs"); };
-const r1 = await resolveOffer("evilcorp", "x", { fetch: noFetch, sbEnv: () => ({ url: "https://x", key: "k" }) });
+const stubEnv = () => ({ url: "https://x", key: "k" });
+const r1 = await resolveOffer("evilcorp", "x", { fetch: noFetch, env: stubEnv });
 ok(r1.error === "unknown-provider", "an unknown provider is refused before any I/O");
-const r2 = await resolveOffer("viator", "", { fetch: noFetch, sbEnv: () => ({ url: "https://x", key: "k" }) });
+const r2 = await resolveOffer("viator", "", { fetch: noFetch, env: stubEnv });
 ok(r2.error === "missing-offer", "an empty offer id is refused before any I/O");
 // A poisoned row must not become an outbound link.
 const poisoned = await resolveOffer("viator", "x", {
-  sbEnv: () => ({ url: "https://x", key: "k" }),
+  env: stubEnv,
   fetch: async () => ({ ok: true, json: async () => [{ product_code: "x", product_url: "https://evil.com/pwn" }] }),
 });
 ok(poisoned.error === "host-not-allowed",
   "a wf_experiences row carrying a non-viator URL is refused — the allowlist is a real second gate, not decoration");
 const good = await resolveOffer("viator", "x", {
-  sbEnv: () => ({ url: "https://x", key: "k" }),
+  env: stubEnv,
   fetch: async () => ({ ok: true, json: async () => [{ product_code: "x", product_url: "https://www.viator.com/tours/abc" }] }),
 });
 ok(!good.error && /viator\.com/.test(good.dest || ""),

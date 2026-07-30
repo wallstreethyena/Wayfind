@@ -230,3 +230,4 @@ node scripts/check-commerce-events.mjs
 node scripts/check-cuisine-sheet.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/check-clipp-deals.mjs
+node scripts/check-food-tour-rail.mjs
