@@ -125,7 +125,17 @@ git log origin/main --grep='Lane: ' --format='%h %s'          # every lane-attri
 git log origin/main --grep='Lane: claude.exe' --format='%h %s' # just this lane
 ```
 
-Three things to know so this does not quietly stop working:
+Four things to know so this does not quietly stop working:
+
+- **`--grep` is the seam. `%(trailers:key=Lane)` returns EMPTY on squashed `main`** — do not
+  reach for it. Measured on `8311fa6`, the commit that introduced this convention: GitHub
+  strips the authored `Co-Authored-By`, normalizes it to `Co-authored-by`, and re-appends it
+  **after a blank line**. Git's trailer parser only reads a *contiguous* block at the end of
+  the message, so that inserted blank line demotes `Lane:` to ordinary body prose. The text
+  survives — `git log origin/main --grep='Lane: '` finds it — but the structured read does
+  not. **This is not fixable by reordering:** GitHub re-appends the co-author regardless, so
+  any trailer placed above it gets separated the same way, and putting `Lane:` last would
+  break the harness requirement below. `%(trailers:...)` works only on branch refs.
 
 - **Two layers, not one.** `--worktree user.name` is the branch-ref layer; the trailer is
   the squashed-history layer. Keep both — the trailer alone loses per-commit attribution
