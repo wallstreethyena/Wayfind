@@ -116,6 +116,51 @@ for (const c of clipps) {
     `${c.id}: tagged onto the dining intent — this lane exists because real traffic lands on food, not attractions`);
   ok(!c.intents.includes("outdoors") && !c.intents.includes("cozyindoor"),
     `${c.id}: NOT tagged onto non-dining moods — a deals strip that shows up everywhere is an ad, not a deal`);
+
+  // ── card imagery: OUR asset, on disk, never hotlinked ──────────────────────
+  // Hotlinking clipp.com or a merchant site would put a third party in control of
+  // what renders inside a Wayfind card (and leak a referer on every view). A
+  // committed local asset cannot change under us.
+  ok(typeof c.image === "string" && c.image.startsWith("/cards/"),
+    `${c.id}: the card image is one of OUR committed /cards/ assets`);
+  ok(!/^https?:|\/\/|clipp\.com|dpbolvw|tqlkg|localflavor/i.test(String(c.image)),
+    `${c.id}: the card image is NOT hotlinked from clipp.com, a CJ creative host, or any merchant site`);
+  ok(existsSync(path.resolve("public" + c.image)),
+    `${c.id}: the referenced asset actually exists at public${c.image} — a missing file renders as a blank strip, which looks broken on a money card`);
+  ok(typeof c.badge === "string" && c.badge.length > 0 && c.badge.length <= 14,
+    `${c.id}: carries a short badge (the deals-rail pill is small; long text overflows it)`);
+}
+
+/* ── 4b. the card renderer supports imagery GENERICALLY ──────────────────── */
+// The point of the image field is coherence with the deals rail, not a special
+// case for the paid card. If it were Clipp-specific, the money card would be the
+// only one that could ever carry art — which is pay-for-placement in visual form.
+{
+  const screen = readFileSync(path.resolve("app/components/screens/Coupons.js"), "utf8");
+  ok(/c\.image\s*\?/.test(screen), "the coupon card renders c.image for ANY coupon, not a hardcoded Clipp banner");
+  // The condition must be c.image ALONE. Checking only that "c.image ?" appears
+  // is not enough — `c.commerce && c.image ?` matches it too, and that is exactly
+  // the pay-for-placement shape this rule exists to forbid: art available only to
+  // the cards that pay. That arm went GREEN before this assertion existed.
+  ok(/\{\s*c\.image\s*\?\s*\(/.test(screen),
+    "the banner condition is c.image ALONE — any extra conjunct (e.g. c.commerce && c.image) would make art a privilege of the paid cards");
+  ok(!/commerce[^\n]{0,40}c\.image|c\.image[^\n]{0,40}commerce/.test(screen),
+    "the banner condition is not entangled with the commerce flag");
+  // Strip comments first: the rule is about CODE, and the surrounding prose
+  // legitimately explains why the field is not partner-specific. Matching the
+  // explanation would be a guard that punishes documenting the invariant.
+  const code = screen.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(code.length > 1000, `stripped comments and still have code (got ${code.length} chars) — an over-eager strip would make the next check vacuous`);
+  ok(!/clipp/i.test(code),
+    "the card renderer names no partner in code — the banner is driven by data, so any coupon can have one");
+  ok(/center\/cover no-repeat url\(/.test(screen),
+    "it uses the same center/cover chrome as the deals rail, so a coupon card with art reads as the same object as a deal card with art");
+  ok(/borderRadius: 999, padding: "2px 8px"/.test(screen), "the badge pill matches the deals-rail badge exactly");
+  // An imageless coupon must be untouched by this change — the Klook and local
+  // cards are the baseline the Clipp card is supposed to match, so they cannot
+  // shift underneath it.
+  ok(/padding: "14px 16px"/.test(screen),
+    "the original 14px/16px content padding survives (an imageless card renders exactly as before)");
 }
 
 /* ── 5. not confused with the dead ?url= pixel form ──────────────────────── */

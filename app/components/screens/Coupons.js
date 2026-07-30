@@ -30,15 +30,11 @@ function CommerceCoupon({ c, position, render }) {
     rank_bucket: rankBucket(position),
   };
   const ref = useCommerceImpression(cctx);
-  return (
-    <div ref={ref}>
-      {render(cctx)}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "-6px 0 12px", flexWrap: "wrap" }}>
-        <AffiliateChip provider={c.commerce.provider} />
-        <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Wayfind earns a commission if you buy — your price is the same.</span>
-      </div>
-    </div>
-  );
+  // The ref wrapper is all this adds to the DOM. The chip + disclosure render
+  // INSIDE the card (see the cctx branch in Cpn's body) — floating them below the
+  // dashed border read as detached text between two cards, and the deals rail
+  // already puts AffiliateChip inside the card it describes.
+  return <div ref={ref}>{render(cctx)}</div>;
 }
 
 export default function CouponsScreen({ ctx }) {
@@ -52,7 +48,24 @@ export default function CouponsScreen({ ctx }) {
           const Cpn = (c, i) => {
             const isSaved = !!savedCoupons[c.id];
             const body = (cctx) => (
-              <div style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.light : C.border}`, borderRadius: 14, padding: "14px 16px", marginBottom: 12 }}>
+              <div style={{ background: C.card, border: `1.5px dashed ${isSaved ? C.light : C.border}`, borderRadius: 14, marginBottom: 12, overflow: "hidden" }}>
+                {/* Optional banner. Same chrome as the deals rail (UTDealsRail in
+                    app/home.js): center/cover background, badge pill top-right,
+                    gradient fallback — so a coupon card with art reads as the
+                    same object as a deal card with art, not as a new species.
+                    The field is GENERIC, not Clipp-specific: any coupon can carry
+                    an image, and one without renders exactly as it did before
+                    (the padding moved to the inner div, nothing else changed).
+
+                    boxSizing below is load-bearing: width:100% + padding:7 in the
+                    default content-box overflows the card by 14px, and the card's
+                    overflow:hidden then CLIPS the badge pill. */}
+                {c.image ? (
+                  <div style={{ width: "100%", boxSizing: "border-box", height: 88, background: `center/cover no-repeat url(${c.image})`, display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
+                    {c.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{c.badge}</span> : null}
+                  </div>
+                ) : null}
+                <div style={{ padding: "14px 16px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10 }}>
                   <div style={{ minWidth: 0 }}>
                     {c.business ? <div style={{ fontSize: 12, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.4px" }}>{c.business}{c.area ? " · " + c.area : ""}</div> : null}
@@ -71,6 +84,16 @@ export default function CouponsScreen({ ctx }) {
                   {c.code ? <button onClick={() => copyCouponCode(c.code)} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${C.border}`, background: C.adim, color: C.light, fontSize: 13.5, fontWeight: 800, cursor: "pointer", letterSpacing: "0.6px" }}>{c.code} · Copy</button> : null}
                   {c.url ? <a href={c.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live2 = (e.currentTarget && e.currentTarget.href) || c.url; try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {} if (cctx) { try { emitCommerce("commerce_cta_clicked", cctx); } catch (er) {} } openExternal(_live2); }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: C.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>{c.cta || "Claim deal"} ↗</a> : null}
                   {!c.code && !c.url ? <div style={{ flex: 1, padding: "10px 0", fontSize: 12.5, color: C.muted, textAlign: "center" }}>Mention Wayfind when you order</div> : null}
+                </div>
+                {/* FTC disclosure, inside the card and directly beneath the CTA it
+                    describes. The tab-footer line stays, but a footer several
+                    screens away is not adjacency. */}
+                {cctx ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                    <AffiliateChip provider={cctx.provider} />
+                    <span style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Wayfind earns a commission if you buy — your price is the same.</span>
+                  </div>
+                ) : null}
                 </div>
               </div>
             );
