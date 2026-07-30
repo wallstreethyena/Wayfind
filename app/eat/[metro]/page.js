@@ -34,7 +34,7 @@
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import { notFound } from "next/navigation";
 import { SITE_URL } from "../../../lib/site";
-import CuisineChips from "./chips";
+import CuisineMenu from "./CuisineMenu";
 import FoodTourRail from "../../components/FoodTourRail";
 import { METRO_DESTS, pickFoodTours } from "../../../lib/foodTours";
 
@@ -140,51 +140,117 @@ export async function generateMetadata({ params }) {
   };
 }
 
+/* ── The chooser, INSIDE the cream card ──────────────────────────────────────
+   Values lifted from the owner-signed mock, docs/mocks/eat-hero-chips-mock-v3.html.
+   Everything here is scoped to the wf-eat-premium prefix on purpose:
+   EditorialLandingHero is SHARED with /best-beaches, so a global restyle would move
+   a page this redesign has nothing to do with. Where the mock and the existing
+   sheet disagree, the mock wins — but only inside this prefix.
+
+   NO PILLS. The mock's stylesheet still carries a .chips/.chip pill block from v2
+   (border-radius:999px), but its rendered body never uses it and the directive is
+   explicit: no pills anywhere. That dead block is deliberately not ported. */
+const MOCK = {
+  ink: "#1e2430", cream: "#f7f1e6", paper: "#fffdf8",
+  coral: "#e8632e", coralDeep: "#c94f1f",
+  gold: "#b98a2f", goldSoft: "#d8c39a",
+  line: "rgba(30,36,48,.12)", muted: "#6b6355",
+  serif: "Georgia,'Times New Roman',serif",
+};
+
 const CSS = editorialHeroCss("wf-eat-premium") + `
-/* Chips, elevated to match the hero. The previous treatment was a flat pill with
-   the count as trailing text — it read as system output next to a premium hero.
-   Now: a card surface with a real border, generous tap target, and the count as a
-   quiet badge. Thin-row chips are deliberately quieter so the two tiers read as a
-   hierarchy at a glance rather than as one long list. */
-.wf-eat-chips{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
-.wf-eat-chip{display:block}
-.wf-eat-chip a{
-  display:inline-flex;align-items:center;gap:10px;text-decoration:none;
-  /* 46px min height keeps the tap target comfortable on mobile. */
-  min-height:46px;padding:11px 14px;border-radius:14px;
-  border:1px solid ${C.line};
-  background:linear-gradient(180deg,#141c27 0%,#101720 100%);
-  color:${C.text};font-size:15px;font-weight:680;letter-spacing:-.01em;
-  box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 1px 2px rgba(0,0,0,.25);
-  transition:border-color .16s ease,transform .12s ease,box-shadow .16s ease;
+/* min-width:0 on the grid children is DEFENSIVE, not a fix for an observed bug.
+   A grid/flex child defaults to min-width:auto and refuses to shrink below its
+   content, which is the standard way a card grid overflows a narrow screen. It
+   costs nothing here and removes that failure mode.
+   Stated honestly because I briefly believed the opposite: a 390px headless
+   screenshot showed the card clipped, and I diagnosed a real overflow. It was an
+   artefact — headless Chrome enforces a ~500px minimum window, so the 390px image
+   was a CROP of a 500px render. At 500px the layout is complete and correct. True
+   ≤420px behaviour is therefore NOT verified locally and is the owner's
+   real-device check. */
+.wf-eat-menu{margin-top:2px;min-width:0}
+.wf-eat-featured>li,.wf-eat-index>li{min-width:0}
+.wf-eat-featured a,.wf-eat-index a{min-width:0;max-width:100%}
+.wf-eat-fname,.wf-eat-iname{overflow-wrap:anywhere}
+
+/* Tier headers: fleuron, italic serif label, gold gradient rule, small-caps hint. */
+.wf-eat-tierhead{display:flex;align-items:baseline;gap:12px;margin-bottom:14px}
+.wf-eat-tierhead + .wf-eat-featured{margin-bottom:26px}
+.wf-eat-orn{color:${MOCK.gold};font-size:13px;letter-spacing:.05em}
+.wf-eat-tiert{font-family:${MOCK.serif};font-size:19px;font-style:italic;color:#3c3628}
+.wf-eat-tierrule{height:1px;background:linear-gradient(to right,${MOCK.goldSoft},transparent);flex:1;align-self:center}
+.wf-eat-tierhint{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a9080;font-weight:700}
+
+/* Featured — six gold-framed menu cards, two rows of three. The double hairline is
+   the border plus a ::before inset rule, exactly as the mock draws it. */
+.wf-eat-featured{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 26px;padding:0;list-style:none}
+.wf-eat-featured a{
+  position:relative;display:block;text-decoration:none;
+  background:linear-gradient(165deg,${MOCK.paper} 0%,#f4ecdc 100%);
+  border:1px solid rgba(185,138,47,.35);border-radius:14px;padding:16px 16px 14px;
+  box-shadow:0 1px 2px rgba(30,36,48,.05);
+  transition:transform .14s ease,box-shadow .14s ease;
 }
-.wf-eat-chip a:hover{border-color:${C.gold};transform:translateY(-1px);box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 4px 12px rgba(0,0,0,.35)}
-.wf-eat-chip a:active{transform:translateY(0);box-shadow:0 1px 2px rgba(0,0,0,.4) inset}
-.wf-eat-chip a:focus-visible{outline:2px solid ${C.gold};outline-offset:2px}
-.wf-eat-chip-name{line-height:1.15}
-/* The count as a quiet badge rather than trailing prose. */
-.wf-eat-chip-count{
-  flex:none;min-width:22px;padding:2px 7px;border-radius:999px;
-  background:rgba(232,201,122,.10);border:1px solid rgba(232,201,122,.20);
-  color:${C.gold};font-size:11.5px;font-weight:750;line-height:1.5;text-align:center;
-  font-variant-numeric:tabular-nums;
+.wf-eat-featured a::before{content:"";position:absolute;inset:6px;border:1px solid rgba(185,138,47,.18);border-radius:9px;pointer-events:none}
+.wf-eat-featured a:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(30,36,48,.16)}
+.wf-eat-featured a:active{transform:translateY(0);box-shadow:0 1px 2px rgba(30,36,48,.08)}
+.wf-eat-featured a:focus-visible{outline:2px solid ${MOCK.coral};outline-offset:3px}
+.wf-eat-fnum{display:block;font-family:${MOCK.serif};font-size:30px;line-height:1;color:${MOCK.coralDeep};margin-bottom:6px;font-variant-numeric:tabular-nums}
+.wf-eat-fnum small{font-family:inherit;font-size:13px;color:#8a7a55;font-style:italic;margin-left:4px}
+.wf-eat-fname{display:block;font-family:${MOCK.serif};font-size:19px;color:${MOCK.ink};margin-bottom:5px}
+.wf-eat-fgo{display:block;font-size:11px;letter-spacing:.14em;font-weight:700;text-transform:uppercase;color:${MOCK.coral}}
+.wf-eat-fgo::after{content:" \\2192"}
+
+/* Index — menu-style dotted leaders. CSS columns, as the mock uses, with
+   break-inside:avoid so a row never splits across a column. */
+.wf-eat-index{columns:3;column-gap:34px;margin:0 0 4px;padding:0;list-style:none}
+.wf-eat-index li{break-inside:avoid}
+.wf-eat-index a{
+  display:flex;align-items:baseline;gap:8px;text-decoration:none;
+  padding:7px 2px;border-bottom:1px solid rgba(30,36,48,.08);
+  transition:color .12s ease;
 }
-/* Thin tier: same shape, lower contrast. Hierarchy without a different component. */
-.wf-eat-thin a{
-  min-height:40px;padding:9px 12px;font-size:13.5px;font-weight:600;
-  background:transparent;border-color:rgba(28,37,48,.75);color:${C.muted};
-  box-shadow:none;
+.wf-eat-iname{font-family:${MOCK.serif};font-size:14.5px;color:#5c5546;flex-shrink:0}
+.wf-eat-idots{flex:1;border-bottom:1px dotted rgba(107,99,85,.45);transform:translateY(-3px)}
+.wf-eat-in{font-family:${MOCK.serif};font-style:italic;font-size:13px;color:#9a8a60;font-variant-numeric:tabular-nums}
+.wf-eat-index a:hover .wf-eat-iname{color:${MOCK.coralDeep}}
+.wf-eat-index a:hover .wf-eat-in{color:${MOCK.coral}}
+.wf-eat-index a:focus-visible{outline:2px solid ${MOCK.coral};outline-offset:2px}
+
+/* The trust line is the card's footer. The mock's treatment (13px, gold dot,
+   hairline above) differs from the shared template's 10.5px SVG lockup — the mock
+   wins, scoped here so /best-beaches keeps its own. */
+.wf-eat-premium-footer{display:block;margin-top:22px;padding-top:0}
+.wf-eat-premium-trust{
+  border-top:1px solid ${MOCK.line};padding-top:16px;
+  color:${MOCK.muted};font-size:13px;line-height:1.5;
 }
-.wf-eat-thin a:hover{border-color:rgba(232,201,122,.45);color:${C.text};box-shadow:none;transform:translateY(-1px)}
-.wf-eat-thin .wf-eat-chip-count{
-  background:transparent;border-color:rgba(138,151,166,.28);color:${C.muted};font-weight:650;
-}
-.wf-eat-sub{font-size:12px;color:${C.muted};margin:26px 0 11px;letter-spacing:.9px;text-transform:uppercase;font-weight:750}
-.wf-eat-sub:first-of-type{margin-top:20px}
+.wf-eat-premium-trust svg{color:${MOCK.gold};flex:none}
+
 .wf-eat-note{font-size:13px;color:${C.muted};line-height:1.55;margin:22px 0 0}
-@media (max-width:420px){
-  .wf-eat-chips{gap:8px}
-  .wf-eat-chip a{font-size:14.5px;padding:11px 13px}
+
+/* Mobile: featured 2-up, index 2 columns, and 46px tap targets. The mock's index
+   rows are ~30px tall — a deliberate deviation, because the directive requires a
+   46px target and a design mock is not a touch spec. */
+@media (max-width:900px){
+  .wf-eat-featured{grid-template-columns:1fr 1fr}
+  .wf-eat-index{columns:2}
+}
+@media (max-width:520px){
+  .wf-eat-tiert{font-size:17px}
+  .wf-eat-featured{gap:10px}
+  .wf-eat-featured a{padding:13px 12px 12px;min-height:46px}
+  .wf-eat-featured a::before{inset:5px}
+  .wf-eat-fnum{font-size:26px}
+  .wf-eat-fname{font-size:17px}
+  /* Slightly tighter tracking so "See the shortlist" sits comfortably in a 2-up
+     card. The label itself is NOT hidden or abbreviated — it is the card's only
+     call to action. */
+  .wf-eat-fgo{letter-spacing:.10em}
+  .wf-eat-index{column-gap:18px}
+  .wf-eat-index a{min-height:46px;align-items:center;padding:10px 2px}
+  .wf-eat-iname{font-size:14px}
 }
 `;
 
@@ -216,10 +282,15 @@ export default async function EatPage({ params }) {
   const full = (chips || []).filter((c) => c.tier === "full");
   const thin = (chips || []).filter((c) => c.tier === "thin");
 
-  const quickPicks = full.slice(0, 6).map((c) => ({
-    label: pretty(c.cuisine) + ":",
-    name: c.places + (c.places === 1 ? " place" : " places"),
-  }));
+  // ONE list, both former tiers, ordered by count desc — the RPC already returns
+  // it that way (order by places_hi desc, cuisine), so this is a pass-through, not
+  // a second ordering authority that could disagree with the SQL.
+  //
+  // The old `quickPicks` stat grid is gone: it restated counts the chips already
+  // carry, and two surfaces answering one question is the duplication the redesign
+  // exists to remove. `full`/`thin` survive only for structured data and the
+  // empty-state test, where the 3+/1-2 distinction still means something.
+  const menuChips = (chips || []).map((c) => ({ ...c, display: pretty(c.cuisine) }));
 
   const pageUrl = SITE_URL + "/eat/" + params.metro;
   const ld = [
@@ -253,9 +324,19 @@ export default async function EatPage({ params }) {
         headline={<>What to Eat Near {meta.near}</>}
         dekLead="Pick a kind of food. We already did the ranking."
         dekBody="Every option below is somewhere near you that we hold real reviews for — not a search we ran on your behalf. Choose the food, and the shortlist is already built."
-        quickTitle={quickPicks.length ? "The deepest choices here" : null}
-        quickPicks={quickPicks}
-        trustLines={["No paid placement. No sponsored rankings.", "Just the kind of food you actually want."]}
+        // The stat grid is deliberately EMPTY: the chooser below replaces it, and
+        // the template renders nothing when picks are empty.
+        quickPicks={[]}
+        // The chooser rides in actionSlot, which the template places inside the
+        // cream panel directly above the trust line — so the card becomes the whole
+        // decision surface without the shared template changing at all.
+        actionSlot={
+          unavailable ? null : <CuisineMenu chips={menuChips} metro={params.metro} />
+        }
+        trustLines={[
+          "No paid placement. No sponsored rankings.",
+          `Counts are places near ${meta.near} we hold enough signal on to stand behind — we never widen the search to pad the list.`,
+        ]}
       />
 
       {/* The money surface sits DIRECTLY under the hero and OUTSIDE the 680px
@@ -268,43 +349,25 @@ export default async function EatPage({ params }) {
           would still measure as a viewed surface. */}
       <FoodTourRail offers={foodTours} metro={params.metro} />
 
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
-        {unavailable ? (
-          <p className="wf-eat-note">
-            Cuisine coverage is unavailable right now. This is a temporary problem on our side, not an
-            empty neighbourhood — please try again shortly.
-          </p>
-        ) : !full.length && !thin.length ? (
-          <p className="wf-eat-note">
-            We do not hold enough restaurants near {meta.near} yet to sort them by kind of food. Rather
-            than guess, we would rather say so.
-          </p>
-        ) : (
-          <>
-            {full.length ? (
-              <>
-                <div className="wf-eat-sub">Popular here</div>
-                <CuisineChips chips={full.map((c) => ({ ...c, display: pretty(c.cuisine) }))} metro={params.metro} tier="full" />
-              </>
-            ) : null}
-
-            {thin.length ? (
-              <>
-                {/* The 1-2 band, shown with its real count rather than hidden. An
-                    honest thin chip still routes to a bookable place; hiding it
-                    routes the user to Google. */}
-                <div className="wf-eat-sub">Fewer nearby</div>
-                <CuisineChips chips={thin.map((c) => ({ ...c, display: pretty(c.cuisine) }))} metro={params.metro} tier="thin" />
-              </>
-            ) : null}
-
+      {/* The below-card chip section is GONE — it was the same chooser a second
+          time, in a second visual language. What remains here is only the state
+          copy, which has no home inside the card because the card is not rendered
+          as a chooser when there is nothing to choose. */}
+      {unavailable || (!full.length && !thin.length) ? (
+        <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
+          {unavailable ? (
             <p className="wf-eat-note">
-              Counts are places near {meta.near} we hold enough signal on to stand behind. A kind of food
-              with none nearby is not listed at all — we do not widen the search to pad the list.
+              Cuisine coverage is unavailable right now. This is a temporary problem on our side, not an
+              empty neighbourhood — please try again shortly.
             </p>
-          </>
-        )}
-      </div>
+          ) : (
+            <p className="wf-eat-note">
+              We do not hold enough restaurants near {meta.near} yet to sort them by kind of food. Rather
+              than guess, we would rather say so.
+            </p>
+          )}
+        </div>
+      ) : null}
     </main>
   );
 }
