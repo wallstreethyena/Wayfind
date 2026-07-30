@@ -1,5 +1,12 @@
 # DEEPSEEK lane state — 2026-07-30
 
+> **READ THIS FIRST.** Today's money-page monetization is **untracked Uber Eats
+> delivery plus the tour rail**. The CTA ladder is built and honest, but three of
+> its four rungs are gated on decisions **outside this lane**: per-merchant Clipp
+> deals (GWEN), a reservation affiliate (owner research), and
+> `NEXT_PUBLIC_UBEREATS_TEMPLATE` so delivery earns at all. The structure is done.
+> The money is waiting on other people. Do not read the built surfaces as revenue.
+
 Handoff file. Read this **plus CLAUDE.md** to resume. Written because a session's
 context got heavy, not because the lane paused.
 
