@@ -278,6 +278,45 @@ call tells you it behaves right, and only the second is what ships. Three instan
 
 ---
 
+## 🧪 Guard pattern — assert the invariant, not the file path
+
+Learned the hard way on 2026-07-30 (#486). FOUR guards went red for the same
+reason when `bookingTargets()` moved from `app/components/BookingCTA.js` into
+`lib/bookingResolve.js`: `check-guides`, `check-booking-cta`,
+`test-sheet-booking`, and one of my own. Every one of them asserted *"this string
+appears in this file"* rather than *"this invariant holds"*.
+
+**The dangerous half is the inverse.** Each of those guards would have gone
+GREEN the moment the code left its old path — a guard that reads
+`app/components/BookingCTA.js` for `rel="noreferrer sponsored"` passes happily
+when the CTA moves elsewhere and the rel is dropped. Red-on-move is noisy; the
+green-on-move is the FTC gap.
+
+So:
+
+- assert on the **union** of the plausible locations, or on the **export**, never
+  on one path;
+- where a thing must exist exactly once, count it (`bookingTargets` is now
+  asserted to be defined exactly once across component + resolver — two
+  definitions IS the parallel path the booking contract forbids);
+- when a guard goes red because code moved, **follow the code**. Deleting the
+  assertion re-opens whatever it was written for.
+
+Related trap, same day, five separate occurrences: a guard that greps RAW source
+fails on its own explanatory comment. Strip comments before any position or
+presence check — `check-editorial-publish`, `check-env-value-overrides`,
+`check-editorial-retry-state`, `check-cuisine-never-queried` and
+`check-cuisine-sheet` all hit it.
+
+And the one that costs most: **assert on the call, not the string.** Four
+break-tests this session "passed" while testing nothing —
+`/Open in Wayfind/` matched with the link disabled to `{false ? …}`;
+`rpc/wf_cuisine_chips` matched inside a defined-but-uncalled function;
+`thin.length` matched in an unrelated ternary. If breaking the behaviour leaves
+the guard green, the assertion is decoration.
+
+---
+
 ## Recent state (for context, not instructions)
 
 - Two audits complete (recent-release surfaces + full-site sweep). 14 fixes shipped
