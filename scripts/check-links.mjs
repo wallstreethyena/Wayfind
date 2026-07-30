@@ -6,7 +6,7 @@
 //      the caller hides the control, never href="null").
 //   3. The openers that were migrated route through lib/links, not a raw
 //      window.open of an unvalidated URL.
-import { readFileSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -30,15 +30,49 @@ if (!home.includes('from "../lib/links"')) fail("home.js does not import from li
 
 // 3. The migrated openers route through lib/links, not a raw unvalidated window.open.
 const migrated = {
-  "app/components/sheets/Menu.js": /openExternal\(e\.url\)/,
+  // Menu.js left this map in #480. Its only external open lived in the
+  // `community` events block, which was UNREACHABLE (nothing ever set menuSheet
+  // to "community") and was deleted along with three other dead sub-states.
+  // Requiring the import in a file that opens nothing would force a dead import
+  // to satisfy a guard — the check shaping the code instead of protecting it.
+  // Coverage is NOT lost: the sweep added below scans every sheet and screen for
+  // a raw window.open, which is the half that actually matters. That sweep was
+  // written for this PR precisely because removing Menu.js from this map would
+  // otherwise have left it unguarded — the comment here originally claimed such
+  // a sweep already existed, and an injected window.open proved it did not.
+  // Put Menu.js back in this map if it opens an external URL again.
   "app/components/screens/Surprise.js": /openExternal\(p\.mapsUrl\)/,
   "app/components/screens/Itinerary.js": /openExternal\(u\)/,
 };
+if (!Object.keys(migrated).length) fail("the migrated-openers map is empty — the loop below would assert nothing");
 for (const [file, rx] of Object.entries(migrated)) {
   const s = read(file);
   if (!s.includes('from "../../../lib/links"')) fail(`${file} does not import the central opener from lib/links`);
   if (!rx.test(s)) fail(`${file} no longer routes its external open through openExternal`);
 }
+// 3b. NO raw window.open in any sheet or screen. These are the files the map
+// above governs, and a file that drops out of it (because its opener was
+// deleted) must not be able to reintroduce an unvalidated open unnoticed.
+// Scope is deliberately sheets/ + screens/ only: three components OUTSIDE them
+// (BookItLink, BestNearby, TodaysBest) hold pre-existing raw opens of internally
+// built directions URLs. Widening the sweep to cover those is a separate review,
+// not a silent side effect of a deletion PR.
+{
+  const dirs = ["app/components/sheets", "app/components/screens"];
+  let scanned = 0;
+  for (const d of dirs) {
+    for (const f of readdirSync(d).filter((x) => x.endsWith(".js"))) {
+      const rel = d + "/" + f;
+      const src = read(rel).replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/gm, "$1 ");
+      scanned++;
+      if (/\bwindow\.open\s*\(/.test(src)) fail(`${rel} calls window.open directly — route it through openExternal from lib/links so the URL is validated`);
+    }
+  }
+  // Falsifiability: an empty scan would pass silently.
+  if (scanned < 8) fail(`the raw-window.open sweep only scanned ${scanned} files — expected every sheet and screen`);
+  console.log(`  (raw-window.open sweep: ${scanned} sheets/screens clean)`);
+}
+
 // TicketButton keeps a DIRECT window.open (anti-Stay22) but must validate via safeUrl.
 const tb = read("app/events/[city]/[slug]/TicketButton.js");
 if (!tb.includes("safeUrl(url)") || !tb.includes('from "../../../../lib/links"')) fail("TicketButton.js must validate its url through lib/links safeUrl");

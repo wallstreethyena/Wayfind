@@ -170,9 +170,16 @@ Both halves happened on 2026-07-29, converting "the last surface on the old shee
   `setMenuSheet("experiences")` button — but that button lives inside the
   `menuSheet === "menu"` block, and nothing sets `menuSheet` to `"menu"`. Five of
   MenuSheet's six sub-states (`menu`, `community`, `explore`, `experiences`, `weather`)
-  cannot be opened. Only `"pick"` can.
+  could not be opened. Only `"pick"` could.
 
 I reported the first finding as proof and made the second mistake in the same breath.
+
+**Resolved (#480):** `menu`, `community`, `explore` and `weather` were deleted — 208 lines
+of sheet that rendered for nobody, plus `SheetHero`, whose last three callers were all
+inside them, and 23 `ctx` values Menu.js no longer reads. `experiences` was kept because
+it is the converted surface; its missing entry point is a product question, tracked in
+`docs/KIMI_QUEUE.md`. **A styled surface with no door is only acceptable while something
+is tracking it** — otherwise it becomes the next "All experiences".
 
 - trace the chain to a **user-visible** trigger: a nav button, a URL param, a card tap —
   not to another conditional block

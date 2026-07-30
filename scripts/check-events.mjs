@@ -25,14 +25,27 @@ const THU = new Date(2026, 6, 9, 12, 0);
 eq(eventWhenLabel({ date: "2026-07-11", time: "10:00:00" }, THU), "This weekend", "Sat +2 from Thu -> weekend");
 eq(eventWhenLabel({ date: "2026-07-10", time: "10:00:00" }, THU), "Tomorrow", "Fri +1 from Thu -> tomorrow");
 
-// The banned hardcode must not reappear on any event surface.
-const surfaces = ["app/home.js", "app/components/sheets/Detail.js", "app/components/sheets/Menu.js"];
-for (const f of surfaces) {
+// The banned hardcode must not reappear ANYWHERE that could grow an event
+// surface — cheap to check, and a re-introduction is the whole point.
+const noHardcode = ["app/home.js", "app/components/sheets/Detail.js", "app/components/sheets/Menu.js"];
+// ...but only the files that actually RENDER an event time can be required to
+// call the shared helper. Menu.js left this list in #480: its event UI lived in
+// the `community` sub-state, which was unreachable (nothing ever set menuSheet
+// to "community") and was deleted along with three others. Requiring the import
+// in a file with no events UI would force a dead import to satisfy a guard,
+// which is how a check starts shaping the code instead of protecting it.
+// If events UI returns to Menu.js, put it back in this list.
+const mustUseHelper = ["app/home.js", "app/components/sheets/Detail.js"];
+for (const f of noHardcode) {
   if (!existsSync(f)) { fail(`surface missing: ${f}`); continue; }
   const s = readFileSync(f, "utf8");
   if (/diff <= 0\) return "Tonight"|diff === 0 \? \("Tonight"/.test(s)) fail(`${f} still hardcodes same-day "Tonight" — route it through eventWhenLabel`);
-  if (!s.includes("eventWhenLabel")) fail(`${f} no longer uses the shared eventWhenLabel helper`);
+  if (mustUseHelper.includes(f) && !s.includes("eventWhenLabel")) fail(`${f} no longer uses the shared eventWhenLabel helper`);
 }
+// Falsifiability: the presence check must still be pointed at real files, or the
+// loop above silently checks nothing but the hardcode.
+if (!mustUseHelper.length) fail("mustUseHelper is empty — the shared-helper assertion would be vacuous");
+for (const f of mustUseHelper) if (!noHardcode.includes(f)) fail(`${f} must also be in noHardcode`);
 
 // v6.20 — Events tab: opens on real events (best-paying populated category, not
 // Tours); the Viator rail is PERMANENTLY pinned on top of every filter; the

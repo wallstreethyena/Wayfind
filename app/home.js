@@ -1435,16 +1435,6 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
   );
 }
 
-function SheetHero({ icon, title, subtitle, color }) {
-  return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 54, height: 54, borderRadius: 16, border: `1.5px solid ${color}`, background: `linear-gradient(150deg, ${color}26, ${color}0D 72%), ${C.card}`, fontSize: 28, lineHeight: 1, marginBottom: 11 }}>{icon}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.2px", lineHeight: 1.15 }}>{title}</div>
-      {subtitle && <div style={{ fontSize: 13, color: C.muted, marginTop: 4, lineHeight: 1.45 }}>{subtitle}</div>}
-    </div>
-  );
-}
-
 // v4.4: flat line nav icons in the Wayfind language — no emoji, no red heart. Each takes
 // the active or inactive color so the bar stays on-brand and consistent at any state.
 // NavIcon (category + nav line-icon set) now lives in components/kit.js so
@@ -7191,7 +7181,7 @@ function PageInner({ initialEvents = null }) {
     // account sheet
     accountOpen, setAccountOpen, wfShowDiag, BUILD_ID,
     // menu sheet (6 sub-states incl. weather)
-    menuSheet, setMenuSheet, pickCat, openSurprise, SheetHero, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
+    menuSheet, setMenuSheet, pickCat, openSurprise, libraryEvents, primaryCategory, foryouEvents, whyNow, searchRadius, setPendingRadius, setRadiusSheet, rollHomePick, homeRolling, homeDiceFace, rollHistory, INTENTS, intent, setIntent, moonImgName, weatherAdvisory, wayfindWeatherTake, uvLabel, shareWeather,
     // auth + password-recovery sheets
     authOpen, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword,
     // detail sheet (G3)
