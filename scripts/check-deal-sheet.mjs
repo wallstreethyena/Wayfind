@@ -20,7 +20,8 @@ let pass = 0;
 const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
-const { COUPONS } = await import(path.resolve("lib/coupons.js"));
+const C = await import(path.resolve("lib/coupons.js"));
+const { COUPONS } = C;
 const D = await import(path.resolve("lib/dealSheet.js"));
 const TODAY = "2026-07-30";
 const { featured, ledger } = D.dealTiers(COUPONS, TODAY);
@@ -114,8 +115,48 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
 {
   const { DEAL_SHEET_INTERNALS } = D;
   const arts = Object.values(DEAL_SHEET_INTERNALS.INTENT_ART);
-  ok(arts.length >= 5 && arts.every((a) => a.startsWith("/cards/")), "every fallback is one of OUR committed /cards/ assets");
+  // `>= 5` used to be the floor. That number was the SIZE OF THE OLD MAP, not a
+  // rule, and it went red when five generated assets were removed — an assertion
+  // pinned to an accident. What matters is that the map is non-empty and every
+  // entry is one of ours; four real photographs beat seven with five fakes.
+  ok(arts.length > 0 && arts.every((a) => a.startsWith("/cards/")), `every fallback is one of OUR committed /cards/ assets (${arts.length} intents mapped)`);
   ok(!arts.some((a) => /dpbolvw|anrdoezrs|clipp\.com/.test(a)), "no CJ banner creative is used as artwork — they are IAB ad units, wrong shape and wrong register");
+
+  /* GENERATED ART CAN NEVER REACH A CARD.
+     The objection was that the art is FAKE, not that it isn't a photo of the
+     specific merchant — a ferris wheel on a Klook attractions card is wrong
+     because it is invented and unrelated. So this is enforced on the RESOLVED
+     artwork of every real coupon, not on a hand-listed pair of card ids. */
+  const gen = [...DEAL_SHEET_INTERNALS.GENERATED_ART];
+  ok(gen.length > 0, `the generated-art list is populated (${gen.length}) — an empty set would make everything below vacuous`);
+  // The fallback map is now clean of generated art, so "is one still reachable from
+  // INTENT_ART" can no longer be the non-vacuity proof — it would demand the map stay
+  // dirty. Prove the filter works by CALLING it instead: a generated asset must be
+  // recognised and refused, and a real one must not be.
+  ok(gen.every((a) => D.isGeneratedArt(a)), "every listed generated asset is recognised as generated");
+  ok(!D.isGeneratedArt("/cards/coupon-dining-cafe-solo.jpeg"), "…and a real photograph is NOT — the classifier discriminates rather than saying yes to everything");
+  ok(!arts.some((a) => D.isGeneratedArt(a)), "no intent fallback points at generated art any more");
+  for (const c of COUPONS) {
+    const art = D.dealArtwork(c);
+    ok(art === null || !D.isGeneratedArt(art), `${c.id}: resolves to real photography or to NO image — never generated art (got ${art})`);
+  }
+  // Both directions, so this cannot pass by dealArtwork simply returning null always.
+  ok(D.dealArtwork({ image: "/cards/family-fun.jpg" }) === null,
+    "generated art is refused even when set EXPLICITLY on a deal — otherwise a row could opt back in and the fallback would be the only protection");
+  ok(D.dealArtwork({ image: "/cards/coupon-dining-cafe-solo.jpeg" }) === "/cards/coupon-dining-cafe-solo.jpeg",
+    "…and a real committed photograph still renders, so the refusal is targeted rather than blanket");
+
+  /* City-market photos are assigned DETERMINISTICALLY and DISTINCTLY.
+     A bare hash % 5 gave only two distinct photos across four markets, which is
+     exactly the "they all look the same" this set was supplied to fix. */
+  const marketIds = COUPONS.filter((c) => c.id.startsWith("cpn-clipp-fl-")).map((c) => c.id.replace(/^cpn-/, ""));
+  ok(marketIds.length >= 2, `there are city-market cards to check (${marketIds.length}) — fewer than two makes distinctness vacuous`);
+  const picks = marketIds.map(C.clippArtFor);
+  ok(new Set(picks).size === picks.length, `every city-market card gets a DIFFERENT photo (${new Set(picks).size}/${picks.length})`);
+  ok(picks.every((p) => /^\/cards\/coupon-dining-/.test(p)), "…all from the curated dining set");
+  ok(marketIds.map(C.clippArtFor).join() === picks.join(), "the pick is STABLE across calls — a card must not shuffle its image between renders");
+  const fwd = C.clippArtAssignment(marketIds), rev = C.clippArtAssignment([...marketIds].reverse());
+  ok(marketIds.every((id) => fwd.get(id) === rev.get(id)), "…and depends only on the SET of ids, not their order in CLIPP_MARKETS");
 }
 
 /* ── 7. the data corrections that unblocked this build ───────────────────── */

@@ -166,12 +166,54 @@ for (const c of clipps) {
   const code = screen.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   ok(code.length > 1000, `stripped comments and still have code (got ${code.length}) — an over-eager strip would make the next checks vacuous`);
 
-  const { dealArtwork } = await import(path.resolve("lib/dealSheet.js"));
-  const freeDeal = COUPONS.find((c) => c.id === "cpn-ringling-free-mondays");
-  ok(!!freeDeal, "found a NON-affiliate deal to test artwork on");
-  ok(typeof dealArtwork(freeDeal) === "string" && dealArtwork(freeDeal).startsWith("/cards/"),
-    "a NON-AFFILIATE deal still gets artwork — art is not a privilege of the cards that pay");
-  ok(dealArtwork({ image: "/cards/where-to-eat.jpg" }) === "/cards/where-to-eat.jpg", "an explicit committed image wins");
+  const { dealArtwork, dealNetwork } = await import(path.resolve("lib/dealSheet.js"));
+
+  // ART IS NOT A PRIVILEGE OF THE CARDS THAT PAY — asserted as PARITY, not presence.
+  //
+  // This used to assert one specific free deal (Ringling free Mondays) gets non-null
+  // artwork. That held only while the intent fallbacks pointed at GENERATED art, which
+  // every card could reach. Now that generated art is refused, the honest state is that
+  // attraction cards have no photography yet and dining cards do — and that split runs
+  // across paid and free alike: Klook and the manatee walk both PAY and both render no
+  // band, exactly like the free museum cards.
+  //
+  // So presence is the wrong test; keeping it green would mean forcing a café
+  // photograph onto a museum card. What must never happen is artwork correlating with
+  // whether the card earns. Asserted per intent: within one intent, either all
+  // fallback-reliant cards get art or none do, regardless of affiliate status.
+  {
+    // Bucket by the intent the art ACTUALLY RESOLVES FROM — dealArtwork takes the
+    // first intent that maps, so bucketing by every intent a card carries credits
+    // art to the wrong one. Caught in practice: the Marauders card carries
+    // familyfun but draws its photo from nightout, which made "familyfun" look
+    // like it discriminated when every card resolving from familyfun is null.
+    const { DEAL_SHEET_INTERNALS } = await import(path.resolve("lib/dealSheet.js"));
+    const IA = DEAL_SHEET_INTERNALS.INTENT_ART;
+    const resolvingIntent = (c) => (Array.isArray(c.intents) ? c.intents : []).find((k) => IA[k]) || "(none)";
+    const byIntent = new Map();
+    for (const c of COUPONS) {
+      const key = resolvingIntent(c);
+      if (!byIntent.has(key)) byIntent.set(key, []);
+      byIntent.get(key).push(c);
+    }
+    ok(byIntent.size > 0, `there are intents to compare (${byIntent.size}) — an empty map would make this vacuous`);
+    let compared = 0;
+    for (const [key, cards] of byIntent) {
+      // Only cards relying on the FALLBACK are comparable; one with its own committed
+      // image is a deliberate per-card choice, not a category rule.
+      const fb = cards.filter((c) => !(typeof c.image === "string" && c.image.startsWith("/")));
+      const paid = fb.filter((c) => !!dealNetwork(c));
+      const free = fb.filter((c) => !dealNetwork(c));
+      if (!paid.length || !free.length) continue;
+      compared++;
+      const paidHas = paid.some((c) => dealArtwork(c) !== null);
+      const freeHas = free.some((c) => dealArtwork(c) !== null);
+      ok(paidHas === freeHas,
+        `intent "${key}": artwork does not depend on whether the card earns (paid=${paidHas}, free=${freeHas})`);
+    }
+    ok(compared > 0, `at least one intent had BOTH paid and free cards to compare (${compared}) — otherwise the parity check proved nothing`);
+  }
+  ok(dealArtwork({ image: "/cards/coupon-dining-cafe-solo.jpeg" }) === "/cards/coupon-dining-cafe-solo.jpeg", "an explicit committed image wins");
   ok(dealArtwork({ image: "https://www.clipp.com/x.jpg" }) === null,
     "a REMOTE image is refused — an artwork band is not worth handing a third party control of what renders in a Wayfind card");
   ok(dealArtwork({}) === null, "no usable image yields NULL, so the card renders with no band rather than a placeholder");
