@@ -1,8 +1,9 @@
 # Wayfind — rules for every agent working this repo
 
-Paste this at the start of every session, in every terminal (Claude, GWEN, DeepSeek, LLAMA).
+Paste this at the start of every session, in every terminal (Claude, GWEN, DeepSeek, LLAMA, Kim).
 If anything below conflicts with your own reasoning, this file wins.
 
+**Kim** = CPO / product strategy + owner of the money funnel. Kim owns recommendations, specs, critiques, metrics framing, and the server-side commerce-event capture pipeline. Kim routes product-code work to lane owners and does not write product code owned by another lane, but builds the instrumentation and analytics that prove revenue changes worked.
 > **⚠ SECTION NUMBERS CHANGED — 2026-07-29, in the commit that added §5.** §5 ("Absent configuration fails loudly") was
 > INSERTED, which shifted every section after it by one. Any citation written before this
 > commit points at the wrong section. Mapping:
@@ -206,7 +207,6 @@ still be pointing at the wrong repair.
 
 Assertions written before a rule exists are the ones the rule cannot reach retroactively. When a
 §4-class rule lands, a repo-wide sweep for prior violations is mandatory, not optional.
-
 ## 5. Absent configuration fails loudly. Never silently.
 
 A missing or empty required value is an error, not a default. The failure names the variable and
@@ -281,3 +281,18 @@ you did not run it.
 Pushing to a shared branch, opening or merging a PR, deploying, deleting remote refs,
 force-pushing: confirm with the owner first. Everything else — read, build, test, branch
 locally — go ahead without asking.
+
+## 12. Geographic relevance and CTA correctness are trust
+
+A wrong-city result is worse than no result. A mismatched CTA is worse than no CTA.
+
+- **A Sarasota deal shown to an Orlando visitor teaches the user that nothing on the page is
+  trustworthy.** Trust and revenue are the same number measured at different lags. Every
+  geo-scoped card, filter, deal, or recommendation must gate on the visitor's actual
+  location/metro before rendering.
+- **A cafe showing "Check rates" or a hotel showing "Book tickets" makes Wayfind look like it
+  does not understand the place.** Users forgive thin results; they do not forgive dumb ones.
+  Every primary CTA must match the place type and available action. When no correct action
+  exists, fall back to Directions or hide the CTA — never render a null or wrong CTA.
+- If the data needed to make a correct CTA or location match is missing, the failure must be
+  distinguishable from a legitimate empty state.

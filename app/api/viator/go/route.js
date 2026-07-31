@@ -12,8 +12,11 @@
 // honest about not knowing rather than teleporting to a wrong product).
 export const runtime = "nodejs";
 
+import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
+import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { commercePayload } from "../../../../lib/commerce.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -118,6 +121,36 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
+  const q = (searchParams.get("q") || "").trim().slice(0, 120);
+  const city = (searchParams.get("city") || "").trim().slice(0, 60);
+  const region = searchParams.get("region") || city;
+  const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
+  const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || (q ? "q:" + q.toLowerCase() : null);
+  const clickId = randomUUID();
+  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+
+  const baseProps = {
+    provider: "viator",
+    offer_id: placeId || q || "unknown",
+    surface: "viator_legacy",
+    content_id: q || placeId || "unknown",
+    city_id: city || null,
+    category: kind || null,
+    click_id: clickId,
+  };
+
+  const emit = (event, extra) => {
+    try {
+      const props = commercePayload(event, { ...baseProps, ...(extra || {}) });
+      captureServer(event, { distinctId, properties: props });
+    } catch {}
+  };
+
+  const failAndRedirect = (reason, url) => {
+    emit("provider_redirect_failed", { failure_reason: reason });
+    return Response.redirect(url, 302);
+  };
+
   // Diagnostic probe: booleans + upstream status only. Never echoes values.
   if (searchParams.get("probe") === "1") {
     const KEY = getKey();
@@ -130,18 +163,18 @@ export async function GET(req) {
     }
     return Response.json({ hasKey: !!KEY, keyLooksValid: KEY.length >= 20, hasPid: !!getPid(), upstreamStatus: upstream });
   }
-  const q = (searchParams.get("q") || "").trim().slice(0, 120);
-  const city = (searchParams.get("city") || "").trim().slice(0, 60);
-  if (!q) return Response.redirect("https://www.viator.com", 302);
+
+  if (!q) return failAndRedirect("missing-query", "https://www.viator.com");
+
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
-  const region = searchParams.get("region") || city;
-  const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
-  const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || ("q:" + q.toLowerCase());
   const resolved = await resolveProduct(term, q, region, kind, placeId);
   const url = resolved || searchFallback(term);
+
+  emit("provider_redirect_started");
+
   // v2: split the edge cache by outcome. A confirmed product is stable (1h); a search
   // fallback caches only briefly (60s) so a wrong fallback never sticks and a fix (or
   // a newly-eligible product) propagates fast. Browsers don't cache the 302.
   const cache = resolved ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
-  return new Response(null, { status: 302, headers: { Location: url, "Cache-Control": cache } });
+  return new Response(null, { status: 302, headers: { Location: url, "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
 }
