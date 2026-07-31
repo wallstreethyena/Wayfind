@@ -11,6 +11,7 @@
 // job is just to refuse to render anything if that data is missing or
 // empty — it must never construct a booking URL from raw/unverified input.
 // scripts/check-booking-cta.mjs enforces both halves of this contract.
+import { useRef, useEffect } from "react";
 import { C } from "./kit";
 import * as Aff from "../../lib/affiliates";
 // v6.71 — the resolver moved DOWN to lib/bookingResolve.js so the SERVER-side
@@ -21,9 +22,15 @@ import * as Aff from "../../lib/affiliates";
 // hasBookingCTA is re-exported so existing importers (app/components/sheets/
 // Detail.js) keep working untouched.
 import { bookingTargets, hasBookingCTA, hasVerifiedTours } from "../../lib/bookingResolve";
+import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
 export { hasBookingCTA };
 
-export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride }) {
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
+  // Hooks for the list-variant impression observer. Must be declared before any
+  // conditional return so React's hook order stays stable across renders.
+  const listRootRef = useRef(null);
+  const listSeenRef = useRef(new Set());
+
   if (!detail) return null;
   const placeId = detail.id;
   const hasTours = hasVerifiedTours(viaTours, placeId);
@@ -40,17 +47,46 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // tour-fetch gate; scripts/test-sheet-booking.mjs enforces the match.
     const { verifiedUrl, goFallback, tk, tu } = targets;
     if (!tu) return null;
+    const primaryPlaceId = placeIdProp || detail.id || "unknown";
+    const primaryCity = cityProp || (locName ? locName.split(",")[0] : "");
+    const verifiedOfferId = topItem && (topItem.code || topItem.productCode);
+    const primaryHref = (verifiedUrl && verifiedOfferId)
+      ? commerceHref({ provider: "viator", offerId: verifiedOfferId, surface: "detail_primary", contentId: primaryCity })
+      : tu;
     return (
       <a
-        href={tu}
+        href={primaryHref}
         target="_blank"
         rel="noreferrer"
         onClick={(e) => {
           e.preventDefault();
-          const live = (e.currentTarget && e.currentTarget.href) || tu; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
-          try { logEvent(tk ? "tickets_out" : "hotel_out", detail); } catch (er) {}
+          const clickId = mintClickId();
+          const offerId = verifiedUrl
+            ? (verifiedOfferId || primaryPlaceId)
+            : primaryPlaceId;
+          try {
+            emitCommerce("commerce_cta_clicked", {
+              surface: "detail_primary",
+              provider: tk ? "viator" : "stay22",
+              offer_id: offerId,
+              city_id: primaryCity || null,
+              canonical_place_id: detail.id || null,
+              category: kind || null,
+              click_id: clickId,
+            });
+          } catch (er) {}
+          const live = (e.currentTarget && e.currentTarget.href) || primaryHref; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
+          // If the href routes through our server redirect, stamp the same click_id
+          // so provider_redirect_started echoes it deterministically.
+          try {
+            if (live && live.startsWith("/api/") && !live.includes("click_id=")) {
+              const sep = live.includes("?") ? "&" : "?";
+              e.currentTarget.href = live + sep + "click_id=" + encodeURIComponent(clickId);
+            }
+          } catch (er) {}
+          try { logEvent(tk ? "tickets_out" : "hotel_out", detail, { click_id: clickId }); } catch (er) {}
           try { if (verifiedUrl || !tk) addReservation(tk ? "tickets" : "hotel", detail, tk ? "Viator" : "Stay22", live); } catch (er) {} // search-fallback clicks are not reservations
-          openExternal(live);
+          openExternal(e.currentTarget.href || live);
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#0D1117"; }}
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
@@ -72,10 +108,39 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   }
 
   if (variant === "list") {
+    const listPlaceId = placeIdProp || placeId || detail.id || "unknown";
+    const listCity = cityProp || (locName ? locName.split(",")[0] : "");
+    useEffect(() => {
+      const root = listRootRef.current;
+      if (!root || typeof IntersectionObserver === "undefined") return;
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const id = e.target.getAttribute("data-offer");
+          const rank = e.target.getAttribute("data-rank");
+          if (!id || listSeenRef.current.has(id)) continue;
+          listSeenRef.current.add(id);
+          try {
+            emitCommerce("commerce_impression", {
+              surface: "detail_tour_list",
+              provider: "viator",
+              offer_id: id,
+              city_id: listCity || null,
+              canonical_place_id: detail.id || null,
+              category: kind || null,
+              rank_bucket: rankBucket(Number(rank)),
+            });
+          } catch (er) {}
+          io.unobserve(e.target);
+        }
+      }, { threshold: [0.5] });
+      for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
+      return () => { try { io.disconnect(); } catch (er) {} };
+    }, [hasTours, listCity, detail.id, kind]);
     if (hasTours) {
       const items = viaTours[placeId].items;
       return (
-        <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+        <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
             {/* v6.44 (owner's own words: "if there is viator activities list them
                 as viator options near by"). The old header, "Book tours &
@@ -87,29 +152,47 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           </div>
           {items.map((t, i) => {
           // v6.44 (owner: "the person clicks on the viator button, we need to
-          // take them to the right place"). This was the ONLY Viator surface in
-          // the app rendering a RAW `t.url` — the primary variant above (:36),
-          // home.js (3 sites) and ThingsToDoList.js all wrap with
-          // viatorDirectUrl(). So the highest-intent click in the product, on a
-          // named product card, was the one click that carried no partner
-          // attribution: it still reached Viator, but as an anonymous visit, so
-          // the booking earned nothing. viatorDirectUrl returns null for any
-          // non-www.viator.com host (hence the `|| t.url` fallback — behavior
-          // never regresses) and withViatorTracking dedupes `pid`, so this is
-          // safe and idempotent even if the server already attributed the URL.
-          const href = Aff.viatorDirectUrl(t.url) || t.url;
+          // take them to the right place"). Every Viator list item now routes
+          // through the server redirect layer (/api/commerce/go) using the
+          // verified product code. The destination is resolved server-side from
+          // wf_experiences; no partner URL is accepted from the request.
+          const offerId = t.code || t.productCode;
+          const href = offerId
+            ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
+            : (Aff.viatorDirectUrl(t.url) || t.url);
           return (
             <a
-              key={t.code || i}
+              key={offerId || i}
+              data-offer={offerId || "unknown"}
+              data-rank={i + 1}
               href={href}
               target="_blank"
               rel="noreferrer"
               onClick={(e) => {
                 e.preventDefault();
+                const clickId = mintClickId();
+                try {
+                  emitCommerce("commerce_cta_clicked", {
+                    surface: "detail_tour_list",
+                    provider: "viator",
+                    offer_id: offerId || "unknown",
+                    city_id: listCity || null,
+                    canonical_place_id: detail.id || null,
+                    category: kind || null,
+                    rank_bucket: rankBucket(i + 1),
+                    click_id: clickId,
+                  });
+                } catch (er) {}
                 const live = (e.currentTarget && e.currentTarget.href) || href;
-                try { logEvent("tour_card_out", detail, { code: t.code || "" }); } catch (er) {}
+                try {
+                  if (live && live.startsWith("/api/") && !live.includes("click_id=")) {
+                    const sep = live.includes("?") ? "&" : "?";
+                    e.currentTarget.href = live + sep + "click_id=" + encodeURIComponent(clickId);
+                  }
+                } catch (er) {}
+                try { logEvent("tour_card_out", detail, { code: t.code || "", click_id: clickId }); } catch (er) {}
                 try { addReservation("tour", detail, "Viator", live); } catch (er) {}
-                openExternal(live);
+                openExternal(e.currentTarget.href || live);
               }}
               style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}
             >
@@ -132,10 +215,37 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     // SEARCH page, never a guessed product. But ONLY for genuinely bookable
     // inventory: a beach/natural feature is gated out (the Coquina->Mumbai fix).
     if (!Aff.isTicketyPlace(detail)) return null;
-    const fallbackHref = Aff.experienceGoUrl(detail.name, locName ? locName.split(",")[0] : "", kind, placeId);
+    const fallbackHref = Aff.experienceGoUrl(detail.name, listCity, kind, listPlaceId);
     return (
+      <div ref={listRootRef}>
       <a
-        onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || fallbackHref; try { logEvent("tour", detail); } catch (er) {} openExternal(live); }}
+        data-offer={listPlaceId}
+        data-rank={1}
+        onClick={(e) => {
+          e.preventDefault();
+          const clickId = mintClickId();
+          try {
+            emitCommerce("commerce_cta_clicked", {
+              surface: "detail_tour_fallback",
+              provider: "viator",
+              offer_id: listPlaceId,
+              city_id: listCity || null,
+              canonical_place_id: detail.id || null,
+              category: kind || null,
+              click_id: clickId,
+            });
+          } catch (er) {}
+          let live = (e.currentTarget && e.currentTarget.href) || fallbackHref;
+          try {
+            if (live && live.startsWith("/api/") && !live.includes("click_id=")) {
+              const sep = live.includes("?") ? "&" : "?";
+              live = live + sep + "click_id=" + encodeURIComponent(clickId);
+              e.currentTarget.href = live;
+            }
+          } catch (er) {}
+          try { logEvent("tour", detail, { click_id: clickId }); } catch (er) {}
+          openExternal(live);
+        }}
         href={fallbackHref}
         target="_blank"
         rel="sponsored noopener"
@@ -148,6 +258,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         </div>
         <span style={{ color: C.light, fontSize: 16, fontWeight: 800 }}>↗</span>
       </a>
+      </div>
     );
   }
 

@@ -235,7 +235,12 @@ export default async function CuisineListPage({ params }) {
     const delivery = Aff.uberEatsUrl(p.name, meta.label) || null;
     const maps = directionsUrl({ id: p.id, name: p.name, city: meta.label });
     const cta = resolveRowCta({
-      deal: coupon ? { url: coupon.affiliateUrl || coupon.url || coupon.directUrl } : null,
+      deal: coupon ? {
+        url: coupon.affiliateUrl || coupon.url || coupon.directUrl,
+        id: coupon.id,
+        provider: coupon.commerce && coupon.commerce.provider,
+        offerId: coupon.commerce && coupon.commerce.offerId,
+      } : null,
       bookingUrl: bookable, deliveryUrl: delivery, deliveryEarns, mapsUrl: maps,
     });
     return {

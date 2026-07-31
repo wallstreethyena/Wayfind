@@ -12,12 +12,21 @@
 // (NOT the shared openExternal), because openExternal's popup-blocked fallback
 // synthesizes an <a> click that Stay22 could rewrite, reintroducing this bug.
 import { safeUrl } from "../../../../lib/links";
-export default function TicketButton({ url, label }) {
+import { emitCommerce, mintClickId } from "../../../../lib/commerce";
+export default function TicketButton({ url, label, eventId, provider = "event_official" }) {
   const A = "#2EC9A6";
   const safe = safeUrl(url);
   const go = (e) => {
     e.preventDefault();
     if (!safe) return;
+    const clickId = mintClickId();
+    emitCommerce("commerce_cta_clicked", {
+      surface: "event_detail",
+      provider,
+      offer_id: eventId || "unknown",
+      content_id: eventId || null,
+      click_id: clickId,
+    });
     try { const w = window.open(safe, "_blank", "noopener,noreferrer"); if (w) return; } catch (er) {}
     try { location.href = safe; } catch (er) {}
   };

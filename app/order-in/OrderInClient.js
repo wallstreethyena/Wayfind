@@ -22,13 +22,15 @@ import { findPlace, wayfindScore } from "../../lib/google";
 import { couponForPlaceName, couponIsLive } from "../../lib/coupons";
 import { buildCuisineRails } from "../../lib/orderInRails";
 import { nearestMetro, METROS, missingGuaranteed, tagFeatured } from "../../lib/orderInFeatured";
+import { emitCommerce, mintClickId } from "../../lib/commerce";
 
 const DEFAULT_CENTER = { lat: 28.5384, lng: -81.3789, loc: "Orlando, FL" };
 
-function eatsGoHref(p, city) {
+function eatsGoHref(p, city, clickId) {
   const q = new URLSearchParams({ name: p.name || "", city: city || "" });
   if (p.lat != null) q.set("lat", String(p.lat));
   if (p.lng != null) q.set("lng", String(p.lng));
+  if (clickId) q.set("click_id", clickId);
   return "/api/eats/go?" + q.toString();
 }
 
@@ -168,6 +170,21 @@ export default function OrderInClient() {
         <a
           href={eatsGoHref(p, city)} target="_blank" rel="noreferrer" aria-label={(eatsOk[p.id] === true ? "Order " : "Find ") + p.name + " on Uber Eats"}
           style={{ marginTop: "auto", paddingTop: 8 }}
+          onClick={(e) => {
+            const clickId = mintClickId();
+            emitCommerce("commerce_cta_clicked", {
+              surface: "order_in",
+              provider: "uber_eats",
+              offer_id: p.name || "unknown",
+              content_id: p.id || null,
+              city_id: city || null,
+              click_id: clickId,
+            });
+            try {
+              const a = e.currentTarget;
+              a.href = eatsGoHref(p, city, clickId);
+            } catch {}
+          }}
         >
           <span style={{ display: "block", background: eatsOk[p.id] === true ? "#06C167" : "transparent", border: eatsOk[p.id] === true ? "1.5px solid #06C167" : `1.5px solid ${C.border}`, color: eatsOk[p.id] === true ? "#0D1117" : C.light, borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 900, textAlign: "center" }}>
             {eatsOk[p.id] === true ? "Order on Uber Eats ↗" : "Find on Uber Eats ↗"}

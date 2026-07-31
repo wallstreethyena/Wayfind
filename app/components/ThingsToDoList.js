@@ -20,8 +20,8 @@ import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
 import { rankReason } from "../../lib/rankReason.js";
-import { viatorDirectUrl } from "../../lib/affiliates.js";
 import { supabase } from "../../lib/supabase.js";
+import ViatorCommerceLink from "./ViatorCommerceLink";
 
 // The standard-card medal ring (home.js medal(): gold / silver / bronze 3-5).
 const medalColor = (rank) => (rank === 1 ? "#FBBF24" : rank === 2 ? "#CBD5E1" : rank <= 5 ? "#CD7F32" : null);
@@ -184,7 +184,17 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
   );
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
   return isTour
-    ? <a href={viatorDirectUrl(r.booking_url) || r.booking_url} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
+    ? (
+      <ViatorCommerceLink
+        t={r}
+        city={r.city}
+        surface="ttd_list"
+        rank={rank}
+        onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}
+        className="wf-ttd-focus"
+        style={style}
+      >{body}</ViatorCommerceLink>
+    )
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 

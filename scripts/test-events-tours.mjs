@@ -16,7 +16,7 @@ ok(/!isBusiness && !isTours && !eventsLoading/.test(src), "date chips hidden on 
 ok(!/<ViatorRail title="Everything bookable near you"/.test(src), "the old retitled-rail-only tours render is GONE");
 ok(/ViatorRail title="Bookable experiences near you"/.test(src), "the pinned rail on event categories is untouched");
 ok(/No bookable tours are loading right now/.test(src), "honest empty state kept");
-ok(/href=\{t\.url\}/.test(src), "every tour card links out on the tour's own (affiliate) url");
+ok(src.includes("ViatorCommerceLink") && /tours\.map\(\(t\)[\s\S]{0,800}ViatorCommerceLink/.test(src), "every tour card routes through ViatorCommerceLink so the click hits the server redirect layer");
 
 // ── v6.44 (owner): full inventory, sell-out-flag-first, honest badge ────────
 const route = readFileSync(new URL("../app/api/viator/tours/route.js", import.meta.url), "utf8");

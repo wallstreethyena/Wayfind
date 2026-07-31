@@ -25,7 +25,7 @@
 import { useRef, useEffect } from "react";
 import { COUPONS } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
-import { emitCommerce, rankBucket } from "../../../lib/commerce";
+import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
 import { useCommerceImpression } from "../useCommerceImpression";
 import {
   dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealSchedule, dealDisclosure, dealArtwork,
@@ -167,9 +167,20 @@ function PosterCard({ c, position, ctx }) {
               href={c.url} target="_blank" rel="noreferrer sponsored nofollow"
               onClick={(e) => {
                 e.preventDefault();
-                const live = (e.currentTarget && e.currentTarget.href) || c.url;
+                const clickId = mintClickId();
+                let live = (e.currentTarget && e.currentTarget.href) || c.url;
+                // Stamp click_id onto our own redirect URLs so the server reuses it.
+                // Direct partner URLs keep it in the commerce event even though the
+                // partner cannot receive it; it still lets us join the click to the
+                // card/session on our side.
+                if (live && live.startsWith("/api/")) {
+                  const sep = live.includes("?") ? "&" : "?";
+                  live = live + sep + "click_id=" + encodeURIComponent(clickId);
+                }
                 try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {}
-                if (cctx) { try { emitCommerce("commerce_cta_clicked", cctx); } catch (er) {} }
+                if (cctx) {
+                  try { emitCommerce("commerce_cta_clicked", { ...cctx, click_id: clickId }); } catch (er) {}
+                }
                 openExternal(live);
               }}
               style={{ display: "block", width: "100%", boxSizing: "border-box", background: `linear-gradient(170deg,#f07a42,${T.coral} 40%,${T.coralDeep})`, color: "#fff", border: "none", borderRadius: 11, padding: "12px 16px", fontSize: 14, fontWeight: 800, letterSpacing: ".02em", cursor: "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(201,79,31,.38)", textAlign: "center", textDecoration: "none" }}

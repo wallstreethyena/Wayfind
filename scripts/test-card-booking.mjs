@@ -18,7 +18,13 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const hook = readFileSync(new URL("../lib/placeProduct.js", import.meta.url), "utf8");
 const route = readFileSync(new URL("../app/api/place-products/route.js", import.meta.url), "utf8");
 const mw = readFileSync(new URL("../middleware.js", import.meta.url), "utf8");
-const ctaLine = home.split("\n").find((l) => l.includes('src: "place_card"')) || "";
+const linkSrc = readFileSync(new URL("../app/components/ViatorCommerceLink.js", import.meta.url), "utf8");
+// Locate the PlaceCard booking-button block so assertions stay scoped to it.
+const homeLines = home.split("\n");
+const cardFnStart = homeLines.findIndex((l) => l.includes("function PlaceCard({"));
+const cardFnEnd = homeLines.findIndex((l, i) => i > cardFnStart && l.match(/^function [A-Z]/));
+const cardSrc = homeLines.slice(cardFnStart, cardFnEnd === -1 ? homeLines.length : cardFnEnd).join("\n");
+const ctaLine = homeLines.find((l) => l.includes('src: "place_card"')) || "";
 
 // 1) The generic name-based fallback is GONE — no "Search Viator" label on the
 //    card, no cardBookingHref name-search helper.
@@ -28,15 +34,16 @@ ok(!/cardBookingHref/.test(home), "the cardBookingHref name-search helper is rem
 // 2) The card gates the booking button on a VERIFIED product, not on isTicketyPlace.
 ok(/const cardProduct = usePlaceProduct\(p && p\.id\)/.test(home), "PlaceCard resolves a verified product via usePlaceProduct(p.id)");
 ok(/import \{ usePlaceProduct \} from "\.\.\/lib\/placeProduct"/.test(home), "PlaceCard imports usePlaceProduct");
-ok(/\{cardProduct && cardProduct\.url && \(/.test(home), "the booking button renders ONLY when a verified product exists (cardProduct.url)");
-ok(/href=\{cardProduct\.url\}/.test(ctaLine), "the button links straight to the verified product_url");
+ok(/\{cardProduct && cardProduct\.url && \(/.test(cardSrc), "the booking button renders ONLY when a verified product exists (cardProduct.url)");
+ok(cardSrc.includes("ViatorCommerceLink"), "the booking button routes through ViatorCommerceLink so the click hits the server redirect layer");
+ok(!/href=\{cardProduct\.url\}/.test(cardSrc), "the verified product_url no longer renders directly in the DOM — attribution moves server-side");
 
 // 3) Affiliate/UX hygiene on the CTA is preserved.
-ok(/Book on Viator/.test(ctaLine), "the card CTA is the honest 'Book on Viator' label (a real product)");
-ok(/e\.stopPropagation\(\)/.test(ctaLine), "CTA click never hijacks the card tap (stopPropagation)");
-ok(/target="_blank"/.test(ctaLine), "CTA opens in a new tab");
-ok(/rel="sponsored/.test(ctaLine), "CTA carries rel=sponsored (FTC/affiliate hygiene)");
-ok(/tickets_out/.test(ctaLine), "CTA click logs tickets_out for attribution");
+ok(/Book on Viator/.test(cardSrc), "the card CTA is the honest 'Book on Viator' label (a real product)");
+ok(/e\.stopPropagation\(\)/.test(cardSrc), "CTA click never hijacks the card tap (stopPropagation)");
+ok(/target="_blank"/.test(linkSrc), "ViatorCommerceLink opens in a new tab");
+ok(/rel="[^"]*sponsored/.test(linkSrc), "ViatorCommerceLink carries rel=sponsored (FTC/affiliate hygiene)");
+ok(/tickets_out/.test(cardSrc), "CTA click logs tickets_out for attribution");
 
 // 4) The batched hook + route are the ONE verified-product path.
 ok(/export function usePlaceProduct/.test(hook), "lib/placeProduct exports usePlaceProduct");

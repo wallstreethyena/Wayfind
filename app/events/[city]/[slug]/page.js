@@ -8,7 +8,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
-import { ticketOutUrl } from "../../../../lib/affiliates.js";
+import { ticketOutUrl, isTicketmasterFamily } from "../../../../lib/affiliates.js";
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
@@ -215,7 +215,12 @@ export default async function EventPage({ params }) {
         {e.description && <p style={{ fontSize: 14, lineHeight: 1.65, color: "#CBD5E1", marginTop: 14 }}>{String(e.description).slice(0, 600)}</p>}
         {e.price && <div style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "#22C55E" }}>{e.price}</div>}
         {!cancelled && external && (
-          <TicketButton url={external} label={e.ticketed ? "Get tickets ↗" : "Official site ↗"} />
+          <TicketButton
+            url={external}
+            label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
+            eventId={e.id}
+            provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
+          />
         )}
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.

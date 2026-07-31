@@ -5,12 +5,14 @@ import { pickHomeExp } from "../lib/homeExpPick.js";
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 const h = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+const linkSrc = readFileSync(new URL("../app/components/ViatorCommerceLink.js", import.meta.url), "utf8");
 ok(h.includes("const [homeExp, setHomeExp]"), "the homepage bookable pick has state");
 ok(h.includes('logEvent("tickets_out", null, { kind: "home_bookable"'), "the card is a tracked booking click");
 ok(h.includes("Make a day of it"), "the tasteful bookable slot renders near the top");
-ok(/href=\{homeExp\.url\}/.test(h) && !/viatorApiProductUrl|home.*product_code/.test(h), "the homepage card renders product_url VERBATIM (pid kept)");
-ok(/\/pid=\/\.test\(t\.url\)/.test(h), "a home experience without pid= does not ship — no unattributed link");
-ok(h.includes('rel="noopener sponsored nofollow"'), "affiliate rel on the homepage card");
+ok(h.includes("ViatorCommerceLink") && /surface=\"home_bookable_card\"/.test(h), "the homepage bookable card routes through ViatorCommerceLink with the home_bookable_card surface");
+ok(!/href=\{homeExp\.url\}/.test(h), "the homepage card no longer renders product_url directly in the DOM — attribution moves server-side");
+ok(linkSrc.includes('rel="noopener sponsored nofollow"'), "ViatorCommerceLink carries affiliate rel so every card wrapped by it inherits it");
+ok(linkSrc.includes("commerceHref") && /provider:\s*"viator"/.test(linkSrc), "ViatorCommerceLink builds /api/commerce/go?provider=viator&offer=... hrefs");
 ok(/homeExp && \(/.test(h), "the card is absent when there is no bookable inventory (fails soft)");
 
 // HOUR-AWARE pick (owner: don't feature a night activity in the morning; don't

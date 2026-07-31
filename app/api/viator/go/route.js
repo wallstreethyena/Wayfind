@@ -119,6 +119,8 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
   }
 }
 
+const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
@@ -126,14 +128,17 @@ export async function GET(req) {
   const region = searchParams.get("region") || city;
   const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
   const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || (q ? "q:" + q.toLowerCase() : null);
-  const clickId = randomUUID();
+  const surface = (searchParams.get("surface") || "").trim().slice(0, 60) || "viator_legacy";
+  const contentId = (searchParams.get("content") || "").trim().slice(0, 120) || null;
+  const clickIdFromClient = String(searchParams.get("click_id") || "").trim();
+  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
   const baseProps = {
     provider: "viator",
     offer_id: placeId || q || "unknown",
-    surface: "viator_legacy",
-    content_id: q || placeId || "unknown",
+    surface,
+    content_id: contentId || q || placeId || "unknown",
     city_id: city || null,
     category: kind || null,
     click_id: clickId,

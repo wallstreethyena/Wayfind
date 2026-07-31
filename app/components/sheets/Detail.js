@@ -227,6 +227,8 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         openExternal={openExternal}
         locName={locName}
         label={primaryCta.label}
+        placeId={detail.id}
+        city={locName ? locName.split(",")[0] : ""}
       />
     );
   }
@@ -596,7 +598,7 @@ export default function DetailSheet({ ctx }) {
                 {!detail._event && <VerdictPill verdict={verdict} />}
                 <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (primaryCta.type === DETAIL_CTA_TYPES.plan ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))"), gap: 8 }}>
                   {detail._event && detail._event.url ? (
-                    <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
+                    <a href={ticketUrl(detail._event.url, { surface: "detail_event_primary" })} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
                   ) : (
                     <>
                       {primaryCta.type !== DETAIL_CTA_TYPES.plan && (
@@ -759,7 +761,7 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16 }}>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} />;
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} openExternal={openExternal} addReservation={addReservation} />}

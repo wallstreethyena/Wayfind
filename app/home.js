@@ -39,6 +39,9 @@ import { experimentProps } from "../lib/experiment";
 // app/components/AffiliateChip.js (unchanged) for the disclosure spec (§2).
 import AffiliateChip, { AFFILIATE_AUDIT } from "./components/AffiliateChip";
 import { cardAffiliateProvider } from "../lib/cardAffiliate";
+// Tracked Viator link wrapper: routes every bookable card through /api/commerce/go
+// so the server records the handoff and echoes the client click_id.
+import ViatorCommerceLink from "./components/ViatorCommerceLink";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -198,9 +201,11 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 // caller must HIDE the control) instead of rendering href="null" — the source
 // of the "Safari can't open the page" bug. Only a real URL gets the affiliate
 // param and reaches the DOM.
-function ticketUrl(url) {
+function ticketUrl(url, opts = {}) {
   const s = safeUrl(url);
-  return s ? safeUrl(Aff.ticketOutUrl(s)) : null;
+  if (!s) return null;
+  if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId });
+  return s;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
 function iconForPlace(p) {
@@ -7162,7 +7167,7 @@ function PageInner({ initialEvents = null }) {
         </div>
       )}
       {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
+        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       {restView.length > 3 && hookCards.length > 0 && (
         <HooksBanner hooks={hookCards} likedIds={hookLikes} totalLiked={hookLikes.size} onOpen={openHook} onLike={onHookHeart} allPlaces={[...(suggested || []), ...places].filter(Boolean)} isDesktop={isDesktop} />
@@ -7176,7 +7181,7 @@ function PageInner({ initialEvents = null }) {
         </>
       )}
       {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
+        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       {!loading && restView.length > visibleCount && (
         <div style={{ padding: "2px 2px 10px" }}>
@@ -7843,11 +7848,12 @@ function PageInner({ initialEvents = null }) {
                           through the resolver. The fetch effect above already drops any
                           item missing pid=, so an unattributed link can never reach here. */}
                       {!browseCat && homeExp && (
-                        <a
-                          href={homeExp.url}
-                          target="_blank"
-                          rel="noopener sponsored nofollow"
-                          onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || homeExp.url; try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code }); } catch (er) {} openExternal(_live); }}
+                        <ViatorCommerceLink
+                          t={homeExp}
+                          surface="home_bookable_card"
+                          contentId={metro}
+                          rank={1}
+                          onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code, click_id: clickId }); } catch (er) {} }}
                           style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14, boxShadow: SHADOW.card }}
                         >
                           <div style={{ position: "relative", width: 108, flexShrink: 0, background: "#10141d" }}>
@@ -7867,7 +7873,7 @@ function PageInner({ initialEvents = null }) {
                               <span style={{ marginLeft: "auto", minHeight: TARGET, display: "inline-flex", alignItems: "center", background: C.accent, color: "#0D1117", borderRadius: RADII.chip, padding: "6px 13px", fontSize: 11.5, fontWeight: 800 }}>Book ↗</span>
                             </div>
                           </div>
-                        </a>
+                        </ViatorCommerceLink>
                       )}
                       {/* v6.46 (owner): ONE near-black expandable card under the events
                           card — "Best places to eat nearby" + "Top things to do", both on
@@ -7932,7 +7938,7 @@ function PageInner({ initialEvents = null }) {
                   ) : (
                     <>
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} />
+                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
                       {/* End-of-feed honesty: name the count + the city so a short list reads
                           as complete, not broken. When sparse (<8) offer a real next step —
@@ -8627,25 +8633,30 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
         <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>No bookable experiences in this category near you yet.</div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-          {st.items.map((t) => {
-            const href = Aff.viatorDirectUrl(t.url) || t.url;
-            return (
-              <a key={t.code} href={href} target="_blank" rel="noreferrer" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || href; log("tickets_out", { kind: "exp_rail", cat, code: t.code }); openExternal(_live); }} style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-                {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
-                {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
-                <div style={{ padding: "8px 10px" }}>
-                  <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                  {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
-                  {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
-                      exactly like place cards — green /10, then the honest meta. */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
-                    {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                    <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
-                  </div>
+          {st.items.map((t, i) => (
+            <ViatorCommerceLink
+              key={t.code}
+              t={t}
+              surface="home_exp_rail"
+              contentId={metro}
+              rank={i + 1}
+              onClick={(e, clickId) => { try { log("tickets_out", { kind: "exp_rail", cat, code: t.code, click_id: clickId }); } catch (er) {} }}
+              style={{ position: "relative", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none", display: "block" }}
+            >
+              {t.sellingOut ? <span style={{ position: "absolute", top: 7, left: 7, zIndex: 2, fontSize: 10, fontWeight: 800, padding: "2px 7px", borderRadius: 999, background: "rgba(13,17,23,.82)", color: "#FF8A3D", backdropFilter: "blur(4px)" }}>🔥 Selling out</span> : null}
+              {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} /> : <div style={{ width: "100%", height: 96, background: C.adim }} />}
+              <div style={{ padding: "8px 10px" }}>
+                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+                {t.city ? <div style={{ fontSize: 10.5, fontWeight: 700, color: C.light, marginTop: 4 }}>{t.city}</div> : null}
+                {/* THE ONE SCORE (owner): Viator cards wear the Wayfind Score
+                    exactly like place cards — green /10, then the honest meta. */}
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
+                  {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
+                  <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
                 </div>
-              </a>
-            );
-          })}
+              </div>
+            </ViatorCommerceLink>
+          ))}
         </div>
       )}
       <div style={{ fontSize: 10.5, color: C.muted, marginTop: 9, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
@@ -8698,8 +8709,16 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {items.map((t) => (
-          <a key={t.code || t.url} href={Aff.viatorDirectUrl(t.url) || t.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "ttd_rail", sub: sub || "all", code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
+        {items.map((t, i) => (
+          <ViatorCommerceLink
+            key={t.code || t.url}
+            t={t}
+            surface="home_ttd_rail"
+            contentId={city || region || sub}
+            rank={i + 1}
+            onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "ttd_rail", sub: sub || "all", code: t.code, click_id: clickId }); } catch (er) {} }}
+            style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", display: "block" }}
+          >
             {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
@@ -8709,7 +8728,7 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
                 <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url) || t.url, provider: "viator" }); } catch (er) {} }} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
               </div>
             </div>
-          </a>
+          </ViatorCommerceLink>
         ))}
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
@@ -8780,6 +8799,45 @@ function UTDealsRail({ category, onSave, lat, lng }) {
   );
 }
 
+function ViatorRail({ title, items, theme }) {
+  if (!Array.isArray(items) || !items.length) return null;
+  const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
+  return (
+    <div style={{ margin: "4px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
+        {items.map((t, i) => (
+          <ViatorCommerceLink
+            key={t.code || t.url}
+            t={t}
+            surface="home_vibe_rail"
+            contentId={theme}
+            rank={i + 1}
+            onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code, click_id: clickId }); } catch (er) {} }}
+            style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none", display: "block" }}
+          >
+            {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
+              <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
+              {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
+            </div> : null}
+            <div style={{ padding: "8px 10px" }}>
+              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
+              {/* THE ONE SCORE: same Wayfind treatment as every place card. */}
+              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
+                {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
+                <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
+              </div>
+            </div>
+          </ViatorCommerceLink>
+        ))}
+      </div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
+    </div>
+  );
+}
 
 // v6.42 (owner): bookable Activities cards carry the PAID booking link at card
 // level — the same verified /api/viator/go gate the Detail sheet uses (exact
@@ -8792,7 +8850,7 @@ function UTDealsRail({ category, onSave, lat, lng }) {
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
@@ -9013,7 +9071,15 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
           <div className="wf-place-card-actions" style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {cardProduct && cardProduct.url && (
-              <a className="wf-place-card-book" href={cardProduct.url} target="_blank" rel="sponsored noopener" onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}>Book on Viator ↗</a>
+              <ViatorCommerceLink
+                className="wf-place-card-book"
+                t={p}
+                city={city}
+                surface="place_card"
+                rank={rank}
+                onClick={(e) => { e.stopPropagation(); try { logEventAnon("tickets_out", p, { src: "place_card" }); } catch (er) {} }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.adim, border: `1.5px solid ${C.accent}`, borderRadius: 999, color: C.accent, fontSize: 12, fontWeight: 800, padding: "5px 12px", textDecoration: "none", cursor: "pointer" }}
+              >Book on Viator ↗</ViatorCommerceLink>
             )}
             <button className={`wf-place-card-save${saved ? " is-active" : ""}`} onClick={(e) => { e.stopPropagation(); onSave(); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, background: saved ? C.accent : "transparent", border: `1.5px solid ${saved ? C.accent : C.border}`, borderRadius: 999, color: saved ? "#0D1117" : C.light, fontSize: 12, fontWeight: 700, padding: "5px 12px", cursor: "pointer" }}>{saved ? "♥ Saved" : "♡ Save"}</button>
             {onLike && (

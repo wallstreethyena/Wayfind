@@ -23,7 +23,7 @@
 // its own logEvent, but that is a local function and not importable.
 import { useEffect, useRef } from "react";
 import { track } from "../../../../lib/track";
-import { emitCommerce, rankBucket } from "../../../../lib/commerce";
+import { emitCommerce, rankBucket, mintClickId } from "../../../../lib/commerce";
 import { showsDisclosure } from "../../../../lib/rowCta";
 // funnelProps emits the COMMERCE dialect (city_id/category/canonical_place_id).
 // Sending `metro`/`cuisine` here would be silently DROPPED by the commerce
@@ -125,13 +125,26 @@ export default function CuisineListClient({ places, metro, cuisine }) {
                   // sponsored/nofollow only where the link actually earns — the
                   // same signal the disclosure follows.
                   rel={cta.monetized ? "noopener sponsored nofollow" : "noopener noreferrer"}
-                  onClick={() => {
+                  onClick={(e) => {
+                    const clickId = mintClickId();
+                    const offerId = cta.offerId || (cta.type === "delivery" ? "uber_eats" : cta.type);
                     emitCommerce("commerce_cta_clicked", {
                       surface: "cuisine_shortlist",
                       ...funnelProps("commerce_cta_clicked", { metro, cuisine, placeId: p.id }),
-                      offer_id: cta.type,
+                      provider: cta.provider || null,
+                      offer_id: offerId,
                       rank_bucket: rankBucket(i + 1),
+                      click_id: clickId,
                     });
+                    // Stamp click_id onto our redirect URLs so the server reuse
+                    // joins the client click event to provider_redirect_started.
+                    try {
+                      const a = e.currentTarget;
+                      if (a.href && a.href.startsWith("/api/")) {
+                        const sep = a.href.includes("?") ? "&" : "?";
+                        a.href = a.href + sep + "click_id=" + encodeURIComponent(clickId);
+                      }
+                    } catch {}
                   }}
                 >
                   {cta.label}

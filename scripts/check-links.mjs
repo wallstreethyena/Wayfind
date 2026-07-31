@@ -24,7 +24,7 @@ for (const ex of ["export function safeUrl", "export function openExternal", "ex
 // 2. home.js's ticketUrl validates through safeUrl and its openExternal delegates
 // to the central opener — so nothing in the shell opens/renders an unvalidated URL.
 const home = read("app/home.js");
-if (!/function ticketUrl\(url\)\s*\{[\s\S]{0,160}safeUrl\(/.test(home)) fail("home.js ticketUrl() no longer validates through safeUrl (a bad ticket URL would reach the DOM again)");
+if (!/function ticketUrl\(url[^)]*\)\s*\{[\s\S]{0,240}safeUrl\(/.test(home)) fail("home.js ticketUrl() no longer validates through safeUrl (a bad ticket URL would reach the DOM again)");
 if (!/function openExternal\(url\)\s*\{\s*return safeOpenExternal\(url\)/.test(home)) fail("home.js openExternal() no longer delegates to the central validated opener");
 if (!home.includes('from "../lib/links"')) fail("home.js does not import from lib/links");
 
