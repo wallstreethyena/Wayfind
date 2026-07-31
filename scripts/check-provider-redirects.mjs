@@ -59,6 +59,11 @@ await testRoute("/api/eats/go", "../app/api/eats/go/route.js", () => ({
   headers: { get: () => null },
 }));
 
+await testRoute("/api/ticketmaster/go", "../app/api/ticketmaster/go/route.js", () => ({
+  url: "http://localhost:3000/api/ticketmaster/go?url=https://www.ticketmaster.com/event/123",
+  headers: { get: () => null },
+}));
+
 // Sanity: commerce/go failure carries a reason.
 const failed = captured.filter((b) => b.event === "provider_redirect_failed");
 ok(failed.length >= 2, "at least two failure events captured (commerce + viator/eats missing params)");
@@ -100,6 +105,12 @@ await testClickIdEcho(
   "/api/eats/go",
   "../app/api/eats/go/route.js",
   "http://localhost:3000/api/eats/go?click_id=" + encodeURIComponent(CLIENT_CLICK_ID)
+);
+
+await testClickIdEcho(
+  "/api/ticketmaster/go",
+  "../app/api/ticketmaster/go/route.js",
+  "http://localhost:3000/api/ticketmaster/go?url=https://www.ticketmaster.com/event/123&click_id=" + encodeURIComponent(CLIENT_CLICK_ID)
 );
 
 // When no click_id is supplied, the server must still mint one — never null.

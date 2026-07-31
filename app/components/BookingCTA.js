@@ -22,7 +22,7 @@ import * as Aff from "../../lib/affiliates";
 // hasBookingCTA is re-exported so existing importers (app/components/sheets/
 // Detail.js) keep working untouched.
 import { bookingTargets, hasBookingCTA, hasVerifiedTours } from "../../lib/bookingResolve";
-import { emitCommerce, mintClickId, rankBucket } from "../../lib/commerce";
+import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
 export { hasBookingCTA };
 
 export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
@@ -49,16 +49,20 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     if (!tu) return null;
     const primaryPlaceId = placeIdProp || detail.id || "unknown";
     const primaryCity = cityProp || (locName ? locName.split(",")[0] : "");
+    const verifiedOfferId = topItem && (topItem.code || topItem.productCode);
+    const primaryHref = (verifiedUrl && verifiedOfferId)
+      ? commerceHref({ provider: "viator", offerId: verifiedOfferId, surface: "detail_primary", contentId: primaryCity })
+      : tu;
     return (
       <a
-        href={tu}
+        href={primaryHref}
         target="_blank"
         rel="noreferrer"
         onClick={(e) => {
           e.preventDefault();
           const clickId = mintClickId();
           const offerId = verifiedUrl
-            ? ((topItem && (topItem.code || topItem.productCode)) || primaryPlaceId)
+            ? (verifiedOfferId || primaryPlaceId)
             : primaryPlaceId;
           try {
             emitCommerce("commerce_cta_clicked", {
@@ -71,7 +75,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               click_id: clickId,
             });
           } catch (er) {}
-          const live = (e.currentTarget && e.currentTarget.href) || tu; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
+          const live = (e.currentTarget && e.currentTarget.href) || primaryHref; // v4.81: Stay22 LinkSwap rewrites the anchor href in place — open the LIVE href, or hotel attribution is lost
           // If the href routes through our server redirect, stamp the same click_id
           // so provider_redirect_started echoes it deterministically.
           try {
@@ -148,21 +152,18 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
           </div>
           {items.map((t, i) => {
           // v6.44 (owner: "the person clicks on the viator button, we need to
-          // take them to the right place"). This was the ONLY Viator surface in
-          // the app rendering a RAW `t.url` — the primary variant above (:36),
-          // home.js (3 sites) and ThingsToDoList.js all wrap with
-          // viatorDirectUrl(). So the highest-intent click in the product, on a
-          // named product card, was the one click that carried no partner
-          // attribution: it still reached Viator, but as an anonymous visit, so
-          // the booking earned nothing. viatorDirectUrl returns null for any
-          // non-www.viator.com host (hence the `|| t.url` fallback — behavior
-          // never regresses) and withViatorTracking dedupes `pid`, so this is
-          // safe and idempotent even if the server already attributed the URL.
-          const href = Aff.viatorDirectUrl(t.url) || t.url;
+          // take them to the right place"). Every Viator list item now routes
+          // through the server redirect layer (/api/commerce/go) using the
+          // verified product code. The destination is resolved server-side from
+          // wf_experiences; no partner URL is accepted from the request.
+          const offerId = t.code || t.productCode;
+          const href = offerId
+            ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
+            : (Aff.viatorDirectUrl(t.url) || t.url);
           return (
             <a
-              key={t.code || i}
-              data-offer={t.code || t.productCode || "unknown"}
+              key={offerId || i}
+              data-offer={offerId || "unknown"}
               data-rank={i + 1}
               href={href}
               target="_blank"
@@ -174,7 +175,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                   emitCommerce("commerce_cta_clicked", {
                     surface: "detail_tour_list",
                     provider: "viator",
-                    offer_id: t.code || t.productCode || "unknown",
+                    offer_id: offerId || "unknown",
                     city_id: listCity || null,
                     canonical_place_id: detail.id || null,
                     category: kind || null,
@@ -183,9 +184,15 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
                   });
                 } catch (er) {}
                 const live = (e.currentTarget && e.currentTarget.href) || href;
+                try {
+                  if (live && live.startsWith("/api/") && !live.includes("click_id=")) {
+                    const sep = live.includes("?") ? "&" : "?";
+                    e.currentTarget.href = live + sep + "click_id=" + encodeURIComponent(clickId);
+                  }
+                } catch (er) {}
                 try { logEvent("tour_card_out", detail, { code: t.code || "", click_id: clickId }); } catch (er) {}
                 try { addReservation("tour", detail, "Viator", live); } catch (er) {}
-                openExternal(live);
+                openExternal(e.currentTarget.href || live);
               }}
               style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}
             >

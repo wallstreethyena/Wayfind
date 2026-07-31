@@ -6,6 +6,7 @@ import { useState } from "react";
 import { C, Icon, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
+import ViatorCommerceLink from "../ViatorCommerceLink";
 
 function EventArt({ e, seg, height, ctx }) {
   const { eventUseImage, eventBucket } = ctx;
@@ -67,8 +68,8 @@ function EventCard({ e, onVenue, ctx }) {
   const rec = recurrenceLabel(e);
   const venue = cleanVenueName(e.venue);
   const internal = e.destKind === "internal";
-  const href = internal ? e.dest : ticketUrl(e.dest);
-  const externalTickets = internal && e.url ? ticketUrl(e.url) : null;
+  const href = internal ? e.dest : ticketUrl(e.dest, { surface: "events_grid_card", offerId: e.id });
+  const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
   return (
     <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
       <a
@@ -235,7 +236,13 @@ export default function EventsScreen({ ctx }) {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
               {tours.map((t) => (
-                <a key={t.code || t.url} href={t.url} target="_blank" rel="noreferrer" style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
+                <ViatorCommerceLink
+                  key={t.code || t.url}
+                  t={t}
+                  surface="events_tours_grid"
+                  rank={1}
+                  style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}
+                >
                   {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
                       through by the API route (t.sellingFast) — never a computed guess. */}
                   {t.sellingFast ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
@@ -245,7 +252,7 @@ export default function EventsScreen({ ctx }) {
                     <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${Number(t.reviews).toLocaleString()})` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
                     <div style={{ marginTop: 8, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{t.fromPrice ? `Book from $${t.fromPrice}` : "Book now"} ↗</div>
                   </div>
-                </a>
+                </ViatorCommerceLink>
               ))}
             </div>
             <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>

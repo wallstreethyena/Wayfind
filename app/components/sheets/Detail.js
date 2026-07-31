@@ -598,7 +598,7 @@ export default function DetailSheet({ ctx }) {
                 {!detail._event && <VerdictPill verdict={verdict} />}
                 <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (primaryCta.type === DETAIL_CTA_TYPES.plan ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))"), gap: 8 }}>
                   {detail._event && detail._event.url ? (
-                    <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
+                    <a href={ticketUrl(detail._event.url, { surface: "detail_event_primary" })} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
                   ) : (
                     <>
                       {primaryCta.type !== DETAIL_CTA_TYPES.plan && (
