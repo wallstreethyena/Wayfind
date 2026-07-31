@@ -139,11 +139,11 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
   }
 }
 
-/* ── 8. the two-key sort: locality FIRST, expiry within it ───────────────── */
-// The shipped bug this locks out: ordering by soonest-expiry alone opened the
-// money rail with the national Klook code above Clipp Sarasota, because the code
-// expired first. A deal for somewhere the user is not earns nothing AND spends
-// the trust of the rail, so locality has to outrank the clock.
+/* ── 8. locality gates membership AND ordering ───────────────────────────── */
+// The shipped bug this locks out: an Orlando visitor was served Sarasota/Bradenton
+// money cards. Ordering them last is not enough; a wrong-city monetized card is
+// worse than an empty slot, so city-scoped deals are filtered out when the viewer
+// is in a different metro (or outside every covered metro).
 {
   const { nearestMetro } = await import(path.resolve("lib/orderInFeatured.js"));
   const SARASOTA = { lat: 27.3364, lng: -82.5307 };
@@ -168,7 +168,7 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
     ok(D.dealScope({ area: "Sarasota-Manatee" }).metro === "sarasota", "a compound area resolves on its parts");
   }
 
-  // Rank ordering is the contract: here(0) < everywhere(1) < elsewhere(2).
+  // Rank ordering within the surviving set: here(0) < everywhere(1) < unplaced(2).
   ok(D.dealLocalityRank({ area: "Sarasota" }, "sarasota") === 0, "a deal where the viewer is ranks first");
   ok(D.dealLocalityRank({ area: "United States" }, "sarasota") === 1, "national inventory ranks after local — still usable here");
   ok(D.dealLocalityRank({ area: "Tampa" }, "sarasota") === 2, "ANOTHER metro's deal ranks last for this viewer");
@@ -177,16 +177,22 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
   ok(D.dealLocalityRank({ area: "Sarasota" }, null) === 0 && D.dealLocalityRank({ area: "United States" }, null) === 1,
     "with no viewer metro it degrades to the owner's rule: any placed local-area deal ahead of national");
 
-  // Sorting must obey key 1, then key 2 — asserted on the real registry.
+  // Sorting obeys key 1, then key 2 — but membership now changes by viewer location.
   const RANK_LAST = "9999-12-31";
   let pairsChecked = 0;
   for (const [name, ctr] of [["Sarasota", SARASOTA], ["Orlando", ORLANDO], ["Tampa", TAMPA], ["Miami", MIAMI], ["no center", undefined]]) {
     const t = D.dealTiers(COUPONS, TODAY, ctr);
     const metro = ctr ? nearestMetro(ctr.lat, ctr.lng) : null;
-    ok(t.featured.length === featured.length && t.ledger.length === ledger.length,
-      `${name}: location changes ORDER ONLY — the partition is identical (${t.featured.length}/${t.ledger.length})`);
-    ok(new Set([...t.featured, ...t.ledger].map((c) => c.id)).size === featured.length + ledger.length,
-      `${name}: no deal is duplicated or dropped by the sort`);
+    const ids = new Set([...t.featured, ...t.ledger].map((c) => c.id));
+    ok(ids.size === t.featured.length + t.ledger.length,
+      `${name}: no deal is duplicated or dropped silently`);
+    if (!ctr) {
+      ok(t.featured.length === featured.length && t.ledger.length === ledger.length,
+        `no viewer location: the full partition is unchanged (${t.featured.length}/${t.ledger.length})`);
+    } else {
+      ok(t.featured.length + t.ledger.length <= featured.length + ledger.length,
+        `${name}: viewer location can only remove city-scoped mismatches, never add`);
+    }
     for (const tier of [t.featured, t.ledger]) {
       for (let i = 1; i < tier.length; i++) {
         pairsChecked++;
@@ -199,39 +205,33 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
       }
     }
   }
-  ok(pairsChecked >= 60, `the ordering loop actually ran (${pairsChecked} adjacent pairs compared) — zero iterations would pass silently`);
+  ok(pairsChecked >= 20, `the ordering loop actually ran (${pairsChecked} adjacent pairs compared) — zero iterations would pass silently`);
 
   // The concrete regression, named. Klook is national; the Clipp/Viator cards are local.
   {
     const here = D.dealTiers(COUPONS, TODAY, SARASOTA).featured.map((c) => c.id);
     const klook = here.indexOf("cpn-klook-us-attractions-5");
     const local = ["cpn-clipp-fl-sarasota", "cpn-clipp-fl-bradenton", "cpn-viator-manatee-walk-bradenton"].map((id) => here.indexOf(id));
-    ok(klook >= 0 && local.every((i) => i >= 0), "both the national code and the local money cards are on the rail");
+    ok(klook >= 0 && local.every((i) => i >= 0), "Sarasota viewer sees national + Sarasota-metro money cards");
     ok(local.every((i) => i < klook),
       `a viewer in Sarasota sees every LOCAL money card before the national Klook code (klook at ${klook}, local at ${local.join(",")})`);
-    // The mirror case — proves the rule is geography, not a hardcoded demotion of Klook.
-    //
-    // THIS ASSERTION USED TO SAY "Klook is FIRST for an Orlando viewer", and that
-    // was only true because we had NO Orlando inventory. It encoded a gap in the
-    // registry as if it were the rule, so registering Clipp Orlando turned it red
-    // while the behaviour got BETTER. Rewritten to assert the actual rule, which
-    // stays true as inventory grows: national sits BELOW anything local to the
-    // viewer and ABOVE every other metro's inventory.
+
+    // The mirror case: Orlando should see ONLY its own local card + national.
     const away = D.dealTiers(COUPONS, TODAY, ORLANDO).featured.map((c) => c.id);
     const kAway = away.indexOf("cpn-klook-us-attractions-5");
     const orlandoLocal = away.indexOf("cpn-clipp-fl-orlando");
     const otherMetro = ["cpn-clipp-fl-sarasota", "cpn-clipp-fl-bradenton", "cpn-viator-manatee-walk-bradenton"].map((id) => away.indexOf(id));
-    ok(kAway >= 0 && orlandoLocal >= 0 && otherMetro.every((i) => i >= 0), "the Orlando rail carries local, national and other-metro cards — all three classes present, so the ordering is not vacuous");
+    ok(kAway >= 0 && orlandoLocal >= 0, "Orlando viewer sees their own Clipp card and the national code");
     ok(orlandoLocal < kAway,
       `an Orlando viewer sees Orlando's OWN Clipp card above the national code (orlando ${orlandoLocal}, klook ${kAway})`);
-    ok(otherMetro.every((i) => i > kAway),
-      `…and the national code still ranks above every SARASOTA-area card, which that viewer cannot use (klook ${kAway}, other-metro ${otherMetro.join(",")})`);
-    ok(here.join() !== away.join(), "the two orders genuinely differ — the viewer's location is actually read");
+    ok(otherMetro.every((i) => i === -1),
+      "…and the Sarasota/Bradenton cards are REMOVED, not merely demoted");
+    ok(here.join() !== away.join(), "the two rails genuinely differ by viewer location");
   }
 
   // The screen must actually PASS the viewer's location, or every assertion above
   // is true of a function the page calls with two arguments.
-  ok(/dealTiers\(all,\s*today,\s*center\)/.test(code), "the screen passes the viewer's center into dealTiers — the sort is wired, not just implemented");
+  ok(/dealTiers\(all,\s*today,\s*center\)/.test(code), "the screen passes the viewer's center into dealTiers — the filter is wired, not just implemented");
   ok(/\bcenter\b/.test(code.slice(code.indexOf("const {"), code.indexOf("const today"))), "…and takes `center` off ctx");
 }
 
