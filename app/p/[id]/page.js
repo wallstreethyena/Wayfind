@@ -20,7 +20,10 @@ export async function generateMetadata({ searchParams }) {
   if (r) bits.push(r + "\u2605");
   if (loc) bits.push("in " + loc);
   const desc = (hk ? hk + " \u00b7 " : "") + (bits.length ? bits.join(" \u00b7 ") : "A great nearby spot") + " \u00b7 Tap to open on Wayfind";
-  let og = "/api/og?kind=place&t=" + encodeURIComponent(t);
+  // v6.72: ABSOLUTE. Relative worked only because metadataBase resolved it,
+  // and several scrapers (iMessage among them) fetch the raw value instead.
+  // Only the base is prefixed; the += query appends below are unaffected.
+  let og = SITE_URL + "/api/og?kind=place&t=" + encodeURIComponent(t);
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (r) og += "&r=" + encodeURIComponent(r);
   if (rev) og += "&rev=" + encodeURIComponent(rev);

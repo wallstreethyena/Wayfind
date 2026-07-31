@@ -15,7 +15,10 @@ export async function generateMetadata({ searchParams }) {
   const take = s(searchParams.take);
   const title = (temp ? temp + "\u00b0 " : "") + (cond || "Weather") + (loc ? " in " + loc : "");
   const desc = (take ? take : "What's good to do right now") + " \u00b7 Wayfind";
-  let og = "/api/og?kind=weather";
+  // v6.72: ABSOLUTE. Relative worked only because metadataBase resolved it,
+  // and several scrapers (iMessage among them) fetch the raw value instead.
+  // Only the base is prefixed; the += query appends below are unaffected.
+  let og = SITE + "/api/og?kind=weather";
   if (loc) og += "&loc=" + encodeURIComponent(loc);
   if (temp) og += "&temp=" + encodeURIComponent(temp);
   if (cond) og += "&cond=" + encodeURIComponent(cond);

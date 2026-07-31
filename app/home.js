@@ -168,6 +168,7 @@ import { creatorVideosFor } from "../lib/creatorVideos";
 // The view calls it and renders; it knows nothing about how the price
 // dimension is stored or which Google tokens collapse together.
 import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips } from "../lib/taste";
+import { canonicalShareUrl } from "../lib/site";
 
 const BUILD = "beta";
 
@@ -437,10 +438,20 @@ function applyAffinity(places, affinities) {
 // on, so stale *.vercel.app deployment URLs can never propagate through
 // shares again.
 const CANON_ORIGIN = "https://www.gowayfind.com";
+// v6.72 — THE iMESSAGE "localhost" BUG, root cause.
+//
+// This used to ALLOWLIST the hosts it would canonicalise: *.vercel.app and
+// gowayfind.com got CANON_ORIGIN, and everything else fell through to
+// `window.location.origin + path`. "Everything else" includes localhost, so a
+// share taken from a dev server produced http://localhost:3000/p/... and that
+// link reached a real iMessage thread, where nobody could open it.
+//
+// The allowlist was backwards. A shared link must ALWAYS be canonical — there
+// is no host on which handing out the current origin is correct, because the
+// recipient is by definition not on it. Inverted to a single unconditional
+// call, so a new preview host or a new dev port cannot reintroduce this.
 function originUrl(path) {
-  if (typeof window === "undefined") return path;
-  try { const h = window.location.hostname || ""; if (/\.vercel\.app$/i.test(h) || h === "gowayfind.com" || h === "www.gowayfind.com") return CANON_ORIGIN + path; } catch (e) {}
-  return window.location.origin + path;
+  return canonicalShareUrl(CANON_ORIGIN + path);
 }
 
 // A stable, anonymous, per-device id (no personal data — just a random string)

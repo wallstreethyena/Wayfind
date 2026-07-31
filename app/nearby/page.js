@@ -4,12 +4,13 @@
 import { Suspense } from "react";
 import Client from "./client";
 import { INTENT_PAGES, intentEyebrow, intentSub } from "../../lib/intentPages";
+import { SITE_URL } from "../../lib/site";
 
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
   const ref = String((searchParams && searchParams.img) || "");
   const refOk = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
-  const og = "/api/og/intent?intent=nearby" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
+  const og = SITE_URL + "/api/og/intent?intent=nearby" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
   const def = INTENT_PAGES.nearby;
   const title = intentEyebrow(def) + (city ? " — " + city : "") + " | Wayfind";
   const description = intentSub(def, city || "your town");

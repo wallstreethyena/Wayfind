@@ -136,6 +136,7 @@ node scripts/test-popularity.mjs
 node scripts/check-one-clock.mjs
 node scripts/test-now-context.mjs
 node scripts/test-composition-render.mjs
+node scripts/check-og-absolute.mjs
 node scripts/test-intent-pages.mjs
 node scripts/test-beach-water.mjs
 node scripts/test-blurbs-cache.mjs

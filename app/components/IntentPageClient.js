@@ -30,6 +30,7 @@ import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
+import { canonicalShareUrl } from "../../lib/site";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -333,7 +334,9 @@ export default function IntentPageClient({ intent }) {
     // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real
     // photoRef, so every recipient's unfurl shows the actual top place —
     // never generic art (owner, 2026-07-22).
-    let url = window.location.href;
+    // canonicalShareUrl, never the raw window origin: a dev server or a Vercel
+    // preview would otherwise put an unopenable host into a real thread.
+    let url = canonicalShareUrl(window.location.href);
     try {
       const u = new URL(url);
       const heroRef = passedRef || (rows && rows[0] && rows[0].photoRef) || null;
