@@ -98,12 +98,17 @@ ok(!/return dest;/.test(vrbo),
 // ID/marker fallbacks are LEGITIMATE and must not be "fixed" into null by
 // someone applying this rule too broadly — that would dark Travelpayouts and
 // Ticketmaster, which are attributed today ONLY because of these literals.
-for (const [name, lit] of [["TP_MARKER", "750791"], ["TM_IMPACT_SID", "7475855"]]) {
-  const f = name === "TP_MARKER"
+for (const [name, envName, lit] of [
+  ["TP_MARKER_ACCOUNT", "NEXT_PUBLIC_TP_MARKER_ACCOUNT", "750791"],
+  ["TM_IMPACT_SID", "TM_IMPACT_SID", "7475855"],
+]) {
+  const f = name === "TP_MARKER_ACCOUNT"
     ? stripComments(readFileSync(new URL("../lib/travelpayouts.js", import.meta.url), "utf8"))
     : src;
-  ok(new RegExp(`${name}\\s*=\\s*\\(process\\.env\\.\\w+\\s*\\|\\|\\s*"${lit}"`).test(f),
-    `${name} keeps its literal fallback "${lit}" — its env var is MISSING in Vercel production, and this literal is the only reason that program is attributed at all. Removing it darks a live program.`);
+  ok(
+    new RegExp(`${name}\\s*=\\s*\\(process\\.env\\.${envName}\\s*\\|\\|\\s*"${lit}"`).test(f),
+    `${name} keeps its literal fallback "${lit}" — its env var is MISSING in Vercel production, and this literal is the only reason that program is attributed at all. Removing it darks a live program.`
+  );
 }
 
 // ── self-test ───────────────────────────────────────────────────────────────
