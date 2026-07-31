@@ -50,8 +50,14 @@
 // PR with the mandatory guard pair. Until then the seam is honest: every host
 // shares blocks 1, 2, 3 and 5 exactly, and supplies its own row for block 4.
 import { C, PlaceScoreChip } from "./kit";
-import { couponsForIntentIn, couponEndsLabel } from "../../lib/coupons";
-import { marketForLocation } from "../../lib/destinations";
+import { couponsForIntent, couponEndsLabel } from "../../lib/coupons";
+// dealScope + nearestMetro are the repo's CANONICAL deal-geo helpers, shipped
+// on main in #526 for this same strip. An earlier draft of this file grew its
+// own area->market table; that would have been a SECOND coupon geo map, which
+// is the exact duplication ("three art maps, two area_known_for definitions")
+// this extraction exists to prevent. Deleted in favour of these.
+import { dealScope } from "../../lib/dealSheet";
+import { nearestMetro } from "../../lib/orderInFeatured";
 
 // ── 1. COUPON STRIP ─────────────────────────────────────────────────────────
 // GEO IS NOT OPTIONAL HERE. Without lat/lng this renders NATIONWIDE deals only.
@@ -59,8 +65,24 @@ import { marketForLocation } from "../../lib/destinations";
 // deals on Orlando pages — the owner's own example of a wrong recommendation.
 // A missing location must degrade to "fewer deals", never to "another city's".
 export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 }) {
-  const market = (Number.isFinite(lat) && Number.isFinite(lng)) ? marketForLocation(lat, lng) : null;
-  const deals = intentId ? couponsForIntentIn(intentId, market && market.key ? market.key : market) : [];
+  // GEO IS LOAD-BEARING. Live-verified 2026-07-31: filtering by INTENT alone put
+  // "Bradenton Marauders" and "Clipp — dining certificates in Sarasota" on
+  // ORLANDO's /tonight and /date-night, 130 miles away. That is the owner's own
+  // example of a wrong recommendation, and it is worse than an absent strip
+  // because this is the surface that carries the money.
+  //
+  // Same rule main applies on the reference sheet: a deal scoped to a METRO
+  // shows only in that metro; everywhere-scoped and unplaced deals pass. An
+  // unknown viewer location does NOT filter — that is main's behaviour and this
+  // extraction does not get to change it silently.
+  const viewerKnown = Number.isFinite(lat) && Number.isFinite(lng);
+  const viewerMetro = viewerKnown ? nearestMetro(lat, lng) : null;
+  const deals = (intentId ? couponsForIntent(intentId) : []).filter((c) => {
+    if (!viewerKnown) return true;
+    const s = dealScope(c);
+    if (s.kind !== "metro") return true;
+    return s.metro === viewerMetro;
+  });
   // Absent, not empty. A strip with no rows is a promise of savings we do not
   // have for this intent in this metro.
   if (!deals.length) return null;

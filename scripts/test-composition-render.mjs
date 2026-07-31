@@ -80,10 +80,17 @@ ok(!/Bradenton|Sarasota|Lakewood Ranch/.test(orl),
   "GEO: an Orlando coupon strip must not name a Sarasota-Manatee business — this is the 'Sarasota deal in Orlando' class");
 ok(/Bradenton|Sarasota|Gecko/.test(sar),
   "GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control)");
-// No location at all: nationwide only, never another market's.
+// NO LOCATION: main's rule is that an unknown viewer does NOT filter — every
+// live deal for the intent shows. This test locks THAT, not a preference.
+//
+// I think unknown-location should fall back to nationwide-only ("absent beats
+// wrong" is the rule everywhere else in this composition), but that is a
+// PRODUCT change to behaviour another lane shipped on main in #526, and an
+// extraction is not the place to make it silently. Raised for the owner
+// instead; if it changes, this assertion flips with it.
 const noloc = render(createElement(Blocks.CouponStrip, { intentId: "eatnow" }));
-ok(!/Bradenton|Lakewood Ranch/.test(noloc),
-  "GEO: with no location, regional deals must not render — absent beats wrong");
+ok(noloc.includes("Local deals on this list"),
+  "GEO: with no viewer location the strip still renders — matching main's shipped rule (unknown viewer does not filter)");
 
 // ── 2. THE BLOCKS ACTUALLY RENDER THEIR CONTENT ────────────────────────────
 // A component that renders "" for every input would pass section 1 completely.

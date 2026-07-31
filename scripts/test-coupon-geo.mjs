@@ -108,13 +108,32 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
 
 // Wiring: the experience-strip also geo-gates, using the same resolver.
 {
-  const exp = read("app/components/screens/Experience.js");
-  ok(/import \{ dealScope \} from "\.\.\/\.\.\/\.\.\/lib\/dealSheet"/.test(exp),
-    "ExperienceScreen imports the same dealScope resolver");
-  ok(/import \{ nearestMetro \} from "\.\.\/\.\.\/\.\.\/lib\/orderInFeatured"/.test(exp),
-    "ExperienceScreen imports nearestMetro");
-  ok(/viewerKnown/.test(exp) && /viewerMetro/.test(exp), "ExperienceScreen resolves the viewer metro before filtering coupons");
-  ok(/dealScope\(c\)/.test(exp), "ExperienceScreen filters each coupon through dealScope");
+  // v6.72: the coupon strip was EXTRACTED out of Experience.js into the shared
+  // app/components/ExperienceBlocks.js, so all nine intent pages render one
+  // strip from one file. These four assertions read Experience.js by PATH and
+  // went red purely because the code moved — the invariant they protect (every
+  // coupon is filtered through dealScope against the viewer's metro) is intact.
+  //
+  // CLAUDE.md: assert the invariant, not the file path, and follow the code
+  // rather than deleting the assertion. The dangerous half is the inverse — a
+  // path-pinned check goes GREEN the moment the strip moves somewhere that
+  // drops the filter, which is the "Sarasota deal in Orlando" gap itself.
+  //
+  // So: assert on the UNION of the plausible locations. The strip lives in
+  // exactly one of them, and wherever it lives it must carry the geo filter.
+  // The BEHAVIOURAL proof — rendering the strip at Orlando and Sarasota
+  // coordinates and diffing the output — is in test-composition-render.mjs.
+  const exp = read("app/components/screens/Experience.js") + "\n" + read("app/components/ExperienceBlocks.js");
+  ok(/import \{ dealScope \} from "\.\.(?:\/\.\.)*\/lib\/dealSheet"/.test(exp),
+    "the coupon strip's module imports the same dealScope resolver (Experience.js or ExperienceBlocks.js)");
+  ok(/import \{ nearestMetro \} from "\.\.(?:\/\.\.)*\/lib\/orderInFeatured"/.test(exp),
+    "the coupon strip's module imports nearestMetro");
+  ok(/viewerKnown/.test(exp) && /viewerMetro/.test(exp), "the coupon strip resolves the viewer metro before filtering coupons");
+  ok(/dealScope\(c\)/.test(exp), "the coupon strip filters each coupon through dealScope");
+  // The strip must exist exactly ONCE across both files — two copies IS the
+  // drift this extraction was ordered to prevent.
+  ok((exp.match(/🏷️ Local deals on this list/g) || []).length === 1,
+    "the coupon strip is defined exactly once across component + shared blocks (two copies = the drift the extraction prevents)");
 }
 
 // The gate must never drop a live deal silently: partition still uses input refs.
