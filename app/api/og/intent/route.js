@@ -52,7 +52,14 @@ export async function GET(req) {
             <div style={{ display: "flex", fontSize: 29, color: "rgba(241,245,249,.94)", marginTop: 12 }}>{def.promise}</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 26 }}>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} height={30} />
+                {/* WIDTH IS REQUIRED, not cosmetic. With only `height`, Satori must FETCH
+                    and decode the asset to infer its width; on the edge that is a
+                    self-referential request to SITE_URL, and any failure (rate limit,
+                    cold start, firewall) throws "Image size cannot be determined"
+                    AFTER the 200 headers are already streaming. The client then gets a
+                    200 with a ZERO-BYTE body, and Cache-Control: immutable pins that
+                    blank image for a year. Explicit dimensions remove the fetch. */}
+                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} width={132} height={30} />
                 <div style={{ display: "flex", fontSize: 21, fontWeight: 700, color: "rgba(241,245,249,.75)", marginLeft: 14 }}>gowayfind.com</div>
               </div>
               <div style={{ display: "flex", alignItems: "center", background: "#E8C97A", borderRadius: 999, padding: "13px 32px" }}>
