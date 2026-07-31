@@ -10,8 +10,19 @@ const eq = (a, b, m) => { if (JSON.stringify(a) !== JSON.stringify(b)) fail(`${m
 const DAY = ["today", "food", "eat", "stay", "night"];
 const EVENING = ["today", "night", "eat", "food", "stay"];
 
-// A Date at a given local wall-clock (device-tz path: tzOffset omitted).
-const at = (h, m, s = 0) => new Date(2026, 6, 12, h, m, s);
+// A Date whose SITE-TZ (America/New_York) wall clock is h:m — this is the
+// tzOffset-omitted fallback path. v6.72 (#533) changed that fallback from the
+// DEVICE clock to venue-local ET, so building a device-local Date here made
+// this test pass only on an ET machine and fail everywhere else, including
+// Vercel's UTC builders. Constructing in site-tz makes it machine-independent.
+const SITE_TZ = "America/New_York";
+const at = (h, m, s = 0) => {
+  const guess = new Date(Date.UTC(2026, 6, 12, h, m, s));
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: SITE_TZ, hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(guess);
+  const get = (t) => Number(parts.find((x) => x.type === t).value);
+  const driftMin = (h * 60 + m) - ((get("hour") % 24) * 60 + get("minute"));
+  return new Date(guess.getTime() + driftMin * 60000);
+};
 
 // ── the exact boundary (product decision: 3:33 PM inclusive) ──
 eq(orderExploreMenu(at(15, 32, 59)), DAY, "15:32:59 is still the daytime order");
