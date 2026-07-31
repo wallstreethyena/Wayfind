@@ -9,7 +9,7 @@
 // IntroIcon + its INTRO_PATHS data table are exclusive to this overlay.
 // The 3.2s auto-show timer stays in PageInner (it's a useEffect); it just
 // flips introOpen, which arrives here as a normal ctx value.
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { C, useDialogFocus, Icon } from "../kit";
 import { nowContext } from "../../../lib/nowContext.js";
 
@@ -48,13 +48,64 @@ export default function IntroSheet({ ctx }) {
   const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience } = ctx;
   const introDlgRef = useRef(null);
   const introLocation = String(locName || "").replace(/\s*,\s*/g, ", ").trim();
-  const dismissIntro = () => {
+  // WHY THIS INSTRUMENTATION EXISTS (2026-07-31)
+  // -------------------------------------------
+  // This overlay is the hard gate in front of every first visit, and until now
+  // it emitted exactly ONE event (mood_tile, on tile selection). That made the
+  // largest activation gate in the product unmeasurable: we could not say what
+  // fraction of visitors saw it, chose a mood, skipped, or abandoned on it —
+  // only that 3.7% of mobile hero impressions produced a mood_tile, with the
+  // other 96.3% indistinguishable from each other.
+  //
+  // hero_impression fires on the page BEHIND this overlay, so the funnel looked
+  // like it died at detail_open when the drop-off actually happens here.
+  //
+  // Two additive events, no behaviour change:
+  //   intro_shown      the gate was rendered (mount = shown; it is conditionally
+  //                    mounted at home.js `{introOpen && <IntroSheet/>}`)
+  //   intro_dismissed  how it was exited — cta | skip | close | backdrop | escape
+  //                    plus whether a mood was selected and time-to-exit.
+  //
+  // `exit` is the point of the whole thing: "skip" and "cta" are opposite
+  // outcomes and were previously the same non-event. Without the split, an A/B
+  // on this gate cannot be read.
+  const introShown = useRef(false);
+  const introExited = useRef(false);
+  const introOpenedAt = useRef(0);
+
+  useEffect(() => {
+    if (introShown.current) return;
+    introShown.current = true;
+    introOpenedAt.current = Date.now();
+    try { logEvent("intro_shown", null, { loc: introLocation || null }); } catch (e) {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Every exit path routes through here so the reason is always recorded, and
+  // the once-guard means a backdrop click that also triggers the focus-trap's
+  // escape handler cannot count twice.
+  const closeIntro = (exit) => {
+    try {
+      if (!introExited.current) {
+        introExited.current = true;
+        logEvent("intro_dismissed", null, {
+          exit,
+          mood: introSel[0] || null,
+          selected: introSel.length > 0 ? 1 : 0,
+          ms_on_intro: Math.max(0, Date.now() - (introOpenedAt.current || Date.now())),
+        });
+      }
+    } catch (e) {}
     try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
     setIntroOpen(false);
   };
+  // useDialogFocus invokes this with no argument on Escape; the explicit call
+  // sites below pass their own reason. Never pass this reference straight to an
+  // onClick — the event object would arrive as `exit`.
+  const dismissIntro = () => closeIntro("escape");
   useDialogFocus(introOpen, introDlgRef, dismissIntro);
   return (
-        <div className="wf-intro-backdrop" onClick={dismissIntro}>
+        <div className="wf-intro-backdrop" onClick={() => closeIntro("backdrop")}>
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes wfIntroIn{from{opacity:0;transform:scale(.985) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
             @keyframes wfIntroTileIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -143,7 +194,7 @@ export default function IntroSheet({ ctx }) {
             @media(prefers-reduced-motion:reduce){.wf-intro-pop,.wf-mood-tile,.wf-intro-cta{animation:none!important;transition:none!important}}
           ` }} />
           <div ref={introDlgRef} role="dialog" aria-modal="true" aria-label="Welcome to Wayfind — choose a local experience" tabIndex={-1} onClick={(e) => e.stopPropagation()} className="wf-intro-pop">
-            <button onClick={dismissIntro} aria-label="Close" className="wf-intro-close">{"\u2715"}</button>
+            <button onClick={() => closeIntro("close")} aria-label="Close" className="wf-intro-close">{"\u2715"}</button>
             <section className="wf-intro-visual" aria-label="A local moment waiting to be discovered">
               <picture className="wf-intro-picture" aria-hidden="true">
                 <source media="(max-width: 760px)" srcSet={INTRO_VISUAL_MOBILE} />
@@ -203,8 +254,8 @@ export default function IntroSheet({ ctx }) {
                 </div>
               );
             } catch (e) { return null; } })()}
-              <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; dismissIntro(); openExperience(introSel[0]); }} disabled={!introSel.length}>Show me the best matches <span aria-hidden="true">→</span></button>
-              <button className="wf-intro-skip" onClick={dismissIntro}>Skip and explore everything</button>
+              <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; closeIntro("cta"); openExperience(introSel[0]); }} disabled={!introSel.length}>Show me the best matches <span aria-hidden="true">→</span></button>
+              <button className="wf-intro-skip" onClick={() => closeIntro("skip")}>Skip and explore everything</button>
               <div className="wf-intro-foot"><IntroIcon k="shield" size={13} color={C.muted} />No sponsored rankings. Just places worth your time.</div>
             </section>
           </div>
