@@ -210,9 +210,22 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
     ok(local.every((i) => i < klook),
       `a viewer in Sarasota sees every LOCAL money card before the national Klook code (klook at ${klook}, local at ${local.join(",")})`);
     // The mirror case — proves the rule is geography, not a hardcoded demotion of Klook.
+    //
+    // THIS ASSERTION USED TO SAY "Klook is FIRST for an Orlando viewer", and that
+    // was only true because we had NO Orlando inventory. It encoded a gap in the
+    // registry as if it were the rule, so registering Clipp Orlando turned it red
+    // while the behaviour got BETTER. Rewritten to assert the actual rule, which
+    // stays true as inventory grows: national sits BELOW anything local to the
+    // viewer and ABOVE every other metro's inventory.
     const away = D.dealTiers(COUPONS, TODAY, ORLANDO).featured.map((c) => c.id);
-    ok(away.indexOf("cpn-klook-us-attractions-5") === 0,
-      `…and a viewer in Orlando sees that same national code FIRST, above inventory they cannot use (got index ${away.indexOf("cpn-klook-us-attractions-5")})`);
+    const kAway = away.indexOf("cpn-klook-us-attractions-5");
+    const orlandoLocal = away.indexOf("cpn-clipp-fl-orlando");
+    const otherMetro = ["cpn-clipp-fl-sarasota", "cpn-clipp-fl-bradenton", "cpn-viator-manatee-walk-bradenton"].map((id) => away.indexOf(id));
+    ok(kAway >= 0 && orlandoLocal >= 0 && otherMetro.every((i) => i >= 0), "the Orlando rail carries local, national and other-metro cards — all three classes present, so the ordering is not vacuous");
+    ok(orlandoLocal < kAway,
+      `an Orlando viewer sees Orlando's OWN Clipp card above the national code (orlando ${orlandoLocal}, klook ${kAway})`);
+    ok(otherMetro.every((i) => i > kAway),
+      `…and the national code still ranks above every SARASOTA-area card, which that viewer cannot use (klook ${kAway}, other-metro ${otherMetro.join(",")})`);
     ok(here.join() !== away.join(), "the two orders genuinely differ — the viewer's location is actually read");
   }
 
