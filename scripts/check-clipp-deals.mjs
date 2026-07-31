@@ -131,36 +131,49 @@ for (const c of clipps) {
     `${c.id}: carries a short badge (the deals-rail pill is small; long text overflows it)`);
 }
 
-/* ── 4b. the card renderer supports imagery GENERICALLY ──────────────────── */
-// The point of the image field is coherence with the deals rail, not a special
-// case for the paid card. If it were Clipp-specific, the money card would be the
-// only one that could ever carry art — which is pay-for-placement in visual form.
+/* ── 4b. imagery stays GENERIC, TRANSLATED for the Deal Sheet redesign ───── */
+// The Coupons tab became "The Deal Sheet" (docs/mocks/coupons-deal-sheet-mock.html),
+// so the five assertions here no longer had a `c.image ?` ternary or a deals-rail
+// badge pill to match. Each PROTECTION is translated, not dropped — mapping:
+//
+//   was: the card renders c.image for ANY coupon
+//   now: artwork comes from dealArtwork(c), a pure function that takes the whole
+//        coupon and knows nothing about who pays — asserted by CALLING it on a
+//        non-affiliate deal and getting art back.
+//   was: the banner condition is c.image ALONE (no `c.commerce &&` conjunct)
+//   now: the screen's artwork condition is a bare `art ?`, and `art` is
+//        dealArtwork(c) — art can still never become a privilege of paid cards.
+//   was: the renderer names no partner in code
+//   now: unchanged in spirit and re-checked against the new file.
+//   was: the badge pill matches the deals-rail badge exactly
+//   now: the mock replaced that pill with the gold SEAL, so this pins the seal to
+//        the mock's own spec (64px, the gold radial) — the point was always "art
+//        furniture is specified, not improvised".
+//   was: the original 14px/16px padding survives (imageless card unchanged)
+//   now: an imageless card renders with NO artwork band at all and still carries
+//        its save/share affordances — the real protection, which is that a deal
+//        without a picture is not a broken card.
 {
   const screen = readFileSync(path.resolve("app/components/screens/Coupons.js"), "utf8");
-  ok(/c\.image\s*\?/.test(screen), "the coupon card renders c.image for ANY coupon, not a hardcoded Clipp banner");
-  // The condition must be c.image ALONE. Checking only that "c.image ?" appears
-  // is not enough — `c.commerce && c.image ?` matches it too, and that is exactly
-  // the pay-for-placement shape this rule exists to forbid: art available only to
-  // the cards that pay. That arm went GREEN before this assertion existed.
-  ok(/\{\s*c\.image\s*\?\s*\(/.test(screen),
-    "the banner condition is c.image ALONE — any extra conjunct (e.g. c.commerce && c.image) would make art a privilege of the paid cards");
-  ok(!/commerce[^\n]{0,40}c\.image|c\.image[^\n]{0,40}commerce/.test(screen),
-    "the banner condition is not entangled with the commerce flag");
-  // Strip comments first: the rule is about CODE, and the surrounding prose
-  // legitimately explains why the field is not partner-specific. Matching the
-  // explanation would be a guard that punishes documenting the invariant.
   const code = screen.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  ok(code.length > 1000, `stripped comments and still have code (got ${code.length} chars) — an over-eager strip would make the next check vacuous`);
-  ok(!/clipp/i.test(code),
-    "the card renderer names no partner in code — the banner is driven by data, so any coupon can have one");
-  ok(/center\/cover no-repeat url\(/.test(screen),
-    "it uses the same center/cover chrome as the deals rail, so a coupon card with art reads as the same object as a deal card with art");
-  ok(/borderRadius: 999, padding: "2px 8px"/.test(screen), "the badge pill matches the deals-rail badge exactly");
-  // An imageless coupon must be untouched by this change — the Klook and local
-  // cards are the baseline the Clipp card is supposed to match, so they cannot
-  // shift underneath it.
-  ok(/padding: "14px 16px"/.test(screen),
-    "the original 14px/16px content padding survives (an imageless card renders exactly as before)");
+  ok(code.length > 1000, `stripped comments and still have code (got ${code.length}) — an over-eager strip would make the next checks vacuous`);
+
+  const { dealArtwork } = await import(path.resolve("lib/dealSheet.js"));
+  const freeDeal = COUPONS.find((c) => c.id === "cpn-ringling-free-mondays");
+  ok(!!freeDeal, "found a NON-affiliate deal to test artwork on");
+  ok(typeof dealArtwork(freeDeal) === "string" && dealArtwork(freeDeal).startsWith("/cards/"),
+    "a NON-AFFILIATE deal still gets artwork — art is not a privilege of the cards that pay");
+  ok(dealArtwork({ image: "/cards/where-to-eat.jpg" }) === "/cards/where-to-eat.jpg", "an explicit committed image wins");
+  ok(dealArtwork({ image: "https://www.clipp.com/x.jpg" }) === null,
+    "a REMOTE image is refused — an artwork band is not worth handing a third party control of what renders in a Wayfind card");
+  ok(dealArtwork({}) === null, "no usable image yields NULL, so the card renders with no band rather than a placeholder");
+
+  ok(/\{art \?/.test(code), "the artwork condition is a bare `art ?` — no conjunct can make art conditional on payment");
+  ok(!/commerce[^\n]{0,40}art\b|\bart\b[^\n]{0,40}commerce/.test(code), "the artwork condition is not entangled with the commerce flag");
+  ok(!/clipp/i.test(code), "the screen names no partner in code — every tier decision is data-driven");
+  ok(/borderRadius: "50%"/.test(code) && /width: 64, height: 64/.test(code),
+    "the seal matches the mock's spec (64px round, gold radial) rather than improvised furniture");
+  ok(/aspectRatio: "3 \/ 2"/.test(code), "the artwork band is the mock's 3:2 editorial ratio");
 }
 
 /* ── 5. not confused with the dead ?url= pixel form ──────────────────────── */
