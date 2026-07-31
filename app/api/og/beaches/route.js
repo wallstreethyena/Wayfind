@@ -44,7 +44,10 @@ export async function GET(req) {
                 <div style={{ display: "flex", fontSize: 25, fontWeight: 800, color: "#040810", letterSpacing: 1 }}>SEE THE WINNER →</div>
               </div>
               <div style={{ display: "flex", alignItems: "center" }}>
-                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} height={28} />
+                {/* width is REQUIRED — see app/api/og/intent/route.js. Without it Satori must
+                    fetch the asset to infer size, and a failure yields a 200 with a
+                    zero-byte body that the CDN caches for a year. */}
+                <img src={SITE_URL + "/brand/wayfind-wordmark-transparent-v2.png"} width={123} height={28} />
                 <div style={{ display: "flex", fontSize: 19, fontWeight: 700, color: "rgba(241,245,249,.75)", marginLeft: 12 }}>gowayfind.com</div>
               </div>
             </div>

@@ -25,15 +25,30 @@ import { C, scoreLabel, PlaceScoreChip } from "../kit";
 import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
 import { RankedRow, ROW_IMG_STYLE } from "../RankedExperiencePage";
 import { openExternal } from "../../../lib/links";
+import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
+// v6.72 THE COMPOSITION, SCALED TO ONE (owner addendum, 2026-07-31). Surprise Me
+// returns a SINGLE result, so it cannot take the five-block list composition as
+// written — there is no ranked list to put under a "Perfect right now" header.
+// It gets the same system in one row:
+//   · the coupon strip still applies, but keyed to THIS PLACE rather than to an
+//     intent. couponForPlaceName is a stronger and more honest claim for a
+//     single result — "this place has a deal" instead of "deals for this mood",
+//     which on a one-result screen would be a promise about something not shown.
+//   · the full card with the score IS the hero + the evidence block below it.
+//   · the momentPicks `why` becomes the reason THIS place was picked.
+//   · no ranked list, and no tour rail unless this one result has tours.
+import { couponForPlaceName, couponEndsLabel } from "../../../lib/coupons";
 
 export default function SurpriseScreen({ ctx }) {
-  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg } = ctx;
+  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent } = ctx;
           const p = surprisePick;
           const sl = p ? scoreLabel(p.wfScore) : null;
           const badges = p ? experienceBadges(p).slice(0, 2) : [];
           const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
           // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
-          const period = (() => { const hr = new Date().getHours(); return hr < 12 ? "Morning" : hr < 17 ? "Afternoon" : "Evening"; })();
+          // v6.72: was a FOURTH independent bucketing (12/17). Now the one
+          // source, so this label cannot disagree with the list beside it.
+          const period = { morning: "Morning", afternoon: "Afternoon", night: "Evening" }[bucketForHour(siteHourFloat())];
           const sOpen = !!(p && liveOpen(p) === true);
           const sOpensLater = !!(p && liveOpen(p) === false && p.nextOpen && p.nextOpen.today);
           const sSub = sOpen ? "Open now, nearby, and worth your time."
@@ -131,6 +146,40 @@ export default function SurpriseScreen({ ctx }) {
               )}
               {!surpriseLoading && p && (
                 <div>
+                  {/* BLOCK 1, SCALED TO ONE: the deal on THIS place. Absent when
+                      this place has no live coupon — never an empty strip, and
+                      never a generic "deals nearby" row, which on a one-result
+                      screen would advertise something the screen is not showing. */}
+                  {(() => {
+                    const c = couponForPlaceName(p.name);
+                    if (!c) return null;
+                    return (
+                      <div role="button" tabIndex={0}
+                        onClick={() => { try { logEvent && logEvent("coupon_strip_tap", null, { id: c.id, theme: "surprise" }); } catch (e) {} setScreen("coupons"); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setScreen("coupons"); } }}
+                        style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12, cursor: "pointer" }}>
+                        <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 4 }}>🏷️ Deal on this place</div>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                          <span style={{ minWidth: 0, flex: 1 }}>
+                            <span style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{c.business}</span>
+                            <span style={{ fontSize: 12.5, color: C.light }}> — {c.title}</span>
+                          </span>
+                          {couponEndsLabel(c) ? <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: C.muted }}>{couponEndsLabel(c)}</span> : null}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  {/* BLOCK 3, SCALED TO ONE: on a list this is "Perfect right
+                      now" with a rank number per row. With one result the rank
+                      is meaningless, so the `why` stands alone as the reason
+                      THIS place was picked. Absent when there is no why —
+                      a reasoned pick with no reason is just a pick. */}
+                  {surpriseWhy ? (
+                    <div style={{ background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 12 }}>
+                      <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 6 }}>✨ Why this one, right now</div>
+                      <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{surpriseWhy}</div>
+                    </div>
+                  ) : null}
                   {/* The evidence for the one pick. The hero above carries the
                       photo and the name, so this block starts where a list row's
                       why-line would: the score, the live state, the reasons. */}

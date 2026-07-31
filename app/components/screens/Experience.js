@@ -6,9 +6,8 @@ import { C, PlaceScoreChip } from "../kit";
 import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
-import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
-import { dealScope } from "../../../lib/dealSheet";
-import { nearestMetro } from "../../../lib/orderInFeatured";
+import { CouponStrip, PerfectRightNow, Methodology } from "../ExperienceBlocks";
+import { siteHourFloat } from "../../../lib/nowContext.js";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center } = ctx;
@@ -76,61 +75,25 @@ export default function ExperienceScreen({ ctx }) {
                 )}
                 cta={<HeroCta accent={C.accent} ariaLabel="Share list" onClick={shareThisList}>↗ Share this list</HeroCta>}
               />
-              {/* v6.17 deals strip: live, verified coupons tagged for this
-                  moment (lib/coupons.js `intents`). Expired deals auto-hide via
-                  couponsForIntent, soonest-ending first. The 🏷️ chip is the
-                  badge mount — swap in the deal-badge logo when the art lands. */}
-              {(() => {
-                const viewerKnown = center && isFinite(center.lat) && isFinite(center.lng);
-                const viewerMetro = viewerKnown ? nearestMetro(center.lat, center.lng) : null;
-                const dl = couponsForIntent(activeBadge)
-                  .filter((c) => {
-                    if (!viewerKnown) return true;
-                    const s = dealScope(c);
-                    if (s.kind !== "metro") return true;
-                    return s.metro === viewerMetro;
-                  })
-                  .slice(0, 3);
-                if (!dl.length) return null;
-                return (
-                  <div style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase" }}>🏷️ Local deals on this list</span>
-                      <button onClick={() => { try { logEvent("coupon_strip_all", null, { theme: activeBadge }); } catch (e) {} setScreen("coupons"); }} style={{ background: "transparent", border: "none", color: C.light, fontSize: 11.5, fontWeight: 800, cursor: "pointer", padding: "4px 0 4px 8px" }}>See all ›</button>
-                    </div>
-                    {dl.map((c, i) => (
-                      <div key={c.id} role="button" tabIndex={0} onClick={() => { try { logEvent("coupon_strip_tap", null, { id: c.id, theme: activeBadge }); } catch (e) {} setScreen("coupons"); }} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setScreen("coupons"); } }} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "7px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                        <span style={{ minWidth: 0, flex: 1 }}>
-                          <span style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{c.business}</span>
-                          <span style={{ fontSize: 12.5, color: C.light }}> — {c.title}</span>
-                        </span>
-                        {couponEndsLabel(c) ? <span style={{ flexShrink: 0, fontSize: 10.5, fontWeight: 700, color: C.muted }}>{couponEndsLabel(c)}</span> : null}
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} />}
-              {!expLoading && momentPicks && momentPicks.badge === activeBadge && (() => {
-                const byId = new Map((expPlaces || []).map((p) => [p.id, p]));
-                const rows = momentPicks.picks.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
-                if (!rows.length) return null;
-                return (
-                  <div style={{ background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                    <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>✨ Perfect right now</div>
-                    {rows.map((x, i) => (
-                      <div key={x.id} onClick={() => openDetail(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                        <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}<span style={{ marginLeft: 6, display: "inline-flex", verticalAlign: "middle" }}><PlaceScoreChip p={x.p} size={12} /></span></div>
-                          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>Based on rating, review volume, distance, relevance, and real experience signals, plus member takes once a place has enough of them. No ads, no paid placement.</div>
+              {/* v6.17 deals strip, v6.72 EXTRACTED. The markup moved to
+                  app/components/ExperienceBlocks.js so all nine intent pages and
+                  this sheet render one strip from one file. Behaviour is
+                  unchanged: live, verified coupons tagged for this moment
+                  (lib/coupons.js `intents`), expired ones auto-hidden by
+                  couponsForIntent, soonest-ending first, absent when there are
+                  none. */}
+              <CouponStrip intentId={activeBadge} lat={ctx.center && ctx.center.lat} lng={ctx.center && ctx.center.lng} onOpenCoupons={() => setScreen("coupons")} onLog={logEvent} />
+              {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
+              {/* v6.72 EXTRACTED — same rank number, name, PlaceScoreChip and
+                  `why` line, now shared with every intent page. The badge match
+                  stays HERE because it is this screen's concern: momentPicks is
+                  fetched per badge and a stale payload from the previous badge
+                  must not render under the new one. */}
+              {!expLoading && momentPicks && momentPicks.badge === activeBadge
+                ? <PerfectRightNow picks={momentPicks.picks} places={expPlaces} onOpenPlace={openDetail} />
+                : null}
+              {/* v6.72 EXTRACTED — one methodology sentence, verbatim, everywhere. */}
+              <Methodology />
               {/* Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 3): never instruct
                   "Tap any" at zero — the count line only shows when there's
                   something to tap. */}
@@ -149,7 +112,12 @@ export default function ExperienceScreen({ ctx }) {
               {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
                 // Owner (2026-07-21): "the photo tip needs to be easier to
                 // understand" — plain words, one action each, no jargon.
-                const h = new Date().getHours();
+                // NOT a recommendation bucket — this is solar position, and it
+                // legitimately needs finer granularity than morning/afternoon/
+                // night (golden hour is ~90 minutes). It still takes its hour
+                // from the one source so it cannot drift from the rest of the
+                // page by a timezone.
+                const h = siteHourFloat();
                 let light;
                 if (h < 8) light = "Soft morning light right now. Keep the sun off to one side — never shoot straight into it.";
                 else if (h < 11) light = "Put the sun behind you, so faces come out bright and even.";

@@ -13,6 +13,8 @@ import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { rankByHour, timeFit } from "../../lib/trendingTime";
+import { nowContext } from "../../lib/nowContext.js";
+import { canonicalShareUrl } from "../../lib/site";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -44,7 +46,10 @@ export default function TrendingNowClient() {
       // HOUR-AWARE: re-rank by time-of-day fit so tonight's list leans to things
       // you can actually do now (a 9pm list shouldn't lead with museums/beaches),
       // then take the top few and write editorial only for those.
-      const hour = new Date().getHours();
+      // v6.72: the hour comes from nowContext (venue-local ET, one source),
+      // not from the visitor's device clock. rankByHour keeps its own
+      // category fit table — that is a per-category curve, not a bucket.
+      const hour = nowContext({ lat: loc.lat, lng: loc.lng, city: loc.city }).hour;
       const ranked = rankByHour(picks, hour).slice(0, 8);
       // Editorial in the Wayfind voice — one cached call per pick. Fail-soft:
       // a pick with no honest line falls back to a data-templated one.
@@ -66,7 +71,8 @@ export default function TrendingNowClient() {
     : (rows && rows[0] && rows[0].photo_ref ? "/api/photo?ref=" + encodeURIComponent(rows[0].photo_ref) + "&w=800" : null);
 
   const share = async () => {
-    const url = window.location.href;
+    // Canonical origin — see lib/site.canonicalShareUrl.
+    const url = canonicalShareUrl(window.location.href);
     try { if (navigator.share) { await navigator.share({ title: "Trending near " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };

@@ -32,7 +32,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const pages = pageList();
   const manual = (searchParams.get("url") || "").trim();
-  const idx = new Date().getUTCHours() % pages.length;
+  const idx = new Date().getUTCHours() % pages.length; // one-clock-ok: round-robin page index for the CWV cron, not a recommendation daypart
   const target = manual && manual.startsWith(SITE_URL) ? manual : pages[idx];
 
   // v6.63 fix: the PSI API rejects this call with a 400 "invalid argument" on

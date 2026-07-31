@@ -16,6 +16,9 @@ import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScor
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+// v6.72: one source for the hour, the bucket and the outdoor gate.
+import { nowContext } from "../../lib/nowContext.js";
+import { rankForNow } from "../../lib/ranking.js";
 import { rankReason } from "../../lib/rankReason.js";
 import { viatorDirectUrl } from "../../lib/affiliates.js";
 import { supabase } from "../../lib/supabase.js";
@@ -217,14 +220,19 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, bl
     let dead = false;
     setList(null);
     (async () => {
-      const d = new Date();
-      const rows = await fetchThingsToDo({
+      const now = nowContext({ lat: center.lat, lng: center.lng, weather });
+      const fetched = await fetchThingsToDo({
         lat: center.lat, lng: center.lng,
-        localHour: d.getHours() + d.getMinutes() / 60,
+        localHour: now.hour,
         tempF: weather && weather.temp != null ? weather.temp : null,
         condition: weather && weather.label ? weather.label : null,
         limit: 20,
       });
+      // Gate + per-bucket reweight on top of the RPC's ordering. The RPC knows
+      // the hour as a number; it does not know that a morning list should lean
+      // quiet and close and an evening list should lean open-late, and it
+      // cannot suppress an outdoor category outright.
+      const rows = rankForNow(fetched, now, (p) => (p && p.score != null ? p.score : 50)).slice(0, 20);
       if (!dead) setList(rows);
       // Standard-card blurbs for PLACE rows (the same shared AI pool the
       // other feeds use — cached 30d sitewide; tours have no blurb source).

@@ -34,7 +34,10 @@ export async function generateMetadata({ searchParams }) {
     (loc ? ` in ${loc}` : "") +
     " · Tap to explore on Wayfind";
   const sub = s(searchParams.sub);
-  let og = "/api/og?t=" + encodeURIComponent(t) + "&loc=" + encodeURIComponent(loc) + "&n=" + encodeURIComponent(n);
+  // v6.72: ABSOLUTE. Relative worked only because metadataBase resolved it,
+  // and several scrapers (iMessage among them) fetch the raw value instead.
+  // Only the base is prefixed; the += query appends below are unaffected.
+  let og = SITE + "/api/og?t=" + encodeURIComponent(t) + "&loc=" + encodeURIComponent(loc) + "&n=" + encodeURIComponent(n);
   if (sub) og += "&sub=" + encodeURIComponent(sub);
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)

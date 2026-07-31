@@ -13,7 +13,29 @@ if (!lay.includes("metadataBase: new URL(SITE_URL)")) fail("metadataBase not pin
 const fail = (m) => { console.error("check-canon: FAIL — " + m); process.exit(1); };
 if (!page.includes('const CANON_ORIGIN = "https://www.gowayfind.com"')) fail("CANON_ORIGIN missing");
 if (page.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain literal reappeared");
-if (!page.includes("return CANON_ORIGIN + path")) fail("share links not pinned to canonical origin");
+// v6.72: this asserted the LITERAL `return CANON_ORIGIN + path`, and that is
+// exactly why it passed for months on code that shipped the bug it exists to
+// prevent. originUrl() used to ALLOWLIST the hosts it canonicalised —
+// *.vercel.app and gowayfind.com got CANON_ORIGIN, and everything else fell
+// through to `window.location.origin + path`. The canonical branch was present,
+// so this check was green, while a share taken from a dev server produced
+// http://localhost:3000/... and reached a real iMessage thread.
+//
+// The invariant is not "a canonical branch exists". It is "there is NO path
+// through originUrl that returns the current window origin". Both halves are
+// asserted now, and the second is the one that matters.
+{
+  const m = /function originUrl\(path\)\s*\{([\s\S]*?)\n\}/.exec(page);
+  if (!m) fail("originUrl() not found — share links have no single canonical builder");
+  const body = m[1];
+  if (!/CANON_ORIGIN|canonicalShareUrl/.test(body)) fail("share links not pinned to canonical origin");
+  if (/window\.location\.origin/.test(body)) {
+    fail("originUrl() can still return window.location.origin — that is the iMessage 'localhost' bug: a dev or preview host reaches a real thread. Canonicalise unconditionally.");
+  }
+  if (/hostname|\.vercel\.app/.test(body)) {
+    fail("originUrl() is branching on the current host again. An allowlist of hosts to canonicalise is backwards — the recipient is never on the sender's host, so it must canonicalise ALWAYS.");
+  }
+}
 if (!cfg.includes("vercel") || !cfg.includes('type: "host"') || !cfg.includes("https://www.gowayfind.com/:path") || !cfg.includes("permanent: true")) fail("host redirect for *.vercel.app missing from next.config.js");
 // v6.61: cron/webhook paths are deliberately excluded from the canonical-domain
 // bounce -- Vercel's own scheduler hits *.vercel.app directly and never

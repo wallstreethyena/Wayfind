@@ -36,7 +36,7 @@ export async function generateMetadata({ searchParams }) {
   // v6.32 — owner-designed "Share the savings" card is the share visual; the
   // specific business / deal / expiry stay in the preview title + description
   // (and on the landing page), so the art is on-brand and the details are honest.
-  const og = "/cards/coupon-share.png";
+  const og = SITE_URL + "/cards/coupon-share.png";
   return {
     robots: { index: false, follow: true },
     metadataBase: new URL(SITE),

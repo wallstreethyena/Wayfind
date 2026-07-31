@@ -11,12 +11,13 @@
 import { Suspense } from "react";
 import Client from "./client";
 import { SEASON_META, currentSeason } from "../../lib/seasons";
+import { SITE_URL } from "../../lib/site";
 
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
   const ref = String((searchParams && searchParams.img) || "");
   const refOk = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
-  const og = "/api/og/intent?intent=seasonal" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
+  const og = SITE_URL + "/api/og/intent?intent=seasonal" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
   const season = SEASON_META[currentSeason()].label;
   const title = season + " picks near you" + (city ? " — " + city : "") + " | Wayfind";
   const description = "Ranked for " + currentSeason() + " in " + (city || "your town") + " — what's open, close, and worth the trip today, by the Wayfind Score.";

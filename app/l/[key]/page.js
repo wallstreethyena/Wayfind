@@ -30,7 +30,7 @@ export async function generateMetadata({ params, searchParams }) {
   if (snap && snap.card && snap.list) {
     const title = (snap.card.hook && Array.isArray(snap.card.hook.lines) ? snap.card.hook.lines.join(" ") : snap.list.headline) || "A ranked list";
     const desc = snap.list.og_description || snap.list.subhead || "A ranked local list on Wayfind.";
-    const og = `/api/og/${encodeURIComponent(snap.slug)}?v=${snap.v}`;
+    const og = SITE_URL + `/api/og/${encodeURIComponent(snap.slug)}?v=${snap.v}`;
     return {
       robots: { index: false, follow: true },
       metadataBase: new URL(SITE),

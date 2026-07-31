@@ -3,10 +3,11 @@
 // evergreen SEO surfaces remain the metro pages.
 import { Suspense } from "react";
 import Client from "./client";
+import { SITE_URL } from "../../lib/site";
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
   const ref = String((searchParams && searchParams.img) || ""); const refOk = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
-  const og = "/api/og/intent?intent=family" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
+  const og = SITE_URL + "/api/og/intent?intent=family" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
   const title = ("family" === "date-night" ? "Date night, decided" : "Family day, decided") + (city ? " — " + city : "") + " | Wayfind";
   const description = "The most-loved family spots in " + (city || "your town") + " — proven by thousands of real reviews, ranked by the Wayfind Score.";
   return {

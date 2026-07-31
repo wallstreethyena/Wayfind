@@ -3,10 +3,11 @@
 // noindex; the evergreen SEO surfaces stay the metro pages.
 import { Suspense } from "react";
 import Client from "./client";
+import { SITE_URL } from "../../lib/site";
 export async function generateMetadata({ searchParams }) {
   const city = String((searchParams && searchParams.city) || "").slice(0, 32);
   const ref = String((searchParams && searchParams.img) || ""); const refOk = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ref);
-  const og = "/api/og/intent?intent=trending" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
+  const og = SITE_URL + "/api/og/intent?intent=trending" + (city ? "&city=" + encodeURIComponent(city) : "") + (refOk ? "&img=" + encodeURIComponent(ref) : "");
   const title = "Trending near you" + (city ? " — " + city : "") + " | Wayfind";
   const description = "The places near " + (city || "you") + " getting the most attention right now — ranked by the Wayfind Score, no paid placement.";
   return {
