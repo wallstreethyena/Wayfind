@@ -29,17 +29,33 @@ const VISIBLE_RATIO = 0.5; // half the CTA on screen counts as seen
  *                           Falsy ctx = not a monetized card = no observer.
  * @returns {import("react").RefObject} attach to the element wrapping the CTA.
  */
-export function useCommerceImpression(ctx) {
+/**
+ * @param ctx      commerce context, or null for a card that does not earn
+ * @param cardCtx  optional NON-COMMERCE card context. When present a
+ *                 `card_impression` fires on the SAME viewability trigger.
+ *
+ * ONE OBSERVER, TWO EVENTS — deliberately. Attaching a second hook would mean a
+ * second ref on the same element and a second IntersectionObserver with its own
+ * threshold, which is how the two events drift apart and the CTR denominator
+ * stops matching the numerator. Sharing the observer makes "viewable" mean
+ * exactly one thing, and makes double-firing structurally impossible: both
+ * events sit behind the same one-shot firedRef.
+ *
+ * A free card passes ctx=null and cardCtx set — it still gets an impression, it
+ * just never enters the commerce funnel.
+ */
+export function useCommerceImpression(ctx, cardCtx) {
   const ref = useRef(null);
   const firedRef = useRef(false);
   // Serialize so the effect re-arms when the offer genuinely changes, without
   // re-arming on every render because a fresh object literal was passed in.
   const key = ctx ? JSON.stringify(ctx) : "";
+  const cardKey = cardCtx ? JSON.stringify(cardCtx) : "";
 
   useEffect(() => {
     firedRef.current = false;
     const el = ref.current;
-    if (!key || !el) return;
+    if ((!key && !cardKey) || !el) return;
     if (typeof IntersectionObserver === "undefined") return;
 
     let obs = null;
@@ -49,7 +65,8 @@ export function useCommerceImpression(ctx) {
           if (!e.isIntersecting || e.intersectionRatio < VISIBLE_RATIO) continue;
           if (firedRef.current) return;
           firedRef.current = true;
-          try { emitCommerce("commerce_impression", JSON.parse(key)); } catch (err) {}
+          if (key) { try { emitCommerce("commerce_impression", JSON.parse(key)); } catch (err) {} }
+          if (cardKey) { try { emitCommerce("card_impression", JSON.parse(cardKey)); } catch (err) {} }
           // One per offer per view: stop observing the moment it counts.
           if (obs) obs.disconnect();
           return;
@@ -59,7 +76,7 @@ export function useCommerceImpression(ctx) {
     } catch (err) { /* measurement must never take a revenue surface down */ }
 
     return () => { try { if (obs) obs.disconnect(); } catch (err) {} };
-  }, [key]);
+  }, [key, cardKey]);
 
   return ref;
 }

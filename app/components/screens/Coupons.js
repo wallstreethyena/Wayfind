@@ -26,9 +26,15 @@ import { useRef, useEffect } from "react";
 import { COUPONS } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
+
+// One id for the photo-vs-no-photo comparison, so both event families can be
+// joined on it. Bumped only when the treatment definition changes — not per
+// deploy, or the two halves of a comparison land under different ids.
+const CARD_ART_EXPERIMENT = "card_art_v1";
 import { useCommerceImpression } from "../useCommerceImpression";
 import {
   dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealSchedule, dealDisclosure, dealArtwork,
+  dealScope,
 } from "../../../lib/dealSheet";
 
 /* ── tokens, lifted from the mock's :root and rules ───────────────────────── */
@@ -69,6 +75,22 @@ function PosterCard({ c, position, ctx }) {
   const ends = dealEndsLabel(c);
   const proof = dealProofPoint(c);
 
+  // THE DESIGN FACTS, shared by both event families so a rate computed from one
+  // can be segmented by the other. `variant` is the treatment actually rendered,
+  // derived from the card rather than hand-set, so it can never disagree with
+  // what the user saw.
+  const hasArt = !!art;
+  const variant = hasArt ? "poster_art" : "poster_no_art";
+  const scope = dealScope(c);
+  // city_id is the DEAL's market, not the viewer's — the question this answers is
+  // "which city's inventory earned", which is how the revenue rolls up. A
+  // nationwide deal has no city and correctly sends nothing (the payload drops
+  // empty values), rather than being bucketed under whoever happened to see it.
+  const cityId = scope.kind === "metro" ? scope.metro : null;
+  // The real category, replacing the constant "deal" that made every card
+  // indistinguishable on the dashboard. Derived from the tier the card earned.
+  const category = disc.affiliate ? "deal_money" : "deal_free";
+
   // Commerce events only for cards that actually earn. An impression on a free
   // community offer would pad the denominator of a monetization rate with rows
   // that can never convert.
@@ -78,11 +100,32 @@ function PosterCard({ c, position, ctx }) {
         provider: (c.commerce && c.commerce.provider) || String(disc.network).toLowerCase(),
         offer_id: (c.commerce && c.commerce.offerId) || c.id,
         content_id: c.id,
-        category: "deal",
+        category,
+        city_id: cityId,
+        variant,
+        experiment_id: CARD_ART_EXPERIMENT,
+        // COARSE BY SCHEMA RULE, not by omission. A precise rank beside a
+        // commission figure is the evidence trail for pay-for-placement, which
+        // the ranking method exists to be able to refute (lib/commerce.js).
         rank_bucket: rankBucket(position),
       }
     : null;
-  const impRef = useCommerceImpression(cctx);
+
+  // NON-COMMERCE card context — every card, paid or free. This is the design
+  // question ("does a photograph get tapped more?"), kept out of the commerce
+  // funnel so adding free inventory cannot deflate a revenue rate.
+  const cardCtx = {
+    surface: "coupons",
+    content_id: c.id,
+    category,
+    city_id: cityId,
+    variant,
+    experiment_id: CARD_ART_EXPERIMENT,
+    rank_bucket: rankBucket(position),
+    has_art: hasArt,
+    card_type: "poster",
+  };
+  const impRef = useCommerceImpression(cctx, cardCtx);
 
   const seenRef = useRef(false);
   useEffect(() => {
@@ -178,9 +221,19 @@ function PosterCard({ c, position, ctx }) {
                   live = live + sep + "click_id=" + encodeURIComponent(clickId);
                 }
                 try { logEvent("coupon_out", null, { id: c.id }); } catch (er) {}
+                // Both families fire on the SAME click, guarded separately.
+                // card_clicked fires for every card so CTR has a denominator that
+                // matches card_impression; commerce_cta_clicked stays restricted to
+                // cards that can actually earn. One user action, two questions.
+                //
+                // click_id goes ONLY on the commerce event. The card family is a
+                // design measurement, not an attribution record — giving it a
+                // click id would make it look like one in a payout dispute, and
+                // test-card-analytics asserts it carries no click_id.
                 if (cctx) {
                   try { emitCommerce("commerce_cta_clicked", { ...cctx, click_id: clickId }); } catch (er) {}
                 }
+                try { emitCommerce("card_clicked", cardCtx); } catch (er) {}
                 openExternal(live);
               }}
               style={{ display: "block", width: "100%", boxSizing: "border-box", background: `linear-gradient(170deg,#f07a42,${T.coral} 40%,${T.coralDeep})`, color: "#fff", border: "none", borderRadius: 11, padding: "12px 16px", fontSize: 14, fontWeight: 800, letterSpacing: ".02em", cursor: "pointer", boxShadow: "inset 0 1px 0 rgba(255,255,255,.35), 0 8px 20px rgba(201,79,31,.38)", textAlign: "center", textDecoration: "none" }}
