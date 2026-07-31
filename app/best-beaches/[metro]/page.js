@@ -4,6 +4,7 @@
 // Every number is the real metric (rating × review depth through the ONE
 // Bayesian formula); why-lines explain the rank, never invent sand or surf.
 // Live water conditions render client-side for the #1 beach only (compact).
+import { notFound } from "next/navigation";
 import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
@@ -70,7 +71,17 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const meta = BEACH_METROS[params.metro];
-  if (!meta) return { title: "Beaches — Wayfind" };
+  // SOFT-404 FIX. This used to return a bare { title } for an unknown metro,
+  // which meant /best-beaches/<anything> answered HTTP 200, INDEXABLE, with no
+  // `alternates` — so it inherited the layout's canonical:"/" and told Google it
+  // was a duplicate of the homepage. An unbounded indexable URL space pointing
+  // at the root. Verified: /best-beaches/sarasota (not a real metro key; the
+  // real one is "manatee-sarasota") returned 200 + canonical
+  // "https://www.gowayfind.com" + no robots meta.
+  //
+  // notFound() in BOTH generateMetadata and the component: metadata runs first
+  // and independently, so returning here alone would still render the page body.
+  if (!meta) notFound();
   const beaches = await beachesFor(params.metro);
   const top3 = beaches.slice(0, 3).map((b) => b.name).join("|");
   const totalReviews = beaches.reduce((a, b) => a + (b.reviews || 0), 0);
@@ -117,7 +128,9 @@ const BEACH_PREMIUM_CSS = editorialHeroCss();
 
 export default async function BeachesPage({ params }) {
   const meta = BEACH_METROS[params.metro];
-  if (!meta) return <main style={{ background: C.bg, color: C.muted, minHeight: "100vh", padding: 40 }}>No such beach group.</main>;
+  // A styled "No such beach group." body was still an HTTP 200. notFound()
+  // makes it a real 404 — see the note in generateMetadata above.
+  if (!meta) notFound();
   const beaches = await beachesFor(params.metro);
   const editorials = await editorialsFor(beaches.map((b) => b.id));
   const heroImg = "/cards/beach-adobestock-216195684.jpeg";
