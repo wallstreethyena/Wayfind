@@ -19,6 +19,10 @@ import { supabase } from "../../../lib/supabase";
 import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
+import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
+import { emitCommerce } from "../../../lib/commerce";
+import { funnelProps } from "../../../lib/funnel";
+import { useCommerceImpression } from "../useCommerceImpression";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -190,8 +194,81 @@ function WayfindTakeRail({ editorial }) {
   );
 }
 
+// v6.72 — FTC disclosure for the detail-sheet primary CTA. Rendered adjacent to
+// any monetized action (tickets, rates, deals, tracked delivery).
+function FTCDisclosure() {
+  return (
+    <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>
+      Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.
+    </div>
+  );
+}
+
+// v6.72 — the primary action button rendered by the detail-sheet CTA ladder.
+// Tickets and rates still route through BookingCTA (preserving the booking-
+// integrity contract and keeping <BookingCTA variant="primary"> in Detail.js),
+// with a label override so the verb matches the ladder spec.
+function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logEvent, addReservation, openExternal, ctaRef, onClick }) {
+  const style = {
+    minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117",
+    fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center",
+    justifyContent: "center", gap: 8, whiteSpace: "nowrap", cursor: "pointer", border: "none", flex: 1,
+  };
+
+  if (primaryCta.type === DETAIL_CTA_TYPES.tickets || primaryCta.type === DETAIL_CTA_TYPES.rates) {
+    return (
+      <BookingCTA
+        variant="primary"
+        detail={detail}
+        kind={kind}
+        viaTours={viaTours}
+        logEvent={logEvent}
+        addReservation={addReservation}
+        openExternal={openExternal}
+        locName={locName}
+        label={primaryCta.label}
+      />
+    );
+  }
+
+  const open = (url) => { try { (openExternal || window.open)(url, "_blank", "noopener"); } catch (e) {} };
+
+  if (primaryCta.type === DETAIL_CTA_TYPES.conditions) {
+    return (
+      <a ref={ctaRef} href="#beach-conditions" onClick={(e) => { e.preventDefault(); try { document.getElementById("beach-conditions")?.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) {} onClick(); }} style={style}>
+        <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
+      </a>
+    );
+  }
+
+  if (primaryCta.type === DETAIL_CTA_TYPES.plan) {
+    return (
+      <button ref={ctaRef} onClick={onClick} style={style}>
+        <span>{primaryCta.label}</span><span aria-hidden="true">+</span>
+      </button>
+    );
+  }
+
+  return (
+    <a ref={ctaRef} href={primaryCta.href || primaryCta.mapsUrl || "#"} target="_blank" rel={primaryCta.monetized ? "sponsored noopener" : "noreferrer"} onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || primaryCta.href || primaryCta.mapsUrl; onClick(); open(live); }} style={style}>
+      <span>{primaryCta.label}</span><span aria-hidden="true">↗</span>
+    </a>
+  );
+}
+
+// v6.72 — "Go now / wait" verdict pill rendered above the primary CTA.
+function VerdictPill({ verdict }) {
+  const isGo = verdict.tone === "go";
+  return (
+    <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10, padding: "6px 12px", borderRadius: 999, background: isGo ? "rgba(34,197,94,.12)" : "rgba(239,68,68,.12)", border: `1px solid ${isGo ? "rgba(34,197,94,.35)" : "rgba(239,68,68,.35)"}`, color: isGo ? "#22C55E" : "#EF4444", fontSize: 12.5, fontWeight: 800 }}>
+      <span>{isGo ? "●" : "◐"}</span>
+      <span>{verdict.text}</span>
+    </div>
+  );
+}
+
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, liked, disliked, user, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, liked, disliked, user, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
 
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
@@ -212,6 +289,42 @@ export default function DetailSheet({ ctx }) {
   // hours periods (never the stale cached openNow), so "Open" in the list can't
   // become "Closed" in the sheet.
   const openState = (typeof liveOpen === "function" ? liveOpen(detail) : (detail && detail.openNow != null ? detail.openNow : null));
+
+  // v6.72 — detail-sheet CTA ladder (Kimi revenue lane). One primary action,
+  // place-type-aware, with a live "go now / wait" verdict above it.
+  const primaryCta = resolveDetailCta({ detail, kind: placeKind(detail), viaTours, locName, offers, openState });
+  const verdict = detailVerdict({ detail, weather, openState });
+  const ctaCategory = Dining.cuisineLabel(detail) || primaryCategory(detail) || placeKind(detail) || "";
+  const ctaCity = locName ? locName.split(",")[0] : "";
+  const commerceCtx = primaryCta.monetized ? {
+    ...funnelProps("commerce_impression", { metro: ctaCity, cuisine: ctaCategory, placeId: detail.id }),
+    surface: "detail",
+    provider: primaryCta.provider,
+    offer_id: primaryCta.offerId,
+  } : null;
+  const ctaRef = useCommerceImpression(commerceCtx);
+
+  // Guard event: if the ladder ever fails to produce a primary CTA, record it.
+  useEffect(() => {
+    if (!primaryCta || !primaryCta.type) {
+      try { logEvent("primary_cta_null", detail, { city: ctaCity, category: ctaCategory }); } catch (e) {}
+    }
+  }, [detail && detail.id, primaryCta, ctaCity, ctaCategory, logEvent]);
+
+  function handlePrimaryCtaClick() {
+    try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider }); } catch (e) {}
+    if (primaryCta.monetized && commerceCtx) {
+      try { emitCommerce("commerce_cta_clicked", commerceCtx); } catch (e) {}
+    }
+    if (primaryCta.type === DETAIL_CTA_TYPES.plan) {
+      quickSaveFavorite(detail);
+    }
+  }
+
+  function addToPlan() {
+    try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan" }); } catch (e) {}
+    quickSaveFavorite(detail);
+  }
 
   // v6.44 (owner-reported, with a photo): the hero showed TWO identical
   // circular left-chevron buttons down the left edge — the Back button at the
@@ -478,51 +591,36 @@ export default function DetailSheet({ ctx }) {
                 </div>
               )}
 
-              {/* Premium action dock. Actions and handlers are unchanged; only their visual grouping is refined. */}
+              {/* Premium action dock (v6.72): verdict pill + Add to plan + primary CTA ladder. */}
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
-                {/* v6.44: the second column exists only if BookingCTA will actually
-                    render into it. Previously this was always 2 columns, so a place
-                    with no booking target left "Directions" at half width beside an
-                    empty cell (owner-reported, with a photo). */}
-                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (hasBooking ? "repeat(2,minmax(0,1fr))" : "minmax(0,1fr)"), gap: 8 }}>
+                {!detail._event && <VerdictPill verdict={verdict} />}
+                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (primaryCta.type === DETAIL_CTA_TYPES.plan ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))"), gap: 8 }}>
                   {detail._event && detail._event.url ? (
                     <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
                   ) : (
-                    <><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Directions</span><span aria-hidden="true">↗</span></a><BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} /></>
+                    <>
+                      {primaryCta.type !== DETAIL_CTA_TYPES.plan && (
+                        <button onClick={addToPlan} style={{ minWidth: 0, height: 48, padding: "0 15px", background: "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
+                          <span>{isSaved(detail.id) ? "Saved" : "Add to plan"}</span>
+                        </button>
+                      )}
+                      <PrimaryActionButton primaryCta={primaryCta} detail={detail} kind={placeKind(detail)} viaTours={viaTours} locName={locName} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} ctaRef={ctaRef} onClick={handlePrimaryCtaClick} />
+                    </>
                   )}
                   {detail._event && detail._event.url && (
                     <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
                   )}
                 </div>
+                {!detail._event && primaryCta.monetized && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates && <FTCDisclosure />}
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   {!detail._event && (<>
-                    <button onClick={() => quickSaveFavorite(detail)} aria-label="Save" style={{ flex: 1, minWidth: 0, height: 44, padding: "0 12px", background: "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 13.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg><span>{isSaved(detail.id) ? "Saved" : "Save"}</span></button>
                     <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
                   <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbs[detail.id]), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flex: 1, minWidth: 0, height: 44, padding: "0 12px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 13.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
                 </div>
               </div>
-              {(() => { /* v6.39 — "Order on Uber Eats" on food places (exact-store redirect via /api/eats/go, the viator/go pattern). */
-                const _ty = ((detail.types || []).join(" ")).toLowerCase();
-                if (!/restaurant|meal_takeaway|meal_delivery|pizza|sandwich|burger|taco|sushi|bakery|cafe|food/.test(_ty)) return null;
-                if (/lodging|hotel|resort/.test(_ty)) return null;
-                const _qs = new URLSearchParams({ name: detail.name || "", city: locName ? locName.split(",")[0] : "" });
-                if (detail.lat != null) _qs.set("lat", String(detail.lat));
-                if (detail.lng != null) _qs.set("lng", String(detail.lng));
-                return (
-                  <a href={"/api/eats/go?" + _qs.toString()} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("eats_out", detail); } catch (e) {} }}
-                    style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
-                    <span aria-hidden="true" style={{ width: 34, height: 34, borderRadius: 9, background: "#06C167", color: "#0D1117", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 900 }}>U</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Order on Uber Eats</div>
-                      <div style={{ fontSize: 11.5, color: C.muted, marginTop: 1 }}>Delivery from this kitchen — opens the restaurant's page</div>
-                    </div>
-                    <span style={{ color: C.light, fontSize: 16, fontWeight: 800 }}>↗</span>
-                  </a>
-                );
-              })()}
-
               {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */
                 const _ty = ((detail.types || []).join(" ")).toLowerCase();
                 if (!/lodging|hotel|resort|motel|bed_and_breakfast|guest_house/.test(_ty)) return null;
@@ -1023,7 +1121,7 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               {isBeach(detail) && (
-                <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                <div id="beach-conditions" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF" }}>🏖️ Beach conditions</div>
                     {/* v6.57: the same "Trending" flame as the card (kit.js's

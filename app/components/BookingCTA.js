@@ -23,7 +23,7 @@ import * as Aff from "../../lib/affiliates";
 import { bookingTargets, hasBookingCTA, hasVerifiedTours } from "../../lib/bookingResolve";
 export { hasBookingCTA };
 
-export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback }) {
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride }) {
   if (!detail) return null;
   const placeId = detail.id;
   const hasTours = hasVerifiedTours(viaTours, placeId);
@@ -56,7 +56,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.accent; }}
         style={{ flex: 1, minWidth: 0, minHeight: 48, padding: "0 14px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 14, color: C.light, fontSize: 13.5, fontWeight: 800, textDecoration: "none", lineHeight: 1.15, transition: "background .15s ease, color .15s ease", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap", boxSizing: "border-box" }}
       >
-        <span>{verifiedUrl ? "Tickets & tours" : (goFallback ? "Search Viator" : "Check rates")}</span>
+        <span>{labelOverride || (verifiedUrl ? "Tickets & tours" : (goFallback ? "Search Viator" : "Check rates"))}</span>
         <span aria-hidden="true" style={{ color: C.accent, fontSize: 16, lineHeight: 1 }}>↗</span>
       </a>
     );
