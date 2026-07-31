@@ -80,7 +80,7 @@ for (const s of FUNNEL_STEPS) {
 // The list may shrink, never grow. Growth means a new money surface shipped
 // without commerce instrumentation, which is exactly how the funnel became
 // unreadable in the first place.
-const CEILING = 4; // 2026-07-31. Lower this as surfaces are instrumented; never raise it.
+const CEILING = 1; // 2026-07-31. Lower this as surfaces are instrumented; never raise it.
 ok(UNINSTRUMENTED_MONEY_SURFACES.length <= CEILING,
   `named uninstrumented money surfaces must not grow past ${CEILING} (got ${UNINSTRUMENTED_MONEY_SURFACES.length}) — a new one means a money CTA shipped unmeasured`);
 for (const g of UNINSTRUMENTED_MONEY_SURFACES) {
@@ -117,14 +117,14 @@ for (const f of files) {
 // ── 5. coverage is reported as a number the audit can quote ──────────────
 const cov = funnelCoverage();
 ok(cov.steps === 5, "coverage reports all five steps");
-ok(cov.detailPathReadable === (UNINSTRUMENTED_MONEY_SURFACES.length === 0),
-  "detailPathReadable is DERIVED from the gap list, so it cannot claim readable while gaps remain");
-ok(cov.detailPathReadable === false,
-  "…and today it correctly reports the detail path as NOT readable end-to-end (money CTAs still uninstrumented)");
+ok(cov.detailPathReadable === (UNINSTRUMENTED_MONEY_SURFACES.filter((s) => s.file.startsWith("app/components/")).length === 0),
+  "detailPathReadable is DERIVED from detail-sheet gaps, so it cannot claim readable while a detail component is still dark");
+ok(cov.detailPathReadable === true,
+  "…and today it correctly reports the detail path as readable end-to-end (BookItLink + BookingCTA now emit commerce_impression and commerce_cta_clicked)");
 
 if (fail.length) {
   console.error("check-money-funnel: FAIL");
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`check-money-funnel: OK — ${pass} assertions (5 steps ordered, both join dialects proven by calling commercePayload, every step emitted, ${UNINSTRUMENTED_MONEY_SURFACES.length} money surfaces NAMED as uninstrumented and ratcheted at ${CEILING})`);
+console.log(`check-money-funnel: OK — ${pass} assertions (5 steps ordered, both join dialects proven by calling commercePayload, every step emitted, ${UNINSTRUMENTED_MONEY_SURFACES.length} money surface NAMED as uninstrumented and ratcheted at ${CEILING}, detail path readable)`);

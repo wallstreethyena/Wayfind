@@ -23,7 +23,7 @@
 // a raw position, and no commission value is passed to this component at all — so
 // it cannot rank on one even by accident (lib/commerce.js rule 1, AGENTS.md §8).
 import { useEffect, useRef } from "react";
-import { emitCommerce, commerceHref, rankBucket } from "../../lib/commerce";
+import { emitCommerce, commerceHref, rankBucket, mintClickId } from "../../lib/commerce";
 
 // Bumped when the disclosure WORDING changes, so consent evidence is tied to the
 // exact text shown rather than to "some disclosure existed".
@@ -80,14 +80,21 @@ export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" 
   // frame is worse than absence: it costs trust and measures as a viewed surface.
   if (!list.length) return null;
 
-  const onCta = (offer, i) => {
+  const onCta = (offer, i, e) => {
+    const clickId = mintClickId();
     emitCommerce("commerce_cta_clicked", {
       surface, city_id: metro, provider: "viator", merchant: "Viator",
       category: "tours", offer_id: offer.code, rank_bucket: rankBucket(i + 1),
+      click_id: clickId,
     });
-    // Deliberately NOT preventDefault: the anchor's own navigation carries the
-    // user to /api/commerce/go. Hijacking it would break cmd-click and would put
-    // a measurement failure in the path of a revenue click.
+    // Stamp the same click_id onto the outbound href so the server redirect
+    // reuses it. This makes commerce_cta_clicked and provider_redirect_started
+    // joinable by click_id without breaking cmd-click / middle-click.
+    try {
+      const a = e.currentTarget;
+      const sep = a.href.includes("?") ? "&" : "?";
+      a.href = a.href + sep + "click_id=" + encodeURIComponent(clickId);
+    } catch {}
   };
 
   return (
@@ -113,7 +120,7 @@ export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" 
               data-offer={t.code}
               data-rank={i + 1}
               href={commerceHref({ provider: "viator", offerId: t.code, surface, contentId: metro })}
-              onClick={() => onCta(t, i)}
+              onClick={(e) => onCta(t, i, e)}
               // sponsored + nofollow: this resolves to a commissioned link, and
               // saying so is both an FTC and an SEO obligation.
               rel="noopener sponsored nofollow"

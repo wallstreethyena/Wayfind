@@ -42,6 +42,8 @@ import { commercePayload, rankBucket } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
 
+const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(req) {
   const sp = new URL(req.url).searchParams;
   const provider = String(sp.get("provider") || "").trim().toLowerCase();
@@ -49,8 +51,9 @@ export async function GET(req) {
   const surface = String(sp.get("surface") || "").trim();
   const contentId = String(sp.get("content") || "").trim();
   const rank = sp.get("rank");
+  const clickIdFromClient = String(sp.get("click_id") || "").trim();
 
-  const clickId = randomUUID();
+  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
   const base = {

@@ -88,13 +88,16 @@ async function resolveStore(name, city, lat, lng) {
   }
 }
 
+const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(req) {
   const u = new URL(req.url);
   const name = String(u.searchParams.get("name") || "").slice(0, 120).trim();
   const city = String(u.searchParams.get("city") || "").slice(0, 60).trim();
   const lat = parseFloat(u.searchParams.get("lat"));
   const lng = parseFloat(u.searchParams.get("lng"));
-  const clickId = randomUUID();
+  const clickIdFromClient = String(u.searchParams.get("click_id") || "").trim();
+  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
   const baseProps = {

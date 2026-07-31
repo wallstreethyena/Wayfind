@@ -227,6 +227,8 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
         openExternal={openExternal}
         locName={locName}
         label={primaryCta.label}
+        placeId={detail.id}
+        city={locName ? locName.split(",")[0] : ""}
       />
     );
   }
@@ -759,7 +761,7 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16 }}>
               {!detail._event && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} />;
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
               })()}
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} openExternal={openExternal} addReservation={addReservation} />}
