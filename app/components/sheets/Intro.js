@@ -171,10 +171,19 @@ export default function IntroSheet({ ctx }) {
             {(() => { try {
               // v6.72: one source. The tiles previously split the day at 16/4
               // and called weekend-morning 6-13, two more private bucketings.
+              // v6.72: the HOUR comes from the one source (venue-local ET), but
+              // the thresholds below are DELIBERATELY unchanged. This sheet is
+              // the reference implementation the rest of the app is being
+              // stamped from (owner: "it IS the control"), so unifying the
+              // clock must not move its behaviour. Evening starts at 16 here,
+              // not at the shared 17:30 bucket edge, and weekend-morning runs
+              // to 13, not 11:30 — both on purpose. If these are ever
+              // reconciled with BUCKET_EDGES it should be a deliberate product
+              // decision, not a side effect of a refactor.
               const _now = nowContext({ weather });
               const _h = _now.hour; const _d = _now.dayOfWeek;
-              const _eve = _now.timeBucket === "night";
-              const _wkndMorn = _now.isWeekend && _now.timeBucket === "morning";
+              const _eve = _h >= 16 || _h < 4;
+              const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
               // "Too hot" is what it FEELS like, not the thermometer: a Florida
               // 91° with a 104° heat index is not an Outside afternoon.
               const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;

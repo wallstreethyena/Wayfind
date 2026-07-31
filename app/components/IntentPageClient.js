@@ -10,7 +10,15 @@ import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount, nowSubline } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount, nowSubline, INTENT_COUPON_BADGE, INTENT_HAS_TOURS, INTENT_MOMENT_ID } from "../../lib/intentPages";
+// v6.72 THE COMPOSITION (owner, 2026-07-31). The five blocks — coupon strip,
+// tour rail, "Perfect right now", the list, the methodology line — are ONE
+// component shared with app/components/screens/Experience.js, the reference
+// sheet. This page keeps its SHELL (dark chrome, serif headline, back button)
+// and adopts that CONTENT COMPOSITION inside it: shell from one, body from
+// the other. Nothing here re-implements a block.
+import { CouponStrip, PerfectRightNow, Methodology } from "./ExperienceBlocks";
+import ViatorRail from "./ViatorRail";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -43,6 +51,11 @@ export default function IntentPageClient({ intent }) {
   // result set, same wf_beach_water / wf_place_popularity_scored reads as
   // every other beach surface — a types false-positive just gets no rows back.
   const [beachSignals, setBeachSignals] = useState({});
+  // v6.72 composition data. Both start null and STAY null on any failure, which
+  // is what makes "degrade honestly" real: the rail and the picks block render
+  // nothing rather than an empty shell.
+  const [tours, setTours] = useState(null);
+  const [momentPicks, setMomentPicks] = useState(null);
 
   // Preserve a valid shared photo reference for link metadata, while the
   // visible landing-page hero stays locked to the matching homepage card.
@@ -188,8 +201,14 @@ export default function IntentPageClient({ intent }) {
       } catch (e) {}
     })();
     return () => { dead = true; };
+    // `now` IS a dependency and leaving it out is not a style question: the
+    // effect returns early while the context is still null (it waits for
+    // weather so the gated and ungated lists do not both render), so without
+    // `now` here it never re-runs and the page sits in its loading skeleton
+    // forever. That is exactly what shipped in the first draft of this change,
+    // and no test caught it — only loading the page did.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intent]);
+  }, [intent, now]);
 
   useEffect(() => {
     if (!Array.isArray(rows) || !rows.length || !supabase) return;
@@ -211,6 +230,60 @@ export default function IntentPageClient({ intent }) {
     })();
     return () => { dead = true; };
   }, [rows]);
+
+  // ── BLOCK 2: bookable tours ────────────────────────────────────────────────
+  // Same /api/viator/tours endpoint the in-app rails use. Only fires for the
+  // intents that actually carry tour inventory (INTENT_HAS_TOURS), so /best-of
+  // and /budget never pay for a call whose result they would not render.
+  useEffect(() => {
+    if (!INTENT_HAS_TOURS[intent] || !isFinite(loc.lat)) return;
+    let dead = false;
+    (async () => {
+      try {
+        const q = (loc.city && loc.city !== "your town") ? loc.city : "";
+        if (!q) return; // no city, no honest query — skip rather than guess
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=12");
+        const j = r.ok ? await r.json() : null;
+        const items = (j && Array.isArray(j.tours)) ? j.tours : (Array.isArray(j) ? j : []);
+        if (!dead && items.length) setTours(items);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [intent]);
+
+  // ── BLOCK 3: "Perfect right now" ───────────────────────────────────────────
+  // Runs AFTER the list, because the picks are an interpretation OF the list:
+  // the route reasons over candidates we already ranked and returns id + why.
+  // Needs >=3 candidates (the route returns a no-match envelope below that),
+  // and the whole block is absent on any failure.
+  useEffect(() => {
+    const mid = INTENT_MOMENT_ID[intent];
+    if (!mid || !Array.isArray(rows) || rows.length < 3 || !now) return;
+    let dead = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/moment/picks", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            intent: mid,
+            city: loc.city,
+            // The weather + time buckets are the cache key on the route, so they
+            // come from nowContext — the same source that chose the query set
+            // and gated the list. A different bucketing here would split the
+            // cache and describe a moment the list is not showing.
+            wx: now.weather.known ? ((now.weather.condition || (now.weather.isWet ? "wet" : "clear")) + "-" + Math.round(now.weather.tempF ?? 0)) : "",
+            tb: now.dayName.slice(0, 3).toLowerCase() + "-" + now.timeBucket,
+            candidates: rows.slice(0, 12).map((x) => ({ id: x.id, name: x.name, rating: x.rating, reviews: x.reviews, distMi: x.distMi })),
+          }),
+        });
+        const j = r.ok ? await r.json() : null;
+        if (!dead && j && Array.isArray(j.picks) && j.picks.length) setMomentPicks(j.picks);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, intent]);
 
   // COPY ROTATION — deliberately in an effect, not in render.
   // This component is server-rendered to HTML before it hydrates, so picking a
@@ -320,6 +393,38 @@ export default function IntentPageClient({ intent }) {
       <button onClick={share} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: def.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
         {copied ? "Link copied" : "Share this list"}
       </button>
+
+      {/* ══ THE SHARED COMPOSITION (v6.72) ══════════════════════════════════
+          Blocks 1, 2, 3 and 5 are the SAME components app/components/screens/
+          Experience.js renders — imported, not copied. The order is
+          monetization-first and is owned by that file, not by this one:
+            1 coupon strip -> 2 bookable rail -> 3 reasoned picks -> 4 list -> 5 method
+          Block 4 (the list) stays this page's RankedRow for now; see the row-seam
+          note in ExperienceBlocks.js for why PlaceCard cannot cross the module
+          boundary yet.
+          Every block degrades to ABSENT, never to a placeholder. */}
+      <div style={{ marginTop: 18 }}>
+        <CouponStrip
+          intentId={INTENT_COUPON_BADGE[intent]}
+          lat={loc.lat} lng={loc.lng}
+          onOpenCoupons={() => { try { track("coupon_strip_to_coupons", { intent }); } catch (e) {} window.location.href = "/coupons"; }}
+          onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
+
+        {INTENT_HAS_TOURS[intent] && tours && tours.length ? (
+          <ViatorRail
+            title={intent === "hidden-gems" ? "Hidden gem experiences" : "Top-rated experiences"}
+            items={tours}
+            theme={intent}
+            onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
+        ) : null}
+
+        {/* momentPicks resolve against the rows this page already loaded, so a
+            pick we cannot show a score for is dropped rather than rendered thin. */}
+        <PerfectRightNow picks={momentPicks} places={rows || []} onOpenPlace={(p) => { window.location.href = "/p/" + encodeURIComponent(p.id); }} />
+
+        <Methodology />
+      </div>
+
       {rows === null ? (
         <div style={{ marginTop: 18 }}>
           {[0, 1, 2, 3].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}

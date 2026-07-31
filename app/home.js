@@ -105,6 +105,11 @@ const DetailSheet = nextDynamic(loadDetail, { ssr: false, loading: () => null })
 const IntroSheet = nextDynamic(loadIntro, { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
+// v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
+// standalone intent pages can render the bookable rail too — it was a local
+// function here, which is why block 2 of the composition existed only in the
+// in-app sheets. logEvent/openExternal are passed as props at the call sites.
+import ViatorRail from "./components/ViatorRail";
 // v6.72 TIME AWARENESS — the ONE source. Before this, home.js alone held 21
 // independent new Date().getHours() reads, several of which bucketed the day
 // differently from each other on the same screen (11/15/21 for food,
@@ -3197,6 +3202,11 @@ function PageInner({ initialEvents = null }) {
   const [diceFace, setDiceFace] = useState("🎲");
   const [diceChoose, setDiceChoose] = useState(false);
   const [surprisePick, setSurprisePick] = useState(null);
+  // v6.72: the "why this one" line for Surprise Me. Same /api/moment/picks
+  // reasoning every list surface uses, asked for ONE result instead of a
+  // ranked set. Null until it answers, and null on any failure — the block is
+  // absent rather than showing a pick with no reason.
+  const [surpriseWhy, setSurpriseWhy] = useState(null);
   const [surprisePool, setSurprisePool] = useState([]);
   const [surpriseLoading, setSurpriseLoading] = useState(false);
   const diceRouteRef = useRef(false);
@@ -5842,12 +5852,38 @@ function PageInner({ initialEvents = null }) {
       try {
         const results = await searchPlaces(scat, "all", { lat: center.lat, lng: center.lng }, DEFAULT_RADIUS_M, "all", skeyword);
         if (!cancelled) {
+          const pick = pickSurprise(results);
           setSurprisePool(results);
-          setSurprisePick(pickSurprise(results));
+          setSurprisePick(pick);
           loadBlurbs(results.slice(0, 6));
+          // The reason THIS place, right now. The route needs >=3 candidates to
+          // reason over, so it gets the pool and we keep only the line for the
+          // pick we actually show. Fail-soft and non-blocking: the screen never
+          // waits on the model, and a miss just leaves the block absent.
+          setSurpriseWhy(null);
+          if (pick && results.length >= 3) {
+            (async () => {
+              try {
+                const _n = nowContext({ lat: center.lat, lng: center.lng, city: locName, weather });
+                const r = await fetch("/api/moment/picks", {
+                  method: "POST", headers: { "content-type": "application/json" },
+                  body: JSON.stringify({
+                    intent: scat === "nightlife" ? "nightout" : "eatnow",
+                    city: (locName || "").split(",")[0],
+                    wx: _n.weather.known ? ((_n.weather.condition || (_n.weather.isWet ? "wet" : "clear")) + "-" + Math.round(_n.weather.tempF ?? 0)) : "",
+                    tb: _n.dayName.slice(0, 3).toLowerCase() + "-" + _n.timeBucket,
+                    candidates: results.slice(0, 12).map((x) => ({ id: x.id, name: x.name, rating: x.rating, reviews: x.reviews, distMi: x.distMi })),
+                  }),
+                });
+                const j = r.ok ? await r.json() : null;
+                const mine = j && Array.isArray(j.picks) ? j.picks.find((x) => x && x.id === pick.id) : null;
+                if (!cancelled && mine && mine.why) setSurpriseWhy(mine.why);
+              } catch (e) {}
+            })();
+          }
         }
       } catch {
-        if (!cancelled) { setSurprisePool([]); setSurprisePick(null); }
+        if (!cancelled) { setSurprisePool([]); setSurprisePick(null); setSurpriseWhy(null); }
       } finally {
         if (!cancelled) setSurpriseLoading(false);
       }
@@ -7161,7 +7197,7 @@ function PageInner({ initialEvents = null }) {
     // module-scope components + helpers the screens render with
     PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
     // surprise
-    surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise,
+    surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, surpriseWhy,
     // coupons
     cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen,
     // saved
@@ -7852,7 +7888,7 @@ function PageInner({ initialEvents = null }) {
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" />}
+                  {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" onLog={logEvent} onOpenExternal={openExternal} />}
                   {browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
                   {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
@@ -8733,48 +8769,6 @@ function UTDealsRail({ category, onSave, lat, lng }) {
   );
 }
 
-function ViatorRail({ title, items, theme }) {
-  if (!Array.isArray(items) || !items.length) return null;
-  const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
-  return (
-    <div style={{ margin: "4px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{title}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-      </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {items.map((t) => (
-          /* v6.44: this rail rendered a RAW t.url while its sibling rail (the
-             Things-to-do one, ~8389) wrapped the identical payload from the
-             identical /api/viator/tours endpoint with viatorDirectUrl(). Two
-             rails, same data, one attributed and one not — so every booking
-             from the Family browse earned nothing. Same class of hole as the
-             Detail sheet's tour list; fixed the same way.
-             NOTE: this is a plain block comment, not a braced JSX comment. The
-             arrow body here is a parenthesised EXPRESSION, not a JSX children
-             list, so a braced comment would be a second top-level expression
-             and the file stops parsing (TS2657 "JSX expressions must have one
-             parent element"). Caught by npm run check:jsx, 2026-07-28. */
-          <a key={t.code || t.url} href={Aff.viatorDirectUrl(t.url) || t.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
-            {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
-              <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
-              {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
-            </div> : null}
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-              {/* THE ONE SCORE: same Wayfind treatment as every place card. */}
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
-                {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
-    </div>
-  );
-}
 
 // v6.42 (owner): bookable Activities cards carry the PAID booking link at card
 // level — the same verified /api/viator/go gate the Detail sheet uses (exact
