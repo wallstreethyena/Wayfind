@@ -198,7 +198,7 @@ export default async function GuidePage({ params }) {
         backLabel="All guides"
         eyebrow="Your local decision concierge"
         location={g.region || "Orlando"}
-        title="Stop searching. Start choosing."
+        title={g.title}
         description={`${g.title}—distilled into the few choices actually worth your time, with the context a map result leaves out.`}
         image={guideHero(g)}
         primaryHref={"/?intent=" + encodeURIComponent(g.keyword || g.title)}
