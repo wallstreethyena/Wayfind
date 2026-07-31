@@ -15,6 +15,51 @@ import { experienceSearchUrl } from "../../../lib/affiliates";
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
+import GuideDealCards from "./GuideDealCards";
+import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
+// Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
+// and expires a coupon roughly four hours early.
+import { siteTodayStr } from "../../../lib/siteTime";
+
+/**
+ * Rating + review count for a place from OUR OWN inventory.
+ *
+ * Returns the social object on a hit, `null` when the lookup ran and the place
+ * genuinely is not in inventory, and `false` when the lookup FAILED. Those three
+ * must stay distinguishable — collapsing a failure into "not found" is how a
+ * degraded lookup hides behind a page that merely looks sparse.
+ *
+ * Reads via REST rather than a client library so this stays server-safe.
+ */
+async function inventorySocial(placeName) {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
+  const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+  const name = String(placeName || "").trim();
+  if (!url || !anon || !name) return false;
+  // The CTA's `place` can be a merchant string with qualifiers ("Gecko's Grill &
+  // Pub — all locations"); match on the leading segment before punctuation.
+  const stem = name.split(/[—,(]/)[0].trim().slice(0, 40);
+  if (!stem) return false;
+  try {
+    const r = await fetch(
+      `${url}/rest/v1/wf_inventory?select=name,signals&status=eq.OPERATIONAL&name=ilike.${encodeURIComponent("%" + stem + "%")}&limit=5`,
+      { headers: { apikey: anon, Authorization: "Bearer " + anon }, next: { revalidate: 3600 } }
+    );
+    if (!r.ok) return false;
+    const rows = await r.json();
+    if (!Array.isArray(rows)) return false;
+    for (const row of rows) {
+      const rating = Number(row && row.signals && row.signals.rating);
+      const reviews = Number(row && row.signals && row.signals.reviews);
+      // Same floor the rankedFor path uses: below 15 reviews a rating is noise,
+      // and showing it as proof would be worse than showing nothing.
+      if (rating > 0 && reviews >= 15) return { rating, reviews, name: row.name };
+    }
+    return null;
+  } catch (e) {
+    return false;
+  }
+}
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -87,6 +132,33 @@ export default async function GuidePage({ params }) {
   const primaryCta = guidePrimaryCta(g);
   const continueTo = guideContinue(g, params.slug, GUIDES);
 
+  // LIVE DEAL CARDS. A guide opts in by listing REGISTRY IDS — it cannot supply
+  // an offer, a price or a URL of its own, so an unregistered deal has no route
+  // onto the page and an expired one is dropped here by couponIsLive rather than
+  // rendered as a dead link. Guides that declare nothing are untouched.
+  const today = siteTodayStr();
+  const INTENT_CATEGORY = { eatnow: "dining", datenight: "dining", nightout: "drinks", familyfun: "games" };
+  const dealCards = (Array.isArray(g.dealCards) ? g.dealCards : [])
+    .map((id) => COUPONS.find((c) => c && c.id === id))
+    .filter((c) => c && couponIsLive(c, today))
+    .map((c) => ({
+      id: c.id,
+      business: c.business,
+      title: c.title,
+      details: c.details,
+      area: c.area,
+      badge: c.badge || null,
+      cta: c.cta || null,
+      image: c.image || null,
+      category: INTENT_CATEGORY[(c.intents || [])[0]] || "dining",
+      // Registry-declared href, passed through untouched. A row carrying
+      // `commerce` already points at /api/commerce/go, which is the tracked
+      // redirect — this never rewrites one and never adds params of its own.
+      url: c.url,
+      external: !String(c.url || "").startsWith("/"),
+      ends: couponEndsLabel(c) || null,
+    }));
+
   // Social proof adjacent to the CTA — review count + rating, ONLY where the data
   // actually exists. rankedFor() is the same ranked local inventory the landing
   // pages use, so these are real Google counts, never a placeholder.
@@ -104,7 +176,26 @@ export default async function GuidePage({ params }) {
   //                  the impression event so the miss is countable
   let social = null;
   let socialStatus = "no-match";
+  // OUR OWN INVENTORY FIRST. rankedFor() reaches Google Places, which is not
+  // available during `next build` — so on every statically generated guide it
+  // returned null and social proof was silently absent on all of them. That is
+  // the [guide] social proof: rankedFor returned null log, and it is an
+  // environment mismatch rather than a lookup bug: the page asks a live API for
+  // a number we already store. wf_inventory holds the same Google rating and
+  // review count, needs no key at build time and no quota, so it is tried first
+  // and rankedFor stays as the fallback. Failure is still reported as
+  // "unavailable" rather than folded into "no-match".
   if (primaryCta && primaryCta.place) {
+    const hit = await inventorySocial(primaryCta.place);
+    if (hit === false) {
+      socialStatus = "unavailable";
+      console.error(`[guide] social proof: inventory lookup failed for "${primaryCta.place}" (${params.slug})`);
+    } else if (hit) {
+      social = hit;
+      socialStatus = "ok";
+    }
+  }
+  if (!social && primaryCta && primaryCta.place) {
     const cityKey = (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando");
     if (!LANDING_CITIES[cityKey]) {
       socialStatus = "unavailable";
@@ -176,12 +267,35 @@ export default async function GuidePage({ params }) {
         .wf-guide-pick h2{font-size:31px;color:#f7f2ea!important}
         .wf-guide-pick>p{color:#aeb8c7!important}
         .wf-guide-pick .wf-guide-tip{color:#a64f1b!important}
+        /* Live deal cards. Sized so the whole card is one tap target on a phone,
+           and min-width:0 on the text column is what stops a long merchant name
+           forcing the grid wider than the viewport — the classic overflow. */
+        .wf-gd-wrap{margin:34px 0 0}
+        .wf-gd-h{font-size:22px;color:#f7f2ea;margin:0 2px 12px}
+        .wf-gd-list{list-style:none;margin:0;padding:0}
+        .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #263445;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
+        .wf-gd-card:hover{border-color:#E8C97A}
+        .wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}
+        .wf-gd-body{min-width:0}
+        .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+        .wf-gd-title{font-size:16px;font-weight:750;color:#f7f2ea;overflow-wrap:anywhere}
+        .wf-gd-badge{flex:none;font-size:11px;font-weight:750;color:#0B0F14;background:#E8C97A;border-radius:999px;padding:2px 8px}
+        .wf-gd-merchant{font-size:12.5px;color:#aeb8c7;margin-top:3px;overflow-wrap:anywhere}
+        .wf-gd-details{font-size:13.5px;color:#c8d1dd;line-height:1.45;margin:7px 0 0;overflow-wrap:anywhere}
+        .wf-gd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
+        .wf-gd-loc{font-size:12px;color:#8A97A6;min-width:0;overflow-wrap:anywhere}
+        .wf-gd-cta{flex:none;font-size:13px;font-weight:750;color:#E8C97A}
+        .wf-gd-ends{font-size:11.5px;color:#8A97A6;margin-top:5px}
+        .wf-gd-disc{font-size:11px;color:#8A97A6;line-height:1.45;margin:12px 2px 0}
         .wf-guide-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .wf-guide-actions a{border-radius:4px!important}
         @media(max-width:760px){
           .wf-guide-article{padding-top:2px}
           .wf-guide-intro{font-size:17px!important;line-height:1.5!important;margin:14px 2px 16px!important}
           .wf-guide-disclosure{margin:10px 2px 16px!important;padding:0 0 10px!important;font-size:10.5px!important;line-height:1.4!important}
+          .wf-gd-card{grid-template-columns:72px minmax(0,1fr);gap:11px;padding:10px}
+          .wf-gd-img{width:72px;height:72px}
+          .wf-gd-h{font-size:19px}
           .wf-guide-pick{grid-template-columns:35px minmax(0,1fr);gap:11px;padding:21px 2px!important}
           .wf-guide-number{font-size:29px;letter-spacing:-1px;color:#7f8da1}
           .wf-guide-pick h2{font-size:22px!important;line-height:1.15!important;margin:3px 0 8px!important}
@@ -245,6 +359,9 @@ export default async function GuidePage({ params }) {
           </section>
         );
       })}
+      {dealCards.length ? (
+        <GuideDealCards slug={params.slug} region={g.region || "Orlando"} deals={dealCards} />
+      ) : null}
       {g.faq && g.faq.length ? (
         <section>
           <h2 style={S.h2}>Good to know</h2>
