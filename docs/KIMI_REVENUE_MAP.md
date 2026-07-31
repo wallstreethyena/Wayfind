@@ -1,17 +1,17 @@
 # Wayfind Revenue Map
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Owner:** Kim (CPO)  
-**Date:** 2026-07-30  
+**Date:** 2026-07-31  
 **Purpose:** Every surface, feature, and user moment is either earning, capable of earning, or deliberately free-with-a-reason. Nothing is accidentally unmonetized.
 
 ---
 
 ## Executive summary
 
-Wayfind's revenue problem is not a lack of monetization ideas. It is that **most monetization layers are dark** while the highest-intent surfaces (detail sheets and guides) are under-monetized. With current traffic (~1,300 visitors/month) and current conversion (roughly 6 real-world actions/month), the business cannot reach seven figures without either a large traffic multiplier or high-AOV conversion streams.
+Wayfind's revenue problem is not a lack of monetization ideas. It is that **most monetization layers were dark or misapplied** while the highest-intent surfaces (detail sheets and guides) were under-monetized. In the last 48 hours the five highest-leverage code fixes shipped: Travelpayouts marker + four approved programs (#419), server-side redirect capture (#519), Clipp geo-gating (#520), and the detail-sheet CTA ladder (#522). `NEXT_PUBLIC_BOOK_IT` is now deployed (production 84e3c77). The remaining fast money is almost entirely config and partner approvals: the Uber Eats affiliate program, the Travelpayouts payout method, and the Viator PID.
 
-This map ranks unlocks by effort-to-dollars. The fastest money is flipping the already-built Travelpayouts "Book It" layer live and fixing the detail-sheet CTA ladder. The biggest money is scaling high-intent guide traffic (the denominator) and capturing high-AOV bookings: hotels, event tickets, reservations, and group experiences.
+With current traffic (~1,300 visitors/month) and current conversion (roughly 6 real-world actions/month), the business still cannot reach seven figures without either a large traffic multiplier or high-AOV conversion streams. The code fixes change the *measurement* and *action quality*; they do not change the denominator overnight.
 
 **One-line constitution:** Wayfind earns only when we help a user take a real-world action we can attribute; every earning surface must be honest, disclosed, and structurally firewalled from ranking.
 
@@ -21,9 +21,11 @@ This map ranks unlocks by effort-to-dollars. The fastest money is flipping the a
 
 **Hard gate #1: Travelpayouts payout method must be set.** Nothing below is collectible until this setting exists. Every commission number is theoretical until the payout method is configured.
 
+**Hard gate #2: Uber Eats requires an approved affiliate account.** `NEXT_PUBLIC_UBEREATS_TEMPLATE` cannot be "set" because no template exists in the repo. A US affiliate program exists, but approval is required (see §7). Until then, every food-order click leaves as a plain `ubereats.com` URL and earns nothing.
+
 **Hard truth #1: the $1M model requires 10× conversion, and nobody owns conversion yet.** 105 paid visitors produced 0 signups. Not a low rate — zero. The 5,000-guide denominator assumes a conversion rate Wayfind has never once observed. That is a hypothesis, not arithmetic.
 
-**Hard truth #2: leak count is three and climbing, all in `lib/affiliates.js`.** VRBO was live, Uber Eats is live-but-unattributed, Viator is latent — and claude.exe's DOM audit covers seven more providers. Budget for a fourth leak in any model.
+**Hard truth #2: leak count is three and climbing, all in `lib/affiliates.js`.** VRBO is dark until template, Uber Eats is live-but-unattributed, Viator is dark until PID — and claude.exe's DOM audit covers seven more providers. Budget for a fourth leak in any model.
 
 **Hard truth #3: the rocketship is not the guides.** The five P0s take Wayfind from ~$20/month to low-four-figures in days, from code already written. That 50–100× multiple funds the year-long content build. They are not competing priorities; one funds the other.
 
@@ -36,10 +38,10 @@ For each surface: what it earns today, what it could earn with existing partners
 | Surface | Earns today | Could earn with existing partners | Single unlock | Lane |
 |---|---|---|---|---|
 | **Homepage / home feed** | Viator experience rail (dark until PID set); Undercover Tourist deals rail; coupon strip; bookable place cards. | Full Viator PID, Travelpayouts "Book it" rail, Klook/Tiqets, more deal categories, Stay22 hotel rates. | Set `NEXT_PUBLIC_VIATOR_PID`, populate `wf_experiences` cron, light Travelpayouts. | `claude.exe` + `GWEN` |
-| **Detail sheet** | BookingCTA (Viator/Stay22); Uber Eats plain untracked URLs; VRBO for lodging; Ticketmaster for events; BookItLink (Travelpayouts, env set but **not yet deployed**); Clipp dining deals if matched. | Tiqets/Klook/WeGoTrip/ TicketNetwork via BookItLink; per-merchant Clipp deals; reservation links. | Deploy the BOOK_IT env change; paste TP program IDs; implement category-specific CTA ladder; set Uber Eats template. | `claude.exe` + `GWEN` |
+| **Detail sheet** | BookingCTA (Viator/Stay22, dark until PIDs); Uber Eats plain untracked URLs; VRBO for lodging (dark); Ticketmaster for events; BookItLink (Travelpayouts, **deployed** 84e3c77); CTA ladder chooses place-type-aware primary action (#522). | Tiqets/Klook/WeGoTrip/ TicketNetwork via BookItLink; per-merchant Clipp deals; reservation links. | Set Viator PID; approve Uber Eats affiliate; implement per-merchant Clipp matching; add reservation partner. | `claude.exe` + `GWEN` |
 | **Cuisine chooser + shortlist / Order In** | Uber Eats rails (plain untracked URLs; `eats_out` = 0 non-owner). | Coupon matching, Viator food tours, per-merchant Clipp deals, reservation links. | Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`; add Clipp deal rail to shortlist (after location gating fixed). | `DEEPSEEK` + `GWEN` |
 | **Guides (`/guides/*`, `/things-to-do/*`)** | Viator search links; exact products if `viatorUrl` set; Booking.com hotel search; ExploreBridge cross-sell. | More exact products per pick, Tiqets/Klook, hotel deep links, event tickets, CJ deals. | Add `viatorUrl`/`bookQuery` to every guide pick; enable CJ/Clipp. | `LLAMA` + `GWEN` |
-| **Deal Sheet / `/coupons`** | Clipp city cards live (PR #474); hardcoded coupons (Klook, Viator); Supabase `offers` table; Undercover Tourist if `wf_deals` populated. | CJ local deals, event-ticket coupons, per-merchant Clipp matching on restaurant sheets. | Fix location gating so Clipp cards serve the user's actual metro; ship the unapplied coupon-menu visual patch; per-merchant Clipp matching. | `GWEN` + `claude.exe` |
+| **Deal Sheet / `/coupons`** | Clipp city cards live (PR #474) with geo-gating (#520); hardcoded coupons (Klook, Viator); Supabase `offers` table; Undercover Tourist if `wf_deals` populated. | CJ local deals, event-ticket coupons, per-merchant Clipp matching on restaurant sheets. | Ship the unapplied coupon-menu visual patch; per-merchant Clipp matching; CityPASS/TicketSmarter CJ wiring. | `GWEN` + `claude.exe` |
 | **Events page** | Ticketmaster Impact redirect on event detail/list pages. | TicketNetwork fallback, SeatGeek/AXS if added. | Add TicketNetwork Travelpayouts IDs; surface events on detail sheets/guides. | `claude.exe` + `GWEN` |
 | **Map** | None observed. | Geo-targeted experience/deal overlays, hotel rates by viewport. | Add monetized place-type layers (deals, bookable tours, hotels). | `claude.exe` + `GWEN` |
 | **Search results** | "Book on Viator" if `wf_place_products` has verified product. | Hotels, tours, deals, restaurants by query intent. | Populate `wf_place_products` via cron for all bookable categories. | `claude.exe` + `GWEN` |
@@ -51,18 +53,19 @@ For each surface: what it earns today, what it could earn with existing partners
 
 ### Detail-sheet CTA ladder (the highest-leverage surface)
 
-| Place type | Primary CTA today (post-BOOK_IT) | Primary CTA goal | Partner / event |
-|---|---|---|---|
-| Attraction / tour / experience | Book tickets | Book tickets | Viator / Travelpayouts |
-| Restaurant with deal | (none / Book It null) | Claim deal | Clipp / CJ |
-| Restaurant without deal | Book It / menu | Reserve / order delivery | OpenTable/Resy / Uber Eats |
-| Cafe / bakery | Book It / null | Directions / order pickup | Uber Eats / bestmove_go |
-| Beach | Book It / null | Check conditions / directions | best_nearby_go |
-| Bar / nightlife | Book It / null | See deals / reserve / ride | Clipp / Uber |
-| Hotel / lodging | Check rates | Check rates | Stay22 / Booking.com |
-| Shopping / retail | Book It / null | See deals / directions | Clipp / directions |
+| Place type | Primary CTA today (post-#522) | Partner / event |
+|---|---|---|
+| Attraction / tour / experience | Book tickets | Viator / Travelpayouts |
+| Restaurant with deal | Claim deal | Clipp / CJ |
+| Restaurant without deal | Order delivery / See menu | Uber Eats / Google Maps |
+| Cafe / bakery | Order pickup / See menu | Uber Eats / Google Maps |
+| Beach | Check conditions | best_nearby_go |
+| Bar / nightlife | See deals / Directions | Clipp / Google Maps |
+| Hotel / lodging | Check rates | Stay22 / Booking.com |
+| Shopping / retail | See deals / Directions | Clipp / Google Maps |
+| Closed right now | Add to plan | `save` |
 
-The single biggest unlock: **category-aware primary CTA + disclosure**, so a cafe gets Directions/Order, a hotel gets Check rates, a restaurant gets Claim deal/Reserve. See `docs/KIMI_AUDIT_MONEYPATH_2026-07-30.md` and the detail-sheet ship spec.
+The single biggest unlock is now **shipped**: category-aware primary CTA + adjacent FTC disclosure. The next unlock is per-merchant Clipp matching so "Restaurant with deal" actually fires for local spots.
 
 ---
 
@@ -72,13 +75,12 @@ Effort scored 1–5. Dollar potential scored 1–5 (5 = can carry meaningful sha
 
 ### Tier 1: flip the switch (low effort, immediate money)
 
-#### 1. Travelpayouts "Book It" layer
-- **Effort:** 1
-- **Dollar potential:** 4
-- **Why:** Already built. Only needs `NEXT_PUBLIC_BOOK_IT=on` and program IDs pasted for Tiqets, TicketNetwork, WeGoTrip, Klook.
+#### 1. ~~Travelpayouts "Book It" layer~~ SHIPPED
+- **Status:** Code merged in #519; env deployed to production 84e3c77 on 2026-07-31 12:35.
+- **Why:** Already built. Only needed `NEXT_PUBLIC_BOOK_IT=on` and program IDs pasted for Tiqets, TicketNetwork, WeGoTrip, Klook.
 - **Mechanism:** Detail-sheet BookItLink surfaces bookable products for attractions, tours, events, and hotels from Travelpayouts inventory.
-- **Lane:** `GWEN` (IDs + env) + `claude.exe` (UI/CTA ladder).
-- **Metric:** `book_it_out`, `commerce_cta_clicked`.
+- **Lane:** `Kim` + `GWEN`.
+- **Metric:** `provider_redirect_started` (BookItLink routes through `/api/commerce/go`), `commerce_cta_clicked`.
 
 #### 2. Viator PID activation
 - **Effort:** 1
@@ -88,13 +90,13 @@ Effort scored 1–5. Dollar potential scored 1–5 (5 = can carry meaningful sha
 - **Lane:** `GWEN`.
 - **Metric:** `tickets_out`, `ta_out`, `tour_card_out`.
 
-#### 3. Detail-sheet CTA ladder by place type
+#### 3. ~~Detail-sheet CTA ladder by place type~~ SHIPPED
+- **Status:** Merged #522 2026-07-31. One place-type-aware primary action per sheet; closed places get "Add to plan"; FTC disclosure adjacent.
 - **Effort:** 2
 - **Dollar potential:** 5
 - **Why:** 108 detail opens in non-bookable categories alone. A null or wrong CTA is a direct revenue miss.
-- **Mechanism:** Category-specific primary CTA, fallback to Directions, FTC disclosure adjacent.
-- **Lane:** `claude.exe` + `GWEN`.
-- **Metric:** `primary_cta_clicked`, outbound event rate per `detail_open`.
+- **Lane:** `Kim` + `claude.exe`.
+- **Metric:** `primary_cta_clicked`, outbound event rate per `detail_open`, `provider_redirect_started`.
 
 ### Tier 2: build the obvious verticals (medium effort, durable money)
 
@@ -103,8 +105,8 @@ Effort scored 1–5. Dollar potential scored 1–5 (5 = can carry meaningful sha
 - **Dollar potential:** 5
 - **Why:** Restaurant guides drive traffic. Dining is frequent, recurring, high-intent. Restaurant detail sheets currently have no native monetization.
 - **Mechanism:** Per-merchant Clipp dining deals as primary CTA on restaurant detail sheets; CJ local deals on Coupons page; deal alert subscription.
-- **Dependency:** Location gating must be fixed first. Currently Clipp city cards serve Sarasota/Bradenton to Orlando users.
-- **Lane:** `GWEN` (Clipp matching + location gating) + `claude.exe` (detail-sheet layout) + `DEEPSEEK` (cuisine shortlist).
+- **Dependency:** ~~Location gating must be fixed first.~~ **Fixed (#520).** Clipp city cards now filter to the visitor's resolved metro.
+- **Lane:** `GWEN` (Clipp matching) + `claude.exe` (detail-sheet layout) + `DEEPSEEK` (cuisine shortlist).
 - **Metric:** `coupon_out`, `deal_claimed`, `restaurant_deal_return_visit_14d`.
 
 #### 5. Hotel / overnight expansion (Stay22 + Booking.com)
@@ -207,12 +209,12 @@ These are non-negotiable. Every revenue idea is evaluated against them.
 
 | # | Initiative | Sequence | Lane | Dependency | Revenue mechanism | PostHog metric |
 |---|---|---|---|---|---|---|
-| 1 | Deploy `NEXT_PUBLIC_BOOK_IT=on` + paste TP IDs | Ship this week | `GWEN` + `claude.exe` | Program IDs from Travelpayouts dashboard; env already set | Travelpayouts affiliate commissions | `book_it_out`, `commerce_cta_clicked` |
+| 1 | ~~Deploy `NEXT_PUBLIC_BOOK_IT=on` + paste TP IDs~~ | **SHIPPED** 2026-07-31 | `Kim` + `GWEN` | #519 merged; production 84e3c77 | Travelpayouts affiliate commissions | `provider_redirect_started` on `/api/commerce/go` |
 | 2 | Set `NEXT_PUBLIC_VIATOR_PID` + populate `wf_experiences` | Ship this week | `GWEN` | Viator partner approval | 8% on Viator bookings | `tickets_out`, `ta_out`, `tour_card_out` |
-| 3 | Detail-sheet CTA ladder by place type | Ship this week | `claude.exe` + `GWEN` | Rec #1-2 live | Converts detail opens to the right action | `primary_cta_clicked`, outbound event rate |
+| 3 | ~~Detail-sheet CTA ladder by place type~~ | **SHIPPED** 2026-07-31 | `Kim` + `claude.exe` | #522 merged | Converts detail opens to the right action | `primary_cta_clicked`, outbound event rate |
 | 3a | Ship the unapplied coupon-menu visual patch | Ship this week | `claude.exe` | Patch already reviewed | Restores intended coupon-page conversion | `coupon_out` rate on `/coupons` |
-| 3b | Fix Clipp location gating | Ship this week | `GWEN` + `claude.exe` | User location available | Stops serving wrong-metro deals | `coupon_out` rate by metro |
-| 3c | Set `NEXT_PUBLIC_UBEREATS_TEMPLATE` | Ship this week | `GWEN` | Template approval | Fixes Uber Eats attribution | `eats_out` |
+| 3b | ~~Fix Clipp location gating~~ | **SHIPPED** 2026-07-31 | `Kim` + `claude.exe` | #520 merged | Stops serving wrong-metro deals | `coupon_out` rate by metro |
+| 3c | Approve Uber Eats affiliate + set template | Ship this week | `GWEN` / owner | Impact or Sovrn approval | Fixes Uber Eats attribution | `eats_out`, `provider_redirect_started` |
 | 3d | Wire CityPASS and TicketSmarter CJ offers | Ship this week | `GWEN` + `LLAMA` | CJ codes available | Attraction/event ticket commissions | `tickets_out`, `coupon_out` |
 | 4 | Per-merchant Clipp matching + restaurant deal-first layout | Test first | `GWEN` + `claude.exe` | Location gating fixed | Dining deals commission | `coupon_out`, `deal_claimed` |
 | 5 | Hotel "Check rates" on lodging sheets/guides | Test first | `GWEN` + `claude.exe` | Stay22 active | Hotel booking commission | `hotel_out` |
@@ -230,36 +232,55 @@ These are non-negotiable. Every revenue idea is evaluated against them.
 
 **Parallel track:** Rec 12 (Guide Factory) continues in background. It is the only initiative that can change the denominator enough to make $1M/yr realistic.
 
-### Ship order for the five P0s (by money-per-hour-of-work)
+### Ship order for the five P0s (by money-per-hour-of-work) — status
 
-1. **Deploy the BOOK_IT env change.** Already set, undeployed. Pure deploy, highest return tonight.
-2. **Set the Uber Eats template.** Plain URLs mean zero attribution on every food-order click. Food is the largest inventory (296 Tampa / 261 Manatee-Sarasota / 243 Orlando). Pure config.
-3. **Apply the coupon-menu visual patch.** Written, unapplied, free.
-4. **Detail-sheet CTA ladder.** Cafe → Directions, hotel → Check rates. Revenue and premium feel together.
-5. **Clipp geo-gating.** Then, and only then, expansion to restaurant detail sheets. Do not skip this step.
+1. **~~Deploy the BOOK_IT env change.~~ DONE** — production 84e3c77, 2026-07-31 12:35.
+2. **~~Clipp geo-gating.~~ DONE** — #520 merged 2026-07-31.
+3. **~~Detail-sheet CTA ladder.~~ DONE** — #522 merged 2026-07-31.
+4. **Apply the coupon-menu visual patch.** Written, unapplied, free.
+5. **Approve Uber Eats affiliate + set template.** Not config-only; requires partner approval (see §7).
 
 ### The one thing above all five: server-side PostHog capture for provider redirects
 
-~~If `provider_redirect_started`/`failed` only ride an `x-wf-commerce` header and never become server-side PostHog events, we cannot tell whether any of the five fixes worked.~~ **Closed.** Server-side capture now implemented for `/api/commerce/go`, `/api/viator/go`, and `/api/eats/go`, with a guard in `scripts/check-provider-redirects.mjs`.
+**Shipped.** Server-side capture now implemented for `/api/commerce/go`, `/api/viator/go`, and `/api/eats/go` (#519), with a guard in `scripts/check-provider-redirects.mjs`.
 
-Postback-based revenue attribution is still future work. Deploy BOOK_IT and Uber Eats template first because they are config-only; ship the CTA ladder and Clipp work into the now-readable funnel.
+**Not yet verified end-to-end.** A bot `curl` from outside the browser hits Vercel's challenge (HTTP 429) and cannot trigger a real redirect. The code path is correct: each route calls `captureServer("provider_redirect_started"|"provider_redirect_failed", ...)` with `provider`, `surface`, `offer_id`, `content_id`, `click_id`, and `rank_bucket` via `commercePayload`. But no one has confirmed a real click lands in PostHog yet.
+
+**Verification protocol:**
+1. From a signed-in browser with PostHog cookies, click a bookable detail-sheet CTA that routes through `/api/commerce/go` or `/api/viator/go`.
+2. Within 60 seconds, query PostHog SQL:
+   ```sql
+   SELECT event, timestamp, properties.provider, properties.surface, properties.offer_id, properties.failure_reason
+   FROM events
+   WHERE timestamp >= now() - INTERVAL 5 MINUTE
+     AND event IN ('provider_redirect_started', 'provider_redirect_failed')
+     AND person_id != '688c2392-cba4-5693-9453-0294627a05e3'
+   ORDER BY timestamp DESC
+   LIMIT 50;
+   ```
+3. Expected: one `provider_redirect_started` row with `provider`, `surface`, and `offer_id` populated.
+4. To test failure, hit `/api/commerce/go?provider=unknown&offer=test` from the same browser; expect `provider_redirect_failed` with `failure_reason: "unknown-provider"`.
+
+Postback-based revenue attribution is still future work. Verify the capture funnel before declaring any revenue change a success.
 
 ---
 
 ## 5. The math
 
-### Current state
+### Current state (post-#519/#522/#520, BOOK_IT deployed 2026-07-31)
 
 | Metric | Value | Source |
 |---|---|---|
 | Visitors / 14 days | ~447 | PostHog, owner excluded |
 | Visitors / month (approx.) | ~960 | 447 × 30/14 |
 | Sessions / 14 days | ~648 | PostHog |
-| Real-world actions / 14 days | 3 | PostHog SQL, corrected event set |
+| Real-world actions / 14 days | 3 | PostHog SQL, corrected event set (pre-BOOK_IT baseline) |
 | Actions / month | ~6 | 3 × 30/14 |
-| Current affiliate clicks / 30 days | 0 | `lib/activation.js` |
+| Current affiliate clicks / 30 days | 0 | `lib/activation.js` (pre-BOOK_IT baseline) |
 
-At an average commission of **$3 per action**, current revenue is roughly **$18/month**. To reach **$1M/year ($83,333/month)**, revenue must grow ~4,600× from current traffic/conversion.
+At an average commission of **$3 per action**, current revenue is roughly **$18/month**. The next 7–14 days produce the first honest post-BOOK_IT, post-CTA-ladder baseline. Do not blend pre-deploy and post-deploy numbers.
+
+To reach **$1M/year ($83,333/month)**, revenue must still grow ~4,600× from current traffic/conversion. The code fixes improve action quality and measurement; they do not 4,600× the denominator.
 
 ### What $1M/yr requires per stream
 
@@ -317,7 +338,57 @@ This scenario requires roughly **5,000 high-quality guides**, **10× current con
 
 ---
 
-## 6. PostHog instrumentation notes
+## 6. Uber Eats affiliate research — the real blocker
+
+You cannot set `NEXT_PUBLIC_UBEREATS_TEMPLATE` without a program to generate the template. Here is what exists as of 2026-07-31.
+
+### Uber Eats US program — yes, it exists
+
+**Option A: Impact (direct with Uber)**
+- **Network:** Impact (impact.com).
+- **Commission:** 5–10% of the referred user's first order, negotiated per partner.
+- **Cookie:** 30 days (some sources cite 15 days for regional variants).
+- **Constraint:** Commission fires only on first-time Uber/Uber Eats users. An existing account — even inactive — pays nothing.
+- **Approval:** Required. Apply through Impact's Uber program page; Uber's performance marketing team reviews for brand safety, audience alignment, and traffic quality. Approval is not guaranteed. Timeline: a few business days reported by affiliates.
+- **Action for Gabe:**
+  1. Sign up / log in at https://app.impact.com.
+  2. Search the marketplace for "Uber" or "Uber Eats" and apply to the US program.
+  3. Once approved, create a tracking link for `ubereats.com`. The template shape will be something like `https://uber.com/go/...?u={url}` or a direct Impact wrapper with a `{url}` placeholder.
+  4. Paste that template into Vercel as `NEXT_PUBLIC_UBEREATS_TEMPLATE` and redeploy.
+
+**Option B: Sovrn Commerce (sub-network)**
+- **Network:** Sovrn Commerce (`sovrn.com/commerce`), merchant ID 98635.
+- **Commission:** 6.95% observed on the merchant page (updated 2025-05-16).
+- **Cookie:** Sovrn's standard window (typically 30 days).
+- **Approval:** Sovrn publisher account + merchant application; generally less selective than direct brand approval.
+- **Action for Gabe:**
+  1. Sign up at Sovrn Commerce.
+  2. Apply to merchant 98635 (Uber Eats).
+  3. Use the generated tracking URL as the template.
+
+### Alternatives if Uber rejects Wayfind
+
+**DoorDash (preferred fallback)**
+- **Network:** Impact (primary) and FlexOffers.
+- **Commission:** $3 per new customer first order, OR $50 per new Dasher activation.
+- **Cookie:** 30 days.
+- **Approval:** Required through Impact; 2–5 business days reported.
+- **Why it may be better:** DoorDash holds ~67% US food-delivery market share. The $3 first-order CPA is comparable to Uber Eats' lower band, and the $50 Dasher track is a high-value secondary angle.
+
+**Grubhub**
+- **Status:** No public US affiliate program found. No merchant page on Sovrn; no Impact marketplace page found; CJ/Partnerize search returned nothing authoritative.
+- **Verdict:** Do not route traffic to Grubhub unless a program surfaces.
+
+### Recommendation
+
+1. **Apply to Uber Eats direct via Impact first.** It is the brand users already associate with the "Order delivery" CTA, and the 5–10% rate beats Sovrn's 6.95% if you land in the upper band.
+2. **Parallel-apply to Sovrn Commerce as a hedge.** If Impact rejects or stalls, Sovrn keeps the traffic monetized.
+3. **If both reject, switch the CTA to DoorDash.** Do not leave a plain `ubereats.com` link live — it trains users to click and teaches Wayfind nothing about whether the click earned.
+4. **If none are approved within two weeks, suppress the Uber Eats CTA** and fall back to "See menu" (Google Maps / website) until an affiliate relationship exists. A free referral to Uber Eats is worse than no CTA, because it burns user intent without attribution.
+
+---
+
+## 7. PostHog instrumentation notes
 
 Funnel instrumentation (#502) is landing today. Server-side PostHog capture is now implemented for `/api/commerce/go`, `/api/viator/go`, and `/api/eats/go`. Each emits `provider_redirect_started` on success and `provider_redirect_failed` with a reason on failure. See `docs/KIMI_MONEY_FUNNEL_DASHBOARD.md` for the dashboard spec.
 
@@ -348,22 +419,25 @@ The following queries will firm up estimates once #502 flows:
 
 ---
 
-## 7. Appendix: partner commission cheat sheet
+## 8. Appendix: partner commission cheat sheet
 
 | Partner | Rate | Status | Unlock |
 |---|---|---|---|
 | Viator | 8% | Dark until PID | `NEXT_PUBLIC_VIATOR_PID` |
 | GetYourGuide | 8% | Dark | PID |
-| Travelpayouts (Tiqets) | 3.5–8% | Dark | Program IDs + `NEXT_PUBLIC_BOOK_IT=on` |
-| Travelpayouts (TicketNetwork) | 6–12.5% | Dark | Program IDs |
-| Travelpayouts (WeGoTrip) | 6.6–41.5% | Dark | Program IDs |
-| Klook | 2–5% | Partial (coupons) | TP program IDs |
+| Travelpayouts (Tiqets) | 3.5–8% | Live (#419 + #519 + env) | `NEXT_PUBLIC_BOOK_IT=on` deployed |
+| Travelpayouts (TicketNetwork) | 6–12.5% | Live (#419) | Program IDs applied |
+| Travelpayouts (WeGoTrip) | 6.6–41.5% | Live (#419) | Program IDs applied |
+| Travelpayouts (Klook) | 2–5% | Live (#419) | Program IDs applied |
 | CJ / Undercover Tourist | CJ rate | Live if `wf_deals` populated | PID `101643573` + deal feed |
-| CJ / Clipp | 12% | **Live in prod** (PR #474) | Fix location gating before expansion |
+| CJ / Clipp | 12% | **Live in prod** (PR #474 + #520 geo-gating) | Expansion requires per-merchant matching |
+| CJ / CityPASS | 4–6% | Active advertiser, unwired | CJ code + guide integration |
+| CJ / TicketSmarter | 3% | Active advertiser, unwired | CJ code + events integration |
 | Stay22 | LinkSwap rewrite | Live implicitly | Already active on Booking.com links |
-| Uber Eats | Impact template | Plain untracked URLs | `NEXT_PUBLIC_UBEREATS_TEMPLATE` |
-| CityPASS (CJ) | 4–6% | Active advertiser, unwired | CJ code + guide integration |
-| TicketSmarter (CJ) | 3% | Active advertiser, unwired | CJ code + events integration |
+| Uber Eats (Impact direct) | 5–10% of first order, 30-day cookie | Requires approval | Apply at `impact.com` → Uber program; approval ~few business days |
+| Uber Eats (Sovrn Commerce) | 6.95% (observed 2025-05-16) | Sub-network, no approval guess | Sign up at `sovrn.com/commerce` and apply to merchant 98635 |
+| DoorDash (Impact) | $3/first order OR $50/Dasher, 30-day cookie | Requires approval | Apply at `impact.com` → DoorDash program |
+| Grubhub | No public program found | — | Route to DoorDash or suppress link |
 | VRBO | Template-based | Dark | `NEXT_PUBLIC_VRBO_TEMPLATE` |
 | Ticketmaster Impact | SID 7475855 | Live | Already active |
 
@@ -371,4 +445,4 @@ The following queries will firm up estimates once #502 flows:
 
 ## 8. One-paragraph verdict
 
-The fastest path to revenue is to stop leaving built layers dark or misapplied. Deploy the already-set BOOK_IT env change, fix the detail-sheet CTA ladder so a cafe gets Directions and a hotel gets Check rates, fix Clipp location gating before any expansion, ship the unapplied coupon-menu patch, and set the Uber Eats template. That alone can move the business from ~$20/month to low-four-figures. But $1M/yr requires the Guide Factory denominator: roughly 5,000 high-intent guides with real affiliate links, plus working hotel, restaurant-deal, and event-ticket verticals. Wave 1's 20-target sample is a calibration exercise, not a down payment. And every revenue change requiring judgment must ship into a funnel we can read — so land #502 and close the server-side provider-redirect capture gap before measuring any of it. Every earning surface must be honest, disclosed, and firewalled from ranking — because trust is the only asset that compounds at that scale.
+The five code P0s are now shipped: BOOK_IT is deployed, Travelpayouts programs are applied, Clipp is geo-gated, and the detail-sheet CTA ladder shows the right action per place type. That moves Wayfind from a site with invisible or misapplied monetization to one where the highest-intent surface finally has a coherent money path. The remaining fast money is config and approvals: set the Travelpayouts payout method, get the Viator PID live, and approve an Uber Eats affiliate account (Impact direct or Sovrn Commerce; DoorDash is the honest fallback). The unapplied coupon-menu patch is still free money sitting on disk. Low-four-figures/month is achievable in days once those gates clear. But $1M/yr still requires the Guide Factory denominator — roughly 5,000 high-intent guides with real affiliate links, plus working hotel, restaurant-deal, and event-ticket verticals. Wave 1's 20-target sample is a calibration exercise, not a down payment. And before declaring any of this a success, verify the server-side provider-redirect capture funnel actually produces events in PostHog — a readable funnel is the difference between knowing what worked and guessing. Every earning surface must be honest, disclosed, and firewalled from ranking, because trust is the only asset that compounds at that scale.
