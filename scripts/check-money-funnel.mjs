@@ -80,7 +80,7 @@ for (const s of FUNNEL_STEPS) {
 // The list may shrink, never grow. Growth means a new money surface shipped
 // without commerce instrumentation, which is exactly how the funnel became
 // unreadable in the first place.
-const CEILING = 5; // 2026-07-30. Lower this as surfaces are instrumented; never raise it.
+const CEILING = 4; // 2026-07-31. Lower this as surfaces are instrumented; never raise it.
 ok(UNINSTRUMENTED_MONEY_SURFACES.length <= CEILING,
   `named uninstrumented money surfaces must not grow past ${CEILING} (got ${UNINSTRUMENTED_MONEY_SURFACES.length}) — a new one means a money CTA shipped unmeasured`);
 for (const g of UNINSTRUMENTED_MONEY_SURFACES) {
