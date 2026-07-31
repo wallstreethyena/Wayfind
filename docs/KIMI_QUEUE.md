@@ -10,26 +10,29 @@ past answers gets the same question re-asked.
 
 ---
 
-## 6. Money now — config-only deploys (highest money-per-minute)
+## 6. Money now — config and approval gates
 
-**Owner:** Gabe (Vercel). Kim cannot do these because they require Vercel project access and entering values would put secrets in the transcript.
+**Owner:** Gabe. Kim cannot enter values because they would land in this transcript.
 
-### 6.1 Deploy `NEXT_PUBLIC_BOOK_IT`
+### 6.1 ~~Deploy `NEXT_PUBLIC_BOOK_IT`~~ DONE
 
-1. Go to https://vercel.com/wayfind2/wayfind/settings/environment-variables
-2. Confirm `NEXT_PUBLIC_BOOK_IT` is set to `on` (it was set 2026-07-30 ~02:00Z per registry).
-3. If not set, add: `NEXT_PUBLIC_BOOK_IT` = `on`, environment = Production.
-4. Redeploy the project (Vercel → Deployments → Redeploy latest).
-5. Verify: visit a bookable attraction detail sheet, click "Book tickets", and check PostHog for `provider_redirect_started` events.
+Production deployment `84e3c77` went live 2026-07-31 12:35. Verify: click "Book tickets" on a bookable attraction detail sheet and confirm `provider_redirect_started` in PostHog.
 
-### 6.2 Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`
+### 6.2 Approve Uber Eats affiliate, then set `NEXT_PUBLIC_UBEREATS_TEMPLATE`
 
-1. In the same Vercel environment-variables page, add:
-   - Name: `NEXT_PUBLIC_UBEREATS_TEMPLATE`
-   - Value: your Impact Uber Eats tracking template with `{url}` placeholder
-   - Environment: Production
-2. Redeploy.
-3. Verify: visit a restaurant detail sheet, click "Order delivery", and confirm the outbound URL contains your Impact marker instead of a plain `ubereats.com` URL.
+`NEXT_PUBLIC_UBEREATS_TEMPLATE` is not a value sitting in a drawer — it must come from an approved affiliate program. Research findings (see `docs/KIMI_REVENUE_MAP.md` §6):
+
+- **Uber Eats direct via Impact:** 5–10% of first order, 30-day cookie, approval required.
+- **Uber Eats via Sovrn Commerce:** 6.95% observed, merchant ID 98635, Sovrn approval.
+- **DoorDash fallback:** $3/first order or $50/Dasher, 30-day cookie, Impact approval.
+- **Grubhub:** no public program found.
+
+Steps:
+1. Apply to Uber Eats direct at https://app.impact.com (recommended).
+2. Parallel-apply via Sovrn Commerce as hedge.
+3. If approved, create a tracking link/template with a `{url}` placeholder and paste into Vercel as `NEXT_PUBLIC_UBEREATS_TEMPLATE`.
+4. If rejected by both, switch the CTA to DoorDash or suppress the delivery CTA entirely.
+5. Verify: click "Order delivery" and confirm outbound URL carries your affiliate marker, not a plain `ubereats.com` URL.
 
 ### 6.3 Set Travelpayouts payout method
 
@@ -37,7 +40,7 @@ past answers gets the same question re-asked.
 2. Add and verify payout method.
 3. Until this is done, every commission number below is theoretical.
 
-**Why these are first:** each is config-only, takes minutes, and unlocks already-built revenue layers. Do these before any code work.
+**Why these are first:** they unlock already-built revenue layers. Do them before any new code work.
 
 ---
 
@@ -60,18 +63,20 @@ past answers gets the same question re-asked.
 2. **~~Travelpayouts marker + approved programs.~~ DONE (#419).** Marker corrected to `750791`, four approved programs applied.
 3. **~~Clipp geo-gating.~~ DONE (#520).** City-scoped Clipp/Supabase `offers` rows are filtered to the viewer's resolved metro.
 4. **~~Detail-sheet CTA ladder.~~ DONE (#522).** One place-type-aware primary action per sheet; cafe/bakery no longer shows "Check rates"; closed places get "Add to plan".
-5. Deploy the BOOK_IT env change.
-6. Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`.
-7. Apply the coupon-menu visual patch.
-8. Per-merchant Clipp matching in cuisine shortlist / restaurant detail sheets.
+5. **~~Deploy the BOOK_IT env change.~~ DONE.** Production 84e3c77 live 2026-07-31 12:35.
+6. Set Travelpayouts payout method.
+7. Approve Uber Eats affiliate (Impact or Sovrn) and set `NEXT_PUBLIC_UBEREATS_TEMPLATE`; DoorDash is the fallback.
+8. Apply the coupon-menu visual patch.
+9. Per-merchant Clipp matching in cuisine shortlist / restaurant detail sheets.
 
 **Execution:**
 - `Kim` (done): server-side provider-redirect capture (#519), Travelpayouts fix (#419), Clipp geo-gating (#520), detail-sheet CTA ladder (#522).
 - `claude.exe`: coupon-menu patch deploy, Clipp card UI/UX, placement on surfaces.
-- `GWEN`: Uber Eats template, CityPASS/TicketSmarter CJ wiring.
+- `GWEN`: CityPASS/TicketSmarter CJ wiring.
+- `Gabe` (owner): Travelpayouts payout method; Uber Eats affiliate approval + template (or DoorDash fallback).
 - `DEEPSEEK`: per-merchant Clipp matching in cuisine shortlist (after gating fix).
 
-**Status:** Code blockers cleared; awaiting config-only deploys (BOOK_IT, Uber Eats template, Travelpayouts payout method).
+**Status:** Code blockers cleared; BOOK_IT deployed; awaiting owner-managed affiliate approvals and payout method.
 
 ---
 
