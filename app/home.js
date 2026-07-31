@@ -105,6 +105,13 @@ const DetailSheet = nextDynamic(loadDetail, { ssr: false, loading: () => null })
 const IntroSheet = nextDynamic(loadIntro, { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
 import * as Ranking from "../lib/ranking";
+// v6.72 TIME AWARENESS — the ONE source. Before this, home.js alone held 21
+// independent new Date().getHours() reads, several of which bucketed the day
+// differently from each other on the same screen (11/15/21 for food,
+// 11/17 for the picks header, 12/17 for the greeting, 15/4 for date night).
+// All of them are gone; the hour, the bucket and the labels come from here.
+import { nowContext, siteHourFloat, bucketForHour, mealForHour, greetingForHour, BUCKET_PHRASE } from "../lib/nowContext";
+import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
 import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
@@ -354,9 +361,10 @@ const INTENTS = [
 
 // One line of live context for the header, shaped by weather, time and the week.
 function dynamicSubline(weather) {
-  const d = new Date();
-  const h = d.getHours();
-  const day = d.getDay();
+  // v6.72: one hour source (venue-local ET). Was the device clock.
+  const _n = nowContext({ weather });
+  const h = _n.hour;
+  const day = _n.dayOfWeek;
   const weekend = day === 5 || day === 6 || day === 0;
   if (weather && weather.wet) return "Rain around today, leaning toward great indoor spots";
   if (weather && weather.rain != null && weather.rain >= 50) return "Showers likely, here are solid indoor options";
@@ -714,18 +722,16 @@ function placeShareUrl(p, loc, hook) {
   if (sl && sl.s != null) add("sc", sl.s);
   return originUrl("/p/" + encodeURIComponent(p.id) + (q.length ? "?" + q.join("&") : ""));
 }
+// v6.72: the local 12/17 split is DELETED — greetingForHour is the shared one.
 function greetingText() {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
+  return greetingForHour(siteHourFloat());
 }
 
 // A recommendation-style header above the cards, shaped by category and time of
 // day, so the list reads as picks for right now rather than a directory count.
 function picksHeader(cat) {
-  const h = new Date().getHours();
-  const part = h < 11 ? "this morning" : h < 17 ? "this afternoon" : "tonight";
+  // v6.72: was a private 11/17 split. BUCKET_PHRASE is the shared vocabulary.
+  const part = BUCKET_PHRASE[bucketForHour(siteHourFloat())];
   if (cat === "nightlife") return "Where to go tonight";
   if (cat === "attractions") return "Best things to do nearby";
   if (cat === "hotels") return "Top places to stay";
@@ -948,19 +954,19 @@ const EXPERIENCES = {
   // time of day: daytime leans beach and active group fun, evenings lean
   // bars, clubs, karaoke and live music. cat/keyword are the single-query
   // fallback used by the moment-builder sheet path.
-  friends: { icon: "🎉", label: "Fun with Friends", title: "Fun With Friends", lead: "The group's night (or day) out: beaches, bars, karaoke, clubs, live music and big fun activities.", cat: "attractions", keyword: "fun things to do", viator: true, queries: () => { const h = new Date().getHours(); const night = h >= 17 || h < 4; return night
+  friends: { icon: "🎉", label: "Fun with Friends", title: "Fun With Friends", lead: "The group's night (or day) out: beaches, bars, karaoke, clubs, live music and big fun activities.", cat: "attractions", keyword: "fun things to do", viator: true, queries: (c) => { const night = (c && c.timeBucket ? c.timeBucket : bucketForHour(siteHourFloat())) === "night"; return night
     ? [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "karaoke" }, { cat: "nightlife", keyword: "night club dance" }, { cat: "attractions", keyword: "live music concert venue" }, { cat: "nightlife", keyword: "comedy club" }, { cat: "attractions", keyword: "bowling arcade games group fun" }, { cat: "food", keyword: "brewery beer garden" }]
     : [{ cat: "beach", keyword: "" }, { cat: "attractions", keyword: "fun group activities adventure" }, { cat: "attractions", keyword: "mini golf go-kart bowling arcade" }, { cat: "food", keyword: "food truck park brewery beer garden" }, { cat: "nightlife", keyword: "karaoke bar" }, { cat: "attractions", keyword: "live music venue" }]; },
     filter: (p) => (p.rating || 0) >= 4.2 },
   // v5.22 — "Right place, right moment" mood vibes. mood:true marks them for
   // the Perfect-right-now LLM reasoning layer; filtering stays 100% in the
   // structured engine (junk gate, quality floor, open-now, distance).
-  datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: true, queries: () => { const h = new Date().getHours(); const eve = h >= 15 || h < 4; return eve
+  datenight: { icon: "🌹", label: "Date Night", title: "Date Night", mood: true, lead: "Romantic, intimate, made for two: candlelit dinners, wine bars, sunset views and after-dark charm.", viator: true, queries: (c) => { const eve = (c && c.timeBucket ? c.timeBucket : bucketForHour(siteHourFloat())) === "night"; return eve
     ? [{ cat: "food", keyword: "romantic dinner intimate" }, { cat: "nightlife", keyword: "wine bar cocktail lounge" }, { cat: "food", keyword: "waterfront dinner sunset views" }, { cat: "food", keyword: "date night restaurant" }, { cat: "attractions", keyword: "scenic sunset spot" }]
     : [{ cat: "food", keyword: "romantic cafe brunch" }, { cat: "attractions", keyword: "botanical garden scenic walk" }, { cat: "food", keyword: "wine tasting winery" }, { cat: "food", keyword: "romantic restaurant" }]; },
     filter: (p) => (p.rating || 0) >= 4.3 && !/fast_food|meal_takeaway|chicken_wings/.test(((p.types || []).join(" "))) },
   nightout: { icon: "🍸", label: "Night Out", title: "Night Out", mood: true, lead: "Bars, live music, dance floors and late kitchens — where tonight actually happens.", queries: [{ cat: "nightlife", keyword: "" }, { cat: "nightlife", keyword: "live music" }, { cat: "nightlife", keyword: "craft cocktail bar" }, { cat: "nightlife", keyword: "dance club" }, { cat: "food", keyword: "late night eats" }], filter: (p) => (p.rating || 0) >= 4.2 },
-  eatnow: { icon: "🍽️", label: "Where to Eat", title: "Where to Eat Right Now", mood: true, lead: "The best food for this exact hour, ranked honestly — no ads, no paid placement.", queries: () => { const h = new Date().getHours(); const wknd = [0, 6].includes(new Date().getDay());
+  eatnow: { icon: "🍽️", label: "Where to Eat", title: "Where to Eat Right Now", mood: true, lead: "The best food for this exact hour, ranked honestly — no ads, no paid placement.", queries: (c) => { const _n = c && c.timeBucket ? c : nowContext({}); const h = _n.hour; const wknd = _n.isWeekend;
     if (h < 11) return wknd ? [{ cat: "food", keyword: "brunch" }, { cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }] : [{ cat: "food", keyword: "breakfast" }, { cat: "food", keyword: "bakery coffee" }, { cat: "food", keyword: "brunch" }];
     if (h < 15) return [{ cat: "food", keyword: "lunch" }, { cat: "food", keyword: "" }, { cat: "food", keyword: "quick casual eats" }];
     if (h < 21) return [{ cat: "food", keyword: "dinner" }, { cat: "food", keyword: "" }, { cat: "food", keyword: "seafood steak" }];
@@ -1062,7 +1068,7 @@ function composeMoment(sel, city) {
   const spec = { base };
   // v4.80: friends = fun, steered by the time of day. Days lean beach/active,
   // evenings lean bars, karaoke, clubs and live music.
-  if (base === "friends") { const _h = new Date().getHours(); spec.extraKeyword = _h >= 17 || _h < 4 ? "bars karaoke live music" : "fun group activities"; }
+  if (base === "friends") { spec.extraKeyword = bucketForHour(siteHourFloat()) === "night" ? "bars karaoke live music" : "fun group activities"; }
   if (has("twohrs")) { spec.radiusOverride = 24000; spec.openNowOnly = true; }
   if (has("drive")) spec.radiusOverride = 110000;
   if (has("fifty")) spec.priceMax = 2;
@@ -2019,8 +2025,8 @@ const promOf = (p) => (p && p.wfProm != null ? p.wfProm : (p && p.wfScore != nul
 function generateHooks(places, locName) {
   if (!places || places.length < 4) return [];
   const city = (locName || "your area").split(",")[0];
-  const h = new Date().getHours();
-  const mealLabel = h < 11 ? "breakfast" : h < 15 ? "lunch" : h < 21 ? "dinner" : "late-night";
+  // v6.72: was a private 11/15/21 meal split. mealForHour is the shared one.
+  const mealLabel = mealForHour(siteHourFloat());
   const hooks = [];
   const byScore = [...places].sort((a, b) => promOf(b) - promOf(a));
 
@@ -3131,9 +3137,9 @@ function PageInner({ initialEvents = null }) {
   // the feed under a reader who was not touching anything. Holding the hour
   // ITSELF makes React bail out when it has not changed, so the fetch re-runs
   // at most once an hour — exactly as often as the pick can actually differ.
-  const [todBucket, setTodBucket] = useState(() => { try { return new Date().getHours(); } catch (e) { return 0; } });
+  const [todBucket, setTodBucket] = useState(() => { try { return Math.floor(siteHourFloat()); } catch (e) { return 0; } });
   useEffect(() => {
-    const tick = () => { try { setTodBucket(new Date().getHours()); } catch (e) {} };
+    const tick = () => { try { setTodBucket(Math.floor(siteHourFloat())); } catch (e) {} };
     // 5 min, not 20: each tick is now a cheap same-value compare that re-renders
     // nothing, so polling more often only buys a tighter latch onto the hour turn.
     const id = setInterval(tick, 5 * 60 * 1000);
@@ -3313,7 +3319,7 @@ function PageInner({ initialEvents = null }) {
         const inCat = (p) => { if (kind === "bestof") return true; const cc = Ranking.coarseCat(p) || primaryCategory(p); return cc === wantCat; };
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
-        const condCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+        const condCtx = condCtxFromNow(nowContext({ weather }));
         const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
@@ -3419,14 +3425,14 @@ function PageInner({ initialEvents = null }) {
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
-    const ctx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+    const ctx = condCtxFromNow(nowContext({ weather }));
     const pool = dedupePlaces([...(displayList || []), ...(places || [])].filter(Boolean), true);
     const list = Ranking.rankByConditions(pool.filter((p) => Dining.cuisineLabel(p) === label), ctx).slice(0, 10);
     setCuisineSheet({ label, list });
   };
   // v2.1: intent entries. Each opens an existing surface or a ranked quick list
   // built from data already loaded. No new fetching, no new card systems.
-  const intentCtx = () => ({ weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) });
+  const intentCtx = () => condCtxFromNow(nowContext({ weather }));
   const intentPool = () => dedupePlaces([...(suggested || []), ...(places || []), ...(homeTodo || [])].filter(Boolean), true);
   const openRainy = () => { const list = Ranking.rankByConditions(intentPool().filter((pp) => { try { return Ranking.venueLean(pp).lean === "indoor"; } catch { return false; } }), intentCtx()).slice(0, 10); setCuisineSheet({ title: "Rainy-day picks", sub: "Indoor spots that hold up, ranked for right now.", label: "rainy day", list }); };
   const [top10Open, setTop10Open] = useState(false);
@@ -3954,7 +3960,7 @@ function PageInner({ initialEvents = null }) {
   // v5.35: the loader's "Friday evening" moment phrase — post-mount only,
   // so the (possibly hour-stale) ISR HTML and the client can't disagree.
   const [bootMoment, setBootMoment] = useState(null);
-  useEffect(() => { try { const _d = new Date(); const _wd = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][_d.getDay()]; const _h = _d.getHours(); const _dp = _h < 6 ? "night" : _h < 12 ? "morning" : _h < 17 ? "afternoon" : "evening"; setBootMoment(`${_wd} ${_dp}`); } catch (e) {} }, []);
+  useEffect(() => { try { const _n = nowContext({}); setBootMoment(`${_n.dayName} ${_n.timeBucket === "night" ? "evening" : _n.timeBucket}`); } catch (e) {} }, []);
   // v5.33 hydration fix: every localStorage-backed state above used to be
   // read in its useState initializer — the server rendered the empty
   // fallback, a returning visitor's first client render produced real data,
@@ -4728,7 +4734,7 @@ function PageInner({ initialEvents = null }) {
     const exp = EXPERIENCES[activeBadge];
     if (screen !== "experience" || !exp || !exp.mood || !Array.isArray(expPlaces) || expPlaces.length < 3) { setMomentPicks(null); return; }
     let cancelled = false;
-    const _h = new Date().getHours(); const _d = new Date().getDay();
+    const _nw = nowContext({ weather }); const _h = _nw.hour; const _d = _nw.dayOfWeek;
     const tb = ["sun","mon","tue","wed","thu","fri","sat"][_d] + "-" + (_h < 6 ? "latenight" : _h < 11 ? "morning" : _h < 15 ? "midday" : _h < 18 ? "afternoon" : _h < 22 ? "evening" : "night");
     const wx = weather ? ((weather.img || "na") + "-" + (weather.temp != null ? Math.round(weather.temp / 5) * 5 : "na")) : "na";
     const cands = expPlaces.filter((p) => p && p.openNow !== false).slice(0, 12).map((p) => ({ id: p.id, name: p.name, type: p.type || "", rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow !== false, price: p.price || "" }));
@@ -5264,7 +5270,7 @@ function PageInner({ initialEvents = null }) {
         const _fetchAt = async (m) => {
           if (sub === "all" && _subs.length) {
             let _second;
-            if (cat === "food") { const _h = new Date().getHours(); const _w = _h < 11 ? "breakfast" : _h < 15 ? "lunch" : _h < 21 ? "dinner" : "dessert"; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
+            if (cat === "food") { const _m = mealForHour(siteHourFloat()); const _w = _m === "late-night" ? "dessert" : _m; _second = (_subs.find((x) => x.id === _w) || _subs[0]).id; }
             // v6.15: Shopping "All" pairs the broad query with the markets/flea
             // query so real destinations like Red Barn Flea Market are fetched.
             else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
@@ -5827,7 +5833,7 @@ function PageInner({ initialEvents = null }) {
     let cancelled = false;
     (async () => {
       setSurpriseLoading(true);
-      const h = new Date().getHours();
+      const h = siteHourFloat();
       let scat = "food";
       let skeyword = "";
       if (h < 11) skeyword = "breakfast";
@@ -6069,7 +6075,7 @@ function PageInner({ initialEvents = null }) {
     (async () => {
       setSuggestedLoading(true);
       try {
-        const h = new Date().getHours();
+        const h = siteHourFloat();
         const wet = wetRef.current; // ref, not state — resolving weather must not double-bill the feed
         // Serve a recent cached feed for this area + time so we do not re-bill
         // Google every time the user returns to Home or nudges a filter.
@@ -6220,7 +6226,7 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => {
     const src = (suggested && suggested.length > 0 ? suggested : places).filter(Boolean);
     if (src.length < 3) return;
-    const _hr = new Date().getHours(); const _tb = _hr < 11 ? "m" : _hr < 15 ? "a" : _hr < 21 ? "e" : "n";
+    const _tb = bucketForHour(siteHourFloat()).charAt(0);
     const _hkey = "wf_hooks_v1_" + _tb + "_" + hookSrcSig;
     try { const raw = localStorage.getItem(_hkey); if (raw) { const o = JSON.parse(raw); if (o && o.t && Date.now() - o.t < 3 * 3600 * 1000 && Array.isArray(o.v) && o.v.length) { setAiHooks(o.v); return; } } } catch (e) {}
     let cancelled = false;
@@ -6231,7 +6237,7 @@ function PageInner({ initialEvents = null }) {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             places: src.slice(0, 20).map((p) => ({ id: p.id, name: p.name, rating: p.rating, reviews: p.reviews, distMi: p.distMi, openNow: p.openNow, price: p.price, type: p.type })),
-            locName, hour: new Date().getHours(),
+            locName, hour: siteHourFloat(),
             weather: weather ? { temp: weather.temp, label: weather.label } : null,
             signals: signals.slice(0, 50),
           }),
@@ -6974,7 +6980,7 @@ function PageInner({ initialEvents = null }) {
   // reachable through the "See all" chip, so the registry is still one source of
   // truth without flooding the home row.
   const HOME_CHIPS = ["gem", "family", "entertainment", "stays", "shows", "value", "budget", "instagram", "outdoor", "bestof"].filter((k) => EXPERIENCES[k]);
-  const _viewCtx = { weather, hour: new Date().getHours(), isWeekend: [0, 6].includes(new Date().getDay()) };
+  const _viewCtx = condCtxFromNow(nowContext({ weather }));
   const _mealPool = cat === "food" ? mealGate(places, sub) : places;
   // v4.25: every sort mode is real on the browse feed, the distance limit
   // applies to all of them, and the near-first rule survives ranking.
@@ -7422,9 +7428,10 @@ function PageInner({ initialEvents = null }) {
           const personalized = !!user && personalize === "on" && hasTaste;
           const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
-          const h = new Date().getHours();
-          const part = h < 11 ? "this morning" : h < 15 ? "for lunch" : h < 17 ? "this afternoon" : h < 22 ? "tonight" : "right now";
-          const moment = h < 11 ? "Breakfast" : h < 15 ? "Lunch" : h < 17 ? "Afternoon" : h < 22 ? "Dinner" : "Late-night";
+          const h = siteHourFloat();
+          const part = BUCKET_PHRASE[bucketForHour(h)];
+          const _ml = mealForHour(h);
+          const moment = _ml.charAt(0).toUpperCase() + _ml.slice(1);
           const intentDef = intent ? INTENTS.find((x) => x.id === intent) : null;
           const reasons = [];
           reasons.push("the time of day");
@@ -7727,7 +7734,7 @@ function PageInner({ initialEvents = null }) {
                             <Icon name="heart" size={12} color="#F472B6" /><span style={{ fontSize: 10.5, fontWeight: 800, color: "#F472B6", letterSpacing: "0.4px", textTransform: "uppercase" }}>Date night</span>
                           </div>
                           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px 14px 14px" }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{(() => { const h = new Date().getHours() + new Date().getMinutes() / 60; return h >= 5 && h < 10.5 ? "Morning date, decided" : h < 14 ? "Lunch date, decided" : h < 18 ? "Afternoon date, decided" : "Tonight, decided"; })()}</div>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", lineHeight: 1.18, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.3px" }}>{(() => { const b = bucketForHour(siteHourFloat()); return b === "morning" ? "Morning date, decided" : b === "afternoon" ? "Afternoon date, decided" : "Tonight, decided"; })()}</div>
                             <div style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>The best of {locName ? locName.split(",")[0] : "your town"}, picked for two ›</div>
                           </div>
                         </div>
@@ -7971,7 +7978,7 @@ function PageInner({ initialEvents = null }) {
                     // Live context for data-gated lines: a "4.9★" claim needs a
                     // real 4.9★ place in the pool; "[mins] minutes away" uses the
                     // actual nearest top-rated spot (~2 min/mile local driving).
-                    const _hh = new Date().getHours();
+                    const _hh = siteHourFloat();
                     const _nearTop = expPool.filter((p) => p && p.rating >= 4.5 && (p.reviews || 0) >= 100 && p.distMi != null).sort((x, y) => x.distMi - y.distMi)[0];
                     const bk = pickHook(a.key, {
                       temp: weather && weather.temp,

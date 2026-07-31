@@ -8,6 +8,10 @@
 import { useState, useRef } from "react";
 import { C, TYPE, RADII, SHADOW, FOCUS, TARGET, NavIcon, Icon, directionsUrl, PlaceScoreChip } from "./kit";
 import { TB_SECTIONS, fetchTodaysBest, tbPhotoUrl } from "../../lib/todaysBest.js";
+// v6.72: the hour and the outdoor gate come from ONE source. This file used to
+// call new Date().getHours() and bucket the day by itself.
+import { nowContext } from "../../lib/nowContext.js";
+import { gateOutdoor } from "../../lib/ranking.js";
 
 function PickRow({ p, onGo }) {
   const img = tbPhotoUrl(p.photo_ref, 240);
@@ -45,15 +49,19 @@ export default function TodaysBest({ center, weather, onLog }) {
     setRows((r) => {
       if (r[id]) return r; // cached for this center
       (async () => {
-        const d = new Date();
+        const now = nowContext({ lat: center && center.lat, lng: center && center.lng, weather });
         const picks = await fetchTodaysBest({
           lat: center && center.lat, lng: center && center.lng,
-          localHour: d.getHours() + d.getMinutes() / 60,
+          localHour: now.hour,
           tempF: weather && weather.temp != null ? weather.temp : null,
           condition: weather && weather.label ? weather.label : null,
           category: id,
         });
-        setRows((r2) => ({ ...r2, [id]: picks }));
+        // THE GATE. The RPC ranks on hour + temp + condition, but it has no
+        // concept of "suppress outdoor entirely" — it demotes. On a four-card
+        // rail a demoted beach is still on screen during a thunderstorm, which
+        // is the recommendation this exists to stop.
+        setRows((r2) => ({ ...r2, [id]: gateOutdoor(picks, now) }));
       })();
       return { ...r, [id]: "loading" };
     });

@@ -42,7 +42,14 @@ ok(far[0].place_id === "y", "the closer pick wins when popularity ties (drive pe
 // ── wired into the page ──
 const c = read("app/components/TrendingNowClient.js");
 ok(/from "\.\.\/\.\.\/lib\/trendingTime"/.test(c), "TrendingNowClient imports the time logic");
-ok(/rankByHour\(picks, hour\)/.test(c) && /new Date\(\)\.getHours\(\)/.test(c), "it ranks the picks by the current local hour");
+// v6.72: the second half asserted the literal `new Date().getHours()`. The
+// invariant is "hour IS the current local hour", not which spelling produced
+// it — and once the hour moved to its single source (lib/nowContext, which is
+// venue-local ET rather than the visitor's device clock) the old string was
+// absent while the behaviour was strictly more correct. Accept either source;
+// `rankByHour(picks, hour)` is the half that encodes the real requirement.
+ok(/rankByHour\(picks, hour\)/.test(c) && /(?:new Date\(\)\.getHours\(\)|nowContext\([\s\S]{0,120}?\)\.hour|siteHourFloat\(\))/.test(c),
+  "it ranks the picks by the current local hour");
 ok(/timeFit: timeFit\(p\.category, hour\)/.test(c) && /r\.timeFit/.test(c), "each row carries + renders its time-fit");
 
 console.log(`test-trending-time: ${n - failn}/${n} passed`);

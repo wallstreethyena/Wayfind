@@ -11,6 +11,7 @@
 // flips introOpen, which arrives here as a normal ctx value.
 import { useRef } from "react";
 import { C, useDialogFocus, Icon } from "../kit";
+import { nowContext } from "../../../lib/nowContext.js";
 
 // Premium redesign, Phase 4: the mood tiles draw from the app's one line-icon
 // language instead of an emoji grid, calmer and on-brand.
@@ -168,9 +169,12 @@ export default function IntroSheet({ ctx }) {
                 mornings swap Where to Eat for Brunch. Every tile fires the full
                 moment engine (structured ranking + cached LLM why-lines). */}
             {(() => { try {
-              const _h = new Date().getHours(); const _d = new Date().getDay();
-              const _eve = _h >= 16 || _h < 4;
-              const _wkndMorn = (_d === 0 || _d === 6) && _h >= 6 && _h < 13;
+              // v6.72: one source. The tiles previously split the day at 16/4
+              // and called weekend-morning 6-13, two more private bucketings.
+              const _now = nowContext({ weather });
+              const _h = _now.hour; const _d = _now.dayOfWeek;
+              const _eve = _now.timeBucket === "night";
+              const _wkndMorn = _now.isWeekend && _now.timeBucket === "morning";
               // "Too hot" is what it FEELS like, not the thermometer: a Florida
               // 91° with a 104° heat index is not an Outside afternoon.
               const _felt = weather ? (weather.feels != null ? weather.feels : weather.temp) : null;

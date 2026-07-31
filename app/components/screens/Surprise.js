@@ -25,6 +25,7 @@ import { C, scoreLabel, PlaceScoreChip } from "../kit";
 import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
 import { RankedRow, ROW_IMG_STYLE } from "../RankedExperiencePage";
 import { openExternal } from "../../../lib/links";
+import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 
 export default function SurpriseScreen({ ctx }) {
   const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg } = ctx;
@@ -33,7 +34,9 @@ export default function SurpriseScreen({ ctx }) {
           const badges = p ? experienceBadges(p).slice(0, 2) : [];
           const cuisineLabel = p ? (() => { const t = (p.types || []).find((x) => /_(restaurant|store|bar)$/.test(x)); return t ? t.replace(/_(restaurant|store|bar)$/, "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : null; })() : null;
           // v4.6: capitalized identity + state-aware subtitle so a closed pick is never framed as "right now".
-          const period = (() => { const hr = new Date().getHours(); return hr < 12 ? "Morning" : hr < 17 ? "Afternoon" : "Evening"; })();
+          // v6.72: was a FOURTH independent bucketing (12/17). Now the one
+          // source, so this label cannot disagree with the list beside it.
+          const period = { morning: "Morning", afternoon: "Afternoon", night: "Evening" }[bucketForHour(siteHourFloat())];
           const sOpen = !!(p && liveOpen(p) === true);
           const sOpensLater = !!(p && liveOpen(p) === false && p.nextOpen && p.nextOpen.today);
           const sSub = sOpen ? "Open now, nearby, and worth your time."

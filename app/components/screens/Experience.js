@@ -7,8 +7,7 @@ import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../Collection
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
 import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
-import { dealScope } from "../../../lib/dealSheet";
-import { nearestMetro } from "../../../lib/orderInFeatured";
+import { siteHourFloat } from "../../../lib/nowContext.js";
 
 export default function ExperienceScreen({ ctx }) {
   const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center } = ctx;
@@ -149,7 +148,12 @@ export default function ExperienceScreen({ ctx }) {
               {!expLoading && activeBadge === "instagram" && (expPlaces || []).length > 0 && (() => {
                 // Owner (2026-07-21): "the photo tip needs to be easier to
                 // understand" — plain words, one action each, no jargon.
-                const h = new Date().getHours();
+                // NOT a recommendation bucket — this is solar position, and it
+                // legitimately needs finer granularity than morning/afternoon/
+                // night (golden hour is ~90 minutes). It still takes its hour
+                // from the one source so it cannot drift from the rest of the
+                // page by a timezone.
+                const h = siteHourFloat();
                 let light;
                 if (h < 8) light = "Soft morning light right now. Keep the sun off to one side — never shoot straight into it.";
                 else if (h < 11) light = "Put the sun behind you, so faces come out bright and even.";

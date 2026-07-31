@@ -111,9 +111,21 @@ ok(/className="wf-shell" style=\{\{ \.\.\.wrap, maxWidth: undefined \}\}/.test(s
 const HOME_EXP_NOTE = "\n  This is the v6.43 idle-jump fix — see the comments at each site in app/home.js.";
 
 // a) The hour bucket holds the HOUR, so React bails out when it has not changed.
-ok(/const \[todBucket, setTodBucket\] = useState\(\(\) => \{[^\n]*new Date\(\)\.getHours\(\)/.test(src),
-  "todBucket must be initialised to the current HOUR, not a counter seed." + HOME_EXP_NOTE);
-ok(/setTodBucket\(new Date\(\)\.getHours\(\)\)/.test(src),
+//
+// v6.72: these two asserted the literal string `new Date().getHours()`. They
+// went red when the hour moved to its single source (lib/nowContext) even
+// though the invariant they exist for — "this value is an HOUR, so it changes
+// at most 24x/day" — was untouched. That is the "assert the invariant, not the
+// string" trap from CLAUDE.md, and the dangerous half is the inverse: the old
+// regex would have gone GREEN on any useState seeded from getHours() even if
+// the ticker had been switched back to a counter.
+//
+// So: accept EITHER hour source by name, and lean on the anti-counter assertion
+// below, which is the one that actually encodes the defect.
+const HOUR_SOURCE = "(?:new Date\\(\\)\\.getHours\\(\\)|siteHourFloat\\(\\))";
+ok(new RegExp("const \\[todBucket, setTodBucket\\] = useState\\(\\(\\) => \\{[^\\n]*" + HOUR_SOURCE).test(src),
+  "todBucket must be initialised to the current HOUR (new Date().getHours() or siteHourFloat()), not a counter seed." + HOME_EXP_NOTE);
+ok(new RegExp("setTodBucket\\((?:Math\\.floor\\()?" + HOUR_SOURCE).test(src),
   "the todBucket ticker must set the current HOUR." + HOME_EXP_NOTE);
 ok(!/setTodBucket\(\s*\(\s*\w+\s*\)\s*=>/.test(src),
   "todBucket must not be an incrementing counter again — every tick would produce a new value and re-run the /api/experiences fetch, re-setting the card ~72×/day for a pick that can only change 24×/day." + HOME_EXP_NOTE);

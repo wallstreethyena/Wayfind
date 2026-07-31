@@ -10,7 +10,13 @@ import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount, nowSubline } from "../../lib/intentPages";
+// v6.72: this component had ZERO weather references. Its header rendered
+// areaSeasonalContext(city, season) — season and place, never time, never
+// weather — while `h` chose a query set and touched nothing else. Both halves
+// now come from ONE source: nowContext decides the bucket and the outdoor gate,
+// rankRows enforces the gate and reweights, and nowSubline states why.
+import { nowContext } from "../../lib/nowContext";
 import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
 import { toDisplayScore } from "../../lib/score";
@@ -18,6 +24,12 @@ import { wayfindScore } from "../../lib/google";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+
+// The one context the server and the first client render can agree on: a fixed
+// hour, no weather. Module-level and frozen so it is byte-identical on both
+// sides. Nothing derived from it may claim a weather condition — with
+// weather.known false, nowContext's copy branches say only what the hour is for.
+const SSR_CTX = Object.freeze(nowContext({ hour: 12, weather: null }));
 
 export default function IntentPageClient({ intent }) {
   const def = INTENT_PAGES[intent];
@@ -56,12 +68,77 @@ export default function IntentPageClient({ intent }) {
   // module, no fetch, no LLM, nothing in the request path.
   const areaCtx = areaSeasonalContext(loc && loc.city, currentSeason());
 
+  // ── TIME + WEATHER (v6.72) ─────────────────────────────────────────────────
+  // `now` is held in STATE and set in an effect, never computed during render.
+  // Same reason the copy rotation below is in an effect: this component is
+  // server-rendered to HTML before it hydrates, and a value derived from the
+  // clock or from a client-only fetch differs between the two renders. On this
+  // codebase a hydration mismatch does not garble one line — it takes the
+  // page's interactivity down (the 3d95dd7 outage class). SSR_CTX is what both
+  // the server and the first client render produce; the real context swaps in
+  // immediately after mount.
+  //
+  // NOTE this also fixes a pre-existing hazard: intentTitle() was already being
+  // called with a render-time hour, and /date-night's variant-0 title branches
+  // on it, so the server and client could disagree across a bucket edge.
+  const [now, setNow] = useState(null);
+  const [weather, setWeather] = useState(null);
+
+  // ?hour= is the simulation hook the three-bucket verification runs on. It is
+  // read ONLY here, client-side, and only ever feeds nowContext — it cannot
+  // reach a query string, a fetch, or the DOM. Out-of-range values are ignored
+  // by nowContext's own normalisation.
+  const hourOverride = useMemo(() => {
+    const v = parseFloat(sp.get("hour"));
+    return Number.isFinite(v) ? v : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Weather first — /api/weather is the existing keyless Open-Meteo proxy, and
+  // nowContext takes the raw payload shape directly. Fails soft: on any error
+  // the context keeps weather.known === false, which leaves outdoorOK TRUE. A
+  // failed fetch must never suppress every outdoor place in the market.
   useEffect(() => {
-    if (!def || !isFinite(loc.lat)) { setRows([]); return; }
+    if (!isFinite(loc.lat)) return;
     let dead = false;
     (async () => {
-      const h = new Date().getHours() + new Date().getMinutes() / 60;
-      const qs = def.queries(h);
+      try {
+        const r = await fetch("/api/weather?lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2));
+        const j = r.ok ? await r.json() : null;
+        if (!dead && j) setWeather(j);
+      } catch (e) {}
+      finally { if (!dead) setWeatherSettled(true); }
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // Distinguishes "weather has not arrived yet" from "weather came back empty".
+  // Without it the list would fire once ungated and again gated, and the user
+  // would watch outdoor rows appear and then vanish.
+  const [weatherSettled, setWeatherSettled] = useState(false);
+
+  useEffect(() => {
+    if (!weatherSettled) return;
+    setNow(nowContext({ lat: loc.lat, lng: loc.lng, city: loc.city, weather, hour: hourOverride }));
+    // Re-bucket on the hour boundary rather than on an interval: a page left
+    // open across 17:30 should become the evening list without a reload.
+    const id = setInterval(() => {
+      setNow(nowContext({ lat: loc.lat, lng: loc.lng, city: loc.city, weather, hour: hourOverride }));
+    }, 5 * 60 * 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [weather, weatherSettled, hourOverride]);
+
+  useEffect(() => {
+    if (!def || !isFinite(loc.lat)) { setRows([]); return; }
+    // Wait for the context. Querying before it exists would fire the ungated
+    // query bank and then re-fire the gated one — the user watches beach rows
+    // appear during a heat advisory and then disappear, which is worse than a
+    // beat of loading.
+    if (!now) return;
+    let dead = false;
+    (async () => {
+      const qs = def.queries(now);
       const results = await Promise.all(qs.map(async ({ cat, q }) => {
         try {
           const u = "/api/places/search?q=" + encodeURIComponent(q) + "&lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2) + "&radius=32000&n=20&cat=" + encodeURIComponent(cat);
@@ -70,7 +147,15 @@ export default function IntentPageClient({ intent }) {
           return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
         } catch (e) { return []; }
       }));
-      const ranked = rankRows(results.flat(), def.floor, { origin: { lat: loc.lat, lng: loc.lng }, penalty: def.distancePenalty || null });
+      // ctx is what makes this ranking time-aware rather than just time-queried:
+      // it applies the outdoor suppression gate, the per-bucket reweight, and
+      // the open-now / minutes-to-close multiplier. `timeless` pages (/best-of)
+      // pass null and keep the pure-quality order their copy promises.
+      const ranked = rankRows(results.flat(), def.floor, {
+        origin: { lat: loc.lat, lng: loc.lng },
+        penalty: def.distancePenalty || null,
+        ctx: def.timeless ? null : now,
+      });
       // v6.56 (owner): the line under each row is WAYFIND editorial (verified
       // wf_editorial hooks, one anon in() call) — never Google's summary text.
       try {
@@ -162,7 +247,15 @@ export default function IntentPageClient({ intent }) {
   }, [intent]);
 
   if (!def) return null;
-  const h = new Date().getHours() + new Date().getMinutes() / 60;
+  // SSR_CTX is the deterministic context the server and the FIRST client render
+  // both produce — noon, no weather, so no gate and no weather claim. `now`
+  // replaces it immediately after mount. Never inline `new Date()` here: that is
+  // precisely the hydration mismatch the copy-rotation comment above describes,
+  // and /date-night's variant-0 title branches on the bucket.
+  const titleCtx = now || SSR_CTX;
+  // The why-line. Rendered only once the real context exists, so the server
+  // never emits a weather claim it cannot stand behind.
+  const whyLine = now ? nowSubline(def, now, loc.city) : null;
   const share = async () => {
     // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real
     // photoRef, so every recipient's unfurl shows the actual top place —
@@ -181,13 +274,35 @@ export default function IntentPageClient({ intent }) {
     <RankedExperiencePage
       topLeft={<BackControl fallback="/" />}
       eyebrow={intentEyebrow(def, variant)}
-      titleTop={intentTitle(def, h, loc.city, variant)}
+      titleTop={intentTitle(def, titleCtx, loc.city, variant)}
       titleBottom={loc.city}
       subtitle={intentSub(def, loc.city, variant)}
       heroImg={def.art}
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
     >
+      {whyLine ? (
+        // v6.72 THE WHY-LINE (owner: "the headline must say why").
+        //
+        // This states the three things that produced this exact list: the time
+        // bucket, the outdoor gate, and the evidence that opened or closed it —
+        // "Afternoon picks near Orlando — indoors, because it is 96° and there
+        // is a heat advisory". Never generic: nowReason has no catch-all
+        // branch, and a `timeless` page returns null here rather than printing
+        // a weather claim its own subhead denies.
+        //
+        // It sits ABOVE the seasonal context and the filter subhead, because it
+        // is the most volatile and most decision-relevant of the three:
+        // why NOW (this line) -> why HERE this season -> what we filtered out.
+        //
+        // The claim is bound to the code: the "indoors" half is emitted from
+        // the same ctx.outdoorOK that rankRows suppresses outdoor rows on, so
+        // the line cannot describe a filter that did not run.
+        <div style={{ marginBottom: 14, maxWidth: 620, display: "flex", alignItems: "baseline", gap: 9 }}>
+          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 999, background: def.accent, flex: "0 0 auto", transform: "translateY(-2px)" }} />
+          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: "#E6EDF3", fontWeight: 600 }}>{whyLine}</p>
+        </div>
+      ) : null}
       {areaCtx ? (
         // v6.64 AreaSeasonalContext. The seasonal header read as a weather
         // widget with a place name attached: city, then a filter explanation.

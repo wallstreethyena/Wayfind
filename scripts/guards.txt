@@ -133,6 +133,8 @@ node scripts/test-shopping.mjs
 node scripts/test-events-prime.mjs
 node scripts/test-todays-best.mjs
 node scripts/test-popularity.mjs
+node scripts/check-one-clock.mjs
+node scripts/test-now-context.mjs
 node scripts/test-intent-pages.mjs
 node scripts/test-beach-water.mjs
 node scripts/test-blurbs-cache.mjs

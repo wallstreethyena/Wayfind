@@ -3,6 +3,7 @@
 // Each hook is tied to a real place and includes a themed "detail sheet" body.
 import { aiKey } from "../../../lib/aiKey";
 import { cget, cset } from "../../../lib/serverCache";
+import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 
 export async function POST(req) {
   try {
@@ -11,8 +12,11 @@ export async function POST(req) {
     if (!key || !places || places.length < 3) return Response.json({ hooks: [] });
 
     const city = (locName || "your area").split(",")[0];
-    const h = Number(hour) || new Date().getHours();
-    const timeLabel = h < 11 ? "morning" : h < 15 ? "afternoon" : h < 21 ? "evening" : "late night";
+    // v6.72: the daypart label is the SHARED bucket, not a private 11/15/21
+    // split. It is also the cache key below, so a private split here meant the
+    // hooks pool was partitioned differently from every list it described.
+    const h = Number.isFinite(Number(hour)) ? Number(hour) : siteHourFloat();
+    const timeLabel = bucketForHour(h);
     // v6.55 shared pool: same area + same daypart + same top places = same
     // hooks for every visitor, 4h TTL (a daypart). Weather wetness is in the
     // key because the prompt pivots on it; temperature alone is not.

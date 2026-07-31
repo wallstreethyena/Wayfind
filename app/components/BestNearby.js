@@ -22,6 +22,9 @@ import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBe
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+// v6.72: one source for the hour, the bucket and the outdoor gate.
+import { nowContext } from "../../lib/nowContext.js";
+import { gateOutdoor } from "../../lib/ranking.js";
 
 // Owner: "a little lighter, almost black" — one step off the page's #040810.
 const CARD_BG = "#0B0E15";
@@ -100,11 +103,15 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     return () => { dead = true; };
   }, [rows.todo]);
 
+  // v6.72: nowContext is the single source of the hour AND the outdoor gate.
+  // `now()` is a function, not a memo, so a rail opened at 17:29 and again at
+  // 17:31 gets the two different buckets it should.
+  const nowCtx = () => nowContext({ lat: center && center.lat, lng: center && center.lng, weather });
   const baseArgs = () => {
-    const d = new Date();
+    const n = nowCtx();
     return {
       lat: center && center.lat, lng: center && center.lng,
-      localHour: d.getHours() + d.getMinutes() / 60,
+      localHour: n.hour,
       tempF: weather && weather.temp != null ? weather.temp : null,
       condition: weather && weather.label ? weather.label : null,
     };
@@ -161,7 +168,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
     setRows((r) => {
       if (r[id]) return r;
-      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: data })); })();
+      // THE GATE, applied to whichever rail loaded. The "eat" rail is
+      // unaffected in practice (restaurants read indoor), so this is one
+      // call site rather than two branches that can drift apart.
+      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: gateOutdoor(data, nowCtx()) })); })();
       return { ...r, [id]: "loading" };
     });
   };
