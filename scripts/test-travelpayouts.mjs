@@ -49,12 +49,14 @@ ok(u.searchParams.get("u") === "https://www.tiqets.com/en/tampa?x=1", "destinati
 
 // ── 3. marker vs trs — the distinction that has been confused twice ───────
 ok(u.searchParams.get("marker") === "750791", `marker is 750791, the EARNING marker (got ${u.searchParams.get("marker")})`);
-ok(u.searchParams.get("trs") === "550160", `trs is 550160, the ACCOUNT id (got ${u.searchParams.get("trs")})`);
+ok(u.searchParams.get("trs") === "550160", `trs is 550160, the SOURCE id (got ${u.searchParams.get("trs")})`);
 ok(M.TP_TRS === "550160", "TP_TRS exported as 550160");
 ok(u.searchParams.get("marker") !== u.searchParams.get("trs"), "marker and trs are NOT the same number");
 ok(!/marker=550160/.test(link), "550160 never appears as the marker — that would pay the wrong account");
 ok(!/shmarker/.test(link), "old shmarker param is gone");
 ok(!/tp\.media\/click/.test(link), "old tp.media/click endpoint is gone");
+ok(u.searchParams.get("promo_id") === null, "old promo_id param is gone");
+ok(u.searchParams.get("url") === null, "old url param is gone");
 
 // ── 4. the stale env var cannot override ──────────────────────────────────
 // NEXT_PUBLIC_TP_MARKER=550160 is still set in Vercel from the dark period.
@@ -108,6 +110,7 @@ for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "goci
 
 const r = M.tpReadiness();
 ok(r.marker === "750791", `readiness marker 750791 (got ${r.marker})`);
+ok(r.trs === "550160", `readiness trs 550160 (got ${r.trs})`);
 ok(r.live === 4, `exactly 4 programs live (got ${r.live})`);
 ok(r.liveKeys.sort().join(",") === "klook,ticketnetwork,tiqets,wegotrip", `live keys are the four Wave-1 (got ${r.liveKeys.join(",")})`);
 ok(M.tpProgramsForCategory("attractions").length === 1, "attractions has 1 live program (tiqets)");
@@ -117,6 +120,8 @@ ok(M.tpProgramsForCategory("transfers").length === 0, "transfers still has 0 liv
 ok(M.tpDeepLink("tiqets", "javascript:alert(1)") === null, "javascript: destination rejected by the protocol guard");
 ok(M.tpDeepLink("tiqets", "data:text/html,<b>x") === null, "data: destination rejected by the protocol guard");
 ok(M.tpDeepLink("tiqets", "ftp://example.com/f") === null, "ftp: destination rejected by the protocol guard");
+ok(M.tpDeepLink("tiqets", "mailto:a@b.com") === null, "mailto: destination rejected by the protocol guard");
+ok(M.tpDeepLink("tiqets", "file:///etc/passwd") === null, "file: destination rejected by the protocol guard");
 ok(M.tpDeepLink("tiqets", "https://ok.com/x") !== null, "https destination ACCEPTED — the guard is not blocking everything");
 ok(M.tpDeepLink("tiqets", "http://ok.com/x") !== null, "http destination ACCEPTED");
 ok(M.tpDeepLink("tiqets", "not a url") === null, "invalid destination rejected");
@@ -124,4 +129,4 @@ ok(M.tpDeepLink("nonexistent", "https://x.com") === null, "unknown program rejec
 ok(M.tpDeepLink("tiqets", "") === null, "empty destination rejected");
 
 if (fails) { console.error(`test-travelpayouts: ${fails} failure(s)`); process.exit(1); }
-console.log("test-travelpayouts: OK — 4 Wave-1 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 6 programs still dark, protocol guard rejects javascript:/data:/ftp: and accepts http(s)");
+console.log("test-travelpayouts: OK — 4 Wave-1 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 6 programs still dark, protocol guard rejects javascript:/data:/ftp:/mailto:/file: and accepts http(s)");
