@@ -141,7 +141,7 @@ function PosterCard({ c, position, ctx }) {
         </div>
         <div style={{ fontFamily: T.serif, fontSize: 19.5, color: "#fff", lineHeight: 1.2, marginBottom: 6 }}>{c.title}</div>
         {c.details ? (
-          <div style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.45, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</div>
+          <div style={{ fontSize: 12.5, color: T.muted, lineHeight: 1.45, marginBottom: 10, display: "-webkit-box", WebkitLineClamp: art ? 2 : 6, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</div>
         ) : null}
 
         {c.code ? (
@@ -188,7 +188,14 @@ function PosterCard({ c, position, ctx }) {
           ) : (
             <div style={{ fontSize: 12.5, color: T.hint, textAlign: "center", padding: "12px 0" }}>Mention Wayfind when you order</div>
           )}
-          <div style={{ marginTop: 9, fontSize: 10.5, color: "#7f8896", textAlign: "center", lineHeight: 1.4 }}>
+          {/* minHeight reserves TWO lines. The footer is bottom-pinned, so a one-line
+              non-affiliate disclosure ("Not an affiliate offer — just a good one.",
+              15px) let its CTA sit 14px LOWER than the two-line affiliate ones
+              (29px). Measured on the live rail at 390px: CTAs at 383px vs 369px
+              from card top. Reserving the space makes the CTA baseline match
+              across the rail, which is what margin-top:auto was already trying
+              to do for the disclosure. */}
+          <div style={{ marginTop: 9, minHeight: 29, fontSize: 10.5, color: "#7f8896", textAlign: "center", lineHeight: 1.4 }}>
             {disc.before}<i style={{ fontStyle: "italic", color: T.muted }}>{disc.italic}</i>{disc.after}
           </div>
         </div>
