@@ -24,6 +24,24 @@ resume without re-deriving anything.
 > 2. **Then keep building.** Ship guides in sequence, not more scaffolding.
 > 3. **Every guide terminates in a live CTA** from the routing table in §1b.
 >    **A guide without a working terminal does not ship. Ever.**
+> **OWNERSHIP, 2026-07-31:** this lane owns the **Guide Factory**. Mission is not more
+> content — it is the highest-performing guide *system*. Per guide: prove demand,
+> measure overlap, verify the CTA is monetized AND tracked, user value before
+> monetization, verify every fact, invent nothing. Keep an **inventory-gap backlog**
+> (provider, revenue opportunity, effort, priority) and keep extracting reusable
+> patterns so each guide gets cheaper without getting worse.
+>
+> **BEFORE PROMISING ANY POST-PUBLICATION NUMBER, VERIFY THE JOINT IS READABLE.**
+> Ten metrics were requested (impressions, CTR, time on page, scroll depth, outbound
+> clicks, bookings, affiliate revenue, return visits, ranking, cross-guide conversion).
+> **Several are not readable today** — #502 landed on main as "the money funnel,
+> declared — and the five joints that cannot be read yet", the known baseline is that
+> the funnel dies at `detail_open`, and Travelpayouts only began earning 2026-07-29 so
+> there is no revenue history to read at all. **First task of the next session is to
+> establish which of the ten are actually instrumented and say so plainly.** A
+> performance report built on unreadable joints is worse than no report — it invents
+> confidence. Fix the instrumentation gaps as Guide Factory engineering work.
+>
 > 4. **The weakest-terminal report is a STANDING deliverable every session**, not a
 >    one-off. Fixing one thin CTA beats writing a 21st guide.
 >
