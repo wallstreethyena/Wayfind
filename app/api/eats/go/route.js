@@ -9,7 +9,10 @@
 // search deep link, so this can never be worse than v6.37 behavior.
 export const runtime = "nodejs";
 
-import { cget, cset, DAY } from "../../../../lib/serverCache";
+import { randomUUID } from "node:crypto";
+import { cget, cset, DAY } from "../../../../lib/serverCache.js";
+import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { commercePayload } from "../../../../lib/commerce.js";
 
 // Bracket-notation env read at call time (see /api/viator/go): dot-access
 // NEXT_PUBLIC_* gets inlined at build and a later-added value would bake out.
@@ -91,8 +94,40 @@ export async function GET(req) {
   const city = String(u.searchParams.get("city") || "").slice(0, 60).trim();
   const lat = parseFloat(u.searchParams.get("lat"));
   const lng = parseFloat(u.searchParams.get("lng"));
+  const clickId = randomUUID();
+  const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
+
+  const baseProps = {
+    provider: "uber_eats",
+    offer_id: name || "unknown",
+    surface: "order_in",
+    content_id: name || "unknown",
+    city_id: city || null,
+    category: "restaurant",
+    click_id: clickId,
+  };
+
+  const emit = (event, extra) => {
+    try {
+      const props = commercePayload(event, { ...baseProps, ...(extra || {}) });
+      captureServer(event, { distinctId, properties: props });
+    } catch {}
+  };
+
   const fallback = wrap(searchUrl(name || "food delivery", city));
-  if (!name) return Response.redirect(fallback, 302);
+  if (!name) {
+    emit("provider_redirect_failed", { failure_reason: "missing-name" });
+    return Response.redirect(fallback, 302);
+  }
+
   const store = await resolveStore(name, city, lat, lng);
-  return Response.redirect(wrap(store || fallback), 302);
+  const dest = wrap(store || fallback);
+
+  if (!store) {
+    emit("provider_redirect_failed", { failure_reason: "store-unresolved" });
+  } else {
+    emit("provider_redirect_started");
+  }
+
+  return Response.redirect(dest, 302);
 }
