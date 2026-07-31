@@ -10,6 +10,37 @@ past answers gets the same question re-asked.
 
 ---
 
+## 6. Money now — config-only deploys (highest money-per-minute)
+
+**Owner:** Gabe (Vercel). Kim cannot do these because they require Vercel project access and entering values would put secrets in the transcript.
+
+### 6.1 Deploy `NEXT_PUBLIC_BOOK_IT`
+
+1. Go to https://vercel.com/wayfind2/wayfind/settings/environment-variables
+2. Confirm `NEXT_PUBLIC_BOOK_IT` is set to `on` (it was set 2026-07-30 ~02:00Z per registry).
+3. If not set, add: `NEXT_PUBLIC_BOOK_IT` = `on`, environment = Production.
+4. Redeploy the project (Vercel → Deployments → Redeploy latest).
+5. Verify: visit a bookable attraction detail sheet, click "Book tickets", and check PostHog for `provider_redirect_started` events.
+
+### 6.2 Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`
+
+1. In the same Vercel environment-variables page, add:
+   - Name: `NEXT_PUBLIC_UBEREATS_TEMPLATE`
+   - Value: your Impact Uber Eats tracking template with `{url}` placeholder
+   - Environment: Production
+2. Redeploy.
+3. Verify: visit a restaurant detail sheet, click "Order delivery", and confirm the outbound URL contains your Impact marker instead of a plain `ubereats.com` URL.
+
+### 6.3 Set Travelpayouts payout method
+
+1. Go to Travelpayouts dashboard → Account → Payouts.
+2. Add and verify payout method.
+3. Until this is done, every commission number below is theoretical.
+
+**Why these are first:** each is config-only, takes minutes, and unlocks already-built revenue layers. Do these before any code work.
+
+---
+
 ## 5. Deals registry follow-through (Clipp geo-gating, coupon patch, Uber Eats, CJ quick wins)
 
 **Question:** What is the ship order for the revenue layers that are live but broken or misapplied?
