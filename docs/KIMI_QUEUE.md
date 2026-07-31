@@ -10,15 +10,16 @@ past answers gets the same question re-asked.
 
 ---
 
-## 4. Deals registry follow-through (Clipp geo-gating, coupon patch, Uber Eats, CJ quick wins)
+## 5. Deals registry follow-through (Clipp geo-gating, coupon patch, Uber Eats, CJ quick wins)
 
 **Question:** What is the ship order for the revenue layers that are live but broken or misapplied?
 
 **Decision (Kim, 2026-07-30):** Fix geo-relevance and deploy blockers before expanding the deals layer. Do not grow Clipp to restaurant detail sheets until a Sarasota/Bradenton card cannot render for an Orlando visitor.
 
 **What is true today:**
-- Clipp is live in production (PR #474) but served Sarasota/Bradenton city cards to an Orlando-context `/coupons` page.
-- The coupon-menu visual patch is unapplied 13+ hours after review.
+- Clipp is live in production (PR #474) and Tampa/Orlando markets are now registered (PR #517 merged).
+- Geo-gating is still missing: Sarasota/Bradenton cards can still render for Orlando visitors until the filter ships.
+- The coupon-menu visual patch is unapplied.
 - Uber Eats is rendering plain untracked URLs (`eats_out` = 0 non-owner clicks in 14 days).
 - CityPASS and TicketSmarter are active CJ advertisers but unwired.
 - `NEXT_PUBLIC_BOOK_IT` is set but not yet deployed.
@@ -38,6 +39,12 @@ past answers gets the same question re-asked.
 - `DEEPSEEK`: per-merchant Clipp matching in cuisine shortlist (after gating fix).
 
 **Status:** Awaiting execution by owning lanes.
+
+---
+
+## 4. Guide Factory targets
+
+**Status:** PR #501 merged 2026-07-31. 20 ranked targets selected, each with a monetizable terminal today. Next: LLAMA writes the guides; Search Console data from Wave 1 validates the per-guide traffic/conversion assumption before scaling to the 5,000-guide denominator.
 
 ---
 
