@@ -7850,6 +7850,15 @@ function PageInner({ initialEvents = null }) {
                   {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
                   {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {/* The two NATIONAL categories. They had no render path at all, so both
+                      rows sat dark since 2026-07-22 despite being live attributed CJ links —
+                      built, working, and earning nothing for want of a mount. Placed beside
+                      the local rail whose trip-planning moment they belong to: a car rental
+                      next to hotels, a movie ticket next to things to do. Both are
+                      scope='national', so geoFilterDeals keeps them for every user and
+                      orderDealsByScope holds them below the local inventory. */}
+                  {browseCat === "hotels" && center && <UTDealsRail category="travel" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "attractions" && center && <UTDealsRail category="more" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
