@@ -59,19 +59,19 @@ past answers gets the same question re-asked.
 1. **~~Close server-side provider-redirect capture gap.~~ DONE (#519).** `/api/commerce/go`, `/api/viator/go`, and `/api/eats/go` now emit `provider_redirect_started`/`failed` server-side. Guard: `scripts/check-provider-redirects.mjs`.
 2. **~~Travelpayouts marker + approved programs.~~ DONE (#419).** Marker corrected to `750791`, four approved programs applied.
 3. **~~Clipp geo-gating.~~ DONE (#520).** City-scoped Clipp/Supabase `offers` rows are filtered to the viewer's resolved metro.
-4. Deploy the BOOK_IT env change.
-5. Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`.
-6. Apply the coupon-menu visual patch.
-7. Detail-sheet CTA ladder (cafe → Directions, hotel → Check rates).
+4. **~~Detail-sheet CTA ladder.~~ DONE (#522).** One place-type-aware primary action per sheet; cafe/bakery no longer shows "Check rates"; closed places get "Add to plan".
+5. Deploy the BOOK_IT env change.
+6. Set `NEXT_PUBLIC_UBEREATS_TEMPLATE`.
+7. Apply the coupon-menu visual patch.
 8. Per-merchant Clipp matching in cuisine shortlist / restaurant detail sheets.
 
 **Execution:**
-- `Kim` (done): server-side provider-redirect capture (#519), Travelpayouts fix (#419), Clipp geo-gating (#520).
-- `claude.exe`: detail-sheet CTA ladder (agent-4 in progress), coupon-menu patch deploy, Clipp card UI/UX, placement on surfaces.
+- `Kim` (done): server-side provider-redirect capture (#519), Travelpayouts fix (#419), Clipp geo-gating (#520), detail-sheet CTA ladder (#522).
+- `claude.exe`: coupon-menu patch deploy, Clipp card UI/UX, placement on surfaces.
 - `GWEN`: Uber Eats template, CityPASS/TicketSmarter CJ wiring.
 - `DEEPSEEK`: per-merchant Clipp matching in cuisine shortlist (after gating fix).
 
-**Status:** Code blockers cleared; awaiting config deploys and claude.exe's CTA-ladder finish.
+**Status:** Code blockers cleared; awaiting config-only deploys (BOOK_IT, Uber Eats template, Travelpayouts payout method).
 
 ---
 
