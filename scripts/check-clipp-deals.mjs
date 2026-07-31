@@ -88,7 +88,15 @@ ok(clippTrackedUrl("") === null && clippTrackedUrl(null) === null, "an empty off
 for (const m of CLIPP_MARKETS) {
   const t = clippTrackedUrl(m.offerId, "clickid1");
   ok(typeof t === "string" && hasCjPid(t), `${m.offerId}: the tracked url exists and carries the PID`);
-  ok(t.startsWith("https://www.dpbolvw.net/click-"), `${m.offerId}: routes through CJ, not straight to clipp.com`);
+  // Guarded because a malformed `dest` makes clippTrackedUrl return NULL by design
+  // (isClippDest refuses anything but /states/<st>/cities/<city>). Calling
+  // .startsWith on that null threw a TypeError, so the run still exited 1 — the
+  // protection held — but it printed a STACK TRACE instead of the named assertion
+  // above. That is the difference between "your dest has the wrong path shape" and
+  // ten minutes reading a trace. Reproduced by swapping Orlando's dest to the dead
+  // /local-coupons/<st>/<city> form, which is the exact mistake this file exists
+  // to prevent, so it is the one case that must report itself clearly.
+  ok(typeof t === "string" && t.startsWith("https://www.dpbolvw.net/click-"), `${m.offerId}: routes through CJ, not straight to clipp.com`);
 }
 
 /* ── 3. the destination allowlist ─────────────────────────────────────────── */
