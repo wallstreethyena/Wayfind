@@ -11,33 +11,53 @@ export const runtime = "edge";
 // pages, and holding a second copy of the path is what made /hidden-gems
 // unfurl a different photo than the page showed. They derive from
 // INTENT_PAGES below. "trending" has no intent page, so it keeps its own.
-const INTENTS = {
-  "date-night": { accent: "#F472B6", eyebrow: "Date night, decided", line1: "Tonight, decided", promise: "The best of the night for two — ranked, not guessed." },
-  family: { accent: "#22C55E", eyebrow: "Memories for life", line1: "Family day, decided", promise: "The most-loved spots, proven by thousands of families." },
-  trending: { art: "/cards/trending-near-you-adobestock-434128766.jpeg", accent: "#FF6B6B", eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now." },
-  "hidden-gems": { accent: "#A78BFA", eyebrow: "Hidden gems", line1: "Hidden gems", promise: "The spots locals keep to themselves — loved, not overrun." },
+// SHARE-ONLY surfaces: a key that has a card but NO intent page. "trending" is
+// the only one — it is a share destination, not a route under INTENT_PAGES.
+// Everything else derives from INTENT_PAGES.card, which is the single source.
+//
+// The hand-written map this replaces held its own copy of `art`, and that
+// duplication is exactly what made /hidden-gems unfurl a photo the page never
+// showed. It does not get a second chance (owner ruling, 2026-07-31).
+const SHARE_ONLY = {
+  trending: { eyebrow: "Trending near you", line1: "What is drawing people", promise: "The places getting the most attention right now.", accent: "#FF6B6B", art: "/cards/trending-near-you-adobestock-434128766.jpeg" },
 };
 
+// The ONE lookup. Returns the card or null; null is a hard 404 below, never a
+// silently-rendered fallback.
+function cardFor(key) {
+  const page = INTENT_PAGES[key];
+  if (page && page.card) return page.card;
+  return SHARE_ONLY[key] || null;
+}
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const intentKey = (searchParams.get("intent") || "").slice(0, 24);
-  const def = INTENTS[intentKey];
-  // ONE ART SOURCE. The unfurl for /hidden-gems rendered a different photo
-  // than the page did, because this map held its own copy of the path. Art now
-  // comes from INTENT_PAGES whenever the key IS an intent page; the local art
-  // below stays only for share-only surfaces like "trending", which has no page.
-  const defArt = ((INTENT_PAGES[intentKey] || {}).art) || (def && def.art);
-  const city = (searchParams.get("city") || "").slice(0, 32);
+  const def = cardFor(intentKey);
+  // ONE ART SOURCE: the card owns it. No second copy, no INTENT_PAGES.art
+  // fallback that could disagree with what the page rendered.
+  const defArt = def && def.art;
+const city = (searchParams.get("city") || "").slice(0, 32);
   // THE SHARE-CARD MARKETING STANDARD (owner, 2026-07-22): image-led with the
   // BEST REAL photo of the actual top place (?img=<photo_ref>, the same ref
   // the hero showed — the card you share IS the place you saw). Brand art is
   // only the fallback when no real photo is known.
   const ref = (searchParams.get("img") || "").slice(0, 400);
   const realImg = REF_RX.test(ref) ? SITE_URL + "/api/photo?ref=" + encodeURIComponent(ref) + "&w=1200" : null;
+  // AN UNKNOWN KEY IS A 404, NOT A CARD. It used to `throw` into the catch
+  // below, which rendered a generic fallback — and that fallback is precisely
+  // what hid this for months: six intent pages (nearby, seasonal, tonight,
+  // best-of, worth-the-drive, budget) were never in the card map at all, so
+  // every one of them silently unfurled the SAME 18,771-byte "Decided, not
+  // guessed" image. Six byte-identical share cards read as "the route is not
+  // dynamic"; they were six errors wearing a design.
+  //
+  // A 404 is loud, uncacheable as a success, and impossible to mistake for art.
+  if (!def) {
+    return new Response("unknown intent: " + intentKey, { status: 404, headers: { "content-type": "text/plain", "cache-control": "no-store" } });
+  }
   try {
-    if (!def) throw new Error("unknown intent");
     return new ImageResponse(
       (
         <div style={{ width: 1200, height: 630, display: "flex", position: "relative", background: "#040810" }}>
@@ -72,9 +92,13 @@ export async function GET(req) {
       { width: 1200, height: 630 }
     );
   } catch (e) {
-    return new ImageResponse(
-      (<div style={{ width: 1200, height: 630, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#040810", color: "#fff", fontSize: 62, fontWeight: 800 }}>Decided, not guessed<div style={{ display: "flex", fontSize: 30, color: "#F97316", marginTop: 18, fontWeight: 700 }}>wayfind · gowayfind.com</div></div>),
-      { width: 1200, height: 630 }
-    );
+    // A RENDER failure is still a failure. The old catch returned a 200 with a
+    // generic card, which meant a broken card and a working card were
+    // indistinguishable to every monitor and to the CDN. Fail closed: 500, and
+    // never cache it. An OG route that answers 200 with the wrong or empty body
+    // is worse than one that errors, because nothing alerts and the CDN pins it.
+    return new Response("og render failed: " + (e && e.message ? e.message : "unknown"), {
+      status: 500, headers: { "content-type": "text/plain", "cache-control": "no-store" },
+    });
   }
 }
