@@ -2,6 +2,8 @@
 // guide from one internally linked page, strengthening the authority flow.
 import { GUIDES } from "../../lib/guides";
 import { SITE_URL } from "../../lib/site";
+import { experienceGoUrl } from "../../lib/affiliates";
+import HubConversion from "../components/HubConversion";
 
 const _ogGuides = SITE_URL + "/api/og?t=" + encodeURIComponent("Florida travel guides, written by a local");
 export const metadata = {
@@ -48,6 +50,29 @@ export default function GuidesHub() {
           ))}
         </section>
       ))}
+      {/* The hub's one primary CTA. Orlando is not an arbitrary pick: it is the
+          hub's dominant demand — /guides/things-to-do-orlando-not-theme-parks
+          (40 people/30d) and /things-to-do/orlando (30) are the top two entry
+          pages into this section, and the hub itself measured 12 sessions at
+          100% dead with zero engagement events before this block existed.
+          The href is our own /api/viator/go, never a partner domain. */}
+      <HubConversion
+        surface="guides_hub"
+        slugKey="guide_slug"
+        slug="guides-hub"
+        city="Orlando"
+        category="tours"
+        cta={{
+          label: "See tours & tickets in Orlando",
+          href: experienceGoUrl("things to do", "Orlando", "guides_hub"),
+          provider: "viator",
+          offerId: "guides_hub:orlando",
+          monetized: true,
+          variant: "hub_tours_v1",
+          position: 1,
+        }}
+        next={{ label: "Read the Orlando guide", href: "/guides/things-to-do-orlando-not-theme-parks" }}
+      />
       <p style={S.foot}>Planning around a specific spot? <a href="/" style={S.link}>Open Wayfind</a> and search it, or start with what each city is known for: <a href="/culture/orlando" style={S.link}>Orlando</a>, <a href="/culture/sarasota" style={S.link}>Sarasota</a>, <a href="/culture/tampa" style={S.link}>Tampa</a>.</p>
     </main>
   );

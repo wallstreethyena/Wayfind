@@ -14,9 +14,19 @@ for (const [name, s] of [["guides", g], ["culture", c]]) {
   // rel lives there now. The RULE is unchanged: a monetized link carries
   // rel=sponsored. Follow the component rather than loosening the assertion —
   // deleting it would re-open the FTC gap it was written for.
+  //
+  // 2026-07-31: the culture page's monetized links made the same move. Its
+  // per-item offer link is now app/components/TrackedOfferLink.js and its one
+  // primary CTA is app/components/HubConversion.js — both added because
+  // /culture/[metro] measured 0.0 engagement events per session while shipping live
+  // affiliate CTAs. Assert on the UNION of the plausible hosts rather than one
+  // path: a guard pinned to a single file goes GREEN the moment the code leaves
+  // it, and green-on-move is the FTC gap, not red-on-move.
   const relHost = name === "guides"
     ? readFileSync(new URL("../app/guides/[slug]/GuideConversion.js", import.meta.url), "utf8")
-    : s;
+    : s
+      + readFileSync(new URL("../app/components/TrackedOfferLink.js", import.meta.url), "utf8")
+      + readFileSync(new URL("../app/components/HubConversion.js", import.meta.url), "utf8");
   const hasRel = relHost.includes('rel="noreferrer sponsored"') || relHost.includes('rel: "noreferrer sponsored"');
   if (!hasRel) fail(name + " monetized links missing sponsored rel");
   if (name === "guides") {

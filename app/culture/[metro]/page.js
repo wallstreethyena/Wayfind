@@ -11,6 +11,8 @@ import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
+import HubConversion from "../../components/HubConversion";
+import TrackedOfferLink from "../../components/TrackedOfferLink";
 
 // v5.04: ISR so the render-time Viator product resolution below stays fresh.
 export const revalidate = 86400;
@@ -116,7 +118,24 @@ export default async function CulturePage({ params }) {
         const direct = await resolveViatorProduct(x.query + " " + c.title, c.title).catch(() => null);
         return [x, direct || experienceGoUrl(x.query, c.title)];
       }))).map(([x, url], i) => (
-        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? <a href={url} target="_blank" rel="noreferrer sponsored" style={S.book}>See related tours &amp; tickets ↗</a> : null}</div>
+        <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? (
+          /* Was a bare <a> — a live affiliate CTA that emitted nothing. Same
+             href, same rel, same native navigation; the wrapper only measures. */
+          <TrackedOfferLink
+            href={url}
+            label="See related tours & tickets ↗"
+            surface="culture"
+            slugKey="culture_slug"
+            slug={params.metro}
+            city={c.title}
+            category="tours"
+            provider="viator"
+            offerId={x.viatorUrl ? "product:" + x.name : "search:" + (x.query || x.name)}
+            variant="culture_item_v1"
+            position={i + 1}
+            style={S.book}
+          />
+        ) : null}</div>
       ))}
       <h2 style={S.h2}>Worth your eyes</h2>
       {c.see.map((x, i) => (<div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p></div>))}
@@ -160,6 +179,33 @@ export default async function CulturePage({ params }) {
           </>
         );
       })()}
+      {/* The page's one primary CTA. Every /culture/[metro] page measured 81-100%
+          dead sessions with ~0 engagement events before this block: the page
+          ended in prose and internal links, with no single clear next step.
+          The href is our own /api/viator/go, never a partner domain. */}
+      <HubConversion
+        surface="culture"
+        slugKey="culture_slug"
+        slug={params.metro}
+        city={c.title}
+        category="tours"
+        cta={{
+          label: `See tours & tickets in ${c.title}`,
+          href: experienceGoUrl("things to do", c.title, "culture"),
+          provider: "viator",
+          offerId: "culture:" + params.metro,
+          monetized: true,
+          variant: "hub_tours_v1",
+          position: 1,
+        }}
+        /* Only 3 of 7 culture metros have a /things-to-do/<metro> landing page
+           (orlando, tampa, sarasota). miami, keys, boston and hawaii do not, and
+           /culture/keys is one of the pages this work exists to fix — linking
+           there unconditionally would have replaced a dead end with a 404. */
+        next={LANDING_CITIES[params.metro]
+          ? { label: `Browse every ${c.title} pick in Wayfind`, href: "/things-to-do/" + params.metro }
+          : { label: "Open Wayfind for live picks nearby", href: "/" }}
+      />
       <div style={S.disclosure}>Wayfind may earn a commission from partner links on this page.</div>
       <p style={{ fontSize: 14, color: "#C9D1D9", marginTop: 22 }}>
         More cities: {Object.keys(CULTURE).filter((k) => k !== params.metro).map((k, i, arr) => (<span key={k}><a href={"/culture/" + k} style={S.footerLink}>{CULTURE[k].title}</a>{i < arr.length - 1 ? " · " : ""}</span>))}
