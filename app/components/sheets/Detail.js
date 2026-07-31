@@ -497,25 +497,6 @@ export default function DetailSheet({ ctx }) {
   //
   // ONE PROVIDER PER CARD (owner's hard rule): exactly one rung wins, so exactly
   // one monetized href can occupy the primary slot.
-  const primaryCta = (() => {
-    if (!detail) return { type: "none", monetized: false };
-    // 1. DEAL — intentionally DARK. lib/coupons.js:41: per-merchant matching
-    //    needs an inventory read clipp.com does not provide, and the city-level
-    //    card is not a per-merchant offer. Faking it with the city card is the
-    //    disappointment this whole matrix exists to prevent. Unblocks when CJ
-    //    attribution confirms and seeding lands.
-    // 2. EVENT TICKETS — the venue's real ticket path.
-    if (detail._event && detail._event.url) return { type: "event_tickets", monetized: true };
-    // 3. BOOKABLE — through the one predicate. Post-relevance-gate this fires
-    //    only on VERIFIED inventory, never a generic search.
-    if (hasBooking) return { type: "bookable", monetized: true };
-    // 4. DELIVERY is deliberately NOT a rung: NEXT_PUBLIC_UBEREATS_TEMPLATE is
-    //    unset in every environment, so the link is untracked. It stays in the
-    //    secondary row, still firing eats_out, until a tracked template exists.
-    // 5. DIRECTIONS — the acknowledged non-monetized terminal.
-    return { type: "directions", monetized: false };
-  })();
-
   // primary_cta_null: fires when no MONETIZABLE CTA resolved. Directions is the
   // acknowledged non-monetized terminal and does NOT suppress the event — the
   // point is to count the sheets where we had nothing to sell, which is the
