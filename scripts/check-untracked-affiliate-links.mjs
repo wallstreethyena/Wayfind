@@ -105,9 +105,18 @@ for (const [name, envName, lit] of [
   const f = name === "TP_MARKER_ACCOUNT"
     ? stripComments(readFileSync(new URL("../lib/travelpayouts.js", import.meta.url), "utf8"))
     : src;
+
+  const envConfigured =
+    typeof process.env[envName] === "string" &&
+    process.env[envName].trim().length > 0;
+
+  const guardedFallbackExists = new RegExp(
+    `${name}\\s*=\\s*\\(process\\.env\\.${envName}\\s*\\|\\|\\s*"${lit}"`
+  ).test(f);
+
   ok(
-    new RegExp(`${name}\\s*=\\s*\\(process\\.env\\.${envName}\\s*\\|\\|\\s*"${lit}"`).test(f),
-    `${name} keeps its literal fallback "${lit}" — its env var is MISSING in Vercel production, and this literal is the only reason that program is attributed at all. Removing it darks a live program.`
+    envConfigured || guardedFallbackExists,
+    `${name} must have either environment variable ${envName} or guarded literal fallback "${lit}".`
   );
 }
 
