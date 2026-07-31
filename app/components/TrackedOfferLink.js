@@ -14,10 +14,10 @@
 // Payload construction lives in lib/hubConversion so the guard can call the same
 // builders the component does; see that file for why the money events rename
 // city -> city_id, cta_variant -> variant and coarsen position -> rank_bucket.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { track } from "../../lib/track";
 import { emitCommerce } from "../../lib/commerce";
-import { hubProductProps, hubCommerceProps, mintClickId } from "../../lib/hubConversion";
+import { hubProductProps, hubCommerceProps, mintClickId, withClickId } from "../../lib/hubConversion";
 
 export default function TrackedOfferLink({
   href, label, surface, slugKey, slug, city, category, provider, offerId, variant, position, style,
@@ -27,6 +27,11 @@ export default function TrackedOfferLink({
   const clicked = useRef(false);
   const clickId = useRef(null);
   if (clickId.current === null) clickId.current = mintClickId();
+  // The cid is appended only after hydration: the id is minted per client
+  // render, so baking it into the SSR href would be a hydration mismatch.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+  const finalHref = hydrated ? withClickId(href, clickId.current) : href;
 
   const args = () => ({
     clickId: clickId.current, slugKey, slug, surface,
@@ -58,7 +63,7 @@ export default function TrackedOfferLink({
   return (
     <a
       ref={ref}
-      href={href}
+      href={finalHref}
       target="_blank"
       rel="noreferrer sponsored"
       style={style}

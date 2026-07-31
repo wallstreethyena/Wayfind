@@ -7,7 +7,7 @@ import { CULTURE, TOWN_PROFILES, TOWN_HUBS } from "../../../lib/culture";
 import ExploreBridge from "../../components/ExploreBridge";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 import { SITE_URL } from "../../../lib/site";
-import { experienceSearchUrl, viatorDirectUrl, experienceGoUrl } from "../../../lib/affiliates";
+import { experienceSearchUrl, viatorProductGoUrl, experienceGoUrl } from "../../../lib/affiliates";
 import { resolveViatorProduct } from "../../../lib/viatorServer";
 import OpenAppCTA from "../../components/OpenAppCTA.js";
 import PremiumIntentHero from "../../components/PremiumIntentHero";
@@ -113,10 +113,12 @@ export default async function CulturePage({ params }) {
           time (region-validated, affiliate-attributed) so the baked link
           lands on the product page. /go stays only as the last resort. */}
       {(await Promise.all(c.do.map(async (x) => {
-        if (x.viatorUrl) return [x, viatorDirectUrl(x.viatorUrl)];
+        if (x.viatorUrl) return [x, viatorProductGoUrl(x.viatorUrl, c.title, "culture", "culture")];
         if (!x.query) return [x, null];
         const direct = await resolveViatorProduct(x.query + " " + c.title, c.title).catch(() => null);
-        return [x, direct || experienceGoUrl(x.query, c.title)];
+        // `direct` is a raw viator.com product URL. Route it through our own
+        // redirect rather than emitting it as an href, same as the curated case.
+        return [x, viatorProductGoUrl(direct, c.title, "culture", "culture") || experienceGoUrl(x.query, c.title, "culture")];
       }))).map(([x, url], i) => (
         <div key={i} style={S.item}><p style={S.name}>{x.name}</p><p style={S.story}>{x.story}</p>{url ? (
           /* Was a bare <a> — a live affiliate CTA that emitted nothing. Same

@@ -11,7 +11,14 @@
  */
 import { chromium } from "playwright";
 
-const BASE = process.env.BASE || "http://localhost:3111";
+// No literal fallback (§5a): a hardcoded default makes "configured" and "not
+// configured" produce the same output, so a run against the wrong server would
+// look identical to a correct one.
+const BASE = (process.env.BASE || "").trim();
+if (!BASE) {
+  console.error("verify-hub-mobile: BASE is required, e.g. BASE=http://localhost:3111 node scripts/verify-hub-mobile.mjs");
+  process.exit(2);
+}
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
@@ -72,6 +79,17 @@ async function drive(path, expectSlugKey) {
     ok(cimp[0].p.position === undefined, `${path}: commerce_impression must NOT carry a raw position`);
     ok(imp[0] && imp[0].p.click_id === cimp[0].p.click_id, `${path}: click_id must match across product and commerce events`);
   }
+
+  // THE REDIRECT LAYER. Every monetized link on the page must point at our own
+  // /api/ path, never a partner domain, and must carry the client click_id after
+  // hydration so commerce_cta_clicked joins provider_redirect_started.
+  const hrefs = await page.$$eval('a[rel~="sponsored"]', (els) => els.map((e) => e.getAttribute("href") || ""));
+  for (const h of hrefs) {
+    ok(h.startsWith("/api/"), `${path}: monetized href must route through our own redirect, got ${h.slice(0, 70)}`);
+    ok(!/viator\.com/.test(h), `${path}: no partner domain may appear in a monetized href`);
+    ok(/[?&]cid=[A-Za-z0-9_-]{8,}/.test(h), `${path}: monetized href must carry the client click_id, got ${h.slice(0, 90)}`);
+  }
+  ok(hrefs.length > 0, `${path}: expected at least one monetized link`);
 
   // KEYBOARD: the CTA must be reachable and activatable by keyboard.
   const focusable = await cta.evaluate((el) => { el.focus(); return document.activeElement === el; });

@@ -43,10 +43,10 @@
 // NOT the server-side click_id — /api/commerce/go and /api/viator/go mint their own
 // at redirect time, which is the authority for the partner leg. The two join on
 // (surface, content_id, offer_id, session).
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { track } from "../../lib/track";
 import { emitCommerce } from "../../lib/commerce";
-import { hubProductProps, hubCommerceProps, mintClickId } from "../../lib/hubConversion";
+import { hubProductProps, hubCommerceProps, mintClickId, withClickId } from "../../lib/hubConversion";
 
 /**
  * @param {object}  p
@@ -64,6 +64,8 @@ export default function HubConversion({ surface, slugKey, slug, city, category, 
   const acted = useRef(false);
   const clickId = useRef(null);
   if (clickId.current === null) clickId.current = mintClickId();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
 
   // Both event families are built by lib/hubConversion, which the guard calls
   // too — so a field rename cannot pass unnoticed the way it did when this
@@ -120,7 +122,7 @@ export default function HubConversion({ surface, slugKey, slug, city, category, 
         {cta.monetized ? "Your next step" : "One clear next step"}
       </div>
       <a
-        href={cta.href}
+        href={hydrated ? withClickId(cta.href, clickId.current) : cta.href}
         onClick={onCta}
         {...(cta.monetized ? { target: "_blank", rel: "noreferrer sponsored" } : {})}
         style={{ display: "block", marginTop: 10, padding: "14px 18px", borderRadius: 14, background: "#FF8A3D", color: "#0B0F14", fontSize: 16, fontWeight: 800, textAlign: "center", textDecoration: "none" }}
