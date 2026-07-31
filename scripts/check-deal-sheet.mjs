@@ -23,7 +23,15 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 const { COUPONS } = await import(path.resolve("lib/coupons.js"));
 const D = await import(path.resolve("lib/dealSheet.js"));
 const TODAY = "2026-07-30";
-const { featured, ledger } = D.dealTiers(COUPONS, TODAY);
+// BASELINE VIEWER, added 2026-08-01. This used to call dealTiers with no center,
+// which was a fine stand-in for "the whole sheet" while location affected only
+// ORDER. Now that no-location means nationwide-only — every city-scoped card is an
+// unproven proximity claim before `center` resolves — a centre-less baseline is one
+// money card and an empty ledger, and every tier assertion below would be checking
+// almost nothing. Sarasota is the home metro and carries the most inventory, so it
+// is the representative sheet these checks were always written against.
+const BASELINE_VIEWER = { lat: 27.3364, lng: -82.5307 };
+const { featured, ledger } = D.dealTiers(COUPONS, TODAY, BASELINE_VIEWER);
 const screen = readFileSync(path.resolve("app/components/screens/Coupons.js"), "utf8");
 const code = screen.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 
@@ -44,9 +52,24 @@ const code = screen.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""
   ok(out.length > 0, `the sheet renders something (got ${out.length}) — an empty result would make this vacuous`);
   ok(out.every((id) => ids.has(id)), "every rendered deal exists in the registry — dealTiers cannot mint a row");
   ok(new Set(out).size === out.length, "no deal is rendered twice across the two tiers");
-  ok(out.length === COUPONS.filter((c) => !c.expires || c.expires >= TODAY).length,
-    "every LIVE registered deal lands in exactly one tier — none is silently dropped");
-  const rogue = D.dealTiers([...COUPONS, { id: "cpn-not-registered", title: "Fake", business: "Nowhere" }], TODAY);
+  // RE-AIMED 2026-08-01. This asserted the rendered count EQUALS the live registry
+  // count — true only while location affected order alone. There is now a geo gate,
+  // so a live deal for another metro is dropped deliberately, and the old form
+  // asserted the gate does not exist. The rule it was protecting still matters:
+  // nothing eligible may vanish. Restated as — every live deal that is local to the
+  // baseline viewer or nationwide DOES render.
+  const eligible = COUPONS.filter((c) => {
+    if (c.expires && c.expires < TODAY) return false;
+    const s = D.dealScope(c);
+    return s.kind === "everywhere" || (s.kind === "metro" && s.metro === "sarasota");
+  }).map((c) => c.id);
+  ok(eligible.length > 0, `there are eligible deals for the baseline viewer (${eligible.length}) — zero would make the next assertion vacuous`);
+  ok(eligible.every((id) => out.includes(id)),
+    `every ELIGIBLE live deal lands in exactly one tier — none is silently dropped (${out.length} rendered of ${eligible.length} eligible)`);
+  // The rogue deal now needs an area local to the baseline viewer, or the geo gate
+  // removes it before the registry rule is even reached — and this assertion is
+  // about the REGISTRY being the only source, not about geography.
+  const rogue = D.dealTiers([...COUPONS, { id: "cpn-not-registered", title: "Fake", business: "Nowhere", area: "Sarasota" }], TODAY, BASELINE_VIEWER);
   ok([...rogue.featured, ...rogue.ledger].some((c) => c.id === "cpn-not-registered"),
     "…and the partition is the ONLY gate: an unregistered deal renders only if someone puts it in the array, which is what the registry rule governs");
 }
@@ -187,8 +210,13 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
     ok(ids.size === t.featured.length + t.ledger.length,
       `${name}: no deal is duplicated or dropped silently`);
     if (!ctr) {
-      ok(t.featured.length === featured.length && t.ledger.length === ledger.length,
-        `no viewer location: the full partition is unchanged (${t.featured.length}/${t.ledger.length})`);
+      // RE-AIMED: this asserted the no-location partition matches the baseline, i.e.
+      // that location changes nothing. That was the fail-OPEN. With no location every
+      // city-scoped card is an unproven proximity claim, so only nationwide renders.
+      const all = [...t.featured, ...t.ledger];
+      ok(all.length > 0, `no viewer location still renders something (${all.length}) — an empty result would make the next check vacuous`);
+      ok(all.every((c) => D.dealScope(c).kind === "everywhere"),
+        `no viewer location: NATIONWIDE ONLY (${t.featured.length}/${t.ledger.length}) — never another metro's inventory`);
     } else {
       ok(t.featured.length + t.ledger.length <= featured.length + ledger.length,
         `${name}: viewer location can only remove city-scoped mismatches, never add`);
@@ -205,7 +233,12 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
       }
     }
   }
-  ok(pairsChecked >= 20, `the ordering loop actually ran (${pairsChecked} adjacent pairs compared) — zero iterations would pass silently`);
+  // Floor lowered from 20 to 10: the geo gate means each viewer now sees only their
+  // own metro's inventory plus nationwide, so there are legitimately fewer adjacent
+  // pairs to compare than when every viewer saw every card. The number exists to
+  // prove the loop RAN, not to pin an inventory count — a floor tied to inventory is
+  // an assertion pinned to an accident, which is what made three checks red today.
+  ok(pairsChecked >= 10, `the ordering loop actually ran (${pairsChecked} adjacent pairs compared) — zero iterations would pass silently`);
 
   // The concrete regression, named. Klook is national; the Clipp/Viator cards are local.
   {
