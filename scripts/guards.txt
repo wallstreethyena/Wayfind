@@ -257,3 +257,4 @@ node scripts/check-provider-redirects.mjs
 node scripts/check-direct-affiliate-urls.mjs
 node scripts/check-doc-ownership.mjs
 node scripts/check-locks.mjs
+node scripts/check-guide-deal-cards.mjs
