@@ -182,6 +182,17 @@ still greppable — and it is a feature when two lanes contribute commits to one
 - **Never trust a merge's exit code — verify by content.** `git show origin/main:<file>` and
   grep for the thing the PR was supposed to add. A PR reported as merged manually turned out
   to still be `state=OPEN` with its content absent from `origin/main`.
+- **IN A SQUASH-MERGE REPO, EVERY SHA-BASED SAFETY CHECK IS UNRELIABLE. VERIFY BY
+  CONTENT** — diff the branch against `main`, or grep the subject line on `main`.
+  Nothing else binds. Squash-merge rewrites the commit, so the original SHA is never an
+  ancestor of `main` no matter how thoroughly the work shipped. That breaks the whole
+  family at once: `git branch --merged` reports ~0 merged branches in a repo where almost
+  everything merged, and `git branch -r --contains <sha>` reports 0 for commits whose
+  content is fully on `main`. Both are *correct about ancestry* and *useless about
+  shipping*. Proven 2026-07-30: eight detached worktrees each held a commit that
+  `--contains` placed on no remote branch; matching the subjects against `main` found all
+  eight already shipped (#423, #425, #426, #427, #428, #430, #431, #434). **Reaching for
+  the "better" SHA test is the trap — there isn't one.**
 
 ---
 
@@ -462,6 +473,15 @@ Two further habits from the same incident:
   module-local helper's name is a cheap, real check on the production artifact.
   Proven both ways: broken tree built exit-0 with the literal intact; fixed tree
   had zero occurrences.
+- **…but ASSERTIONS ABOUT BUILT OUTPUT MUST SCOPE TO PRODUCTION CHUNKS.** The premise
+  above holds only for `next build` output. `.next/static/chunks` also retains
+  **unminified `next dev` artifacts** (`_app-pages-browser_*`, `app-pages-internals*`,
+  `*_ssr_*`), which violate every property `next build` guarantees — nothing is
+  minified, so every local name survives literally whether bound or not, and the sweep
+  reads them all as offenders. **That is what made a green `main` look red** and get
+  escalated as a blocker across lanes on 2026-07-30. Exclude the dev prefixes, and
+  **assert that at least one production chunk was actually swept** so a dev-only tree
+  says "run `next build`" instead of silently proving nothing.
 
 ---
 

@@ -4,6 +4,34 @@ Written 2026-07-30 at the end of a long session, deliberately, before context ra
 Purpose: a rebooted LLAMA session should be able to read **this file + CLAUDE.md** and
 resume without re-deriving anything.
 
+> # ⛔ THE NEXT SESSION BUILDS GUIDES. NO NEW PLANNING ARTIFACTS.
+>
+> Owner directive, 2026-07-30, and it is the first thing to obey. This lane has produced
+> a target list, a quality bar, a CTA routing table, a fallback resolution and this doc.
+> **It has produced ZERO GUIDES.** No further taxonomy, no new scaffolding, no more
+> reboot docs. **Write guides.**
+>
+> **Why this is revenue, not process.** We are at **~$20/month**. Google Ads brought
+> **105 visitors and 0 signups** — paid traffic converting at zero. A guide that ranks
+> brings visitors **forever at zero marginal cost**, and all 20 targets are gated on a
+> terminal that **now actually earns** (four Travelpayouts programs went live
+> **2026-07-29**; before that date every one returned null, so **no historical "guides
+> don't earn" reading is evidence about anything**). Guides are the only channel where
+> **traffic is free and the CTA is live** — the highest-margin revenue on the board.
+>
+> **Order:**
+> 1. **Build #5** — Orlando in the rain, indoor-only, zero outdoor picks.
+> 2. **Then keep building.** Ship guides in sequence, not more scaffolding.
+> 3. **Every guide terminates in a live CTA** from the routing table in §1b.
+>    **A guide without a working terminal does not ship. Ever.**
+> 4. **The weakest-terminal report is a STANDING deliverable every session**, not a
+>    one-off. Fixing one thin CTA beats writing a 21st guide.
+>
+> **The quality bar IS the revenue strategy, not a constraint on it.** Specificity is the
+> moat. Honest trade-offs sell harder than praise. Never state a number, price, hour or
+> founding date that is not in the source — local models inventing founding dates is a
+> known failure here, not a hypothetical. Details in §1b.
+
 Read CLAUDE.md first. This file only holds what is NOT in CLAUDE.md: live open items,
 where a half-finished trace stopped, and the things I would otherwise have to rediscover.
 
