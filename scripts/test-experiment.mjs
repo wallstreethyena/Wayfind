@@ -119,7 +119,7 @@ const E = await import("../lib/experiment.js");
   ok(/if \(!exposed\) return \{\}/.test(exp), "never-exposed visitors get NO experiment properties");
 
   // No new product event names.
-  ok(comp.indexOf('track("detail_open"') < 0 || true, "");
+  ok(comp.indexOf('track("detail_open"') < 0, "the detail_open event is tracked in ONE place — no duplicate counting");
   const newNames = (comp.match(/go\("([a-z_]+)"/g) || []).map((m) => m.slice(4, -1));
   for (const n of newNames) {
     ok(["detail_open", "intent_chip", "cta_open_app", "maps_list"].indexOf(n) >= 0, "bridge fires only existing event names, saw: " + n);
