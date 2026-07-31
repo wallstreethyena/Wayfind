@@ -7,9 +7,11 @@ import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../Collection
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
 import { couponsForIntent, couponEndsLabel } from "../../../lib/coupons";
+import { dealScope } from "../../../lib/dealSheet";
+import { nearestMetro } from "../../../lib/orderInFeatured";
 
 export default function ExperienceScreen({ ctx }) {
-  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel } = ctx;
+  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center } = ctx;
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
@@ -79,7 +81,16 @@ export default function ExperienceScreen({ ctx }) {
                   couponsForIntent, soonest-ending first. The 🏷️ chip is the
                   badge mount — swap in the deal-badge logo when the art lands. */}
               {(() => {
-                const dl = couponsForIntent(activeBadge).slice(0, 3);
+                const viewerKnown = center && isFinite(center.lat) && isFinite(center.lng);
+                const viewerMetro = viewerKnown ? nearestMetro(center.lat, center.lng) : null;
+                const dl = couponsForIntent(activeBadge)
+                  .filter((c) => {
+                    if (!viewerKnown) return true;
+                    const s = dealScope(c);
+                    if (s.kind !== "metro") return true;
+                    return s.metro === viewerMetro;
+                  })
+                  .slice(0, 3);
                 if (!dl.length) return null;
                 return (
                   <div style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12 }}>
