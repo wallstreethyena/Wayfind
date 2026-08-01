@@ -7917,11 +7917,9 @@ function PageInner({ initialEvents = null }) {
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && <ViatorRail title="Bookable family tours & activities" items={browseTours} theme="attractions-browse" onLog={logEvent} onOpenExternal={openExternal} />}
-                  {browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {/* Restored 2026-07-25 — see UTDealsRail definition above. */}
-                  {browseCat === "attractions" && center && <UTDealsRail category="attractions" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
-                  {browseCat === "hotels" && center && <UTDealsRail category="stays" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
+                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail sub="family" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "hotels" && center && <UnifiedBrowseCommerceRail sub="stays" categories={["stays", "travel"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
                       built, working, and earning nothing for want of a mount. Placed beside
@@ -7929,8 +7927,6 @@ function PageInner({ initialEvents = null }) {
                       next to hotels, a movie ticket next to things to do. Both are
                       scope='national', so geoFilterDeals keeps them for every user and
                       orderDealsByScope holds them below the local inventory. */}
-                  {browseCat === "hotels" && center && <UTDealsRail category="travel" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
-                  {browseCat === "attractions" && center && <UTDealsRail category="more" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
@@ -8682,6 +8678,97 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
 const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", landmarks: "historical", arts: "museums", marinas: "water" };
+
+// One commerce rail per browse surface. It combines verified Viator inventory
+// and network deals before rendering, so provider boundaries never become
+// separate visual sections. Cards without real artwork fail closed.
+function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, city, region }) {
+  const cat = SUB_TO_EXP[sub || "all"] || "all";
+  const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
+  const [deals, setDeals] = useState(null);
+
+  useEffect(() => {
+    if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
+    if (!includeExperiences || !cat || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
+    let dead = false;
+    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
+    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
+      if (dead) return;
+      let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
+      if (!rows.length && city) {
+        try {
+          const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(`${city} ${cat}`) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
+          rows = rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
+        } catch (e) {}
+      }
+      setExperiences(rows);
+    });
+    return () => { dead = true; };
+  }, [initialExperiences, includeExperiences, cat, lat, lng, city, region]);
+
+  useEffect(() => {
+    if (!categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
+    let dead = false;
+    const geo = "&lat=" + lat.toFixed(3) + "&lng=" + lng.toFixed(3);
+    Promise.all(categories.map((category) => fetch("/api/deals?category=" + encodeURIComponent(category) + geo).then((r) => (r.ok ? r.json() : null), () => null))).then((payloads) => {
+      if (dead) return;
+      const rows = [];
+      for (const payload of payloads) for (const rail of (payload && Array.isArray(payload.rails) ? payload.rails : [])) for (const deal of (Array.isArray(rail.items) ? rail.items : [])) rows.push(deal);
+      setDeals(rows);
+    });
+    return () => { dead = true; };
+  }, [categories.join("|"), lat, lng]);
+
+  const cards = useMemo(() => {
+    const rows = [];
+    for (const t of (Array.isArray(experiences) ? experiences : [])) {
+      if (!t?.image || !(t.code || t.product_code)) continue;
+      const offerId = t.code || t.product_code;
+      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10), kind: "experience" });
+    }
+    for (const d of (Array.isArray(deals) ? deals : [])) {
+      const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
+      if (!image || !d.id) continue;
+      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: d.discount || d.badge || "", score: Number(d.quality10 || 0) || -1, href: d.href, kind: "deal" });
+    }
+    const seen = new Set();
+    return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
+  }, [experiences, deals]);
+
+  if (!cards.length) return null;
+  return (
+    <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Bookable highlights near {city || "you"}</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
+      </div>
+      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x proximity" }}>
+        {cards.map((card) => {
+          const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: sub || "all" }) : card.href;
+          if (!href) return null;
+          return (
+            <a key={card.key} href={href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const live = (e.currentTarget && e.currentTarget.href) || href; try { logEvent("tickets_out", null, { kind: "unified_browse_rail", provider: card.provider, id: card.offerId }); } catch (er) {} openExternal(live); }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+              <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
+                <img src={card.image} alt="" loading="lazy" onError={(e) => { const root = e.currentTarget.closest("a"); if (root) root.style.display = "none"; }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
+              </div>
+              <div style={{ padding: "8px 10px" }}>
+                <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{card.title}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
+                  {card.rating > 0 && card.reviews > 0 ? <PlaceScoreChip p={{ rating: card.rating, reviews: card.reviews }} size={12} /> : null}
+                  <span style={{ fontSize: 11, fontWeight: card.discount ? 800 : 500, color: card.discount ? "#7DD3A8" : C.muted }}>{card.discount || card.price}{card.duration ? ` · ${card.duration}` : ""}</span>
+                  <button aria-label={"Save " + card.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: card.kind, item_id: card.offerId, item_title: card.title, item_image: card.image, item_url: href, provider: card.provider }); } catch (er) {} }} style={{ marginLeft: "auto", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, padding: "3px 8px", cursor: "pointer" }}>♡</button>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through these links, at no extra cost to you. It never changes our scores or rankings.</div>
+    </aside>
+  );
+}
+
 function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
   const cat = SUB_TO_EXP[sub || "all"];
   const [items, setItems] = useState(null);

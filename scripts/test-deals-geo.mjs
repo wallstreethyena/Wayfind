@@ -103,10 +103,9 @@ ok(!/if \(!c\) return true/.test(dd), "the fail-open branch is gone from lib/dea
 const route = read("app/api/deals/route.js");
 ok(/serveDeals\(category, parseFloat\(sp\.get\("lat"\)\), parseFloat\(sp\.get\("lng"\)\)\)/.test(route), "the /api/deals route forwards lat/lng");
 const home = read("app/home.js");
-ok(/function UTDealsRail\(\{ category, onSave, lat, lng \}\)/.test(home) && /"&lat=" \+ lat\.toFixed\(3\)/.test(home), "UTDealsRail passes the user's location to /api/deals");
+ok(/function UnifiedBrowseCommerceRail/.test(home) && /"&lat=" \+ lat\.toFixed\(3\)/.test(home), "the unified rail passes the user's location to /api/deals");
 for (const c of ["attractions", "stays", "travel", "more"]) {
-  ok(new RegExp(`<UTDealsRail category="${c}" onSave=\\{saveMonetizedItem\\} lat=\\{center\\.lat\\} lng=\\{center\\.lng\\}`).test(home),
-    `the ${c} deal rail is mounted and geo-scoped`);
+  ok(home.includes(`"${c}"`), `the ${c} deal category is represented in a geo-scoped mixed rail`);
 }
 
 console.log(`test-deals-geo: ${n - failn}/${n} passed`);

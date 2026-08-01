@@ -20,10 +20,10 @@ ok(destsWithin(null, 60).length === 5, "no location → all markets (unchanged)"
 
 // ── the rail fetches live for the user's city when the pre-pull is dark ──
 const home = read("app/home.js");
-ok(/function BookableExpRail\(\{ sub, lat, lng, onSave, city, region \}\)/.test(home), "BookableExpRail takes the user's city + region");
-ok(/if \(!arr\.length && city\)/.test(home) && /\/api\/viator\/tours\?q=" \+ encodeURIComponent\(city\)/.test(home), "when the Florida inventory is dark, it fetches tours LIVE for the user's actual city");
+ok(/function UnifiedBrowseCommerceRail\(\{ sub,[^)]*city, region \}\)/.test(home), "the unified rail takes the user's city + region");
+ok(/if \(!rows\.length && city\)/.test(home) && /\/api\/viator\/tours\?q=" \+ encodeURIComponent\(`\$\{city\} \$\{cat\}`\)/.test(home), "when local inventory is dark, it fetches tours LIVE for the user's actual city and intent");
 ok(/&region=" \+ encodeURIComponent\(region \|\| city\)/.test(home), "the live search passes the REGION (state) — required, or the anti-foreign filter returns 0 tours");
-ok(/<BookableExpRail[^>]*city=\{locName \? locName\.split\(","\)\[0\] : ""\}/.test(home), "the rail is passed the current location's city");
+ok(/<UnifiedBrowseCommerceRail[^>]*city=\{locName \? locName\.split\(","\)\[0\] : ""\}/.test(home), "the rail is passed the current location's city");
 ok(/never fall back to Florida/.test(home), "the intent is documented at the fallback");
 
 console.log(`test-experiences-location: ${n - failn}/${n} passed`);

@@ -15,8 +15,8 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const tb = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 
 // 1) Rail + interleaving list are mutually exclusive by sub (no double-render).
-ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail/.test(home),
-  "BookableExpRail renders ONLY on a sub-filter (so it never doubles the tours ThingsToDoList interleaves in the ALL view)");
+ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub=\{sub\} includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(home),
+  "the single commerce rail includes tours ONLY on a sub-filter (so it never doubles the tours ThingsToDoList interleaves in ALL)");
 ok(/browseCat === "attractions" && \(sub === "all" \|\| !sub\) && <ThingsToDoList/.test(home),
   "ThingsToDoList still renders in the ALL view (the two gates are complements)");
 

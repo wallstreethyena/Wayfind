@@ -133,7 +133,7 @@ ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engi
 // bookable-experiences rail on Things to do — trending on All, themed per
 // sub-menu — and the affiliate key on EVERY tour link.
 ok(/const SUB_TO_EXP = \{ all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme"/.test(home), "the sub-menu -> experience-catalog mapping drifted");
-ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableExpRail sub=\{sub\}/.test(home), "the bookable rail renders on a sub-filter only (the ALL view interleaves tours via ThingsToDoList — no duplicate cards; see check-ttd-dedup)");
+ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub=\{sub\} includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(home), "the unified commerce rail renders once and only adds experience inventory on sub-filters");
 // v6.79: these two assertions used to require the literal `|| t.url` /
 // `|| r.booking_url` fallback. The DECISION they encode is right — a tour href
 // must carry the affiliate wrapper — but pinning the fallback froze the leak in
