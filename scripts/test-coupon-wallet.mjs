@@ -40,7 +40,17 @@ const intent = readFileSync(path.resolve("app/components/IntentPageClient.js"), 
 const home = readFileSync(path.resolve("app/home.js"), "utf8");
 ok(/clipCouponToWallet\(coupon, window\.localStorage\)/.test(strip), "intent deal rows clip the exact coupon before navigation");
 ok(/\/coupons\?view=clipped/.test(intent), "intent deal rows navigate directly to the clipped wallet");
+ok(/&saved=1/.test(intent), "the intent handoff carries an explicit saved confirmation");
+ok(/!coupon \|\| !coupon\.id\).*window\.location\.href = "\/coupons"/.test(intent), "See all opens the full inventory without pretending it clipped a deal");
 ok(/go === "coupons" && sp\.get\("view"\) === "clipped"/.test(home), "the app handoff opens the clipped wallet view");
+ok(/Saved to Clipped/.test(src) && /Sign in to keep it across devices/.test(src), "the wallet confirms the clip and explains account sync");
+ok(/setAuthOpen\(true\)/.test(src) && /Sign in to sync/.test(src), "the saved confirmation offers a direct sign-in path");
+ok(/function clipCoupon\(c\)/.test(home) && /couponWalletHydrated/.test(home), "in-app clips update React state and sync after authentication");
+
+const experience = readFileSync(path.resolve("app/components/screens/Experience.js"), "utf8");
+const surprise = readFileSync(path.resolve("app/components/screens/Surprise.js"), "utf8");
+ok(/onOpenCoupons=\{\(coupon\).*clipCoupon\(coupon\).*setWalletOpen/.test(experience), "category-sheet deal rows clip before opening the wallet");
+ok(/clipCoupon\(c\); setWalletOpen\(true\); setScreen\("coupons"\)/.test(surprise), "the exact Surprise deal clips before opening the wallet");
 
 if (fail.length) {
   console.error("test-coupon-wallet: FAIL");

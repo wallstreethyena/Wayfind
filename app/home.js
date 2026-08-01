@@ -3590,6 +3590,8 @@ function PageInner({ initialEvents = null }) {
   // Dashboard-loaded offers rows merge with the code-shipped COUPONS list.
   const [savedCoupons, setSavedCoupons] = useState({});
   const [walletOpen, setWalletOpen] = useState(false); // v5.08: saved coupons stack like Apple Wallet — collapsed pile, tap to fan out
+  const [couponHandoff, setCouponHandoff] = useState(null);
+  const couponWalletHydrated = useRef(false);
   const [cpnOffers, setCpnOffers] = useState([]);
   const _cpnLoadedRef = useRef(false);
   useEffect(() => {
@@ -3599,13 +3601,29 @@ function PageInner({ initialEvents = null }) {
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
   }, [screen]);
+  function clipCoupon(c) {
+    if (!c || !c.id) return;
+    const entry = { c, ts: Date.now() };
+    setSavedCoupons((prev) => {
+      const next = { ...(prev || {}), [c.id]: entry };
+      try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
+    svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
+    try { logEvent("coupon_save", null, { id: c.id }); } catch (e) {}
+    showToast(user ? "✓ Saved to Clipped" : "✓ Saved on this device — sign in to sync");
+  }
   function toggleSaveCoupon(c) {
     if (!c || !c.id) return;
-    const next = { ...savedCoupons };
-    if (next[c.id]) { delete next[c.id]; svFolderDelete("Coupons", "coupon:" + c.id); }
-    else { next[c.id] = { c, ts: Date.now() }; svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c }); try { logEvent("coupon_save", null, { id: c.id }); } catch (e) {} }
-    setSavedCoupons(next);
-    try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+    if (!savedCoupons[c.id]) { clipCoupon(c); return; }
+    setSavedCoupons((prev) => {
+      const next = { ...(prev || {}) };
+      delete next[c.id];
+      try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
+    svFolderDelete("Coupons", "coupon:" + c.id);
+    showToast("Removed from Clipped");
   }
   function copyCouponCode(code) {
     const done = () => showToast("Code copied — show it at checkout");
@@ -4012,11 +4030,25 @@ function PageInner({ initialEvents = null }) {
     try { setDisliked(JSON.parse(localStorage.getItem("wf_disliked") || "{}")); } catch {}
     try { setLikedItems(JSON.parse(localStorage.getItem("wf_liked_items") || "{}")); } catch {}
     try { setSavedCoupons(JSON.parse(localStorage.getItem("wf_coupons") || "{}")); } catch {}
+    couponWalletHydrated.current = true;
     try { setDislikedItems(JSON.parse(localStorage.getItem("wf_disliked_items") || "{}")); } catch {}
     try { setSharedItems(JSON.parse(localStorage.getItem("wf_shared_items") || "{}")); } catch {}
     try { setSignupDone(!!localStorage.getItem("wf_signed_up")); } catch {}
     try { setMyVotes(JSON.parse(localStorage.getItem("wf_drive_votes") || "{}")); } catch {}
   }, []);
+
+  // A public intent route can clip a coupon before this app shell mounts.
+  // Once an account session is available, mirror the local wallet into the
+  // private Coupons folder so every saved deal follows the member to their
+  // other devices. Upsert makes this safe to repeat after future clips.
+  useEffect(() => {
+    if (!couponWalletHydrated.current || !supabase || !user) return;
+    Object.values(savedCoupons || {}).forEach((entry) => {
+      const c = entry && entry.c;
+      if (!c || !c.id) return;
+      svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
+    });
+  }, [user, savedCoupons]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
   const [searchLabel, setSearchLabel] = useState("");
@@ -5707,6 +5739,11 @@ function PageInner({ initialEvents = null }) {
       // wallet immediately so the user lands on what they just saved instead
       // of having to search the full inventory for it again.
       if (go === "coupons" && sp.get("view") === "clipped") setWalletOpen(true);
+      if (go === "coupons" && sp.get("view") === "clipped" && sp.get("focus")) {
+        const handoff = { id: sp.get("focus"), saved: sp.get("saved") === "1" };
+        setCouponHandoff(handoff);
+        if (handoff.saved) showToast("✓ Saved to Clipped");
+      }
       if (go === "events") {
         // v5.54 (events pipeline, Phase 3): restore filter state from the
         // shared URL, then put /events back in the address bar instead of
@@ -7235,7 +7272,7 @@ function PageInner({ initialEvents = null }) {
     // surprise
     surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, surpriseWhy,
     // coupons
-    cpnOffers, savedCoupons, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen,
+    cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // personalization (v6.56): the taste consent + entry point live at the

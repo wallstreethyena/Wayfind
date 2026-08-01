@@ -14,7 +14,7 @@ import { areaSeasonalContext } from "../../../lib/areaSeasonalContext.js";
 import { currentSeason } from "../../../lib/seasons.js";
 
 export default function ExperienceScreen({ ctx }) {
-  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather } = ctx;
+  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather, clipCoupon, setWalletOpen } = ctx;
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
@@ -86,7 +86,7 @@ export default function ExperienceScreen({ ctx }) {
                   (lib/coupons.js `intents`), expired ones auto-hidden by
                   couponsForIntent, soonest-ending first, absent when there are
                   none. */}
-              <CouponStrip intentId={activeBadge} lat={ctx.center && ctx.center.lat} lng={ctx.center && ctx.center.lng} onOpenCoupons={() => setScreen("coupons")} onLog={logEvent} />
+              <CouponStrip intentId={activeBadge} lat={ctx.center && ctx.center.lat} lng={ctx.center && ctx.center.lng} onOpenCoupons={(coupon) => { if (coupon) clipCoupon(coupon); setWalletOpen(!!coupon); setScreen("coupons"); }} onLog={logEvent} />
               {EXPERIENCES[activeBadge] && EXPERIENCES[activeBadge].viator && <ViatorRail title={EXPERIENCES[activeBadge].viatorMode === "gems" ? "Hidden gem experiences" : "Top-rated experiences"} items={expTours} theme={activeBadge} onLog={logEvent} onOpenExternal={ctx.openExternal} />}
               {/* v6.72 EXTRACTED — same rank number, name, PlaceScoreChip and
                   `why` line, now shared with every intent page. The badge match

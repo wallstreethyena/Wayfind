@@ -40,7 +40,7 @@ import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 import { couponForPlaceName, couponEndsLabel } from "../../../lib/coupons";
 
 export default function SurpriseScreen({ ctx }) {
-  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent } = ctx;
+  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent, clipCoupon, setWalletOpen } = ctx;
           const p = surprisePick;
           const sl = p ? scoreLabel(p.wfScore) : null;
           const badges = p ? experienceBadges(p).slice(0, 2) : [];
@@ -143,8 +143,8 @@ export default function SurpriseScreen({ ctx }) {
                     if (!c) return null;
                     return (
                       <div role="button" tabIndex={0}
-                        onClick={() => { try { logEvent && logEvent("coupon_strip_tap", null, { id: c.id, theme: "surprise" }); } catch (e) {} setScreen("coupons"); }}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setScreen("coupons"); } }}
+                        onClick={() => { try { logEvent && logEvent("coupon_strip_tap", null, { id: c.id, theme: "surprise" }); } catch (e) {} clipCoupon(c); setWalletOpen(true); setScreen("coupons"); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); clipCoupon(c); setWalletOpen(true); setScreen("coupons"); } }}
                         style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12, cursor: "pointer" }}>
                         <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 4 }}>🏷️ Deal on this place</div>
                         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
