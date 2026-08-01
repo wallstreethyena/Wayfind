@@ -74,6 +74,21 @@ ok(rows[0].why === "Good indoor option during storms", "weather reason is curren
 ok(!/rating|review|score|star|★/i.test(rows[0].why), "Right now never uses generic ranking evidence as its reason");
 ok(Blocks.rightNowRows([{ id: "inside" }, { id: "near" }], places, places, null, Date.UTC(2026, 6, 26, 18)).length === 0, "a Right now list identical to the durable ranking is suppressed");
 ok(Blocks.rightNowRows([{ id: "inside" }], [{ ...places[0], distMi: 18 }], [places[1]], wet, Date.UTC(2026, 6, 26, 18)).length === 0, "a far result is not called nearby");
+const rankedNow = Blocks.rightNowRows(
+  [{ id: "inside" }, { id: "near" }],
+  [{ ...places[0], wfScore: 87 }, { ...places[1], wfScore: 98 }],
+  [{ id: "durable-other" }, { id: "inside" }],
+  null,
+  Date.UTC(2026, 6, 26, 18),
+);
+ok(rankedNow.map((x) => x.id).join(",") === "near,inside", "Right now always shows the highest visible Wayfind Score first");
+ok(renderToStaticMarkup(createElement(Blocks.PerfectRightNow, {
+  picks: [{ id: "near" }],
+  places,
+  durablePlaces: [places[0]],
+  context: wet,
+  nowMs: Date.UTC(2026, 6, 26, 18),
+})) === "", "a one-item Right now result is suppressed rather than presented as a shortlist");
 
 const card = renderToStaticMarkup(createElement(Card, {
   place: { ...places[0], photoRef: "places/abc/photos/def", priceLevel: 2 },

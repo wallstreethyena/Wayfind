@@ -12,6 +12,8 @@
 process.env.NEXT_PUBLIC_VIATOR_PID = "P_TEST_000000";
 process.env.NEXT_PUBLIC_GYG_PID = "TEST_GYG_PID";
 
+import { readFileSync } from "node:fs";
+
 const { resolveDetailCta, detailVerdict, DETAIL_CTA_TYPES } = await import("../lib/detailCta.js");
 
 let pass = 0, fail = 0;
@@ -104,6 +106,15 @@ const noOffers = {};
 {
   const cta = resolveDetailCta({ detail: null, kind: null, viaTours: noTours, locName: "", offers: noOffers, openState: null });
   ok(cta.type === DETAIL_CTA_TYPES.directions, "null detail → safe Directions fallback");
+}
+
+// 10. The sheet must render the ladder's resolved action instead of an older
+// hard-coded switch. That switch turned `plan` (closed place) into Directions,
+// then rendered the secondary Directions control too.
+{
+  const detailSheet = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  ok(/<PrimaryActionButton\s+primaryCta=\{primaryCta\}/.test(detailSheet), "detail dock renders the resolved PrimaryActionButton");
+  ok((detailSheet.match(/<span>Directions<\/span>/g) || []).length === 1, "detail sheet has only the intentional secondary Directions label");
 }
 
 if (fail) {

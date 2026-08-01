@@ -642,17 +642,18 @@ export default function DetailSheet({ ctx }) {
                     always, so the v6.44 "half-width Directions beside a hole"
                     bug cannot return by way of an empty second cell. */}
                 <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 8 }}>
-                  {primaryCta.type === "event_tickets" ? (
-                    <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); logEvent("commerce_cta_clicked", detail, { place_type: placeKind(detail), cta_type: "event_tickets" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
-                      <span>Get tickets</span><span aria-hidden="true">↗</span>
-                    </a>
-                  ) : primaryCta.type === "bookable" ? (
-                    <BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} />
-                  ) : (
-                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
-                      <span>Directions</span><span aria-hidden="true">↗</span>
-                    </a>
-                  )}
+                  <PrimaryActionButton
+                    primaryCta={primaryCta}
+                    detail={detail}
+                    kind={placeKind(detail)}
+                    viaTours={viaTours}
+                    locName={locName}
+                    logEvent={logEvent}
+                    addReservation={addReservation}
+                    openExternal={openExternal}
+                    ctaRef={ctaRef}
+                    onClick={handlePrimaryCtaClick}
+                  />
                 </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   {primaryCta.type !== "directions" && (
