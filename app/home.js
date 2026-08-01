@@ -2057,7 +2057,8 @@ function generateHooks(places, locName) {
   if (!places || places.length < 4) return [];
   const city = (locName || "your area").split(",")[0];
   // v6.72: was a private 11/15/21 meal split. mealForHour is the shared one.
-  const mealLabel = mealForHour(siteHourFloat());
+  const hour = siteHourFloat();
+  const mealLabel = mealForHour(hour);
   const hooks = [];
   const byScore = [...places].sort((a, b) => promOf(b) - promOf(a));
 
@@ -2158,7 +2159,7 @@ function generateHooks(places, locName) {
   });
 
   // Late night bonus
-  if (h >= 21 || h < 3) {
+  if (hour >= 21 || hour < 3) {
     const late = places.filter((p) => p.openNow === true).sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
     if (late[0]) hooks.push({
       id: "latenight", accent: "#FF8A3D", emoji: "🌙", label: "Still open",
