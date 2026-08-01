@@ -28,6 +28,10 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: "always",
+    // Deterministic native-shell marker. The remote page can render before
+    // Capacitor's injected bridge reports its platform; the user-agent marker
+    // is present from the WebView's first request and avoids that race.
+    appendUserAgent: "WayfindNative/1.0",
     // Apple review guideline 4.2 checklist we're relying on native plugins
     // (not this flag) to satisfy — see the plugin wiring in lib/native.js.
     allowsLinkPreview: false,

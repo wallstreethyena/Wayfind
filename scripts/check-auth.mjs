@@ -7,6 +7,7 @@ const native = readFileSync(new URL("../lib/native.js", import.meta.url), "utf8"
 const appleNative = readFileSync(new URL("../ios/App/App/AppleSignInPlugin.swift", import.meta.url), "utf8");
 const entitlements = readFileSync(new URL("../ios/App/App/App.entitlements", import.meta.url), "utf8");
 const xcodeProject = readFileSync(new URL("../ios/App/App.xcodeproj/project.pbxproj", import.meta.url), "utf8");
+const capacitorConfig = readFileSync(new URL("../capacitor.config.ts", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-auth: FAIL — " + m); process.exit(1); };
 if (!s.includes('_event === "PASSWORD_RECOVERY"')) fail("PASSWORD_RECOVERY handler missing");
 if (!s.includes("resetPasswordForEmail")) fail("forgot-password sender missing");
@@ -28,4 +29,5 @@ if (!native.includes('redirectTo: NATIVE_OAUTH_CALLBACK') || !native.includes('B
 if (!native.includes('const NATIVE_OAUTH_CALLBACK = "wayfind://auth/callback"')) fail("native Google OAuth callback is missing");
 if (!readFileSync(new URL("../ios/App/App/Info.plist", import.meta.url), "utf8").includes("<string>wayfind</string>")) fail("iOS custom URL scheme for OAuth callback is missing");
 if (!readFileSync(new URL("../ios/App/App/SceneDelegate.swift", import.meta.url), "utf8").includes("registerPluginType(AppleSignInPlugin.self)")) fail("AppleSignIn native plugin is not registered with Capacitor");
+if (!capacitorConfig.includes('appendUserAgent: "WayfindNative/1.0"') || !native.includes("WayfindNative\\/\\d")) fail("native auth UI must have a first-request marker instead of racing Capacitor bridge initialization");
 console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAuth callback, Apple nonce verification, plugin registration, entitlement, and Supabase exchange");
