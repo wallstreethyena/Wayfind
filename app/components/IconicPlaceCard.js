@@ -30,7 +30,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, intentLabel, rankingNote, onShare }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare }) {
   if (!place) return null;
   const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
@@ -98,8 +98,15 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             </div>
           ) : null}
 
+          {/* v6.88 (owner): `intentLabel` used to render an inert <span> here
+              repeating the page's own eyebrow text ("Best of", "Trending now",
+              ...) on every single card — not a link, not a badge about the
+              place, just the list's own name stamped on each row for no
+              reason. The user already sees what list they're looking at from
+              the page header; removed entirely rather than replaced. This row
+              is for real per-card badges only, matching home.js's canonical
+              PlaceCard (clickable category chips, never decorative repeats). */}
           <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
-            {intentLabel ? <span>{intentLabel}</span> : null}
             {badge || null}
             {partnerHref ? (
               <a

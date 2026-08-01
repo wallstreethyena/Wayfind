@@ -432,7 +432,6 @@ export default function IntentPageClient({ intent }) {
               <IconicPlaceCard key={r.id} place={r} rank={i + 1} href={"/p/" + encodeURIComponent(r.id)}
                 editorial={r.editorial_hook || null}
                 aiSummary={r.editorial_hook ? null : r.ai_line || null}
-                intentLabel={intentEyebrow(def, variant)}
                 rankingNote={r.deduction ? "ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : null}
                 badge={badge}
                 onShare={sharePlace} />

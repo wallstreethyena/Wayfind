@@ -77,10 +77,24 @@ ok(Blocks.rightNowRows([{ id: "inside" }], [{ ...places[0], distMi: 18 }], [plac
 
 const card = renderToStaticMarkup(createElement(Card, {
   place: { ...places[0], photoRef: "places/abc/photos/def", priceLevel: 2 },
-  rank: 1, href: "/p/inside", editorial: "A museum locals use when the afternoon sky opens up.", intentLabel: "Hidden gems",
+  rank: 1, href: "/p/inside", editorial: "A museum locals use when the afternoon sky opens up.",
 }));
-for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Best activities pick", "Hidden gems", "Save", "Like The Gallery", "Not for me", "Share"]) {
+for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Best activities pick", "Save", "Like The Gallery", "Not for me", "Share"]) {
   ok(card.includes(needle), `iconic card renders '${needle}'`);
+}
+// v6.88 (owner): the card used to stamp the page's own eyebrow ("Best of",
+// "Hidden gems", "Trending now", ...) onto every single row as an inert,
+// non-interactive span — not about the place, not clickable, just the list's
+// own name repeated on each card for no reason. Locked out for good: the
+// prop is gone from the component signature, not just unused at this callsite.
+ok(!Object.prototype.hasOwnProperty.call(Card, "intentLabel"), "IconicPlaceCard's own export carries no intentLabel trace");
+// Match real code usage (prop destructure or JSX render), not prose — this
+// comment block itself says "intentLabel" in explanation, which a bare
+// substring match would trip on. Same trap check-no-llm-in-render-path.mjs
+// already warns about: a policy comment matching its own regex.
+ok(!/intentLabel\s*[,}=]/.test(readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8")), "IconicPlaceCard never re-adds the dead per-card eyebrow chip");
+for (const f of ["app/components/IntentPageClient.js", "app/components/TrendingNowClient.js"]) {
+  ok(!/intentLabel=/.test(readFileSync(path.join(ROOT, f), "utf8")), `${f} does not pass intentLabel into IconicPlaceCard`);
 }
 for (const klass of ["wf-place-card", "wf-place-card-layout", "wf-place-card-score", "wf-place-card-actions", "wf-place-card-save", "wf-place-card-like", "wf-place-card-dislike", "wf-place-card-share"]) {
   ok(new RegExp(`class="[^"]*\\b${klass}\\b`).test(card), `iconic card uses canonical home class '${klass}'`);

@@ -122,7 +122,6 @@ export default function TrendingNowClient() {
                 rank={i + 1}
                 href={"/p/" + encodeURIComponent(r.place_id)}
                 editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")}
-                intentLabel="Trending now"
                 rankingNote={r.timeFit || null}
                 onShare={sharePlace} />
             ))}
