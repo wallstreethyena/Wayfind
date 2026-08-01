@@ -52,21 +52,43 @@ for (const deal of PARTNER_DEAL_COUPONS) {
   ok(/^\/api\/commerce\/go\?/.test(deal.url || ""), `${deal.id} links through Wayfind rather than exposing the partner destination`);
 }
 
+// Two shapes of curated pick coexist in INTENT_PARTNER_PICKS:
+//  - Travelpayouts-family (tiqets/klook/ticketnetwork): a synthetic offerId
+//    mapped to a hand-pasted destination in PARTNER_OFFER_REGISTRY, resolved
+//    through the tp.media wrapper.
+//  - viator: the offerId IS a live Viator product_code (2026-08-01, Sarasota
+//    coverage-gap fill) and resolves against OUR wf_experiences table — the
+//    same live-verified path PROVIDERS.viator already serves for the
+//    un-curated inventoryPartnerPick() fallback. It deliberately has NO
+//    registry row: a row here would shadow the live table lookup instead of
+//    proving it.
+const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork"]);
+
 const ids = new Set();
 for (const p of picks) {
   ok(!ids.has(p.offerId), `${p.offerId} is unique across placements`);
   ids.add(p.offerId);
-  const row = PARTNER_OFFER_REGISTRY[p.offerId];
-  ok(!!row, `${p.city}/${p.intent} resolves to a server-side registry row`);
-  ok(row?.provider === p.provider, `${p.offerId} provider agrees across client metadata and server registry`);
   ok(!!PROVIDERS[p.provider], `${p.offerId} uses a redirect-enabled provider`);
   ok(!!p.title && !!p.reason && !!p.eyebrow && !!p.cta, `${p.offerId} has decision-useful copy and a CTA`);
-  let dest = null;
-  try { dest = new URL(row?.destination || ""); } catch {}
-  ok(!!dest && /^https?:$/.test(dest.protocol), `${p.offerId} has an absolute http(s) destination`);
-  ok(!!dest && dest.pathname !== "/", `${p.offerId} is a specific product/venue path, not a provider homepage`);
-  const resolved = await resolveOffer(p.provider, p.offerId);
-  ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${p.offerId} resolves through the verified Travelpayouts wrapper (got ${resolved.error || resolved.dest})`);
+
+  if (TP_FAMILY.has(p.provider)) {
+    const row = PARTNER_OFFER_REGISTRY[p.offerId];
+    ok(!!row, `${p.city}/${p.intent} resolves to a server-side registry row`);
+    ok(row?.provider === p.provider, `${p.offerId} provider agrees across client metadata and server registry`);
+    let dest = null;
+    try { dest = new URL(row?.destination || ""); } catch {}
+    ok(!!dest && /^https?:$/.test(dest.protocol), `${p.offerId} has an absolute http(s) destination`);
+    ok(!!dest && dest.pathname !== "/", `${p.offerId} is a specific product/venue path, not a provider homepage`);
+    const resolved = await resolveOffer(p.provider, p.offerId);
+    ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${p.offerId} resolves through the verified Travelpayouts wrapper (got ${resolved.error || resolved.dest})`);
+  } else if (p.provider === "viator") {
+    ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} is a live Viator product_code and must not also carry a shadowing registry row`);
+    ok(/^\d+P\d+$/.test(p.offerId), `${p.offerId} looks like a real Viator product_code (####P#), not a synthetic key`);
+    const resolved = await resolveOffer("viator", p.offerId);
+    ok(!resolved.error && /^https:\/\/www\.viator\.com\//.test(resolved.dest || ""), `${p.offerId} resolves LIVE against wf_experiences to a tracked viator.com URL (got ${resolved.error || resolved.dest})`);
+  } else {
+    ok(false, `${p.offerId} uses provider "${p.provider}", which this guard has no validation path for yet`);
+  }
 }
 
 // Negative controls: prove the registry cannot be used as an open redirect or
