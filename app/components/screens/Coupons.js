@@ -26,6 +26,7 @@ import { useRef, useEffect } from "react";
 import { COUPONS } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
+import Image from "next/image";
 
 // One id for the photo-vs-no-photo comparison, so both event families can be
 // joined on it. Bumped only when the treatment definition changes — not per
@@ -163,7 +164,19 @@ function PosterCard({ c, position, ctx }) {
           placeholder, never a stretched thumbnail (work order). The save/share
           pair moves into the body in that case so neither is ever lost. */}
       {art ? (
-        <div style={{ position: "relative", width: "100%", boxSizing: "border-box", aspectRatio: "3 / 2", display: "flex", alignItems: "flex-start", justifyContent: "flex-start", padding: "12px 14px", background: `center/cover no-repeat url(${art})` }}>
+        <div style={{ position: "relative", width: "100%", boxSizing: "border-box", aspectRatio: "3 / 2", display: "flex", alignItems: "flex-start", justifyContent: "flex-start", padding: "12px 14px", overflow: "hidden" }}>
+          {/* next/image, replacing a CSS background-image.
+              WHY: the band is 316px wide and the assets are 1600px, so we were
+              shipping a ~5x oversampled JPEG with no srcset and no lazy loading —
+              a background-image cannot have either. `sizes` is a literal 316px
+              because the card is flex: 0 0 316px, so the browser can pick the
+              smallest variant instead of guessing from the viewport.
+              NO LAYOUT SHIFT: the parent already reserves space via aspectRatio
+              3/2, and `fill` paints inside that reserved box, so CLS is unchanged.
+              alt="" because the band is decorative — the business, title and
+              details right below it carry the card's meaning, and a duplicate
+              alt would make a screen reader announce the deal twice. */}
+          <Image src={art} alt="" fill sizes="316px" style={{ objectFit: "cover" }} />
           <span aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(18,15,10,.6), transparent 60%)" }} />
           {seal ? (
             <div style={{ position: "relative", zIndex: 3, width: 64, height: 64, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #ffd9a0, ${T.gold} 70%)`, color: "#3a2a08", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16, lineHeight: 1, boxShadow: "0 4px 12px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.5)" }}>
