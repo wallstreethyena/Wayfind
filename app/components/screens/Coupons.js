@@ -132,7 +132,7 @@ function CouponCard({ c, position, ctx }) {
 }
 
 export default function CouponsScreen({ ctx }) {
-  const { cpnOffers, center, savedCoupons, walletOpen, setWalletOpen } = ctx;
+  const { cpnOffers, center, savedCoupons, walletOpen, setWalletOpen, couponHandoff, user, setAuthOpen } = ctx;
   const today = siteTodayStr();
   const all = [...new Map([...COUPONS, ...(Array.isArray(cpnOffers) ? cpnOffers : [])].map((c) => [c.id, c])).values()];
   const { featured, ledger } = dealTiers(all, today, center);
@@ -155,6 +155,16 @@ export default function CouponsScreen({ ctx }) {
         <button onClick={() => setWalletOpen(false)} aria-pressed={!walletOpen} style={{ minWidth: 0, height: 44, borderRadius: 12, border: `1px solid ${!walletOpen ? "rgba(255,107,24,.75)" : T.border}`, background: !walletOpen ? "rgba(255,107,24,.13)" : T.panel, color: !walletOpen ? "#ff9a5c" : T.light, fontWeight: 900, cursor: "pointer" }}>All deals · {visibleCount}</button>
         <button onClick={() => setWalletOpen(true)} aria-pressed={!!walletOpen} aria-label="Tap to open your wallet" style={{ minWidth: 0, height: 44, borderRadius: 12, border: `1px solid ${walletOpen ? "rgba(255,107,24,.75)" : T.border}`, background: walletOpen ? "rgba(255,107,24,.13)" : T.panel, color: walletOpen ? "#ff9a5c" : T.light, fontWeight: 900, cursor: "pointer" }}>Clipped · {clipped.length}</button>
       </nav>
+
+      {walletOpen && couponHandoff && couponHandoff.saved ? (
+        <div role="status" aria-live="polite" style={{ marginTop: 12, padding: "12px 13px", borderRadius: 13, border: "1px solid rgba(37,194,110,.5)", background: "linear-gradient(135deg,rgba(37,194,110,.14),rgba(17,27,41,.96))", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <span style={{ minWidth: 0 }}>
+            <strong style={{ display: "block", color: T.text, fontSize: 12.5 }}>✓ Saved to Clipped</strong>
+            <span style={{ display: "block", marginTop: 2, color: T.muted, fontSize: 10.5, lineHeight: 1.35 }}>{user ? "Available from your Wayfind account." : "Saved on this device. Sign in to keep it across devices."}</span>
+          </span>
+          {!user ? <button onClick={() => setAuthOpen(true)} style={{ flexShrink: 0, minHeight: 34, padding: "0 11px", borderRadius: 10, border: "1px solid rgba(255,107,24,.7)", background: "rgba(255,107,24,.14)", color: "#ff9a5c", fontSize: 10.5, fontWeight: 900, cursor: "pointer" }}>Sign in to sync</button> : null}
+        </div>
+      ) : null}
 
       {walletOpen ? (
         clipped.length ? (

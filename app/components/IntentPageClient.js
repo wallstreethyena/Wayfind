@@ -389,8 +389,10 @@ export default function IntentPageClient({ intent }) {
           lat={loc.lat} lng={loc.lng}
           onOpenCoupons={(coupon, state) => {
             try { track("coupon_strip_to_coupons", { intent, coupon_id: coupon && coupon.id, clipped: !!(state && state.clipped) }); } catch (e) {}
+            if (!coupon || !coupon.id) { window.location.href = "/coupons"; return; }
             const focus = coupon && coupon.id ? `&focus=${encodeURIComponent(coupon.id)}` : "";
-            window.location.href = `/coupons?view=clipped${focus}`;
+            const saved = state && state.clipped ? "&saved=1" : "";
+            window.location.href = `/coupons?view=clipped${focus}${saved}`;
           }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
