@@ -26,7 +26,7 @@ import { siteTodayStr } from "../../../lib/siteTime";
 // only on /tonight, /date-night and seven siblings — all `noindex, nofollow`.
 // The moat was invisible to search and absent from the pages search can see.
 import { nowContext } from "../../../lib/nowContext";
-import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor } from "../../../lib/guideNow";
+import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor, indoorFromInventory, regionCity } from "../../../lib/guideNow";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -253,6 +253,27 @@ export default async function GuidePage({ params }) {
         console.error(`[guide] social proof threw for ${cityKey} (${params.slug}): ${String(e && e.message).slice(0, 160)}`);
       }
     }
+
+  // TIER 3 — the live product, deliberately placed AFTER the social-proof
+  // section above. check-guide-deal-cards enforces that our own inventory is
+  // consulted BEFORE rankedFor, because rankedFor reaches Google Places and
+  // cannot answer during `next build`. Inserting this earlier broke that
+  // ordering; the guard caught it. Same code, correct position.
+  // TIER 3 — the live product. When neither this guide nor a sibling can answer
+  // the conditions, fall back to real ranked inventory for the region rather
+  // than leaving the visitor at a dead end. This is what makes the fix scale:
+  // no editorial work per guide, and it covers Bradenton, whose three guides
+  // are 0/3 indoor and therefore have no sibling to offer.
+  let liveIndoor = [];
+  if (nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK && !sibling) {
+    try {
+      const citySlug = regionCity(g.region);
+      if (citySlug) {
+        const ranked = await rankedFor("things-to-do", citySlug, { limit: 24 });
+        liveIndoor = indoorFromInventory(ranked && ranked.places ? ranked.places : ranked);
+      }
+    } catch (e) { liveIndoor = []; }
+  }
   }
   // v4.18: FAQ structured data — makes these guides eligible for expanded
   // FAQ rich results in search, which lifts click-through beyond position.
@@ -294,6 +315,8 @@ export default async function GuidePage({ params }) {
         .wf-guide-now-list a{color:#f7f2ea;font-weight:650}
         .wf-guide-now-handoff{background:rgba(56,189,248,.07);border-color:rgba(56,189,248,.30)}
         .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
+        .wf-guide-now-live{background:rgba(94,232,180,.07);border-color:rgba(94,232,180,.30)}
+        .wf-guide-now-live .wf-guide-now-head{color:#5EE8B4}
         .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #263445;box-shadow:none;color:#eef1f5}
         .wf-guide-pick:last-of-type{border-bottom:1px solid #263445}
         .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
@@ -392,6 +415,24 @@ export default async function GuidePage({ params }) {
               ))}
             </ol>
           ) : null}
+        </section>
+      ) : null}
+      {/* TIER 3 — live inventory. The guide has no answer and no sibling; the
+          PRODUCT does. Real ranked places, classified by venueLean on Google
+          TYPES (reliable, unlike prose), so this scales to every guide and
+          every future city with no editorial work. */}
+      {liveIndoor.length ? (
+        <section className="wf-guide-now wf-guide-now-live" aria-label="Open right now">
+          <div className="wf-guide-now-head">Better right now</div>
+          <p className="wf-guide-now-why">
+            {nowCtx.reason.charAt(0).toUpperCase() + nowCtx.reason.slice(1)} — and this guide is mostly outdoors.
+            {" "}These are indoor and highly rated near {g.region}.
+          </p>
+          <ol className="wf-guide-now-list">
+            {liveIndoor.map((p, i) => (
+              <li key={i}><a href={appUrl(p.name)}>{p.name}</a>{p.rating ? <span> — {p.rating}★</span> : null}</li>
+            ))}
+          </ol>
         </section>
       ) : null}
       {/* THE HANDOFF. This guide cannot answer today's conditions — say so, and
