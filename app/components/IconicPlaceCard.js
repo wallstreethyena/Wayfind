@@ -43,13 +43,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const distance = Number.isFinite(Number(place.distMi))
     ? (Number(place.distMi) < 10 ? Number(place.distMi).toFixed(1) : Math.round(Number(place.distMi))) + " mi"
     : null;
+  const isCuratorPick = !!(place._members && place._members.ownerPick);
   const facts = [
     place.reviews ? compactCount(place.reviews) + " reviews" : null,
     priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum),
     state,
     distance,
   ].filter(Boolean);
-  const award = rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
+  const award = isCuratorPick ? "Wayfind curator's pick" : rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
   // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
   // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
   // status and distance already render above in `facts`/`award`, and
@@ -62,7 +63,6 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   const validAiSummary = !editorial && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
-  const isCuratorPick = !!(place._members && place._members.ownerPick);
   const partner = placePartnerPick(place);
   const partnerHref = partner ? commerceHref({
     provider: partner.provider,
@@ -92,8 +92,8 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           </div>
 
           {award ? (
-            <div className={`wf-place-card-award is-rank-${rank}`}>
-              <span className="wf-place-card-award-icon" aria-hidden="true">{rank === 1 ? "🏆" : rank}</span>
+            <div className={`wf-place-card-award${isCuratorPick ? " is-curator" : ` is-rank-${rank}`}`} aria-label={isCuratorPick ? "Personally selected by Wayfind's curator" : undefined}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{isCuratorPick ? "✦" : rank === 1 ? "🏆" : rank}</span>
               <span>{award}</span>
             </div>
           ) : null}
