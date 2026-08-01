@@ -16,6 +16,12 @@ import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScor
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+// v6.80: 823ebf7 added the viatorDirectUrl() call below (closing the `|| raw`
+// unattributed fallback) but not this import. A bare reference is valid
+// JavaScript until it RUNS — this would have been a ReferenceError on every
+// Things-to-do render, the same failure #486 shipped to production as a 404.
+// Caught by check-lib-call-imports, which is exactly why that guard exists.
+import { viatorDirectUrl } from "../../lib/affiliates";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
@@ -183,18 +189,11 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
     </div>
   );
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
-  return isTour
-    ? (
-      <ViatorCommerceLink
-        t={r}
-        city={r.city}
-        surface="ttd_list"
-        rank={rank}
-        onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}
-        className="wf-ttd-focus"
-        style={style}
-      >{body}</ViatorCommerceLink>
-    )
+  // v6.79 (AGENTS.md §6b): an unattributable tour link is not rendered as a
+  // link at all — the card stays, the booking anchor does not.
+  const tourHref = isTour ? viatorDirectUrl(r.booking_url) : null;
+  return (isTour && tourHref)
+    ? <a href={tourHref} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 

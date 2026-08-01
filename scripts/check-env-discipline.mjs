@@ -33,10 +33,39 @@ const fail = (m) => { console.error("check-env-discipline: FAIL — " + m); fail
 // The one module allowed to read process.env directly, once it exists.
 const CONFIG_MODULE = "lib/config.js";
 
-// ── Grandfather A: existing `|| "<literal>"` fallbacks. DRIVE THIS TO ZERO. ──
-// Every line here is a value whose absence is currently indistinguishable from
-// its presence. The four affiliate identifiers are the same shape as
-// DEFAULT_ADS_ID and carry the same revenue-misattribution risk.
+// ── NOT ALL FALLBACKS ARE THE SAME BUG (2026-07-30) ─────────────────────────
+// This list used to say "DRIVE THIS TO ZERO" and single out "the four affiliate
+// identifiers" as carrying DEFAULT_ADS_ID's misattribution risk. That reading is
+// backwards for two of these files, and acting on it would cost real money.
+//
+// THE DISTINCTION IS NOT "is there a fallback." IT IS "does the fallback still
+// earn." Two different bugs wear the same syntax:
+//
+//   CREDENTIAL WITH A SAFE DEFAULT — a non-secret public identifier whose
+//   literal is the CORRECT live value. `TP_MARKER ?? "750791"`,
+//   `TM_IMPACT_SID ?? "7475855"`. Verified 2026-07-30: those env vars are
+//   MISSING from Vercel production, so these literals are the only reason
+//   Travelpayouts (4 live programs, marker 750791) and Ticketmaster are
+//   attributed AT ALL. Deleting them darks live revenue with a green build.
+//   These are PROTECTED, and scripts/check-untracked-affiliate-links.mjs
+//   asserts they stay.
+//
+//   SILENT-FALLBACK BUG — the fallback produces output that no longer earns or
+//   no longer distinguishes configured from unconfigured. vrboUrl() returning
+//   the bare `dest` was this: a working, fully UNTRACKED vrbo.com link, free
+//   traffic to Expedia out of our highest-commission category. That is the
+//   DEFAULT_ADS_ID shape and it is what this guard exists to burn down.
+//
+// So the burn-down list below is only the second kind. Removing a PROTECTED
+// entry is not progress; it is an outage.
+const PROTECTED_CREDENTIAL_DEFAULTS = new Map([
+  ["lib/travelpayouts.js", "TP_MARKER literal 750791 — env var MISSING in production; this literal is what attributes 4 live programs"],
+  ["lib/affiliates.js", "TM_IMPACT_SID/CAMPAIGN/AD/DESTPARAM literals — env vars MISSING in production; these attribute Ticketmaster"],
+]);
+
+// ── Grandfather A: genuine silent fallbacks. DRIVE THIS TO ZERO. ─────────────
+// Values whose absence is indistinguishable from their presence AND whose
+// fallback does not carry live configuration. These are the burn-down.
 const GRANDFATHERED_FALLBACK = new Set([
   "app/page.js",
   "app/components/SentryClient.js",
@@ -45,10 +74,9 @@ const GRANDFATHERED_FALLBACK = new Set([
   "app/api/cron/route.js",
   "app/api/cron/atlas-build/route.js",
   "app/api/cron/cc-alerts/route.js",
-  "lib/travelpayouts.js",
   "lib/site.js",
-  "lib/affiliates.js",
   "lib/analytics.js",
+  ...PROTECTED_CREDENTIAL_DEFAULTS.keys(),
 ]);
 
 // ── Grandfather B: files reading process.env directly. DRIVE THIS TO ZERO. ──
@@ -114,5 +142,6 @@ if (newDirect.length) {
 if (failures) { console.error(`check-env-discipline: ${failures} failure(s)`); process.exit(1); }
 console.log(
   "check-env-discipline: OK — no new silent fallbacks" +
-  " (grandfathered: " + GRANDFATHERED_FALLBACK.size + " file(s) with `|| \"literal\"`, drive to zero)"
+  " (burn-down: " + (GRANDFATHERED_FALLBACK.size - PROTECTED_CREDENTIAL_DEFAULTS.size) + " file(s) with a genuine silent fallback, drive to zero; "
+  + PROTECTED_CREDENTIAL_DEFAULTS.size + " PROTECTED credential-with-safe-default file(s) that must NOT be 'cleaned up' — their literals are carrying live attribution)"
 );

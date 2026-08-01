@@ -118,16 +118,37 @@ ok(/may earn a commission/.test(rail), "ViatorRail keeps the commission disclosu
 //
 // Asserted against viatorDirectUrl's OWN OUTPUT rather than against the presence
 // of a tracking parameter, because whether a parameter appears depends on the
-// VIATOR partner env var being set — and it is NOT set in this environment, so
-// the function currently returns the url unchanged. A parameter-presence check
-// would therefore be asserting the deployment config, not this component, and
-// would go green or red for reasons that have nothing to do with the extraction.
-// Comparing to the function's return value catches the thing this component IS
-// responsible for: that the href goes THROUGH the affiliate helper at all.
+// VIATOR partner env var being set. Comparing to the function's return value
+// catches the thing this component IS responsible for: that the href goes
+// THROUGH the affiliate helper at all, in either env state.
+//
+// COMPARE DECODED, NOT RAW (fixed 2026-07-31). React ESCAPES attribute values,
+// so a tracked href renders as
+//     href="...?pid=P00308545&amp;mcid=42383&amp;medium=link"
+// while viatorDirectUrl() returns it with bare `&`. The old raw-substring
+// compare therefore passed ONLY while the helper was a no-op (no PID in env) and
+// went red the moment a real PID was present — the assertion was inverted: red
+// exactly when attribution was WORKING, green when it was not. That is the same
+// false-signal class as the four documented in CLAUDE.md, and it cost a night.
+// Verified directly against renderToStaticMarkup output, not assumed.
+// Entities are decoded with &amp; LAST so a literal "&amp;quot;" in a url cannot
+// double-decode into a quote and silently truncate the comparison.
+const decodeEntities = (s) => String(s)
+  .replace(/&(?:quot|#34|#x22);/gi, '"')
+  .replace(/&(?:apos|#39|#x27);/gi, "'")
+  .replace(/&(?:lt|#60|#x3c);/gi, "<")
+  .replace(/&(?:gt|#62|#x3e);/gi, ">")
+  .replace(/&(?:amp|#38|#x26);/gi, "&");
 const { viatorDirectUrl } = await import(path.join(ROOT, "lib/affiliates.js"));
 const expectedHref = viatorDirectUrl(tours[0].url) || tours[0].url;
-ok(rail.includes(`href="${expectedHref}"`),
-  `ViatorRail must route the href through viatorDirectUrl() — the v6.44 revenue hole. Expected href="${expectedHref}"`);
+const renderedHrefs = [...rail.matchAll(/href="([^"]*)"/g)].map((m) => decodeEntities(m[1]));
+ok(renderedHrefs.includes(expectedHref),
+  `ViatorRail must route the href through viatorDirectUrl() — the v6.44 revenue hole. Expected href="${expectedHref}", rendered ${JSON.stringify(renderedHrefs)}`);
+// The decoder is load-bearing for the assertion above, so it is proven both ways
+// rather than trusted: it must undo React's escaping, and must not mangle a url
+// that never had any.
+ok(decodeEntities("a?x=1&amp;y=2") === "a?x=1&y=2", "self-test: decodeEntities undoes React's &amp; escaping");
+ok(decodeEntities("a?x=1&y=2") === "a?x=1&y=2", "self-test: decodeEntities leaves an unescaped url untouched");
 ok(rail.includes("viator.com"), "sanity: the rail rendered a viator href at all");
 
 const meth = render(createElement(Blocks.Methodology));

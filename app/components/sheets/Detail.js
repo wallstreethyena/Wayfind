@@ -479,6 +479,39 @@ export default function DetailSheet({ ctx }) {
   // v6.44: does the booking CTA actually render? The dock's grid template
   // depends on it — see hasBookingCTA in components/BookingCTA.js.
   const hasBooking = detail ? hasBookingCTA(detail, placeKind(detail), viaTours, locName) : false;
+  // ── THE PRIMARY CTA MATRIX (v6.77) ─────────────────────────────────────────
+  // ONE primary per sheet, verb-labeled, resolved in a fixed order:
+  //     deal > bookable(tickets) > delivery > directions
+  //
+  // Before this, DIRECTIONS was the orange primary and the monetized CTA sat in
+  // the second cell — the decision surface led with the one action that earns
+  // nothing. The order below is the inversion, and it is resolved ONCE here so
+  // the button, the layout and the instrumentation cannot disagree.
+  //
+  // Every monetized rung reads the SAME predicate the disclosure reads
+  // (hasBookingCTA -> bookingTargets). No parallel resolution: that is what let
+  // an earning link render with no FTC line once, and it is what makes the
+  // CityPASS/TicketSmarter registration a drop-in — when PROVIDERS exposes a
+  // covered city + attraction kind as a verified-class target, the `bookable`
+  // rung picks it up with zero change here.
+  //
+  // ONE PROVIDER PER CARD (owner's hard rule): exactly one rung wins, so exactly
+  // one monetized href can occupy the primary slot.
+  // primary_cta_null: fires when no MONETIZABLE CTA resolved. Directions is the
+  // acknowledged non-monetized terminal and does NOT suppress the event — the
+  // point is to count the sheets where we had nothing to sell, which is the
+  // denominator for the attraction-ticket gap.
+  const ctaFiredFor = useRef(null);
+  useEffect(() => {
+    if (!detail || !detail.id) return;
+    if (ctaFiredFor.current === detail.id) return;
+    ctaFiredFor.current = detail.id;
+    try {
+      logEvent("commerce_impression", detail, { place_type: placeKind(detail), cta_type: primaryCta.type });
+      if (!primaryCta.monetized) logEvent("primary_cta_null", detail, { place_type: placeKind(detail), terminal: primaryCta.type });
+    } catch (e) {}
+  }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
+
 
   return (
         <div style={sheetBg} onClick={() => window.history.back()}>
@@ -595,23 +628,37 @@ export default function DetailSheet({ ctx }) {
 
               {/* Premium action dock (v6.72): verdict pill + Add to plan + primary CTA ladder. */}
               <div style={{ marginBottom: 16, padding: 10, background: "linear-gradient(145deg, rgba(25,34,47,.98), rgba(12,18,27,.98))", border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 16px 34px rgba(0,0,0,.24)" }}>
+
                 {!detail._event && <VerdictPill verdict={verdict} />}
-                <div style={{ display: "grid", gridTemplateColumns: detail._event ? "minmax(0,1fr) 48px" : (primaryCta.type === DETAIL_CTA_TYPES.plan ? "minmax(0,1fr)" : "repeat(2,minmax(0,1fr))"), gap: 8 }}>
-                  {detail._event && detail._event.url ? (
-                    <a href={ticketUrl(detail._event.url, { surface: "detail_event_primary" })} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}><span>Get tickets</span><span aria-hidden="true">↗</span></a>
+                {/* v6.44: the second column exists only if BookingCTA will actually
+                    render into it. Previously this was always 2 columns, so a place
+                    with no booking target left "Directions" at half width beside an
+                    empty cell (owner-reported, with a photo). */}
+                {/* v6.77: ONE primary, resolved by primaryCta above. The orange
+                    slot now belongs to whatever EARNS — it used to belong to
+                    Directions, which earns nothing, while the booking CTA sat in
+                    a second cell. Directions moved to the secondary row unless it
+                    IS the resolved primary (the honest terminal). Single column
+                    always, so the v6.44 "half-width Directions beside a hole"
+                    bug cannot return by way of an empty second cell. */}
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr)", gap: 8 }}>
+                  {primaryCta.type === "event_tickets" ? (
+                    <a href={ticketUrl(detail._event.url)} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { src: "detail_primary" }); logEvent("commerce_cta_clicked", detail, { place_type: placeKind(detail), cta_type: "event_tickets" }); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
+                      <span>Get tickets</span><span aria-hidden="true">↗</span>
+                    </a>
+                  ) : primaryCta.type === "bookable" ? (
+                    <BookingCTA variant="primary" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} />
                   ) : (
-                    <>
-                      {primaryCta.type !== DETAIL_CTA_TYPES.plan && (
-                        <button onClick={addToPlan} style={{ minWidth: 0, height: 48, padding: "0 15px", background: "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, fontSize: 14.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved(detail.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                          <span>{isSaved(detail.id) ? "Saved" : "Add to plan"}</span>
-                        </button>
-                      )}
-                      <PrimaryActionButton primaryCta={primaryCta} detail={detail} kind={placeKind(detail)} viaTours={viaTours} locName={locName} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} ctaRef={ctaRef} onClick={handlePrimaryCtaClick} />
-                    </>
+                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }}>
+                      <span>Directions</span><span aria-hidden="true">↗</span>
+                    </a>
                   )}
-                  {detail._event && detail._event.url && (
-                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} aria-label="Directions" style={{ width: 48, height: 48, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, textDecoration: "none" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17L17 7" /><path d="M9 7h8v8" /></svg></a>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  {primaryCta.type !== "directions" && (
+                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 12, color: C.accent, fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }} aria-label="Directions">
+                      <span>Directions</span><span aria-hidden="true">↗</span>
+                    </a>
                   )}
                 </div>
                 {!detail._event && primaryCta.monetized && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates && <FTCDisclosure />}

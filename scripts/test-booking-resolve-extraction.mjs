@@ -77,10 +77,19 @@ let branchesExercised = 0;
 for (const [label, detail, kind, viaTours, locName] of CASES) {
   const hasTours = !!(viaTours && viaTours[detail.id] && viaTours[detail.id].items && viaTours[detail.id].items.length);
   const topItem = hasTours ? viaTours[detail.id].items[0] : null;
-  const after = bookingTargets(detail, kind, topItem, locName);
+  // v6.76: the relevance gate deliberately CHANGES output when evidence is
+  // absent, so this fidelity comparison runs with the gate OPEN. That keeps the
+  // question this loop asks unchanged — "did moving the code out of the client
+  // component alter its behaviour?" — and leaves the gate itself to be tested on
+  // its own terms below. Comparing with the gate CLOSED would conflate two
+  // different changes and tell us nothing about either.
+  const gateOpen = { placeEvidence: { resolved: true, verifiedCount: 1 } };
+  const afterFull = bookingTargets(detail, kind, topItem, locName, gateOpen);
+  // Only the four keys the pre-extraction implementation returned.
+  const after = { verifiedUrl: afterFull.verifiedUrl, goFallback: afterFull.goFallback, tk: afterFull.tk, tu: afterFull.tu };
   const before = bookingTargetsBefore(detail, kind, topItem, locName);
   ok(JSON.stringify(after) === JSON.stringify(before),
-    `${label}: BYTE-IDENTICAL before/after\n      before ${JSON.stringify(before)}\n      after  ${JSON.stringify(after)}`);
+    `${label}: BYTE-IDENTICAL before/after (gate open)\n      before ${JSON.stringify(before)}\n      after  ${JSON.stringify(after)}`);
   if (after.tu) branchesExercised++;
 }
 // Both outcomes must occur, or "identical" is a claim about one branch.
@@ -115,6 +124,63 @@ ok(BOOKABLE_KINDS.join(",") === BEFORE_KINDS.join(","), "BOOKABLE_KINDS is uncha
     "the guide's monetized CTA carries rel=noreferrer sponsored");
   ok(/cta\.sponsored \? \{ target/.test(conv),
     "...and only when the resolver marked it sponsored, so a non-monetized Directions link is not falsely tagged");
+}
+
+// ── THE RELEVANCE GATE (v6.76, owner's Ringling tap) ────────────────────────
+// The generic tracked search may only render as PRIMARY when Viator provably
+// holds inventory for THIS place. A search that opens irrelevant results spends
+// trust we need for the next click.
+{
+  const museum = D({ types: ["museum", "tourist_attraction"] });
+  const perm = (opts) => bookingTargets(museum, "museum", null, "Orlando, FL", opts);
+
+  // SCOPE. A caller that does not participate in the evidence protocol is
+  // UNCHANGED. Default-deny was tried first and check-guide-conversion caught it
+  // cutting the guide pages' monetized CTAs from 5+ to 1 — guides render on the
+  // server with no per-place Viator fetch, so they have no evidence to pass.
+  const none = perm(undefined);
+  ok(typeof none.goFallback === "string" && none.goFallback.length > 0,
+    "a caller passing NO evidence is unchanged — the gate scopes to participants, so it cannot cut another surface's revenue");
+  ok(none.fallbackSuppressed === null, "a non-participating caller reports no suppression");
+
+  // Fetch in flight -> suppress rather than flash a CTA we may retract.
+  const pending = perm({ placeEvidence: { resolved: false, verifiedCount: 0 } });
+  ok(pending.goFallback === null, "evidence pending -> no fallback yet");
+  ok(pending.fallbackSuppressed === "evidence_pending", `reason is evidence_pending (got ${pending.fallbackSuppressed})`);
+
+  // THE RINGLING CASE: resolved, and Viator has nothing for this place.
+  const empty = perm({ placeEvidence: { resolved: true, verifiedCount: 0 } });
+  ok(empty.goFallback === null, "resolved with zero verified products -> no fallback (the Ringling case)");
+  ok(empty.fallbackSuppressed === "no_verified_products", `reason is no_verified_products (got ${empty.fallbackSuppressed})`);
+
+  // Evidence present -> the fallback is allowed through, unchanged.
+  const okEv = perm({ placeEvidence: { resolved: true, verifiedCount: 2 } });
+  ok(typeof okEv.goFallback === "string" && okEv.goFallback.length > 0, "with verified inventory the fallback still renders");
+  ok(okEv.fallbackSuppressed === null, "nothing was withheld, so there is no suppression reason");
+
+  // A reason must never accompany a rendered fallback, or the event lies.
+  ok(!(okEv.goFallback && okEv.fallbackSuppressed), "goFallback and fallbackSuppressed are mutually exclusive");
+
+  // The gate must not resurrect a non-permitted case: a beach with evidence is
+  // still never bookable (the Coquina->Mumbai invariant).
+  const beach2 = D({ types: ["beach", "natural_feature", "tourist_attraction"], category: "beach" });
+  const beachEv = bookingTargets(beach2, "beach", null, "Sarasota, FL", { placeEvidence: { resolved: true, verifiedCount: 5 } });
+  ok(beachEv.goFallback === null, "a BEACH with verified inventory is STILL not bookable — the gate narrows, it never widens");
+  ok(beachEv.fallbackSuppressed === null, "a non-permitted place reports no suppression — it was never a candidate");
+
+  // ANTI-DRIFT: because the gate is opt-in, the detail sheet must be PROVEN to
+  // opt in. Without this, BookingCTA could drop the argument and silently return
+  // to serving irrelevant Viator searches as its primary CTA.
+  const cta = readFileSync(new URL("../app/components/BookingCTA.js", import.meta.url), "utf8");
+  ok(/bookingTargets\([^)]*placeEvidence:\s*placeEvidence\(/.test(cta.replace(/\n/g, " ")),
+    "BookingCTA passes placeEvidence into bookingTargets — the sheet participates in the relevance gate");
+  ok(/fallback_suppressed/.test(cta), "BookingCTA still instruments fallback_suppressed — the gate's measurement is the point");
+
+  // hasBookingCTA must agree with the primary variant, or the dock sizes a
+  // two-column grid for a button that does not render (the v6.44 bug).
+  const vtEmpty = { [museum.id]: { loading: false, items: [] } };
+  ok(hasBookingCTA(museum, "museum", vtEmpty, "Orlando, FL") === false,
+    "hasBookingCTA returns FALSE when the gate suppresses — layout and button read one predicate");
 }
 
 console.log(`test-booking-resolve-extraction: OK — ${pass} assertions (server-safe, one definition, byte-identical across ${CASES.length} branches, beach gate intact, disclosure in both callers)`);
