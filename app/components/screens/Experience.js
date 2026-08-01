@@ -7,10 +7,13 @@ import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../Collection
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
 import { CouponStrip, PerfectRightNow, Methodology } from "../ExperienceBlocks";
-import { siteHourFloat } from "../../../lib/nowContext.js";
+import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
+import { experienceHeader } from "../../../lib/collectionHeader.js";
+import { areaSeasonalContext } from "../../../lib/areaSeasonalContext.js";
+import { currentSeason } from "../../../lib/seasons.js";
 
 export default function ExperienceScreen({ ctx }) {
-  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center } = ctx;
+  const { activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, setIntent, setScreen, shareLink, listShareUrl, locName, showToast, logEvent, giveawayMark, setMapListOverride, hookLikes, toggleHookLike, saveHookList, ViatorRail, Loader, SortControl, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, blurbs, openExperience, openCuisine, PlaceCard, cityFixM, intentScopeLabel, center, weather } = ctx;
           const exp = EXPERIENCES[activeBadge];
           let list = expPlaces || [];
           if (expMi < 60) list = list.filter((p) => p.distMi == null || p.distMi <= expMi);
@@ -45,6 +48,10 @@ export default function ExperienceScreen({ ctx }) {
           const listLiked = hookLikes.has("badge-" + activeBadge);
           const mappable = list.filter((pp) => pp && pp.lat != null);
           const shareThisList = () => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), shareTextFor(activeBadge, cityFixM(exp.title)), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); };
+          const headerCity = locName ? locName.split(",")[0] : "your area";
+          const headerArea = areaSeasonalContext(headerCity, currentSeason());
+          const header = experienceHeader(activeBadge, exp, headerCity, headerArea && headerArea.area_known_for);
+          const momentContext = nowContext({ city: headerCity, weather });
           return (
             <div>
               <CollectionHero
@@ -53,9 +60,11 @@ export default function ExperienceScreen({ ctx }) {
                 bleed="-7px -12px 14px"
                 heroImg={heroImg}
                 accent={C.accent}
-                eyebrow={(exp.icon ? exp.icon + " " : "") + "Wayfind picks"}
-                titleTop={cityFixM(exp.title)}
-                subtitle={exp.lead}
+                eyebrow={header.eyebrow}
+                titleTop={header.title}
+                subtitle={header.deck}
+                titleSize={30}
+                titleLines={3}
                 topLeft={(
                   <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
                     <HeroPill ariaLabel="Back" onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }}>‹ Back</HeroPill>
@@ -90,7 +99,7 @@ export default function ExperienceScreen({ ctx }) {
                   fetched per badge and a stale payload from the previous badge
                   must not render under the new one. */}
               {!expLoading && momentPicks && momentPicks.badge === activeBadge
-                ? <PerfectRightNow picks={momentPicks.picks} places={expPlaces} onOpenPlace={openDetail} />
+                ? <PerfectRightNow picks={momentPicks.picks} places={expPlaces} durablePlaces={list} context={momentContext} onOpenPlace={openDetail} />
                 : null}
               {/* v6.72 EXTRACTED — one methodology sentence, verbatim, everywhere. */}
               <Methodology />

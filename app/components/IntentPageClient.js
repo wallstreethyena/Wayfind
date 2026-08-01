@@ -6,11 +6,12 @@
 // ranked by the ONE score, rendered on the /best-beaches standard shell.
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
+import RankedExperiencePage from "./RankedExperiencePage";
+import IconicPlaceCard from "./IconicPlaceCard";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentTitle, intentSub, intentVariantCount, nowSubline, INTENT_COUPON_BADGE, INTENT_HAS_TOURS, INTENT_MOMENT_ID } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, intentHeader, INTENT_COUPON_BADGE, INTENT_HAS_TOURS, INTENT_MOMENT_ID } from "../../lib/intentPages";
 // v6.72 THE COMPOSITION (owner, 2026-07-31). The five blocks — coupon strip,
 // tour rail, "Perfect right now", the list, the methodology line — are ONE
 // component shared with app/components/screens/Experience.js, the reference
@@ -27,7 +28,6 @@ import ViatorRail from "./ViatorRail";
 import { nowContext } from "../../lib/nowContext";
 import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
-import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
@@ -40,11 +40,48 @@ const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 // weather.known false, nowContext's copy branches say only what the hour is for.
 const SSR_CTX = Object.freeze(nowContext({ hour: 12, weather: null }));
 
+const FILTER_OPTIONS = [
+  ["rated", "Top rated"],
+  ["near", "Closest first"],
+  ["price", "Price: low to high"],
+];
+
+function CollectionFilter({ sortBy, onSort, radius, onRadius, city }) {
+  const [open, setOpen] = useState(false);
+  const label = (FILTER_OPTIONS.find(([key]) => key === sortBy) || FILTER_OPTIONS[0])[1];
+  return (
+    <div data-collection-filter style={{ position: "relative", margin: "16px 0 14px" }}>
+      <button type="button" aria-expanded={open} onClick={() => setOpen((v) => !v)} style={{ minHeight: 46, display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 16px", borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "#161D2B", color: "#E5EAF2", fontSize: 14, fontWeight: 850, cursor: "pointer" }}>
+        <span aria-hidden="true" style={{ color: "#F97316" }}>≡</span>
+        {sortBy === "near" ? `Within ${radius} mi` : label}
+        <span aria-hidden="true" style={{ color: "#9AA5B7" }}>▾</span>
+      </button>
+      {open ? (
+        <div role="dialog" aria-label="Filter and sort this list" style={{ position: "absolute", zIndex: 20, left: 0, top: 52, width: "min(320px,calc(100vw - 40px))", padding: 12, borderRadius: 16, border: "1px solid rgba(255,255,255,.14)", background: "#111827", boxShadow: "0 18px 48px rgba(0,0,0,.55)" }}>
+          <div style={{ color: "#8F9BAD", fontSize: 10.5, fontWeight: 900, letterSpacing: "1.2px", textTransform: "uppercase", margin: "2px 4px 7px" }}>Sort</div>
+          {FILTER_OPTIONS.map(([key, text]) => (
+            <button key={key} type="button" onClick={() => { onSort(key); setOpen(false); }} style={{ width: "100%", minHeight: 42, display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", border: 0, borderRadius: 10, background: sortBy === key ? "rgba(249,115,22,.13)" : "transparent", color: sortBy === key ? "#F8F5EE" : "#C2CAD7", fontSize: 13.5, fontWeight: sortBy === key ? 850 : 650, textAlign: "left", cursor: "pointer" }}>
+              <span style={{ width: 16, height: 16, borderRadius: "50%", border: "2px solid " + (sortBy === key ? "#F97316" : "#64748B"), display: "grid", placeItems: "center" }}>{sortBy === key ? <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#F97316" }} /> : null}</span>
+              {text}
+            </button>
+          ))}
+          <div style={{ color: "#8F9BAD", fontSize: 10.5, fontWeight: 900, letterSpacing: "1.2px", textTransform: "uppercase", margin: "12px 4px 8px" }}>Distance from {city}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 7 }}>
+            {[17, 30, 60].map((mi) => <button key={mi} type="button" onClick={() => onRadius(mi)} style={{ minHeight: 40, borderRadius: 10, border: "1px solid " + (radius === mi ? "#F97316" : "rgba(255,255,255,.12)"), background: radius === mi ? "rgba(249,115,22,.13)" : "transparent", color: radius === mi ? "#F8F5EE" : "#B7C0D1", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>{mi} mi</button>)}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function IntentPageClient({ intent }) {
   const def = INTENT_PAGES[intent];
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
+  const [sortBy, setSortBy] = useState("rated");
+  const [radius, setRadius] = useState(17);
   const [variant, setVariant] = useState(0); // 0 = canonical; SSR and first client render must agree
   // v6.71 (Wave 2): date-night/family never QUERY for beaches, but a text
   // search like "waterfront dinner sunset views" or "scenic sunset spot" can
@@ -327,9 +364,12 @@ export default function IntentPageClient({ intent }) {
   // precisely the hydration mismatch the copy-rotation comment above describes,
   // and /date-night's variant-0 title branches on the bucket.
   const titleCtx = now || SSR_CTX;
-  // The why-line. Rendered only once the real context exists, so the server
-  // never emits a weather claim it cannot stand behind.
-  const whyLine = now ? nowSubline(def, now, loc.city) : null;
+  const header = intentHeader(def, titleCtx, loc.city, variant, areaCtx && areaCtx.area_known_for);
+  const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
+    if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
+    if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
+    return wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
+  });
   const share = async () => {
     // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real
     // photoRef, so every recipient's unfurl shows the actual top place —
@@ -345,54 +385,23 @@ export default function IntentPageClient({ intent }) {
     try { if (navigator.share) { await navigator.share({ title: intentEyebrow(def, variant) + " — " + loc.city, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
+  const sharePlace = async (p) => {
+    const url = canonicalShareUrl("/p/" + encodeURIComponent(p.id));
+    try { if (navigator.share) { await navigator.share({ title: p.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+    try { track("place_card_share", { place_id: p.id, intent }); } catch (e) {}
+  };
 
   return (
     <RankedExperiencePage
       topLeft={<BackControl fallback="/" />}
-      eyebrow={intentEyebrow(def, variant)}
-      titleTop={intentTitle(def, titleCtx, loc.city, variant)}
-      titleBottom={loc.city}
-      subtitle={intentSub(def, loc.city, variant)}
+      eyebrow={header.eyebrow}
+      titleTop={header.title}
+      subtitle={header.deck}
       heroImg={def.art}
       accent={def.accent}
       footNote="The Wayfind Score weighs each rating by how many people stand behind it — a 4.8 from thousands outranks a 5.0 from a handful. No ads, no paid placement. Rankings recompute as reviews grow."
     >
-      {whyLine ? (
-        // v6.72 THE WHY-LINE (owner: "the headline must say why").
-        //
-        // This states the three things that produced this exact list: the time
-        // bucket, the outdoor gate, and the evidence that opened or closed it —
-        // "Afternoon picks near Orlando — indoors, because it is 96° and there
-        // is a heat advisory". Never generic: nowReason has no catch-all
-        // branch, and a `timeless` page returns null here rather than printing
-        // a weather claim its own subhead denies.
-        //
-        // It sits ABOVE the seasonal context and the filter subhead, because it
-        // is the most volatile and most decision-relevant of the three:
-        // why NOW (this line) -> why HERE this season -> what we filtered out.
-        //
-        // The claim is bound to the code: the "indoors" half is emitted from
-        // the same ctx.outdoorOK that rankRows suppresses outdoor rows on, so
-        // the line cannot describe a filter that did not run.
-        <div style={{ marginBottom: 14, maxWidth: 620, display: "flex", alignItems: "baseline", gap: 9 }}>
-          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 999, background: def.accent, flex: "0 0 auto", transform: "translateY(-2px)" }} />
-          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: "#E6EDF3", fontWeight: 600 }}>{whyLine}</p>
-        </div>
-      ) : null}
-      {areaCtx ? (
-        // v6.64 AreaSeasonalContext. The seasonal header read as a weather
-        // widget with a place name attached: city, then a filter explanation.
-        // This is ADDITIVE and sits above the filter line, which keeps doing its
-        // job (every subhead states the filter applied). Order is deliberate:
-        // where you are (title) -> why this season matters HERE -> what the area
-        // is known for -> what we filtered out.
-        // Renders nothing when the city has no entry: an absent line is honest,
-        // a generic one that fits any city is exactly what this replaces.
-        <div style={{ marginBottom: 16, maxWidth: 620 }}>
-          <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.5, color: "#C9D1D9" }}>{areaCtx.headline_context}</p>
-          <p style={{ margin: "7px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "#8B949E" }}>{areaCtx.area_known_for}</p>
-        </div>
-      ) : null}
       <button onClick={share} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: def.accent, color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
         {copied ? "Link copied" : "Share this list"}
       </button>
@@ -423,7 +432,7 @@ export default function IntentPageClient({ intent }) {
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}
-        <PerfectRightNow picks={momentPicks} places={rows || []} onOpenPlace={(p) => { window.location.href = "/p/" + encodeURIComponent(p.id); }} />
+        <PerfectRightNow picks={momentPicks} places={rows || []} durablePlaces={visibleRows} context={now} onOpenPlace={(p) => { window.location.href = "/p/" + encodeURIComponent(p.id); }} />
 
         <Methodology />
       </div>
@@ -433,8 +442,10 @@ export default function IntentPageClient({ intent }) {
           {[0, 1, 2, 3].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}
         </div>
       ) : rows.length ? (
-        <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
-          {rows.map((r, i) => {
+        <>
+        <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={setRadius} city={loc.city} />
+        {visibleRows.length ? <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+          {visibleRows.map((r, i) => {
             const sig = beachSignals[r.id];
             const wq = sig && sig.water ? (sig.water.advisory ? { t: "Advisory", c: "#EF4444" } : sig.water.result === "Good" ? { t: "Water: Good", c: "#22C55E" } : sig.water.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : sig.water.result ? { t: "Water: Poor", c: "#EF4444" } : null) : null;
             const badge = sig ? (
@@ -446,19 +457,28 @@ export default function IntentPageClient({ intent }) {
               </span>
             ) : null;
             return (
-              <RankedRow key={r.id} i={i} href={"/p/" + encodeURIComponent(r.id)}
-                img={r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&w=240" : null}
-                title={r.name}
-                score={toDisplayScore(wayfindScore(r.rating, r.reviews))}
-                why={toDisplayScore(wayfindScore(r.rating, r.reviews)) + "/10 · " + r.rating + "★ · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" + (r.distMi != null ? " · " + (r.distMi < 10 ? r.distMi.toFixed(1) : Math.round(r.distMi)) + " mi" : "") + (r.deduction ? " — ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : "")}
+              <IconicPlaceCard key={r.id} place={r} rank={i + 1} href={"/p/" + encodeURIComponent(r.id)}
                 editorial={r.editorial_hook || r.ai_line || null}
-                badge={badge} />
+                intentLabel={intentEyebrow(def, variant)}
+                rankingNote={r.deduction ? "ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : null}
+                badge={badge}
+                onShare={sharePlace} />
             );
           })}
-        </ol>
+        </ol> : <p style={{ margin: "18px 0", fontSize: 13, color: "#8b93a1" }}>No picks fall within {radius} miles. Widen the filter to see more.</p>}
+        </>
       ) : (
         <p style={{ marginTop: 18, fontSize: 13, color: "#8b93a1" }}>Nothing near you clears the bar for this list right now — that honesty is the product. Try again closer to town.</p>
       )}
+      {areaCtx ? (
+        <details style={{ marginTop: 24, borderTop: "1px solid rgba(255,255,255,.08)", paddingTop: 14 }}>
+          <summary style={{ cursor: "pointer", color: "#C9D1D9", fontSize: 13.5, fontWeight: 800 }}>About {loc.city}</summary>
+          <div style={{ maxWidth: 620, padding: "10px 0 2px" }}>
+            <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.5, color: "#C9D1D9" }}>{areaCtx.headline_context}</p>
+            <p style={{ margin: "7px 0 0", fontSize: 13, lineHeight: 1.5, color: "#8B949E" }}>{areaCtx.area_known_for}</p>
+          </div>
+        </details>
+      ) : null}
     </RankedExperiencePage>
   );
 }

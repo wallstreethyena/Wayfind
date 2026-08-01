@@ -96,11 +96,15 @@ ok(noloc.includes("Local deals on this list"),
 // A component that renders "" for every input would pass section 1 completely.
 // These are the positive controls that make the absence assertions meaningful.
 const picks = [{ id: "p1", why: "Quiet at this hour and five minutes away" }];
-const places = [{ id: "p1", name: "Ortygia", rating: 4.7, reviews: 900 }];
-const pr = render(createElement(Blocks.PerfectRightNow, { picks, places }));
-ok(pr.includes("Perfect right now"), "PerfectRightNow renders its heading when it has data");
+const alwaysOpen = { periods: [{ open: { day: 0, hour: 0 }, close: { day: 0, hour: 0 } }] };
+const places = [
+  { id: "p1", name: "Ortygia", rating: 4.7, reviews: 900, distMi: 2.1, oh: alwaysOpen, utcOffset: 0 },
+  { id: "p2", name: "Second place", rating: 4.6, reviews: 700, distMi: 3.2, oh: alwaysOpen, utcOffset: 0 },
+];
+const pr = render(createElement(Blocks.PerfectRightNow, { picks, places, durablePlaces: [places[1], places[0]] }));
+ok(pr.includes("Right now"), "PerfectRightNow renders its heading when it has data");
 ok(pr.includes("Ortygia"), "PerfectRightNow renders the place NAME");
-ok(pr.includes("Quiet at this hour"), "PerfectRightNow renders the WHY line — the reason the block exists");
+ok(pr.includes("2.1 miles away"), "PerfectRightNow derives a current distance reason instead of trusting generic API copy");
 ok(/>1</.test(pr), "PerfectRightNow renders the rank number");
 
 const tours = [{ code: "T1", url: "https://www.viator.com/tours/x", title: "Sunset sail", rating: 4.8, reviews: 200, fromPrice: 65, duration: "2h" }];
@@ -162,7 +166,7 @@ const FakeRail = ({ title }) => createElement("div", null, "RAILMARK:" + title);
 const full = render(createElement(Blocks.default, {
   intentId: "eatnow", ...SARASOTA,
   showTours: true, ViatorRail: FakeRail, tours: [{ code: "x" }], toursTitle: "Bookable",
-  momentPicks: picks, places,
+  momentPicks: picks, places, durablePlaces: [places[1], places[0]],
   rows: places,
   renderRow: (p) => createElement("div", { key: p.id }, "ROWMARK:" + p.name),
   loading: false,
@@ -172,13 +176,13 @@ const full = render(createElement(Blocks.default, {
 const at = (needle) => full.indexOf(needle);
 const iCoupon = at("Local deals on this list");
 const iRail = at("RAILMARK:");
-const iPicks = at("Perfect right now");
+const iPicks = at("Right now");
 const iRow = at("ROWMARK:");
 const iMeth = at("No ads, no paid placement");
 
 ok(iCoupon >= 0, "the full composition renders the coupon strip when the intent has live deals");
 ok(iRail >= 0, "the full composition renders the tour rail when tours are present");
-ok(iPicks >= 0, "the full composition renders Perfect right now");
+ok(iPicks >= 0, "the full composition renders Right now");
 ok(iRow >= 0, "the full composition renders the list rows through the renderRow seam");
 ok(iMeth >= 0, "the full composition renders the methodology line");
 

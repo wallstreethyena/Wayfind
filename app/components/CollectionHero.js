@@ -46,10 +46,10 @@ export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitl
         </a>
       ) : null}
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 18 }}>
-        <div style={{ maxWidth, margin: "0 auto", padding: "0 20px" }}>
+        <div style={{ maxWidth, width: "100%", minWidth: 0, boxSizing: "border-box", margin: "0 auto", padding: "0 20px" }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: accent || C.gold }}>{eyebrow}</div>
-          <h1 style={{ fontSize: titleSize, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", textShadow: "0 2px 12px rgba(0,0,0,.6)", color: C.text, ...(titleLines ? { display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: titleLines, overflow: "hidden" } : null) }}>{titleTop}{titleBottom ? <><br />{titleBottom}</> : null}</h1>
-          <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.85)", margin: 0, maxWidth: 430 }}>{subtitle}</p>
+          <h1 style={{ fontSize: titleSize, fontWeight: 800, letterSpacing: "-0.8px", lineHeight: 1.05, margin: "8px 0 6px", overflowWrap: "anywhere", textShadow: "0 2px 12px rgba(0,0,0,.6)", color: C.text, ...(titleLines ? { display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: titleLines, overflow: "hidden" } : null) }}>{titleTop}{titleBottom ? <><br />{titleBottom}</> : null}</h1>
+          <p style={{ fontSize: 13.5, color: "rgba(241,245,249,.85)", margin: 0, maxWidth: 430, overflowWrap: "anywhere" }}>{subtitle}</p>
           {cta || null}
         </div>
       </div>
