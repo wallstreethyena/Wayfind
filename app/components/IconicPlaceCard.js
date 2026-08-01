@@ -70,9 +70,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     surface: "iconic_place_card",
     contentId: place.id,
   }) : null;
+  const openCard = (event) => {
+    const target = event && event.target;
+    if (target && typeof target.closest === "function" && target.closest("a,button,input,select,textarea,[role='button']")) return;
+    if (href && typeof window !== "undefined") window.location.assign(href);
+  };
 
   return (
-    <li data-iconic-place-card className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}`} style={{ listStyle: "none" }}>
+    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
         {photoUrl(place)
           ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
