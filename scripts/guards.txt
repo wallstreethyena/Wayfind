@@ -104,6 +104,7 @@ node scripts/test-top-rated.mjs
 node scripts/test-card-gate.mjs
 node scripts/test-map-cost.mjs
 node scripts/test-map-worker.mjs
+node scripts/test-map-explorer.mjs
 node scripts/test-card-a11y.mjs
 node scripts/test-sparse-category.mjs
 node scripts/test-sync-reconcile.mjs
