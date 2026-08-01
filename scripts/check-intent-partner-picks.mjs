@@ -4,7 +4,7 @@
 // merely grep for provider names.
 
 import { readFileSync } from "node:fs";
-import { allIntentPartnerPicks, intentPartnerPick, inventoryPartnerPick, localPartnerQuery, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
@@ -29,11 +29,19 @@ ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton
 ok(partnerInventoryRequest("Parrish", "best-of")?.destId === "25738", "Parrish uses the verified Sarasota/Bradenton Viator destination id");
 ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
 ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
+ok(intentPartnerPicks("Parrish", "best-of")?.map((row) => row.offerId).join(",") === "412732P1,454941P1,5502818P1", "Parrish receives three distinct exact products instead of one oversized affiliate card");
 ok(partnerRailInventory([{ code: "412732P1" }, { code: "454941P4" }], intentPartnerPick("Parrish", "best-of"))?.map((row) => row.code).join(",") === "454941P4", "the featured partner product is not repeated in the adjacent rail");
+ok(partnerRailInventory([{ code: "412732P1" }, { code: "454941P1" }, { code: "454941P4" }], intentPartnerPicks("Parrish", "best-of"))?.map((row) => row.code).join(",") === "454941P4", "every curated product is removed from the adjacent inventory rail");
 const boiseFallback = inventoryPartnerPick("Boise, ID", "family", [{ code: "12345P1", title: "Boise Family Adventure", url: "https://raw.example.test/must-not-be-used" }]);
 ok(boiseFallback?.offerId === "12345P1" && boiseFallback?.provider === "viator", "verified local inventory becomes an exact nationwide fallback");
 ok(!JSON.stringify(boiseFallback).includes("raw.example.test"), "the nationwide fallback discards the raw provider URL");
 ok(resolvedIntentPartnerPick("Orlando", "family", [{ code: "WRONG", title: "Wrong" }])?.offerId === "orlando-family-wonderworks-crayola", "editor-curated city inventory wins over the nationwide fallback");
+const boiseRail = resolvedIntentPartnerPicks("Boise, ID", "family", [
+  { code: "B1P1", title: "Boise River Family Float", image: "https://images.example.test/float.jpg", rating: 4.9, reviews: 80 },
+  { code: "B2P1", title: "Boise Discovery Walk" },
+]);
+ok(boiseRail.length === 2 && boiseRail.every((row) => row.provider === "viator"), "an uncurated city receives a local multi-card rail from verified inventory");
+ok(boiseRail[0]?.image === "https://images.example.test/float.jpg" && boiseRail[0]?.rating === 4.9, "inventory presentation data enriches a rail without exposing its outbound URL");
 
 const clientSrc = readFileSync("lib/intentPartnerPicks.js", "utf8") + readFileSync("app/components/IntentPartnerPick.js", "utf8");
 ok(!/https?:\/\//.test(clientSrc), "client placement code contains no raw destination URL");

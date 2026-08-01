@@ -23,7 +23,7 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
 import ViatorRail from "./ViatorRail";
 import IntentPartnerPick from "./IntentPartnerPick";
-import { partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick } from "../../lib/intentPartnerPicks";
+import { partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPicks } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -372,8 +372,8 @@ export default function IntentPageClient({ intent }) {
 
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
-  const partnerPick = resolvedIntentPartnerPick(loc.city, intent, tours);
-  const railTours = partnerRailInventory(tours, partnerPick);
+  const partnerPicks = resolvedIntentPartnerPicks(loc.city, intent, tours, 4);
+  const railTours = partnerRailInventory(tours, partnerPicks);
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
@@ -442,9 +442,10 @@ export default function IntentPageClient({ intent }) {
           }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
-        {/* A single exact, location+intent-matched partner product. It sits in
-            its own disclosed layer and never enters visibleRows/rankRows, so
-            commission cannot influence the Wayfind Score or list order. */}
+        {/* Exact, location+intent-matched partner products in a horizontal
+            rail. This is a separate disclosed layer and never enters
+            visibleRows/rankRows, so commission cannot influence the Wayfind
+            Score or durable list order. */}
         <IntentPartnerPick city={loc.city} intent={intent} inventory={tours} accent={def.accent} />
 
         {INTENT_HAS_TOURS[intent] && railTours && railTours.length ? (
