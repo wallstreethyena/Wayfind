@@ -14,7 +14,7 @@ if (!s.includes("spec.indoorOnly = true")) fail("rainy chip missing indoor spec"
 if (!s.includes("if (hd.indoorOnly) results = results.filter")) fail("sheet fetch ignores indoorOnly");
 if (!s.includes("Your curated list is ready")) fail("curated-ready copy missing");
 if ((s.match(/Rankings are merit-based\. Affiliate links never change placement\./g) || []).length < 2) fail("trust copy must appear in overlay AND sheet");
-if (!s.includes("What are you in the mood for?")) fail("mood kicker copy missing");
+if (!s.includes("Pick your mood")) fail("concise mood kicker copy missing");
 if (!s.includes("Just let me look around")) fail("skip path missing — exploration must not be gated");
 if (!s.includes('wf_intro_seen')) fail("first-visit persistence missing");
 if (!s.includes('"$".repeat(Math.max(1, Math.min(4,')) fail("price missing from sheet pick rows");

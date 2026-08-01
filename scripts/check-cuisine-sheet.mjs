@@ -234,11 +234,11 @@ ok(/\.wf-eat-featured\{grid-template-columns:1fr 1fr\}/.test(sheet.replace(/\s+/
 ok(/columns:2/.test(sheet), "the index drops to 2 columns on mobile");
 
 // ── the tile swap ─────────────────────────────────────────────────────────
-ok(/eatMetro \? \["utensils", "What are you in the mood for\?", onEat\] : \["users", "Family favorites", onFamily\]/.test(home),
+ok(/eatMetro \? \["utensils", "Pick your mood", onEat\] : \["users", "Family favorites", onFamily\]/.test(home),
   "the chooser replaces Family favorites in the quick-link grid, falling back to it when no sheet serves the location");
 ok(/cuisineMetroFor\(center\.lat, center\.lng\)/.test(home), "the metro comes from the app's persisted center");
 ok(/goIntent\("\/eat\/" \+ eatMetro\)/.test(home), "the tile routes to the metro's own sheet");
-ok(/tile: "What are you in the mood for\?", metro: eatMetro/.test(home), "the tap is instrumented with the metro");
+ok(/tile: "Pick your mood", metro: eatMetro/.test(home), "the tap is instrumented with the metro");
 
 // ── the resolver refuses to guess ─────────────────────────────────────────
 for (const [name, lat, lng, want] of [

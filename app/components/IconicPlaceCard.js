@@ -30,7 +30,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, liked, disliked, onLike, onDislike }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike }) {
   if (!place) return null;
   const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
@@ -77,7 +77,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   };
 
   return (
-    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
+    <li data-iconic-place-card data-card-opens-detail onClick={openCard} className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}`} style={{ listStyle: "none", cursor: href ? "pointer" : "default" }}>
       <div className="wf-place-card-layout">
         {photoUrl(place)
           ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
@@ -140,8 +140,18 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
-          <div className="wf-place-card-actions" style={{ display: "flex" }}>
-            <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
+          <div className="wf-place-card-actions wf-sheet-card-actions">
+            {onSave ? (
+              <button
+                type="button"
+                className={"wf-place-card-save" + (saved ? " is-active" : "")}
+                aria-label={saved ? "Remove from saved: " + place.name : "Save " + place.name}
+                aria-pressed={!!saved}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onSave(e, place); }}
+              >{saved ? "♥ Saved" : "♡ Save"}</button>
+            ) : (
+              <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
+            )}
             {/* Like/Dislike: an in-place toggle when the caller wires onLike/
                 onDislike (IntentPageClient.js, TrendingNowClient.js, both
                 2026-08-01) — stopPropagation + preventDefault so the tap
@@ -176,7 +186,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
             ) : (
               <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
             )}
-            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={() => onShare && onShare(place)}>↗ Share</button>
+            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(place); }}>↗ Share</button>
           </div>
         </div>
       </div>

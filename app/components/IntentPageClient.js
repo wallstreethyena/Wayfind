@@ -31,7 +31,7 @@ import { mergePartnerInventory, partnerInventoryRequest } from "../../lib/intent
 import { nowContext } from "../../lib/nowContext";
 import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
-import { readLocalLikeState, persistLike, persistDislike, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
+import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { wayfindScore } from "../../lib/google";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
@@ -57,15 +57,13 @@ export default function IntentPageClient({ intent }) {
   // nothing rather than an empty shell.
   const [tours, setTours] = useState(null);
   const [momentPicks, setMomentPicks] = useState(null);
-  // Like/Dislike (2026-08-01): this page has no session or auth-prompt in
-  // scope the way app/home.js does, so it previously punted the whole
-  // action to a two-hop navigation through /p/[id] and back — see
-  // lib/likeSignal.js for the full defect. A signed-in visitor now gets the
-  // same in-place, no-navigation toggle app/home.js's own PlaceCard gives;
-  // a signed-out one keeps the exact working fallback (the navigate-through-
-  // home flow, which is what surfaces the sign-up prompt) rather than this
-  // page guessing at that modal's UI without being able to see it render.
+  // Standalone sheet actions use the same device-local and signed-in stores
+  // as app/home.js. Deliberate actions work before sign-in, then sync to the
+  // account when a session exists; no action button navigates away from the
+  // list just to record a preference.
   const [user, setUser] = useState(null);
+  const [saved, setSaved] = useState({});
+  const [savedLists, setSavedLists] = useState(null);
   const [liked, setLiked] = useState({});
   const [disliked, setDisliked] = useState({});
   // likedItems/dislikedItems are the fuller {place, ts} maps app/home.js's
@@ -78,6 +76,7 @@ export default function IntentPageClient({ intent }) {
   const [dislikedItems, setDislikedItems] = useState({});
   useEffect(() => {
     try { const s = readLocalLikeState(); setLiked(s.liked); setDisliked(s.disliked); setLikedItems(s.likedItems); setDislikedItems(s.dislikedItems); } catch (e) {}
+    try { const s = readLocalSavedState(); setSaved(s.saved); setSavedLists(s.lists); } catch (e) {}
     if (!supabase) return;
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -90,7 +89,6 @@ export default function IntentPageClient({ intent }) {
   }, []);
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
-    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=like"; return; }
     const wasLiked = !!liked[p.id];
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
@@ -98,11 +96,17 @@ export default function IntentPageClient({ intent }) {
   }
   function toggleDislike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
-    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=dislike"; return; }
     const wasDis = !!disliked[p.id];
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (!wasDis) { try { track("dislike", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
+  }
+  function toggleSave(e, p) {
+    try { e && e.stopPropagation && e.stopPropagation(); e && e.preventDefault && e.preventDefault(); } catch (er) {}
+    const wasSaved = !!saved[p.id];
+    const next = persistSave({ supabase, user, place: p, wasSaved, lists: savedLists });
+    setSaved(next.saved); setSavedLists(next.lists);
+    if (!wasSaved) { try { track("save", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("save", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("save", p, { supabase, user }); } catch (er) {} }
   }
 
   // Preserve a valid shared photo reference for link metadata, while the
@@ -403,9 +407,11 @@ export default function IntentPageClient({ intent }) {
   };
   const sharePlace = async (p) => {
     const url = canonicalShareUrl("/p/" + encodeURIComponent(p.id));
+    try { track("place_card_share", { place_id: p.id, intent }); } catch (e) {}
+    try { recordLikeEvent("share", p, { supabase, user }); } catch (e) {}
+    try { recordTasteSignal("share", p, { supabase, user }); } catch (e) {}
     try { if (navigator.share) { await navigator.share({ title: p.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
-    try { track("place_card_share", { place_id: p.id, intent }); } catch (e) {}
   };
 
   return (
@@ -480,7 +486,8 @@ export default function IntentPageClient({ intent }) {
                 aiSummary={r.editorial_hook ? null : r.ai_line || null}
                 rankingNote={r.deduction ? "ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : null}
                 badge={badge}
-                liked={!!liked[r.id]} disliked={!!disliked[r.id]}
+                saved={!!saved[r.id]} liked={!!liked[r.id]} disliked={!!disliked[r.id]}
+                onSave={toggleSave}
                 onLike={toggleLike} onDislike={toggleDislike}
                 onShare={sharePlace} />
             );

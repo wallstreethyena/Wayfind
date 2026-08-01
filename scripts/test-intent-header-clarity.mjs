@@ -121,8 +121,10 @@ for (const f of ["app/components/IntentPageClient.js", "app/components/TrendingN
 for (const klass of ["wf-place-card", "wf-place-card-layout", "wf-place-card-score", "wf-place-card-actions", "wf-place-card-save", "wf-place-card-like", "wf-place-card-dislike", "wf-place-card-share"]) {
   ok(new RegExp(`class="[^"]*\\b${klass}\\b`).test(card), `iconic card uses canonical home class '${klass}'`);
 }
-ok(card.includes("data-card-opens-detail"), "the iconic card body opens the full place detail");
 const iconicSource = readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
+ok(card.includes("wf-sheet-card-actions"), "standalone sheet cards use the premium single-row action layout");
+ok(iconicSource.includes("onSave") && iconicSource.includes("aria-pressed={!!saved}"), "sheet cards expose a stateful save control");
+ok(card.includes("data-card-opens-detail"), "the iconic card body opens the full place detail");
 ok(iconicSource.includes('target.closest("a,button,input,select,textarea,[role=\'button\']")'), "card opening excludes its buttons, links, chips, and controls");
 ok(!card.includes("View place") && !card.includes("minHeight:228"), "iconic card does not reintroduce the tall imitation footer");
 
@@ -133,6 +135,10 @@ const filterSource = readFileSync(path.join(ROOT, "app/components/CollectionFilt
 ok(filterSource.includes('type="range"') && filterSource.includes("wf-collection-radius"), "the shared collection filter uses the premium distance slider");
 ok(!filterSource.includes("[17, 30, 60].map"), "the old three-button distance selector cannot return");
 ok(intentSource.includes("<IconicPlaceCard"), "intent rankings use the iconic card instead of thin rows");
+ok(intentSource.includes("persistSave") && intentSource.includes("recordTasteSignal(\"save\"") && intentSource.includes("recordTasteSignal(\"share\""), "intent save and share actions feed the shared persistence and taste loop");
+ok(!intentSource.includes('?action=like"; return') && !intentSource.includes('?action=dislike"; return'), "signed-out intent reactions stay in place and learn on-device");
+const trendingSource = readFileSync(path.join(ROOT, "app/components/TrendingNowClient.js"), "utf8");
+ok(trendingSource.includes("persistSave") && trendingSource.includes("recordTasteSignal(\"share\""), "trending sheet actions feed the same shared persistence and taste loop");
 ok(intentSource.indexOf("areaCtx.headline_context") > intentSource.indexOf("<details"), "metro prose lives only in collapsed About city content below the list");
 ok(intentSource.includes("footerSlot={<ScoreDisclosure />}") && !intentSource.includes("<Methodology />"), "intent sheets render one glass-box disclosure instead of a duplicate methodology line");
 
