@@ -59,6 +59,7 @@ ok(CP.cityPassTrackedUrl("") === null && CP.cityPassTrackedUrl(null) === null, "
 const cards = COUPONS.filter((c) => c.id.startsWith("cpn-citypass-"));
 ok(cards.length === CP.CITYPASS_MARKETS.length, `one card per verified market (${cards.length}/${CP.CITYPASS_MARKETS.length})`);
 for (const c of cards) {
+  ok(/^(?:Orlando|Tampa Bay) CityPASS®$/.test(c.business), `${c.id}: first reference follows the destination + CityPASS® naming rule (got ${c.business})`);
   ok(typeof c.url === "string" && c.url.includes("anrdoezrs.net"), `${c.id}: ships the TRACKED url, never a bare citypass.com link`);
   ok(D.dealNetwork(c) === "CityPASS", `${c.id}: dealNetwork names CityPASS, so the card discloses the commission (got ${D.dealNetwork(c)})`);
   const d = D.dealDisclosure(c);

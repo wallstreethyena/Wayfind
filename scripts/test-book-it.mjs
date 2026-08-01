@@ -30,7 +30,7 @@ ok(Mz.bookItTarget(attraction, {}) === null, "missing available → no target (d
 // Wave 1 is live; everything else must still be dark. Both directions asserted —
 // a check that only proves what is ON cannot catch a program lighting up early.
 ok(Tp.isTpProgramLive("tiqets") === true && Tp.isTpProgramLive("klook") === true, "Wave-1 tiqets + klook are LIVE");
-ok(Tp.isTpProgramLive("gocity") === false && Tp.isTpProgramLive("kiwitaxi") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Wave-2, transfers, and in-review programs are still DARK");
+ok(Tp.isTpProgramLive("gocity") === true && Tp.isTpProgramLive("kiwitaxi") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Go City is live; transfers and in-review programs stay DARK");
 
 // ── When a VERIFIED program is supplied live, a bookable place resolves ──────
 // The probe place is an EVENT VENUE, not an attraction, because ticketnetwork is
@@ -55,7 +55,7 @@ ok(t && t.label && /commission/i.test(t.label.sub), "target carries the required
 //   klook     403 to every fetcher, so unverifiable in either direction
 // Being LIVE in TP_PROGRAMS is therefore NOT sufficient to render. A provider must
 // also have a browser-verified search path recorded in lib/monetize.js.
-for (const key of ["tiqets", "wegotrip", "klook"]) {
+for (const key of ["tiqets", "wegotrip", "klook", "gocity"]) {
   ok(Tp.isTpProgramLive(key) === true, `${key} is a LIVE TP program (so this check is not vacuous — it must be dark DESPITE being live)`);
   ok(Mz.bookItTarget(venue, { available: [key], city: "Bradenton" }) === null,
     `${key} has NO verified search path → ships DARK even though its tracking ids are live. An FTC-labeled sponsored link to a 404, or to another continent's inventory, is worse than no link.`);
@@ -86,7 +86,7 @@ for (const key of ["tiqets", "wegotrip", "klook"]) {
     ok(typeof v.saw === "string" && v.saw.length > 12, `${k}: records what was actually on the page`);
   }
   // And the converse: a provider we rejected must NOT have acquired a record.
-  for (const k of ["tiqets", "wegotrip", "klook"]) {
+  for (const k of ["tiqets", "wegotrip", "klook", "gocity"]) {
     ok(!Mz.SEARCH_URL_VERIFIED[k], `${k} has no verification record — it was rejected on evidence, so a record without a re-check would be a lie`);
   }
 }
@@ -110,7 +110,7 @@ ok(tu.searchParams.get("marker") === "750791", "Book-it's link carries the EARNI
 ok(tu.searchParams.get("trs") === "550160", "…and 550160 only as trs");
 ok(tu.searchParams.get("u") === t.url, "the resolved provider url is preserved intact inside the wrapper");
 // A dark program must still refuse, even with a perfectly good target.
-ok(Tp.tpDeepLink("gocity", t.url, "place123") === null, "a DARK program still returns null for the same target — ships-dark discipline intact");
+ok(Tp.tpDeepLink("kiwitaxi", t.url, "place123") === null, "a DARK program still returns null for the same target — ships-dark discipline intact");
 
 if (fails) { console.error(`test-book-it: ${fails} failure(s)`); process.exit(1); }
 console.log("test-book-it: OK — Book-it renders only with an offer, resolves the right provider, emits tp.media/r with marker 750791, keeps Wave-2 dark, never duplicates Viator, never wraps non-bookable places");
