@@ -125,7 +125,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
-import { DISPLAY_CHIPS } from "../lib/experiencesData";
+import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
@@ -5505,11 +5505,9 @@ function PageInner({ initialEvents = null }) {
         const d = await r.json();
         const mode = EXPERIENCES[activeBadge].viatorMode || "top";
         const pool = (d && Array.isArray(d.items) ? d.items : []);
-        const items = (mode === "gems"
+        const items = rankExperiences(mode === "gems"
           ? pool.filter((t) => t.rating != null && t.rating >= 4.7 && (t.reviews || 0) > 0 && (t.reviews || 0) <= 300)
-          : pool.filter((t) => t.rating != null && t.rating >= 4.5))
-          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
-          .slice(0, 8);
+          : pool.filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
         if (!cancelled) setExpTours(items);
       } catch (e) { if (!cancelled) setExpTours(null); }
     })();
@@ -5546,10 +5544,8 @@ function PageInner({ initialEvents = null }) {
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
-        const items = (d && Array.isArray(d.items) ? d.items : [])
-          .filter((t) => t.rating != null && t.rating >= 4.5)
-          .sort((a, b) => (b.rating - a.rating) || ((b.reviews || 0) - (a.reviews || 0)))
-          .slice(0, 8);
+        const items = rankExperiences((d && Array.isArray(d.items) ? d.items : [])
+          .filter((t) => t.rating != null && t.rating >= 4.5)).slice(0, 8);
         if (!cancelled) setBrowseTours(items);
       } catch (e) { if (!cancelled) setBrowseTours(null); }
     })();
@@ -5577,15 +5573,12 @@ function PageInner({ initialEvents = null }) {
         // flash "no tours" before we've even asked. Deps include locName.
         if (!cityQ) return;
         // v6.44 (owner): the FULL verified local inventory — no 12-item slice,
-        // no 4.3 floor. Order: Viator's own likely-to-sell-out flag first
-        // (real API signal, never computed by us), then best-to-worst by the
-        // same Bayesian confidence the Wayfind Score uses — a 4.9 from a
-        // handful of reviews cannot outrank a proven 4.7 with thousands.
+        // no 4.3 floor. Order is the visible Wayfind Score, highest to lowest.
+        // Selling-fast remains an honest badge/filter but never outranks a
+        // stronger recommendation; price and commission never enter the sort.
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=60" + _viatorCityParams(cityQ, center));
         const d = await r.json();
-        const _bayes = (t) => { const v = t.reviews || 0, m = 60, C0 = 3.9; return t.rating != null ? (v / (v + m)) * t.rating + (m / (v + m)) * C0 : 0; };
-        const items = (d && Array.isArray(d.items) ? d.items : [])
-          .sort((a, b) => ((b.sellingFast ? 1 : 0) - (a.sellingFast ? 1 : 0)) || (_bayes(b) - _bayes(a)) || ((b.reviews || 0) - (a.reviews || 0)));
+        const items = rankExperiences(d && Array.isArray(d.items) ? d.items : []);
         if (!cancelled) setEventsTours(items);
       } catch (e) { if (!cancelled) setEventsTours([]); }
     })();
@@ -8684,16 +8677,13 @@ function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
       if (dead) return;
-      let arr = (res && Array.isArray(res.items) ? res.items : [])
-        .slice()
-        .sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0)))
-        .slice(0, 10);
+      let arr = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 10);
       // If the local inventory is dark, search the user's actual city — never
       // never fall back to Florida markets for an out-of-region visitor.
       if (!arr.length && city) {
         try {
           const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
-          arr = (live && Array.isArray(live.items) ? live.items : []).slice(0, 10);
+          arr = rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 10);
         } catch (e) {}
       }
       setItems(arr);

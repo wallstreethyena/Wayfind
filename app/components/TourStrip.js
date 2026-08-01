@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
+import { rankExperiences } from "../../lib/experiencesData";
 
 const WATER = /beach|dolphin|kayak|snorkel|boat|sail|paddle|jet ski|parasail|cruise|water|manatee|sunset/i;
 
@@ -22,8 +23,7 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly }) {
       let arr = (res && Array.isArray(res.items) ? res.items : []).filter((t) => t && t.url && /pid=/.test(t.url) && t.image);
       if (waterOnly) arr = arr.filter((t) => WATER.test(t.title || ""));
       const seen = new Set();
-      arr = arr.filter((t) => { const k = (t.title || "").toLowerCase().slice(0, 40); if (seen.has(k)) return false; seen.add(k); return true; })
-        .sort((a, b) => (Number(!!b.sellingOut) - Number(!!a.sellingOut)) || ((b.reviews || 0) - (a.reviews || 0))).slice(0, 4);
+      arr = rankExperiences(arr.filter((t) => { const k = (t.title || "").toLowerCase().slice(0, 40); if (seen.has(k)) return false; seen.add(k); return true; })).slice(0, 4);
       setItems(arr);
     });
     return () => { dead = true; };

@@ -7,7 +7,7 @@
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { DESTS, CATEGORIES, CATEGORY_BY_KEY, DISPLAY_CHIPS, SELLING_OUT_KEY, metroToDest, destsWithin, productToRow, rankExperiences, isSellingOut, milesBetween } from "../lib/experiencesData.js";
+import { DESTS, CATEGORIES, CATEGORY_BY_KEY, DISPLAY_CHIPS, SELLING_OUT_KEY, metroToDest, destsWithin, productToRow, rankExperiences, experienceWayfindScore, isSellingOut, milesBetween } from "../lib/experiencesData.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0;
@@ -42,7 +42,13 @@ ok(productToRow({ title: "no code" }, "25738", "Sarasota") === null, "product wi
 ok(isSellingOut(["LIKELY_TO_SELL_OUT"]) === true && isSellingOut(["FREE_CANCELLATION"]) === false, "isSellingOut gates on the flag only");
 
 // ── 4. rank + distance rungs ────────────────────────────────────────────────
-ok(rankExperiences([{ rating: 4, reviews: 10 }, { rating: 5, reviews: 100 }, { rating: 4.5, reviews: 5 }])[0].rating === 5, "rank is rating-first (5-star/100-review wins)");
+const proven = { title: "Proven", rating: 4.7, reviews: 2000 };
+const tinyFive = { title: "Tiny five", rating: 5, reviews: 5 };
+ok(experienceWayfindScore(proven) > experienceWayfindScore(tinyFive), "experience score uses the same Bayesian confidence as the visible Wayfind Score");
+ok(rankExperiences([tinyFive, proven])[0] === proven, "rank is highest visible Wayfind Score first — a tiny 5.0 cannot outrank proven depth");
+const original = [tinyFive, proven];
+rankExperiences(original);
+ok(original[0] === tinyFive, "ranking returns a copy and never mutates caller-owned rail data");
 ok(Math.round(milesBetween({ lat: 27.336, lng: -82.531 }, { lat: 28.538, lng: -81.379 })) > 60, "Sarasota->Orlando > 60mi (rung excludes at 60, includes at 120)");
 ok(destsWithin({ lat: 27.336, lng: -82.531 }, 15).length >= 1, "a tight radius still returns the home market (never empty)");
 ok(destsWithin({ lat: 27.336, lng: -82.531 }, 30).length === 1, "the 30mi DEFAULT = Sarasota's home market only (honest 'near you'; widening is explicit)");

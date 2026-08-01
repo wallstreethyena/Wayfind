@@ -24,6 +24,7 @@
 // it cannot rank on one even by accident (lib/commerce.js rule 1, AGENTS.md §8).
 import { useEffect, useRef } from "react";
 import { emitCommerce, commerceHref, rankBucket, mintClickId } from "../../lib/commerce";
+import { rankExperiences } from "../../lib/experiencesData";
 
 // Bumped when the disclosure WORDING changes, so consent evidence is tied to the
 // exact text shown rather than to "some disclosure existed".
@@ -32,7 +33,7 @@ export const DISCLOSURE_VERSION = "2026-07-30";
 const C = { card: "#10141d", border: "#1F2937", text: "#F1F5F9", muted: "#8B93A1", accent: "#F97316", green: "#3ee08a" };
 
 export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" }) {
-  const list = Array.isArray(offers) ? offers : [];
+  const list = rankExperiences(offers);
   const seen = useRef(new Set());
   const discSeen = useRef(false);
   const rootRef = useRef(null);
