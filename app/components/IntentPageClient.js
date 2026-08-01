@@ -20,7 +20,7 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 // sheet. This page keeps its SHELL (dark chrome, serif headline, back button)
 // and adopts that CONTENT COMPOSITION inside it: shell from one, body from
 // the other. Nothing here re-implements a block.
-import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
+import { PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
 import IntentPartnerPick from "./IntentPartnerPick";
 import { mergePartnerInventory, partnerInventoryRequest } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
@@ -437,9 +437,9 @@ export default function IntentPageClient({ intent }) {
           boundary yet.
           Every block degrades to ABSENT, never to a placeholder. */}
       <div style={{ marginTop: 18 }}>
-        <CouponStrip
-          intentId={INTENT_COUPON_BADGE[intent]}
-          lat={loc.lat} lng={loc.lng}
+        <IntentPartnerPick
+          city={loc.city} intent={intent} inventory={tours} accent={def.accent}
+          lat={loc.lat} lng={loc.lng} couponIntent={INTENT_COUPON_BADGE[intent]}
           onOpenCoupons={(coupon, state) => {
             try { track("coupon_strip_to_coupons", { intent, coupon_id: coupon && coupon.id, clipped: !!(state && state.clipped) }); } catch (e) {}
             if (!coupon || !coupon.id) { window.location.href = "/coupons"; return; }
@@ -448,13 +448,6 @@ export default function IntentPageClient({ intent }) {
             window.location.href = `/coupons?view=clipped${focus}${saved}`;
           }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
-
-        {/* One compact, location+intent-matched bookable rail. Curated local
-            products lead and verified inventory follows in the SAME visual
-            treatment, without duplicate headings, products or disclosures.
-            It remains separate from visibleRows/rankRows, so commission can
-            never influence the Wayfind Score or durable list order. */}
-        <IntentPartnerPick city={loc.city} intent={intent} inventory={tours} accent={def.accent} />
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}

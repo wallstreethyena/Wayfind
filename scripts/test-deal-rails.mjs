@@ -69,15 +69,15 @@ ok(read("middleware.js").includes('"/api/deals"'), "/api/deals is same-origin gu
 
 // ── render (home.js) ──
 const home = read("app/home.js");
-ok(/function UTDealsRail/.test(home), "UTDealsRail component exists");
-ok(/browseCat === "attractions" && center && <UTDealsRail category="attractions"/.test(home), "UT deal rail rendered on Things-to-do (attractions), geo-scoped");
-ok(/browseCat === "hotels" && center && <UTDealsRail category="stays"/.test(home), "UT hotel rail rendered on Stays, geo-scoped");
+ok(/function UnifiedBrowseCommerceRail/.test(home), "the mixed-provider browse rail exists");
+ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^>]*categories=\{\["attractions",\s*"more"\]\}/.test(home), "Things-to-do renders one geo-scoped mixed-provider rail");
+ok(/browseCat === "hotels" && center && <UnifiedBrowseCommerceRail[^>]*categories=\{\["stays",\s*"travel"\]\}/.test(home), "Stays renders one geo-scoped mixed-provider rail");
 // TRANSLATED: same anchor, same protection (the link is marked as paid), plus
 // nofollow — which is what was missing when crawlers were following it.
 ok(/href={d\.href}/.test(home) && /rel="sponsored nofollow noopener"/.test(home),
   "rail links render our href with rel=\"sponsored nofollow\" — sponsored alone shipped, and non-Google crawlers ignore it entirely");
-ok(/kind: "ut_deal_rail"/.test(home), "outbound clicks are logged as ut_deal_rail");
-ok(/import AffiliateChip(?:, \{[^}]*\})? from "\.\/components\/AffiliateChip"/.test(home) && /<AffiliateChip provider={d\.provider}/.test(home), "the disclosure chip is imported and rendered on each deal card");
+ok(/kind: "unified_browse_rail"/.test(home), "outbound clicks are logged as unified browse-rail commerce");
+ok(/via \{card\.merchant\}/.test(home), "each mixed-provider card names its merchant discreetly on the image");
 
 // ── the chip itself ──
 const chip = read("app/components/AffiliateChip.js");

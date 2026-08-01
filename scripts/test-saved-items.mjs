@@ -22,8 +22,8 @@ ok(/from\("wf_saved_items"\)/.test(sav), "writes to wf_saved_items (not saved_pl
 // ── home: handler + rails wired ──
 const home = read("app/home.js");
 ok(/async function saveMonetizedItem\(item\)/.test(home) && /requireAuth\(/.test(home.slice(home.indexOf("saveMonetizedItem"))), "home has a signed-in-gated save handler");
-ok(/<BookableExpRail[^>]*onSave={saveMonetizedItem}/.test(home), "the Viator experience rail gets the save handler");
-ok(/<UTDealsRail category="attractions" onSave={saveMonetizedItem}/.test(home), "the UT deal rail gets the save handler");
+ok(/<UnifiedBrowseCommerceRail[^>]*onSave={saveMonetizedItem}/.test(home), "the mixed-provider rail gets the save handler");
+ok(/categories=\{\["attractions",\s*"more"\]\}/.test(home), "the mixed rail includes attraction and discount inventory");
 ok(/item_type: "experience"/.test(home) && /item_type: "deal"/.test(home), "experience + deal cards call onSave with the right item_type");
 ok(/provider: "viator"/.test(home), "saved experiences carry their provider");
 
