@@ -23,7 +23,7 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
 import ViatorRail from "./ViatorRail";
 import IntentPartnerPick from "./IntentPartnerPick";
-import { intentPartnerPick, localPartnerQuery, resolvedIntentPartnerPick } from "../../lib/intentPartnerPicks";
+import { partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -242,17 +242,18 @@ export default function IntentPageClient({ intent }) {
     let dead = false;
     (async () => {
       try {
-        const q = localPartnerQuery(loc.city, intent);
-        if (!q) return; // no city, no honest query — skip rather than guess
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&region=" + encodeURIComponent(loc.city) + "&mode=city&count=12");
+        const request = partnerInventoryRequest(loc.city, intent);
+        if (!request) return; // no city, no honest query — skip rather than guess
+        const params = new URLSearchParams({ q: request.query, region: request.region, mode: "city", count: "12" });
+        if (request.destId) params.set("destId", request.destId);
+        const r = await fetch("/api/viator/tours?" + params.toString());
         const j = r.ok ? await r.json() : null;
         const items = (j && Array.isArray(j.items)) ? j.items : ((j && Array.isArray(j.tours)) ? j.tours : (Array.isArray(j) ? j : []));
-        if (!dead && items.length) setTours(items);
+        if (!dead) setTours(items.length ? items : null);
       } catch (e) {}
     })();
     return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [intent]);
+  }, [intent, loc.city]);
 
   // ── BLOCK 3: "Perfect right now" ───────────────────────────────────────────
   // Runs AFTER the list, because the picks are an interpretation OF the list:
@@ -324,10 +325,7 @@ export default function IntentPageClient({ intent }) {
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
   const partnerPick = resolvedIntentPartnerPick(loc.city, intent, tours);
-  const curatedPartnerPick = intentPartnerPick(loc.city, intent);
-  const railTours = curatedPartnerPick || !partnerPick
-    ? tours
-    : (tours || []).filter((tour) => String(tour && tour.code) !== partnerPick.offerId);
+  const railTours = partnerRailInventory(tours, partnerPick);
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
@@ -403,7 +401,7 @@ export default function IntentPageClient({ intent }) {
 
         {INTENT_HAS_TOURS[intent] && railTours && railTours.length ? (
           <ViatorRail
-            title={intent === "hidden-gems" ? "Hidden gem experiences" : "Top-rated experiences"}
+            title={intent === "hidden-gems" ? `Hidden gem experiences near ${loc.city}` : `Bookable highlights near ${loc.city}`}
             items={railTours}
             theme={intent}
             onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
