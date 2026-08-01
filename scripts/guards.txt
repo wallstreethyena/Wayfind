@@ -78,6 +78,7 @@ node scripts/check-anchors.mjs
 node scripts/check-radius.mjs
 node scripts/check-meals.mjs
 node scripts/check-hours.mjs
+node scripts/test-share-card-v2.mjs
 node scripts/check-share-assets.mjs
 node scripts/check-cost-gate.mjs
 node scripts/test-links.mjs
