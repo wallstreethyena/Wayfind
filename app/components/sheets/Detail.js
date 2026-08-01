@@ -322,7 +322,7 @@ function WhereToGoNextRow({ p, partner, openDetail, liveOpen, FallbackImg, ctaCi
 }
 
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
 
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
@@ -456,6 +456,11 @@ export default function DetailSheet({ ctx }) {
   // becoming unreadable. Behavior for text-only saves is unchanged: clearing
   // the box still only clears the LOCAL draft (never deletes an already-
   // posted comment — that's what the separate Delete button is for).
+  // 2026-08-01: the composer itself is now gated behind sign-in (see the
+  // authReady && !user branch below), so a signed-out visitor can no longer
+  // reach this function with real content — the `!posting` "saved on this
+  // device" branch is a defensive backstop (e.g. a session dropping between
+  // render and this click), not the primary path it used to be.
   async function handleSaveComment() {
     const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim().slice(0, COMMENT_MAX_CHARS);
     const next = { ...placeComments };
@@ -488,8 +493,19 @@ export default function DetailSheet({ ctx }) {
       } else {
         showToast(commentType + (uploaded.length < pendingPhotos.length ? " posted (some photos failed to upload)" : " posted"));
         setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v, photos, created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]);
-        setExistingPhotoUrls(photos);
+        // 2026-08-01 (owner: "after the user posts it pushes but it looks like
+        // it remained in the editorial"). A successful post used to leave the
+        // draft box showing the SAME text and photos that now also appear in
+        // the posted entry below it — reading as "did this actually save, or
+        // is it just sitting here unposted?" The post itself lives in
+        // placePosts (with its own Edit, which repopulates this box from the
+        // real posted row) so the draft mirror is no longer needed once it
+        // has actually posted — clear it back to an empty composer.
+        setExistingPhotoUrls([]);
         setPendingPhotos((prev) => { prev.forEach((p) => { try { URL.revokeObjectURL(p.previewUrl); } catch (e) {} }); return []; });
+        if (noteRef.current) noteRef.current.value = "";
+        setNoteLen(0);
+        { const cleared = { ...placeComments }; delete cleared[detail.id]; setPlaceComments(cleared); try { localStorage.setItem("wf_place_comments", JSON.stringify(cleared)); } catch (e) {} }
       }
     } catch (err) {
       showToast("Couldn't reach the server — saved on this device");
@@ -940,7 +956,31 @@ export default function DetailSheet({ ctx }) {
                   </div>
                   <div style={{ marginBottom: placePosts.length ? 12 : 0, paddingBottom: placePosts.length ? 12 : 0, borderBottom: placePosts.length ? `1px solid ${C.border}` : "none" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 2 }}>Add yours</div>
-                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
+                    {/* 2026-08-01 (owner: a signed-out visitor wrote a full
+                        review with 4 photos, was prompted to sign in only at
+                        Save, and lost the photos — signInWithProvider does a
+                        real browser redirect to the OAuth provider and back
+                        (supabase.auth.signInWithOAuth), which wipes every
+                        in-memory pendingPhotos File/blob-URL; there was never
+                        anywhere else they lived. Text alone survived via the
+                        wf_place_comments localStorage mirror, which is why it
+                        looked like "everything" vanished but really only the
+                        untransferable part did. Gating sign-in to the FIRST
+                        tap — before a single character or photo is added —
+                        removes the loss window entirely instead of trying to
+                        make an OAuth redirect survive unsaved blobs. Mirrors
+                        the authReady && !user pattern already used to gate
+                        Favorites/Itinerary (AuthWall), so there is no flash of
+                        an editable box before the real signed-out state is
+                        known. */}
+                    {authReady && !user ? (
+                      <div style={{ textAlign: "center", padding: "16px 8px" }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Sign in to add a tip, review, or photos</div>
+                        <div style={{ fontSize: 11, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>So your write-up and photos never get lost mid-post, sign in first — then write.</div>
+                        <button onClick={() => setAuthOpen(true)} style={{ minHeight: 38, padding: "8px 20px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+                      </div>
+                    ) : (<>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone to see.</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
                       {["Tip", "Best dish", "Warning", "Review"].map((t) => (
                         <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.light : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.light : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
@@ -982,6 +1022,7 @@ export default function DetailSheet({ ctx }) {
                       <button onClick={handleSaveComment} disabled={photoBusy} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13, fontWeight: 800, cursor: photoBusy ? "default" : "pointer" }}>{photoBusy ? "Uploading…" : "Save"}</button>
                       {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.light, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
                     </div>
+                    </>)}
                   </div>
                   {placePosts.length > 0 ? placePosts.slice(0, 6).map((cp, i) => (
                     <div key={cp.id || i} style={{ paddingTop: 10, marginTop: i ? 10 : 0, borderTop: `1px solid ${C.border}` }}>
