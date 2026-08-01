@@ -2,6 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState , Fragment} from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, getLoader, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, wayfindScore } from "../lib/google";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
+import { MAP_DEFAULT_CATEGORY } from "../lib/mapExplorer";
 // PURE metro resolver for the cuisine sheet. lib/cuisine.js never fetches and
 // never composes a query — check-cuisine-never-queried.mjs enforces both, and
 // verifies that no QUERY BUILDER imports it. home.js is not one.
@@ -64,7 +65,7 @@ import { useBestPhoto, heroRefFromPlaces } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
-const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "#94A3B8", fontSize: 13 }}>Loading map…</div> });
+const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map around you…</span></div> });
 // G1 (July 2026 decomposition): non-default screens ship in their own chunks.
 // `screen` initializes to "suggested" and these render only on user action, so
 // ssr:false cannot cause a hydration mismatch. Every chunk is prefetched at
@@ -229,8 +230,8 @@ function viatorHrefOrNull(url) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight }) {
-  const subs = activeCat ? (SUBFILTERS[activeCat] || []) : [];
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true }) {
+  const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   return (
     <div style={{ marginBottom: tight ? 7 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
       {heading && (
@@ -2888,7 +2889,7 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
 
 function PageInner({ initialEvents = null }) {
   const [screen, setScreen] = useState("suggested");
-  const [cat, setCat] = useState("food");
+  const [cat, setCat] = useState(MAP_DEFAULT_CATEGORY);
   const [wxOpen, setWxOpen] = useState(false); // header weather forecast wheel
   const GIVEAWAY = { start: new Date(2026, 6, 3), end: new Date(2026, 9, 31, 23, 59, 59) };
   const [gwPop, setGwPop] = useState(false); // v4.28: giveaway is a timed popup, not a feed card
@@ -3054,7 +3055,7 @@ function PageInner({ initialEvents = null }) {
   const [eventsTours, setEventsTours] = useState(null);
   const [eventDate, setEventDate] = useState("all");
   const [mapMode, setMapMode] = useState("places");
-  const [mapBrowse, setMapBrowse] = useState(false); // false = neutral Top 10 map, true = category browse
+  const [mapBrowse, setMapBrowse] = useState(true); // Map opens on Food; category browsing is immediate and avoids six parallel searches.
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
   const [compassOn, setCompassOn] = useState(false);
@@ -3085,20 +3086,6 @@ function PageInner({ initialEvents = null }) {
   };
   useEffect(() => { if (screen !== "map" && compassHandlerRef.current) stopCompass(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
-  useEffect(() => {
-    if (screen !== "map" || mapBrowse || !center || !process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const out = []; const seen = new Set();
-        const results = await Promise.all(CATEGORIES.map((c) => searchPlaces(c.id, "all", { lat: center.lat, lng: center.lng }, searchRadius, "all").catch(() => [])));
-        results.forEach((arr) => (arr || []).forEach((q) => { if (q && q.id && !seen.has(q.id)) { seen.add(q.id); out.push(q); } }));
-        if (!cancelled && out.length) setMapPool(out);
-      } catch (e) {}
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, mapBrowse, center, searchRadius]);
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
   const [mapDrawer, setMapDrawer] = useState(false);

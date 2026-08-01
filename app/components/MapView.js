@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
+import { distanceRingData } from "../../lib/mapExplorer";
 
 const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
-const MI_TO_M = 1609.344;
 
 // v6.43 — THE BLANK MAP. maplibre-gl v6 is ESM-only and derives its Web Worker
 // URL from `import.meta.url`. Next 14's client webpack output replaces that
@@ -32,12 +32,12 @@ function markerNode({ label, color, kind, selected }) {
   el.type = "button";
   el.setAttribute("aria-label", label);
   el.style.cssText = [
-    "width:" + (kind === "origin" ? 18 : kind === "event" ? 30 : 34) + "px",
-    "height:" + (kind === "origin" ? 18 : kind === "event" ? 30 : 34) + "px",
+    "width:" + (kind === "origin" ? 24 : kind === "event" ? 30 : 34) + "px",
+    "height:" + (kind === "origin" ? 24 : kind === "event" ? 30 : 34) + "px",
     "border-radius:50%",
     "border:2px solid rgba(255,255,255,.96)",
     "background:" + color,
-    "box-shadow:0 5px 14px rgba(0,0,0,.28),0 0 0 " + (selected ? "4px" : "2px") + " rgba(255,255,255,.2)",
+    "box-shadow:0 5px 14px rgba(0,0,0,.34),0 0 0 " + (kind === "origin" ? "7px rgba(249,115,22,.2)" : (selected ? "4px" : "2px") + " rgba(255,255,255,.2)"),
     "color:#fff;font:800 " + (kind === "origin" ? "0" : "12px") + "/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
     "display:grid;place-items:center;padding:0;cursor:pointer",
   ].join(";");
@@ -46,24 +46,12 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-function circleFeature(center, miles) {
-  const points = [];
-  const lat = Number(center.lat);
-  const lng = Number(center.lng);
-  const radius = miles * MI_TO_M;
-  for (let i = 0; i <= 64; i += 1) {
-    const a = (i / 64) * Math.PI * 2;
-    const dLat = (radius * Math.cos(a)) / 111320;
-    const dLng = (radius * Math.sin(a)) / (111320 * Math.max(.2, Math.cos(lat * Math.PI / 180)));
-    points.push([lng + dLng, lat + dLat]);
-  }
-  return { type: "Feature", properties: { miles }, geometry: { type: "Polygon", coordinates: [points] } };
-}
-
 export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
+  const lastOriginRef = useRef("");
+  const placesByIdRef = useRef(new Map());
   const [failed, setFailed] = useState(false);
 
   const clearMarkers = () => {
@@ -76,16 +64,25 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     if (!map || !map.isStyleLoaded()) return;
     clearMarkers();
     const bounds = new LngLatBounds();
-    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null);
+    const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null).slice(0, 24);
     const eventList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
 
+    const placeFeatures = [];
+    placesByIdRef.current = new Map();
     ranked.forEach((place, index) => {
-      const color = place.openNow === false ? "#64748B" : index === 0 ? "#F59E0B" : "#F97316";
-      const node = markerNode({ label: `${index + 1}. ${place.name || "Place"}`, color, selected: index === 0 });
-      node.addEventListener("click", (event) => { event.stopPropagation(); onSelect && onSelect(place); });
-      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([place.lng, place.lat]).addTo(map));
+      const categoryColor = { food: "#F97316", nightlife: "#A855F7", attractions: "#0EA5E9", family: "#14B8A6", hotels: "#6366F1", shopping: "#EC4899" }[category] || "#F97316";
+      const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
+      const id = String(place.id || `map-place-${index}`);
+      placesByIdRef.current.set(id, place);
+      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place" }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
       bounds.extend([place.lng, place.lat]);
     });
+    const placeSource = map.getSource("wf-places");
+    if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
+    if (map.getLayer("wf-place-clusters")) {
+      const clusterColor = { food: "#F97316", nightlife: "#A855F7", attractions: "#0EA5E9", family: "#14B8A6", hotels: "#6366F1", shopping: "#EC4899" }[category] || "#F97316";
+      map.setPaintProperty("wf-place-clusters", "circle-color", clusterColor);
+    }
     eventList.forEach((event) => {
       const node = markerNode({ label: event.venue || event.name || "Event", color: "#8B5CF6", kind: "event" });
       node.addEventListener("click", (e) => { e.stopPropagation(); onSelectEvent && onSelectEvent(event); });
@@ -95,17 +92,23 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
     const origin = deviceLoc || center;
     if (origin && origin.lat != null && origin.lng != null) {
-      const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#0F172A", kind: "origin" });
+      const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#F97316", kind: "origin" });
       markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([origin.lng, origin.lat]).addTo(map));
       if (fit) bounds.extend([origin.lng, origin.lat]);
     }
 
     const ringSource = map.getSource("wf-rings");
-    const ringData = origin && rings ? { type: "FeatureCollection", features: [1, 5, 10, 20].map((mi) => circleFeature(origin, mi)) } : { type: "FeatureCollection", features: [] };
+    const ringData = origin && rings ? distanceRingData(origin) : { type: "FeatureCollection", features: [] };
     if (ringSource) ringSource.setData(ringData);
 
     if (fit && !bounds.isEmpty()) map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 });
-    else if (center && !ranked.length && !eventList.length) map.easeTo({ center: [center.lng, center.lat], zoom: 11, duration: 450 });
+    else if (origin) {
+      const originKey = `${Number(origin.lat).toFixed(5)}|${Number(origin.lng).toFixed(5)}`;
+      if (originKey !== lastOriginRef.current) {
+        lastOriginRef.current = originKey;
+        map.easeTo({ center: [origin.lng, origin.lat], zoom: rings ? 11.55 : 11, duration: 450 });
+      }
+    }
   };
 
   useEffect(() => {
@@ -115,7 +118,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       container: containerRef.current,
       style: MAP_STYLE,
       center: [startingPoint.lng, startingPoint.lat],
-      zoom: 11,
+      zoom: rings ? 11.55 : 11,
       attributionControl: true,
       dragRotate: false,
       pitchWithRotate: false,
@@ -131,11 +134,33 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
     map.on("load", () => {
       clearWatchdog();
+      map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
+      map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
+      map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
+      map.addLayer({ id: "wf-place-pins", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: { "circle-color": ["get", "color"], "circle-radius": 17, "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.96)", "circle-opacity": .96 } });
+      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["to-string", ["get", "rank"]], "text-size": 12, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-      map.addLayer({ id: "wf-rings-fill", type: "fill", source: "wf-rings", paint: { "fill-color": "#F97316", "fill-opacity": .035 } });
-      map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", paint: { "line-color": "#F97316", "line-width": 1.2, "line-opacity": .52 } });
+      map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });
+      map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });
+      map.addLayer({ id: "wf-rings-label", type: "symbol", source: "wf-rings", filter: ["==", ["get", "kind"], "label"], layout: { "text-field": ["get", "label"], "text-size": 12, "text-offset": [0, -.7], "text-allow-overlap": true }, paint: { "text-color": "#FFF7ED", "text-halo-color": "#111827", "text-halo-width": 2 } });
       redraw();
     });
+    map.on("click", "wf-place-clusters", (event) => {
+      const feature = event.features && event.features[0];
+      const clusterId = feature && feature.properties && feature.properties.cluster_id;
+      const source = map.getSource("wf-places");
+      if (clusterId == null || !source || typeof source.getClusterExpansionZoom !== "function") return;
+      source.getClusterExpansionZoom(clusterId).then((zoom) => map.easeTo({ center: feature.geometry.coordinates, zoom, duration: 420 })).catch(() => {});
+    });
+    map.on("click", "wf-place-pins", (event) => {
+      const feature = event.features && event.features[0];
+      const place = feature && placesByIdRef.current.get(String(feature.properties && feature.properties.id));
+      if (place && onSelect) onSelect(place);
+    });
+    for (const layer of ["wf-place-clusters", "wf-place-pins"]) {
+      map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
+      map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
+    }
     map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
     return () => { clearWatchdog(); clearMarkers(); map.remove(); mapRef.current = null; };
     // The map is intentionally created only once; state is projected in redraw.
@@ -151,8 +176,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
 
   if (failed) return <MapFallback count={(places || []).length} />;
   return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: compact ? "#0C1420" : "#E7EBEF" }}>
-    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "saturate(.62) contrast(1.05) brightness(.73)" : undefined }} />
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.42), rgba(3,8,14,.16) 55%, rgba(3,8,14,.46))" : "linear-gradient(180deg, rgba(5,10,16,.04), transparent 28%, rgba(5,10,16,.14))", mixBlendMode: "multiply" }} />
+    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "saturate(.62) contrast(1.05) brightness(.73)" : "saturate(.68) contrast(1.12) brightness(.72)" }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.42), rgba(3,8,14,.16) 55%, rgba(3,8,14,.46))" : "linear-gradient(160deg, rgba(3,8,20,.34), rgba(3,8,20,.08) 48%, rgba(3,8,20,.38))", mixBlendMode: "multiply" }} />
     <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.1)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5)" }} />
   </div>;
 }
