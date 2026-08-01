@@ -28,7 +28,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, badge, intentLabel, rankingNote, onShare }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, intentLabel, rankingNote, onShare }) {
   if (!place) return null;
   const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
@@ -48,7 +48,16 @@ export default function IconicPlaceCard({ place, rank, href, editorial, badge, i
     distance,
   ].filter(Boolean);
   const award = rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
-  const take = editorial || ("Our #" + rank + " pick — " + (place.rating || "strong") + "★ with " + compactCount(place.reviews) + " reviews, and it holds up.");
+  // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
+  // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
+  // status and distance already render above in `facts`/`award`, and
+  // restating them here was the generic filler this rule exists to kill.
+  // `editorial` (a verified wf_editorial hook) still wins when present;
+  // `aiSummary` is a validated { card_line_1, card_line_2 } CARD_SUMMARY
+  // (lib/editorialValidator.js already rejected anything generic, a
+  // fragment, or card-data-repeating before this ever reached the client).
+  // If NEITHER exists, nothing renders in this slot — no template fallback.
+  const validAiSummary = !editorial && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   const isCuratorPick = !!(place._members && place._members.ownerPick);
@@ -84,7 +93,14 @@ export default function IconicPlaceCard({ place, rank, href, editorial, badge, i
             {intentLabel ? <span>{intentLabel}</span> : null}
             {badge || null}
           </div>
-          <div className="wf-place-card-take">{take}</div>
+          {editorial ? (
+            <div className="wf-place-card-take">{editorial}</div>
+          ) : validAiSummary ? (
+            <div className="wf-place-card-take">
+              <div>{validAiSummary.card_line_1}</div>
+              <div style={{ marginTop: 2 }}>{validAiSummary.card_line_2}</div>
+            </div>
+          ) : null}
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
           <div className="wf-place-card-actions" style={{ display: "flex" }}>

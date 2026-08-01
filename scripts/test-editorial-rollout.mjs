@@ -143,23 +143,32 @@ ok(!placeAllowed("shopping", "giftshops", { name: "Sweety Cafe", types: ["cafe",
   ok(/wf_atlas_missing/.test(mig), "the migration targets the function the cron actually calls");
 }
 
-// ── 6. a card never renders a raw Google type ─────────────────────────────
-// The chain is NOT one chain. IntentPageClient is (hook || ai_line || null);
-// ThingsToDoList is (hook ? hook : (rankReason || blurb)). A coverage or
-// rendering check that knows only the first shape reports the second as covered.
+// ── 6. a card never renders a raw Google type (or generic filler) ────────
+// The chain is NOT one chain. IntentPageClient is (hook -> validated
+// CARD_SUMMARY -> nothing); ThingsToDoList is (hook -> validated
+// CARD_SUMMARY -> nothing). v6.87 (owner): both chains dropped their
+// generic-filler tail (ai_line as a bare string, rankReason, templateBlurb)
+// — a place with nothing grounded now renders NOTHING, never a fabricated
+// "Our #N pick" sentence. A coverage or rendering check that knows only one
+// shape must not report the other as covered.
 {
   const intent = read("app/components/IntentPageClient.js");
-  ok(/editorial=\{r\.editorial_hook \|\| r\.ai_line \|\| null\}/.test(intent),
-    "IntentPageClient: hook -> ai_line -> null, and the tail is NULL (an honest absence, never a type string)");
+  ok(intent.includes('editorial={r.editorial_hook || null}') && intent.includes('aiSummary={r.editorial_hook ? null : r.ai_line || null}'),
+    "IntentPageClient: hook wins outright; only when absent does a validated CARD_SUMMARY (ai_line) get a chance, and the tail is NULL — an honest absence, never a type string");
   ok(!/editorial=\{[^}]*r\.type[^}]*\}/.test(intent),
     "IntentPageClient never falls back to r.type as editorial copy");
   ok(!/editorial=\{[^}]*primaryType[^}]*\}/.test(intent),
     "IntentPageClient never falls back to primaryType as editorial copy");
 
+  const iconic = read("app/components/IconicPlaceCard.js");
+  ok(!/Our #.*pick.*and it holds up/.test(iconic), "IconicPlaceCard's rank-summary fallback ('Our #N pick — ...and it holds up.') must stay dead");
+  ok(iconic.includes("validAiSummary.card_line_1") && iconic.includes("validAiSummary.card_line_2"), "IconicPlaceCard renders the validated two-line CARD_SUMMARY when there's no verified hook");
+
   const ttd = read("app/components/ThingsToDoList.js");
   ok(/r\.editorial_hook \?/.test(ttd), "ThingsToDoList leads with the verified hook");
-  ok(/rankReason\(r, rank\) \|\| blurb/.test(ttd),
-    "ThingsToDoList's second chain is (rankReason || blurb) — DIFFERENT from IntentPageClient, and coverage must count it as such");
+  ok(!/rankReason/.test(ttd), "ThingsToDoList's rankReason fallback must stay dead — hide the block instead of showing generic filler");
+  ok(ttd.includes("blurb.card_line_1") && ttd.includes("blurb.card_line_2"),
+    "ThingsToDoList's fallback is the validated two-line CARD_SUMMARY — DIFFERENT wiring from IntentPageClient, and coverage must count it as such");
   ok(/: null\}/.test(ttd), "ThingsToDoList ends in null, not in a type string");
   ok(!/\{r\.type\}/.test(ttd), "ThingsToDoList never prints the raw Google type as the editorial line");
 }

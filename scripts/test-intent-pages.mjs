@@ -69,7 +69,12 @@ ok(bb.includes('const heroImg = "/cards/beach-adobestock-216195684.jpeg"'), "bea
   // Google's summary text, which is no longer an input at all.
   ok(!icSrc.includes("editorial: r.editorial"), "the /api/blurbs payload never sends r.editorial (Google's summary) into the model");
   ok(!icSrc.includes("editorial={r.editorial}"), "rows never render r.editorial (Google's raw summary) directly");
-  ok(icSrc.includes("editorial={r.editorial_hook || r.ai_line || null}"), "rows render verified Wayfind editorial, else the Wayfind-grounded ai_line, else nothing");
+  // v6.87 (owner): the two props split so IconicPlaceCard can validate ai_line
+  // as a { card_line_1, card_line_2 } CARD_SUMMARY instead of a bare string —
+  // same provenance guarantee (verified hook wins outright; ai_line only gets
+  // a chance when the hook is absent; the tail is null, never a fabricated line).
+  ok(icSrc.includes("editorial={r.editorial_hook || null}"), "rows render verified Wayfind editorial when present");
+  ok(icSrc.includes("aiSummary={r.editorial_hook ? null : r.ai_line || null}"), "else rows fall to the Wayfind-grounded ai_line, else null — never both at once");
   const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
   ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
 }

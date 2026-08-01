@@ -1,6 +1,7 @@
 export const runtime = "nodejs";
 import { aiKey } from "../../../lib/aiKey";
 import { cget, cset, DAY } from "../../../lib/serverCache";
+import { validateWhyParagraph, filterSupportedItems, containsBannedPhrase, repeatsCardFacts } from "../../../lib/editorialValidator";
 
 // Generates a grounded "Wayfind AI" take on a single place using Claude Haiku.
 // Two modes keep cost down: "compact" runs on open and returns just enough for
@@ -46,7 +47,8 @@ export async function POST(req) {
     const hasReviews = Array.isArray(p.reviews) && p.reviews.length > 0;
 
     const guard =
-      "Never invent prices in dollars, wait times, menu item percentages, hours, or comparisons to other named places; if a detail is not supported by the facts, omit it or use an empty value. ";
+      "Never invent prices in dollars, wait times, menu item percentages, hours, or comparisons to other named places; if a detail is not supported by the facts, omit it or use an empty value. " +
+      "Never name an individual staff member, server, bartender, host, manager, or employee, even if a review names them — describe the service in general terms instead ('friendly, attentive service') without the person's name. ";
     const voice =
       "You are a sharp local insider writing for Wayfind. Be specific to THIS place and genuinely useful for deciding whether to go. " +
       "Every line must say something that could NOT be copied onto just any place, for example " + exNouns + ". " +
@@ -64,7 +66,7 @@ export async function POST(req) {
         "goodFor (array of up to 4 specific occasions or people this genuinely suits, drawn from what reviews describe, e.g. 'solo lunch at the bar' or 'big celebrations'; empty array if unclear), " +
         (hasReviews ? "loves (array of up to 4 specific things reviewers single out, in concrete terms; empty array if unclear), " : "loves (empty array), ") +
         (hasReviews ? "cautions (array of up to 3 honest, specific things that would change someone's decision, e.g. long weekend waits, cash only, loud, slow service, ONLY if reviewers mention them; empty array if none), " : "cautions (empty array), ") +
-        (hasReviews ? "mustTry (a JSON array of up to 3 " + mustTryDesc + ", most praised first; empty array if none clearly stand out), " : "mustTry (empty array), ") +
+        (hasReviews ? "mustTry (a JSON array of 3 to 5 " + mustTryDesc + ", most praised first, ONLY items a review actually names — never invented; empty array if fewer than 3 clearly stand out), " : "mustTry (empty array), ") +
         (hasReviews ? "pairing (one short phrase on what goes well together if reviews suggest it, e.g. 'the brisket with a cold cider'; empty string if none), " : "pairing (empty string), ") +
         (hasReviews ? "tips (array of up to 4 concrete insider moves a regular would share, like when to arrive, where to sit, what to order, parking, grounded in the reviews; empty array if none), " : "tips (empty array), ") +
         (hasReviews ? "keywords (array of 3 to 5 short lowercase words reviewers most commonly use; empty array if unclear), " : "keywords (empty array), ") +
@@ -83,7 +85,7 @@ export async function POST(req) {
         "goWhen (short phrase for the best time or use case to go, e.g. 'Before 6 PM', 'Weekday lunch'; empty string if unclear), " +
         (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. '" + exSkip + "', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
         (hasReviews ? "whyPicked (one concrete sentence of evidence for why this is a solid pick, drawn from what reviewers emphasize, not generic praise; empty string if unclear), " : "whyPicked (empty string), ") +
-        (hasReviews ? "why (one flowing paragraph of 5 to 8 real sentences that truly makes the case: open with what this place IS in one vivid line, then why it earned the pick right now, the specific things reviewers praise by name, the signature move or " + exSig + " not to miss, who it is best for and when to go, when to skip it, and one honest caveat such as price, wait, park admission or a drive; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend, never bullet fragments, never generic praise; empty string if the evidence is thin), " : "why (empty string), ") +
+        (hasReviews ? "why (ONE tight paragraph, 90 to 150 words, titled 'why_wayfind_picked_this' in spirit: what this place IS, the recurring PATTERN across reviews (not a list of individual reviews, and never a named staff member), the signature move or " + exSig + " not to miss, who it is best for, and one honest caveat such as price, wait, or a drive if reviews support it; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend who read every review and is reporting the pattern, not summarizing each one; no bullet fragments, no generic praise, no restating the rating; empty string if the evidence is thin), " : "why (empty string), ") +
         (hasReviews ? "caution (ONE specific honest thing to know or common complaint that would change a decision; empty string if none stands out), " : "caution (empty string), ") +
         (hasReviews ? "tip (ONE concrete insider tip a regular would actually give; empty string if none)." : "tip (empty string).");
     }
@@ -115,6 +117,26 @@ export async function POST(req) {
     // (editorial + real review text) actually contain that evidence. Belt-and-
     // suspenders on top of the prompt's honesty rule, which silently failed.
     parsed = scrubUngroundedGeo(parsed, factsText);
+
+    // Editor-in-chief pass. Anthropic wrote it; this is the gate before it's
+    // cached or served. Weak/invalid content is dropped, never repaired —
+    // the render side already treats an empty field as "omit the block", so
+    // dropping here is enough to keep the rule good evidence -> sharp copy,
+    // weak evidence -> nothing.
+    if (parsed && !parsed.error && !parsed.unavailable) {
+      if (mode === "compact" && parsed.why) {
+        const whyVerdict = validateWhyParagraph(parsed.why, { name: p.name });
+        parsed.why = whyVerdict.ok ? whyVerdict.text : "";
+      }
+      if (mode === "full") {
+        if (Array.isArray(parsed.mustTry)) parsed.mustTry = filterSupportedItems(parsed.mustTry, factsText, 5);
+        if (parsed.pairing) {
+          const pw = String(parsed.pairing).trim();
+          parsed.pairing = pw && pw.split(/\s+/).length >= 2 && !containsBannedPhrase(pw) && !repeatsCardFacts(pw) ? pw : "";
+        }
+      }
+    }
+
     try { if (p.name && parsed && !parsed.error && !parsed.unavailable) await cset(ckey, parsed, kind === "event" ? 3 * DAY : 14 * DAY); } catch (e) {}
     return Response.json(parsed, { status: 200 });
   } catch (e) {

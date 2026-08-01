@@ -138,7 +138,6 @@ import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, Glow
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
-import { rankReason } from "../lib/rankReason.js";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
 // rendered CSS live in their own shell file. They are still concatenated into
@@ -656,7 +655,15 @@ const LINE_TTL = 30 * 24 * 3600 * 1000; // 30 days
 // The pre-epoch blobs are deliberately left in place rather than deleted: they
 // are never read again, and eviction code that runs on every visit is more risk
 // than the few hundred KB it reclaims.
-const CACHE_EPOCH = 2;
+// Epoch 3 (v6.87): /api/blurbs now returns a validated { card_line_1,
+// card_line_2 } object per place instead of a bare string (the CARD_SUMMARY
+// contract, lib/editorialValidator.js). A stale epoch-2 string in a
+// returning visitor's browser is harmless (blurbLine/aiSummary both treat a
+// string as "not the new shape" and degrade to hiding the block), but there
+// is no reason to keep serving pre-contract lines for up to LINE_TTL when a
+// fresh validated summary is one request away — bump per the established
+// pattern above.
+const CACHE_EPOCH = 3;
 const LINES_KEY = "wf_lines_v" + CACHE_EPOCH;
 const INSIGHTS_KEY = "wf_insights_v" + CACHE_EPOCH;
 function allCachedLines() {
@@ -770,44 +777,17 @@ function picksHeader(cat) {
   return `Top picks ${part}`;
 }
 
-// A clean, honest one-liner built only from a place's stats. Used instantly and
-// as the fallback when the AI card line is unavailable. Never invents anything.
-function templateBlurb(p) {
-  const b = experienceBadges(p, null, 1)[0];
-  const key = b ? b.key : null;
-  const lines = {
-    localfav: "A crowd favorite nearby with strong reviews.",
-    gem: "A quieter spot that punches above its size.",
-    value: "Genuinely good food without the big bill.",
-    waterfront: "Worth it for a table near the water.",
-    rooftop: "Go for the view from up top.",
-    romantic: "An easy pick for date night.",
-    livemusic: "Come for the food, stay for the live music.",
-    pizza: "Come for the pizza, leave happy.",
-    sushi: "Fresh sushi and a steady hand.",
-    steak: "For when only a great steak will do.",
-    // v5.75 (accuracy): "seafood" is a cuisine, not a location — the old
-    // "close to the water" was a false geography claim on inland seafood spots.
-    seafood: "Fresh seafood, cooked with care.",
-    burgers: "Go for a proper, messy burger.",
-    mexican: "Tacos and everything around them, done right.",
-    italian: "Pasta and red sauce worth the carbs.",
-    dessert: "Save room. This is the good part.",
-    cocktails: "Proper cocktails, made with care.",
-    wine: "A good list and a quiet pour.",
-    beer: "Cold taps and a relaxed table.",
-    coffee: "Where the day starts and the laptops open.",
-    breakfast: "The most important meal, done right.",
-    outdoor: "Grab a table in the open air.",
-    family: "Easy with kids and good for grownups too.",
-    groups: "Room for the whole crew.",
-    dog: "Bring the dog. Everyone is welcome.",
-    sports: "Big screens and the game on.",
-  };
-  if (key && lines[key]) return lines[key];
-  if (p.rating >= 4.6) return "One of the better-reviewed spots near you.";
-  if (p.rating >= 4.3) return "A solid, well-reviewed choice nearby.";
-  return "Worth a look while you are nearby.";
+// v6.87 — CARD_SUMMARY entries from /api/blurbs are now a validated
+// { card_line_1, card_line_2 } object, not a single string (see
+// lib/editorialValidator.js). A few surfaces outside PlaceCard still want a
+// single "why" sentence (a hero card's "Why:" line, the share-link hook
+// param) — this is the one place that collapses the object down, so those
+// call sites never have to know the shape changed. Tolerates a lingering
+// legacy string too, defensively, in case a stale client cache is replayed.
+function blurbLine(entry) {
+  if (!entry) return "";
+  if (typeof entry === "string") return entry;
+  return entry.card_line_1 || "";
 }
 
 // Curated experiences. Each one is a real search plus an honest filter. Badges
@@ -2475,7 +2455,15 @@ function stripMd(s) {
 function stripMdMap(obj) {
   if (!obj || typeof obj !== "object") return obj;
   const out = {};
-  for (const k in obj) out[k] = stripMd(obj[k]);
+  for (const k in obj) {
+    const v = obj[k];
+    // v6.87: a CARD_SUMMARY entry is { card_line_1, card_line_2 }, not a bare
+    // string — strip markdown from each line rather than skipping the whole
+    // (now-object) value, which is what a plain stripMd(v) would silently do.
+    out[k] = v && typeof v === "object"
+      ? { ...v, card_line_1: stripMd(v.card_line_1), card_line_2: stripMd(v.card_line_2) }
+      : stripMd(v);
+  }
   return out;
 }
 // Strip markdown from every text field of an AI hook. (CTA + color systematizing
@@ -7169,7 +7157,7 @@ function PageInner({ initialEvents = null }) {
                   {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
                   {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
                 </div>
-                {blurbs[exHero.id] && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbs[exHero.id]}</div>}
+                {blurbLine(blurbs[exHero.id]) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbLine(blurbs[exHero.id])}</div>}
               </div>
             </div>
           </div>
@@ -7226,7 +7214,7 @@ function PageInner({ initialEvents = null }) {
   // helpers from here. Add members as later phases extract more surfaces.
   const ctx = {
     // shared navigation + card actions
-    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, logEvent, requireAuth,
+    setScreen, openDetail, openExperience, openCuisine, openVenue, quickSaveFavorite, isSaved, liked, disliked, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, blurbLine, logEvent, requireAuth,
     // module-scope components + helpers the screens render with
     PlaceCard, CategoryMenu, StateBadge, Loader, FallbackImg, AreaInsight, experienceBadges, cityFixM, liveOpen, iconForPlace, openExternal,
     // surprise
@@ -7554,7 +7542,7 @@ function PageInner({ initialEvents = null }) {
               themeBody: `The ten highest-scoring spots near you, ranked by the Wayfind Score, which weights each rating by how many people stand behind it. No ads, no paid placement, just what consistently earns it. Anything past 10 miles is flagged so you can weigh the drive.`,
             };
           })();
-          const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : (blurbs[heroPick.id] || "")) : "";
+          const heroReason = heroPick ? ((heroHook && heroHook.hook) ? heroHook.hook : blurbLine(blurbs[heroPick.id])) : "";
           const heroIsGem = !!(heroPick && heroGemTrue && heroPick.id === heroGemTrue.id && (!heroTop || heroGemTrue.id !== heroTop.id));
           // Honest hero badge: only say "start here" when the place is genuinely open now.
           // If it opens later today, set that expectation instead of implying it is ready.
@@ -7988,7 +7976,7 @@ function PageInner({ initialEvents = null }) {
               {/* Wayfind Picks now renders as the first hook card inside the "Worth a look" section below, matching the editorial cards. */}
               {/* "Worth a look near you": Wayfind Picks first, editorial hooks in the middle, Roll the Dice last. Same hook-card shape, different accent colors, so they blend. */}
               {!browseCat && (suggested && suggested.length > 0) && (() => {
-                const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName, blurbs[pl.id]), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
+                const shareHook = (hk, pl) => { if (!pl) return; shareLink(pl.name, placeShareUrl(pl, locName, blurbLine(blurbs[pl.id])), () => showToast("Link copied"), "Check out " + pl.name + " on Wayfind", () => { try { logEvent("share", pl, { kind: "hook" }); } catch (e) {} giveawayMark(pl.id); addShared(pl); }); };
                 // v5.11: the dice card rotates the TAKE A CHANCE bank; the
                 // classic line "I want to take a chance." stays as variant zero
                 // and the fallback (PROTECTED copy, check-ux).
@@ -8844,10 +8832,19 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
-  // v6.01: a hand-written Wayfind hook (lib/curated.js, ~75 places) is a real,
-  // substantive, no-metadata line — prefer it over the LLM blurb, which drifts to
-  // generic/metadata filler. Falls back to the LLM line, then a clean local template.
-  const take = ((curatedFor(p) || {}).hook) || rankReason(p, rank) || line || templateBlurb(p);
+  // v6.87 (owner): the rank-summary sentence ("Our #1 pick — 4.8★ · 1.4k
+  // reviews, and it holds up.") is GONE — rating, reviews, rank, price,
+  // status and distance already render elsewhere on this card, and
+  // restating them here was the generic filler this rule exists to kill.
+  // Priority is now: a hand-written Wayfind hook (lib/curated.js, ~75
+  // places, real and substantive) beats a validated Anthropic CARD_SUMMARY
+  // (lib/editorialValidator.js already rejected anything generic, a
+  // fragment, or card-data-repeating before this ever reached the client).
+  // If NEITHER exists, this slot renders NOTHING — no rankReason, no
+  // templateBlurb. Good evidence shows sharp copy; weak evidence shows
+  // nothing, rather than another line every place of this type could wear.
+  const curatedHook = ((curatedFor(p) || {}).hook) || "";
+  const aiSummary = !curatedHook && line && typeof line === "object" && line.card_line_1 && line.card_line_2 ? line : null;
   const offer = OFFERS[p.id];
   const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
@@ -9034,7 +9031,14 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <button key={b.key} onClick={(e) => { e.stopPropagation(); if (onBadge) onBadge(b.key); }} style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 700, color: C.accent, background: C.adim, border: `1px solid ${C.accent}`, borderRadius: 999, padding: "3px 9px", cursor: "pointer" }}>{b.icon} {cityFixM(b.label)} ›</button>
             ))}
           </div>
-          <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{take}</div>
+          {curatedHook ? (
+            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
+          ) : aiSummary ? (
+            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>
+              <div>{aiSummary.card_line_1}</div>
+              <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
+            </div>
+          ) : null}
           <div className="wf-place-card-actions" style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
