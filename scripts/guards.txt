@@ -261,3 +261,5 @@ node scripts/check-doc-ownership.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
 node scripts/check-intro-instrumentation.mjs
+node scripts/check-hub-conversion.mjs
+node scripts/check-viator-redirect-layer.mjs

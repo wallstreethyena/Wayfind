@@ -17,6 +17,7 @@ import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload } from "../../../../lib/commerce.js";
+import { withViatorTracking } from "../../../../lib/affiliates.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -37,6 +38,49 @@ function searchFallback(q) {
   return PID
     ? `https://www.viator.com/searchResults/all?text=${t}&pid=${encodeURIComponent(PID)}&mcid=42383&medium=link`
     : `https://www.viator.com/searchResults/all?text=${t}`;
+}
+
+// EXACT-PRODUCT PASSTHROUGH (2026-07-31).
+//
+// /culture/[metro] shipped its curated picks as BARE viator.com hrefs via
+// viatorDirectUrl() — a live monetized link straight in the DOM, bypassing this
+// route entirely. That meant no provider_redirect_started, no server-side
+// record, and no way to join a click to its outcome. The same class of problem
+// as the CJ deals rail: a partner URL in the DOM is also a click for every
+// crawler that renders JS.
+//
+// Those links now come here with ?product=<exact url>. The destination is
+// PRESERVED (it is the same URL the page would have linked to) and attribution
+// is re-applied by the same withViatorTracking() viatorDirectUrl used.
+//
+// THE SECURITY PROPERTY. Accepting a destination from the request is exactly
+// what lib/commerceProviders refuses to do, because it is an open redirect. The
+// difference here is that the value is not trusted: it must match a viator.com
+// product URL literally, or it is REFUSED and reported as
+// provider_redirect_failed. Anything else — another host, a protocol-relative
+// URL, a javascript: URI, a userinfo trick like https://www.viator.com@evil.tld
+// — never reaches Location.
+const VIATOR_PRODUCT_RE = /^https:\/\/www\.viator\.com\/[^\s"'<>\\]*$/i;
+
+export function isValidViatorProduct(url) {
+  const s = String(url || "");
+  if (!s || s.length > 500) return false;
+  if (!VIATOR_PRODUCT_RE.test(s)) return false;
+  // Parse as a second gate: the regex proves the prefix, URL proves the HOST.
+  // "https://www.viator.com@evil.tld/x" passes a naive prefix check and resolves
+  // to evil.tld, because everything before @ is userinfo.
+  try {
+    const u = new URL(s);
+    return u.protocol === "https:" && u.hostname.toLowerCase() === "www.viator.com";
+  } catch (e) { return false; }
+}
+
+// The client mints a click_id so its commerce_cta_clicked can be joined to this
+// redirect's provider_redirect_started. Accepted only in an opaque-id shape, so
+// a caller cannot inject punctuation into an analytics field.
+export function sanitizeClientClickId(v) {
+  const s = String(v || "").trim();
+  return /^[A-Za-z0-9_-]{8,64}$/.test(s) ? s : null;
 }
 
 function regionTokens(region) {
@@ -128,15 +172,37 @@ export async function GET(req) {
   const region = searchParams.get("region") || city;
   const kind = (searchParams.get("kind") || "").trim().slice(0, 40) || null;
   const placeId = (searchParams.get("placeId") || "").trim().slice(0, 200) || (q ? "q:" + q.toLowerCase() : null);
+  // CONFLICT RESOLUTION (rebase onto main, 2026-07-31). Both sides were right
+  // about different things; this keeps main's PUBLIC CONTRACT and the hub's
+  // VALIDATION.
+  //
+  //   param name  -> main's `click_id`. The hub sent `cid`. The parameter is
+  //                  public API: analytics, the documented contract and any
+  //                  in-flight link all say click_id, and renaming it silently
+  //                  orphans every join between commerce_cta_clicked and
+  //                  provider_redirect_started.
+  //   surface cap -> main's 60. The hub's 40 truncated longer surface names,
+  //                  which silently merges two surfaces into one bucket.
+  //   validation  -> the HUB's sanitizer, not main's UUID_LIKE. main only
+  //                  accepted a bare UUID, so the DOCUMENTED fallback from
+  //                  lib/commerce.mintClickId ("wf-<base36>-<base36>", used
+  //                  whenever the browser has no crypto.randomUUID) was
+  //                  rejected and silently replaced server-side — the client
+  //                  event and the redirect event then carried DIFFERENT ids
+  //                  and could never be joined. [A-Za-z0-9_-]{8,64} accepts a
+  //                  UUID and a wf- id and still rejects anything injectable.
   const surface = (searchParams.get("surface") || "").trim().slice(0, 60) || "viator_legacy";
   const contentId = (searchParams.get("content") || "").trim().slice(0, 120) || null;
-  const clickIdFromClient = String(searchParams.get("click_id") || "").trim();
-  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
+  const rawProduct = (searchParams.get("product") || "").trim();
+  const clientClickId = sanitizeClientClickId(searchParams.get("click_id"));
+  const clickId = clientClickId || randomUUID();
   const distinctId = distinctIdFromCookies(req.headers.get("cookie")) || clickId;
 
   const baseProps = {
     provider: "viator",
     offer_id: placeId || q || "unknown",
+    // main's fields win: `surface` already defaults above, and content_id
+    // prefers the explicit ?content= that main added for attribution.
     surface,
     content_id: contentId || q || placeId || "unknown",
     city_id: city || null,
@@ -167,6 +233,29 @@ export async function GET(req) {
       } catch (e) { upstream = "network_error"; }
     }
     return Response.json({ hasKey: !!KEY, keyLooksValid: KEY.length >= 20, hasPid: !!getPid(), upstreamStatus: upstream });
+  }
+
+  // EXACT PRODUCT. A curated pick already knows its destination, so there is
+  // nothing to resolve: re-apply attribution and hand off. This is the path that
+  // takes the bare viator.com href out of /culture/[metro]'s DOM.
+  if (rawProduct) {
+    if (isValidViatorProduct(rawProduct)) {
+      const dest = withViatorTracking(rawProduct) || rawProduct;
+      emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120) });
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: dest,
+          // A curated product URL is stable, so it caches like a resolved one.
+          "Cache-Control": "public, s-maxage=3600, max-age=0",
+          "Referrer-Policy": "no-referrer",
+        },
+      });
+    }
+    // REFUSED. Never redirect to an unvalidated destination — that is the open
+    // redirect this route exists to not be. Report it, then fall through to the
+    // normal query flow so a user who clicked "book" still lands somewhere real.
+    emit("provider_redirect_failed", { failure_reason: "invalid-product-url" });
   }
 
   if (!q) return failAndRedirect("missing-query", "https://www.viator.com");
