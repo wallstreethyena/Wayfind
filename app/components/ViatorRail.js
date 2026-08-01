@@ -28,9 +28,11 @@
 import { C, PlaceScoreChip } from "./kit";
 import { eventCategoryArt } from "../../lib/eventCategoryArt";
 import { viatorDirectUrl } from "../../lib/affiliates";
+import { rankExperiences } from "../../lib/experiencesData";
 
 export default function ViatorRail({ title, items, theme, onLog, onOpenExternal }) {
   if (!Array.isArray(items) || !items.length) return null;
+  const rankedItems = rankExperiences(items);
   const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
   return (
     <div style={{ margin: "4px 0 14px" }}>
@@ -39,7 +41,7 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {items.map((t) => (
+        {rankedItems.map((t) => (
           /* v6.44: this rail rendered a RAW t.url while its sibling rail (the
              Things-to-do one, ~8389) wrapped the identical payload from the
              identical /api/viator/tours endpoint with viatorDirectUrl(). Two
@@ -71,4 +73,3 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
     </div>
   );
 }
-

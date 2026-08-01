@@ -24,6 +24,7 @@ import * as Aff from "../../lib/affiliates";
 // Detail.js) keep working untouched.
 
 import { emitCommerce, commerceHref, mintClickId, rankBucket } from "../../lib/commerce";
+import { rankExperiences } from "../../lib/experiencesData";
 
 import { bookingTargets, hasBookingCTA, hasVerifiedTours, placeEvidence } from "../../lib/bookingResolve";
 export { hasBookingCTA };
@@ -37,7 +38,8 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   if (!detail) return null;
   const placeId = detail.id;
   const hasTours = hasVerifiedTours(viaTours, placeId);
-  const topItem = hasTours ? viaTours[placeId].items[0] : null;
+  const rankedTourItems = hasTours ? rankExperiences(viaTours[placeId].items) : [];
+  const topItem = rankedTourItems[0] || null;
   // One predicate drives both the primary earning CTA and its disclosure.
   const targets = bookingTargets(detail, kind, topItem, locName, { placeEvidence: placeEvidence(viaTours, placeId) });
 
@@ -154,7 +156,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
       return () => { try { io.disconnect(); } catch (er) {} };
     }, [hasTours, listCity, detail.id, kind]);
     if (hasTours) {
-      const items = viaTours[placeId].items;
+      const items = rankedTourItems;
       return (
         <div ref={listRootRef} style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>

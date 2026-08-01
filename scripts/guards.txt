@@ -97,6 +97,7 @@ node scripts/test-sheet-booking.mjs
 node scripts/test-orderin-rails.mjs
 node scripts/test-card-booking.mjs
 node scripts/test-events-tours.mjs
+node scripts/test-ranked-experience-rails.mjs
 node scripts/test-front-events.mjs
 node scripts/test-top-rated.mjs
 node scripts/test-card-gate.mjs

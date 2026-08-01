@@ -3,9 +3,10 @@
 // EventCard move too (this screen is their only consumer); the event helpers
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
 import { useState } from "react";
-import { C, Icon, TARGET } from "../kit";
+import { C, Icon, PlaceScoreChip, TARGET } from "../kit";
 import * as Culture from "../../../lib/culture";
 import { eventCategoryArt } from "../../../lib/eventCategoryArt";
+import { rankExperiences } from "../../../lib/experiencesData";
 import ViatorCommerceLink from "../ViatorCommerceLink";
 
 function EventArt({ e, seg, height, ctx }) {
@@ -159,7 +160,10 @@ export default function EventsScreen({ ctx }) {
   shown = dedupeEvents(shown, eventDate === "all");
   // What's coming up, nearest-when first; proximity breaks ties.
   shown = shown.slice().sort((a, b) => (String(a.date || "9999").localeCompare(String(b.date || "9999"))) || (String(a.time || "99").localeCompare(String(b.time || "99"))) || (distMi(a) - distMi(b)));
-  const tours = Array.isArray(eventsTours) ? eventsTours : [];
+  // Defensive at the render boundary: the source normally arrives ranked,
+  // but this screen owns both the compact rail and the full Local tours grid.
+  // Sorting here keeps both views honest even if a caller/API changes order.
+  const tours = rankExperiences(eventsTours);
   const eventDateChips = [];
   const enow = new Date();
   for (let i = 0; i < 28; i++) {
@@ -235,12 +239,12 @@ export default function EventsScreen({ ctx }) {
               <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
-              {tours.map((t) => (
+              {tours.map((t, i) => (
                 <ViatorCommerceLink
                   key={t.code || t.url}
                   t={t}
                   surface="events_tours_grid"
-                  rank={1}
+                  rank={i + 1}
                   style={{ display: "block", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}
                 >
                   {/* v6.44: badge rides ONLY on Viator's own demand flag as passed
@@ -249,7 +253,10 @@ export default function EventsScreen({ ctx }) {
                   <TourArt src={t.image} />
                   <div style={{ padding: "9px 11px" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, lineHeight: 1.3, minHeight: 33, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-                    <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>★ {t.rating}{t.reviews ? ` (${Number(t.reviews).toLocaleString()})` : ""}{t.duration ? ` · ${t.duration}` : ""}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 4, flexWrap: "wrap" }}>
+                      {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={11} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
+                      {t.duration ? <span style={{ fontSize: 11, color: C.muted }}>{t.duration}</span> : null}
+                    </div>
                     <div style={{ marginTop: 8, display: "inline-block", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{t.fromPrice ? `Book from $${t.fromPrice}` : "Book now"} ↗</div>
                   </div>
                 </ViatorCommerceLink>
