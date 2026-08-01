@@ -20,9 +20,10 @@ import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
 import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
-import { emitCommerce } from "../../../lib/commerce";
+import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { funnelProps } from "../../../lib/funnel";
 import { useCommerceImpression } from "../useCommerceImpression";
+import { placePartnerPick } from "../../../lib/placePartnerPicks";
 
 // Community takes (v6.54, owner: "the review is capped on characters we
 // should be able to allow the user to have more characters and write it
@@ -269,8 +270,59 @@ function VerdictPill({ verdict }) {
   );
 }
 
+// 2026-08-01 (owner: "recommend affiliate attractions nearby ... search the
+// card's location and see major attractions nearby that we offer"). One row
+// of "Where to go next" — a REAL nearby place (from the same suggested/places
+// pool "More like this" already reads, so this adds no new geo source) that
+// ALSO clears lib/placePartnerPicks.js's exact-name registry, i.e. a place we
+// already have a verified partner ticket for. Same registry, same
+// commerceHref/mintClickId/emitCommerce call shape as IconicPlaceCard's
+// "🎟️ Partner tickets via X" pill — ONE partner-place lookup, not a second
+// one invented for this rail. Tapping the row opens OUR detail page for that
+// place (consistent with every other nearby rail on this sheet); the pill is
+// the one monetized affordance, exactly like IconicPlaceCard's card.
+function WhereToGoNextRow({ p, partner, openDetail, liveOpen, FallbackImg, ctaCity }) {
+  const commerceCtx = { surface: "detail_where_next", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, canonical_place_id: p.id, city_id: ctaCity || null };
+  const impressionRef = useCommerceImpression(commerceCtx);
+  const baseHref = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "detail_where_next", contentId: p.id });
+  return (
+    <div ref={impressionRef} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8 }}>
+      <div onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", flex: 1, minWidth: 0, cursor: "pointer" }}>
+        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
+            <PlaceScoreChip p={p} size={12} />
+            {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
+            {p.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+          </div>
+        </div>
+      </div>
+      {baseHref ? (
+        <a
+          href={baseHref}
+          target="_blank"
+          rel="sponsored noopener"
+          aria-label={`Tickets for ${p.name} via ${partner.merchant}`}
+          title="Partner link. Wayfind may earn a commission; rankings never change."
+          onClick={(e) => {
+            e.stopPropagation();
+            const clickId = mintClickId();
+            const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "detail_where_next", contentId: p.id, clickId });
+            if (live && e.currentTarget) e.currentTarget.href = live;
+            try { emitCommerce("commerce_cta_clicked", { ...commerceCtx, click_id: clickId }); } catch (er) {}
+          }}
+          style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 5, padding: "8px 12px", borderRadius: 10, background: C.adim, border: `1px solid ${C.border}`, color: "#FDBA74", textDecoration: "none", fontSize: 11.5, fontWeight: 800, whiteSpace: "nowrap" }}
+        >🎟️ Tickets ↗</a>
+      ) : (
+        <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
+      )}
+    </div>
+  );
+}
+
 export default function DetailSheet({ ctx }) {
-  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
+  const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather } = ctx;
 
   // v6.37 — the owner's editorial voice (Vibe Check / Why Go / Best Move),
   // fetched per opened place from /api/editorial so the 288-place data module
@@ -404,6 +456,11 @@ export default function DetailSheet({ ctx }) {
   // becoming unreadable. Behavior for text-only saves is unchanged: clearing
   // the box still only clears the LOCAL draft (never deletes an already-
   // posted comment — that's what the separate Delete button is for).
+  // 2026-08-01: the composer itself is now gated behind sign-in (see the
+  // authReady && !user branch below), so a signed-out visitor can no longer
+  // reach this function with real content — the `!posting` "saved on this
+  // device" branch is a defensive backstop (e.g. a session dropping between
+  // render and this click), not the primary path it used to be.
   async function handleSaveComment() {
     const v = (noteRef.current && noteRef.current.value ? noteRef.current.value : "").trim().slice(0, COMMENT_MAX_CHARS);
     const next = { ...placeComments };
@@ -436,8 +493,19 @@ export default function DetailSheet({ ctx }) {
       } else {
         showToast(commentType + (uploaded.length < pendingPhotos.length ? " posted (some photos failed to upload)" : " posted"));
         setPlacePosts((pp) => [{ place_id: detail.id, user_id: _u.id, author, type: commentType, body: v, photos, created_at: new Date().toISOString() }, ...(pp || []).filter((x) => x.user_id !== _u.id)]);
-        setExistingPhotoUrls(photos);
+        // 2026-08-01 (owner: "after the user posts it pushes but it looks like
+        // it remained in the editorial"). A successful post used to leave the
+        // draft box showing the SAME text and photos that now also appear in
+        // the posted entry below it — reading as "did this actually save, or
+        // is it just sitting here unposted?" The post itself lives in
+        // placePosts (with its own Edit, which repopulates this box from the
+        // real posted row) so the draft mirror is no longer needed once it
+        // has actually posted — clear it back to an empty composer.
+        setExistingPhotoUrls([]);
         setPendingPhotos((prev) => { prev.forEach((p) => { try { URL.revokeObjectURL(p.previewUrl); } catch (e) {} }); return []; });
+        if (noteRef.current) noteRef.current.value = "";
+        setNoteLen(0);
+        { const cleared = { ...placeComments }; delete cleared[detail.id]; setPlaceComments(cleared); try { localStorage.setItem("wf_place_comments", JSON.stringify(cleared)); } catch (e) {} }
       }
     } catch (err) {
       showToast("Couldn't reach the server — saved on this device");
@@ -794,6 +862,62 @@ export default function DetailSheet({ ctx }) {
                   <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>The signature picks, not just what gets mentioned most.</div>
                 </div>
               )}
+              {/* "Where to go next" (2026-08-01, owner). Real nearby places —
+                  same suggested/places pool "More like this" reads below —
+                  that ALSO clear lib/placePartnerPicks.js's exact-name
+                  registry, so every row here is a place we already have a
+                  verified partner ticket for, not a guess at what might be
+                  nearby. Deliberately placed up here beside "what to order"
+                  rather than buried with the non-monetized nearby rails at
+                  the bottom of the sheet. */}
+              {!detail._event && (() => {
+                const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
+                const seenOffers = new Set();
+                const picks = nextPool
+                  .map((p) => ({ p, partner: placePartnerPick(p) }))
+                  .filter((x) => x.partner)
+                  .filter((x) => { if (seenOffers.has(x.partner.offerId)) return false; seenOffers.add(x.partner.offerId); return true; })
+                  .sort((a, b) => (a.p.distMi ?? 1e9) - (b.p.distMi ?? 1e9))
+                  .slice(0, 3);
+                if (!picks.length) return null;
+                return (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, marginBottom: 3 }}>Where to go next</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Major attractions nearby with tickets we can book you into.</div>
+                    {picks.map(({ p, partner }) => (
+                      <WhereToGoNextRow key={"next-" + p.id} p={p} partner={partner} openDetail={openDetail} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
+                    ))}
+                    <FTCDisclosure />
+                  </div>
+                );
+              })()}
+              {/* Review/photo nudge (2026-08-01, owner: "recommend the user to
+                  post a review and share photos"). The Community takes box
+                  below already accepts both — a review-typed note plus up to
+                  4 photos — this just turns that into an actively-recommended
+                  action instead of a passive box the reader has to notice on
+                  their own. Scrolls to and focuses the SAME textarea/upload
+                  control, not a second entry point. */}
+              {!detail._event && (
+                <button
+                  onClick={() => {
+                    try { noteRef.current && noteRef.current.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+                    try { setCommentType("Review"); } catch (e) {}
+                    try { noteRef.current && noteRef.current.focus(); } catch (e) {}
+                    try { logEvent("review_prompt_tap", detail, {}); } catch (e) {}
+                  }}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", marginBottom: 16, padding: "12px 14px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, cursor: "pointer", textAlign: "left" }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: 9 }}>
+                    <span style={{ fontSize: 18 }}>⭐</span>
+                    <span>
+                      <span style={{ display: "block", fontSize: 13.5, fontWeight: 800, color: C.text }}>Been here?</span>
+                      <span style={{ display: "block", fontSize: 12, color: C.muted, marginTop: 1 }}>Leave a review and share your photos</span>
+                    </span>
+                  </span>
+                  <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
+                </button>
+              )}
               {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
                 <div style={{ marginBottom: 16, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 7 }}>
@@ -849,7 +973,31 @@ export default function DetailSheet({ ctx }) {
                   </div>
                   <div style={{ marginBottom: placePosts.length ? 12 : 0, paddingBottom: placePosts.length ? 12 : 0, borderBottom: placePosts.length ? `1px solid ${C.border}` : "none" }}>
                     <div style={{ fontSize: 12.5, fontWeight: 800, color: C.text, marginBottom: 2 }}>Add yours</div>
-                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone when you are signed in; saved privately on this device when you are not.</div>
+                    {/* 2026-08-01 (owner: a signed-out visitor wrote a full
+                        review with 4 photos, was prompted to sign in only at
+                        Save, and lost the photos — signInWithProvider does a
+                        real browser redirect to the OAuth provider and back
+                        (supabase.auth.signInWithOAuth), which wipes every
+                        in-memory pendingPhotos File/blob-URL; there was never
+                        anywhere else they lived. Text alone survived via the
+                        wf_place_comments localStorage mirror, which is why it
+                        looked like "everything" vanished but really only the
+                        untransferable part did. Gating sign-in to the FIRST
+                        tap — before a single character or photo is added —
+                        removes the loss window entirely instead of trying to
+                        make an OAuth redirect survive unsaved blobs. Mirrors
+                        the authReady && !user pattern already used to gate
+                        Favorites/Itinerary (AuthWall), so there is no flash of
+                        an editable box before the real signed-out state is
+                        known. */}
+                    {authReady && !user ? (
+                      <div style={{ textAlign: "center", padding: "16px 8px" }}>
+                        <div style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginBottom: 4 }}>Sign in to add a tip, review, or photos</div>
+                        <div style={{ fontSize: 11, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>So your write-up and photos never get lost mid-post, sign in first — then write.</div>
+                        <button onClick={() => setAuthOpen(true)} style={{ minHeight: 38, padding: "8px 20px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
+                      </div>
+                    ) : (<>
+                    <div style={{ fontSize: 10.5, color: C.muted, marginBottom: 8 }}>Posts to this page for everyone to see.</div>
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
                       {["Tip", "Best dish", "Warning", "Review"].map((t) => (
                         <button key={t} onClick={() => setCommentType(t)} style={{ padding: "5px 11px", borderRadius: 999, border: `1px solid ${commentType === t ? C.light : C.border}`, background: commentType === t ? C.adim : "transparent", color: commentType === t ? C.light : C.muted, fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>{t}</button>
@@ -891,6 +1039,7 @@ export default function DetailSheet({ ctx }) {
                       <button onClick={handleSaveComment} disabled={photoBusy} style={{ padding: "8px 18px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: C.light, fontSize: 13, fontWeight: 800, cursor: photoBusy ? "default" : "pointer" }}>{photoBusy ? "Uploading…" : "Save"}</button>
                       {placeComments[detail.id] && <span style={{ fontSize: 11, color: C.muted }}>Saved as <span style={{ color: C.light, fontWeight: 700 }}>{placeComments[detail.id].type}</span></span>}
                     </div>
+                    </>)}
                   </div>
                   {placePosts.length > 0 ? placePosts.slice(0, 6).map((cp, i) => (
                     <div key={cp.id || i} style={{ paddingTop: 10, marginTop: i ? 10 : 0, borderTop: `1px solid ${C.border}` }}>

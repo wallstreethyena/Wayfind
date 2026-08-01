@@ -30,7 +30,7 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, liked, disliked, onLike, onDislike }) {
   if (!place) return null;
   const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
@@ -142,8 +142,40 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
 
           <div className="wf-place-card-actions" style={{ display: "flex" }}>
             <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
-            <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
-            <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
+            {/* Like/Dislike: an in-place toggle when the caller wires onLike/
+                onDislike (IntentPageClient.js, TrendingNowClient.js, both
+                2026-08-01) — stopPropagation + preventDefault so the tap
+                never falls through to the surrounding list's own navigation,
+                matching the pattern app/home.js's PlaceCard and
+                ThingsToDoList's Card already use. is-active applies the CSS
+                that has shipped since this card existed but nothing here
+                ever triggered, because liked/disliked was never a prop.
+                Falls back to the original navigate-to-detail link for any
+                caller that has not wired the props — never a dead button. */}
+            {onLike ? (
+              <button
+                type="button"
+                className={"wf-place-card-like" + (liked ? " is-active" : "")}
+                aria-label={liked ? "Remove like: " + place.name : "Like " + place.name}
+                aria-pressed={!!liked}
+                title={liked ? "Remove like" : "Like this place"}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onLike(e, place); }}
+              ><ThumbIcon /></button>
+            ) : (
+              <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
+            )}
+            {onDislike ? (
+              <button
+                type="button"
+                className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
+                aria-label={disliked ? "Remove dislike: " + place.name : "Not for me: " + place.name}
+                aria-pressed={!!disliked}
+                title={disliked ? "Remove dislike" : "Not for me"}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDislike(e, place); }}
+              ><ThumbIcon down /></button>
+            ) : (
+              <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
+            )}
             <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={() => onShare && onShare(place)}>↗ Share</button>
           </div>
         </div>

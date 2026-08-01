@@ -3,19 +3,27 @@
 // account linkage on the event log, and the opt-out that keeps it lawful (no
 // evercookie resurrection, no fingerprinting).
 import { readFileSync } from "fs";
+// EXTRACTED 2026-08-01 to lib/deviceId.js so surfaces outside app/home.js
+// (IntentPageClient.js, TrendingNowClient.js) can record the same device id
+// instead of either re-implementing this privacy-sensitive logic or having
+// none at all — see lib/likeSignal.js. home.js now imports the function
+// rather than defining it, so the definition-level assertions below read
+// lib/deviceId.js and the usage-level assertions (device_id: deviceId())
+// still read home.js, which is where events are actually logged.
+const d = readFileSync(new URL("../lib/deviceId.js", import.meta.url), "utf8");
 const h = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 // durable first-party storage
-ok(/localStorage\.getItem\("wf_device"\)/.test(h) && /localStorage\.setItem\("wf_device", id\)/.test(h), "id persists in first-party localStorage");
-ok(/document\.cookie = "wf_device=" \+ encodeURIComponent\(v\)/.test(h) && /SameSite=Lax/.test(h) && /Secure/.test(h), "id mirrored to a long-lived, SameSite=Lax, Secure first-party cookie");
-ok(/WF_DID_MAXAGE = 2 \* 365 \* 24 \* 3600/.test(h), "the cookie lives ~2 years (as durable as a first-party cookie legally gets)");
-ok(/if \(!id\) id = readCookie\(\);/.test(h), "reads back from the sibling first-party store so a partial clear doesn't reset the id");
+ok(/localStorage\.getItem\("wf_device"\)/.test(d) && /localStorage\.setItem\("wf_device", id\)/.test(d), "id persists in first-party localStorage");
+ok(/document\.cookie = "wf_device=" \+ encodeURIComponent\(v\)/.test(d) && /SameSite=Lax/.test(d) && /Secure/.test(d), "id mirrored to a long-lived, SameSite=Lax, Secure first-party cookie");
+ok(/WF_DID_MAXAGE = 2 \* 365 \* 24 \* 3600/.test(d), "the cookie lives ~2 years (as durable as a first-party cookie legally gets)");
+ok(/if \(!id\) id = readCookie\(\);/.test(d), "reads back from the sibling first-party store so a partial clear doesn't reset the id");
 
 // the LEGAL guardrails
-ok(/navigator\.doNotTrack === "1"/.test(h) && /localStorage\.getItem\("wf_optout"\) === "1"/.test(h), "honors Do-Not-Track + an explicit wf_optout opt-out");
-ok(/sessionStorage\.setItem\("wf_device_s", s\)/.test(h), "opted-out users get a SESSION-only id — no cross-visit recognition");
+ok(/navigator\.doNotTrack === "1"/.test(d) && /localStorage\.getItem\("wf_optout"\) === "1"/.test(d), "honors Do-Not-Track + an explicit wf_optout opt-out");
+ok(/sessionStorage\.setItem\("wf_device_s", s\)/.test(d), "opted-out users get a SESSION-only id — no cross-visit recognition");
 // v6.57 — this assertion previously ended in `|| true`, which made it
 // unconditionally pass. It sat between two live privacy checks, so the suite was
 // verifying that our privacy PROMISE is written down (the line below) while the
@@ -31,7 +39,7 @@ ok(/sessionStorage\.setItem\("wf_device_s", s\)/.test(h), "opted-out users get a
 // Fixed by expressing the real property — no CALL to a resurrection or
 // fingerprinting API — with comments and strings stripped first, so the policy
 // statement can keep naming what it forbids.
-const codeOnly = h
+const codeOnly = d
   .replace(/\/\*[\s\S]*?\*\//g, " ")      // block comments
   .replace(/(^|[^:])\/\/[^\n]*/g, "$1 ")  // line comments (not :// in URLs)
   .replace(/"(?:[^"\\]|\\.)*"/g, '""')    // double-quoted strings
@@ -52,7 +60,7 @@ ok(found.length === 0, "standard stores only — no evercookie/fingerprint resur
 // Guard the guard: if the policy comment is ever deleted, the strip above would
 // silently have nothing to protect, and this assertion would still pass. Keep
 // the stated boundary asserted separately, as it already was.
-ok(/never Flash\/ETag\/canvas\/IndexedDB\/cache/.test(h), "the no-evercookie boundary is stated in the code");
+ok(/never Flash\/ETag\/canvas\/IndexedDB\/cache/.test(d), "the no-evercookie boundary is stated in the code");
 // Prove the stripper actually removed the policy comment — otherwise a future
 // refactor that breaks the regexes would make the check above vacuous again.
 ok(!/evercookie/i.test(codeOnly), "the comment-stripper works: the policy comment is not visible to the code-only scan");

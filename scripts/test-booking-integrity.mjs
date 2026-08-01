@@ -27,6 +27,16 @@ ok(resolveVerified(place("The Ringling", "ring"), [prod("Houston Museum of Fine 
   "Ringling (Sarasota) rejects Houston MFA");
 ok(resolveVerified(place("The Bishop Museum of Science and Nature", "bish"), [prod("Houston Museum of Natural Science Tickets", "HOU2")], R("Bradenton", "museum")) === null,
   "Bishop (Bradenton) rejects Houston Museum of Natural Science (GENERIC kills science/nature/museum credit)");
+// 2026-08-01 (owner report, live production incident): "Orlando Science Center"
+// full-matched three Kennedy Space Center products on the word "center" alone
+// (its only non-generic token once "science" and the "orlando" region token
+// were stripped) at confidence 0.80 -- reproduced verbatim from the
+// booking_integrity_diag log for the real query. Kennedy Space Center is a
+// real, unrelated attraction 60+ miles away; this must never clear the bar.
+ok(resolveVerified(place("Orlando Science Center", "osc"), [prod("Kennedy Space Center Express from Orlando", "KSC1")], R("Orlando", "museum")) === null,
+  "Orlando Science Center rejects Kennedy Space Center Express (GENERIC must kill science/center credit, not just science)");
+ok(resolveVerified(place("Orlando Science Center", "osc"), [prod("Kennedy Space Center with Transport from Orlando and Kissimmee", "KSC2")], R("Orlando", "museum")) === null,
+  "Orlando Science Center rejects Kennedy Space Center with Transport (same collision, longer title)");
 ok(resolveVerified(place("Bradenton Riverwalk", "brw"), [prod("San Antonio River Walk Cruise", "SAT1")], R("Bradenton", "waterfront")) === null,
   "Bradenton Riverwalk rejects San Antonio River Walk");
 
