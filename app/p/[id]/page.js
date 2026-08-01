@@ -55,7 +55,9 @@ export async function generateMetadata({ searchParams }) {
 export default function PlaceSharePage({ params, searchParams }) {
   const id = s(params.id);
   const t = s(searchParams.t) || "this spot";
-  const target = "/?place=" + encodeURIComponent(id);
+  const requestedAction = s(searchParams.action);
+  const action = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : "";
+  const target = "/?place=" + encodeURIComponent(id) + (action ? "&action=" + action : "");
   return (
     <div style={{ minHeight: "100dvh", background: "#0D1117", color: "#F1F5F9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "system-ui, sans-serif", textAlign: "center", padding: "24px" }}>
       <ShareRedirect to={target} />

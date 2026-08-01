@@ -22,7 +22,7 @@
 // glass circles, See details / Find open now stay labelled buttons in the body,
 // and the Open-now / For-later backup split is unchanged.
 import { C, scoreLabel, PlaceScoreChip } from "../kit";
-import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
+import EditorialLandingHero, { editorialHeroCss } from "../EditorialLandingHero";
 import { RankedRow, ROW_IMG_STYLE } from "../RankedExperiencePage";
 import { openExternal } from "../../../lib/links";
 import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
@@ -85,8 +85,6 @@ export default function SurpriseScreen({ ctx }) {
           // the Back pill; titleLines is the backstop for the pathological ones
           // (some Google names run past 100 characters), because shrinking
           // forever would win the geometry and lose the legibility.
-          const nameLen = p && p.name ? p.name.length : 0;
-          const titleSize = nameLen > 46 ? 25 : nameLen > 32 ? 29 : 34;
           // Same geometry the system's section eyebrows use everywhere else.
           const sectionLabel = { fontSize: 11, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", marginBottom: 4 };
           const secondaryBtn = { flex: 1, background: "transparent", color: C.light, border: `1px solid ${C.border}`, borderRadius: 12, fontSize: 13.5, fontWeight: 800, padding: "12px 0", cursor: "pointer" };
@@ -100,38 +98,28 @@ export default function SurpriseScreen({ ctx }) {
           );
           return (
             <div>
-              <CollectionHero
-                wordmark={false}
-                height={278}
-                bleed="-7px -12px 14px"
+              <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-surprise-editorial") }} />
+              <EditorialLandingHero
+                prefix="wf-surprise-editorial"
+                backControl={(
+                  <button type="button" onClick={() => { setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }} aria-label="Back" style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 13px", borderRadius: 999, border: "1px solid rgba(255,255,255,.16)", background: "rgba(255,255,255,.05)", color: "#CBD5E1", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>← Back</button>
+                )}
                 heroImg={p ? p.photo : null}
-                accent={C.accent}
-                titleSize={titleSize}
-                titleLines={4}
-                // "Your Evening pick" over "Nothing to suggest right now" is a
-                // small lie the eyebrow tells; without a pick it names the
-                // feature instead of promising a result.
-                eyebrow={p ? "🎲 Your " + period + " pick" : "🎲 Surprise me"}
-                titleTop={p ? p.name : surpriseLoading ? "Finding something good" : "Nothing to suggest right now"}
-                subtitle={p ? sSub : surpriseLoading ? "Weighing rating, distance, and what is actually open." : "Try a different area."}
-                topLeft={(
-                  <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
-                    <HeroPill ariaLabel="Back" onClick={() => { setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }}>‹ Back</HeroPill>
+                imageKicker="THE WAYFIND WILD CARD"
+                imageTitle="One good idea beats another endless list."
+                toplineLeft={p ? "YOUR " + period.toUpperCase() + " PICK" : "SURPRISE ME"}
+                toplineRight={period}
+                headlineId="wf-surprise-title"
+                headline={p ? p.name : surpriseLoading ? "Finding something good" : "Nothing to suggest right now"}
+                dekLead={p ? "One decision, already made." : "We will not invent a pick."}
+                dekBody={p ? sSub : surpriseLoading ? "Weighing rating, distance, and what is actually open." : "Try a different area."}
+                actionSlot={p ? (
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    <button type="button" aria-label={primaryLabel} onClick={primaryAction} style={{ minHeight: 46, padding: "10px 18px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: C.accent, color: "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer" }}>{primaryLabel}</button>
+                    <button type="button" aria-label={isSaved(p.id) ? "Saved" : "Save this place"} onClick={() => quickSaveFavorite(p)} style={{ minHeight: 46, padding: "10px 14px", borderRadius: 14, border: "1px solid rgba(17,24,36,.16)", background: isSaved(p.id) ? "#111824" : "transparent", color: isSaved(p.id) ? "#F8F5EE" : "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer" }}>{isSaved(p.id) ? "♥ Saved" : "♡ Save"}</button>
                   </div>
-                )}
-                topRight={(
-                  <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2, display: "flex", alignItems: "center", gap: 8 }}>
-                    {p ? (
-                      <HeroIconButton active={isSaved(p.id)} ariaLabel={isSaved(p.id) ? "Saved" : "Save this place"} title={isSaved(p.id) ? "Saved" : "Save"} onClick={() => quickSaveFavorite(p)}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill={isSaved(p.id) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                      </HeroIconButton>
-                    ) : null}
-                    <HeroIconButton ariaLabel="Roll again" title="Roll again" onClick={rerollSurprise}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" /><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" /><circle cx="12" cy="12" r="1.3" fill="currentColor" /></svg>
-                    </HeroIconButton>
-                  </div>
-                )}
-                cta={p ? <HeroCta accent={C.accent} ariaLabel={primaryLabel} onClick={primaryAction}>{primaryLabel}</HeroCta> : null}
+                ) : null}
+                trustLines={["Chosen from the same evidence as every Wayfind ranking.", "Roll again any time; paid placement never enters the choice."]}
               />
               {surpriseLoading && <Loader label="Finding something good" pad="16px 2px" />}
               {/* The hero headline IS the empty state now, so the body only adds

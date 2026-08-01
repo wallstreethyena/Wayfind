@@ -55,16 +55,16 @@ ok(/\{topRight \|\| null\}/.test(hero) && /\{cta \|\| null\}/.test(hero), "the a
 // ------------------------------------------------------- one hero, no copies
 // 4) Nobody re-inlines it. RankedExperiencePage and the in-app screen must
 // DELEGATE, never own, the hero markup.
-ok(ranked.includes("./CollectionHero"), "RankedExperiencePage imports CollectionHero");
+ok(ranked.includes("./EditorialLandingHero"), "RankedExperiencePage imports the shared editorial hero");
 // Comments are stripped first: this file's own header comment explains where the
 // <header> WENT, and matching that would be a false FAIL that invites someone to
 // weaken the assertion instead of reading it.
 const strip = (s) => s.replace(/^\s*\/\/.*$/gm, "");
 ok(!/<header/.test(strip(ranked)), "RankedExperiencePage no longer declares its own <header> — it delegates, or the two heroes drift");
 ok(!ranked.includes("/brand/wayfind-wordmark-transparent-v2.png"), "the wordmark lives in exactly one place");
-ok(expScreen.includes("../CollectionHero"), "screens/Experience.js imports CollectionHero — this is THE in-app collection look");
-ok(/<CollectionHero\b/.test(expScreen), "screens/Experience.js renders CollectionHero");
-ok(/wordmark=\{false\}/.test(expScreen), "the in-app hero suppresses the wordmark — the app topbar already carries the logo one row above, and a second one over the photo is the 'logo blocking the save button' bug");
+ok(expScreen.includes("../EditorialLandingHero"), "screens/Experience.js imports the shared editorial hero");
+ok(/<EditorialLandingHero\b/.test(expScreen), "screens/Experience.js renders EditorialLandingHero");
+ok(/prefix="wf-experience-editorial"/.test(expScreen), "the in-app hero owns a separate prefix so beach styling remains untouched");
 
 // 4b) v6.75: the Occasions SHEET was the last surface still wearing the old
 // chrome (SheetHero's icon tile + 22px title). It wears CollectionHero now, so

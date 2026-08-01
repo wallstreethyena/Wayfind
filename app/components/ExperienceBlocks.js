@@ -198,6 +198,19 @@ export function Methodology() {
   return <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.45, marginBottom: 6 }}>{METHODOLOGY_LINE}</div>;
 }
 
+// One glass-box disclosure for ranked collection sheets. This replaces the
+// three competing versions that used to appear in the hero, above the list,
+// and again in the footer. It describes the Score as editorial opinion and
+// links to the published model instead of asking a slogan to carry the policy.
+export function ScoreDisclosure() {
+  return (
+    <aside aria-label="How Wayfind ranks" style={{ marginTop: 24, padding: "14px 16px", border: `1px solid ${C.border}`, borderRadius: 14, background: "rgba(255,255,255,.025)", color: C.muted, fontSize: 11.5, lineHeight: 1.5 }}>
+      <strong style={{ display: "block", color: C.light, marginBottom: 4 }}>The glass-box score</strong>
+      The Wayfind Score is our published editorial opinion: rating strength weighted by review depth, with distance and availability shaping the order. Businesses cannot buy a higher score or placement. <a href="/how-wayfind-ranks" style={{ color: C.light, fontWeight: 800 }}>See exactly how it works →</a>
+    </aside>
+  );
+}
+
 // ── THE COMPOSITION ─────────────────────────────────────────────────────────
 // One component, five blocks, one order. Hosts supply data and a row renderer;
 // they do not get to reorder.
