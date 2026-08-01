@@ -31,15 +31,15 @@ export default function AuthSheet({ ctx }) {
             <div id="wf-auth-title" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
             <div id="wf-auth-desc" style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>{authMode === "signup" ? "Free, about 20 seconds. Save your spots, sync them to every device, and Wayfind sharpens to your taste." : "Welcome back — your spots and lists are right where you left them."}</div>
 
-            {!isStandalone && !nativeShell && (
+            {(!isStandalone || nativeShell) && (
               <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <span style={{ fontSize: 16, fontWeight: 800 }}>G</span> Continue with Google
             </button>
             )}
 
-            {/* Native AuthenticationServices flow. This stays inside the iOS
-                shell: the website keeps Google OAuth, while the app offers
-                Apple without a web Services ID or rotating OAuth secret. */}
+            {/* Native AuthenticationServices flow. The iOS app offers both
+                Google and Apple; Apple stays native-only because the website
+                does not have a Services ID / rotating Apple OAuth secret. */}
             {nativeShell && (
               <button onClick={() => signInWithProvider("apple")} style={{ width: "100%", padding: 13, borderRadius: 12, border: "1px solid #000000", background: "#000000", color: "#FFFFFF", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="16" height="16" viewBox="0 0 170 170" aria-hidden="true" style={{ display: "block" }}>

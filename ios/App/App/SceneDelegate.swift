@@ -1,6 +1,12 @@
 import UIKit
 import Capacitor
 
+final class WayfindBridgeViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        bridge?.registerPluginType(AppleSignInPlugin.self)
+    }
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
@@ -8,7 +14,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CAPBridgeViewController()
+        window?.rootViewController = WayfindBridgeViewController()
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)

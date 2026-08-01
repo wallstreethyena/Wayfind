@@ -16,6 +16,7 @@ if (!s.includes("Forgot password?")) fail("Forgot password link missing from sig
 if (!s.includes("Set a new password")) fail("recovery sheet UI missing");
 if (!s.includes("Continue with Apple")) fail("Sign in with Apple button missing");
 if (!s.includes("{nativeShell && (") || !s.includes('signInWithProvider("apple")')) fail("Sign in with Apple must render in the native shell without enabling incomplete web OAuth");
+if (!s.includes("(!isStandalone || nativeShell)") || !s.includes('signInWithProvider("google")')) fail("Google sign-in must render alongside Apple in the native shell");
 if (!/provider === "apple" && isNative\(\)/.test(s) || !s.includes("signInWithIdToken({")) fail("native Apple credential no longer creates a Supabase session");
 if (!s.includes("nonce: credential.nonce")) fail("Supabase Apple exchange no longer verifies the raw nonce");
 if (!native.includes("crypto.getRandomValues") || !native.includes('crypto.subtle.digest("SHA-256"')) fail("Apple sign-in nonce is not cryptographically random and hashed");
@@ -23,4 +24,8 @@ if (!native.includes("authorize({ nonce: hashedNonce })") || !native.includes("n
 if (!appleNative.includes("ASAuthorizationAppleIDProvider") || !appleNative.includes('request.nonce = call.getString("nonce")') || !appleNative.includes("credential.identityToken")) fail("native AuthenticationServices bridge is incomplete");
 if (!entitlements.includes("com.apple.developer.applesignin") || !entitlements.includes("<string>Default</string>")) fail("Sign in with Apple entitlement missing");
 if (!xcodeProject.includes("AppleSignInPlugin.swift in Sources") || !xcodeProject.includes("CODE_SIGN_ENTITLEMENTS = App/App.entitlements")) fail("Apple native bridge or entitlements are not attached to the App target");
-console.log("check-auth: OK — recovery contract + native Apple credential, nonce verification, entitlement, and Supabase exchange");
+if (!native.includes('redirectTo: NATIVE_OAUTH_CALLBACK') || !native.includes('Browser.open({ url: data.url') || !native.includes('App.addListener("appUrlOpen"') || !native.includes("exchangeCodeForSession(code)") || !native.includes("setSession({ access_token: accessToken")) fail("native Google OAuth must use the system browser and consume its callback");
+if (!native.includes('const NATIVE_OAUTH_CALLBACK = "wayfind://auth/callback"')) fail("native Google OAuth callback is missing");
+if (!readFileSync(new URL("../ios/App/App/Info.plist", import.meta.url), "utf8").includes("<string>wayfind</string>")) fail("iOS custom URL scheme for OAuth callback is missing");
+if (!readFileSync(new URL("../ios/App/App/SceneDelegate.swift", import.meta.url), "utf8").includes("registerPluginType(AppleSignInPlugin.self)")) fail("AppleSignIn native plugin is not registered with Capacitor");
+console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAuth callback, Apple nonce verification, plugin registration, entitlement, and Supabase exchange");

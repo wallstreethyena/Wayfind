@@ -10,7 +10,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { isNative, nativeAppleCredential, nativeShare } from "../lib/native";
+import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
@@ -3825,6 +3825,15 @@ function PageInner({ initialEvents = null }) {
         if (data && data.session) {
           try { logEvent("login_completed", null, { method: "apple_native" }); } catch (e) {}
           showToast("Signed in with Apple");
+          setAuthOpen(false);
+        }
+        return;
+      }
+      if (provider === "google" && isNative()) {
+        const session = await nativeOAuthSignIn(supabase, "google");
+        if (session) {
+          try { logEvent("login_completed", null, { method: "google_native" }); } catch (e) {}
+          showToast("Signed in with Google");
           setAuthOpen(false);
         }
         return;
