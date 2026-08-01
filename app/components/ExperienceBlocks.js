@@ -62,6 +62,7 @@ import { businessStatus } from "../../lib/businessStatus";
 import { venueLean } from "../../lib/ranking";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
+import { clipCouponToWallet } from "../../lib/couponWallet";
 
 // ── 1. COUPON STRIP ─────────────────────────────────────────────────────────
 // GEO IS NOT OPTIONAL HERE. Without lat/lng this renders NATIONWIDE deals only.
@@ -95,7 +96,12 @@ export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 
   // substituted `solid C.border` and a different pad — which is precisely how
   // an "extraction" becomes a redesign nobody approved.
   const dl = deals.slice(0, max);
-  const go = (id) => { try { onLog && onLog("coupon_strip_tap", null, { id, theme: intentId }); } catch (e) {} onOpenCoupons && onOpenCoupons(); };
+  const go = (coupon) => {
+    if (!coupon || !coupon.id) return;
+    const saved = typeof window !== "undefined" ? clipCouponToWallet(coupon, window.localStorage) : { clipped: false };
+    try { onLog && onLog("coupon_strip_tap", null, { id: coupon.id, theme: intentId, clipped: saved.clipped }); } catch (e) {}
+    onOpenCoupons && onOpenCoupons(coupon, { wallet: true, clipped: saved.clipped });
+  };
   return (
     <div style={{ background: C.card, border: `1.5px dashed ${C.accent}`, borderRadius: 14, padding: "11px 14px", marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
@@ -103,7 +109,7 @@ export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 
         <button onClick={() => { try { onLog && onLog("coupon_strip_all", null, { theme: intentId }); } catch (e) {} onOpenCoupons && onOpenCoupons(); }} style={{ background: "transparent", border: "none", color: C.light, fontSize: 11.5, fontWeight: 800, cursor: "pointer", padding: "4px 0 4px 8px" }}>See all ›</button>
       </div>
       {dl.map((c, i) => (
-        <div key={c.id} role="button" tabIndex={0} onClick={() => go(c.id)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(c.id); } }} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "7px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
+        <div key={c.id} role="button" tabIndex={0} onClick={() => go(c)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(c); } }} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: "7px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
           <span style={{ minWidth: 0, flex: 1 }}>
             <span style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{c.business}</span>
             <span style={{ fontSize: 12.5, color: C.light }}> — {c.title}</span>

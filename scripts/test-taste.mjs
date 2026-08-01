@@ -91,13 +91,16 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(home.includes("function recordTaste(action, p)"), "the taste recorder is wired");
 ok(home.includes('supabase.rpc("wf_taste_bump"'), "signed-in signals persist to the per-user server vector");
 ok(/action !== "open" && supabase && user/.test(home), "server persistence is gated on signed-in; 'open' stays device-local");
-// v6.56 (owner: "make the personalization only available after the user signs
-// in"). The local vector is no longer written for anonymous visitors: with the
-// switch behind sign-in, nothing signed-out reads it and no signed-out control
-// can erase it, so writing it would be collection with neither purpose nor an
-// off switch. Signed in, it stays the device mirror that Reset clears.
-ok(/if \(user\) \{ try \{ const cur = JSON\.parse\(localStorage\.getItem\("wf_taste_local"/.test(home), "the first-party local vector is written for signed-in users only — nothing is learned about a signed-out visitor");
+ok(/if \(user \|\| action !== "open"\)/.test(home), "explicit reactions learn on-device before sign-in; passive opens remain anonymous-neutral");
+ok(/if \(action !== "open" && personalize == null\) setConsent\("on"\)/.test(home), "a first explicit reaction opts the on-device feed into personalization without overriding a prior off choice");
 ok(home.includes('recordSignal(p, "save")') && home.includes('recordSignal(p, "share")'), "save + share now feed the model, alongside like/dislike/open");
+{
+  const body = (start, end) => home.slice(home.indexOf(start), home.indexOf(end));
+  ok(!body("function toggleLike", "function toggleDislike").includes("requireAuth"), "like works immediately on-device before sign-in");
+  ok(!body("function toggleDislike", "function toggleHookLike").includes("requireAuth"), "dislike works immediately on-device before sign-in");
+  ok(!body("function addShared", "async function refreshOwnerPick").includes("requireAuth"), "share is remembered immediately on-device before sign-in");
+  ok(!body("function quickSaveFavorite", "function saveHookList").includes("requireAuth"), "save works immediately on-device before sign-in");
+}
 // The Score must stay global — taste/affinity must NOT flow into the displayed score.
 ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit|affinityFor[\s\S]{0,60}(toDisplayScore|wayfindScore)/.test(home), "affinity must NEVER feed the Wayfind Score — the number stays global and honest");
 ok(!home.includes("affinityFor("), "Phase 1 does not yet apply affinity anywhere — LEARN ONLY, zero ranking change");
@@ -113,7 +116,7 @@ ok(sql.includes("wf_taste_wipe"), "delete-my-taste ships now — legal by design
 ok(sql.includes("security invoker"), "writes run as the caller so RLS can enforce ownership");
 
 // --- PHASE 2/3 LOCKS (home.js): consented, durable, labeled, controllable ---
-ok(/const personalized = !!user && personalize === "on" && hasTaste/.test(home), "the feed re-ranks ONLY for a signed-in user who gave explicit consent — off, or signed out, = same for everyone");
+ok(/const personalized = personalize === "on" && hasTaste/.test(home), "the feed re-ranks on-device after explicit consent; sign-in is only the cloud-sync boundary");
 ok(/personalized \? applyAffinity\(list, affinities\) : list/.test(home), "no consent -> pure moment/Score order, unranked by taste");
 // v6.56 (owner: "remove the item on image 2 ... put the personalization under
 // the favorites ... not in their face at the main page"). The consent ask and
@@ -138,10 +141,12 @@ ok(!home.includes("wf-taste-inline"), "…and no inline home-feed taste editor, 
 // two is the strip coming back.
 {
   const reads = home.match(/personalize === "(on|off)"/g) || [];
-  ok(reads.length === 1 && /const personalized = !!user && personalize === "on" && hasTaste;/.test(home),
+  ok(reads.length === 1 && /const personalized = personalize === "on" && hasTaste;/.test(home),
     "…and home.js reads `personalize` exactly once, to gate the re-ranking itself — never to render a surface");
 }
-ok(/const on = personalize === "on";/.test(saved) && /On · \$\{learned\} thing/.test(saved) && /Off · same feed for everyone/.test(saved), "when on, the personalization is LABELED (never silent) — the Favorites row states on/off in plain language");
+ok(/const on = personalize === "on";/.test(saved) && /On · \$\{learned\} thing/.test(saved) && /Off · same feed for everyone/.test(saved), "when on, personalization is labeled in Favorites for signed-in and on-device visitors alike");
+ok(!/\{user && \(\s*<>\s*<div[^>]*>Personalization/.test(saved), "the on-device personalization controls are not hidden behind sign-in");
+ok(!/screen === "saved"[^\n]*AuthWall/.test(home), "Favorites remains reachable so a signed-out visitor can inspect, disable or erase local taste");
 // v6.56: the on/off subtitle IS the disclosure, so it must not be truncatable.
 // A row that reads "Off · your feed is ranked the s…" has told the reader
 // nothing. Locked to wrapping rather than ellipsis.
@@ -256,18 +261,13 @@ ok(/className="wf-taste-btn is-danger">Reset</.test(home), "the sole remaining c
   ok(sysAt > personalAt, "…and inside the root (!activeList && !sysFolder) branch, so it never shows inside an opened list");
 }
 ok(/personalize, setConsent, setTasteOpen, tasteVecState/.test(home) && /personalize, setConsent, setTasteOpen, tasteVecState/.test(saved), "the consent state reaches SavedScreen through the one ctx bag — no second source of truth");
-// v6.56 (owner: "make the personalization only available after the user signs
-// in"). Two locks, and the second is the one that matters: the ROW is gated on
-// `user`, and so is the RE-RANKING (see the `!!user &&` assertion above). A
-// switch a person cannot reach is the same as no switch, so the behaviour it
-// controls must be gated exactly as tightly as the control itself — otherwise
-// a signed-out visitor gets a feed quietly reordered by a setting that is
-// invisible to them. The Favorites tab keeps its original whole-screen wall.
+// Explicit reactions now work on-device before sign-in. The control and the
+// behavior remain paired: Favorites is reachable, the setting is visible, and
+// cloud sync remains the only part that requires an account.
 {
   const personalAt = saved.indexOf(">Personalization<");
-  const gateAt = saved.indexOf("{user && (");
-  ok(/\{screen === "saved" && \(authReady && !user \? <AuthWall label="your Favorites"/.test(home), "the Favorites tab is sign-in walled as a whole — the personalization surface is behind it");
-  ok(gateAt > 0 && personalAt > gateAt, "…and the row carries its OWN `user &&` guard, so it cannot flash before authReady resolves");
+  ok(/\{screen === "saved" && <SavedScreen ctx=\{ctx\} \/>\}/.test(home), "Favorites is available on-device before sign-in");
+  ok(personalAt > 0 && saved.indexOf("{user && (") < 0, "…and the personalization row is never hidden behind a user guard");
   ok(!/authReady, AuthWall,/.test(home.slice(home.indexOf("personalize, setConsent"), home.indexOf("personalize, setConsent") + 200)), "…and SavedScreen no longer needs the auth primitives passed through ctx");
 }
 

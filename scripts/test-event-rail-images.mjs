@@ -15,7 +15,8 @@ ok(card.length > 0, "CompactEventShareCard exists");
 ok(/height:\s*132/.test(card), "the card gives the image and copy enough vertical room");
 ok(/height:\s*72/.test(card), "event art receives a dedicated 72px image band");
 ok(/top:\s*72[\s\S]*background:\s*"linear-gradient\(180deg,#111925/.test(card), "copy lives in a separate panel below the image");
-ok(/saturate\(1\.03\) contrast\(1\.02\)/.test(card), "provider art is visible and lightly enhanced");
+ok(/saturate\(1\.02\) contrast\(1\.05\) brightness\(\.8\)/.test(card), "provider art is controlled without losing its color");
+ok(/data-event-art-scrim[\s\S]*linear-gradient\(180deg,rgba\(0,0,0,\.12\)[\s\S]*rgba\(0,0,0,\.82\)/.test(card), "event art uses the same dark, bottom-weighted gradient language as hero cards");
 ok(!/rgba\(5,9,15,\.94\)/.test(card), "the old 94%-opaque full-image scrim cannot return");
 ok(!/filter:\s*"saturate\(\.78\)/.test(card), "the old desaturation cannot return");
 ok(!/📍 \{venue\}/.test(card), "the compact card does not spend its limited space repeating the venue");
@@ -28,4 +29,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error("  - " + failure));
   process.exit(1);
 }
-console.log("test-event-rail-images: OK — artwork stays clear, venue copy is removed, and timing sits beneath the event title");
+console.log("test-event-rail-images: OK — artwork uses the dark hero treatment, venue copy is removed, and timing sits beneath the event title");

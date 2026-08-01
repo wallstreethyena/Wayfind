@@ -4,6 +4,8 @@
 // pass-through guarantee, all against lib/eventsPipeline.js directly.
 import { processEvents, validateEvent, dedupeAcrossProviders, resolveDestination, isFabricatedSearchUrl } from "../lib/eventsPipeline.js";
 import { generateStaples, idFromSlug, resolveEventById } from "../lib/eventResolve.js";
+import { eventStoryFallback, validateEventStory } from "../lib/eventStory.js";
+import { readFileSync } from "node:fs";
 
 let failures = 0;
 const fail = (m) => { console.error("test-events-contract: FAIL — " + m); failures++; };
@@ -138,5 +140,26 @@ const run = (events, provider = "Ticketmaster") => processEvents([{ provider, co
   if (junk !== null) fail("unknown provider prefix should resolve to null");
 }
 
+// 9. Event storytelling is useful before the optional model responds, and the
+//    model may only replace it with a complete, concise, non-hype structure.
+{
+  const comedy = eventStoryFallback(base({ name: "Des Bishop", segment: "Arts & Theatre", genre: "Comedy", venue: "Funny Bone Comedy Club" }));
+  if (!/shared laugh/i.test(comedy.whyGo) || !/low-pressure/i.test(comedy.bestFor)) fail("comedy fallback does not explain the experience benefit");
+  if (!/Funny Bone Comedy Club/.test(comedy.expect)) fail("event fallback does not preserve the grounded venue context");
+  const valid = validateEventStory({ eyebrow: "Why go", whyGo: "A live comedy plan with a shared laugh at the center of the night.", bestFor: "A low-pressure night out", expect: "A ticketed comedy set." });
+  if (!valid) fail("complete concise event story was rejected");
+  if (validateEventStory({ eyebrow: "Why go", whyGo: "A world-class must-see show everyone will love.", bestFor: "Everyone", expect: "A show." })) fail("hype-heavy event story passed validation");
+  const route = readFileSync(new URL("../app/api/events/story/route.js", import.meta.url), "utf8");
+  const page = readFileSync(new URL("../app/events/[city]/[slug]/page.js", import.meta.url), "utf8");
+  const plan = readFileSync(new URL("../app/events/[city]/[slug]/EventPlan.js", import.meta.url), "utf8");
+  if (!/Use ONLY the supplied evidence/.test(route) || !/Never invent a performer biography/.test(route)) fail("Anthropic event prompt does not pin the evidence-only contract");
+  if (!/resolveEventById\(requestedId\)/.test(route) || !/cannot feed invented/.test(route)) fail("event story endpoint trusts browser-supplied event claims");
+  if (!/<EventStory eventId=\{e\.id\} initialStory=\{initialStory\}/.test(page)) fail("event detail page does not render the story layer immediately");
+  if (!/<EventPlan lat=\{e\.lat\} lng=\{e\.lng\}/.test(page)) fail("event detail page does not render location-aware plan recommendations");
+  if (!plan.includes('aria-label="Complete the plan"')) fail("event plan lacks the premium recommendation section");
+  if (!plan.includes('/api/places/search?') || !plan.includes('/api/hotels?')) fail("event plan does not resolve nearby food, after-event, and hotel inventory dynamically");
+  if (!plan.includes("not paid placement") || !plan.includes("never changes the ranking")) fail("event plan lost ranking or affiliate disclosure");
+}
+
 if (failures) process.exit(1);
-console.log("test-events-contract: OK — exclusions, dedup, isolation, counts, tz pass-through, by-id round trip all hold");
+console.log("test-events-contract: OK — exclusions, dedup, isolation, counts, tz pass-through, by-id round trip, and event-story contracts all hold");

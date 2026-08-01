@@ -2300,8 +2300,8 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   return (
     <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 132, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.3)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
       <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "inherit" }}>
-        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 72, objectFit: "cover", filter: "saturate(1.03) contrast(1.02)" }} /> : null}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 72, background: railImage ? "linear-gradient(180deg,rgba(5,9,15,.04) 22%,rgba(5,9,15,.5) 100%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
+        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 72, objectFit: "cover", filter: "saturate(1.02) contrast(1.05) brightness(.8)" }} /> : null}
+        <div data-event-art-scrim style={{ position: "absolute", top: 0, left: 0, right: 0, height: 72, background: railImage ? "linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.48) 52%,rgba(0,0,0,.82) 100%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
         {!railImage ? <Icon name={seg.iconName || "ticket"} size={42} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", left: 68, top: 13, opacity: 0.42 }} /> : null}
         <div style={{ position: "absolute", zIndex: 1, top: 72, left: 0, right: 0, bottom: 0, boxSizing: "border-box", padding: "8px 10px 8px", display: "flex", flexDirection: "column", background: "linear-gradient(180deg,#111925 0%,#0B111A 100%)", borderTop: `1px solid ${seg.color}33` }}>
           <div style={{ maxWidth: 154, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.15, letterSpacing: "-.12px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{event.name}</div>
@@ -3600,7 +3600,6 @@ function PageInner({ initialEvents = null }) {
     fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
   }, [screen]);
   function toggleSaveCoupon(c) {
-    if (!requireAuth("Sign up free to pocket this deal — and every one you find next.")) return;
     if (!c || !c.id) return;
     const next = { ...savedCoupons };
     if (next[c.id]) { delete next[c.id]; svFolderDelete("Coupons", "coupon:" + c.id); }
@@ -3694,8 +3693,10 @@ function PageInner({ initialEvents = null }) {
   // tasteDetailsOpen / tasteSaving / tasteResetConfirm. The sheet that
   // survives reads the vector and forgets from it; it holds no draft state.
 
-  // Consent is remembered; the durable vector loads per user/session (not per
-  // action — the session signals give instant feel; this is the slow layer).
+  // The preference choice is remembered; the durable vector loads per
+  // user/device (not per action — the session signals give instant feel; this
+  // is the slow layer). Anonymous visitors keep the vector on this device;
+  // signing in adds the existing private cloud sync.
   useEffect(() => { try { const c = localStorage.getItem("wf_personalize"); if (c === "on" || c === "off") setPersonalize(c); } catch (e) {} }, []);
   useEffect(() => {
     let dead = false;
@@ -4519,9 +4520,9 @@ function PageInner({ initialEvents = null }) {
     saveSignals(next);
     recordTaste(action, p);
   }
-  // THE TASTE MODEL (owner, 2026-07-22) — Phase 1: LEARN ONLY, no ranking change.
+  // THE TASTE MODEL (owner, 2026-07-22) — explicit reactions learn locally.
   // Projects an explicit signal into a decayed, PER-USER preference vector.
-  // Always updates the first-party local vector (legal, respects deletion);
+  // Explicit like/dislike/save/share updates the first-party local vector;
   // signed-in users ALSO persist to wf_taste (RLS binds it to their own uid —
   // never pooled, never another user's). 'open' is local-only (mild + high
   // volume); the strong verbs persist. Never touches the Wayfind Score.
@@ -4532,12 +4533,23 @@ function PageInner({ initialEvents = null }) {
       const sig = tasteSignals(action, place);
       if (!sig.length) return;
       const now = Date.now();
-      // v6.56: nothing is learned about a signed-out visitor. Personalization
-      // is sign-in-only now (owner), so while signed out there is no surface
-      // that reads this vector and no control that can erase it — recording it
-      // would be collection with no purpose and no off switch. Signed in, the
-      // local copy stays the device mirror that Reset clears.
-      if (user) { try { const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null"); localStorage.setItem("wf_taste_local", JSON.stringify(applyLocalTaste(cur, sig, now))); } catch (e) {} }
+      // A passive open remains anonymous-neutral. A deliberate reaction is the
+      // visitor asking Wayfind to remember a preference, so it works before
+      // sign-in and turns personalization on unless they previously turned it
+      // off. The Saved screen exposes manage/turn-off/reset on the same device.
+      if (user || action !== "open") {
+        try {
+          const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null");
+          const nextLocal = applyLocalTaste(cur, sig, now);
+          localStorage.setItem("wf_taste_local", JSON.stringify(nextLocal));
+          const localVec = tasteLocalToVector(nextLocal, now);
+          const merged = { ...(tasteVecRef.current || {}) };
+          for (const [dim, values] of Object.entries(localVec || {})) merged[dim] = { ...(merged[dim] || {}), ...values };
+          tasteVecRef.current = merged;
+          setTasteVecState(merged);
+          if (action !== "open" && personalize == null) setConsent("on");
+        } catch (e) {}
+      }
       if (action !== "open" && supabase && user) { try { supabase.rpc("wf_taste_bump", { p_signals: sig }).then(() => {}, () => {}); } catch (e) {} }
     } catch (e) {}
   }
@@ -4641,7 +4653,6 @@ function PageInner({ initialEvents = null }) {
     if (supabase && user && id) supabase.from("saved_places").delete().eq("user_id", user.id).eq("place_id", id).eq("list_name", listName).then(() => {}, () => {});
   }
   function addShared(p) {
-    if (!requireAuth("Sign up free to keep every spot your friends send your way.")) return;
     if (!p || !p.id) return;
     try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
@@ -4669,7 +4680,6 @@ function PageInner({ initialEvents = null }) {
   }
   function toggleLike(e, p) {
     e.stopPropagation();
-    if (!requireAuth("Like it? Sign up free — Wayfind learns your taste and remembers it.")) return;
     const wasLiked = !!liked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -4694,7 +4704,6 @@ function PageInner({ initialEvents = null }) {
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
-    if (!requireAuth("Sign up free — tell us your no-thanks and we'll stop showing them.")) return;
     const wasDis = !!disliked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
     const nextLikedItems = { ...likedItems }; const nextDisItems = { ...dislikedItems };
@@ -5694,6 +5703,10 @@ function PageInner({ initialEvents = null }) {
       if (!go) return;
       const valid = { events: "events", map: "map", saved: "saved", favorites: "saved", itinerary: "itinerary", coupons: "coupons" };
       if (valid[go]) setScreen(valid[go]);
+      // Coupon strips clip the exact deal before navigating here. Open the
+      // wallet immediately so the user lands on what they just saved instead
+      // of having to search the full inventory for it again.
+      if (go === "coupons" && sp.get("view") === "clipped") setWalletOpen(true);
       if (go === "events") {
         // v5.54 (events pipeline, Phase 3): restore filter state from the
         // shared URL, then put /events back in the address bar instead of
@@ -6776,7 +6789,6 @@ function PageInner({ initialEvents = null }) {
   }
   // One-tap save straight to Favorites from a card heart.
   function quickSaveFavorite(p) {
-    if (!requireAuth("Sign up free — your favorites, saved and synced to every device.")) return;
     if (!p) return;
     const fav = lists.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
     const has = fav.places.some((x) => x.id === p.id);
@@ -7475,17 +7487,13 @@ function PageInner({ initialEvents = null }) {
           const _vec = tasteVecRef.current || {};
           if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
-          // Personalize ONLY with explicit consent (Phase 2). Without it, the
-          // feed is pure moment/Score order — same for everyone.
+          // Personalize only after explicit opt-in or an explicit reaction.
+          // Without that, the feed is pure moment/Score order.
           const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
-          // v6.56 (owner: "make the personalization only available after the
-          // user signs in"). `user &&` is the load-bearing half of that
-          // instruction. The switch now lives inside Favorites, which is
-          // sign-in walled — so if the re-ranking still ran while signed out, a
-          // visitor would have a feed quietly reordered by a setting they can
-          // neither see nor turn off. Signed out is now genuinely neutral:
-          // pure moment/Score order, the same feed everyone else gets.
-          const personalized = !!user && personalize === "on" && hasTaste;
+          // The setting and reset controls are available in Favorites before
+          // sign-in. Signing in syncs the same private vector; it is not a
+          // prerequisite for on-device recommendations.
+          const personalized = personalize === "on" && hasTaste;
           const displayList = dedupePlaces(personalized ? applyAffinity(list, affinities) : list, true);
           const likeCount = Object.keys(liked).length;
           const h = siteHourFloat();
@@ -8190,13 +8198,10 @@ function PageInner({ initialEvents = null }) {
         {screen === "experience" && activeBadge && EXPERIENCES[activeBadge] && <ExperienceScreen ctx={ctx} />}
 
         {screen === "coupons" && <CouponsScreen ctx={ctx} />}
-        {/* v5.61 (audit P0): the personal screens never RENDER for a signed-out
-            visitor — the write-action gate (v5.49) wasn't enough; the screen
-            itself is now gated. authReady prevents a flash before auth
-            resolves; while signed out an AuthWall prompts sign-in and the
-            dialog auto-opens (effect below). Coupons stays public (deal
-            browse); only its save action is gated, already, per v5.49. */}
-        {screen === "saved" && (authReady && !user ? <AuthWall label="your Favorites" onSignIn={() => setAuthOpen(true)} /> : <SavedScreen ctx={ctx} />)}
+        {/* Favorites is the on-device control center for explicit reactions.
+            It stays usable before sign-in; the screen offers sign-in only as
+            optional cloud sync. Itinerary remains account-backed. */}
+        {screen === "saved" && <SavedScreen ctx={ctx} />}
         {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}

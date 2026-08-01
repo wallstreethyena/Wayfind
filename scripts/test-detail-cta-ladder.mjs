@@ -115,6 +115,8 @@ const noOffers = {};
   const detailSheet = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
   ok(/<PrimaryActionButton\s+primaryCta=\{primaryCta\}/.test(detailSheet), "detail dock renders the resolved PrimaryActionButton");
   ok((detailSheet.match(/<span>Directions<\/span>/g) || []).length === 1, "detail sheet has only the intentional secondary Directions label");
+  ok(/data-detail-secondary-actions[\s\S]*data-detail-directions[\s\S]*aria-label="Like"[\s\S]*aria-label="Not for me"[\s\S]*aria-label="Share"/.test(detailSheet), "Directions, reactions, and Share share one balanced secondary action bar");
+  ok(!/data-detail-directions[\s\S]{0,300}<\/div>\s*\{!detail\._event/.test(detailSheet), "Directions cannot return to a stranded row above reactions");
 }
 
 if (fail) {
