@@ -10,7 +10,7 @@ const cli = readFileSync(new URL("../app/components/TrendingNowClient.js", impor
 ok(cli.includes('supabase.rpc("wf_buzz_picks"'), "the page reads the real popularity RPC");
 ok(cli.includes('fetch("/api/buzz/why"'), "each row's editorial is written by the LLM in the Wayfind voice");
 ok(cli.includes('(r.sources_count || 0) >= 1'), "only places with a real signal appear — honest gating");
-ok(cli.includes("RankedRow") && cli.includes("RankedExperiencePage"), "same /best-beaches standard shell + rows");
+ok(cli.includes("IconicPlaceCard") && cli.includes("CollectionFilter") && cli.includes("RankedExperiencePage"), "trending uses the editorial shell, shared filter and canonical place cards");
 ok(cli.includes("never door counts or paid placement"), "the footnote states the honest measure");
 const pg = readFileSync(new URL("../app/trending-now/page.js", import.meta.url), "utf8");
 ok(/robots: \{ index: false/.test(pg), "the personal/dynamic page is noindex");

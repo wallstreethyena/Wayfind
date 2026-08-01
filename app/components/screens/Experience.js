@@ -3,10 +3,11 @@
 // PageInner aliases cityFixM as "cityFix" locally; this file calls
 // ctx.cityFixM directly (same function, already flowing through ctx).
 import { C, PlaceScoreChip } from "../kit";
-import CollectionHero, { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
+import { HeroPill, HeroIconButton, HeroCta } from "../CollectionHero";
+import EditorialLandingHero, { editorialHeroCss } from "../EditorialLandingHero";
 import { byTopRated } from "../../../lib/ranking";
 import { shareTextFor } from "../../../lib/shareCards";
-import { CouponStrip, PerfectRightNow, Methodology } from "../ExperienceBlocks";
+import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "../ExperienceBlocks";
 import { nowContext, siteHourFloat } from "../../../lib/nowContext.js";
 import { experienceHeader } from "../../../lib/collectionHeader.js";
 import { areaSeasonalContext } from "../../../lib/areaSeasonalContext.js";
@@ -21,14 +22,10 @@ export default function ExperienceScreen({ ctx }) {
           else if (expSort === "rated") list = [...list].sort(byTopRated); // v6.42 (owner, PERMANENT): Top rated = displayed Wayfind Score ONLY. The old distance penalty (-1.3/mi past 4, cap 30) is REMOVED — it made 9.4 sit above 9.8 ("Top Rated Near You", Parrish repro)
           else if (expSort === "price") list = [...list].sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
           else list = [...list].sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
-          // v6.47 (owner): THE universal collection look. The flat "‹ Back +
-          // three grey circles + 30px title" header is replaced by the same
-          // CollectionHero /trending-now wears — full-bleed photo, coral
-          // eyebrow, 34px headline, prose lead, one coral CTA. Every control
-          // that was here survives: Back is the glass pill top-left, See-on-map
-          // and Save-to-lists are the glass circles top-right, and Share is
-          // promoted to the coral pill (it is the action this screen exists to
-          // drive). No wordmark — the app topbar already carries it one row up.
+          // The eight home category chips use the beach-inspired editorial
+          // header system while preserving this screen's exact PlaceCard list.
+          // Back and Share remain primary; map and save move directly below the
+          // hero so the headline stays concise.
           //
           // EXPERIENCES rows carry no heroImage (app/home.js:880), so the photo
           // comes from the list itself, falling back to a tour image. A hero
@@ -50,40 +47,38 @@ export default function ExperienceScreen({ ctx }) {
           const shareThisList = () => { shareLink(cityFixM(exp.title), listShareUrl(activeBadge, cityFixM(exp.title), list.length, locName), () => showToast("Link copied"), shareTextFor(activeBadge, cityFixM(exp.title)), () => { try { logEvent("share", null, { kind: "list", theme: activeBadge }); } catch (e) {} giveawayMark("list:" + activeBadge); }); };
           const headerCity = locName ? locName.split(",")[0] : "your area";
           const headerArea = areaSeasonalContext(headerCity, currentSeason());
-          const header = experienceHeader(activeBadge, exp, headerCity, headerArea && headerArea.area_known_for);
+          const header = experienceHeader(activeBadge, exp, headerCity, headerArea);
           const momentContext = nowContext({ city: headerCity, weather });
           return (
             <div>
-              <CollectionHero
-                wordmark={false}
-                height={278}
-                bleed="-7px -12px 14px"
+              <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-experience-editorial") }} />
+              <EditorialLandingHero
+                prefix="wf-experience-editorial"
                 heroImg={heroImg}
-                accent={C.accent}
-                eyebrow={header.eyebrow}
-                titleTop={header.title}
-                subtitle={header.deck}
-                titleSize={30}
-                titleLines={3}
-                topLeft={(
-                  <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2 }}>
-                    <HeroPill ariaLabel="Back" onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }}>‹ Back</HeroPill>
-                  </div>
+                imageKicker={header.imageKicker}
+                imageTitle={header.imageTitle}
+                toplineLeft={header.eyebrow}
+                toplineRight={headerCity}
+                headlineId="wf-experience-title"
+                headline={header.title}
+                dekLead={header.dekLead}
+                dekBody={header.deck}
+                backControl={(
+                  <HeroPill ariaLabel="Back" onClick={() => { setActiveBadge(null); setIntent(null); setBrowseCat(null); setScreen("suggested"); try { window.scrollTo(0, 0); } catch (e) {} }}>‹ Back</HeroPill>
                 )}
-                topRight={(
-                  <div style={{ position: "absolute", top: 12, right: 12, zIndex: 2, display: "flex", alignItems: "center", gap: 8 }}>
-                    {mappable.length ? (
-                      <HeroIconButton ariaLabel="See this list on the map" title="See on map" onClick={() => { setMapListOverride(mappable.slice(0, 20)); setScreen("map"); try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 20), inapp: 1 }); } catch (e) {} }}>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg>
-                      </HeroIconButton>
-                    ) : null}
-                    <HeroIconButton active={listLiked} ariaLabel={listLiked ? "Saved to lists" : "Save to lists"} title={listLiked ? "Saved to lists" : "Save to lists"} onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFixM(exp.title), label: cityFixM(exp.title) }, list); }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill={listLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
-                    </HeroIconButton>
-                  </div>
-                )}
-                cta={<HeroCta accent={C.accent} ariaLabel="Share list" onClick={shareThisList}>↗ Share this list</HeroCta>}
+                actionSlot={<HeroCta accent={C.accent} ariaLabel="Share list" onClick={shareThisList}>↗ Share this list</HeroCta>}
+                trustLines={[]}
               />
+              <div aria-label="List tools" style={{ display: "flex", justifyContent: "flex-end", gap: 8, margin: "0 0 12px" }}>
+                {mappable.length ? (
+                  <HeroIconButton ariaLabel="See this list on the map" title="See on map" onClick={() => { setMapListOverride(mappable.slice(0, 20)); setScreen("map"); try { logEvent("maps_list", null, { theme: activeBadge, n: Math.min(list.length, 20), inapp: 1 }); } catch (e) {} }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3.6 5.4A1 1 0 0 0 3 6.3V20l6-2.5 6 2.5 5.4-2.4a1 1 0 0 0 .6-.9V3l-6 2.5Z" /><path d="M9 3v14.5" /><path d="M15 5.5V20" /></svg>
+                  </HeroIconButton>
+                ) : null}
+                <HeroIconButton active={listLiked} ariaLabel={listLiked ? "Saved to lists" : "Save to lists"} title={listLiked ? "Saved to lists" : "Save to lists"} onClick={() => { toggleHookLike("badge-" + activeBadge); saveHookList({ id: "badge-" + activeBadge, key: activeBadge, title: cityFixM(exp.title), label: cityFixM(exp.title) }, list); }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={listLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20 C12 20 4 14.6 4 9.2 C4 6.4 6.1 4.3 8.6 4.3 C10.3 4.3 11.5 5.4 12 6.5 C12.5 5.4 13.7 4.3 15.4 4.3 C17.9 4.3 20 6.4 20 9.2 C20 14.6 12 20 12 20 Z" /></svg>
+                </HeroIconButton>
+              </div>
               {/* v6.17 deals strip, v6.72 EXTRACTED. The markup moved to
                   app/components/ExperienceBlocks.js so all nine intent pages and
                   this sheet render one strip from one file. Behaviour is
@@ -101,8 +96,6 @@ export default function ExperienceScreen({ ctx }) {
               {!expLoading && momentPicks && momentPicks.badge === activeBadge
                 ? <PerfectRightNow picks={momentPicks.picks} places={expPlaces} durablePlaces={list} context={momentContext} onOpenPlace={openDetail} />
                 : null}
-              {/* v6.72 EXTRACTED — one methodology sentence, verbatim, everywhere. */}
-              <Methodology />
               {/* Moment fix (MOMENT_PICKS_DIAGNOSIS.md, Phase 3): never instruct
                   "Tap any" at zero — the count line only shows when there's
                   something to tap. */}
@@ -168,6 +161,7 @@ export default function ExperienceScreen({ ctx }) {
               {!expLoading && list.map((p, i) => (
                 <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} selectedBadge={activeBadge} />
               ))}
+              <ScoreDisclosure />
             </div>
           );
 }

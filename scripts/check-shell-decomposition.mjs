@@ -41,8 +41,8 @@ for (const f of ["app/components/css.js", "app/components/curatedData.js"]) {
 {
   const f = "app/components/CollectionHero.js";
   ok(files.includes(f), `${f} is registered in shellSrc — unregistered, the hero markup that left screens/Experience.js drops out of every content guardrail's grep set`);
-  ok(read("app/components/screens/Experience.js").includes("../CollectionHero"), "screens/Experience.js still imports CollectionHero — the in-app collection look IS that component");
-  ok(read("app/components/RankedExperiencePage.js").includes("./CollectionHero"), "RankedExperiencePage still imports CollectionHero — one hero, so /trending-now and the in-app screen cannot drift apart");
+  ok(read("app/components/screens/Experience.js").includes("../EditorialLandingHero"), "screens/Experience.js uses the shared editorial hero for category-chip sheets");
+  ok(read("app/components/RankedExperiencePage.js").includes("./EditorialLandingHero"), "RankedExperiencePage uses the same editorial hero, so destination and in-app sheets cannot drift apart");
 }
 
 // 3) curatedData.js is DATA ONLY. The moment a predicate lands in it, someone has

@@ -111,7 +111,7 @@ export function BeachLiveChips({ id, lat, lng }) {
 
 // Back control (spec §3): history when it exists, parent fallback otherwise;
 // sticky and quiet. Never ejects off-site — the fallback is always ours.
-export function BackControl({ fallback }) {
+export function BackControl({ fallback, variant = "sticky" }) {
   const go = () => {
     try {
       const sameOrigin = document.referrer && new URL(document.referrer).origin === window.location.origin;
@@ -120,6 +120,6 @@ export function BackControl({ fallback }) {
     window.location.assign(fallback || "/");
   };
   return (
-    <button className="wf-back-control" onClick={go} aria-label="Back" style={{ position: "sticky", top: 10, zIndex: 40, marginLeft: 14, display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "7px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(4,8,16,.55)", color: "#F1F5F9", fontSize: 13, fontWeight: 700, cursor: "pointer", backdropFilter: "blur(6px)" }}>← Back</button>
+    <button className="wf-back-control" onClick={go} aria-label="Back" style={{ position: variant === "editorial" ? "static" : "sticky", top: variant === "editorial" ? "auto" : 10, zIndex: 40, marginLeft: variant === "editorial" ? 0 : 14, display: "inline-flex", alignItems: "center", gap: 6, minHeight: 36, padding: "7px 14px", borderRadius: 999, border: "1px solid rgba(255,255,255,.18)", background: "rgba(4,8,16,.55)", color: "#F1F5F9", fontSize: 13, fontWeight: 700, cursor: "pointer", backdropFilter: "blur(6px)" }}>← Back</button>
   );
 }

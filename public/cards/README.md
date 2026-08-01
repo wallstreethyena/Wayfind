@@ -15,6 +15,7 @@ images.
 | `shopping-v1.png` | Shopping and retail shares |
 | `night-out.jpg`, `where-to-eat.jpg`, `hidden-gems.jpg`, `outdoors.jpg`, `family-fun.jpg` | Existing experience-specific shares (`date-night.jpg` was removed once its only reference turned out to be a misassignment on /hidden-gems) |
 | `hidden-gems-adobestock-190689119.jpeg`, `outdoors-hero-leviguzman.jpg`, `tonight-adobestock-449175608.jpeg`, `beach-adobestock-955441300.jpeg` | Page/sheet hero art. Resized to ~1600px wide: these render through a plain `<img>`, not `next/image`, so the file on disk is the payload the browser downloads. |
+| `tonight-alfonso-scarpa-unsplash.jpg` | Perfect-for-tonight sheet hero. Photo by Alfonso Scarpa, supplied by the owner from Unsplash; resized to 1800px wide for delivery. |
 | `coupon-share.png`, `world-cup.png` | Finished specialized share cards |
 
 Each image is 1200 × 630 and intentionally keeps the right side visually quiet

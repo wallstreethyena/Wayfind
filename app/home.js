@@ -5153,7 +5153,8 @@ function PageInner({ initialEvents = null }) {
     try { params = new URLSearchParams(window.location.search); } catch { return; }
     const listStr = params.get("list");
     const placeId = params.get("place");
-    if (placeId) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
+    const placeAction = ["save", "like", "dislike"].includes(params.get("action")) ? params.get("action") : null;
+    if (placeId) { try { const _sp = new URLSearchParams(window.location.search); _sp.delete("place"); _sp.delete("action"); const _qs = _sp.toString(); window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : "")); } catch (e) {} }
     if (listStr) {
       const pl = decodeList(listStr);
       if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
@@ -5162,7 +5163,12 @@ function PageInner({ initialEvents = null }) {
       markShareOpen();
       (async () => {
         const p = await fetchPlaceById(placeId);
-        if (p) openDetail(p);
+        if (p) {
+          if (placeAction === "save") quickSaveFavorite(p);
+          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, p);
+          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, p);
+          openDetail(p);
+        }
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

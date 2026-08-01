@@ -6,7 +6,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { INTENT_PAGES, intentHeader } from "../lib/intentPages.js";
-import { buildCollectionHeader, experienceHeader } from "../lib/collectionHeader.js";
+import { buildCollectionHeader, editorialIntentHeader, experienceHeader } from "../lib/collectionHeader.js";
 import { nowContext } from "../lib/nowContext.js";
 import { areaSeasonalContext } from "../lib/areaSeasonalContext.js";
 
@@ -33,6 +33,22 @@ ok((gems.deck.match(/[.!?]/g) || []).length === 1, "the primary deck stays one s
 
 const duplicate = buildCollectionHeader({ eyebrow: "Hidden gems in Orlando", title: "Hidden gems in Orlando", deck: "One sentence.", city: "Orlando" });
 ok(duplicate.eyebrow === "", "an eyebrow that merely repeats the headline is suppressed");
+
+// Every hero destination gets an authored experience x place contract rather
+// than one metro paragraph with a different heading pasted above it.
+const intents = ["nearby", "best-of", "hidden-gems", "date-night", "family", "tonight", "worth-the-drive", "budget", "seasonal"];
+const editorial = intents.map((intent) => editorialIntentHeader(intent, "Orlando", local));
+ok(new Set(editorial.map((h) => h.title)).size === intents.length, "all intent headlines are distinct for the same city");
+ok(new Set(editorial.map((h) => h.deck)).size === intents.length, "all intent decks are distinct for the same city");
+for (const h of editorial) {
+  ok(count(h.title, "Orlando") === 1, `editorial title carries Orlando exactly once: '${h.title}'`);
+  ok(h.imageKicker && h.imageTitle && h.dekLead, `editorial header carries its own image and deck language: '${h.title}'`);
+  ok(!/\b(?:you must|you should|go to|do this)\b/i.test(h.deck), `editorial deck informs without ordering the visitor: '${h.deck}'`);
+}
+const tonight = editorialIntentHeader("tonight", "Orlando", local);
+ok(tonight.title === "Orlando after dark, without the guesswork", "tonight names the location and after-dark decision clearly");
+ok(/open and nearby/i.test(tonight.deck), "tonight explains that live fit outranks daytime reputation");
+ok(/afternoon storms/i.test(tonight.deck) && !/day off/i.test(tonight.deck), "tonight uses the seasonal Orlando rhythm without pasting the generic metro line");
 
 // Eight main category sheets all receive a complete, compact, city-aware
 // header. This exercises the same helper screens/Experience.js calls.
@@ -63,20 +79,38 @@ const card = renderToStaticMarkup(createElement(Card, {
   place: { ...places[0], photoRef: "places/abc/photos/def", priceLevel: 2 },
   rank: 1, href: "/p/inside", editorial: "A museum locals use when the afternoon sky opens up.", intentLabel: "Hidden gems",
 }));
-for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Best activities pick", "Hidden gems", "View place", "Share"]) {
+for (const needle of ["Rank 1", "The Gallery", "WAYFIND", "650 reviews", "Moderate", "Best activities pick", "Hidden gems", "Save", "Like The Gallery", "Not for me", "Share"]) {
   ok(card.includes(needle), `iconic card renders '${needle}'`);
 }
-ok(card.includes("clamp(104px,29vw,150px)") && card.includes("minmax(0,1fr)"), "iconic card uses a fluid, shrink-safe 390px grid");
+for (const klass of ["wf-place-card", "wf-place-card-layout", "wf-place-card-score", "wf-place-card-actions", "wf-place-card-save", "wf-place-card-like", "wf-place-card-dislike", "wf-place-card-share"]) {
+  ok(new RegExp(`class="[^"]*\\b${klass}\\b`).test(card), `iconic card uses canonical home class '${klass}'`);
+}
+ok(!card.includes("View place") && !card.includes("minHeight:228"), "iconic card does not reintroduce the tall imitation footer");
 
 const intentSource = readFileSync(path.join(ROOT, "app/components/IntentPageClient.js"), "utf8");
 ok(!intentSource.includes("titleBottom={loc.city}"), "the client never appends city unconditionally");
-ok(intentSource.includes("data-collection-filter"), "the ranking keeps a visible functional filter");
+ok(intentSource.includes("<CollectionFilter") && intentSource.includes('from "./CollectionFilter"'), "the ranking keeps the shared functional filter");
 ok(intentSource.includes("<IconicPlaceCard"), "intent rankings use the iconic card instead of thin rows");
 ok(intentSource.indexOf("areaCtx.headline_context") > intentSource.indexOf("<details"), "metro prose lives only in collapsed About city content below the list");
+ok(intentSource.includes("footerSlot={<ScoreDisclosure />}") && !intentSource.includes("<Methodology />"), "intent sheets render one glass-box disclosure instead of a duplicate methodology line");
+
+const disclosure = renderToStaticMarkup(createElement(Blocks.ScoreDisclosure));
+ok(disclosure.includes("The glass-box score") && disclosure.includes("published editorial opinion"), "the disclosure states the glass-box policy and editorial-opinion framing");
+ok(disclosure.includes('href="/how-wayfind-ranks"'), "the disclosure links to the published ranking method");
+
+const experienceSource = readFileSync(path.join(ROOT, "app/components/screens/Experience.js"), "utf8");
+ok((experienceSource.match(/<ScoreDisclosure\s*\/>/g) || []).length === 1 && !experienceSource.includes("<Methodology />"), "category sheets also render exactly one glass-box disclosure");
+
+const rankedSource = readFileSync(path.join(ROOT, "app/components/RankedExperiencePage.js"), "utf8");
+ok(rankedSource.includes("WF_PLACE_CARD_CSS"), "ranked sheets load the exact shared home place-card CSS");
+ok(rankedSource.includes('prefix="wf-intent-editorial"'), "intent sheets use a separate editorial prefix from the untouched beach sheet");
+
+const intentPagesSource = readFileSync(path.join(ROOT, "lib/intentPages.js"), "utf8");
+ok((intentPagesSource.match(/tonight-alfonso-scarpa-unsplash\.jpg/g) || []).length === 2, "tonight page and share card use the supplied Alfonso Scarpa image");
 
 if (fails.length) {
   console.error(`test-intent-header-clarity: FAIL — ${fails.length}/${n}`);
   for (const failure of fails) console.error("  · " + failure);
   process.exit(1);
 }
-console.log(`test-intent-header-clarity: OK — ${n} assertions (3 regression titles, 8 category headers, current reasons, redundant suppression, iconic cards, filter, 390px contract)`);
+console.log(`test-intent-header-clarity: OK — ${n} assertions (3 regression titles, 8 category headers, current reasons, one glass-box disclosure, iconic cards, filter, 390px contract)`);

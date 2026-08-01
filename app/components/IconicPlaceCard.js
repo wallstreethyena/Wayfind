@@ -1,10 +1,8 @@
 "use client";
 
-// A portable, explicit-props version of the visual language used by the home
-// PlaceCard. The full home card is intentionally stateful and remains in
-// app/home.js; collection pages use this presentational card so the photo,
-// rank, score, evidence and actions travel together without importing hidden
-// app state.
+// Portable renderer for the canonical home PlaceCard visual contract. The
+// classes and geometry come from WF_PLACE_CARD_CSS; keeping those names here
+// means collection cards cannot quietly become a second, taller card system.
 import { WayfindScoreBadge } from "./kit";
 import { businessStatus } from "../../lib/businessStatus";
 import { coarseCat } from "../../lib/ranking";
@@ -12,24 +10,28 @@ import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 
-const C = {
-  card: "#111827", border: "rgba(255,255,255,.13)", text: "#F8F5EE",
-  light: "#B7C0D1", muted: "#8791A4", accent: "#F97316",
-  gold: "#E8C97A", green: "#4ADE80",
-};
-
 const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
   : String(Number(n) || 0);
 
-const photoUrl = (p) => p && p.photoRef
-  ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640"
-  : null;
+const photoUrl = (p) => {
+  if (p && p.photoRef) return "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&w=640";
+  if (p && typeof p.photo === "string") return p.photo;
+  return null;
+};
+
+const ThumbIcon = ({ down = false }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {down
+      ? <><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></>
+      : <><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></>}
+  </svg>
+);
 
 export default function IconicPlaceCard({ place, rank, href, editorial, badge, intentLabel, rankingNote, onShare }) {
   if (!place) return null;
-  const score = toDisplayScore(wayfindScore(place.rating, place.reviews));
-  const category = coarseCat(place) || "Local pick";
+  const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
+  const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
   const status = businessStatus({
     ...place,
     oh: place.oh || place.regularOpeningHours || null,
@@ -39,47 +41,60 @@ export default function IconicPlaceCard({ place, rank, href, editorial, badge, i
   const distance = Number.isFinite(Number(place.distMi))
     ? (Number(place.distMi) < 10 ? Number(place.distMi).toFixed(1) : Math.round(Number(place.distMi))) + " mi"
     : null;
-  const facts = [place.reviews ? compactCount(place.reviews) + " reviews" : null, priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum), state, distance].filter(Boolean);
+  const facts = [
+    place.reviews ? compactCount(place.reviews) + " reviews" : null,
+    priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum),
+    state,
+    distance,
+  ].filter(Boolean);
   const award = rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
-  const take = editorial || ("Our #" + rank + " pick — " + (place.rating || "strong") + "★ with " + compactCount(place.reviews) + " reviews, ranked on evidence rather than hype.");
+  const take = editorial || ("Our #" + rank + " pick — " + (place.rating || "strong") + "★ with " + compactCount(place.reviews) + " reviews, and it holds up.");
+  const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
+  const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
+  const isCuratorPick = !!(place._members && place._members.ownerPick);
 
   return (
-    <li style={{ listStyle: "none", marginBottom: 14 }}>
-      <article data-iconic-place-card style={{ overflow: "hidden", background: "linear-gradient(145deg,#151E2D,#0D1420)", border: "1px solid rgba(232,201,122,.32)", borderRadius: 20, boxShadow: "0 16px 40px rgba(0,0,0,.22)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "clamp(104px,29vw,150px) minmax(0,1fr)", minWidth: 0 }}>
-          <a href={href} aria-label={"Open " + place.name} style={{ position: "relative", minHeight: 228, background: "linear-gradient(145deg,#263145,#121927)" }}>
-            {photoUrl(place) ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-            <span aria-label={"Rank " + rank} style={{ position: "absolute", top: 14, left: 14, width: 48, height: 48, borderRadius: 16, display: "grid", placeItems: "center", background: "rgba(4,8,16,.86)", border: "1px solid rgba(255,255,255,.15)", color: C.text, fontSize: 21, fontWeight: 900, boxShadow: "0 8px 20px rgba(0,0,0,.28)" }}>{rank}</span>
-          </a>
-          <div style={{ minWidth: 0, padding: "18px 16px 14px" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) auto", gap: 10, alignItems: "start" }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ color: C.gold, fontSize: 10.5, fontWeight: 900, letterSpacing: "1.8px", textTransform: "uppercase", overflowWrap: "anywhere" }}>— {category}</div>
-                <h2 style={{ fontSize: "clamp(18px,5vw,25px)", lineHeight: 1.08, margin: "7px 0 0", overflowWrap: "anywhere" }}><a href={href} style={{ color: C.text, textDecoration: "none" }}>{place.name}</a></h2>
-              </div>
-              <WayfindScoreBadge score={score} />
+    <li data-iconic-place-card className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}`} style={{ listStyle: "none" }}>
+      <div className="wf-place-card-layout">
+        {photoUrl(place)
+          ? <img src={photoUrl(place)} alt="" loading="lazy" style={{ objectFit: "cover" }} />
+          : <div className="wf-place-card-monogram" aria-hidden="true">{initials}</div>}
+        <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
+            <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span>
+            <div className="wf-place-card-heading">
+              <span className="wf-place-card-category">{category}</span>
+              <a className="wf-place-card-name" href={href} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
             </div>
+            {score != null ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div> : null}
+          </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 8px", color: C.light, fontSize: 12.5, lineHeight: 1.45, marginTop: 13 }}>
-              {facts.map((fact, i) => <span key={fact} style={{ color: fact === "Open" ? C.green : fact === "Closed" ? "#FB7185" : C.light }}>{i ? "· " : ""}{fact}</span>)}
+          <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+            {facts.map((fact) => <span key={fact} style={{ color: fact === "Open" ? "#22C55E" : fact === "Closed" ? "#EF4444" : undefined }}>{fact}</span>)}
+          </div>
+
+          {award ? (
+            <div className={`wf-place-card-award is-rank-${rank}`}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{rank === 1 ? "🏆" : rank}</span>
+              <span>{award}</span>
             </div>
+          ) : null}
 
-            {award ? <div style={{ display: "inline-flex", marginTop: 13, padding: "7px 12px", borderRadius: 999, border: "1px solid rgba(232,201,122,.55)", color: C.gold, fontSize: 10.5, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase" }}>🏆 {award}</div> : null}
+          <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+            {intentLabel ? <span>{intentLabel}</span> : null}
+            {badge || null}
+          </div>
+          <div className="wf-place-card-take">{take}</div>
+          {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 12 }}>
-              {intentLabel ? <span style={{ padding: "5px 10px", borderRadius: 999, border: "1px solid rgba(249,115,22,.48)", color: "#F7C79E", fontSize: 11.5, fontWeight: 750 }}>{intentLabel}</span> : null}
-              {badge || null}
-            </div>
-
-            <p style={{ borderLeft: "3px solid " + C.accent, color: C.light, fontSize: 12.5, lineHeight: 1.45, margin: "13px 0 0", paddingLeft: 10, overflowWrap: "anywhere" }}>{take}</p>
-            {rankingNote ? <p style={{ color: C.muted, fontSize: 11.5, lineHeight: 1.4, margin: "7px 0 0" }}>{rankingNote}</p> : null}
+          <div className="wf-place-card-actions" style={{ display: "flex" }}>
+            <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}>♡ Save</a>
+            <a className="wf-place-card-like" href={actionHref("like")} aria-label={"Like " + place.name} title="Like this place"><ThumbIcon /></a>
+            <a className="wf-place-card-dislike" href={actionHref("dislike")} aria-label={"Not for me: " + place.name} title="Not for me"><ThumbIcon down /></a>
+            <button className="wf-place-card-share" type="button" aria-label={"Share " + place.name} onClick={() => onShare && onShare(place)}>↗ Share</button>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 8, borderTop: "1px solid " + C.border, padding: "10px 12px", background: "rgba(4,8,16,.28)" }}>
-          <a href={href} style={{ display: "grid", placeItems: "center", minHeight: 40, borderRadius: 12, border: "1px solid " + C.border, color: C.text, fontSize: 12.5, fontWeight: 850, textDecoration: "none" }}>View place</a>
-          <button type="button" aria-label={"Share " + place.name} onClick={() => onShare && onShare(place)} style={{ minWidth: 80, minHeight: 40, borderRadius: 12, border: "1px solid " + C.border, background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 850, cursor: "pointer" }}>↗ Share</button>
-        </div>
-      </article>
+      </div>
     </li>
   );
 }

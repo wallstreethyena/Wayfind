@@ -5,11 +5,12 @@
 // photo (a quiet wordmark link instead); medals top-3; green Scores;
 // metric-honest why-lines arrive from the caller.
 //
-// v6.47: the <header> moved to ./CollectionHero so the IN-APP experience
-// screen can wear the identical chrome (owner: "i want that to be the
-// universal look"). Same markup, same props, same output — this file just
-// stopped owning it.
-import CollectionHero from "./CollectionHero";
+// The beach landing remains the visual reference but not an implementation
+// dependency. EditorialLandingHero is the shared, subject-neutral extraction;
+// this page gives it a separate class namespace so changing an intent sheet
+// cannot restyle /best-beaches.
+import EditorialLandingHero, { editorialHeroCss } from "./EditorialLandingHero";
+import { WF_PLACE_CARD_CSS } from "./css";
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
 const MEDAL = ["#E8C97A", "#C7CCD6", "#B8804A"];
@@ -72,13 +73,46 @@ export function RankedRow({ i, href, onClick, img, imgEl, title, score, why, edi
   );
 }
 
-export default function RankedExperiencePage({ eyebrow, titleTop, titleBottom, subtitle, heroImg, accent, children, footNote, topLeft }) {
+export default function RankedExperiencePage({
+  eyebrow,
+  titleTop,
+  titleBottom,
+  subtitle,
+  heroImg,
+  children,
+  footNote,
+  footerSlot = null,
+  topLeft,
+  location,
+  imageKicker = "THE WAYFIND LOCAL EDITION",
+  imageTitle = "A better plan starts with the right shortlist.",
+  dekLead = "Know what earns the stop.",
+  actionSlot = null,
+  trustLines = ["Ranked from real evidence, never paid placement.", "The Wayfind Score does not change for advertisers."],
+}) {
+  const title = titleBottom ? <>{titleTop}<br />{titleBottom}</> : titleTop;
   return (
     <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      <CollectionHero eyebrow={eyebrow} titleTop={titleTop} titleBottom={titleBottom} subtitle={subtitle} heroImg={heroImg} accent={accent} topLeft={topLeft} />
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "18px 20px 60px" }}>
+      <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-intent-editorial") + WF_PLACE_CARD_CSS }} />
+      <EditorialLandingHero
+        prefix="wf-intent-editorial"
+        backControl={topLeft}
+        heroImg={heroImg}
+        imageKicker={imageKicker}
+        imageTitle={imageTitle}
+        toplineLeft={eyebrow}
+        toplineRight={location}
+        headlineId="wf-intent-title"
+        headline={title}
+        dekLead={dekLead}
+        dekBody={subtitle}
+        actionSlot={actionSlot}
+        trustLines={trustLines}
+      />
+      <div style={{ maxWidth: 880, margin: "0 auto", padding: "22px 20px 60px" }}>
         {children}
         {footNote ? <p style={{ fontSize: 11, color: C.muted, marginTop: 26, lineHeight: 1.5 }}>{footNote}</p> : null}
+        {footerSlot}
       </div>
     </main>
   );

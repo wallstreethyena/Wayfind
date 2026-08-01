@@ -7,10 +7,11 @@
 // shows only places carrying real popularity signals.
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import RankedExperiencePage, { RankedRow } from "./RankedExperiencePage";
+import RankedExperiencePage from "./RankedExperiencePage";
+import IconicPlaceCard from "./IconicPlaceCard";
+import CollectionFilter from "./CollectionFilter";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { supabase } from "../../lib/supabase";
-import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { rankByHour, timeFit } from "../../lib/trendingTime";
 import { nowContext } from "../../lib/nowContext.js";
@@ -22,6 +23,8 @@ export default function TrendingNowClient() {
   const sp = useSearchParams();
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
+  const [sortBy, setSortBy] = useState("rated");
+  const [radius, setRadius] = useState(17);
 
   const passedRef = useMemo(() => { const v = sp.get("img") || ""; return PHOTO_REF.test(v) ? v : null; /* eslint-disable-next-line */ }, []);
   const loc = useMemo(() => {
@@ -77,33 +80,54 @@ export default function TrendingNowClient() {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
 
+  const sharePlace = async (place) => {
+    const url = canonicalShareUrl("/p/" + encodeURIComponent(place.id));
+    try { if (navigator.share) { await navigator.share({ title: place.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
+  };
+
+  const visibleRows = (rows || []).filter((r) => r.distance_mi == null || r.distance_mi <= radius).slice().sort((a, b) => {
+    if (sortBy === "near") return (a.distance_mi ?? 1e12) - (b.distance_mi ?? 1e12);
+    return wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
+  });
+
   return (
     <RankedExperiencePage
-      topLeft={<BackControl fallback="/" />}
+      topLeft={<BackControl fallback="/" variant="editorial" />}
       eyebrow="Trending near you"
       titleTop="What's drawing people"
       titleBottom={loc.city}
       subtitle={"The places near " + loc.city + " getting the most attention right now — measured by real signals and ordered for the time of day, so what's worth doing this hour rises to the top."}
       heroImg={heroImg}
-      accent="#FF6B6B"
+      location={loc.city}
+      imageKicker="THE WAYFIND LIVE EDITION"
+      imageTitle={"See where " + loc.city + " is moving before the crowd catches up."}
+      dekLead="Follow the signal, not the hype."
+      actionSlot={(
+        <button onClick={share} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, minHeight: 46, padding: "10px 20px", borderRadius: 14, border: "1px solid rgba(17,24,36,.12)", background: "#FF6B6B", color: "#111824", fontSize: 12.5, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
+          {copied ? "Link copied" : "Share what's trending"} <span aria-hidden="true">↗</span>
+        </button>
+      )}
       footNote="Trending is measured from real popularity signals (search interest and cross-platform attention), never door counts or paid placement. The Wayfind Score stays the same for everyone."
     >
-      <button onClick={share} style={{ display: "inline-flex", alignItems: "center", gap: 8, minHeight: 42, padding: "9px 20px", borderRadius: 999, border: "none", background: "#FF6B6B", color: "#0D1117", fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}>
-        {copied ? "Link copied" : "Share what's trending"}
-      </button>
       {rows === null ? (
         <div style={{ marginTop: 18 }}>{[0, 1, 2, 3].map((i) => <div key={i} className="wf-skeleton" style={{ height: 88, borderRadius: 14, marginBottom: 12, background: "#0B0E15" }} />)}</div>
       ) : rows.length ? (
-        <ol style={{ listStyle: "none", margin: "18px 0 0", padding: 0 }}>
-          {rows.map((r, i) => (
-            <RankedRow key={r.place_id} i={i} href={"/p/" + encodeURIComponent(r.place_id)}
-              img={r.photo_ref ? "/api/photo?ref=" + encodeURIComponent(r.photo_ref) + "&w=240" : null}
-              title={r.name}
-              score={r.rating > 0 ? toDisplayScore(wayfindScore(r.rating, r.reviews)) : null}
-              why={(r.distance_mi != null ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : "") + (r.reviews ? " · " + (r.reviews >= 1000 ? (Math.round(r.reviews / 100) / 10) + "k" : r.reviews) + " reviews" : "") + (r.timeFit ? " · " + r.timeFit : "")}
-              editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")} />
-          ))}
-        </ol>
+        <>
+          <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={setRadius} city={loc.city} showPrice={false} />
+          {visibleRows.length ? <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            {visibleRows.map((r, i) => (
+              <IconicPlaceCard key={r.place_id}
+                place={{ ...r, id: r.place_id, photoRef: r.photo_ref, distMi: r.distance_mi, type: r.category, primaryType: r.category, types: r.category ? [r.category] : [] }}
+                rank={i + 1}
+                href={"/p/" + encodeURIComponent(r.place_id)}
+                editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")}
+                intentLabel="Trending now"
+                rankingNote={r.timeFit || null}
+                onShare={sharePlace} />
+            ))}
+          </ol> : <p style={{ margin: "18px 0", fontSize: 13, color: "#8b93a1" }}>No trending picks fall within {radius} miles. Widen the filter to see more.</p>}
+        </>
       ) : (
         <p style={{ marginTop: 18, fontSize: 13, color: "#8b93a1" }}>Nothing is trending near you yet — the signal builds as the popularity engine gathers data. Check back soon.</p>
       )}
