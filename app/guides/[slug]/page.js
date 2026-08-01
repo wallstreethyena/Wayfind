@@ -20,6 +20,13 @@ import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
 import { siteTodayStr } from "../../../lib/siteTime";
+// v6.73 THE DECISION ENGINE ON AN INDEXABLE PAGE. Computed SERVER-SIDE during
+// ISR, which is the entire point: Wayfind's one defensible property is that its
+// answer changes with the hour and the weather, and until now that engine ran
+// only on /tonight, /date-night and seven siblings — all `noindex, nofollow`.
+// The moat was invisible to search and absent from the pages search can see.
+import { nowContext } from "../../../lib/nowContext";
+import { guidePicksForNow, guideNowHeadline, guideNowExplainer, guideWeather, indoorSiblingFor } from "../../../lib/guideNow";
 
 /**
  * Rating + review count for a place from OUR OWN inventory.
@@ -67,6 +74,11 @@ import PremiumIntentHero from "../../components/PremiumIntentHero";
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
 import ExploreBridge from "../../components/ExploreBridge";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
+
+// 15 minutes. Long enough that the weather fetch is nearly free, short enough
+// that "97° right now" is never a lie. A guide whose live block is stale is
+// worse than one with no live block.
+export const revalidate = 900;
 
 export function generateStaticParams() {
   return Object.keys(GUIDES).map((slug) => ({ slug }));
@@ -136,6 +148,19 @@ export default async function GuidePage({ params }) {
   // an offer, a price or a URL of its own, so an unregistered deal has no route
   // onto the page and an expired one is dropped here by couponIsLive rather than
   // rendered as a dead link. Guides that declare nothing are untouched.
+  // Weather for the guide's REGION, fetched during ISR. Fails soft: on any
+  // error nowContext reports weather.known === false and the block renders
+  // nothing at all, leaving the guide exactly as it is today.
+  const wx = await guideWeather(g.region);
+  const nowCtx = nowContext({ city: g.region, weather: wx });
+  const nowResult = guidePicksForNow(g.picks, nowCtx);
+  const nowHeadline = guideNowHeadline(nowCtx, g.region, nowResult);
+  const nowExplainer = guideNowExplainer(nowResult, (g.picks || []).length);
+  // When conditions beat this guide, hand off to a sibling that can answer
+  // rather than leaving the visitor at a dead end.
+  const sibling = (nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK)
+    ? indoorSiblingFor(params.slug, GUIDES) : null;
+
   const today = siteTodayStr();
   const INTENT_CATEGORY = { eatnow: "dining", datenight: "dining", nightout: "drinks", familyfun: "games" };
   const dealCards = (Array.isArray(g.dealCards) ? g.dealCards : [])
@@ -261,6 +286,14 @@ export default async function GuidePage({ params }) {
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#f1ede5}
         .wf-guide-disclosure{font-size:11px;color:#8f98a5;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #263445}
+        /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
+        .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
+        .wf-guide-now-head{font-size:13px;font-weight:800;letterSpacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}
+        .wf-guide-now-why{margin:0;font-size:16px;line-height:1.5;color:#eef1f5}
+        .wf-guide-now-list{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+        .wf-guide-now-list a{color:#f7f2ea;font-weight:650}
+        .wf-guide-now-handoff{background:rgba(56,189,248,.07);border-color:rgba(56,189,248,.30)}
+        .wf-guide-now-handoff a{color:#7DD3FC;font-weight:750}
         .wf-guide-pick{display:grid;grid-template-columns:76px minmax(0,1fr);gap:22px;position:relative;margin:0;padding:31px 4px;border-radius:0;background:transparent;border:0;border-top:1px solid #263445;box-shadow:none;color:#eef1f5}
         .wf-guide-pick:last-of-type{border-bottom:1px solid #263445}
         .wf-guide-number{font:600 49px/1 Georgia,"Times New Roman",serif;color:#68778d;letter-spacing:-2px;padding-top:3px;text-shadow:0 1px 18px rgba(104,119,141,.14)}
@@ -343,6 +376,36 @@ export default async function GuidePage({ params }) {
           Wayfind" STAYS as the non-monetized navigation affordance.
           This deliberately removes live monetized surface area — the bet is
           instrumented in GuideConversion so it is falsifiable within a week. */}
+      {/* ── RIGHT NOW ─────────────────────────────────────────────────────
+          Server-rendered, so it is in the HTML Google indexes — a page whose
+          ranked block genuinely differs by hour and weather, which a static
+          listicle cannot fake and a competitor cannot scrape once and cache.
+          Renders NOTHING when we have no weather or nothing true to say. */}
+      {nowHeadline && nowExplainer ? (
+        <section className="wf-guide-now" aria-label="Right now">
+          <div className="wf-guide-now-head">{nowHeadline}</div>
+          <p className="wf-guide-now-why">{nowExplainer}</p>
+          {nowResult.mode === "gated" && nowResult.kept.length ? (
+            <ol className="wf-guide-now-list">
+              {nowResult.kept.slice(0, 5).map((pk, i) => (
+                <li key={i}><a href={appUrl(pk.appQuery || pk.name)}>{pk.name}</a></li>
+              ))}
+            </ol>
+          ) : null}
+        </section>
+      ) : null}
+      {/* THE HANDOFF. This guide cannot answer today's conditions — say so, and
+          point at the sibling that can. Strictly more useful than a generic
+          "Open in Wayfind", and it is chosen from the indoor data, not a
+          hardcoded pairing. Absent when no sibling qualifies. */}
+      {sibling ? (
+        <section className="wf-guide-now wf-guide-now-handoff" aria-label="Better for these conditions">
+          <p className="wf-guide-now-why">
+            {nowCtx.reason.charAt(0).toUpperCase() + nowCtx.reason.slice(1)} — and most of this guide is outdoors.
+            {" "}<a href={"/guides/" + sibling.slug}>{sibling.title}</a> has {sibling.indoor} picks that work right now.
+          </p>
+        </section>
+      ) : null}
       {g.picks.map((pick, i) => {
         return (
           <section key={i} className="wf-guide-pick">
