@@ -48,7 +48,7 @@ export default function ViatorCommerceLink({
   onClick,
   ...props
 }) {
-  const offerId = t && (t.code || t.productCode);
+  const offerId = t && (t.code || t.productCode || t.product_code);
   const resolvedPlaceId = placeId || (t && (t.placeId || t.id));
   const resolvedQ = q || (t && (t.title || t.name));
   const resolvedCity = city || contentId;

@@ -683,6 +683,20 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
+              {Array.isArray(detail._children) && detail._children.length ? (
+                <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>
+                  <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 4 }}>Included highlights at this destination — not separate places to visit.</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 9 }}>
+                    {detail._children.slice(0, 6).map((child) => (
+                      <span key={child.id || child.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, maxWidth: "100%", padding: "6px 10px", borderRadius: 999, background: C.bg, border: `1px solid ${C.border}`, color: C.text, fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{child.name}</span>
+                        {child.rating != null ? <span style={{ color: C.gold, flexShrink: 0 }}>{child.rating}★</span> : null}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               {/* Featured creator video (Phase 1): curated UGC social proof, credited to the creator and linked out to their real video. Placed UNGATED here (below the action row, above "Why Wayfind picked this") on purpose so it's prominent — the auto-YouTube strip stays inside "show more" below. This sheet is noindex, so the creator's benefit here is traffic: we keep the referrer (rel="noopener", deliberately NOT "noreferrer") so the visit attributes to Wayfind in their analytics. No JSON-LD here; VideoObject lives only on /trending/[city]. */}
               {!detail._event && (() => {
                 const cvs = creatorVideosFor(detail, locName);

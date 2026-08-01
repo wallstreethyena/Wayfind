@@ -23,7 +23,7 @@ import { onIdle } from "../lib/idleTask";
 // itself, so existing event names and history stay exactly as they are.
 // One destination, one card: rides/shops inside a theme park render INSIDE the
 // park's card instead of as peer rows. Ranking is untouched — presentation only.
-import { groupByContainment } from "../lib/venueContainment";
+import { consolidateDestinations } from "../lib/venueContainment";
 import { forwardToGoogle } from "../lib/analytics";
 import { attributionParams } from "../lib/attribution";
 // Primary metric: activated sessions. See lib/activation.js for why page depth
@@ -42,6 +42,7 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 // Tracked Viator link wrapper: routes every bookable card through /api/commerce/go
 // so the server records the handoff and echoes the client click_id.
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
+import { commerceHref } from "../lib/commerce";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
@@ -7111,20 +7112,20 @@ function PageInner({ initialEvents = null }) {
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
   }
   const view = dedupePlaces(dealsOnly ? viewBase.filter((p) => offers[p.id]) : viewBase, !searchMode);
+  // Consolidate the FULL ranked pool before selecting the hero. Doing this
+  // after removing the hero stranded its children as peer recommendations:
+  // SeaWorld could become the hero while Bayside Stadium survived below as if
+  // it were an independently visitable destination. The parent keeps its
+  // original rank and carries its in-park highlights into both card and detail.
+  const consolidatedView = (() => {
+    try { return consolidateDestinations(view).places; }
+    catch (e) { return view; }
+  })();
   // Explore now opens on a single standout, just like the home screen. Prefer a
   // place you can actually go to now; the rest of the ranked list follows below.
-  const exHero = (!loading && view.length > 0) ? (view.find((p) => liveOpen(p) === true) || view[0]) : null;
+  const exHero = (!loading && consolidatedView.length > 0) ? (consolidatedView.find((p) => liveOpen(p) === true) || consolidatedView[0]) : null;
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
-  const restView0 = exHero ? view.filter((p) => p && p.id !== exHero.id) : view;
-  // Collapse in-venue results (rides, in-park shops) into their parent card.
-  // The parent keeps its rank; children ride along on `_children` so every
-  // PlaceCard render site picks them up without threading a new prop.
-  const restView = (() => {
-    try {
-      const { groups } = groupByContainment(restView0);
-      return groups.map(({ place, children }) => (children && children.length ? { ...place, _children: children } : place));
-    } catch (e) { return restView0; }
-  })();
+  const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -7904,7 +7905,7 @@ function PageInner({ initialEvents = null }) {
                         <ViatorCommerceLink
                           t={homeExp}
                           surface="home_bookable_card"
-                          contentId={metro}
+                          contentId={cityNow}
                           rank={1}
                           onClick={(e, clickId) => { try { logEvent("tickets_out", null, { kind: "home_bookable", code: homeExp.code, click_id: clickId }); } catch (er) {} }}
                           style={{ display: "flex", gap: 12, alignItems: "stretch", background: C.card, border: `1px solid ${C.border}`, borderRadius: RADII.card, overflow: "hidden", textDecoration: "none", color: "inherit", marginBottom: 14, boxShadow: SHADOW.card }}
@@ -7972,7 +7973,7 @@ function PageInner({ initialEvents = null }) {
                       orderDealsByScope holds them below the local inventory. */}
                   {browseCat === "hotels" && center && <UTDealsRail category="travel" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
                   {browseCat === "attractions" && center && <UTDealsRail category="more" onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} />}
-                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const u = r.kind === "experience" ? r.booking_url : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
+                  {browseCat === "attractions" && (sub === "all" || !sub) && <ThingsToDoList center={center} city={cityNow} weather={weather} onOpenPlace={(p) => openDetail(p, "ttd")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} blurbs={blurbs} loadBlurbs={loadBlurbs} onSave={(p) => { try { quickSaveFavorite(p); } catch (e) {} }} liked={liked} disliked={disliked} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(r) => { try { const offer = r.product_code || r.code; const path = offer ? commerceHref({ provider: "viator", offerId: offer, surface: "ttd_share", contentId: cityNow }) : Aff.experienceGoUrl(r.title, cityNow, "attractions", r.id, { surface: "ttd_share", contentId: cityNow }); const u = r.kind === "experience" && path ? originUrl(path) : originUrl("/p/" + encodeURIComponent(r.id)); shareLink(r.title + " — found on Wayfind", u, () => showToast("Link copied")); } catch (e) {} }} />}
                   {/* v6.43 (sparse-category honesty): while the query lands, show card-shaped
                       skeletons so the feed visibly COMPLETES instead of a spinner over a
                       list that silently shrinks (Family 60->13 mid-render read as frozen). */}

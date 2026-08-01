@@ -141,10 +141,9 @@ ok(/browseCat === "attractions" && center && sub && sub !== "all" && <BookableEx
 // NEXT_PUBLIC_VIATOR_PID is unset, which converts and pays us nothing. So the
 // intent is kept and inverted: the wrapper must be present, AND the raw-URL
 // fallback must be gone (AGENTS.md §6b — fail closed at the decision point).
-ok(/Aff\.viatorDirectUrl\(t\.url\)/.test(home), "rail hrefs still route through the affiliate wrapper");
-ok(!/Aff\.viatorDirectUrl\(t\.url\)\s*\|\|/.test(home), "rail hrefs must NOT fall back to the raw t.url — that is a working, unattributed link");
-ok(ttd.includes("viatorDirectUrl(r.booking_url)"), "TTD tour cards still route through the affiliate wrapper");
-ok(!/viatorDirectUrl\(r\.booking_url\)\s*\|\|/.test(ttd), "TTD tour cards must NOT fall back to the raw booking_url — unattributed bookings earn nothing");
+ok(ttd.includes("ViatorCommerceLink") && /surface="ttd_ranked_card"/.test(ttd), "TTD tour cards route through the tracked server redirect");
+ok(!/viatorDirectUrl\(r\.booking_url\)/.test(ttd) && !/href=\{r\.booking_url\}/.test(ttd), "TTD tour cards never expose the raw booking URL — attribution cannot be bypassed");
+ok(/contentId=\{city\}/.test(ttd) && /rank=\{rank\}/.test(ttd), "TTD commerce events retain city and visible rank context");
 ok(ttd.includes("r.editorial_hook"), "TTD cards lost the verified editorial hook line");
 
 // THE TASTE CONTROLS. This rail is what the homepage's Activities tab leans on,

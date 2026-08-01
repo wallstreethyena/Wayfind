@@ -119,46 +119,28 @@ ok(rail.includes("Top-rated experiences"), "ViatorRail renders its title");
 // FTC + attribution, both load-bearing. v6.44: this rail once rendered a raw
 // t.url while its sibling wrapped the identical payload, so every booking from
 // that surface earned nothing.
-ok(/rel="noreferrer sponsored"/.test(rail), "ViatorRail keeps rel='noreferrer sponsored' — an FTC requirement, not styling");
+ok(/rel="noopener sponsored nofollow"/.test(rail), "ViatorRail keeps sponsored/nofollow affiliate rel metadata");
 ok(/may earn a commission/.test(rail), "ViatorRail keeps the commission disclosure");
-// THE v6.44 REVENUE HOLE. This rail once rendered a raw t.url while its sibling
-// wrapped the identical payload with viatorDirectUrl(), so every booking from
-// that surface earned nothing.
-//
-// Asserted against viatorDirectUrl's OWN OUTPUT rather than against the presence
-// of a tracking parameter, because whether a parameter appears depends on the
-// VIATOR partner env var being set. Comparing to the function's return value
-// catches the thing this component IS responsible for: that the href goes
-// THROUGH the affiliate helper at all, in either env state.
-//
-// COMPARE DECODED, NOT RAW (fixed 2026-07-31). React ESCAPES attribute values,
-// so a tracked href renders as
-//     href="...?pid=P00308545&amp;mcid=42383&amp;medium=link"
-// while viatorDirectUrl() returns it with bare `&`. The old raw-substring
-// compare therefore passed ONLY while the helper was a no-op (no PID in env) and
-// went red the moment a real PID was present — the assertion was inverted: red
-// exactly when attribution was WORKING, green when it was not. That is the same
-// false-signal class as the four documented in CLAUDE.md, and it cost a night.
-// Verified directly against renderToStaticMarkup output, not assumed.
-// Entities are decoded with &amp; LAST so a literal "&amp;quot;" in a url cannot
-// double-decode into a quote and silently truncate the comparison.
+// THE REVENUE HOLE. The UI must link to Wayfind's own redirect, not a partner
+// domain. That redirect records the click, validates the destination and keeps
+// click_id joinable through to provider_redirect_started.
 const decodeEntities = (s) => String(s)
   .replace(/&(?:quot|#34|#x22);/gi, '"')
   .replace(/&(?:apos|#39|#x27);/gi, "'")
   .replace(/&(?:lt|#60|#x3c);/gi, "<")
   .replace(/&(?:gt|#62|#x3e);/gi, ">")
   .replace(/&(?:amp|#38|#x26);/gi, "&");
-const { viatorDirectUrl } = await import(path.join(ROOT, "lib/affiliates.js"));
-const expectedHref = viatorDirectUrl(tours[0].url) || tours[0].url;
+const { commerceHref } = await import(path.join(ROOT, "lib/commerce.js"));
+const expectedHref = commerceHref({ provider: "viator", offerId: "T1", surface: "viator_rail" });
 const renderedHrefs = [...rail.matchAll(/href="([^"]*)"/g)].map((m) => decodeEntities(m[1]));
 ok(renderedHrefs.includes(expectedHref),
-  `ViatorRail must route the href through viatorDirectUrl() — the v6.44 revenue hole. Expected href="${expectedHref}", rendered ${JSON.stringify(renderedHrefs)}`);
+  `ViatorRail must route through /api/commerce/go. Expected href="${expectedHref}", rendered ${JSON.stringify(renderedHrefs)}`);
 // The decoder is load-bearing for the assertion above, so it is proven both ways
 // rather than trusted: it must undo React's escaping, and must not mangle a url
 // that never had any.
 ok(decodeEntities("a?x=1&amp;y=2") === "a?x=1&y=2", "self-test: decodeEntities undoes React's &amp; escaping");
 ok(decodeEntities("a?x=1&y=2") === "a?x=1&y=2", "self-test: decodeEntities leaves an unescaped url untouched");
-ok(rail.includes("viator.com"), "sanity: the rail rendered a viator href at all");
+ok(!renderedHrefs.some((href) => /^https?:\/\/(?:www\.)?viator\.com/i.test(href)), "the rail never exposes a raw Viator destination");
 
 const meth = render(createElement(Blocks.Methodology));
 ok(meth.includes("No ads, no paid placement"), "Methodology renders the trust claim");

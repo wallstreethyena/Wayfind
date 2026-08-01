@@ -14,6 +14,8 @@ ok(!/href=\{homeExp\.url\}/.test(h), "the homepage card no longer renders produc
 ok(linkSrc.includes('rel="noopener sponsored nofollow"'), "ViatorCommerceLink carries affiliate rel so every card wrapped by it inherits it");
 ok(linkSrc.includes("commerceHref") && /provider:\s*"viator"/.test(linkSrc), "ViatorCommerceLink builds /api/commerce/go?provider=viator&offer=... hrefs");
 ok(/homeExp && \(/.test(h), "the card is absent when there is no bookable inventory (fails soft)");
+ok(!h.includes("contentId={metro}"), "homepage commerce cards never reference the out-of-scope metro identifier");
+ok(h.includes("contentId={cityNow}"), "homepage commerce cards carry the resolved city without crashing the page");
 
 // HOUR-AWARE pick (owner: don't feature a night activity in the morning; don't
 // stay frozen all day). Locked behaviorally on the extracted pure pick.
