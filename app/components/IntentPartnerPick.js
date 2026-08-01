@@ -95,11 +95,11 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
               <div data-bookable-card-media aria-hidden="true" style={{ position: "relative", height: 86, overflow: "hidden", display: "grid", placeItems: "center", background: `radial-gradient(circle at 72% 18%, ${accent}45, transparent 42%), linear-gradient(145deg, ${accent}26, #111A27 62%, #0B111B)`, borderBottom: `1px solid ${C.border}` }}>
                 <span style={{ color: C.text, fontSize: 10, fontWeight: 850, letterSpacing: "1.2px", textTransform: "uppercase", opacity: .82 }}>Wayfind bookable</span>
                 {pick.image ? <img src={pick.image} alt="" loading="lazy" onError={(event) => { event.currentTarget.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover" }} /> : null}
+                <span data-partner-badge style={{ position: "absolute", top: 7, right: 7, zIndex: 1, padding: "3px 6px", borderRadius: 999, border: "1px solid rgba(255,255,255,.24)", background: "rgba(7,12,20,.82)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 8.5, fontWeight: 800, lineHeight: 1.1, whiteSpace: "nowrap" }}>via {pick.merchant}</span>
               </div>
               <div style={{ padding: "8px 10px" }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, marginBottom: 3 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                   <span style={{ color: accent, fontSize: 8.5, fontWeight: 850, letterSpacing: ".45px", textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{pick.eyebrow}</span>
-                  <span style={{ color: C.muted, fontSize: 8, whiteSpace: "nowrap" }}>via {pick.merchant}</span>
                 </div>
                 <div style={{ color: C.text, fontSize: 12.5, lineHeight: 1.35, fontWeight: 750, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{pick.title}</div>
                 {(pick.fromPrice || pick.duration || (pick.rating > 0 && pick.reviews > 0)) ? (

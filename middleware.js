@@ -71,6 +71,10 @@ export const config = {
     "/api/eats/check",
     "/api/eats/go",
     "/api/viator/tours",
+    // Intent-sheet curated enrichment: exact product artwork and commercial
+    // metadata come from the metered Viator Partner API on cache misses.
+    // Browser-only same-origin XHR, so apply the full request guard.
+    "/api/viator/curated",
     "/api/viator/go",
     // Curator Boost: /api/signals/likes is a same-origin XHR (fetchMemberSignals
     // in app/home.js) that reads likes/events via the service role. No SSR caller,
