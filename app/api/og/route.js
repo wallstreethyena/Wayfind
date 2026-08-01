@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { OG_BG } from "../../../lib/ogbg";
 import { SITE_URL } from "../../../lib/site";
 import { SHARE_CARD_SYSTEM, shareCardFor, shareVisualFor, wcRotation } from "../../../lib/shareCards";
+import * as V2 from "../../../lib/shareCardV2";
+import { nowContext } from "../../../lib/nowContext";
 
 export const runtime = "edge";
 
@@ -38,6 +40,170 @@ export async function GET(req) {
     const signal = <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#FDBA74", fontSize: 16, fontWeight: 800, letterSpacing: 2.3, marginBottom: 18 }}><span style={{ display: "flex", width: 22, height: 3, borderRadius: 999, backgroundColor: O }} />{SHARE_CARD_SYSTEM.eyebrow}</div>;
     const wm = <div style={{ display: "flex", fontSize: 30, fontWeight: 800, color: "#FFFFFF", letterSpacing: 1, marginBottom: 14 }}>wayfind</div>;
     const cta = (label) => <div style={{ display: "flex", marginTop: 34 }}><div style={{ display: "flex", alignItems: "center", backgroundColor: O, color: "#000000", fontSize: 27, fontWeight: 800, padding: "15px 30px", borderRadius: 999 }}>{label}</div></div>;
+
+    // ══ SHARE CARD v2 ═══════════════════════════════════════════════════════
+    // ONE renderer for every list surface. Pages pass DATA — photo + focus,
+    // headline, subline, up to three picks, a deal count — and never layout.
+    // Opt in with ?v=2; the legacy branches below are untouched so the six
+    // existing callers keep working until they are migrated one at a time.
+    //
+    // ANATOMY, top to bottom (docs/share-card-standard.md, merged standard):
+    //   full-bleed photo -> global scrim -> blur-behind glass panel
+    //   logo top-left (composited, never redrawn) -> context pill top-right
+    //   headline -> subline -> three pick cards -> footer + gold CTA
+    if (searchParams.get("v") === "2") {
+      const art = (searchParams.get("art") || "").slice(0, 160);
+      const focus = V2.focusFor(art);
+      // VERTICAL FOCUS IS REQUIRED. An unregistered image renders with NO photo
+      // rather than at a guessed 0.5 — a hardcoded centre is what decapitated
+      // every subject in v1. The card still reads: scrim over the panel colour.
+      const photoOk = !!art && focus !== null;
+      const objPos = V2.objectPosition(focus);
+      const headline = V2.fitHeadline((searchParams.get("t") || "").slice(0, 140));
+      const subline = (searchParams.get("sub") || "").slice(0, 120);
+      const city = (searchParams.get("city") || "").slice(0, 32);
+      const ctaLabel = (searchParams.get("cta") || "SEE THE RANKING").slice(0, 26).toUpperCase();
+
+      // Picks arrive as p1..p3, each "name|meta|score|deal".
+      const rawPicks = [1, 2, 3].map((i) => {
+        const v = searchParams.get("p" + i);
+        if (!v) return null;
+        const [name, meta, score, deal] = String(v).split("|");
+        return { name: (name || "").slice(0, 60), meta: (meta || "").slice(0, 44), score: (score || "").slice(0, 5), deal: (deal || "").slice(0, 30) };
+      }).filter(Boolean);
+      const picks = V2.picksToRender(rawPicks);
+      const deals = V2.dealLabel(searchParams.get("deals"));
+
+      // The pill reads from nowContext — the same source the page ranked with,
+      // so the card at 9am and the card at 9pm are not the same image.
+      const wx = searchParams.get("wx");
+      const ctxNow = nowContext({
+        city,
+        hour: searchParams.get("hour"),
+        weather: wx ? { temp: Number(wx), feels: Number(searchParams.get("feels") || wx) } : null,
+      });
+      const pill = V2.contextPill(ctxNow, city);
+
+      const G = V2.GEO, C = V2.COLOR;
+      const photo = (extra) => (
+        <img src={assetOrigin + art} width={1200} height={630}
+          style={{ position: "absolute", top: 0, left: 0, objectFit: "cover", objectPosition: objPos, ...extra }} />
+      );
+
+      const img = new ImageResponse(
+        <div style={{ width: 1200, height: 630, display: "flex", position: "relative", overflow: "hidden", backgroundColor: C.panel, fontFamily: "sans-serif" }}>
+          {photoOk ? photo({}) : <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", backgroundColor: C.scrim }} />}
+          {/* GLOBAL SCRIM — spec order: photo, scrim, then the glass panel.
+              The real bug behind the washed-out first render was NOT the paint
+              order: Satori silently ignores the `inset` shorthand, so this div
+              AND the panel's 80% blend both had zero size and neither painted.
+              With explicit top/left/width/height they do. Moving the scrim after
+              the panel then double-darkened it into a flat black rectangle,
+              which is exactly what the spec says the panel must not be. */}
+          <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", background: V2.scrimGradient() }} />
+
+          {/* GLASS PANEL, blur-BEHIND. The same photo is drawn again, clipped to
+              the panel band and blurred, then blended 80% toward #070A12. A flat
+              rectangle is not this — the blur is where the premium read comes
+              from, and Satori supports filter: blur() (verified by render). */}
+          <div style={{ position: "absolute", left: 0, right: 0, top: G.panel.top, height: 630 - G.panel.top, display: "flex", overflow: "hidden" }}>
+            {photoOk ? (
+              <img src={assetOrigin + art} width={1200} height={630}
+                style={{ position: "absolute", left: 0, top: -G.panel.top, objectFit: "cover", objectPosition: objPos, filter: `blur(${G.panel.blur}px)` }} />
+            ) : <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex" }} />}
+            <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", display: "flex", backgroundColor: `rgba(7,10,18,${G.panel.blend})` }} />
+            <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: 1, display: "flex", backgroundColor: `rgba(255,255,255,${G.panel.hairline})` }} />
+          </div>
+
+          {/* LOGO — composited from the real asset. NEVER redrawn: the mark is a
+              white lowercase wordmark with an orange dot on the "i" and an
+              OUTLINED orange pin with a ring. Drawing it from memory produced a
+              filled teardrop that was simply wrong. Both dimensions are supplied
+              so Satori never has to fetch it to measure — a failed measure
+              throws AFTER headers and yields a zero-byte 200. */}
+          <img src={assetOrigin + "/brand/wayfind-official-white.png"} width={G.logo.w} height={G.logo.h}
+            style={{ position: "absolute", left: G.logo.x, top: G.logo.y }} />
+
+          {/* CONTEXT PILL — DARK on the photo. The v1 translucent-white pill
+              disappeared over the fireworks; a share card cannot assume the art
+              behind it is dark. */}
+          {pill ? (
+            <div style={{ position: "absolute", right: G.pill.right, top: G.pill.y, display: "flex", alignItems: "center",
+              padding: `${G.pill.padY}px ${G.pill.padX}px`, borderRadius: 999,
+              backgroundColor: "rgba(5,7,14,0.66)", border: "1px solid rgba(255,255,255,0.25)" }}>
+              <div style={{ display: "flex", fontSize: G.pill.fontSize, fontWeight: 500, color: "#E6EDF3", letterSpacing: 1.1 }}>{pill}</div>
+            </div>
+          ) : <div style={{ display: "flex" }} />}
+
+          <div style={{ position: "absolute", left: 56, top: G.headline.y, display: "flex", width: G.headline.maxWidth,
+            fontSize: headline.size, fontWeight: 800, color: C.headline, letterSpacing: -1.5, lineHeight: 1.04,
+            // y=232 is ~37% of 630 — BEFORE the scrim's 52->62% ramp. Over a bright
+            // sky the specified scrim alone left this barely legible (verified by
+            // rendering against the coaster art). The spec's y and scrim stops are
+            // preserved; this is the insurance that makes white hold on ANY photo.
+            textShadow: "0 2px 18px rgba(5,7,14,0.85), 0 1px 3px rgba(5,7,14,0.9)" }}>{headline.text}</div>
+
+          {subline ? <div style={{ position: "absolute", left: 56, top: G.subline.y, display: "flex", width: G.headline.maxWidth,
+            fontSize: G.subline.size, fontWeight: 400, color: C.subline,
+            textShadow: "0 2px 14px rgba(5,7,14,0.85)" }}>{subline}</div> : <div style={{ display: "flex" }} />}
+
+          {/* PICK CARDS — never fewer than three. Two cards and a hole reads as
+              broken software; none reads as a designed poster. */}
+          {picks.map((p, i) => (
+            <div key={i} style={{ position: "absolute", left: V2.PICK_X[i], top: G.picks.y, width: G.picks.w, height: G.picks.h,
+              display: "flex", flexDirection: "column", borderRadius: G.picks.radius, padding: "16px 18px",
+              backgroundColor: `rgba(255,255,255,${G.picks.fill})`, border: `1px solid rgba(255,255,255,${G.picks.border})` }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                {/* rank: quiet, no filled disc — the disc shouted louder than the place */}
+                <div style={{ display: "flex", fontSize: 15, fontWeight: 700, color: C.rank, letterSpacing: 1 }}>{"0" + (i + 1)}</div>
+                {p.score ? (
+                  <div style={{ display: "flex", alignItems: "center", padding: "3px 11px", borderRadius: 999,
+                    backgroundColor: "rgba(94,232,180,0.13)", border: "1px solid rgba(94,232,180,0.59)" }}>
+                    <div style={{ display: "flex", fontSize: 15, fontWeight: 700, color: C.score }}>{p.score}</div>
+                  </div>
+                ) : <div style={{ display: "flex" }} />}
+              </div>
+              {/* name: the loudest thing on the card */}
+              <div style={{ display: "flex", marginTop: 8, fontSize: 27, fontWeight: 700, color: "#FFFFFF", lineHeight: 1.1 }}>{V2.fitPickName(p.name)}</div>
+              {p.meta ? <div style={{ display: "flex", marginTop: 6, fontSize: 17, fontWeight: 400, color: C.meta }}>{p.meta}</div> : <div style={{ display: "flex" }} />}
+              {/* deal: a rule + text, NOT a chip. Three pills in a row was chip soup. */}
+              {p.deal ? (
+                <div style={{ display: "flex", alignItems: "center", marginTop: "auto" }}>
+                  <div style={{ display: "flex", width: 3, height: 16, backgroundColor: C.accent, marginRight: 9 }} />
+                  <div style={{ display: "flex", fontSize: 16, fontWeight: 600, color: "#E6EDF3" }}>{p.deal}</div>
+                </div>
+              ) : <div style={{ display: "flex" }} />}
+            </div>
+          ))}
+
+          {/* FOOTER. The spec put the deal count bottom-RIGHT and the reinstated
+              gold CTA also bottom-right — a direct collision. The CTA is the
+              action the card exists to drive, so it keeps the right edge and the
+              deal count sits beside the wordmark on the left. Both survive. */}
+          <div style={{ position: "absolute", left: 56, top: G.footer.y, display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", fontSize: 19, fontWeight: 600, color: C.footMuted }}>gowayfind.com</div>
+            {deals ? <div style={{ display: "flex", fontSize: 19, fontWeight: 700, color: C.accent, marginLeft: 16 }}>{deals}</div> : <div style={{ display: "flex" }} />}
+          </div>
+          <div style={{ position: "absolute", right: 56, top: G.footer.y - 8, display: "flex", alignItems: "center",
+            backgroundColor: C.cta, borderRadius: 999, padding: "11px 24px" }}>
+            <div style={{ display: "flex", fontSize: 19, fontWeight: 800, color: C.ctaInk, letterSpacing: 1 }}>{ctaLabel}</div>
+          </div>
+        </div>,
+        { width: 1200, height: 630 }
+      );
+      // CACHE-CONTROL MUST BE REBUILT, NOT PASSED IN. next/og sets its own
+      // `public, immutable, no-transform, max-age=31536000` and an options
+      // `headers` entry is APPENDED after it rather than replacing it — the
+      // response then carries both, and `immutable` wins. Verified on the
+      // production build: the header came back
+      //   public, immutable, no-transform, max-age=31536000, public, max-age=0, s-maxage=900...
+      // which is exactly the "blank card pinned for a year" failure this
+      // standard forbids. Re-wrapping the body is the only way to own the header.
+      const cc = V2.cacheControl(searchParams.get("rv"));
+      const h = new Headers(img.headers);
+      h.set("Cache-Control", cc);
+      return new Response(img.body, { status: img.status, headers: h });
+    }
 
     // v6.25 — the World Cup "Watch the game together" card. Bespoke design drawn
     // in-route (no jpg); the headline/subtext/button come from the rotation index.
