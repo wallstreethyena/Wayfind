@@ -25,7 +25,6 @@ import { viatorDirectUrl } from "../../lib/affiliates";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
-import { rankReason } from "../../lib/rankReason.js";
 import { supabase } from "../../lib/supabase.js";
 import ViatorCommerceLink from "./ViatorCommerceLink";
 
@@ -162,9 +161,21 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
           })() : null}
         </div>
         {/* THE EDITORIAL (owner, 2026-07-22): why this spot is great — the
-            verified wf_editorial hook (gold, like the beaches page). The AI
-            blurb renders only when no verified hook exists. */}
-        {r.editorial_hook ? <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div> : (rankReason(r, rank) || blurb) ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>{rankReason(r, rank) || blurb}</div> : null}
+            verified wf_editorial hook (gold, like the beaches page). Falls
+            through to a validated Anthropic CARD_SUMMARY (Known for / Best
+            for — see lib/editorialValidator.js). v6.87 (owner): the
+            rank-summary fallback ("Our #1 pick — ...and it holds up.") is
+            gone — rating/reviews/rank/distance already render above, and if
+            neither a verified hook nor a validated AI summary exists this
+            block renders nothing rather than generic filler. */}
+        {r.editorial_hook ? (
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div>
+        ) : blurb && typeof blurb === "object" && blurb.card_line_1 && blurb.card_line_2 ? (
+          <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>
+            <div>{blurb.card_line_1}</div>
+            <div style={{ marginTop: 2 }}>{blurb.card_line_2}</div>
+          </div>
+        ) : null}
         <div style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap", alignItems: "center" }}>
           {isTour ? <span style={{ display: "inline-flex", background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Book ↗</span> : null}
           {!isTour && onSave ? <button onClick={(e) => { e.stopPropagation(); onSave(ttdPlace(r)); }} style={{ display: "inline-flex", alignItems: "center", gap: 5, border: `1px solid ${C.border}`, borderRadius: 999, padding: "7px 14px", background: "transparent", color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>♡ Save</button> : null}

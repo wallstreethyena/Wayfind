@@ -133,7 +133,6 @@ node scripts/test-sports-rail.mjs
 node scripts/test-morning-picks.mjs
 node scripts/test-things-to-do.mjs
 node scripts/test-atlas-build.mjs
-node scripts/test-rank-reason.mjs
 node scripts/check-ttd-dedup.mjs
 node scripts/test-food-collections.mjs
 node scripts/test-shopping.mjs
@@ -150,6 +149,7 @@ node scripts/check-og-absolute.mjs
 node scripts/test-intent-pages.mjs
 node scripts/test-beach-water.mjs
 node scripts/test-blurbs-cache.mjs
+node scripts/test-editorial-contract.mjs
 node scripts/test-red-tide.mjs
 node scripts/test-brand.mjs
 node scripts/test-beaches-page.mjs

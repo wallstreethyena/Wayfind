@@ -40,7 +40,7 @@ import { siteHourFloat, bucketForHour } from "../../../lib/nowContext.js";
 import { couponForPlaceName, couponEndsLabel } from "../../../lib/coupons";
 
 export default function SurpriseScreen({ ctx }) {
-  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent } = ctx;
+  const { surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, setScreen, openDetail, openExperience, quickSaveFavorite, isSaved, blurbs, blurbLine, experienceBadges, cityFixM, liveOpen, iconForPlace, Loader, FallbackImg, surpriseWhy, logEvent } = ctx;
           const p = surprisePick;
           const sl = p ? scoreLabel(p.wfScore) : null;
           const badges = p ? experienceBadges(p).slice(0, 2) : [];
@@ -183,7 +183,7 @@ export default function SurpriseScreen({ ctx }) {
                   </div>
                   {p.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>📍 {p.address}</div>}
                   {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}
-                  {blurbs[p.id] && <div style={{ fontSize: 13, color: "rgba(241,245,249,.75)", lineHeight: 1.5, marginTop: 8 }}>{blurbs[p.id]}</div>}
+                  {blurbLine(blurbs[p.id]) && <div style={{ fontSize: 13, color: "rgba(241,245,249,.75)", lineHeight: 1.5, marginTop: 8 }}>{blurbLine(blurbs[p.id])}</div>}
                   {badges.length > 0 && (
                     <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 11 }}>
                       {badges.map((b) => (
