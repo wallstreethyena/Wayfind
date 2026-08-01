@@ -58,6 +58,8 @@ import { couponsForIntent, couponEndsLabel } from "../../lib/coupons";
 // this extraction exists to prevent. Deleted in favour of these.
 import { dealScope } from "../../lib/dealSheet";
 import { nearestMetro } from "../../lib/orderInFeatured";
+import { businessStatus } from "../../lib/businessStatus";
+import { venueLean } from "../../lib/ranking";
 
 // ── 1. COUPON STRIP ─────────────────────────────────────────────────────────
 // GEO IS NOT OPTIONAL HERE. Without lat/lng this renders NATIONWIDE deals only.
@@ -118,14 +120,62 @@ export function CouponStrip({ intentId, lat, lng, onOpenCoupons, onLog, max = 3 
 // `picks` are id + why from /api/moment/picks; the place body is resolved from
 // the list this surface already loaded. A pick whose place is not in the list
 // is DROPPED rather than rendered thin: half a row is worse than no row.
-export function PerfectRightNow({ picks, places, onOpenPlace, title = "✨ Perfect right now" }) {
-  if (!picks || !picks.length || !places || !places.length) return null;
+const placeForStatus = (p) => ({
+  ...p,
+  oh: p && (p.oh || p.regularOpeningHours) || null,
+  utcOffset: p && (p.utcOffset != null ? p.utcOffset : p.utcOffsetMinutes),
+});
+
+export function rightNowReason(p, context, nowMs) {
+  if (!p || !Number.isFinite(Number(p.distMi)) || Number(p.distMi) > 10) return null;
+  const status = businessStatus(placeForStatus(p), nowMs);
+  if (status.open !== true) return null;
+  let lean = null;
+  try { lean = venueLean(p).lean; } catch (e) {}
+  if (context && context.outdoorOK === false && lean === "outdoor") return null;
+  if (context && context.weather && context.weather.known && context.outdoorOK === false && lean === "indoor") {
+    if (context.weather.isWet) return "Good indoor option during storms";
+    if (context.weather.isHot) return "Good indoor option during the afternoon heat";
+    if (context.weather.isCold) return "A warm indoor option right now";
+  }
+  if (status.nextTransition && status.nextTransition.type === "close") {
+    return status.nextTransition.label.replace(/^Closes\s+/, "Open until ");
+  }
+  const miles = Number(p.distMi);
+  return (miles < 1 ? "Less than a mile away" : (miles < 10 ? miles.toFixed(1) : Math.round(miles)) + " miles away");
+}
+
+export function rightNowContextLabel(context) {
+  if (!context || !context.weather || !context.weather.known) return "Open and genuinely nearby at this hour";
+  if (context.outdoorOK === false && context.weather.isWet) return "Indoor picks while storms are in the area";
+  if (context.outdoorOK === false && context.weather.isHot) return "Indoor picks for the afternoon heat";
+  if (context.outdoorOK === false && context.weather.isCold) return "Warm indoor picks for the current conditions";
+  return "Open and genuinely nearby at this hour";
+}
+
+export function rightNowRows(picks, places, durablePlaces, context, nowMs) {
+  if (!picks || !picks.length || !places || !places.length) return [];
   const byId = new Map(places.filter(Boolean).map((p) => [p.id, p]));
-  const rows = picks.map((x) => ({ ...x, p: byId.get(x.id) })).filter((x) => x.p);
+  const rows = picks
+    .map((x) => ({ ...x, p: byId.get(x.id) }))
+    .filter((x) => x.p)
+    .map((x) => ({ ...x, why: rightNowReason(x.p, context, nowMs) }))
+    .filter((x) => x.why)
+    .slice(0, 4);
+  if (!rows.length) return [];
+  const durable = (durablePlaces || places || []).filter(Boolean).slice(0, rows.length).map((p) => p.id);
+  if (durable.length === rows.length && rows.every((x, i) => x.id === durable[i])) return [];
+  return rows;
+}
+
+export function PerfectRightNow({ picks, places, durablePlaces, context, nowMs, onOpenPlace, title = "Right now" }) {
+  if (!picks || !picks.length || !places || !places.length) return null;
+  const rows = rightNowRows(picks, places, durablePlaces, context, nowMs);
   if (!rows.length) return null;
   return (
     <div style={{ background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
       <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>{title}</div>
+      <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.4, margin: "-3px 0 7px" }}>{rightNowContextLabel(context)}</div>
       {rows.map((x, i) => (
         <div key={x.id} onClick={() => onOpenPlace && onOpenPlace(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: onOpenPlace ? "pointer" : "default" }}>
           <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
@@ -155,7 +205,7 @@ export default function ExperienceBlocks({
   intentId, lat, lng,
   onOpenCoupons, onLog,
   tours, toursTitle, ViatorRail, showTours,
-  momentPicks, places,
+  momentPicks, places, durablePlaces, context, nowMs,
   onOpenPlace,
   rows, renderRow, loading,
   countLine, controls, emptyState, extra,
@@ -171,7 +221,7 @@ export default function ExperienceBlocks({
           the host passed the component. No tours, no rail. */}
       {showTours && ViatorRail && tours && tours.length ? <ViatorRail title={toursTitle || "Top-rated experiences"} items={tours} theme={intentId} /> : null}
       {/* 3 */}
-      {!loading ? <PerfectRightNow picks={momentPicks} places={places || list} onOpenPlace={onOpenPlace} /> : null}
+      {!loading ? <PerfectRightNow picks={momentPicks} places={places || list} durablePlaces={durablePlaces || list} context={context} nowMs={nowMs} onOpenPlace={onOpenPlace} /> : null}
       {/* 5, in the reference's position — see the header note on the one-line
           disagreement between the brief and Experience.js. */}
       {!methodologyLast ? methodology : null}
