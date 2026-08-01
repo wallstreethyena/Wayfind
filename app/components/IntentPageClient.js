@@ -12,7 +12,7 @@ import CollectionFilter from "./CollectionFilter";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_HAS_TOURS, INTENT_MOMENT_ID } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_MOMENT_ID } from "../../lib/intentPages";
 import { editorialIntentHeader } from "../../lib/collectionHeader";
 // v6.72 THE COMPOSITION (owner, 2026-07-31). The five blocks — coupon strip,
 // tour rail, "Perfect right now", the list, and the glass-box disclosure — are
@@ -21,9 +21,8 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 // and adopts that CONTENT COMPOSITION inside it: shell from one, body from
 // the other. Nothing here re-implements a block.
 import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
-import ViatorRail from "./ViatorRail";
 import IntentPartnerPick from "./IntentPartnerPick";
-import { partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPicks } from "../../lib/intentPartnerPicks";
+import { partnerInventoryRequest } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -372,8 +371,6 @@ export default function IntentPageClient({ intent }) {
 
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
-  const partnerPicks = resolvedIntentPartnerPicks(loc.city, intent, tours, 4);
-  const railTours = partnerRailInventory(tours, partnerPicks);
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
@@ -442,19 +439,12 @@ export default function IntentPageClient({ intent }) {
           }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
-        {/* Exact, location+intent-matched partner products in a horizontal
-            rail. This is a separate disclosed layer and never enters
-            visibleRows/rankRows, so commission cannot influence the Wayfind
-            Score or durable list order. */}
+        {/* One compact, location+intent-matched bookable rail. Curated local
+            products lead and verified inventory follows in the SAME visual
+            treatment, without duplicate headings, products or disclosures.
+            It remains separate from visibleRows/rankRows, so commission can
+            never influence the Wayfind Score or durable list order. */}
         <IntentPartnerPick city={loc.city} intent={intent} inventory={tours} accent={def.accent} />
-
-        {INTENT_HAS_TOURS[intent] && railTours && railTours.length ? (
-          <ViatorRail
-            title={intent === "hidden-gems" ? `Hidden gem experiences near ${loc.city}` : `Bookable highlights near ${loc.city}`}
-            items={railTours}
-            theme={intent}
-            onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
-        ) : null}
 
         {/* momentPicks resolve against the rows this page already loaded, so a
             pick we cannot show a score for is dropped rather than rendered thin. */}

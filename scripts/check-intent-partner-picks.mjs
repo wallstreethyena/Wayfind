@@ -9,6 +9,7 @@ import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
+import { rankExperiences } from "../lib/experiencesData.js";
 
 let pass = 0;
 const fail = [];
@@ -42,12 +43,26 @@ const boiseRail = resolvedIntentPartnerPicks("Boise, ID", "family", [
 ]);
 ok(boiseRail.length === 2 && boiseRail.every((row) => row.provider === "viator"), "an uncurated city receives a local multi-card rail from verified inventory");
 ok(boiseRail[0]?.image === "https://images.example.test/float.jpg" && boiseRail[0]?.rating === 4.9, "inventory presentation data enriches a rail without exposing its outbound URL");
+const rankedRail = rankExperiences([
+  { title: "Lower evidence", rating: 4.2, reviews: 30 },
+  { title: "Unrated local pick" },
+  { title: "Highest evidence", rating: 4.9, reviews: 300 },
+]);
+ok(rankedRail.map((row) => row.title).join(",") === "Highest evidence,Lower evidence,Unrated local pick", "the shared bookable rail orders rated products strongest-first and leaves unrated products last");
 
-const clientSrc = readFileSync("lib/intentPartnerPicks.js", "utf8") + readFileSync("app/components/IntentPartnerPick.js", "utf8");
+const partnerComponentSrc = readFileSync("app/components/IntentPartnerPick.js", "utf8");
+const intentPageSrc = readFileSync("app/components/IntentPageClient.js", "utf8");
+const clientSrc = readFileSync("lib/intentPartnerPicks.js", "utf8") + partnerComponentSrc;
 ok(!/https?:\/\//.test(clientSrc), "client placement code contains no raw destination URL");
 ok(/commerceHref\(/.test(clientSrc), "the client links through Wayfind's commerce redirect");
-ok(/rel="sponsored noopener"/.test(clientSrc), "every rendered link is explicitly sponsored");
+ok(/rel="sponsored noopener nofollow"/.test(clientSrc), "every rendered link is explicitly sponsored and nofollow");
 ok(/never changes our scores or rankings/.test(clientSrc), "the point-of-action disclosure protects ranking integrity");
+ok(/Bookable highlights near \{city\}/.test(partnerComponentSrc), "curated and inventory products share the Bookable highlights heading");
+ok(/flex: "0 0 200px"/.test(partnerComponentSrc) && /height: 86/.test(partnerComponentSrc), "the unified rail uses the established compact bookable-card dimensions");
+ok(/data-bookable-card-media/.test(partnerComponentSrc) && /Wayfind bookable/.test(partnerComponentSrc), "every compact card keeps a premium media panel without substituting unrelated stock art");
+ok(/rankExperiences\(resolvedIntentPartnerPicks\(city, intent, inventory, 12\)\)/.test(partnerComponentSrc), "the unified rail ranks every loaded card by the shared Wayfind evidence order");
+ok(!/minHeight: 290|Bookable around \{city\}/.test(partnerComponentSrc), "the oversized standalone partner-card treatment is gone");
+ok(!/ViatorRail|partnerRailInventory/.test(intentPageSrc), "intent sheets render one unified partner rail rather than two adjacent affiliate rails");
 
 const placeClientSrc = readFileSync("lib/placePartnerPicks.js", "utf8") + readFileSync("app/components/IconicPlaceCard.js", "utf8");
 ok(!/https?:\/\//.test(placeClientSrc), "landmark hooks contain no raw destination URLs");
