@@ -127,7 +127,7 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
   const screen = read("app/components/screens/Coupons.js");
   ok(/dealTiers\(\s*all,\s*today,\s*center\s*\)/.test(screen),
     "CouponsScreen passes center to dealTiers");
-  ok(/const \{ cpnOffers, center \} = ctx/.test(screen),
+  ok(/const \{ cpnOffers, center,[^}]*\} = ctx/.test(screen),
     "CouponsScreen takes center off ctx");
 }
 

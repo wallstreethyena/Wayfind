@@ -173,6 +173,7 @@ node scripts/test-coverage-waitlist.mjs
 node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
+node scripts/test-coupon-wallet.mjs
 node scripts/check-deal-art.mjs
 node scripts/test-affiliate-chip.mjs
 node scripts/test-image-score.mjs
