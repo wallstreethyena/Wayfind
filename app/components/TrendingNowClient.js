@@ -17,7 +17,7 @@ import { rankByHour, timeFit } from "../../lib/trendingTime";
 import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
-import { readLocalLikeState, persistLike, persistDislike, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
+import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -31,12 +31,15 @@ export default function TrendingNowClient() {
   // IntentPageClient.js: see lib/likeSignal.js for the defect this replaces
   // (a two-hop navigation with no local state or visual feedback at all).
   const [user, setUser] = useState(null);
+  const [saved, setSaved] = useState({});
+  const [savedLists, setSavedLists] = useState(null);
   const [liked, setLiked] = useState({});
   const [disliked, setDisliked] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const [dislikedItems, setDislikedItems] = useState({});
   useEffect(() => {
     try { const s = readLocalLikeState(); setLiked(s.liked); setDisliked(s.disliked); setLikedItems(s.likedItems); setDislikedItems(s.dislikedItems); } catch (e) {}
+    try { const s = readLocalSavedState(); setSaved(s.saved); setSavedLists(s.lists); } catch (e) {}
     if (!supabase) return;
     let active = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -49,7 +52,6 @@ export default function TrendingNowClient() {
   }, []);
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
-    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=like"; return; }
     const wasLiked = !!liked[p.id];
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
@@ -57,11 +59,17 @@ export default function TrendingNowClient() {
   }
   function toggleDislike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
-    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=dislike"; return; }
     const wasDis = !!disliked[p.id];
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (!wasDis) { try { track("dislike", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
+  }
+  function toggleSave(e, p) {
+    try { e && e.stopPropagation && e.stopPropagation(); e && e.preventDefault && e.preventDefault(); } catch (er) {}
+    const wasSaved = !!saved[p.id];
+    const next = persistSave({ supabase, user, place: p, wasSaved, lists: savedLists });
+    setSaved(next.saved); setSavedLists(next.lists);
+    if (!wasSaved) { try { track("save", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("save", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("save", p, { supabase, user }); } catch (er) {} }
   }
 
   const passedRef = useMemo(() => { const v = sp.get("img") || ""; return PHOTO_REF.test(v) ? v : null; /* eslint-disable-next-line */ }, []);
@@ -120,6 +128,9 @@ export default function TrendingNowClient() {
 
   const sharePlace = async (place) => {
     const url = canonicalShareUrl("/p/" + encodeURIComponent(place.id));
+    try { track("place_card_share", { place_id: place.id, surface: "trending_now" }); } catch (e) {}
+    try { recordLikeEvent("share", place, { supabase, user }); } catch (e) {}
+    try { recordTasteSignal("share", place, { supabase, user }); } catch (e) {}
     try { if (navigator.share) { await navigator.share({ title: place.name, url }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
@@ -161,7 +172,8 @@ export default function TrendingNowClient() {
                 href={"/p/" + encodeURIComponent(r.place_id)}
                 editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")}
                 rankingNote={r.timeFit || null}
-                liked={!!liked[r.place_id]} disliked={!!disliked[r.place_id]}
+                saved={!!saved[r.place_id]} liked={!!liked[r.place_id]} disliked={!!disliked[r.place_id]}
+                onSave={toggleSave}
                 onLike={toggleLike} onDislike={toggleDislike}
                 onShare={sharePlace} />
             ))}

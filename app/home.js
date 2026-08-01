@@ -2301,7 +2301,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonig
         // metro is at exactly 40, which is a seed). Routing a Miami user to
         // Orlando's chip list would show them counts for restaurants 200 miles
         // away — the same category of lie as widening a radius to pad a list.
-        eatMetro ? ["utensils", "What are you in the mood for?", onEat] : ["users", "Family favorites", onFamily],
+        eatMetro ? ["utensils", "Pick your mood", onEat] : ["users", "Family favorites", onFamily],
         ["heart", "Date night ideas", onDateNight],
         ["ticket", "Perfect for tonight", onTonight],
         ["car", "Worth the drive", onDrive],
@@ -7596,7 +7596,7 @@ function PageInner({ initialEvents = null }) {
               onGems={() => { try { logEvent("discovery_tile", null, { tile: "Hidden gems" }); } catch (e) {} goIntent("/hidden-gems"); }}
               onFamily={() => { try { logEvent("discovery_tile", null, { tile: "Family favorites" }); } catch (e) {} goIntent("/family"); }}
               eatMetro={eatMetro}
-              onEat={() => { try { logEvent("discovery_tile", null, { tile: "What are you in the mood for?", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
+              onEat={() => { try { logEvent("discovery_tile", null, { tile: "Pick your mood", metro: eatMetro }); } catch (e) {} goIntent("/eat/" + eatMetro); }}
               onDateNight={() => { try { logEvent("discovery_tile", null, { tile: "Date night ideas" }); } catch (e) {} goIntent("/date-night"); }}
               onTonight={() => { try { logEvent("discovery_tile", null, { tile: "Perfect for tonight" }); } catch (e) {} goIntent("/tonight"); }}
               onDrive={() => { try { logEvent("discovery_tile", null, { tile: "Worth the drive" }); } catch (e) {} goIntent("/worth-the-drive"); }}

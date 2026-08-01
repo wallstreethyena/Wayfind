@@ -330,6 +330,15 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-like.is-active{color:#4CE0B3!important;border-color:rgba(76,224,179,.45)!important;background:rgba(76,224,179,.08)!important}
 .wf-place-card-dislike.is-active{color:#F87171!important;border-color:rgba(248,113,113,.4)!important;background:rgba(248,113,113,.07)!important}
 .wf-place-card-share{min-width:88px;margin-left:auto}
+.wf-sheet-card-actions{
+  display:grid!important;
+  grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr);
+  gap:6px!important;
+  flex-wrap:nowrap!important;
+  width:100%;
+}
+.wf-sheet-card-actions>.wf-place-card-save,
+.wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
