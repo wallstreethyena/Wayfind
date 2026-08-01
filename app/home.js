@@ -10,7 +10,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { isNative, nativeShare } from "../lib/native";
+import { isNative, nativeAppleCredential, nativeShare } from "../lib/native";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
@@ -3803,9 +3803,38 @@ function PageInner({ initialEvents = null }) {
   async function signInWithProvider(provider) {
     if (!supabase) return;
     try {
+      if (provider === "apple" && isNative()) {
+        const credential = await nativeAppleCredential();
+        if (!credential) throw new Error("Native Apple sign-in is unavailable");
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: "apple",
+          token: credential.token,
+          nonce: credential.nonce,
+        });
+        if (error) { showToast(`Sign-in error: ${error.message}`); return; }
+
+        // Apple supplies a name only on the first authorization. Preserve it
+        // immediately so it is not lost on every later sign-in.
+        const profile = credential.profile;
+        const givenName = profile && profile.givenName;
+        const familyName = profile && profile.familyName;
+        if (givenName || familyName) {
+          const fullName = [givenName, familyName].filter(Boolean).join(" ");
+          await supabase.auth.updateUser({ data: { full_name: fullName, given_name: givenName || null, family_name: familyName || null } });
+        }
+        if (data && data.session) {
+          try { logEvent("login_completed", null, { method: "apple_native" }); } catch (e) {}
+          showToast("Signed in with Apple");
+          setAuthOpen(false);
+        }
+        return;
+      }
       const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: typeof window !== "undefined" ? (/\.vercel\.app$/i.test(window.location.hostname || "") ? CANON_ORIGIN : window.location.origin) : undefined } });
       if (error) showToast(`Sign-in error: ${error.message}`);
-    } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
+    } catch (e) {
+      if (e && (e.code === "APPLE_SIGN_IN_CANCELLED" || /cancel/i.test(e.message || ""))) return;
+      showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in");
+    }
   }
   // Email + password. Works with no email sending at all if "Confirm email" is
   // turned off in Supabase. Sign in for existing accounts, sign up for new ones.

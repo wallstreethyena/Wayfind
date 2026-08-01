@@ -9,11 +9,13 @@
 // introOpen between them; that stays put, unrelated to auth.
 import { useRef } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, useDialogFocus } from "../kit";
+import { isNative } from "../../../lib/native";
 
 export default function AuthSheet({ ctx }) {
   const { authOpen, setAuthOpen, sheetDragStart, sheetDragMove, sheetDragEnd, authMode, setAuthMode, isStandalone, signInWithProvider, authEmail, setAuthEmail, authPassword, setAuthPassword, passwordAuth, authSending, resetSending, sendPasswordReset, recoveryOpen, setRecoveryOpen, newPw, setNewPw, newPw2, setNewPw2, pwSaving, saveNewPassword } = ctx;
   const authDlgRef = useRef(null);
   const recoveryDlgRef = useRef(null);
+  const nativeShell = isNative();
   useDialogFocus(authOpen, authDlgRef, () => setAuthOpen(false));
   useDialogFocus(recoveryOpen, recoveryDlgRef, () => setRecoveryOpen(false));
   return (
@@ -29,7 +31,7 @@ export default function AuthSheet({ ctx }) {
             <div id="wf-auth-title" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 6 }}>{authMode === "signup" ? "Create your Wayfind account" : "Sign in to Wayfind"}</div>
             <div id="wf-auth-desc" style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 16 }}>{authMode === "signup" ? "Free, about 20 seconds. Save your spots, sync them to every device, and Wayfind sharpens to your taste." : "Welcome back — your spots and lists are right where you left them."}</div>
 
-            {!isStandalone && (
+            {!isStandalone && !nativeShell && (
               <button onClick={() => signInWithProvider("google")} style={{ width: "100%", padding: 13, borderRadius: 12, border: `1px solid ${C.border}`, background: "#FFFFFF", color: "#1F2937", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <span style={{ fontSize: 16, fontWeight: 800 }}>G</span> Continue with Google
             </button>
@@ -41,7 +43,7 @@ export default function AuthSheet({ ctx }) {
                 enabled in Supabase Auth (Services ID + key from the Apple
                 Developer portal) before this actually completes a sign-in —
                 see the setup checklist. */}
-            {!isStandalone && (
+            {(!isStandalone || nativeShell) && (
               <button onClick={() => signInWithProvider("apple")} style={{ width: "100%", padding: 13, borderRadius: 12, border: "1px solid #000000", background: "#000000", color: "#FFFFFF", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                 <svg width="16" height="16" viewBox="0 0 170 170" aria-hidden="true" style={{ display: "block" }}>
                   <path fill="#FFFFFF" d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.98-3.17-14.36-3.17-4.6 0-9.51 1.05-14.75 3.17-5.25 2.13-9.48 3.24-12.71 3.35-4.93.21-9.84-1.96-14.75-6.52-3.13-2.73-7.05-7.41-11.75-14.04-5.04-7.08-9.18-15.29-12.41-24.65-3.46-10.11-5.2-19.9-5.2-29.38 0-10.86 2.35-20.22 7.05-28.05 3.69-6.3 8.6-11.27 14.75-14.92 6.16-3.65 12.81-5.51 19.98-5.63 3.91 0 9.04 1.21 15.42 3.59 6.36 2.39 10.45 3.6 12.23 3.6 1.33 0 5.87-1.42 13.56-4.24 7.27-2.62 13.41-3.71 18.44-3.28 13.62 1.1 23.87 6.47 30.71 16.15-12.18 7.38-18.21 17.71-18.09 30.94.11 10.31 3.86 18.88 11.22 25.66 3.34 3.17 7.06 5.63 11.19 7.38-.9 2.6-1.84 5.08-2.85 7.46zM119.11 7.24c0 8.1-2.96 15.67-8.86 22.67-7.12 8.32-15.72 13.13-25.06 12.37a25.2 25.2 0 0 1-.19-3.06c0-7.78 3.39-16.1 9.4-22.9 3-3.44 6.82-6.29 11.44-8.56 4.61-2.24 8.97-3.48 13.07-3.7.13 1.06.2 2.12.2 3.18z"/>
@@ -50,7 +52,7 @@ export default function AuthSheet({ ctx }) {
               </button>
             )}
 
-            {!isStandalone && (
+            {(!isStandalone || nativeShell) && (
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <div style={{ flex: 1, height: 1, background: C.border }} />
               <div style={{ fontSize: 11, color: C.muted, fontWeight: 600 }}>or with email</div>
@@ -58,7 +60,7 @@ export default function AuthSheet({ ctx }) {
             </div>
             )}
 
-            {isStandalone && (
+            {isStandalone && !nativeShell && (
               <div style={{ fontSize: 12.5, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px", marginBottom: 14, lineHeight: 1.5 }}>
                 You're in the home-screen app, so sign in with email below. Google sign-in only works in Safari; if you use Google, open Wayfind in Safari to sign in there.
               </div>
