@@ -429,26 +429,11 @@ export default function SavedScreen({ ctx }) {
                 </div>
               </section>
             )}
-            {/* v6.56 (owner: "remove the item on image 2 ... put the
-                personalization under the favorites ... not in their face at the
-                main page that is too much and it messes with the flow ... also
-                still looks bulky", then: "make the personalization only
-                available after the user signs in").
-                This is the whole personalization surface now. It used to be
-                three separate blocks at the top of the home feed — a consent
-                ask, an "on" status strip and an "off" status strip — which is a
-                setting interrupting the thing it configures on every load. It
-                is built as ONE of this file's standard rows (48px circle,
-                title, subtitle, right-hand control) so it reads as a setting.
-                SIGNED IN ONLY, by explicit instruction. That is a real
-                constraint, not a display rule: the re-ranking itself is gated
-                on `user` in home.js. A control a person cannot reach is the
-                same as no control, so if the switch is behind sign-in then the
-                behaviour it switches must be too — otherwise a signed-out
-                visitor would have a silently re-ranked feed and nowhere to
-                turn it off. `user &&` rather than relying on the surrounding
-                AuthWall: the wall waits for authReady, this must not flash. */}
-            {user && (
+            {/* The one personalization surface stays under Favorites, away
+                from the main feed. It is available on-device before sign-in so
+                every visitor who deliberately likes, passes, saves or shares
+                can inspect, turn off or erase what Wayfind learned. */}
+            {(
               <>
                 <div style={{ fontSize: 11.5, fontWeight: 800, letterSpacing: "0.4px", color: C.muted, textTransform: "uppercase", marginTop: 18, marginBottom: 2 }}>Personalization</div>
                 {(() => {

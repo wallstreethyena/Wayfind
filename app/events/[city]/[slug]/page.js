@@ -12,7 +12,10 @@ import { ticketOutUrl, isTicketmasterFamily } from "../../../../lib/affiliates.j
 import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
+import EventStory from "./EventStory.js";
+import EventPlan from "./EventPlan.js";
 import OpenAppCTA from "../../../components/OpenAppCTA.js";
+import { eventStoryEvidence, eventStoryFallback } from "../../../../lib/eventStory.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -83,9 +86,10 @@ export async function generateMetadata({ params }) {
   const e = await getEvent(params);
   if (!e) return { title: "Event not found · Wayfind", robots: { index: false, follow: true } };
   const where = [e.venue, e.city].filter(Boolean).join(", ");
+  const story = eventStoryFallback(e);
   return {
     title: `${e.name}${where ? " at " + where : ""} · Wayfind Events`,
-    description: `${e.name} on ${fmtDate(e.date, e.time)}${where ? " at " + where : ""}. Times, venue, and tickets on Wayfind.`,
+    description: `${story.whyGo} ${e.name} is scheduled for ${fmtDate(e.date, e.time)}${where ? " at " + where : ""}.`,
     alternates: { canonical: `${CANON}/events/${params.city}/${params.slug}` },
     openGraph: { title: `${e.name} · Wayfind Events`, description: `${e.name} on ${fmtDate(e.date, e.time)}`, ...(e.image ? { images: [e.image] } : {}) },
     robots: { index: false, follow: true }, // noindex until the owner decides event pages should enter the crawl budget (infinite, dated inventory)
@@ -177,6 +181,8 @@ export default async function EventPage({ params }) {
   const where = [e.venue, e.city].filter(Boolean).join(", ");
   const mapsUrl = where ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((e.venue || "") + " " + (e.city || ""))}` : null;
   const external = e.url ? ticketOutUrl(e.url, "event") : null;
+  const storyEvent = eventStoryEvidence(e);
+  const initialStory = eventStoryFallback(storyEvent);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
@@ -204,6 +210,7 @@ export default async function EventPage({ params }) {
         )}
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#F1F5F9", lineHeight: 1.2, margin: "16px 0 6px" }}>{e.name}</h1>
         <div style={{ fontSize: 15, fontWeight: 700, color: A }}>{fmtDate(e.date, e.time)}</div>
+        <EventStory eventId={e.id} initialStory={initialStory} />
         {where && (
           <div style={{ marginTop: 14, background: "#131A24", border: "1px solid #263041", borderRadius: 14, padding: "13px 15px" }}>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.6px", textTransform: "uppercase", color: "#94A3B8" }}>Venue</div>
@@ -212,7 +219,12 @@ export default async function EventPage({ params }) {
             {mapsUrl && <a href={mapsUrl} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 9, color: A, fontWeight: 800, fontSize: 13, textDecoration: "none" }}>Directions ↗</a>}
           </div>
         )}
-        {e.description && <p style={{ fontSize: 14, lineHeight: 1.65, color: "#CBD5E1", marginTop: 14 }}>{String(e.description).slice(0, 600)}</p>}
+        {e.description && (
+          <details style={{ marginTop: 14, borderTop: "1px solid #263041", paddingTop: 12 }}>
+            <summary style={{ color: "#CBD5E1", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Organizer notes</summary>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: "#94A3B8", margin: "9px 0 0" }}>{String(e.description).slice(0, 600)}</p>
+          </details>
+        )}
         {e.price && <div style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "#22C55E" }}>{e.price}</div>}
         {!cancelled && external && (
           <TicketButton
@@ -222,6 +234,7 @@ export default async function EventPage({ params }) {
             provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
           />
         )}
+        {!cancelled && <EventPlan lat={e.lat} lng={e.lng} city={e.city} venue={e.venue} time={e.time} />}
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>

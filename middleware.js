@@ -5,7 +5,7 @@ import { guardPaidRoute } from "./lib/apiGuard";
 // unauthenticated proxies to METERED third-party APIs — Google Places
 // (/api/places/search), Foursquare (/api/fsq/search), and Anthropic
 // (/api/list/generate, /api/moment/picks, /api/insight, /api/blurbs,
-// /api/hooks). A scraper iterating novel params bills real money on every
+// /api/hooks, /api/events/story). A scraper iterating novel params bills real money on every
 // cache miss. This middleware runs BEFORE the route and applies one guard
 // (same-origin + best-effort per-IP rate limit — see lib/apiGuard.js) so only
 // legitimate same-origin browser calls reach the paid upstream. It never blocks
@@ -44,6 +44,9 @@ export const config = {
     "/api/moment/picks",
     "/api/insight",
     "/api/blurbs",
+    // Event detail editorial upgrade: provider-resolved evidence enters a
+    // metered Anthropic call. Full same-origin + per-IP protection applies.
+    "/api/events/story",
     "/api/local/report",
     // Buzz hero (v6.56): metered Anthropic proxy for the trending why-line.
     "/api/buzz/why",
