@@ -50,6 +50,13 @@ ok(tonight.title === "Orlando after dark, without the guesswork", "tonight names
 ok(/open and nearby/i.test(tonight.deck), "tonight explains that live fit outranks daytime reputation");
 ok(/afternoon storms/i.test(tonight.deck) && !/day off/i.test(tonight.deck), "tonight uses the seasonal Orlando rhythm without pasting the generic metro line");
 
+const parrishLocal = areaSeasonalContext("Parrish", "summer");
+const parrishBest = editorialIntentHeader("best-of", "Parrish", parrishLocal);
+ok(/tiny old rail town/i.test(parrishBest.deck) && /climb aboard/i.test(parrishBest.deck), "Parrish best-of explains the verified rail-town experience instead of generic city filler");
+ok(!/local counterpoint|obvious edited down/i.test(parrishBest.deck + " " + parrishBest.dekLead), "the best-of header avoids internal editorial jargon");
+const unknownBest = editorialIntentHeader("best-of", "Boise", null);
+ok(!/rail|theme park|beach|local counterpoint/i.test(unknownBest.deck), "an unseeded city gets an honest promise without borrowed local trivia");
+
 // Eight main category sheets all receive a complete, compact, city-aware
 // header. This exercises the same helper screens/Experience.js calls.
 const categories = ["outdoors", "hiddengems", "bucketlist", "familyfun", "friends", "datenight", "nightout", "eatnow"];

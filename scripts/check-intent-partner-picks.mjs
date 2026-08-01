@@ -4,7 +4,7 @@
 // merely grep for provider names.
 
 import { readFileSync } from "node:fs";
-import { allIntentPartnerPicks, intentPartnerPick, inventoryPartnerPick, localPartnerQuery, normalizePartnerCity, resolvedIntentPartnerPick } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, intentPartnerPick, inventoryPartnerPick, localPartnerQuery, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
@@ -19,10 +19,17 @@ ok(picks.length >= 20, `the pilot covers at least 20 city+intent placements (got
 ok(normalizePartnerCity("Orlando, FL") === "orlando", "Orlando, FL normalizes to the Orlando catalogue");
 ok(normalizePartnerCity("New York City") === "new-york", "New York City normalizes to the New York catalogue");
 ok(normalizePartnerCity("Bradenton") === "sarasota", "Bradenton shares the Sarasota market catalogue");
+ok(normalizePartnerCity("Parrish") === "parrish", "Parrish keeps its own editorial partner catalogue");
 ok(intentPartnerPick("Boise", "family") === null, "an unverified city renders no partner pick rather than a generic homepage");
 ok(intentPartnerPick("Orlando", "unknown") === null, "an unverified intent renders no partner pick");
 ok(localPartnerQuery("Boise, ID", "family") === "Boise family experience", "an uncurated US city produces an intent-specific local inventory query");
 ok(localPartnerQuery("your town", "family") === null, "an unresolved location never generates a nationwide guess");
+ok(partnerInventoryRequest("Parrish", "best-of")?.query === "Bradenton top attractions", "Parrish searches the nearest verified bookable market instead of a nationwide feed");
+ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton Parrish", "Parrish keeps positive local region evidence in the request");
+ok(partnerInventoryRequest("Parrish", "best-of")?.destId === "25738", "Parrish uses the verified Sarasota/Bradenton Viator destination id");
+ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
+ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
+ok(partnerRailInventory([{ code: "412732P1" }, { code: "454941P4" }], intentPartnerPick("Parrish", "best-of"))?.map((row) => row.code).join(",") === "454941P4", "the featured partner product is not repeated in the adjacent rail");
 const boiseFallback = inventoryPartnerPick("Boise, ID", "family", [{ code: "12345P1", title: "Boise Family Adventure", url: "https://raw.example.test/must-not-be-used" }]);
 ok(boiseFallback?.offerId === "12345P1" && boiseFallback?.provider === "viator", "verified local inventory becomes an exact nationwide fallback");
 ok(!JSON.stringify(boiseFallback).includes("raw.example.test"), "the nationwide fallback discards the raw provider URL");
