@@ -271,3 +271,4 @@ node scripts/check-intro-instrumentation.mjs
 node scripts/check-hub-conversion.mjs
 node scripts/test-intent-header-clarity.mjs
 node scripts/check-viator-redirect-layer.mjs
+node scripts/check-intent-partner-picks.mjs

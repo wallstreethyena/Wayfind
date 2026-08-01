@@ -9,6 +9,8 @@ import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
+import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
+import { placePartnerPick } from "../../lib/placePartnerPicks";
 
 const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
@@ -52,6 +54,13 @@ export default function IconicPlaceCard({ place, rank, href, editorial, badge, i
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
   const isCuratorPick = !!(place._members && place._members.ownerPick);
+  const partner = placePartnerPick(place);
+  const partnerHref = partner ? commerceHref({
+    provider: partner.provider,
+    offerId: partner.offerId,
+    surface: "iconic_place_card",
+    contentId: place.id,
+  }) : null;
 
   return (
     <li data-iconic-place-card className={`wf-place-card${isCuratorPick ? " is-curator-pick" : ""}`} style={{ listStyle: "none" }}>
@@ -83,6 +92,22 @@ export default function IconicPlaceCard({ place, rank, href, editorial, badge, i
           <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
             {intentLabel ? <span>{intentLabel}</span> : null}
             {badge || null}
+            {partnerHref ? (
+              <a
+                href={partnerHref}
+                target="_blank"
+                rel="sponsored noopener"
+                aria-label={`Partner tickets for ${place.name} via ${partner.merchant}`}
+                title="Partner link. Wayfind may earn a commission; rankings never change."
+                onClick={(event) => {
+                  const clickId = mintClickId();
+                  const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "iconic_place_card", contentId: place.id, clickId });
+                  if (live && event.currentTarget) event.currentTarget.href = live;
+                  try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
+                }}
+                style={{ color: "#FDBA74", textDecoration: "none" }}
+              >🎟️ Partner tickets via {partner.merchant} ↗</a>
+            ) : null}
           </div>
           <div className="wf-place-card-take">{take}</div>
           {rankingNote ? <div style={{ color: "#8791A4", fontSize: 9.5, marginTop: 4 }}>{rankingNote}</div> : null}
