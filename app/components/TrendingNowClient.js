@@ -16,6 +16,8 @@ import { wayfindScore } from "../../lib/google";
 import { rankByHour, timeFit } from "../../lib/trendingTime";
 import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
+import { track } from "../../lib/track";
+import { readLocalLikeState, persistLike, persistDislike, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 
 const PHOTO_REF = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
@@ -25,6 +27,42 @@ export default function TrendingNowClient() {
   const [copied, setCopied] = useState(false);
   const [sortBy, setSortBy] = useState("rated");
   const [radius, setRadius] = useState(17);
+  // Like/Dislike (2026-08-01) — same fix and same reasoning as
+  // IntentPageClient.js: see lib/likeSignal.js for the defect this replaces
+  // (a two-hop navigation with no local state or visual feedback at all).
+  const [user, setUser] = useState(null);
+  const [liked, setLiked] = useState({});
+  const [disliked, setDisliked] = useState({});
+  const [likedItems, setLikedItems] = useState({});
+  const [dislikedItems, setDislikedItems] = useState({});
+  useEffect(() => {
+    try { const s = readLocalLikeState(); setLiked(s.liked); setDisliked(s.disliked); setLikedItems(s.likedItems); setDislikedItems(s.dislikedItems); } catch (e) {}
+    if (!supabase) return;
+    let active = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (active && data && data.session && data.session.user) setUser(data.session.user);
+    }).catch(() => {});
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session && session.user ? session.user : null);
+    });
+    return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
+  }, []);
+  function toggleLike(e, p) {
+    try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
+    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=like"; return; }
+    const wasLiked = !!liked[p.id];
+    const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
+    setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (!wasLiked) { try { track("like", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} }
+  }
+  function toggleDislike(e, p) {
+    try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
+    if (!user) { window.location.href = "/p/" + encodeURIComponent(p.id) + "?action=dislike"; return; }
+    const wasDis = !!disliked[p.id];
+    const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
+    setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+    if (!wasDis) { try { track("dislike", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
+  }
 
   const passedRef = useMemo(() => { const v = sp.get("img") || ""; return PHOTO_REF.test(v) ? v : null; /* eslint-disable-next-line */ }, []);
   const loc = useMemo(() => {
@@ -123,6 +161,8 @@ export default function TrendingNowClient() {
                 href={"/p/" + encodeURIComponent(r.place_id)}
                 editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")}
                 rankingNote={r.timeFit || null}
+                liked={!!liked[r.place_id]} disliked={!!disliked[r.place_id]}
+                onLike={toggleLike} onDislike={toggleDislike}
                 onShare={sharePlace} />
             ))}
           </ol> : <p style={{ margin: "18px 0", fontSize: 13, color: "#8b93a1" }}>No trending picks fall within {radius} miles. Widen the filter to see more.</p>}
