@@ -132,6 +132,9 @@ const exports_ = [...src.matchAll(/^export function (\w+)/gm)].map((m) => m[1]);
 ok(exports_.length >= 8, `only ${exports_.length} exports parsed from lib/affiliates.js — the matcher is broken and completeness would be vacuous`);
 const KNOWN_UNMONETIZED = new Set([
   "isTicketyPlace",       // boolean predicate, returns no URL
+  // INTERNAL path builder; returns /api/viator/go?product=... and hard-rejects
+  // any non-viator.com host. Attribution is applied server-side by that route.
+  "viatorProductGoUrl",
   "withViatorTracking",   // the wrapper ITSELF; tested via its callers above AND directly in the placeholder section
   // WRAPPER, NOT A DECISION POINT — and the reason matters. The attached spec
   // listed this as unmonetized; line 105 (`return VIATOR ? withViatorTracking(url) : url`)
