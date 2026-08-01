@@ -18,7 +18,7 @@
  *   3. only allowlisted hosts, http(s) only
  *   4. every failure is fail-soft: 302 to OUR site, never a 500, never a partner
  *   5. the redirect is never cacheable (a cached 302 shares one click_id)
- *   6. WeGoTrip/Klook stay dark (verified 2026-07-30: no FL food inventory)
+ *   6. providers without an exact verified registry stay dark
  */
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -75,9 +75,11 @@ ok(existsSync(fbFile),
 ok(!/\[/.test(FALLBACK),
   "the fallback is a concrete path, not one containing a dynamic [segment] that would never match literally");
 
-// ── 6. dark providers ────────────────────────────────────────────────────
-ok(!PROVIDERS.wegotrip && !PROVIDERS.klook,
-  "WeGoTrip and Klook are NOT wired: verified 2026-07-30 they have no food inventory in any Wayfind metro (WeGoTrip has no Sarasota page at all), so a link would land on an empty page");
+// ── 6. exact-inventory providers only ────────────────────────────────────
+ok(!PROVIDERS.wegotrip,
+  "WeGoTrip remains dark: it still has no verified exact local inventory registry");
+ok(!!PROVIDERS.klook && typeof PROVIDERS.klook.resolve === "function",
+  "Klook is live only through the exact curated-offer resolver, never a generic search/homepage");
 ok(Object.keys(PROVIDERS).length >= 1, "at least one provider is live (an empty table would make the route pointless)");
 
 // ── the resolver reads with ANON, never the service role ─────────────────

@@ -22,6 +22,8 @@ import { editorialIntentHeader } from "../../lib/collectionHeader";
 // the other. Nothing here re-implements a block.
 import { CouponStrip, PerfectRightNow, ScoreDisclosure } from "./ExperienceBlocks";
 import ViatorRail from "./ViatorRail";
+import IntentPartnerPick from "./IntentPartnerPick";
+import { intentPartnerPick, localPartnerQuery, resolvedIntentPartnerPick } from "../../lib/intentPartnerPicks";
 // v6.72: this component had ZERO weather references. Its header rendered
 // areaSeasonalContext(city, season) — season and place, never time, never
 // weather — while `h` chose a query set and touched nothing else. Both halves
@@ -231,19 +233,20 @@ export default function IntentPageClient({ intent }) {
   }, [rows]);
 
   // ── BLOCK 2: bookable tours ────────────────────────────────────────────────
-  // Same /api/viator/tours endpoint the in-app rails use. Only fires for the
-  // intents that actually carry tour inventory (INTENT_HAS_TOURS), so /best-of
-  // and /budget never pay for a call whose result they would not render.
+  // Same /api/viator/tours endpoint the in-app rails use. This now runs for all
+  // seven intents because the verified first result is also the nationwide
+  // fallback for IntentPartnerPick. Curated city+intent inventory still wins;
+  // an uncurated US city gets a local exact product or no card, never Orlando.
   useEffect(() => {
-    if (!INTENT_HAS_TOURS[intent] || !isFinite(loc.lat)) return;
+    if (!def || !isFinite(loc.lat)) return;
     let dead = false;
     (async () => {
       try {
-        const q = (loc.city && loc.city !== "your town") ? loc.city : "";
+        const q = localPartnerQuery(loc.city, intent);
         if (!q) return; // no city, no honest query — skip rather than guess
-        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&count=12");
+        const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&region=" + encodeURIComponent(loc.city) + "&mode=city&count=12");
         const j = r.ok ? await r.json() : null;
-        const items = (j && Array.isArray(j.tours)) ? j.tours : (Array.isArray(j) ? j : []);
+        const items = (j && Array.isArray(j.items)) ? j.items : ((j && Array.isArray(j.tours)) ? j.tours : (Array.isArray(j) ? j : []));
         if (!dead && items.length) setTours(items);
       } catch (e) {}
     })();
@@ -320,6 +323,11 @@ export default function IntentPageClient({ intent }) {
 
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
+  const partnerPick = resolvedIntentPartnerPick(loc.city, intent, tours);
+  const curatedPartnerPick = intentPartnerPick(loc.city, intent);
+  const railTours = curatedPartnerPick || !partnerPick
+    ? tours
+    : (tours || []).filter((tour) => String(tour && tour.code) !== partnerPick.offerId);
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
@@ -382,10 +390,15 @@ export default function IntentPageClient({ intent }) {
           onOpenCoupons={() => { try { track("coupon_strip_to_coupons", { intent }); } catch (e) {} window.location.href = "/coupons"; }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
-        {INTENT_HAS_TOURS[intent] && tours && tours.length ? (
+        {/* A single exact, location+intent-matched partner product. It sits in
+            its own disclosed layer and never enters visibleRows/rankRows, so
+            commission cannot influence the Wayfind Score or list order. */}
+        <IntentPartnerPick city={loc.city} intent={intent} inventory={tours} accent={def.accent} />
+
+        {INTENT_HAS_TOURS[intent] && railTours && railTours.length ? (
           <ViatorRail
             title={intent === "hidden-gems" ? "Hidden gem experiences" : "Top-rated experiences"}
-            items={tours}
+            items={railTours}
             theme={intent}
             onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
         ) : null}
