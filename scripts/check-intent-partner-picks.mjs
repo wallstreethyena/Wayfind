@@ -4,12 +4,13 @@
 // merely grep for provider names.
 
 import { readFileSync } from "node:fs";
-import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
+import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, partnerInventoryRequest, partnerRailInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { rankExperiences } from "../lib/experiencesData.js";
+import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCard.js";
 
 let pass = 0;
 const fail = [];
@@ -30,7 +31,11 @@ ok(partnerInventoryRequest("Parrish", "best-of")?.region === "Sarasota Bradenton
 ok(partnerInventoryRequest("Parrish", "best-of")?.destId === "25738", "Parrish uses the verified Sarasota/Bradenton Viator destination id");
 ok(partnerInventoryRequest("Boise, ID", "family")?.destId === null, "an unseeded city never borrows another market's destination id");
 ok(intentPartnerPick("Parrish", "best-of")?.offerId === "412732P1", "Parrish receives an exact Manatee County product rather than Sarasota's generic pilot pick");
-ok(intentPartnerPicks("Parrish", "best-of")?.map((row) => row.offerId).join(",") === "412732P1,454941P1,5502818P1", "Parrish receives three distinct exact products instead of one oversized affiliate card");
+const parrishRail = intentPartnerPicks("Parrish", "best-of");
+ok(parrishRail?.map((row) => row.offerId).join(",") === "412732P1,454941P1,parrish-best-dali-museum,5502818P1", "Parrish receives one compact rail with four distinct exact products");
+ok(new Set(parrishRail.map((row) => row.provider)).size >= 2, "the Parrish rail mixes verified providers instead of presenting a Viator-only catalogue");
+ok(parrishRail.every((row) => row.image), "every hand-curated rail card has verified product-specific artwork even when live enrichment is unavailable");
+ok(rankExperiences(parrishRail).map((row) => row.offerId).join(",") === "454941P1,412732P1,parrish-best-dali-museum,5502818P1", "the mixed-provider rail orders verified products by evidence rather than provider or filing order");
 ok(partnerRailInventory([{ code: "412732P1" }, { code: "454941P4" }], intentPartnerPick("Parrish", "best-of"))?.map((row) => row.code).join(",") === "454941P4", "the featured partner product is not repeated in the adjacent rail");
 ok(partnerRailInventory([{ code: "412732P1" }, { code: "454941P1" }, { code: "454941P4" }], intentPartnerPicks("Parrish", "best-of"))?.map((row) => row.code).join(",") === "454941P4", "every curated product is removed from the adjacent inventory rail");
 const boiseFallback = inventoryPartnerPick("Boise, ID", "family", [{ code: "12345P1", title: "Boise Family Adventure", url: "https://raw.example.test/must-not-be-used" }]);
@@ -49,20 +54,34 @@ const rankedRail = rankExperiences([
   { title: "Highest evidence", rating: 4.9, reviews: 300 },
 ]);
 ok(rankedRail.map((row) => row.title).join(",") === "Highest evidence,Lower evidence,Unrated local pick", "the shared bookable rail orders rated products strongest-first and leaves unrated products last");
+const enrichedInventory = mergePartnerInventory(
+  [{ code: "412732P1", title: "Search title", rating: 4.8, reviews: 50 }],
+  [{ code: "412732P1", title: "Exact title", image: "https://images.example.test/exact.jpg", rating: 4.9, reviews: 200 }, { code: "454941P1", image: "https://images.example.test/sunset.jpg" }]
+);
+ok(enrichedInventory.length === 2 && enrichedInventory[0]?.image?.includes("exact.jpg") && enrichedInventory[1]?.code === "454941P1", "exact curated metadata enriches search hits and appends products outside the search window");
+const fallbackArt = resolvedIntentPartnerPicks("Parrish", "best-of", [{ code: "412732P1", title: "Search title" }], 4)[0];
+ok(fallbackArt?.image?.includes("Robinson-Preserve-Clear-Kayak") && fallbackArt?.reviews === 57, "an incomplete live row cannot erase a curated card's verified fallback art or evidence");
+const liveCard = viatorProductCard({ productCode: "454941P1", status: "ACTIVE", title: "Sunset Kayak", images: [{ variants: [{ width: 200, url: "https://images.example.test/small.jpg" }, { width: 720, url: "https://images.example.test/verified.jpg" }] }], reviews: { combinedAverageRating: 4.9, totalReviews: 120 }, duration: { fixedDurationInMinutes: 120 } });
+ok(liveCard?.image?.includes("verified.jpg") && liveCard?.duration === "2h", "the official product-detail mapper selects verified card artwork and duration");
+ok(cachedExperienceCard({ product_code: "5502818P1", image: "https://images.example.test/cache.jpg", duration_min: 90 })?.duration === "1h 30m", "the verified inventory cache maps exact product art without exposing a destination URL");
 
 const partnerComponentSrc = readFileSync("app/components/IntentPartnerPick.js", "utf8");
 const intentPageSrc = readFileSync("app/components/IntentPageClient.js", "utf8");
+const curatedRouteSrc = readFileSync("app/api/viator/curated/route.js", "utf8");
 const clientSrc = readFileSync("lib/intentPartnerPicks.js", "utf8") + partnerComponentSrc;
-ok(!/https?:\/\//.test(clientSrc), "client placement code contains no raw destination URL");
+ok(!/(?:www\.)?(?:viator\.com|tiqets\.com|ticketnetwork\.com|klook\.com)|tp\.media\/r\?/.test(clientSrc), "client placement code contains no raw affiliate destination URL");
 ok(/commerceHref\(/.test(clientSrc), "the client links through Wayfind's commerce redirect");
 ok(/rel="sponsored noopener nofollow"/.test(clientSrc), "every rendered link is explicitly sponsored and nofollow");
 ok(/never changes our scores or rankings/.test(clientSrc), "the point-of-action disclosure protects ranking integrity");
 ok(/Bookable highlights near \{city\}/.test(partnerComponentSrc), "curated and inventory products share the Bookable highlights heading");
 ok(/flex: "0 0 200px"/.test(partnerComponentSrc) && /height: 86/.test(partnerComponentSrc), "the unified rail uses the established compact bookable-card dimensions");
 ok(/data-bookable-card-media/.test(partnerComponentSrc) && /Wayfind bookable/.test(partnerComponentSrc), "every compact card keeps a premium media panel without substituting unrelated stock art");
+ok(/>Verified partners<\//.test(partnerComponentSrc) && /data-partner-badge/.test(partnerComponentSrc) && /via \{pick\.merchant\}/.test(partnerComponentSrc), "the rail uses one neutral heading and identifies each mixed provider discreetly on its card");
 ok(/rankExperiences\(resolvedIntentPartnerPicks\(city, intent, inventory, 12\)\)/.test(partnerComponentSrc), "the unified rail ranks every loaded card by the shared Wayfind evidence order");
 ok(!/minHeight: 290|Bookable around \{city\}/.test(partnerComponentSrc), "the oversized standalone partner-card treatment is gone");
 ok(!/ViatorRail|partnerRailInventory/.test(intentPageSrc), "intent sheets render one unified partner rail rather than two adjacent affiliate rails");
+ok(/\/api\/viator\/curated\?/.test(intentPageSrc) && /mergePartnerInventory/.test(intentPageSrc), "intent sheets enrich exact curated products even when they fall outside the broad search window");
+ok(/partner\/products\/\$\{encodeURIComponent\(code\)\}/.test(curatedRouteSrc) && !/productUrl|product_url/.test(curatedRouteSrc), "the server uses Viator's exact-product endpoint for presentation data and never returns a raw destination URL");
 
 const placeClientSrc = readFileSync("lib/placePartnerPicks.js", "utf8") + readFileSync("app/components/IconicPlaceCard.js", "utf8");
 ok(!/https?:\/\//.test(placeClientSrc), "landmark hooks contain no raw destination URLs");
@@ -114,8 +133,20 @@ for (const p of picks) {
   } else if (p.provider === "viator") {
     ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} is a live Viator product_code and must not also carry a shadowing registry row`);
     ok(/^\d+P\d+$/.test(p.offerId), `${p.offerId} looks like a real Viator product_code (####P#), not a synthetic key`);
-    const resolved = await resolveOffer("viator", p.offerId);
-    ok(!resolved.error && /^https:\/\/www\.viator\.com\//.test(resolved.dest || ""), `${p.offerId} resolves LIVE against wf_experiences to a tracked viator.com URL (got ${resolved.error || resolved.dest})`);
+    // Exercise the real table-backed resolver deterministically. CI intentionally
+    // has no production Supabase credentials; making this guard depend on them
+    // turned an otherwise hermetic redirect test into a deployment-environment
+    // test. The injected row still crosses both resolver gates (lookup + host
+    // allowlist), while the negative control below proves missing credentials
+    // fail closed instead of leaking a guessed/raw destination.
+    const resolved = await resolveOffer("viator", p.offerId, {
+      env: () => ({ url: "https://wayfind-guard.invalid", key: "guard-key" }),
+      fetch: async () => ({
+        ok: true,
+        json: async () => [{ product_code: p.offerId, product_url: `https://www.viator.com/tours/Wayfind/${p.offerId}` }],
+      }),
+    });
+    ok(!resolved.error && /^https:\/\/www\.viator\.com\//.test(resolved.dest || ""), `${p.offerId} resolves through the table-backed Viator path (got ${resolved.error || resolved.dest})`);
   } else if (p.provider === "citypass") {
     ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} resolves from the dedicated CityPASS destination registry, not a shadow row`);
     const resolved = await resolveOffer("citypass", p.offerId);
@@ -126,12 +157,21 @@ for (const p of picks) {
   }
 }
 
+const viatorWithoutEnv = await resolveOffer("viator", "412732P1", { env: () => null });
+ok(viatorWithoutEnv.error === "no-supabase-env" && !viatorWithoutEnv.dest, "Viator resolution fails closed when catalogue credentials are unavailable");
+
 // Negative controls: prove the registry cannot be used as an open redirect or
 // as a cross-provider id oracle.
 const missing = await resolveOffer("tiqets", "not-a-real-offer");
 ok(missing.error === "offer-not-found", "an unknown curated offer fails closed");
 const crossed = await resolveOffer("klook", "nyc-family-amnh");
 ok(crossed.error === "offer-not-found", "an offer id cannot be resolved through a different provider");
+
+for (const row of parrishRail.filter((pick) => pick.provider !== "viator")) {
+  ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} has an exact server-side deep-link registry row`);
+  const resolved = await resolveOffer(row.provider, row.offerId);
+  ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${row.offerId} resolves through the tracked Travelpayouts wrapper`);
+}
 
 if (fail.length) {
   console.error("check-intent-partner-picks: FAIL");
