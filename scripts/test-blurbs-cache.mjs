@@ -21,9 +21,11 @@ ok(!/rankReason|templateBlurb/.test(src), "a generic rank/template fallback crep
 
 
 // v6.55b — the pool extends to /api/insight (per place+mode+kind) and
-// /api/hooks (per area+daypart+wetness+top places).
+// /api/hooks (per area+daypart+wetness+top places). Key bumped insight1| ->
+// insight2| (v6.9x, editorial-quality audit 2026-08-01) alongside the
+// DETAIL_EDITORIAL contract actually shipping — see test-editorial-contract.mjs.
 const ins = readFileSync(new URL("../app/api/insight/route.js", import.meta.url), "utf8");
-ok(ins.includes('"insight1|"') && ins.includes("await cget(ckey)"), "insight lost its shared pool");
+ok(ins.includes('"insight2|"') && ins.includes("await cget(ckey)"), "insight lost its shared pool");
 ok(/kind === "event" \? 3 \* DAY : 14 \* DAY/.test(ins), "insight TTLs drifted (events 3d, places 14d)");
 ok(/!parsed\.error && !parsed\.unavailable/.test(ins), "insight must never cache an error/unavailable body");
 const hk = readFileSync(new URL("../app/api/hooks/route.js", import.meta.url), "utf8");

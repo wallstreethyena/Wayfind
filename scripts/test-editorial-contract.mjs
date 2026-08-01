@@ -41,12 +41,23 @@ ok(blurbs.includes("validateCardSummary(candidate, byId.get(p.id))"), "CARD_SUMM
 ok(!/rankReason|templateBlurb/.test(blurbs), "a generic rank/template fallback crept into the card-summary route");
 
 // /api/insight (DETAIL_EDITORIAL fields) must validate the "why" paragraph
-// and filter mustTry against actual evidence before caching.
+// and filter what_to_order against actual evidence before caching. v6.9x
+// (editorial-quality audit 2026-08-01): the contract actually shipped here —
+// compact returns exactly { why_wayfind_picked_this }, full returns exactly
+// { what_to_order, pairs_well, caveat }. No other field rides along.
 const insight = readFileSync(new URL("../app/api/insight/route.js", import.meta.url), "utf8");
 ok(insight.includes("validateWhyParagraph") && insight.includes("filterSupportedItems"), "insight route lost its validator pass");
 ok(insight.includes("Never name an individual staff member"), "the no-employee-names prompt rule was removed from /api/insight");
 ok(insight.includes("90 to 150 words"), "the why-paragraph target length drifted from the 90-150 word contract");
-ok(insight.includes("mustTry (a JSON array of 3 to 5"), "mustTry cap drifted from the 3-5 item contract");
+ok(insight.includes("what_to_order (a JSON array of 3 to 5"), "what_to_order cap drifted from the 3-5 item contract");
+ok(insight.includes("why_wayfind_picked_this") && insight.includes("pairs_well") && insight.includes("caveat"), "insight route lost one of the DETAIL_EDITORIAL field names");
+// Real code usage only (a `parsed.X` read or a "X (..." prompt-key
+// description) — not prose. The file's own header comment recaps the old
+// 18-field grab-bag by name for context, which a bare substring match would
+// trip on (the same self-referential-regex trap check-no-llm-in-render-path.mjs
+// and test-intent-header-clarity.mjs already warn about).
+ok(!/parsed\.(mustTry|whyPicked|goodFor|skipIf|bestTime|bestFor|goWhen|oneWord)\b/.test(insight) && !/\b(mustTry|whyPicked|goodFor|skipIf|bestTime|bestFor|goWhen|oneWord)\s*\(/.test(insight), "the old pre-contract insight field names (mustTry/whyPicked/goodFor/skipIf/bestTime/bestFor/goWhen/oneWord) crept back into /api/insight as real code or prompt keys");
+ok(insight.includes("insight2|"), "insight route did not bump its cache-key namespace for the new DETAIL_EDITORIAL shape");
 
 // The two card renderers (PlaceCard in home.js, ThingsToDoList's row) must
 // no longer show the rank-summary sentence or a generic local template —

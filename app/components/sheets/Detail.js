@@ -713,7 +713,7 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 );
               })()}
-              {/* Why Wayfind picked this: the soul of the page. One grounded paragraph merging verdict, tip, timing, fit and caveats. Falls back to composing from the existing grounded fields until a fresh insight carries `why`. */}
+              {/* Why Wayfind picked this: the soul of the page. One grounded paragraph, written and validated as a single unit — never stitched together from separate loose fields. */}
               {/* v6.60 (owner, brand integrity — the Ryan's Coffee House bug):
                   "Why Wayfind picked this" is a Wayfind OPINION. It renders ONLY
                   when we actually have one — a review-grounded insight or a
@@ -731,15 +731,17 @@ export default function DetailSheet({ ctx }) {
                     </div>
                   </div>
                 );
+                // v6.9x (owner, editorial-quality audit 2026-08-01): the
+                // stitch-from-parts fallback (verdict + whyPicked + tip +
+                // goWhen + skipIf — none of which had been validated on its
+                // own) is gone. /api/insight's compact mode now returns
+                // exactly one field, why_wayfind_picked_this, and it always
+                // comes through validateWhyParagraph before it ever reaches
+                // here — so if it's present, it's already good. Nothing to
+                // compose.
                 const ins = insight && !insight.error && !insight.unavailable ? insight : null;
                 const S = (v) => insightSane(v);
-                const dot = (t) => t && !/[.!?]$/.test(t) ? t + "." : t;
-                let why = ins ? S(ins.why) : "";
-                if (!why && ins) {
-                  const goWhen = S(ins.goWhen) || S(ins.bestTime);
-                  const skipIf = S(ins.skipIf);
-                  why = [dot(S(ins.verdict)), dot(S(ins.whyPicked)), dot(S(ins.tip)), goWhen ? "Go " + dot(goWhen.charAt(0).toLowerCase() + goWhen.slice(1)) : "", skipIf ? "Skip it if " + dot(skipIf.charAt(0).toLowerCase() + skipIf.slice(1)) : ""].filter(Boolean).join(" ");
-                }
+                const why = ins ? S(ins.why_wayfind_picked_this) : "";
                 // A REAL, review-grounded opinion only — no filler, ever. The
                 // curated editorial has its own surface (the Wayfind-take rail);
                 // the Google summary renders neutrally below. So this block is
@@ -753,17 +755,25 @@ export default function DetailSheet({ ctx }) {
                   </div>
                 );
               })()}
-              {!detail._event && insightFull && Array.isArray(insightFull.mustTry) && insightFull.mustTry.filter((x) => x && String(x).trim()).length > 0 && (
+              {/* v6.9x (owner, editorial-quality audit 2026-08-01): the ONLY
+                  what-to-order block on the page — the duplicate "Must try"
+                  render that used to live inside "Tips, videos & more" below
+                  is gone. Reads insightFull.what_to_order (validated via
+                  filterSupportedItems, ranked by distinctiveness rather than
+                  raw mention frequency) plus the new pairs_well and caveat
+                  fields — nothing here rides along unvalidated. */}
+              {!detail._event && insightFull && Array.isArray(insightFull.what_to_order) && insightFull.what_to_order.filter((x) => x && String(x).trim()).length > 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 8 }}>{Tags.sectionLabel(Tags.resolveIdentity(detail.types || []))}</div>
-                  {insightFull.mustTry.filter((x) => x && String(x).trim()).slice(0, 5).map((d, i) => (
+                  {insightFull.what_to_order.filter((x) => x && String(x).trim()).slice(0, 5).map((d, i) => (
                     <div key={i} style={{ display: "flex", alignItems: "baseline", gap: 9, marginBottom: 5 }}>
                       <span style={{ color: C.light, fontWeight: 800, fontSize: 12, flexShrink: 0 }}>{i + 1}</span>
                       <span style={{ fontSize: 13.5, fontWeight: 600, color: C.text, lineHeight: 1.4 }}>{d}</span>
                     </div>
                   ))}
-                  {insightFull.pairing && String(insightFull.pairing).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Pairs well: </span>{insightFull.pairing}</div>}
-                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>From what reviewers mention most.</div>
+                  {insightFull.pairs_well && String(insightFull.pairs_well).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Pairs well: </span>{insightFull.pairs_well}</div>}
+                  {insightFull.caveat && String(insightFull.caveat).trim() && <div style={{ fontSize: 12.5, color: C.muted, marginTop: 4, lineHeight: 1.4 }}><span style={{ color: C.light, fontWeight: 700 }}>Good to know: </span>{insightFull.caveat}</div>}
+                  <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.7, marginTop: 7 }}>The signature picks, not just what gets mentioned most.</div>
                 </div>
               )}
               {(() => { const _wn = !detail._event ? wayfindNotes(detail.name) : null; if (!_wn) return null; return (
@@ -928,27 +938,12 @@ export default function DetailSheet({ ctx }) {
               {reviewsOpen && (
                 <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 10 }}>What people say</div>
-                  {insightFullLoading && !insightFull && <div style={{ fontSize: 13, color: C.muted, marginBottom: 8 }}>Reading the reviews…</div>}
-                  {insightFull && !insightFull.error && (() => {
-                    const A = (v) => (Array.isArray(v) ? v.filter((x) => x && String(x).trim()) : []);
-                    const loves = A(insightFull.loves);
-                    const keywords = A(insightFull.keywords);
-                    if (!loves.length && !keywords.length) return null;
-                    return (
-                      <div style={{ marginBottom: 12 }}>
-                        {loves.length > 0 && loves.slice(0, 5).map((l, i) => (
-                          <div key={i} style={{ fontSize: 13.5, color: C.text, display: "flex", gap: 8, padding: "3px 0" }}><span style={{ color: C.green }}>✔</span><span>{l}</span></div>
-                        ))}
-                        {keywords.length > 0 && (
-                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-                            {keywords.slice(0, 6).map((k, i) => (
-                              <span key={i} style={{ fontSize: 11, fontWeight: 600, color: C.light, background: C.bg, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px" }}>{k}</span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
+                  {/* v6.9x (owner, editorial-quality audit 2026-08-01): the
+                      loves/keywords AI chip block that used to render here is
+                      gone — DETAIL_EDITORIAL's full mode no longer generates
+                      those fields (they were unvalidated and redundant with
+                      the "why" paragraph and what-to-order block above). Raw
+                      Google reviews below are the real "what people say". */}
                   <div style={{ fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 8 }}>Reviews</div>
                   {detailExtra && detailExtra.reviews && detailExtra.reviews.length > 0 ? (
                     detailExtra.reviews.map((r, i) => (
@@ -1008,55 +1003,13 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
                 {showMore && (
                   <div style={{ marginTop: 10 }}>
-                    {insightFullLoading && !insightFull && <div style={{ fontSize: 13, color: C.muted }}>Pulling the details together…</div>}
-                    {insightFull && !insightFull.error && !insightFull.unavailable && (() => {
-                      const A = (v) => (Array.isArray(v) ? v.filter((x) => x && String(x).trim()) : []);
-                      const goodFor = A(insightFull.goodFor);
-                      const tips = A(insightFull.tips);
-                      const lab = { fontSize: 11, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: "0.5px", margin: "12px 0 7px" };
-                      return (
-                        <div>
-                          {goodFor.length > 0 && (
-                            <>
-                              <div style={lab}>Good for</div>
-                              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                                {goodFor.slice(0, 6).map((g, i) => (
-                                  <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600, color: C.text, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "5px 12px" }}><span style={{ color: C.green, fontWeight: 800 }}>✓</span>{g}</span>
-                                ))}
-                              </div>
-                            </>
-                          )}
-                          {(() => {
-                            const mt = Array.isArray(insightFull.mustTry) ? insightFull.mustTry.filter((x) => x && String(x).trim()) : (insightFull.mustTry && String(insightFull.mustTry).trim() ? [insightFull.mustTry] : []);
-                            if (!mt.length) return null;
-                            return (
-                              <>
-                                <div style={lab}>Must try</div>
-                                <div style={{ background: C.adim, border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 12px" }}>
-                                  {mt.slice(0, 3).map((m, i) => (
-                                    <div key={i} style={{ fontSize: 14, fontWeight: 600, color: C.text, display: "flex", gap: 8, padding: "2px 0" }}><span>🍴</span><span>{m}</span></div>
-                                  ))}
-                                </div>
-                              </>
-                            );
-                          })()}
-                          {tips.length > 0 && (
-                            <>
-                              <div style={lab}>Insider tips</div>
-                              {tips.slice(0, 4).map((t, i) => (
-                                <div key={i} style={{ fontSize: 13, color: C.light, background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", marginBottom: 6, display: "flex", gap: 8 }}><span>💡</span><span>{t}</span></div>
-                              ))}
-                            </>
-                          )}
-                          {insightFull.vibe && String(insightFull.vibe).trim() && (
-                            <div style={{ marginTop: 10 }}><InfoChip label="Vibe" value={insightFull.vibe} /></div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                    {insightFull && insightFull.error && (
-                      <div style={{ fontSize: 13, color: C.muted }}>That's everything we have on this spot for now.</div>
-                    )}
+                    {/* v6.9x (owner, editorial-quality audit 2026-08-01): the
+                        goodFor/mustTry(again)/tips/vibe block that used to
+                        render here is gone. DETAIL_EDITORIAL's full mode no
+                        longer generates those fields — what_to_order and
+                        pairs_well/caveat already render once, above, in
+                        their own canonical block; there is nothing left
+                        here to show unvalidated. */}
                     {(videosLoading || (videos && videos.length > 0)) && (
                       <div style={{ marginTop: 14 }}>
                         <div style={{ fontSize: 12, fontWeight: 800, color: C.text, marginBottom: 2, display: "flex", alignItems: "center", gap: 7 }}><span style={{ color: "#FF0000", fontSize: 14 }}>▶</span> Video reviews</div>
@@ -1213,8 +1166,13 @@ export default function DetailSheet({ ctx }) {
               {debugOn && !detail._event && (() => {
                 const audit = {};
                 experienceBadges(detail, null, 99, audit);
+                // v6.9x (owner, editorial-quality audit 2026-08-01): the
+                // DETAIL_EDITORIAL contract collapsed to compact ->
+                // { why_wayfind_picked_this } and full -> { what_to_order,
+                // pairs_well, caveat }. The debug row now audits both.
                 const ai = insight && !insight.error && !insight.unavailable ? insight : {};
-                const aiRow = (k) => { const v = ai[k]; const has = Array.isArray(v) ? v.filter(Boolean).length > 0 : !!(v && String(v).trim()); return k + ": " + (has ? "shown" : "empty/hidden"); };
+                const full = insightFull && !insightFull.error && !insightFull.unavailable ? insightFull : {};
+                const aiRow = (obj) => (k) => { const v = obj[k]; const has = Array.isArray(v) ? v.filter(Boolean).length > 0 : !!(v && String(v).trim()); return k + ": " + (has ? "shown" : "empty/hidden"); };
                 return (
                   <div style={{ marginBottom: 16, padding: "10px 12px", background: "#0A0E14", border: "1px dashed #30363D", borderRadius: 10, fontFamily: "ui-monospace, monospace", fontSize: 10.5, color: "#8B949E", lineHeight: 1.6, overflowWrap: "anywhere" }}>
                     <div style={{ color: "#CBD5E1", fontWeight: 800 }}>TRUST AUDIT</div>
@@ -1224,7 +1182,8 @@ export default function DetailSheet({ ctx }) {
                     <div>shown: {(audit.shown || []).join(", ") || "none"}</div>
                     <div>blocked: {(audit.blocked || []).map((b) => b.key + " (" + b.reason + ")").join("; ") || "none"}</div>
                     <div>park admission cue: {String(Tags.requiresParkAdmission(detail.types))}</div>
-                    <div>ai fields: {["verdict", "bestFor", "goWhen", "skipIf", "whyPicked", "tip", "caution", "mustTry"].map(aiRow).join(" · ")}</div>
+                    <div>compact fields: {["why_wayfind_picked_this"].map(aiRow(ai)).join(" · ")}</div>
+                    <div>full fields: {["what_to_order", "pairs_well", "caveat"].map(aiRow(full)).join(" · ")}</div>
                   </div>
                 );
               })()}

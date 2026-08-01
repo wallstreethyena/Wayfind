@@ -663,7 +663,18 @@ const LINE_TTL = 30 * 24 * 3600 * 1000; // 30 days
 // is no reason to keep serving pre-contract lines for up to LINE_TTL when a
 // fresh validated summary is one request away — bump per the established
 // pattern above.
-const CACHE_EPOCH = 3;
+//
+// Epoch 4 (v6.9x, editorial-quality audit 2026-08-01): /api/insight's
+// DETAIL_EDITORIAL contract actually shipped — compact collapsed from 10
+// loose fields down to { why_wayfind_picked_this }, full collapsed from 8
+// down to { what_to_order, pairs_well, caveat }. A stale epoch-3 blob in a
+// returning visitor's browser reads its old field names (`.why`, `.mustTry`,
+// `.pairing`, ...) as undefined against the new field names Detail.js now
+// reads (`.why_wayfind_picked_this`, `.what_to_order`, ...) — harmless (the
+// block just renders empty until a fresh generation lands), but same
+// reasoning as epoch 3: no reason to sit on months-old field-name mismatches
+// for up to LINE_TTL when a validated rewrite is one request away.
+const CACHE_EPOCH = 4;
 const LINES_KEY = "wf_lines_v" + CACHE_EPOCH;
 const INSIGHTS_KEY = "wf_insights_v" + CACHE_EPOCH;
 function allCachedLines() {
