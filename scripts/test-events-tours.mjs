@@ -15,6 +15,7 @@ ok(/Everything bookable near you/.test(src) && /\{tours\.length\}/.test(src), "l
 ok(/!isBusiness && !isTours && !eventsLoading/.test(src), "date chips hidden on the tours view (they zeroed out and read as broken)");
 ok(!/<ViatorRail title="Everything bookable near you"/.test(src), "the old retitled-rail-only tours render is GONE");
 ok(/ViatorRail title="Bookable experiences near you"/.test(src), "the pinned rail on event categories is untouched");
+ok((src.match(/Wayfind may earn a commission at no extra cost to you/g) || []).length === 0, "Events does not repeat ViatorRail's built-in commission disclosure");
 ok(/No bookable tours are loading right now/.test(src), "honest empty state kept");
 ok(src.includes("ViatorCommerceLink") && /tours\.map\(\(t(?:,\s*i)?\)[\s\S]{0,800}ViatorCommerceLink/.test(src), "every tour card routes through ViatorCommerceLink so the click hits the server redirect layer");
 
@@ -37,5 +38,11 @@ ok(!/likelyToSellOut|LIKELY_TO_SELL_OUT/.test(src), "the screen never re-derives
 ok(/const tours = rankExperiences\(eventsTours\)/.test(src), "both the pinned rail and full Local tours grid consume a defensively score-ranked list");
 ok(/rank=\{i \+ 1\}/.test(src), "commerce analytics receives each card's real ranked position, not rank=1 for every card");
 ok(/PlaceScoreChip/.test(src), "the full Local tours grid displays the same Wayfind Score that determines its order");
+
+// ── v6.94: browse first, then book ─────────────────────────────────────────
+ok(/for \(let i = 0; i < 8; i\+\+\)/.test(src), "the date chooser stays focused on the immediate eight-day window");
+ok(src.indexOf("Choose a day") < src.indexOf('ViatorRail title="Bookable experiences near you"'), "date navigation appears before affiliate inventory");
+ok(/const actionLabel = e\.ticketed \? "Get tickets"/.test(src), "ticketed event cards expose a clear Get tickets action");
+ok(/Availability from \{e\.source\}/.test(src), "ticket availability keeps its source visible beside the booking action");
 
 console.log(`test-events-tours: OK — ${pass} assertions (full-list view; 60-item city inventory; visible-score order; honest demand badge)`);
