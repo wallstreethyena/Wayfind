@@ -8078,10 +8078,13 @@ function PageInner({ initialEvents = null }) {
                 return (
                   <div style={{ marginBottom: 16 }}>
                     {locApprox && !locBannerGone && (
-            <div role="status" style={{ position: "fixed", left: 12, right: 12, bottom: "calc(96px + env(safe-area-inset-bottom))", zIndex: 60, display: "flex", alignItems: "center", gap: 9, background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", boxShadow: "0 8px 30px rgba(0,0,0,.45)" }}>
-                        <span style={{ fontSize: 15 }}>📍</span>
-                        <div style={{ flex: 1, fontSize: 12, color: C.light, lineHeight: 1.4 }}>Location is approximate{locName ? " — showing " + locName.split(",")[0] : ""}. <span onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ color: C.accent, fontWeight: 800, cursor: "pointer" }}>Search your city</span></div>
-                        <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 14, cursor: "pointer", padding: 2 }}>✕</button>
+                      <div role="status" aria-label="Approximate location" style={{ display: "flex", justifyContent: "center", margin: "0 0 10px" }}>
+                        <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%", background: "rgba(27,36,52,.78)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 9px 6px 11px" }}>
+                          <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: C.accent, flexShrink: 0 }} />
+                          <span style={{ minWidth: 0, color: C.light, fontSize: 10.5, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Using {locName ? locName.split(",")[0] + " area" : "an approximate area"}</span>
+                          <button onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontSize: 10.5, fontWeight: 850, cursor: "pointer", padding: 0 }}>Change</button>
+                          <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss approximate location notice" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 12, cursor: "pointer", padding: "0 2px", lineHeight: 1 }}>×</button>
+                        </div>
                       </div>
                     )}
                     {heroPlace && (<>

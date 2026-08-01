@@ -60,6 +60,8 @@ import { dealScope } from "../../lib/dealSheet";
 import { nearestMetro } from "../../lib/orderInFeatured";
 import { businessStatus } from "../../lib/businessStatus";
 import { venueLean } from "../../lib/ranking";
+import { wayfindScore } from "../../lib/google";
+import { toDisplayScore } from "../../lib/score";
 
 // ── 1. COUPON STRIP ─────────────────────────────────────────────────────────
 // GEO IS NOT OPTIONAL HERE. Without lat/lng this renders NATIONWIDE deals only.
@@ -126,6 +128,9 @@ const placeForStatus = (p) => ({
   utcOffset: p && (p.utcOffset != null ? p.utcOffset : p.utcOffsetMinutes),
 });
 
+const rightNowScore = (p) => toDisplayScore(p && p.wfScore)
+  ?? ((p && Number(p.rating) > 0) ? wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0) / 10 : -Infinity);
+
 export function rightNowReason(p, context, nowMs) {
   if (!p || !Number.isFinite(Number(p.distMi)) || Number(p.distMi) > 10) return null;
   const status = businessStatus(placeForStatus(p), nowMs);
@@ -161,6 +166,12 @@ export function rightNowRows(picks, places, durablePlaces, context, nowMs) {
     .filter((x) => x.p)
     .map((x) => ({ ...x, why: rightNowReason(x.p, context, nowMs) }))
     .filter((x) => x.why)
+    // The moment service decides which places fit the current hour; it does
+    // not get to replace the app's ranking. Once eligibility is known, show
+    // the same visible Wayfind Score users can verify on each row, highest
+    // first. This keeps "Right now" timely without turning it into a second,
+    // unexplained ranking system.
+    .sort((a, b) => rightNowScore(b.p) - rightNowScore(a.p))
     .slice(0, 4);
   if (!rows.length) return [];
   const durable = (durablePlaces || places || []).filter(Boolean).slice(0, rows.length).map((p) => p.id);
@@ -171,7 +182,10 @@ export function rightNowRows(picks, places, durablePlaces, context, nowMs) {
 export function PerfectRightNow({ picks, places, durablePlaces, context, nowMs, onOpenPlace, title = "Right now" }) {
   if (!picks || !picks.length || !places || !places.length) return null;
   const rows = rightNowRows(picks, places, durablePlaces, context, nowMs);
-  if (!rows.length) return null;
+  // One result is not a shortlist and should not become a large competing
+  // panel between the richer partner rail and the durable ranking. Keep this
+  // block only when it can make a genuinely useful comparison for now.
+  if (rows.length < 2) return null;
   return (
     <div style={{ background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}>
       <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: "0.6px", textTransform: "uppercase", marginBottom: 8 }}>{title}</div>

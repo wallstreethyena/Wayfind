@@ -76,7 +76,7 @@ if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
 if (!page.includes("Wayfind beta \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
-if (!page.includes("Location is approximate")) fail("approximate-location banner missing");
+if (!page.includes('aria-label="Approximate location"') || !page.includes("Using {locName ? locName.split")) fail("compact approximate-location control missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
 if (!/what are you in the mood for/i.test(page)) fail("mood kicker missing");
 // v5.26 — the welcome greeting speaks in feels-like temperature, saying so

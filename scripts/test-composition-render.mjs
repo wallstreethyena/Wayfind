@@ -95,7 +95,10 @@ ok(noloc.includes("Local deals on this list"),
 // ── 2. THE BLOCKS ACTUALLY RENDER THEIR CONTENT ────────────────────────────
 // A component that renders "" for every input would pass section 1 completely.
 // These are the positive controls that make the absence assertions meaningful.
-const picks = [{ id: "p1", why: "Quiet at this hour and five minutes away" }];
+const picks = [
+  { id: "p1", why: "Quiet at this hour and five minutes away" },
+  { id: "p2", why: "Open and nearby" },
+];
 const alwaysOpen = { periods: [{ open: { day: 0, hour: 0 }, close: { day: 0, hour: 0 } }] };
 const places = [
   { id: "p1", name: "Ortygia", rating: 4.7, reviews: 900, distMi: 2.1, oh: alwaysOpen, utcOffset: 0 },
@@ -106,6 +109,8 @@ ok(pr.includes("Right now"), "PerfectRightNow renders its heading when it has da
 ok(pr.includes("Ortygia"), "PerfectRightNow renders the place NAME");
 ok(pr.includes("2.1 miles away"), "PerfectRightNow derives a current distance reason instead of trusting generic API copy");
 ok(/>1</.test(pr), "PerfectRightNow renders the rank number");
+ok(render(createElement(Blocks.PerfectRightNow, { picks: picks.slice(0, 1), places, durablePlaces: [places[1]] })) === "",
+  "PerfectRightNow suppresses a single result because one card is not a shortlist");
 
 const tours = [{ code: "T1", url: "https://www.viator.com/tours/x", title: "Sunset sail", rating: 4.8, reviews: 200, fromPrice: 65, duration: "2h" }];
 const rail = render(createElement(ViatorRail, { title: "Top-rated experiences", items: tours }));
