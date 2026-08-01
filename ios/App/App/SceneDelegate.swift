@@ -3,7 +3,12 @@ import Capacitor
 
 final class WayfindBridgeViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
-        bridge?.registerPluginType(AppleSignInPlugin.self)
+        // registerPluginType is intentionally a no-op while Capacitor's
+        // package auto-registration is enabled. This app-owned plugin is not
+        // in packageClassList, so register the instance explicitly.
+        bridge?.registerPluginInstance(AppleSignInPlugin())
+        precondition(bridge?.plugin(withName: "AppleSignIn") != nil,
+                     "AppleSignIn plugin registration failed")
     }
 }
 
