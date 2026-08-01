@@ -1,12 +1,21 @@
 export const runtime = "nodejs";
 import { aiKey } from "../../../lib/aiKey";
 import { cget, cset, DAY } from "../../../lib/serverCache";
-import { validateWhyParagraph, filterSupportedItems, containsBannedPhrase, repeatsCardFacts } from "../../../lib/editorialValidator";
+import { validateWhyParagraph, filterSupportedItems, containsBannedPhrase, repeatsCardFacts, repeatsPlaceName } from "../../../lib/editorialValidator";
 
-// Generates a grounded "Wayfind AI" take on a single place using Claude Haiku.
-// Two modes keep cost down: "compact" runs on open and returns just enough for
-// the Good to know summary; "full" runs only when the user expands a place.
-// The model is told never to invent prices, hours, waits, or menu items.
+// v6.9x (owner, editorial-quality audit 2026-08-01) — this route used to ask
+// for an 18-field grab-bag (verdict/oneWord/bestTime/bestFor/goWhen/skipIf/
+// whyPicked/caution/tip in compact; goodFor/loves/cautions/tips/keywords/vibe
+// alongside mustTry/pairing in full), and PR #548 only ever validated 3 of
+// those 18 fields (why, mustTry, pairing) — the other 15 rendered straight to
+// the page unchecked, across THREE separate UI blocks, with mustTry itself
+// rendered twice. That's why the detail page still read like an AI dump after
+// the CARD_SUMMARY work: DETAIL_EDITORIAL as a contract never actually
+// shipped here. It ships now — exactly the shape the owner asked for:
+//   compact -> { why_wayfind_picked_this }
+//   full    -> { what_to_order: [], pairs_well, caveat }
+// Nothing else. Every field that ships passes through the validator; nothing
+// rides along unchecked.
 export async function POST(req) {
   try {
     const p = await req.json();
@@ -18,13 +27,21 @@ export async function POST(req) {
     // one generation per place+mode+kind sitewide. No place id in this payload,
     // so identity = normalized name+city. Events get a short TTL (their
     // arrival/parking guidance rots fastest); places get 14 days.
-    const ckey = "insight1|" + String(p.name || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim() + "|" + String(p.city || "").toLowerCase().slice(0, 30) + "|" + mode + "|" + kind;
+    // Namespace bumped insight1| -> insight2|: the shape changed (18 loose
+    // fields -> the 4-field DETAIL_EDITORIAL contract), so the old pool must
+    // not be read as if it were the new one — same reasoning as CARD_SUMMARY's
+    // blurb1| -> cardsum1| move in PR #548.
+    const ckey = "insight2|" + String(p.name || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim() + "|" + String(p.city || "").toLowerCase().slice(0, 30) + "|" + mode + "|" + kind;
     const hit = p.name ? await cget(ckey) : null;
     if (hit && hit.v && typeof hit.v === "object") return Response.json({ ...hit.v, cached: true }, { status: 200 });
-    const mustTryDesc = kind === "dining" ? "specific dishes or drinks reviewers repeatedly name" : kind === "event" ? "things reviewers say help when attending an event here (arrival timing, parking, nearby stops)" : "specific things reviewers say not to miss (rides, areas, shows, or signature items)";
+    // v6.9x — one universal field name, `what_to_order`, across all three
+    // kinds (matches lib/editorialValidator.js's validateDetailEditorial
+    // contract exactly, and keeps Detail.js from needing a kind-conditional
+    // field lookup). itemDesc is what actually varies by kind — the
+    // description told to the model of what belongs in that array.
+    const itemDesc = kind === "dining" ? "specific dishes or drinks reviewers single out as SIGNATURE — exceptional, memorable, or worth going back for, never just what gets mentioned most" : kind === "event" ? "specific things reviewers say help when attending this event (arrival timing, parking, nearby stops), the most useful first" : "specific things reviewers say not to miss (rides, areas, shows, or signature items), the most distinctive first";
     const _dining = kind === "dining";
     const exNouns = _dining ? "the actual dish, the patio, the bartender, the view, the crowd, the wait" : kind === "event" ? "the act, the stage, the crowd, arrival timing, parking, the wait" : "the view, the setting, the exhibit or show, the walk, the crowd, the wait";
-    const exSkip = _dining ? "you want quiet or upscale food" : "you want something indoors, quiet, or a sit-down meal instead";
     const exSig = _dining ? "dish" : "thing";
 
     const facts = [
@@ -48,46 +65,46 @@ export async function POST(req) {
 
     const guard =
       "Never invent prices in dollars, wait times, menu item percentages, hours, or comparisons to other named places; if a detail is not supported by the facts, omit it or use an empty value. " +
-      "Never name an individual staff member, server, bartender, host, manager, or employee, even if a review names them — describe the service in general terms instead ('friendly, attentive service') without the person's name. ";
+      "Never name an individual staff member, server, bartender, host, manager, or employee, even if a review names them — describe the service in general terms instead ('friendly, attentive service') without the person's name. " +
+      "Never write like a reviewer digest — no 'one reviewer said...', 'another visitor noted...', or any other attribution to an individual reviewer; report the PATTERN across all the evidence with the confidence of a sharp local friend who has read everything and is telling you what actually matters, not summarizing each review in turn. ";
     const voice =
       "You are a sharp local insider writing for Wayfind. Be specific to THIS place and genuinely useful for deciding whether to go. " +
       "Every line must say something that could NOT be copied onto just any place, for example " + exNouns + ". " +
       "No generic filler, no marketing adjectives, no restating the star rating. If the facts do not support a specific, useful point, leave that field empty rather than padding it. ";
 
+    // v6.9x (owner, editorial-quality audit 2026-08-01) — DETAIL_EDITORIAL,
+    // for real this time. compact asks for exactly one field (the paragraph
+    // that used to be buried as one of ten); full asks for exactly three.
+    // Nothing else rides along. Every field that ships passes through
+    // lib/editorialValidator.js before caching.
     let system;
     let maxTokens;
     if (mode === "full") {
-      maxTokens = 700;
+      maxTokens = 500;
       system =
         voice +
         (hasReviews ? "Base every point on what the real visitor reviews actually say. " : "Using ONLY the facts provided, be specific and concrete. ") +
         guard +
-        "Return ONLY valid JSON (no markdown, no code fences) with these keys: " +
-        "goodFor (array of up to 4 specific occasions or people this genuinely suits, drawn from what reviews describe, e.g. 'solo lunch at the bar' or 'big celebrations'; empty array if unclear), " +
-        (hasReviews ? "loves (array of up to 4 specific things reviewers single out, in concrete terms; empty array if unclear), " : "loves (empty array), ") +
-        (hasReviews ? "cautions (array of up to 3 honest, specific things that would change someone's decision, e.g. long weekend waits, cash only, loud, slow service, ONLY if reviewers mention them; empty array if none), " : "cautions (empty array), ") +
-        (hasReviews ? "mustTry (a JSON array of 3 to 5 " + mustTryDesc + ", most praised first, ONLY items a review actually names — never invented; empty array if fewer than 3 clearly stand out), " : "mustTry (empty array), ") +
-        (hasReviews ? "pairing (one short phrase on what goes well together if reviews suggest it, e.g. 'the brisket with a cold cider'; empty string if none), " : "pairing (empty string), ") +
-        (hasReviews ? "tips (array of up to 4 concrete insider moves a regular would share, like when to arrive, where to sit, what to order, parking, grounded in the reviews; empty array if none), " : "tips (empty array), ") +
-        (hasReviews ? "keywords (array of 3 to 5 short lowercase words reviewers most commonly use; empty array if unclear), " : "keywords (empty array), ") +
-        "vibe (2 to 4 words that capture the actual atmosphere).";
+        "Return ONLY valid JSON (no markdown, no code fences) with exactly these keys: " +
+        (hasReviews
+          ? "what_to_order (a JSON array of 3 to 5 " + itemDesc + "; rank by how memorable or exceptional reviewers say it is, NOT by how often it is simply mentioned — a dish two reviewers call unforgettable outranks one mentioned five times in passing with no real reaction; ONLY items a review actually names, never invented; empty array if fewer than 3 clearly stand out), "
+          : "what_to_order (empty array), ") +
+        (hasReviews
+          ? "pairs_well (one short, specific phrase on what genuinely goes well together if the reviews suggest a real combination, e.g. 'the brisket with a cold cider'; empty string if nothing specific stands out), "
+          : "pairs_well (empty string), ") +
+        (hasReviews
+          ? "caveat (ONE honest, specific thing to know before going that would change someone's decision — a real wait, cash only, loud at peak times, limited parking — ONLY if reviewers actually say it; empty string if nothing stands out)."
+          : "caveat (empty string).");
     } else {
-      maxTokens = 900;
+      maxTokens = 400;
       system =
         voice +
         (hasReviews ? "Base every point on what the real visitor reviews actually say. " : "Using ONLY the facts provided, be specific and concrete. ") +
         guard +
-        "Return ONLY valid JSON (no markdown, no code fences) with these keys: " +
-        "verdict (one specific, decision-useful sentence naming the single best reason to go that is particular to THIS place, not generic praise; attribute taste or service claims to reviewers, e.g. reviewers rave about the ceviche, while staying decisive), " +
-        "oneWord (exactly ONE word capturing the overall sentiment, e.g. 'Lively', 'Cozy', 'Reliable'), " +
-        "bestTime (short specific phrase for when to go if reviews indicate it, e.g. 'Weekday evenings, before 7'; empty string if unclear), " +
-        "bestFor (array of up to 4 short audience or occasion labels this genuinely suits, e.g. 'Families', 'Date night', 'Solo work', grounded in what reviews describe; empty array if unclear), " +
-        "goWhen (short phrase for the best time or use case to go, e.g. 'Before 6 PM', 'Weekday lunch'; empty string if unclear), " +
-        (hasReviews ? "skipIf (one honest tradeoff naming who should skip it or when not to go, e.g. '" + exSkip + "', grounded in reviews; empty string if unclear), " : "skipIf (empty string), ") +
-        (hasReviews ? "whyPicked (one concrete sentence of evidence for why this is a solid pick, drawn from what reviewers emphasize, not generic praise; empty string if unclear), " : "whyPicked (empty string), ") +
-        (hasReviews ? "why (ONE tight paragraph, 90 to 150 words, titled 'why_wayfind_picked_this' in spirit: what this place IS, the recurring PATTERN across reviews (not a list of individual reviews, and never a named staff member), the signature move or " + exSig + " not to miss, who it is best for, and one honest caveat such as price, wait, or a drive if reviews support it; grounded ONLY in the provided reviews and facts, written with the confidence of a sharp local friend who read every review and is reporting the pattern, not summarizing each one; no bullet fragments, no generic praise, no restating the rating; empty string if the evidence is thin), " : "why (empty string), ") +
-        (hasReviews ? "caution (ONE specific honest thing to know or common complaint that would change a decision; empty string if none stands out), " : "caution (empty string), ") +
-        (hasReviews ? "tip (ONE concrete insider tip a regular would actually give; empty string if none)." : "tip (empty string).");
+        "Return ONLY valid JSON (no markdown, no code fences) with exactly this key: " +
+        (hasReviews
+          ? "why_wayfind_picked_this (ONE tight paragraph, 90 to 150 words: open with what this place genuinely IS in a specific, non-generic way; name the signature " + exSig + " or experience it is actually known for; say who it is genuinely best for; close with one honest caveat — price, wait, a drive, limited hours — ONLY if the evidence supports one. Grounded ONLY in the facts and reviews provided, written with the confidence of a sharp local friend reporting the pattern across everything they read, not a list of individual reviews. No bullet fragments, no generic praise, no restating the rating, review count, price symbols, or open/closed status. Empty string if the evidence is too thin to support a genuine, specific recommendation.)"
+          : "why_wayfind_picked_this (empty string — there is not enough evidence yet to write a grounded recommendation).");
     }
 
     const reqInit = {
@@ -109,7 +126,7 @@ export async function POST(req) {
     let text = (data?.content || []).filter((b) => b.type === "text").map((b) => b.text).join("").trim();
     text = text.replace(/^```json/i, "").replace(/^```/, "").replace(/```$/, "").trim();
     let parsed;
-    try { parsed = JSON.parse(text); } catch { parsed = mode === "full" ? { error: true } : { verdict: text.slice(0, 200) }; }
+    try { parsed = JSON.parse(text); } catch { parsed = { error: true }; }
     // v5.75 (accuracy): geographic-claim guard. The model was asserting things
     // like "waterfront location … sunset waterfront views" for The Oar & Iron —
     // an inland bar/grill — with ZERO grounding (empty reviews/editorial). Strip
@@ -124,16 +141,19 @@ export async function POST(req) {
     // dropping here is enough to keep the rule good evidence -> sharp copy,
     // weak evidence -> nothing.
     if (parsed && !parsed.error && !parsed.unavailable) {
-      if (mode === "compact" && parsed.why) {
-        const whyVerdict = validateWhyParagraph(parsed.why, { name: p.name });
-        parsed.why = whyVerdict.ok ? whyVerdict.text : "";
+      if (mode === "compact") {
+        const whyVerdict = validateWhyParagraph(parsed.why_wayfind_picked_this, { name: p.name });
+        parsed.why_wayfind_picked_this = whyVerdict.ok ? whyVerdict.text : "";
       }
       if (mode === "full") {
-        if (Array.isArray(parsed.mustTry)) parsed.mustTry = filterSupportedItems(parsed.mustTry, factsText, 5);
-        if (parsed.pairing) {
-          const pw = String(parsed.pairing).trim();
-          parsed.pairing = pw && pw.split(/\s+/).length >= 2 && !containsBannedPhrase(pw) && !repeatsCardFacts(pw) ? pw : "";
-        }
+        parsed.what_to_order = filterSupportedItems(parsed.what_to_order, factsText, 5);
+        // pairs_well / caveat are short phrases, not full sentences ("the
+        // brisket with a cold cider" is valid) — same shape of check
+        // validateDetailEditorial applies to these two fields.
+        let pairsWell = String(parsed.pairs_well || "").trim();
+        parsed.pairs_well = pairsWell && pairsWell.split(/\s+/).length >= 2 && !containsBannedPhrase(pairsWell) && !repeatsCardFacts(pairsWell) && !repeatsPlaceName(pairsWell, p.name) ? pairsWell : "";
+        let caveat = String(parsed.caveat || "").trim();
+        parsed.caveat = caveat && caveat.split(/\s+/).length >= 2 && !containsBannedPhrase(caveat) && !repeatsCardFacts(caveat) ? caveat : "";
       }
     }
 
