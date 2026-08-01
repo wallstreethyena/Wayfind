@@ -435,7 +435,13 @@ export default function IntentPageClient({ intent }) {
         <CouponStrip
           intentId={INTENT_COUPON_BADGE[intent]}
           lat={loc.lat} lng={loc.lng}
-          onOpenCoupons={() => { try { track("coupon_strip_to_coupons", { intent }); } catch (e) {} window.location.href = "/coupons"; }}
+          onOpenCoupons={(coupon, state) => {
+            try { track("coupon_strip_to_coupons", { intent, coupon_id: coupon && coupon.id, clipped: !!(state && state.clipped) }); } catch (e) {}
+            if (!coupon || !coupon.id) { window.location.href = "/coupons"; return; }
+            const focus = coupon && coupon.id ? `&focus=${encodeURIComponent(coupon.id)}` : "";
+            const saved = state && state.clipped ? "&saved=1" : "";
+            window.location.href = `/coupons?view=clipped${focus}${saved}`;
+          }}
           onLog={(name, _p, meta) => { try { track(name, { ...(meta || {}), intent }); } catch (e) {} }} />
 
         {/* A single exact, location+intent-matched partner product. It sits in

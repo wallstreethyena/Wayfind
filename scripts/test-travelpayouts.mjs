@@ -1,5 +1,5 @@
-// Gate: Travelpayouts deep-link engine. Four Wave-1 programs are LIVE as of
-// 2026-07-29; everything else still ships dark. This suite locks:
+// Gate: Travelpayouts deep-link engine. Five programs are LIVE as of
+// 2026-08-01; everything else still ships dark. This suite locks:
 //   1. the exact dashboard URL format, including param ORDER
 //   2. the marker/trs distinction — the thing that has been confused twice
 //   3. that the stale NEXT_PUBLIC_TP_MARKER env var can no longer override
@@ -24,8 +24,8 @@ const SRC = RAW.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 let fails = 0;
 const ok = (c, m) => { if (!c) { console.error("test-travelpayouts: FAIL — " + m); fails++; } };
 
-// ── 1. the four Wave-1 programs are LIVE ──────────────────────────────────
-const WAVE1 = { tiqets: { c: "89", p: "2074" }, klook: { c: "137", p: "4110" }, ticketnetwork: { c: "72", p: "1948" }, wegotrip: { c: "150", p: "4487" } };
+// ── 1. every dashboard-verified program is LIVE ───────────────────────────
+const WAVE1 = { tiqets: { c: "89", p: "2074" }, klook: { c: "137", p: "4110" }, ticketnetwork: { c: "72", p: "1948" }, wegotrip: { c: "150", p: "4487" }, gocity: { c: "62", p: "1942" } };
 for (const [key, ids] of Object.entries(WAVE1)) {
   ok(M.isTpProgramLive(key) === true, `${key} is LIVE`);
   const link = M.tpDeepLink(key, "https://example.com/x");
@@ -74,7 +74,7 @@ ok(!/tp-em\.com/.test(SRC), "this module's CODE does not touch the tp-em.com ver
 ok(/tp-em\.com/.test(RAW), "…but the file still DOCUMENTS why 550160 is correct there — self-test: if this fails the comment was deleted and the next person will 'fix' layout.js again");
 
 // ── 6. everything else still ships dark ───────────────────────────────────
-for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "gocity", "radicalstorage", "bikesbooking"]) {
+for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "radicalstorage", "bikesbooking"]) {
   ok(M.isTpProgramLive(key) === false, `${key} ships DARK`);
   ok(M.tpDeepLink(key, "https://example.com/x") === null, `${key} tpDeepLink returns null`);
   ok(M.tpBrandLink(key) === null, `${key} tpBrandLink returns null`);
@@ -111,9 +111,10 @@ for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "goci
 const r = M.tpReadiness();
 ok(r.marker === "750791", `readiness marker 750791 (got ${r.marker})`);
 ok(r.trs === "550160", `readiness trs 550160 (got ${r.trs})`);
-ok(r.live === 4, `exactly 4 programs live (got ${r.live})`);
-ok(r.liveKeys.sort().join(",") === "klook,ticketnetwork,tiqets,wegotrip", `live keys are the four Wave-1 (got ${r.liveKeys.join(",")})`);
+ok(r.live === 5, `exactly 5 programs live (got ${r.live})`);
+ok(r.liveKeys.sort().join(",") === "gocity,klook,ticketnetwork,tiqets,wegotrip", `live keys are the five verified programs (got ${r.liveKeys.join(",")})`);
 ok(M.tpProgramsForCategory("attractions").length === 1, "attractions has 1 live program (tiqets)");
+ok(M.tpProgramsForCategory("passes").length === 1, "passes has 1 live program (Go City)");
 ok(M.tpProgramsForCategory("transfers").length === 0, "transfers still has 0 live (Wave 2 dark)");
 
 // ── 7. input guards ───────────────────────────────────────────────────────
@@ -129,4 +130,4 @@ ok(M.tpDeepLink("nonexistent", "https://x.com") === null, "unknown program rejec
 ok(M.tpDeepLink("tiqets", "") === null, "empty destination rejected");
 
 if (fails) { console.error(`test-travelpayouts: ${fails} failure(s)`); process.exit(1); }
-console.log("test-travelpayouts: OK — 4 Wave-1 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 6 programs still dark, protocol guard rejects javascript:/data:/ftp:/mailto:/file: and accepts http(s)");
+console.log("test-travelpayouts: OK — 5 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 5 programs still dark, protocol guard rejects javascript:/data:/ftp:/mailto:/file: and accepts http(s)");

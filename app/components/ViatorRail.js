@@ -22,13 +22,13 @@
 //
 // THE ATTRIBUTION IS LOAD-BEARING AND MUST NOT BE "SIMPLIFIED". v6.44: this
 // rail once rendered a RAW t.url while its sibling wrapped the identical
-// payload with viatorDirectUrl(), so every booking from that surface earned
-// nothing. rel="noreferrer sponsored" and the commission disclosure are FTC
-// requirements, not styling.
+// payload without the tracked server redirect, so every booking from that
+// surface lost the click-to-redirect join. The commerce wrapper below resolves
+// the destination server-side; the commission disclosure is load-bearing.
 import { C, PlaceScoreChip } from "./kit";
 import { eventCategoryArt } from "../../lib/eventCategoryArt";
-import { viatorDirectUrl } from "../../lib/affiliates";
 import { rankExperiences } from "../../lib/experiencesData";
+import ViatorCommerceLink from "./ViatorCommerceLink";
 
 export default function ViatorRail({ title, items, theme, onLog, onOpenExternal }) {
   if (!Array.isArray(items) || !items.length) return null;
@@ -41,19 +41,17 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
         <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {rankedItems.map((t) => (
-          /* v6.44: this rail rendered a RAW t.url while its sibling rail (the
-             Things-to-do one, ~8389) wrapped the identical payload from the
-             identical /api/viator/tours endpoint with viatorDirectUrl(). Two
-             rails, same data, one attributed and one not — so every booking
-             from the Family browse earned nothing. Same class of hole as the
-             Detail sheet's tour list; fixed the same way.
+        {rankedItems.map((t, i) => (
+          /* v6.44: this rail rendered a RAW t.url while its sibling rail used
+             an affiliate wrapper. Both now use ViatorCommerceLink so the UI
+             points to Wayfind's validated server redirect and carries the
+             click_id attribution chain.
              NOTE: this is a plain block comment, not a braced JSX comment. The
              arrow body here is a parenthesised EXPRESSION, not a JSX children
              list, so a braced comment would be a second top-level expression
              and the file stops parsing (TS2657 "JSX expressions must have one
              parent element"). Caught by npm run check:jsx, 2026-07-28. */
-          <a key={t.code || t.url} href={viatorDirectUrl(t.url) || t.url} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { onLog && onLog("tickets_out", null, { kind: "vibe_tour", theme, code: t.code }); } catch (er) {} (onOpenExternal ? onOpenExternal(_live) : window.open(_live, "_blank", "noopener,noreferrer")); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
+          <ViatorCommerceLink key={t.code || t.url} t={t} surface="viator_rail" contentId={theme} rank={i + 1} onClick={(e, clickId) => { try { onLog && onLog("tickets_out", null, { kind: "vibe_tour", theme, code: t.code, click_id: clickId }); } catch (er) {} if (onOpenExternal) { e.preventDefault(); onOpenExternal(e.currentTarget.href); } }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden", textDecoration: "none" }}>
             {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
               <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
               {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
@@ -66,7 +64,7 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
                 <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}{t.duration ? ` · ${t.duration}` : ""}</span>
               </div>
             </div>
-          </a>
+          </ViatorCommerceLink>
         ))}
       </div>
       <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>

@@ -21,7 +21,6 @@ import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 // JavaScript until it RUNS — this would have been a ReferenceError on every
 // Things-to-do render, the same failure #486 shipped to production as a 404.
 // Caught by check-lib-call-imports, which is exactly why that guard exists.
-import { viatorDirectUrl } from "../../lib/affiliates";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";
@@ -84,7 +83,7 @@ export function ttdPlace(r) {
   return { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640), category: r.category };
 }
 
-function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
+function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const isTour = r.kind === "experience";
   const img = isTour ? (r.image_url || null) : tbPhotoUrl(r.photo_ref, 640);
   const open = () => {
@@ -202,13 +201,12 @@ function Card({ r, first, rank, blurb, beachSignal, onOpenPlace, onLog, onSave, 
   const style = { display: "block", width: "100%", textAlign: "left", borderRadius: RADII.card, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, boxShadow: SHADOW.card, marginBottom: 12, cursor: "pointer", textDecoration: "none", padding: 0 };
   // v6.79 (AGENTS.md §6b): an unattributable tour link is not rendered as a
   // link at all — the card stays, the booking anchor does not.
-  const tourHref = isTour ? viatorDirectUrl(r.booking_url) : null;
-  return (isTour && tourHref)
-    ? <a href={tourHref} target="_blank" rel="noreferrer sponsored" className="wf-ttd-focus" style={style} onClick={() => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }); } catch (e) {} }}>{body}</a>
+  return isTour
+    ? <ViatorCommerceLink t={r} city={city} surface="ttd_ranked_card" contentId={city} rank={rank} className="wf-ttd-focus" style={style} onClick={(e, clickId) => { try { onLog && onLog("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch (er) {} }}>{body}</ViatorCommerceLink>
     : <div role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } }} onClick={open} className="wf-ttd-focus" style={style}>{body}</div>;
 }
 
-export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {
+export default function ThingsToDoList({ center, city, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {
   const [list, setList] = useState(null); // null = loading
   // v6.71 (Wave 2): batched water-quality + popularity for whichever beach
   // rows land in this ranked list — same wf_beach_water / wf_place_popularity_scored
@@ -277,7 +275,7 @@ export default function ThingsToDoList({ center, weather, onOpenPlace, onLog, bl
         </>
       ) : shown.length ? (
         <>
-          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} liked={!!(liked && liked[r.id])} disliked={!!(disliked && disliked[r.id])} onLike={onLike} onDislike={onDislike} />)}
+          {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} city={city} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} liked={!!(liked && liked[r.id])} disliked={!!(disliked && disliked[r.id])} onLike={onLike} onDislike={onDislike} />)}
           {hasTours ? <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Some links are affiliate links; it never changes our rankings.</div> : null}
         </>
       ) : (

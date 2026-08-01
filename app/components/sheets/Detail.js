@@ -723,20 +723,23 @@ export default function DetailSheet({ ctx }) {
                     onClick={handlePrimaryCtaClick}
                   />
                 </div>
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                {!detail._event && primaryCta.monetized && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates && <FTCDisclosure />}
+                {/* One balanced secondary bar. Directions used to occupy a row
+                    by itself above reactions, which made the dock look like two
+                    unrelated button systems. Keep every secondary action on the
+                    same baseline; the earning/decision CTA remains the sole
+                    full-width primary above. */}
+                <div data-detail-secondary-actions style={{ display: "flex", alignItems: "stretch", gap: 8, marginTop: 8 }}>
                   {primaryCta.type !== "directions" && (
-                    <a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ minWidth: 0, height: 48, padding: "0 15px", background: "linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018))", border: `1px solid ${C.border}`, borderRadius: 12, color: C.accent, fontSize: 14.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap" }} aria-label="Directions">
+                    <a data-detail-directions href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail); } catch (e) {} }} style={{ flex: "1 1 104px", minWidth: 92, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.accent, fontSize: 12.5, fontWeight: 800, textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, whiteSpace: "nowrap" }} aria-label="Directions">
                       <span>Directions</span><span aria-hidden="true">↗</span>
                     </a>
                   )}
-                </div>
-                {!detail._event && primaryCta.monetized && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates && <FTCDisclosure />}
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                   {!detail._event && (<>
                     <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
-                  <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flex: 1, minWidth: 0, height: 44, padding: "0 12px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, fontSize: 13.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
+                  <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flex: "1 1 104px", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
                 </div>
               </div>
               {(() => { /* v6.37 — VRBO whole-home alternative for lodging places (Expedia affiliate; template in lib/affiliates, plain link until set). */
@@ -748,6 +751,20 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />
+              {Array.isArray(detail._children) && detail._children.length ? (
+                <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
+                  <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>
+                  <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 4 }}>Included highlights at this destination — not separate places to visit.</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 9 }}>
+                    {detail._children.slice(0, 6).map((child) => (
+                      <span key={child.id || child.name} style={{ display: "inline-flex", alignItems: "center", gap: 5, maxWidth: "100%", padding: "6px 10px", borderRadius: 999, background: C.bg, border: `1px solid ${C.border}`, color: C.text, fontSize: 12, fontWeight: 700 }}>
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{child.name}</span>
+                        {child.rating != null ? <span style={{ color: C.gold, flexShrink: 0 }}>{child.rating}★</span> : null}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               {/* Featured creator video (Phase 1): curated UGC social proof, credited to the creator and linked out to their real video. Placed UNGATED here (below the action row, above "Why Wayfind picked this") on purpose so it's prominent — the auto-YouTube strip stays inside "show more" below. This sheet is noindex, so the creator's benefit here is traffic: we keep the referrer (rel="noopener", deliberately NOT "noreferrer") so the visit attributes to Wayfind in their analytics. No JSON-LD here; VideoObject lives only on /trending/[city]. */}
               {!detail._event && (() => {
                 const cvs = creatorVideosFor(detail, locName);

@@ -74,8 +74,10 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
   const r2 = C.groupByContainment([MK, near]);
   ok(r2.nestedIds.has("n"), "a place at the park centroid IS nested");
 
-  // With no parent in the list, nothing nests.
-  const r3 = C.groupByContainment([SPACE, HAUNT, SCI]);
+  // With no parent in the list, ordinary venues stay independent.
+  const standaloneA = { id: "sa", name: "Standalone Gallery", types: ["tourist_attraction"], reviews: 500, lat: 28.55, lng: -81.35 };
+  const standaloneB = { id: "sb", name: "Standalone Garden", types: ["tourist_attraction"], reviews: 600, lat: 28.56, lng: -81.34 };
+  const r3 = C.groupByContainment([standaloneA, standaloneB, SCI]);
   ok(r3.nestedIds.size === 0, "no parent in the result set => nothing is nested");
   ok(r3.groups.length === 3, "all three stay top-level");
 
@@ -85,6 +87,23 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
   const g = r4.groups.find((x) => x.place.id === "mk");
   ok(g.children.length <= 6, "children are capped so one park cannot dominate, got " + g.children.length);
   ok(r4.groups.length === 1 + (20 - g.children.length), "uncapped extras stay visible as top-level rows, not silently dropped");
+}
+
+/* ── park-zone orphans never masquerade as standalone destinations ──── */
+{
+  const SEA = { id: "sea", name: "SeaWorld Orlando", types: ["tourist_attraction", "amusement_park"], reviews: 100000, lat: 28.4114, lng: -81.4614 };
+  const BAYSIDE = { id: "bayside", name: "Bayside Stadium", types: ["tourist_attraction"], reviews: 1035, lat: 28.4108, lng: -81.4610 };
+
+  const together = C.consolidateDestinations([SEA, BAYSIDE, SCI]);
+  ok(together.places.some((p) => p.id === "sea"), "SeaWorld remains the destination card");
+  ok(!together.places.some((p) => p.id === "bayside"), "Bayside Stadium is not a peer recommendation");
+  const sea = together.places.find((p) => p.id === "sea");
+  ok(Array.isArray(sea._children) && sea._children.some((p) => p.id === "bayside"), "Bayside Stadium appears inside SeaWorld");
+
+  const orphan = C.consolidateDestinations([BAYSIDE, SCI]);
+  ok(!orphan.places.some((p) => p.id === "bayside"), "an inside-only venue fails closed when its park card is absent");
+  ok(orphan.suppressedIds.has("bayside"), "park-zone suppression is explicit and inspectable");
+  ok(orphan.places.some((p) => p.id === "sci"), "an unrelated standalone attraction is never suppressed");
 }
 
 /* ── degenerate input never throws ─────────────────────────────────────── */
@@ -162,12 +181,14 @@ const SCI  = { id: "sci", name: "Orlando Science Center", types: ["museum", "tou
 {
   const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
   const landing = readFileSync(join(ROOT, "lib/landing.js"), "utf8");
+  const detail = readFileSync(join(ROOT, "app/components/sheets/Detail.js"), "utf8");
 
-  ok(home.indexOf("groupByContainment") >= 0, "the in-app list groups by containment");
+  ok(home.indexOf("consolidateDestinations") >= 0, "the in-app list consolidates destinations");
   ok(home.indexOf("_children") >= 0, "children ride along on the place object");
-  ok(/const restView = \(\) =>|const restView = \(/.test(home), "restView is the grouped list");
+  ok(/const consolidatedView =/.test(home) && /const exHero = .*consolidatedView/.test(home), "containment runs before hero selection so a hero park cannot strand its children");
   // The grouping must be fail-soft: a throw here would blank the entire feed.
-  ok(/catch \(e\) \{ return restView0; \}/.test(home), "grouping failure falls back to the ungrouped list, never an empty feed");
+  ok(/catch \(e\) \{ return view; \}/.test(home), "grouping failure falls back to the ungrouped list, never an empty feed");
+  ok(detail.includes("data-contained-venues") && detail.includes("Included highlights at this destination"), "the parent detail sheet explains and displays its contained venues");
 
   ok(landing.indexOf("groupByContainment") >= 0, "the ranked landing list groups too");
   ok(landing.indexOf("topLevel") >= 0, "landing renders top-level groups");

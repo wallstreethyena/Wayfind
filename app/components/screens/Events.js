@@ -71,6 +71,9 @@ function EventCard({ e, onVenue, ctx }) {
   const internal = e.destKind === "internal";
   const href = internal ? e.dest : ticketUrl(e.dest, { surface: "events_grid_card", offerId: e.id });
   const externalTickets = internal && e.url ? ticketUrl(e.url, { surface: "events_grid_tickets", offerId: e.id }) : null;
+  const actionHref = externalTickets || href;
+  const actionExternal = Boolean(externalTickets || !internal);
+  const actionLabel = e.ticketed ? "Get tickets" : (internal ? "Explore event" : "Official details");
   return (
     <div style={{ display: "flex", flexDirection: "column", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden" }}>
       <a
@@ -87,7 +90,7 @@ function EventCard({ e, onVenue, ctx }) {
           </div>
           {(e.segment || e.genre) && <div style={{ position: "absolute", top: 8, right: 8, background: "rgba(13,17,23,.85)", color: seg.color, borderRadius: 999, padding: "3px 8px", fontSize: 10, fontWeight: 800, backdropFilter: "blur(3px)", display: "inline-flex", alignItems: "center", gap: 4 }}><Icon name={seg.iconName || "ticket"} size={11} color={seg.color} />{seg.short}</div>}
         </div>
-        <div style={{ padding: "9px 10px 0", minWidth: 0 }}>
+        <div style={{ padding: "10px 11px 0", minWidth: 0 }}>
           <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text, lineHeight: 1.3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{e.name}</div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5, alignItems: "center" }}>
             {rec
@@ -98,15 +101,20 @@ function EventCard({ e, onVenue, ctx }) {
           {e.price && <div style={{ fontSize: 11.5, fontWeight: 700, color: C.green, marginTop: 4 }}>{e.price}</div>}
         </div>
       </a>
-      <div style={{ padding: "0 10px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+      <div style={{ padding: "0 11px 11px", display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         {venue && (
           <button onClick={() => onVenue && onVenue()} style={{ textAlign: "left", background: "transparent", border: "none", padding: 0, marginTop: 4, fontSize: 11.5, fontWeight: 700, color: C.light, cursor: "pointer", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>📍 {venue} ›</button>
         )}
-        <div style={{ marginTop: "auto", paddingTop: 8, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
-          {externalTickets
-            ? <a href={externalTickets} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("ticket", null, { id: e.id, src: "events_grid" }); } catch (er) {} }} style={{ fontSize: 11.5, fontWeight: 800, color: C.light, textDecoration: "none" }}>{e.ticketed ? "Get tickets ↗" : "Official site ↗"}</a>
-            : <span />}
-          {e.source && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{e.source}</span>}
+        <div style={{ marginTop: "auto", paddingTop: 10 }}>
+          <a
+            href={actionHref}
+            {...(actionExternal ? { target: "_blank", rel: "noreferrer" } : {})}
+            onClick={() => { try { logEvent(e.ticketed ? "ticket" : "event_open", null, { id: e.id, kind: e.destKind, src: "events_grid_cta" }); } catch (er) {} }}
+            style={{ minHeight: 38, borderRadius: 10, background: e.ticketed ? C.accent : C.panel, border: `1px solid ${e.ticketed ? C.accent : C.border}`, color: e.ticketed ? "#0D1117" : C.light, textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 850 }}
+          >
+            {actionLabel} <span aria-hidden="true">↗</span>
+          </a>
+          {e.source && <div style={{ marginTop: 6, textAlign: "center", fontSize: 9, color: C.muted, fontWeight: 600 }}>Availability from {e.source}</div>}
         </div>
       </div>
     </div>
@@ -166,7 +174,10 @@ export default function EventsScreen({ ctx }) {
   const tours = rankExperiences(eventsTours);
   const eventDateChips = [];
   const enow = new Date();
-  for (let i = 0; i < 28; i++) {
+  // Keep the first decision compact. A four-week strip made the most useful
+  // dates feel buried; eight days covers the immediate planning window while
+  // "Any" still exposes the complete inventory.
+  for (let i = 0; i < 8; i++) {
     const d = new Date(enow.getFullYear(), enow.getMonth(), enow.getDate() + i);
     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     eventDateChips.push({ value, top: i === 0 ? "Today" : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()], day: d.getDate() });
@@ -214,16 +225,39 @@ export default function EventsScreen({ ctx }) {
         )}
       </div>
 
-      {/* v6.20 — the bookable-experiences (Viator) rail; now sits BELOW the
-          category filter (owner direction), still on every filter view. */}
+      {/* Dates are a navigation decision, so they belong before inventory. */}
+      {!isBusiness && !isTours && !eventsLoading && !eventsUnavailable && !eventsError && allCount > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 7 }}>
+            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: ".8px", textTransform: "uppercase", color: C.muted }}>Choose a day</span>
+            <span style={{ fontSize: 10.5, color: C.muted }}>{allCount} upcoming</span>
+          </div>
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+            <button aria-label="Show events on any date" onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
+            {eventDateChips.map((d) => { const count = countFor(d.value); return (
+              <button key={d.value} aria-label={`Show events ${d.top} ${d.day}`} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
+                <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
+                <div style={{ fontSize: 14 }}>{d.day}</div>
+                <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
+              </button>
+            ); })}
+          </div>
+        </div>
+      )}
+
+      {/* v6.20 — the bookable-experiences (Viator) rail; pinned on every
+          event-category view, after the controls so it never blocks browsing. */}
       {/* v6.34: when the Local-tours CATEGORY is selected, the main area below
           owns the full affiliate list — don't double-render the pinned rail. */}
       {!isTours && (eventsTours === null ? (
         <Loader label="Finding bookable experiences" pad="6px 2px" />
       ) : tours.length > 0 ? (
         <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 8 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>Make more of the day</div>
+            <div style={{ marginTop: 2, fontSize: 11.5, lineHeight: 1.45, color: C.muted }}>Highly rated tours and activities near {String(locName || "you").split(",")[0]} when the event is only one part of the plan.</div>
+          </div>
           <ViatorRail title="Bookable experiences near you" items={tours} theme="events-tours" />
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 2 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
         </div>
       ) : null)}
       {isTours && (
@@ -267,31 +301,24 @@ export default function EventsScreen({ ctx }) {
         ) : <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>No bookable tours are loading right now — check back shortly.</div>
       )}
 
-      {/* Date chips (kept — events-page-only). Hidden for the Business feed. */}
-      {!isBusiness && !isTours && !eventsLoading && !eventsUnavailable && !eventsError && all.length > 0 && (
-        <div style={{ marginBottom: 10 }}>
-          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
-            <button onClick={() => setEventDate("all")} style={dchip(eventDate === "all")}><div style={{ fontSize: 10, opacity: 0.85 }}>Any</div><div style={{ fontSize: 14 }}>All</div><div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{allCount}</div></button>
-            {eventDateChips.map((d) => { const count = countFor(d.value); return (
-              <button key={d.value} onClick={() => setEventDate(d.value)} style={dchip(eventDate === d.value)}>
-                <div style={{ fontSize: 10, opacity: 0.85 }}>{d.top}</div>
-                <div style={{ fontSize: 14 }}>{d.day}</div>
-                <div style={{ fontSize: 9, opacity: 0.75, height: 11 }}>{count > 0 ? count : ""}</div>
-              </button>
-            ); })}
-          </div>
-        </div>
-      )}
-
       {/* Event grid for the selected category (Business events flow through the
           same path — a distinct source, shown only when its feeds return real
           events; otherwise the honest empty state below). */}
       {!isTours && eventsLoading && <Loader label="Finding plans" pad="8px 2px" />}
       {!isTours && !eventsLoading && eventsUnavailable && !isBusiness && <div style={{ color: C.muted, fontSize: 13, padding: "8px 2px" }}>Local events aren&apos;t turned on for your area yet — but the bookable experiences above always work.</div>}
       {!eventsLoading && (eventsUnavailable ? isBusiness : true) && !eventsError && shown.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10, paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
-          {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
-        </div>
+        <section aria-label={`${activeFilter.label} events`} style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 9 }}>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 800, color: C.text }}>{activeFilter.label} worth planning around</div>
+              <div style={{ marginTop: 2, fontSize: 10.5, color: C.muted }}>Soonest first · tap a card for the full story</div>
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 750, color: C.muted }}>{shown.length}</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 10 }}>
+            {shown.map((e) => <EventCard key={e.id} e={e} onVenue={() => openVenue(e)} ctx={ctx} />)}
+          </div>
+        </section>
       )}
       {!isTours && !eventsLoading && !eventsError && shown.length === 0 && (
         isBusiness
@@ -307,7 +334,7 @@ export default function EventsScreen({ ctx }) {
               : <div style={{ textAlign: "center", padding: "32px 24px", color: C.muted }}>
                   <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
                   <strong style={{ display: "block", color: C.light }}>Nothing in {activeFilter.label.toLowerCase()} {eventDate === "all" ? "right now" : "on this day"}</strong>
-                  <span style={{ fontSize: 13 }}>Try another category or date — the bookable experiences above are always live.</span>
+                  <span style={{ fontSize: 13 }}>Try another category or choose Local tours for bookable plans nearby.</span>
                 </div>
       )}
       {!eventsLoading && eventsError && !isBusiness && (

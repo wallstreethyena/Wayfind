@@ -1,9 +1,7 @@
-// Guardrail (v5.49): no favorite/save/like/dislike/bookmark/list/trip write
-// can succeed for a signed-out user, anywhere on the site. This is the
-// regression guard for that rule — it fails the build if requireAuth()'s
-// gate is ever stripped from any of the identified write paths, or if the
-// underlying Supabase RLS policies stop requiring the caller's own auth.uid()
-// on the tables that back cloud-synced favorites.
+// Guardrail: explicit reactions and clipping work immediately on-device;
+// account-backed list/trip writes and every cloud sync remain authenticated.
+// This fails the build if a local reaction is accidentally sign-in-walled, an
+// account-backed mutation loses its gate, or Supabase ownership weakens.
 //
 // Why static checks, not a live test: (1) the 12 core write functions all
 // live in app/home.js's PageInner and close over React state (user,
@@ -32,17 +30,28 @@ if (!/function requireAuth\(/.test(shell)) fail("requireAuth() gate is missing f
   if (!/setAuthOpen\(true\)/.test(body)) fail("requireAuth() no longer opens the sign-in modal (setAuthOpen(true))");
 }
 
-// 2. Every core write function (app/home.js, PageInner) must call
-//    requireAuth( as its very first statement, before any state read/write.
+// 2a. These actions are deliberately local-first. They must never regress to
+//     an auth wall, and each must preserve its first-party device write.
+const LOCAL_FIRST = [
+  ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {", "function saveHookList", /localStorage\.setItem\("wayfind_lists"|setLists\(/],
+  ["toggleLike(e, p)", "function toggleLike(e, p) {", "function toggleDislike", /localStorage\.setItem\("wf_liked"/],
+  ["toggleDislike(e, p)", "function toggleDislike(e, p) {", "function toggleHookLike", /localStorage\.setItem\("wf_disliked"/],
+  ["addShared(p)", "function addShared(p) {", "async function refreshOwnerPick", /localStorage\.setItem\("wf_shared_items"/],
+  ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {", "function copyCouponCode", /localStorage\.setItem\("wf_coupons"/],
+];
+for (const [label, sig, endSig, deviceWrite] of LOCAL_FIRST) {
+  const at = shell.indexOf(sig), end = shell.indexOf(endSig, at + sig.length);
+  if (at < 0 || end < 0) fail(`${label} not found in the home shell — check-favorites-auth's own fixtures are stale`);
+  const body = shell.slice(at, end);
+  if (body.includes("requireAuth(")) fail(`${label} is sign-in walled — explicit local actions must work before account creation`);
+  if (!deviceWrite.test(body)) fail(`${label} lost its first-party device persistence`);
+}
+
+// 2b. Account-backed list/hook writes still call requireAuth() before state.
 const CORE_GATES = [
-  ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {"],
-  ["toggleLike(e, p)", "function toggleLike(e, p) {"],
-  ["toggleDislike(e, p)", "function toggleDislike(e, p) {"],
   ["toggleHookLike(hookId)", "function toggleHookLike(hookId) {"],
   ["saveHookList(hook, places)", "function saveHookList(hook, places) {"],
   ["onHookHeart(hookId)", "function onHookHeart(hookId) {"],
-  ["addShared(p)", "function addShared(p) {"],
-  ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {"],
   ["createList()", "function createList() {"],
   ["saveToList(listId)", "function saveToList(listId) {"],
   ["deleteList(id)", "function deleteList(id) {"],
@@ -57,6 +66,20 @@ for (const [label, sig] of CORE_GATES) {
   if (!/^\s*(e\.stopPropagation\(\);\s*)?if \(!requireAuth\(/.test(body)) {
     fail(`${label} does not call requireAuth() as its first statement — a signed-out write could slip through`);
   }
+}
+
+// Local-first helpers may call cloud helpers, but those helpers must keep the
+// authenticated boundary. Direct writes in like/save paths are also enclosed
+// by the same `supabase && user` condition in home.js.
+for (const sig of ["function svFolderUpsert", "function svFolderDelete"]) {
+  const at = shell.indexOf(sig);
+  const body = shell.slice(at, at + 360);
+  if (at < 0 || !/supabase && user/.test(body)) fail(`${sig} no longer requires an authenticated user before cloud sync`);
+}
+for (const sig of ["function toggleLike", "function quickSaveFavorite"]) {
+  const at = shell.indexOf(sig);
+  const body = shell.slice(at, at + 2600);
+  if (!/if \(supabase && user\)/.test(body)) fail(`${sig} no longer fences its direct Supabase writes behind an authenticated user`);
 }
 
 // 3. The itinerary/trip mutation buttons and the "+ New list" trigger — both
@@ -99,4 +122,4 @@ for (const file of ["supabase/schema.sql", "supabase-schema.sql"]) {
   }
 }
 
-console.log("check-favorites-auth: OK — requireAuth() gates all 12 core write paths + itinerary/list triggers; RLS requires auth.uid() = user_id on saved_places/likes and forbids public reads on user-identity tables in every schema file");
+console.log("check-favorites-auth: OK — 5 explicit actions persist on-device before sign-in; 7 account mutations, all cloud sync, itinerary/list triggers, and RLS remain owner-authenticated");

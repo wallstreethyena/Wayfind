@@ -62,7 +62,7 @@ for (const deal of PARTNER_DEAL_COUPONS) {
 //    un-curated inventoryPartnerPick() fallback. It deliberately has NO
 //    registry row: a row here would shadow the live table lookup instead of
 //    proving it.
-const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork"]);
+const TP_FAMILY = new Set(["tiqets", "klook", "ticketnetwork", "gocity"]);
 
 const ids = new Set();
 for (const p of picks) {
@@ -86,6 +86,11 @@ for (const p of picks) {
     ok(/^\d+P\d+$/.test(p.offerId), `${p.offerId} looks like a real Viator product_code (####P#), not a synthetic key`);
     const resolved = await resolveOffer("viator", p.offerId);
     ok(!resolved.error && /^https:\/\/www\.viator\.com\//.test(resolved.dest || ""), `${p.offerId} resolves LIVE against wf_experiences to a tracked viator.com URL (got ${resolved.error || resolved.dest})`);
+  } else if (p.provider === "citypass") {
+    ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} resolves from the dedicated CityPASS destination registry, not a shadow row`);
+    const resolved = await resolveOffer("citypass", p.offerId);
+    ok(!resolved.error && /^https:\/\/www\.anrdoezrs\.net\/links\//.test(resolved.dest || ""), `${p.offerId} resolves through the verified CJ wrapper (got ${resolved.error || resolved.dest})`);
+    ok(/\/sid\/intent_partner\/https:\/\/www\.citypass\.com\//.test(resolved.dest || ""), `${p.offerId} preserves the verified CityPASS destination behind the tracked redirect`);
   } else {
     ok(false, `${p.offerId} uses provider "${p.provider}", which this guard has no validation path for yet`);
   }
