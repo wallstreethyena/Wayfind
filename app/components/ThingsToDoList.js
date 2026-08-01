@@ -16,6 +16,12 @@ import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScor
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+// v6.80: 823ebf7 added the viatorDirectUrl() call below (closing the `|| raw`
+// unattributed fallback) but not this import. A bare reference is valid
+// JavaScript until it RUNS — this would have been a ReferenceError on every
+// Things-to-do render, the same failure #486 shipped to production as a 404.
+// Caught by check-lib-call-imports, which is exactly why that guard exists.
+import { viatorDirectUrl } from "../../lib/affiliates";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { rankForNow } from "../../lib/ranking.js";

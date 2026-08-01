@@ -98,6 +98,33 @@ for (const b of BUILDERS) {
 }
 ok(BUILDERS.filter((b) => !b.mustFailClosed).length <= 1, "at most ONE dated exemption — a second is a new leak wearing an exception's clothes");
 
+// ── A PLACEHOLDER IS NOT A CREDENTIAL (2026-07-31) ──────────────────────────
+// The third degrade state, and the one that had no test. `vercel env pull`
+// cannot read back a var flagged Sensitive in the dashboard — it writes the
+// literal string "[SENSITIVE]" — so sourcing .env.production.local set
+// NEXT_PUBLIC_VIATOR_PID="[SENSITIVE]" and every Viator URL went out as
+// ...?pid=%5BSENSITIVE%5D&mcid=42383&medium=link: a WORKING, UNATTRIBUTED link.
+// That is vrboUrl's leak with a configured var standing in front of it, and it
+// beats every presence check, because "[SENSITIVE]" is eleven characters long.
+// The contract: a placeholder degrades EXACTLY like unset.
+const RINGLING = { name: "The Ringling", address: "5401 Bay Shore Rd, Sarasota, FL 34243, USA", types: ["museum", "tourist_attraction"] };
+for (const ph of ["[SENSITIVE]", "sensitive", "<your-pid>", "changeme", "undefined"]) {
+  const t = call("ticketsUrl", [RINGLING], { NEXT_PUBLIC_VIATOR_PID: ph, NEXT_PUBLIC_GYG_PID: "" });
+  ok(t === null,
+    `ticketsUrl with NEXT_PUBLIC_VIATOR_PID=${JSON.stringify(ph)} returned ${JSON.stringify(t)} instead of null. A placeholder must fail CLOSED exactly like an unset var — never stamp itself onto a live viator.com link that converts and pays us nothing.`);
+  const w = call("withViatorTracking", ["https://www.viator.com/tours/x", ph], {});
+  ok(w === "https://www.viator.com/tours/x",
+    `withViatorTracking with an explicit placeholder pid must pass the url through untouched (lib/viatorServer.js supplies its own pid this way) — got ${JSON.stringify(w)}`);
+}
+// THE OTHER HALF, and the one that matters more: a rejecter that rejects real
+// credentials would take revenue to zero silently, which is worse than the bug
+// it fixes. Every pid shape the suite and production actually use must survive.
+for (const real of ["P00000000", "P_TEST_000000", "P00308545"]) {
+  const w = call("withViatorTracking", ["https://www.viator.com/tours/x", real], {});
+  ok(typeof w === "string" && w.includes(`pid=${real}`),
+    `withViatorTracking must still stamp the REAL pid ${JSON.stringify(real)} — got ${JSON.stringify(w)}. The placeholder list is exact-match for exactly this reason.`);
+}
+
 // ── COMPLETENESS: every URL-shaped export is classified ─────────────────────
 // A new builder must be triaged, not silently unguarded.
 const src = readFileSync(AFF, "utf8");
@@ -105,7 +132,7 @@ const exports_ = [...src.matchAll(/^export function (\w+)/gm)].map((m) => m[1]);
 ok(exports_.length >= 8, `only ${exports_.length} exports parsed from lib/affiliates.js — the matcher is broken and completeness would be vacuous`);
 const KNOWN_UNMONETIZED = new Set([
   "isTicketyPlace",       // boolean predicate, returns no URL
-  "withViatorTracking",   // the wrapper ITSELF; tested via its callers above
+  "withViatorTracking",   // the wrapper ITSELF; tested via its callers above AND directly in the placeholder section
   // WRAPPER, NOT A DECISION POINT — and the reason matters. The attached spec
   // listed this as unmonetized; line 105 (`return VIATOR ? withViatorTracking(url) : url`)
   // says otherwise, so I first put it in BUILDERS and it failed leg (b) as a
@@ -117,16 +144,16 @@ const KNOWN_UNMONETIZED = new Set([
   // unguarded degrade path if NEXT_PUBLIC_VIATOR_PID is ever unset. It is set in
   // production today, so this is a latent hazard, not a live leak.
   "viatorDirectUrl",
+  "isTicketmasterFamily", // boolean predicate (host is TM-family?), returns no URL — same class as isTicketyPlace
   "tmImpactLink",         // literal-default credential (IMPACT_SID etc.), covered by check-untracked-affiliate-links
   "ticketOutUrl",         // delegates to tmImpactLink; same literal-default class
   "experienceGoUrl",      // returns our OWN /api/viator/go route — attribution happens server-side at the 302
+  "ticketmasterGoUrl",    // returns our OWN /api/ticketmaster/go route — same server-side-attribution class as experienceGoUrl
   "hotelUrl",             // Stay22: the href is rewritten at click time by LinkSwap, so a static assert would be wrong
-  // DEAD CODE, FLAGGED: returns a bare booking.com search with NO affiliate
-  // parameter and no env var to fix it. Its only remaining mentions are
-  // comments describing it as a removed parallel path. Left unmonetized here
-  // because nothing calls it — but if anything ever does, it is an
-  // unattributable link by construction and should be deleted, not wired.
-  "hotelSearchUrl",
+  // hotelSearchUrl was DELETED from lib/affiliates.js 2026-07-30 (bare
+  // booking.com link, unattributable by construction, zero callers). It is
+  // deliberately NOT pre-classified here: if anyone re-adds it, this guard
+  // must fail and force a triage rather than silently blessing the re-add.
 ]);
 const covered = new Set([...BUILDERS.map((b) => b.fn), ...KNOWN_UNMONETIZED]);
 for (const fn of exports_) {

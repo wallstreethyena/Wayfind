@@ -167,18 +167,30 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
             <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
           </div>
           {items.map((t, i) => {
-          // v6.44 (owner: "the person clicks on the viator button, we need to
-          // take them to the right place"). This was the ONLY Viator surface in
-          // the app rendering a RAW `t.url` — the primary variant above (:36),
-          // home.js (3 sites) and ThingsToDoList.js all wrap with
-          // viatorDirectUrl(). So the highest-intent click in the product, on a
-          // named product card, was the one click that carried no partner
-          // attribution: it still reached Viator, but as an anonymous visit, so
-          // the booking earned nothing. viatorDirectUrl returns null for any
-          // non-www.viator.com host (hence the `|| t.url` fallback — behavior
-          // never regresses) and withViatorTracking dedupes `pid`, so this is
-          // safe and idempotent even if the server already attributed the URL.
-          const href = Aff.viatorDirectUrl(t.url);
+          // #538 (5b81bb2): every Viator list item routes through the server
+          // redirect layer (/api/commerce/go) using the VERIFIED product code.
+          // The destination is resolved server-side from wf_experiences, so no
+          // partner URL is accepted from the request, and the redirect is where
+          // provider_redirect_started is emitted.
+          //
+          // RESTORED 2026-07-31. 823ebf7 ("close the `|| raw` viator fallback at
+          // all 7 call sites") deleted this branch and left only
+          // `Aff.viatorDirectUrl(t.url)`, which un-shipped #538 for the
+          // highest-intent surface in the product: client-side attribution only,
+          // no redirect instrumentation, and a partner URL trusted straight from
+          // the payload. It also deleted `offerId` while three lines below still
+          // read it — a ReferenceError on every render of this list, the same
+          // #486 failure that commit shipped into ThingsToDoList.js. None of
+          // that was in its stated scope; it was collateral of a fallback fix.
+          //
+          // 823ebf7's actual rule is KEPT and is the `if (!href)` below: no
+          // `|| t.url`. The order is product code first (server-resolved), the
+          // tracked direct link only when there is no code, and nothing at all
+          // when neither is attributable.
+          const offerId = t.code || t.productCode;
+          const href = offerId
+            ? commerceHref({ provider: "viator", offerId, surface: "detail_tour_list", contentId: listCity })
+            : Aff.viatorDirectUrl(t.url);
           // v6.79 (AGENTS.md §6b): null means UNATTRIBUTABLE, so suppress the row entirely. Rendering <a> with href={null} would be a dead link that looks clickable — worse than the untracked one it replaced.
           if (!href) return null;
           return (

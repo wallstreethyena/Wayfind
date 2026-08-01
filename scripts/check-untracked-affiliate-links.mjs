@@ -98,26 +98,46 @@ ok(!/return dest;/.test(vrbo),
 // ID/marker fallbacks are LEGITIMATE and must not be "fixed" into null by
 // someone applying this rule too broadly — that would dark Travelpayouts and
 // Ticketmaster, which are attributed today ONLY because of these literals.
+// TWO REGRESSIONS UNDONE HERE (2026-07-31). This loop was correct on
+// 2026-07-30, then two "fixes" in a row inverted it:
+//
+//   b845f8a replaced the env-name WILDCARD (`process\.env\.\w+`) with a named
+//   var per row, and typed the TM row's name as "TM_IMPACT_SID" — the JS const,
+//   not the env var. lib/affiliates.js reads NEXT_PUBLIC_IMPACT_SID, so the
+//   regex looked for a line that has never existed and the row went red.
+//
+//   5c541b4 answered that red by adding `envConfigured ||` — pass if an env var
+//   of that name is merely present in the CURRENT SHELL. That did not fix the
+//   name; it made the mistake unobservable, and it broke the invariant: with
+//   TM_IMPACT_SID exported (it is, in the pulled production env) you could
+//   delete the "7475855" literal and this check stayed GREEN while Ticketmaster
+//   attribution died. In a clean shell the same code was red. A guard whose
+//   verdict depends on which terminal you ran it in is not a guard.
+//
+// The env var being set is NOT a substitute for the literal, and that is the
+// whole point of the check: process.env at guard time says nothing about what
+// Vercel injects at build time, whereas the literal is in the bundle either way.
+// So: name fixed, escape hatch removed, original assertion and message restored.
+// Both literals are present, so this passes on the literal branch in ANY shell.
 for (const [name, envName, lit] of [
   ["TP_MARKER_ACCOUNT", "NEXT_PUBLIC_TP_MARKER_ACCOUNT", "750791"],
-  ["TM_IMPACT_SID", "TM_IMPACT_SID", "7475855"],
+  ["TM_IMPACT_SID", "NEXT_PUBLIC_IMPACT_SID", "7475855"],
 ]) {
   const f = name === "TP_MARKER_ACCOUNT"
     ? stripComments(readFileSync(new URL("../lib/travelpayouts.js", import.meta.url), "utf8"))
     : src;
 
-  const envConfigured =
-    typeof process.env[envName] === "string" &&
-    process.env[envName].trim().length > 0;
-
-  const guardedFallbackExists = new RegExp(
-    `${name}\\s*=\\s*\\(process\\.env\\.${envName}\\s*\\|\\|\\s*"${lit}"`
-  ).test(f);
-
   ok(
-    envConfigured || guardedFallbackExists,
-    `${name} must have either environment variable ${envName} or guarded literal fallback "${lit}".`
+    new RegExp(`${name}\\s*=\\s*\\(process\\.env\\.${envName}\\s*\\|\\|\\s*"${lit}"`).test(f),
+    `${name} keeps its literal fallback "${lit}", read from ${envName} — this literal is the only reason that program is attributed when the env var is absent at build time. Removing it darks a live program. (If this row is red, check the env NAME first: it must be the var the code reads, not the const it assigns to.)`
   );
+}
+// The row names must be the vars the code actually reads. This is what b845f8a
+// got wrong and 5c541b4 hid, so it is asserted rather than left to review.
+for (const envName of ["NEXT_PUBLIC_TP_MARKER_ACCOUNT", "NEXT_PUBLIC_IMPACT_SID"]) {
+  const both = src + stripComments(readFileSync(new URL("../lib/travelpayouts.js", import.meta.url), "utf8"));
+  ok(both.includes(`process.env.${envName}`),
+    `this guard names ${envName} but no affiliate module reads it — the row is validating a variable the app ignores, which is how a deleted literal passes review`);
 }
 
 // ── self-test ───────────────────────────────────────────────────────────────

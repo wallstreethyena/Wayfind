@@ -17,6 +17,11 @@
 #     stops a guard from being silently forgotten.
 
 node scripts/check-guard-manifest.mjs
+# Runs second, right behind the manifest: both are meta-guards, and a suite whose
+# verdicts depend on the shell makes every line below it unreliable. Added
+# 2026-07-31 after 5c541b4 let `.env.production.local` decide whether a live
+# affiliate program was protected.
+node scripts/check-guard-hermeticity.mjs
 npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs

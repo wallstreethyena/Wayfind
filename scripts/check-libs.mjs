@@ -1,20 +1,25 @@
 // Gate: execute lib modules the way Next's prerender does, so undefined
 // identifiers and runtime errors fail HERE, not on Vercel. Copies libs to a
-// temp dir as .mjs (repo package.json has no "type": "module") and calls
-// every export that guide/culture prerendering calls.
-import { mkdtempSync, copyFileSync, readFileSync } from "node:fs";
+// temp dir with an ESM package boundary and calls every export that
+// guide/culture prerendering calls. Keeping the original .js filenames makes
+// relative imports exercise the same module graph as the application.
+import { mkdtempSync, cpSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const tmp = mkdtempSync(join(tmpdir(), "wf-libs-"));
-for (const f of ["affiliates", "culture", "guides", "site", "tags"]) {
-  copyFileSync(`lib/${f}.js`, join(tmp, `${f}.mjs`));
-}
-const aff = await import(join(tmp, "affiliates.mjs"));
-const { CULTURE, CAT_NOTES, TOWN_NOTES } = await import(join(tmp, "culture.mjs"));
-const { GUIDES } = await import(join(tmp, "guides.mjs"));
-await import(join(tmp, "site.mjs"));
-await import(join(tmp, "tags.mjs"));
+writeFileSync(join(tmp, "package.json"), '{"type":"module"}\n');
+
+// Copy the complete tree rather than parsing JavaScript or maintaining a list
+// of relative dependencies. Only the entry points below are executed, but any
+// local module or data file they add later is available under its real path.
+cpSync("lib", join(tmp, "lib"), { recursive: true });
+const copiedLib = join(tmp, "lib");
+const aff = await import(join(copiedLib, "affiliates.js"));
+const { CULTURE, CAT_NOTES, TOWN_NOTES } = await import(join(copiedLib, "culture.js"));
+const { GUIDES } = await import(join(copiedLib, "guides.js"));
+await import(join(copiedLib, "site.js"));
+await import(join(copiedLib, "tags.js"));
 
 let calls = 0;
 const tryCall = (fn, ...args) => { if (typeof fn === "function") { fn(...args); calls++; } };
