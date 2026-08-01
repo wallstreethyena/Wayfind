@@ -114,11 +114,17 @@ for (const f of ["app/components/IntentPageClient.js", "app/components/TrendingN
 for (const klass of ["wf-place-card", "wf-place-card-layout", "wf-place-card-score", "wf-place-card-actions", "wf-place-card-save", "wf-place-card-like", "wf-place-card-dislike", "wf-place-card-share"]) {
   ok(new RegExp(`class="[^"]*\\b${klass}\\b`).test(card), `iconic card uses canonical home class '${klass}'`);
 }
+ok(card.includes("data-card-opens-detail"), "the iconic card body opens the full place detail");
+const iconicSource = readFileSync(path.join(ROOT, "app/components/IconicPlaceCard.js"), "utf8");
+ok(iconicSource.includes('target.closest("a,button,input,select,textarea,[role=\'button\']")'), "card opening excludes its buttons, links, chips, and controls");
 ok(!card.includes("View place") && !card.includes("minHeight:228"), "iconic card does not reintroduce the tall imitation footer");
 
 const intentSource = readFileSync(path.join(ROOT, "app/components/IntentPageClient.js"), "utf8");
 ok(!intentSource.includes("titleBottom={loc.city}"), "the client never appends city unconditionally");
 ok(intentSource.includes("<CollectionFilter") && intentSource.includes('from "./CollectionFilter"'), "the ranking keeps the shared functional filter");
+const filterSource = readFileSync(path.join(ROOT, "app/components/CollectionFilter.js"), "utf8");
+ok(filterSource.includes('type="range"') && filterSource.includes("wf-collection-radius"), "the shared collection filter uses the premium distance slider");
+ok(!filterSource.includes("[17, 30, 60].map"), "the old three-button distance selector cannot return");
 ok(intentSource.includes("<IconicPlaceCard"), "intent rankings use the iconic card instead of thin rows");
 ok(intentSource.indexOf("areaCtx.headline_context") > intentSource.indexOf("<details"), "metro prose lives only in collapsed About city content below the list");
 ok(intentSource.includes("footerSlot={<ScoreDisclosure />}") && !intentSource.includes("<Methodology />"), "intent sheets render one glass-box disclosure instead of a duplicate methodology line");
