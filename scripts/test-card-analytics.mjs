@@ -110,8 +110,8 @@ for (const bad of ["card_impresion", "card_view", "commerce_click"]) {
   const closeIdx = screen.indexOf("}", screen.indexOf('emitCommerce("commerce_cta_clicked"'));
   ok(clickIdx > 0 && clickIdx > closeIdx,
     "card_clicked is emitted OUTSIDE the cctx guard — a free card must still count toward card CTR");
-  ok(/has_art: hasArt/.test(screen) && /card_type: "poster"/.test(screen), "has_art and card_type are populated");
-  ok(/variant,/.test(screen) && /experiment_id: CARD_ART_EXPERIMENT/.test(screen), "variant and experiment_id are populated");
+  ok(/has_art: hasArt/.test(screen) && /card_type: "clip"/.test(screen), "has_art and the compact clip card_type are populated");
+  ok(/variant,/.test(screen) && /experiment_id: COUPON_CARD_EXPERIMENT/.test(screen), "variant and experiment_id are populated");
   ok(/city_id: cityId/.test(screen), "city_id is populated");
   ok(!/category: "deal"/.test(screen), 'the hardcoded category:"deal" is gone — it made every card indistinguishable on the dashboard');
   ok(/category = disc\.affiliate \? "deal_money" : "deal_free"/.test(screen), "…replaced by a derived category");

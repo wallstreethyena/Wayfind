@@ -92,8 +92,8 @@ ok(featured.length >= 4 && ledger.length >= 6, `both tiers have real inventory (
 {
   // Counted structurally: the card component may contain exactly one <a> that
   // carries a deal URL. Save and share are <button>s and cannot navigate.
-  const card = code.slice(code.indexOf("function PosterCard"), code.indexOf("function LedgerRow"));
-  ok(card.length > 500, `isolated the PosterCard body (got ${card.length} chars)`);
+  const card = code.slice(code.indexOf("function CouponCard"), code.indexOf("export default function CouponsScreen"));
+  ok(card.length > 500, `isolated the CouponCard body (got ${card.length} chars)`);
   const anchors = card.match(/<a\b/g) || [];
   ok(anchors.length === 1, `the poster card renders exactly ONE anchor (got ${anchors.length}) — a second monetized href is double attribution`);
   const hrefs = card.match(/href=\{/g) || [];
@@ -122,29 +122,22 @@ ok(featured.length >= 4 && ledger.length >= 6, `both tiers have real inventory (
   const free = ledger[0] && D.dealDisclosure(ledger[0]);
   ok(free && free.affiliate === false && /Not an affiliate offer/.test(free.italic),
     "a non-affiliate deal says so plainly rather than staying silent");
-  // FTC adjacency: the disclosure must sit inside the same pinned footer as the
-  // CTA, so a commission link can never render without it.
-  const foot = code.slice(code.indexOf('marginTop: "auto"'));
-  const ctaAt = foot.indexOf("c.cta");
-  const discAt = foot.indexOf("disc.italic");
-  ok(ctaAt > 0 && discAt > ctaAt, "the disclosure renders inside the pinned footer, directly AFTER the CTA it describes");
-  ok(/marginTop: "auto"/.test(code), "the footer is pinned with margin-top:auto — every CTA and disclosure on one baseline across the rail");
+  // FTC adjacency: the disclosure remains in the SAME card, immediately after
+  // its action row. The compact wallet is vertical, so there is no cross-card
+  // baseline to pin; adjacency is the relevant protection now.
+  const card = code.slice(code.indexOf("function CouponCard"), code.indexOf("export default function CouponsScreen"));
+  const ctaAt = card.indexOf("c.cta");
+  const discAt = card.indexOf("disc.italic", ctaAt);
+  ok(ctaAt > 0 && discAt > ctaAt, "the disclosure renders inside the same compact card, directly AFTER the CTA it describes");
+  ok(/gridTemplateColumns: "auto 34px minmax\(86px,1fr\)"/.test(card), "clip, share and redeem actions share one compact action row");
 }
 
 /* ── 6. artwork rules from the work order ─────────────────────────────────── */
 ok(D.dealArtwork({}) === null, "no usable image → NULL, so the card renders with no band (never a placeholder or a stretched thumbnail)");
 ok(D.dealArtwork({ image: "https://merchant.example/x.jpg" }) === null, "a remote/merchant image is refused — never hotlinked");
-ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
+ok(!/CouponThumb|<Image\b|<img\b|dealArtwork\(/.test(code), "the coupon wallet renders no imagery — no cropped, generic or maintenance-heavy photo slot");
 {
   const { DEAL_SHEET_INTERNALS } = D;
-  const arts = Object.values(DEAL_SHEET_INTERNALS.INTENT_ART);
-  // `>= 5` used to be the floor. That number was the SIZE OF THE OLD MAP, not a
-  // rule, and it went red when five generated assets were removed — an assertion
-  // pinned to an accident. What matters is that the map is non-empty and every
-  // entry is one of ours; four real photographs beat seven with five fakes.
-  ok(arts.length > 0 && arts.every((a) => a.startsWith("/cards/")), `every fallback is one of OUR committed /cards/ assets (${arts.length} intents mapped)`);
-  ok(!arts.some((a) => /dpbolvw|anrdoezrs|clipp\.com/.test(a)), "no CJ banner creative is used as artwork — they are IAB ad units, wrong shape and wrong register");
-
   /* GENERATED ART CAN NEVER REACH A CARD.
      The objection was that the art is FAKE, not that it isn't a photo of the
      specific merchant — a ferris wheel on a Klook attractions card is wrong
@@ -152,16 +145,12 @@ ok(/aspectRatio: "3 \/ 2"/.test(code), "the band is the mock's 3:2 ratio");
      artwork of every real coupon, not on a hand-listed pair of card ids. */
   const gen = [...DEAL_SHEET_INTERNALS.GENERATED_ART];
   ok(gen.length > 0, `the generated-art list is populated (${gen.length}) — an empty set would make everything below vacuous`);
-  // The fallback map is now clean of generated art, so "is one still reachable from
-  // INTENT_ART" can no longer be the non-vacuity proof — it would demand the map stay
-  // dirty. Prove the filter works by CALLING it instead: a generated asset must be
-  // recognised and refused, and a real one must not be.
   ok(gen.every((a) => D.isGeneratedArt(a)), "every listed generated asset is recognised as generated");
   ok(!D.isGeneratedArt("/cards/coupon-dining-cafe-solo.jpeg"), "…and a real photograph is NOT — the classifier discriminates rather than saying yes to everything");
-  ok(!arts.some((a) => D.isGeneratedArt(a)), "no intent fallback points at generated art any more");
   for (const c of COUPONS) {
     const art = D.dealArtwork(c);
     ok(art === null || !D.isGeneratedArt(art), `${c.id}: resolves to real photography or to NO image — never generated art (got ${art})`);
+    ok(art === null || art === c.image, `${c.id}: artwork is EXPLICIT on this deal — broad intent tags can never attach an unrelated photo`);
   }
   // Both directions, so this cannot pass by dealArtwork simply returning null always.
   ok(D.dealArtwork({ image: "/cards/family-fun.jpg" }) === null,
