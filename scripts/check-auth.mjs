@@ -15,6 +15,7 @@ if (!s.includes("updateUser({ password: newPw })")) fail("set-new-password actio
 if (!s.includes("Forgot password?")) fail("Forgot password link missing from sign-in sheet");
 if (!s.includes("Set a new password")) fail("recovery sheet UI missing");
 if (!s.includes("Continue with Apple")) fail("Sign in with Apple button missing");
+if (!s.includes("{nativeShell && (") || !s.includes('signInWithProvider("apple")')) fail("Sign in with Apple must render in the native shell without enabling incomplete web OAuth");
 if (!/provider === "apple" && isNative\(\)/.test(s) || !s.includes("signInWithIdToken({")) fail("native Apple credential no longer creates a Supabase session");
 if (!s.includes("nonce: credential.nonce")) fail("Supabase Apple exchange no longer verifies the raw nonce");
 if (!native.includes("crypto.getRandomValues") || !native.includes('crypto.subtle.digest("SHA-256"')) fail("Apple sign-in nonce is not cryptographically random and hashed");
