@@ -18,6 +18,9 @@ ok(/top:\s*72[\s\S]*background:\s*"linear-gradient\(180deg,#111925/.test(card), 
 ok(/saturate\(1\.03\) contrast\(1\.02\)/.test(card), "provider art is visible and lightly enhanced");
 ok(!/rgba\(5,9,15,\.94\)/.test(card), "the old 94%-opaque full-image scrim cannot return");
 ok(!/filter:\s*"saturate\(\.78\)/.test(card), "the old desaturation cannot return");
+ok(!/📍 \{venue\}/.test(card), "the compact card does not spend its limited space repeating the venue");
+ok(/top:\s*72[\s\S]*\{event\.name\}[\s\S]*marginTop:\s*"auto"[\s\S]*\{when\}/.test(card), "the date and time sit beneath the title in the lower information panel");
+ok(!/top:\s*8,\s*left:\s*9[\s\S]*\{when\}/.test(card), "date and time no longer cover the event artwork");
 ok(/const EV_RAIL_MIN_H = 132/.test(src), "the loading skeleton reserves the live card height");
 
 if (failures.length) {
@@ -25,5 +28,4 @@ if (failures.length) {
   failures.forEach((failure) => console.error("  - " + failure));
   process.exit(1);
 }
-console.log("test-event-rail-images: OK — event artwork is visible in a dedicated image band and the rail remains shift-free");
-
+console.log("test-event-rail-images: OK — artwork stays clear, venue copy is removed, and timing sits beneath the event title");
