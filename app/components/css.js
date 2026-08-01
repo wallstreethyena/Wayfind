@@ -122,70 +122,6 @@ export const WF_PLACE_CARD_CSS = `
   background:linear-gradient(90deg,transparent 2%,#9A6813 15%,#FFE8A3 42%,#D89B20 68%,transparent 98%);
   opacity:1;
 }
-/* v6.44: IN FLOW, never absolute. An absolutely-positioned badge on a card
-   whose action row lives at the bottom-left will sit on top of Save — that is
-   exactly what shipped and what the owner photographed. Geometry now matches
-   .wf-place-card-award below (same inline-flex / width:max-content / 999px
-   rhythm) so the two stack as one coherent column of credentials.
-   scripts/test-curator-boost.mjs forbids position:absolute here. */
-/* Compact media-rail seal (#384). Absolute BY DESIGN and safe: width is
-   clamped to the media rail while .wf-place-card-actions lives in the
-   content column, so it can never cover the Save button (the v6.43
-   regression). Canonical home is here — a second definition in home.js
-   would let cascade order decide which wins. */
-.wf-place-card-owner{
-  position:absolute;
-  z-index:6;
-  bottom:9px;
-  left:8px;
-  display:inline-flex;
-  align-items:center;
-  width:calc(var(--wf-place-card-media) - 16px);
-  min-width:0;
-  height:27px;
-  box-sizing:border-box;
-  gap:5px;
-  padding:3px 6px 3px 4px;
-  overflow:hidden;
-  border:1px solid rgba(249,115,22,.78);
-  border-radius:999px;
-  background:
-    linear-gradient(112deg,rgba(249,115,22,.13),transparent 48%),
-    rgba(5,9,15,.76);
-  color:#FF8A35;
-  box-shadow:0 7px 18px rgba(0,0,0,.5),inset 0 1px rgba(255,255,255,.08),0 0 0 1px rgba(0,0,0,.12);
-  backdrop-filter:blur(10px) saturate(1.12);
-  -webkit-backdrop-filter:blur(10px) saturate(1.12);
-  pointer-events:none;
-}
-.wf-place-card-owner:after{
-  content:"";
-  position:absolute;
-  top:-55%;
-  left:-24%;
-  width:42%;
-  height:220%;
-  transform:rotate(20deg);
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.20),transparent);
-}
-.wf-place-card-owner-mark{
-  position:relative;
-  display:grid;
-  width:19px;
-  height:19px;
-  flex:0 0 19px;
-  place-items:center;
-  border:1px solid rgba(255,238,181,.82);
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);
-  color:#2A1A03;
-  font-size:10px;
-  line-height:1;
-  text-shadow:0 1px rgba(255,255,255,.35);
-  box-shadow:0 3px 9px rgba(0,0,0,.34),inset 0 1px 2px rgba(255,255,255,.7);
-}
-.wf-place-card-owner-copy{display:flex;min-width:0;align-items:center;text-transform:uppercase}
-.wf-place-card-owner-copy>strong{color:#FFE19A;font-size:9px;font-weight:900;letter-spacing:.115em;line-height:1;white-space:nowrap}
 .wf-place-card-heading{flex:1;min-width:0}
 .wf-place-card-category{
   display:flex;
@@ -320,6 +256,8 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card-award.is-rank-2 .wf-place-card-award-icon{background:linear-gradient(145deg,#F2F5F8,#9BAABD);color:#17202D}
 .wf-place-card-award.is-rank-3{border-color:rgba(204,139,91,.38);background:linear-gradient(110deg,rgba(204,139,91,.15),rgba(204,139,91,.025));color:#E4B18B}
 .wf-place-card-award.is-rank-3 .wf-place-card-award-icon{background:linear-gradient(145deg,#E6B184,#9A5D36);color:#25150C}
+.wf-place-card-award.is-curator{border-color:rgba(244,212,119,.52);background:linear-gradient(110deg,rgba(244,212,119,.17),rgba(244,212,119,.025));color:#F7D982}
+.wf-place-card-award.is-curator .wf-place-card-award-icon{background:radial-gradient(circle at 35% 28%,#FFF1BC,#E1A72D 58%,#80500A 100%);color:#2A1A03}
 .wf-place-card-highlights{gap:5px!important;margin-bottom:6px!important}
 .wf-place-card-highlights>button,.wf-place-card-highlights>span{
   display:inline-flex!important;

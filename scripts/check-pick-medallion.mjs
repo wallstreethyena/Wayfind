@@ -28,13 +28,9 @@
 //       CSS the wrapper ban becomes pointless, and if someone adds the wrapper
 //       the CSS stops matching. Both halves or neither.
 //
-//   (3) THE v6.44 REGRESSION CLASS. The Curator Select mark was once absolutely
-//       positioned bottom-left and landed on top of the Save button (owner
-//       reported it with a screenshot: "the curator logo blocking the save
-//       button"). The medallion is pinned TOP-left, over the media column,
-//       which contains only the photo or the monogram — no controls. See the
-//       tap-fall-through block below for why pointer-events:none is
-//       deliberately NOT the mechanism that keeps it harmless.
+//   (3) THE OWNER-PICK SUPPRESSION. An owner-selected place uses the existing
+//       in-flow award credential. The generic editorial medallion must remain
+//       suppressed or one card communicates the same endorsement twice.
 import { readFileSync } from "fs";
 
 let pass = 0;

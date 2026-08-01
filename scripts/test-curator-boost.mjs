@@ -77,45 +77,26 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
   ok(!/affiliate|viator|verifiedOffers|bookingResolver/i.test(read(f)), `${f} must not import/touch any affiliate module`);
 }
 
-// 8. CHIP — display-only, server-derived; ownerPick=false can NEVER render it.
+// 8. CURATOR CREDENTIAL — display-only, server-derived; ownerPick=false can
+//    NEVER render it. It reuses the existing award slot so a card never grows
+//    a second badge or overlays its media/actions after a like lands.
 {
   const home = read("app/home.js");
-  // RE-POINTED (commit 56670ce "Refresh discovery and event visuals" — a
-  // variable-extraction refactor). The gate now goes through an
-  // `isCuratorPick` boolean computed straight off `_members.ownerPick`
-  // (app/home.js ~8250) instead of the inline `p._members && p._members.ownerPick && <span`
-  // form; the render is `{isCuratorPick && (<span className="wf-place-card-owner" ...>`.
-  // The compact owl seal's copy ("Curated") is inlined directly in JSX.
   ok(/const isCuratorPick = !!\(p\._members && p\._members\.ownerPick\);/.test(home), "isCuratorPick is derived SOLELY from the server's _members.ownerPick (false -> stays false)");
-  ok(/isCuratorPick && \(\s*<span className="wf-place-card-owner"/.test(home), "the chip is gated SOLELY on isCuratorPick (ownerPick=false -> renders nothing)");
-  ok(/aria-label="Curated by Wayfind"/.test(home) && /className="wf-place-card-owner-owl"/.test(home) && /<strong className="wf-place-card-owner-copy">Curated<\/strong>/.test(home), "the compact seal renders its owl mark and clear one-word Curated copy");
+  ok(/const cardAward = isCuratorPick\s*\? \{ rank: cardRank, label: "Wayfind curator's pick", curator: true \}/.test(home), "ownerPick promotes the existing award slot to the single curator credential");
+  ok(/cardAward\.curator \? " is-curator"/.test(home) && /cardAward\.curator\s*\? "✦"/.test(home), "the curator credential has one restrained treatment in the established award position");
+  ok((home.match(/Wayfind curator's pick/g) || []).length === 1, "PlaceCard contains exactly one curator label — duplicates cannot appear after a like");
+  ok(!/wf-place-card-owner/.test(home), "the old media/action overlay badge is absent from PlaceCard");
   ok(/!isCuratorPick && curatedFor\(p\)/.test(home), "an owner pick suppresses the duplicate generic Wayfind Pick chip");
-  // v6.44 REGRESSION LOCK (owner-reported with a photo), RE-PINNED for the #384
-  // compact seal. The original chip shipped at bottom:12px/left:12px — the exact
-  // coordinates of the Save button in .wf-place-card-actions, which it covered
-  // completely on a phone.
-  //
-  // The lock used to assert "never absolute". #384's seal IS absolute, by design
-  // and safely: it is width-clamped to the media rail (96px column) while the
-  // action row lives in the content column, so they cannot overlap. Asserting
-  // the invariant that actually protects the user instead of the old
-  // implementation detail — stay inside the media rail, and never let two
-  // definitions of the class exist.
   {
     const src = shellSrc();
-    const defs = src.match(/\.wf-place-card-owner\s*\{[^}]*\}/g) || [];
-    ok(defs.length === 1,
-      "exactly ONE .wf-place-card-owner rule exists — two definitions let cascade order decide which wins, which is how a chip silently moves onto a control. Found " + defs.length);
-    const rule = defs[0] || "";
-    ok(/border-radius\s*:\s*\d/.test(rule),
-      "the seal is a rounded shape, not a bare rectangle (owner: \"it looks really weird as a rectangle\")");
-    if (/position\s*:\s*absolute/.test(rule)) {
-      ok(/width\s*:\s*calc\(var\(--wf-place-card-media\)/.test(rule),
-        "an absolutely-positioned seal MUST be width-clamped to the media rail, or it lands on the Save button again (the v6.43 regression)");
-      ok(!/right\s*:\s*\d/.test(rule),
-        "the seal must not stretch toward the content column, where the action row lives");
-    }
+    ok(!/\.wf-place-card-owner\s*\{/.test(src), "the obsolete absolute curator badge has no CSS render path");
+    const rule = (src.match(/\.wf-place-card-award\.is-curator\s*\{[^}]*\}/) || [""])[0];
+    ok(rule && /border-color/.test(rule) && /background/.test(rule), "the shared award slot carries the premium curator styling");
+    ok(!/position\s*:\s*absolute/.test(rule), "the curator credential stays in normal card flow, never on top of the photo or controls");
   }
+  const iconic = read("app/components/IconicPlaceCard.js");
+  ok(/isCuratorPick \? "Wayfind curator's pick"/.test(iconic) && /isCuratorPick \? " is-curator"/.test(iconic), "the shared iconic card uses the same single curator award treatment");
   ok(!/WF_OWNER|OWNER_USER_ID/.test(home), "the client never references the owner id/env — it only renders the server's ownerPick");
   ok(/function refreshOwnerPick\(/.test(home) && /fresh=1/.test(home), "the owner post-tap refetch (refreshOwnerPick) cache-busts with fresh=1");
   const i = home.indexOf("function refreshOwnerPick(");
@@ -126,4 +107,4 @@ for (const f of ["lib/memberSignals.js", "app/api/signals/likes/route.js"]) {
 // 9. fresh=1 is a cache flag only — it cannot influence the weight/owner (env-only).
 ok(/searchParams\.get\("fresh"\)/.test(read("app/api/signals/likes/route.js")), "the route honors the fresh cache-bust flag (owner id/weight stay env-only)");
 
-console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; chip display-only + real-time via fresh refetch, no re-sort)`);
+console.log(`test-curator-boost: OK — ${pass} assertions (owner weight 50 in ONE aggregate; visitor regression-proof; B14 holds; +1.2 capped; unlike resets; env-only + no hardcoded identity; affiliate-isolated; credential display-only + real-time via fresh refetch, no re-sort)`);

@@ -8865,7 +8865,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // medallion (top-left) on the same card — different corners, so it would not
   // have looked broken, just duplicated. test-curator-boost asserts this.
   const isWayfindPick = !!(!isCuratorPick && curatedFor(p) && (dispScore == null || pickEligibleByScore(dispScore)));
-  const cardAward = cardRank >= 1 && cardRank <= 3
+  // One credential slot, never a second curator badge. An owner like promotes
+  // this existing award to the quieter curator treatment; the rank number and
+  // Wayfind Score already communicate placement elsewhere on the card.
+  const cardAward = isCuratorPick
+    ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
+    : cardRank >= 1 && cardRank <= 3
     ? {
         rank: cardRank,
         label: cardRank === 1
@@ -8880,23 +8885,6 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           paddingRight (88px) that was ~17px narrower than the badge, so titles
           and wrapped meta chips rendered under it — "the score sits on top of
           letters". In-flow, nothing can ever overlap it. */}
-      {/* Compact owl seal. It stays entirely inside the media rail so it
-          never competes with the title or Wayfind Score, including on 320px
-          screens and photo-less cards. Display-only, gated solely on the
-          server's ownerPick. */}
-      {isCuratorPick && (
-        <span className="wf-place-card-owner" title="Curated by Wayfind" aria-label="Curated by Wayfind">
-          <span className="wf-place-card-owner-mark" aria-hidden="true">
-            <svg className="wf-place-card-owner-owl" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5.5 8 4 5l4.15 1.35A7.55 7.55 0 0 1 12 5.4c1.4 0 2.72.34 3.85.95L20 5l-1.5 3v4.1a6.5 6.5 0 0 1-13 0V8Z" />
-              <circle cx="9" cy="11" r="2" />
-              <circle cx="15" cy="11" r="2" />
-              <path d="m12 12.8-1.15 1.35 1.15.7 1.15-.7L12 12.8Z" />
-            </svg>
-          </span>
-          <strong className="wf-place-card-owner-copy">Curated</strong>
-        </span>
-      )}
       {/* v6.48 — THE WAYFIND PICK MEDALLION. Owner: "we should make it a
           circular badge so it fits and make it look nice instead of the
           rectangle."
@@ -8990,25 +8978,12 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               })()}
             </div>
           )}
-          {/* Curator Select — v6.44. This WAS an absolutely-positioned overlay
-              pinned bottom-left of the card, which landed exactly on top of the
-              Save button in .wf-place-card-actions (owner-reported, with a
-              photo: "the curator logo blocking the save button"). It is now IN
-              NORMAL FLOW, one line above the award pill, so it can never cover
-              an action, and it is a fully-rounded pill rather than the old
-              rectangle. Display-only and gated SOLELY on the server's
-              ownerPick — the client never decides owner status, so
-              ownerPick=false can never render it. */}
-          {isCuratorPick && (
-            <span className="wf-place-card-owner" title="Personally selected by Wayfind's curator">
-              <span className="wf-place-card-owner-mark" aria-hidden="true">✦</span>
-              <span className="wf-place-card-owner-copy"><strong>Curator Select</strong></span>
-            </span>
-          )}
           {cardAward && (
-            <div className={`wf-place-card-award is-rank-${cardAward.rank}`} aria-label={`Wayfind ranked this the number ${cardAward.rank} ${cardPrimaryLabel || "local"} option`}>
+            <div className={`wf-place-card-award${cardAward.curator ? " is-curator" : ` is-rank-${cardAward.rank}`}`} aria-label={cardAward.curator ? "Personally selected by Wayfind's curator" : `Wayfind ranked this the number ${cardAward.rank} ${cardPrimaryLabel || "local"} option`}>
               <span className="wf-place-card-award-icon" aria-hidden="true">
-                {cardAward.rank === 1
+                {cardAward.curator
+                  ? "✦"
+                  : cardAward.rank === 1
                   ? <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" /><path d="M8 6H5v1a3 3 0 0 0 3 3" /><path d="M16 6h3v1a3 3 0 0 1-3 3" /><path d="M12 11v4" /><path d="M9 20h6" /><path d="M10 15h4v5h-4z" /></svg>
                   : cardAward.rank}
               </span>
