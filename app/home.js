@@ -2287,16 +2287,16 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
     );
   };
   return (
-    <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 108, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.24)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
+    <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 132, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.3)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
       <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "inherit" }}>
-        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(.78) contrast(.96)" }} /> : null}
-        <div style={{ position: "absolute", inset: 0, background: railImage ? "linear-gradient(90deg,rgba(5,9,15,.94) 0%,rgba(5,9,15,.78) 58%,rgba(5,9,15,.48) 100%),linear-gradient(0deg,rgba(5,9,15,.8),rgba(5,9,15,.08) 82%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
-        {!railImage ? <Icon name={seg.iconName || "ticket"} size={46} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", right: 12, bottom: 7, opacity: 0.16 }} /> : null}
-        <div style={{ position: "relative", zIndex: 1, height: "100%", boxSizing: "border-box", padding: "11px 38px 10px 12px", display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, color: relativeLabel ? C.accent : seg.color, fontSize: 9.5, lineHeight: 1, fontWeight: 850, letterSpacing: ".45px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            <span>{when}{f.time ? " · " + f.time : ""}</span>
-          </div>
-          <div style={{ marginTop: 7, maxWidth: 136, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.17, letterSpacing: "-.12px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textShadow: "0 1px 8px rgba(0,0,0,.42)" }}>{event.name}</div>
+        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 72, objectFit: "cover", filter: "saturate(1.03) contrast(1.02)" }} /> : null}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 72, background: railImage ? "linear-gradient(180deg,rgba(5,9,15,.04) 22%,rgba(5,9,15,.5) 100%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
+        {!railImage ? <Icon name={seg.iconName || "ticket"} size={42} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", left: 68, top: 13, opacity: 0.42 }} /> : null}
+        <div style={{ position: "absolute", zIndex: 1, top: 8, left: 9, maxWidth: 128, minWidth: 0, color: "#FFF", background: "rgba(5,9,15,.72)", border: `1px solid ${seg.color}88`, borderRadius: 999, padding: "4px 8px", fontSize: 9, lineHeight: 1, fontWeight: 850, letterSpacing: ".35px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", backdropFilter: "blur(5px)", WebkitBackdropFilter: "blur(5px)" }}>
+          {when}{f.time ? " · " + f.time : ""}
+        </div>
+        <div style={{ position: "absolute", zIndex: 1, top: 72, left: 0, right: 0, bottom: 0, boxSizing: "border-box", padding: "8px 10px 8px", display: "flex", flexDirection: "column", background: "linear-gradient(180deg,#111925 0%,#0B111A 100%)", borderTop: `1px solid ${seg.color}33` }}>
+          <div style={{ maxWidth: 154, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.15, letterSpacing: "-.12px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{event.name}</div>
           <div style={{ marginTop: "auto", color: "#AEB9CA", fontSize: 9.5, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📍 {venue}</div>
         </div>
       </a>
@@ -9100,7 +9100,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 88; // v6.49 fit-the-fold: was 96 // min height of the horizontal card scroller (cards are w:150)
+const EV_RAIL_MIN_H = 132; // exact compact-event height; skeleton/live swap stays shift-free
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed
