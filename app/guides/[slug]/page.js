@@ -160,6 +160,14 @@ export default async function GuidePage({ params }) {
   // rather than leaving the visitor at a dead end.
   const sibling = (nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK)
     ? indoorSiblingFor(params.slug, GUIDES) : null;
+  // DECLARED HERE, ASSIGNED LATER. The assignment must come after
+  // inventorySocial (check-guide-deal-cards: rankedFor cannot answer during
+  // `next build`), but that position turned out to be a nested block — so
+  // declaring it there put it out of scope at the return and every guide threw
+  // `ReferenceError: liveIndoor is not defined` during static generation.
+  // check:jsx and all 247 guards passed: none of them EXECUTE the component.
+  // Same #486 class. Split declaration from assignment so both rules hold.
+  let liveIndoor = [];
 
   const today = siteTodayStr();
   const INTENT_CATEGORY = { eatnow: "dining", datenight: "dining", nightout: "drinks", familyfun: "games" };
@@ -264,7 +272,6 @@ export default async function GuidePage({ params }) {
   // than leaving the visitor at a dead end. This is what makes the fix scale:
   // no editorial work per guide, and it covers Bradenton, whose three guides
   // are 0/3 indoor and therefore have no sibling to offer.
-  let liveIndoor = [];
   if (nowResult.mode === "plain" && nowCtx.weather.known && !nowCtx.outdoorOK && !sibling) {
     try {
       const citySlug = regionCity(g.region);
