@@ -2297,13 +2297,32 @@ function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, ti
 // owner asked to reuse from the sheet's own card design, and it always opens
 // the location-organized browse view (setSocialFind({browse:true})) instead
 // of one specific video — see lib/creatorVideos.js's spotsByCity().
+// v6.95 (owner, with a photo): decorative background for the "not near you
+// yet" state — see the `photo` comment inside SocialFindHeroCard for why
+// this one asset doesn't carry the never-fabricate rule the FEATURED
+// PLACE's own photo does. Licensed stock (Unsplash, Vitaly Gariev),
+// supplied by the owner; see public/cards/README.md's naming convention.
+const SOCIAL_FIND_TEASER_PHOTO = "/cards/social-find-teaser-vitaly-gariev-unsplash.jpg";
+
 function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStats, setSocialFind, logEvent }) {
   if (!videoHeroPlaces.length && !socialFindRegions.length) return null;
   const near = videoHeroPlaces.length > 0;
   const lead = near ? videoHeroPlaces[0] : null;
   const leadPlat = lead ? (PLATFORM[lead.video.platform] || PLATFORM.tiktok) : PLATFORM.tiktok;
-  const pillHandle = near ? lead.video.creator : (socialFindStats.topCreator && socialFindStats.topCreator.handle);
-  const pillPlatKey = near ? lead.video.platform : (socialFindStats.topCreator && socialFindStats.topCreator.spots[0] && socialFindStats.topCreator.spots[0].platform);
+  // v6.95 (owner, with a screenshot: "the hero card you added the cindy
+  // portion when you should have added the image i provided you with") —
+  // this used to fall back to socialFindStats.topCreator, naming and
+  // photographing whichever real creator has the most spots ANYWHERE and
+  // presenting them as the face of "coming to YOUR area" — a specific claim
+  // about a specific real person in a region she has never actually posted
+  // about. Same shape of bug as the Aqua Tequila mismatch and the Orlando-
+  // deals-in-Parrish miss earlier this session: a true fact (she IS a real,
+  // verified creator) attached to a context it doesn't belong in. Fixed the
+  // same way — the pill only ever names a creator when `near` is true and
+  // it is genuinely their own local find. Not-near shows the honest
+  // aggregate stat with no single face or handle attached to it.
+  const pillHandle = near ? lead.video.creator : null;
+  const pillPlatKey = near ? lead.video.platform : null;
   const pillPlat = PLATFORM[pillPlatKey] || PLATFORM.tiktok;
   const moreCreators = Math.max(0, socialFindStats.creatorCount - 1);
   // v6.94 (owner: "make the hero card more of the visual and sell it") — the
@@ -2314,11 +2333,14 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
   const sub = near ? "A creator found it first — watch why ›" : `Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`;
   // v6.94: the card's own photo is the FEATURED PLACE's real photo (same
   // never-re-host-the-creator's-thumbnail rule as Detail.js and the old
-  // per-place cards this replaces) — never a stock "influencer" photo, which
-  // would be fabricated and go stale the moment the lead creator/place
-  // rotates. No lead (the "not near you yet" state) falls back to the same
-  // themed gradient LocalPlanHeroCard already uses for a photo-less slide.
-  const photo = lead ? (lead.place.photos && lead.place.photos[0]) || lead.place.photo || null : null;
+  // per-place cards this replaces) — never a stock "influencer" photo posing
+  // as a specific place or person. v6.95: the "not near you yet" state used
+  // to fall back to a flat gradient with no photo at all — swapped for
+  // SOCIAL_FIND_TEASER_PHOTO, real decorative stock art with no name/handle
+  // overlaid on it, so it never claims to BE anyone or anywhere specific
+  // (same category as the Trending/date-night slides' own stock photos).
+  const photo = lead ? (lead.place.photos && lead.place.photos[0]) || lead.place.photo || null : SOCIAL_FIND_TEASER_PHOTO;
+  const hasPill = pillHandle || (!near && socialFindStats.spotCount > 0);
   return (
     <div
       role="button" tabIndex={0} onKeyDown={KB_CLICK}
@@ -2331,7 +2353,7 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
       <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${leadPlat.color}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
         <Icon name="sparkles" size={12} color={leadPlat.color} /><span style={{ fontSize: 10.5, fontWeight: 800, color: leadPlat.color, letterSpacing: "0.4px", textTransform: "uppercase" }}>Social media find</span>
       </div>
-      <div style={{ position: "absolute", left: 14, right: 14, bottom: pillHandle ? 88 : 14 }}>
+      <div style={{ position: "absolute", left: 14, right: 14, bottom: hasPill ? 88 : 14 }}>
         <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>{title}</div>
         <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,.9)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{sub}</div>
       </div>
@@ -2341,6 +2363,20 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>@{pillHandle}</div>
             <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.7)", marginTop: 1 }}>{moreCreators > 0 ? `+ ${moreCreators} more creator${moreCreators === 1 ? "" : "s"} · ${socialFindStats.spotCount} spots scouted` : `${socialFindStats.spotCount} spots scouted on Wayfind`}</div>
+          </div>
+        </div>
+      )}
+      {/* v6.95: the not-near state's pill — aggregate stat only, no specific
+          creator's name/photo attached to a region they haven't found
+          anything in (see the pillHandle comment above). */}
+      {!pillHandle && hasPill && (
+        <div style={{ position: "absolute", left: 12, right: 12, bottom: 12, background: "rgba(13,17,23,.82)", border: `1.5px solid ${PLATFORM.tiktok.color}55`, borderRadius: 14, padding: "9px 11px", display: "flex", alignItems: "center", gap: 10, backdropFilter: "blur(6px)" }}>
+          <div aria-hidden="true" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #FF0050 0%, #0D1117 130%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Icon name="sparkles" size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{socialFindStats.creatorCount} creator{socialFindStats.creatorCount === 1 ? "" : "s"}, {socialFindStats.spotCount} spots</div>
+            <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.7)", marginTop: 1 }}>scouted on Wayfind so far</div>
           </div>
         </div>
       )}
