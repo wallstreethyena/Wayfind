@@ -164,7 +164,7 @@ import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
-import { creatorVideosFor } from "../lib/creatorVideos";
+import { creatorVideosFor, PLATFORM } from "../lib/creatorVideos";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
 // v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
@@ -2102,8 +2102,8 @@ function generateHooks(places, locName) {
   const vals = local.filter((p) => p.rating >= 4.3 && p.priceNum != null && p.priceNum <= 1)
     .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   if (vals[0]) hooks.push({
-    id: "value", accent: "#22C55E", emoji: "💰", label: "Best value", highlightWord: "under $$",
-    hook: `Top ${mealLabel} spots near you under $$`,
+    id: "value", accent: "#22C55E", emoji: "💰", label: "Best value", highlightWord: "won't break the bank",
+    hook: `${vals[0].name} — top-rated ${mealLabel} that won't break the bank`,
     detail: `${vals[0].name} · ★${vals[0].rating} · ${vals[0].price || "$"}`,
     cta: "Show me →", action: { type: "experience", key: "value" },
   });
@@ -2131,16 +2131,16 @@ function generateHooks(places, locName) {
   const foodTop = localByScore.find((p) => (primaryCategory(p) || "") === "Food");
   const nightTop = localByScore.find((p) => (primaryCategory(p) || "") === "Nightlife");
   if (foodTop && nightTop) hooks.push({
-    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "tonight",
-    hook: `Quick local itinerary for tonight`,
+    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "decided",
+    hook: `${foodTop.name} → ${nightTop.name}. Tonight, decided.`,
     detail: `${foodTop.name} for dinner → ${nightTop.name} for drinks`,
     cta: "See both →", action: { type: "detail", place: foodTop },
   });
 
   // Wayfind Picks — the flagship branded entry into the curated picks sheet.
   if (byScore.length >= 5) hooks.push({
-    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "top 10",
-    hook: `The top 10 picks near ${city} right now`,
+    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "#1",
+    hook: `We ranked all of ${city}. Here's who's #1.`,
     detail: byScore.slice(0, 3).map((p) => p.name).join("  ·  "),
     theme: "best", placeId: byScore[0].id,
     themeTitle: `Wayfind Picks · Top 10 in ${city}`,
@@ -6075,6 +6075,34 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.92 (owner, 2026-08-02): "i want to feature all of the cards that has a
+  // link to an influencer video inside of the trending near you" — a
+  // dedicated hero-rail slide for EVERY nearby place with a real, verified
+  // creator video (any platform/creator, not just Cindy/TikTok), separate
+  // from (and never replacing) the real-popularity buzzPick slide above. Not
+  // a day-rotated single winner — every qualifying place gets its own card,
+  // swipeable in the SAME rail the Trending slide already lives in, so
+  // nothing new is added to the page outside that rail. Sourced from the
+  // already-loaded nearby pool (creatorVideosFor() needs name/city, which the
+  // wf_buzz_picks RPC rows don't carry).
+  const videoHeroPlaces = useMemo(() => {
+    if (screen !== "suggested" || !center) return [];
+    const nearbyPool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true)
+      .filter((p) => p && p.id && (p.distMi == null || p.distMi <= 25));
+    const out = [];
+    const seen = new Set();
+    for (const p of nearbyPool) {
+      if (seen.has(p.id)) continue;
+      const vids = creatorVideosFor(p, locName);
+      if (!vids.length) continue;
+      seen.add(p.id);
+      out.push({ place: p, video: vids[0] });
+    }
+    out.sort((a, b) => promOf(b.place) - promOf(a.place));
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, suggested, places, locName]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   // v6.44 (owner, 2026-07-28): and NEVER a beach that isn't actually near you.
@@ -7775,6 +7803,27 @@ function PageInner({ initialEvents = null }) {
                       ariaLabel="Trending near you"
                       onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} goIntent("/trending-now"); }}
                     />
+                    {/* v6.92 (owner): same per-place creator-video slides as the
+                        events-loaded branch below — this "no events yet" branch
+                        renders its own copy of the rail, so it needs its own
+                        copy of the cards to stay consistent. */}
+                    {videoHeroPlaces.map(({ place, video }) => {
+                      const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
+                      const photo = (place.photos && place.photos[0]) || place.photo || null;
+                      return (
+                        <LocalPlanHeroCard
+                          key={"video-hero-empty-" + place.id}
+                          image={photo}
+                          badge={plat.label + " find"}
+                          badgeColor={plat.color}
+                          icon="sparkles"
+                          title={place.name}
+                          subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
+                          ariaLabel={plat.label + " find: " + place.name}
+                          onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} openDetail(place); }}
+                        />
+                      );
+                    })}
                     {/* v6.55 (owner): "...at the end will be the reminder, so
                         we engage with them technically twice" — the same
                         Seasonal Picks slide repeats as the closing card. */}
@@ -7923,6 +7972,35 @@ function PageInner({ initialEvents = null }) {
                             }
                           }}
                         />
+                        {/* v6.92 (owner): "i want to feature all of the cards
+                            that has a link to an influencer video inside of
+                            the trending near you" — one dedicated slide per
+                            nearby place with a real creator video, riding
+                            right alongside the Trending slide in this SAME
+                            rail. Every qualifying place gets a card (not a
+                            day-rotated single winner); badge/color come from
+                            the one PLATFORM source in lib/creatorVideos.js so
+                            any future platform is covered with no extra code.
+                            Uses the place's own real photo, never the
+                            creator's video thumbnail (same never-re-host rule
+                            as the Detail.js card). */}
+                        {videoHeroPlaces.map(({ place, video }) => {
+                          const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
+                          const photo = (place.photos && place.photos[0]) || place.photo || null;
+                          return (
+                            <LocalPlanHeroCard
+                              key={"video-hero-" + place.id}
+                              image={photo}
+                              badge={plat.label + " find"}
+                              badgeColor={plat.color}
+                              icon="sparkles"
+                              title={place.name}
+                              subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
+                              ariaLabel={plat.label + " find: " + place.name}
+                              onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} openDetail(place); }}
+                            />
+                          );
+                        })}
                         {/* v6.55 (owner): "...at the end will be the reminder, so
                             we engage with them technically twice" — the same
                             Seasonal Picks slide repeats as the closing card. */}
