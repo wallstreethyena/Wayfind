@@ -192,8 +192,47 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // never flipped and users saw an empty panel with no explanation. If the
     // style has not loaded well after any plausible slow-network load, show
     // the fallback (which still lists the ranked results) rather than nothing.
-    let watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 15000);
+    //
+    // v6.96 (owner: "the map still not working, so many bugs") — reproduced
+    // live on gowayfind.com/map: style, sprite, and tile requests all
+    // succeeded (verified 200s down to the byte), yet the watchdog still
+    // fired "could not load" every time. Root cause, traced into MapLibre's
+    // own source (node_modules/maplibre-gl _render()): the "load" event and
+    // the loaded()/_fullyLoaded flag this watchdog polls are BOTH only set
+    // from inside the requestAnimationFrame-driven render loop — and Chrome
+    // (and iOS Safari more aggressively) throttles or fully suspends rAF for
+    // a tab that is backgrounded or not the active tab. So a real, fully-
+    // fetched map can sit one unrendered frame away from "load" forever if
+    // the tab isn't in the foreground for the first 15s — confirmed directly:
+    // document.hidden was true in exactly this stuck state. That is not an
+    // edge case on a phone: screen lock, an app switch, or just opening the
+    // Map tab from a backgrounded PWA all do it, and once `failed` flips true
+    // the container unmounts, so even coming back to the tab afterward can't
+    // save the already-orphaned map.
+    // Fix: don't run the countdown while the tab isn't visible (a user who
+    // isn't looking hasn't experienced a failure yet), and when the tab
+    // becomes visible again mid-load, force one repaint to un-stick the
+    // render loop and hand it a fresh window instead of counting the
+    // backgrounded time against it.
+    let watchdog = null;
     const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
+    const armWatchdog = () => { clearWatchdog(); watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 15000); };
+    const isHidden = () => typeof document !== "undefined" && document.hidden;
+    if (!isHidden()) armWatchdog();
+    const onVisibility = () => {
+      if (isHidden()) { clearWatchdog(); return; }
+      if (!map.loaded()) { try { map.triggerRepaint(); } catch (e) {} armWatchdog(); }
+    };
+    if (typeof document !== "undefined") document.addEventListener("visibilitychange", onVisibility);
+    // OpenFreeMap's "dark" style references a couple of sprite icons (e.g.
+    // "wood-pattern") its own sprite atlas doesn't ship — a third-party style
+    // gap, not ours to fix upstream. Left unhandled it just logs a console
+    // warning per missing icon; supplying a blank 1x1 here is the documented
+    // MapLibre pattern for "this icon doesn't exist, render nothing" and
+    // keeps the console clean without touching anything we actually draw.
+    map.on("styleimagemissing", (e) => {
+      try { if (!map.hasImage(e.id)) map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) }); } catch (err) {}
+    });
     map.on("load", () => {
       clearWatchdog();
       // v6.94 (owner: "it looks so dark i cant tell water form land") —
@@ -246,7 +285,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
     }
     map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
-    return () => { clearWatchdog(); clearMarkers(); map.remove(); mapRef.current = null; };
+    return () => { clearWatchdog(); if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility); clearMarkers(); map.remove(); mapRef.current = null; };
     // The map is intentionally created only once; state is projected in redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
