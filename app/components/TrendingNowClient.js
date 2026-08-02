@@ -26,7 +26,14 @@ export default function TrendingNowClient() {
   const [rows, setRows] = useState(null); // null = loading
   const [copied, setCopied] = useState(false);
   const [sortBy, setSortBy] = useState("rated");
-  const [radius, setRadius] = useState(17);
+  // v6.90 — owner report: "trending near Parrish" rendered "No trending picks
+  // fall within 17 miles" with real rows already fetched. Root cause: this
+  // default (17) never matched the wf_buzz_picks RPC call below, which asks
+  // for p_radius_mi: 25 — so any row 17-25mi out was fetched, then silently
+  // dropped by the client-side distance filter before it ever reached the
+  // empty-state check. 25 matches the actual fetch radius; a real empty
+  // result now means what it says.
+  const [radius, setRadius] = useState(25);
   // Like/Dislike (2026-08-01) — same fix and same reasoning as
   // IntentPageClient.js: see lib/likeSignal.js for the defect this replaces
   // (a two-hop navigation with no local state or visual feedback at all).
@@ -144,7 +151,10 @@ export default function TrendingNowClient() {
     <RankedExperiencePage
       topLeft={<BackControl fallback="/" variant="editorial" />}
       eyebrow="Trending near you"
-      titleTop="What's drawing people"
+      /* v6.90 — owner report: RankedExperiencePage joins titleTop + <br/> +
+         titleBottom with no connecting word, so this rendered "What's
+         drawing people" / "Parrish" with nothing linking the two lines. */
+      titleTop="What's drawing people to"
       titleBottom={loc.city}
       subtitle={"The places near " + loc.city + " getting the most attention right now — measured by real signals and ordered for the time of day, so what's worth doing this hour rises to the top."}
       heroImg={heroImg}

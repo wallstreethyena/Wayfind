@@ -9202,7 +9202,20 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
             </div>
           ) : null}
-          <div className="wf-place-card-actions" style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+          {/* v6.90 — owner: "the button on the main menu look off, the share
+              button is way off to the side... can we make sure these cards
+              are the same everywhere, I like image 1 [the sheet cards]."
+              Root cause: css.js's .wf-place-card-share{margin-left:auto}
+              right-aligns Share in a plain flex row, but IconicPlaceCard.js's
+              sheet cards already cancel that via a second class,
+              wf-sheet-card-actions (a 4-column grid — see css.js), which is
+              exactly the tight layout the owner is pointing at. Adding the
+              same class here makes every PlaceCard use that one layout
+              instead of two different ones. This row can render a 5th item
+              (Book on Viator) that the sheet cards never do; css.js adds a
+              :has(.wf-place-card-book) 5-column variant so that case stays
+              consistent too, rather than breaking under the 4-column grid. */}
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9 }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"
