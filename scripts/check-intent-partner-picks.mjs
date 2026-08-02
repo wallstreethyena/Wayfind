@@ -78,6 +78,7 @@ ok(/flex: "0 0 200px"/.test(partnerComponentSrc) && /height: 86/.test(partnerCom
 ok(/data-bookable-card-media/.test(partnerComponentSrc) && /if \(!pick\.image/.test(partnerComponentSrc) && !/Wayfind bookable/.test(partnerComponentSrc), "every compact card requires real artwork and never substitutes a placeholder panel");
 ok(/>Verified partners<\//.test(partnerComponentSrc) && /data-partner-badge/.test(partnerComponentSrc) && /via \{pick\.merchant\}/.test(partnerComponentSrc), "the rail uses one neutral heading and identifies each mixed provider discreetly on its card");
 ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partnerComponentSrc), "the unified rail ranks the complete mixed-provider list by evidence");
+ok(/railRef\.current/.test(partnerComponentSrc) && /rail\.scrollLeft = 0/.test(partnerComponentSrc) && /\[city, intent\]/.test(partnerComponentSrc), "changing city or intent resets the horizontal rail to its strongest-ranked first card");
 ok(!/minHeight: 290|Bookable around \{city\}/.test(partnerComponentSrc), "the oversized standalone partner-card treatment is gone");
 ok(!/ViatorRail|partnerRailInventory|<CouponStrip/.test(intentPageSrc), "intent sheets render one unified commerce rail rather than adjacent affiliate or coupon rails");
 ok(/\/api\/deals\?category=/.test(partnerComponentSrc) && /couponsForIntent/.test(partnerComponentSrc), "the unified sheet rail mixes network offers and local coupons with bookable products");

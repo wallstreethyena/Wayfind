@@ -23,6 +23,7 @@ ok(/commerceHref\(/.test(partner), "bookable products must use Wayfind's tracked
 ok(/if \(!pick\.image/.test(partner) && !/Wayfind bookable/.test(partner), "cards without real artwork must fail closed instead of rendering a placeholder");
 ok(/via \{pick\.merchant\}/.test(partner), "each card must identify its provider");
 ok(/evidenceScore\(b\) - evidenceScore\(a\)/.test(partner), "the complete mixed list must be ordered by evidence");
+ok(/railRef\.current/.test(partner) && /rail\.scrollLeft = 0/.test(partner) && /\[city, intent\]/.test(partner), "a city or intent change must reset the rail to its top-ranked card");
 ok((partner.match(/never changes our scores or rankings/g) || []).length === 1, "the sheet rail must render one disclosure");
 
 const mounts = home.match(/<UnifiedBrowseCommerceRail\b/g) || [];
