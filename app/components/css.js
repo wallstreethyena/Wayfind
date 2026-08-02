@@ -374,6 +374,26 @@ export const WF_PLACE_CARD_CSS = `
   .wf-bottom-nav-icon{width:30px!important;height:25px!important}
   .wf-bottom-nav-label{font-size:10.75px!important}
 }
+
+/* v6.73 — owner: "i want a orange pulsing glow behind this section, i love
+   these little coupons, they are such a hidden gem on the site, such a great
+   find!" (Deal card, sheets/Detail.js — both the owner-curated coupon and the
+   live Supabase-offer variant). This is content-level emphasis on a revenue
+   surface (every redeem click is a commission event), not chrome — the
+   MOTION token's "no bounce/pulse/glow loops anywhere in chrome" rule (kit.js)
+   scopes to navigational chrome; the app already has precedent for slow,
+   opacity-only pulses on special commercial callouts (the giveaway popup's
+   wfGold top-bar pulse, 2.8s ease-in-out). Same register here: box-shadow
+   only (no scale/transform, so it can't shift layout or read as jittery),
+   slow enough to feel like a glow breathing rather than an alert. */
+@keyframes wfDealGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(249,115,22,0),0 4px 14px rgba(0,0,0,.25)}
+  50%{box-shadow:0 0 26px 6px rgba(249,115,22,.38),0 4px 14px rgba(0,0,0,.25)}
+}
+.wf-deal-glow{animation:wfDealGlow 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .wf-deal-glow{animation:none;box-shadow:0 0 16px 3px rgba(249,115,22,.24),0 4px 14px rgba(0,0,0,.25)}
+}
 `;
 // v6.44 — the "Your taste" panel (owner: "image 4 is new and i love, just not
 // crazy on how it looks... we need to leverage the way that we enhanced the

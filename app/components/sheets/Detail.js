@@ -1267,7 +1267,7 @@ export default function DetailSheet({ ctx }) {
                 if (!cpn || !couponIsLive(cpn)) return null;
                 const ends = couponEndsLabel(cpn);
                 return (
-                  <div style={{ marginBottom: 16, background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
+                  <div className="wf-deal-glow" style={{ marginBottom: 16, background: C.card, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "12px 14px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>🏷️ Deal</span>
                       {ends && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.muted }}>{ends}</span>}
@@ -1284,7 +1284,7 @@ export default function DetailSheet({ ctx }) {
                 const o0 = offers[detail.id];
                 const o = { ...o0, offer_title: o0.offer_title || o0.title, offer_description: o0.offer_description || o0.description, affiliate_url: o0.affiliate_url || o0.url, expiration_date: o0.expiration_date || (o0.expires_at ? String(o0.expires_at).slice(0, 10) : null) };
                 return (
-                  <div style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
+                  <div className="wf-deal-glow" style={{ background: `linear-gradient(150deg, ${C.adim} 0%, ${C.card} 70%)`, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
                       <span style={{ fontSize: 11, fontWeight: 800, color: "#0D1117", background: C.accent, borderRadius: 999, padding: "2px 9px" }}>{offerLabel(o)}</span>
                       {o.last_verified_at && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>✓ Verified</span>}
