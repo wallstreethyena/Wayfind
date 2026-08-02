@@ -95,7 +95,14 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
     [city, intent, inventory, networkDeals, localCoupons]
   );
   const rootRef = useRef(null);
+  const railRef = useRef(null);
   const seenRef = useRef(new Set());
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+    rail.scrollLeft = 0;
+  }, [city, intent]);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -134,7 +141,7 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
         <span style={{ color: C.muted, fontSize: 12, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase" }}>Bookable highlights near {city}</span>
         <span style={{ color: C.muted, fontSize: 9.5, whiteSpace: "nowrap" }}>Verified partners</span>
       </div>
-      <div aria-label={`Bookable highlights near ${city}`} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorInline: "contain", scrollSnapType: "x proximity", paddingBottom: 4 }}>
+      <div ref={railRef} aria-label={`Bookable highlights near ${city}`} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorInline: "contain", scrollSnapType: "x proximity", paddingBottom: 4 }}>
         {picks.map((pick, index) => {
           const href = pick.kind === "coupon"
             ? `/coupons?view=clipped&focus=${encodeURIComponent(pick.offerId)}`

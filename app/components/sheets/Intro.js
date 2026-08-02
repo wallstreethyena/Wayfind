@@ -118,8 +118,8 @@ export default function IntroSheet({ ctx }) {
             .wf-intro-brand{position:absolute;z-index:1;left:32px;top:28px;width:142px;height:48px}
             .wf-intro-brand img{display:block;width:100%;height:100%;object-fit:contain}
             .wf-intro-copy{position:absolute;z-index:1;left:36px;right:34px;bottom:38px;color:var(--wf-intro-text)}
-            .wf-intro-kicker{display:flex;align-items:center;gap:10px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#FFB575}
-            .wf-intro-kicker:before{content:"";width:26px;height:1px;background:var(--wf-intro-accent)}
+            .wf-intro-kicker{display:inline-flex;align-items:center;gap:10px;width:max-content;padding:6px 9px 6px 8px;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(5,15,23,.58);box-shadow:0 6px 18px rgba(0,0,0,.22);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-size:10px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;color:#FFD0A7;text-shadow:0 1px 8px rgba(0,0,0,.72)}
+            .wf-intro-kicker:before{content:"";width:22px;height:2px;border-radius:999px;background:var(--wf-intro-accent);box-shadow:0 0 10px rgba(249,115,22,.5)}
             .wf-intro-title{max-width:370px;margin-top:14px;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:44px;font-weight:500;letter-spacing:-.045em;line-height:.97;text-wrap:balance}
             .wf-intro-desc{max-width:350px;margin-top:18px;color:var(--wf-intro-light);font-size:13.5px;line-height:1.62;font-weight:520}
             .wf-intro-body{position:relative;display:flex;flex-direction:column;padding:45px 48px 32px;color:var(--wf-intro-ink);overflow-y:auto;background:radial-gradient(circle at 100% 0%,rgba(249,115,22,.055),transparent 42%),#F7F3EA}
@@ -255,8 +255,8 @@ export default function IntroSheet({ ctx }) {
               );
             } catch (e) { return null; } })()}
               <button className="wf-intro-cta" onClick={() => { if (!introSel.length) return; closeIntro("cta"); openExperience(introSel[0]); }} disabled={!introSel.length}>Show me the best matches <span aria-hidden="true">→</span></button>
-              <button className="wf-intro-skip" onClick={() => closeIntro("skip")}>Skip and explore everything</button>
-              <div className="wf-intro-foot"><IntroIcon k="shield" size={13} color={C.muted} />No sponsored rankings. Just places worth your time.</div>
+              <button className="wf-intro-skip" onClick={() => closeIntro("skip")}>Just let me look around</button>
+              <div className="wf-intro-foot"><IntroIcon k="shield" size={13} color={C.muted} />Rankings are merit-based. Affiliate links never change placement.</div>
             </section>
           </div>
         </div>

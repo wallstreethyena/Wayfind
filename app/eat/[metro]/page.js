@@ -134,7 +134,7 @@ export async function generateMetadata({ params }) {
   const meta = METROS[params.metro];
   if (!meta) return { title: "Wayfind" };
   return {
-    title: `What are you in the mood for? — ${meta.label} | Wayfind`,
+    title: `Pick your mood — ${meta.label} | Wayfind`,
     description: `Pick a kind of food and see the best of it near ${meta.near}, ranked on real reviews. No ads, no paid placement.`,
     alternates: { canonical: SITE_URL + "/eat/" + params.metro },
   };
@@ -320,7 +320,7 @@ export default async function EatPage({ params }) {
         heroImg="/cards/food-choices-adobestock-301125732.jpeg"
         imageKicker="The Wayfind table edition"
         imageTitle="Deciding what to eat is the hard part."
-        toplineLeft="What are you in the mood for?"
+        toplineLeft="Pick your mood"
         toplineRight={meta.near}
         headlineId="wf-eat-title"
         headline={<>What to Eat Near {meta.near}</>}

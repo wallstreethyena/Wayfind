@@ -1342,7 +1342,6 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
   if (!notes || !c) return null;
   const placeLabel = isTown ? town : (town && town.toLowerCase() !== c.title.toLowerCase() ? town + " + " + c.title : c.title);
   const headline = notes.headline || ("A local read on " + placeLabel + ".");
-  const signals = Array.isArray(notes.signals) ? notes.signals.slice(0, 3) : [];
   const visibleItems = (notes.items || []).filter((x) => !isTown || !x.place || grounded[x.place]);
   const readCount = Math.max(1, Math.ceil((visibleItems.length + (notes.mistake ? 1 : 0) + (isTown && tn && tn.one ? 1 : 0)) * 0.66));
   const featureRow = (marker, title, body, tone, onClick, keyId) => (
@@ -1369,9 +1368,6 @@ function AreaInsight({ metro, cat, town, center, onFind }) {
         </div>
         <span style={{ display: "block", color: "#FFFFFF", fontSize: "clamp(15px,3.1vw,18px)", lineHeight: 1.1, letterSpacing: "-.025em", fontWeight: 900, whiteSpace: headline.length < 54 ? "nowrap" : "normal" }}>{headline}</span>
         <span style={{ display: "block", maxWidth: 455, color: "#B9C6D3", fontSize: 13.5, lineHeight: 1.52, marginTop: 11 }}>{notes.line}</span>
-        {signals.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 18 }}>
-          {signals.map((signal) => <span key={signal} style={{ padding: "7px 10px", borderRadius: 9, background: "rgba(255,255,255,.055)", border: "1px solid rgba(255,255,255,.085)", color: "#E6EBF2", fontSize: 10.5, fontWeight: 800 }}><span style={{ color: "#57DFBB", marginRight: 5 }}>{"\u25CF"}</span>{signal}</span>)}
-        </div> : null}
         <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 14, marginTop: 19, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.1)", color: openIt ? "#D5DEE8" : "#FFFFFF" }}>
           <span>
             <span style={{ display: "block", fontSize: 11, lineHeight: 1.2, fontWeight: 900, letterSpacing: ".08em", textTransform: "uppercase" }}>{openIt ? "Collapse local guide" : "Open local guide"}</span>
@@ -4692,6 +4688,7 @@ function PageInner({ initialEvents = null }) {
         svFolderDelete("Disliked", p.id);
       }
     }
+    if (!wasLiked) showToast("Added to your taste");
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
@@ -4709,6 +4706,7 @@ function PageInner({ initialEvents = null }) {
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    if (!wasDis) showToast("Got it — fewer places like this");
   }
   function toggleHookLike(hookId) {
     if (!requireAuth("Sign up free — your spots, saved and synced to every device.")) return;

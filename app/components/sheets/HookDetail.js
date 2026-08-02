@@ -166,7 +166,11 @@ export default function HookDetailSheet({ ctx }) {
                           {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
                           {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
                           {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                          {p.price && <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>}
+                          {p.price
+                            ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{p.price}</span>
+                            : (p.price_level ?? p.priceLevel) != null
+                              ? <span style={{ fontSize: 12, color: C.green, fontWeight: 700 }}>{"$".repeat(Math.max(1, Math.min(4, Number(p.price_level ?? p.priceLevel) || 1)))}</span>
+                              : null}
                         </div>
                         {badges.length > 0 && (
                           <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 6 }}>
