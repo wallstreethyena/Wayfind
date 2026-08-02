@@ -2306,8 +2306,12 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
   const pillPlatKey = near ? lead.video.platform : (socialFindStats.topCreator && socialFindStats.topCreator.spots[0] && socialFindStats.topCreator.spots[0].platform);
   const pillPlat = PLATFORM[pillPlatKey] || PLATFORM.tiktok;
   const moreCreators = Math.max(0, socialFindStats.creatorCount - 1);
-  const title = near ? "They did the scouting, so you don't have to" : "Creator finds, coming to your area";
-  const sub = near ? "Watch the video, see why they recommend it ›" : `Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`;
+  // v6.94 (owner: "make the hero card more of the visual and sell it") — the
+  // title now leads with the real place's own name (the specific hook, not
+  // generic copy repeated on every card) since the background photo is
+  // already that place's real photo; the sub carries the value prop.
+  const title = near ? lead.place.name : "Creator finds, coming to your area";
+  const sub = near ? "A creator found it first — watch why ›" : `Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`;
   // v6.94: the card's own photo is the FEATURED PLACE's real photo (same
   // never-re-host-the-creator's-thumbnail rule as Detail.js and the old
   // per-place cards this replaces) — never a stock "influencer" photo, which
