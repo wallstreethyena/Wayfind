@@ -786,11 +786,24 @@ export default function DetailSheet({ ctx }) {
                       const p = PLATFORM[v.platform] || PLATFORM.tiktok;
                       const handle = v.creator ? "@" + v.creator : null;
                       const headline = handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`;
+                      // v6.91 (owner): "add a glowing light to the back of those
+                      // that matched the color of the box, make it a global
+                      // rule so we don't have to keep adjusting manually." The
+                      // glow reads p.color — the SAME PLATFORM color already
+                      // driving the border/badge/CTA above — so every platform
+                      // (today: tiktok/instagram/youtube/facebook) gets a
+                      // correctly-matched glow automatically; adding a 5th
+                      // platform to lib/creatorVideos.js's PLATFORM map lights
+                      // it up here with zero changes to this file. Static, no
+                      // animation/pulse — kit.js's MOTION token bans pulse/glow
+                      // loops in chrome, and the owner asked for a glow, not a
+                      // pulse (that's .wf-deal-glow's job, and it's a distinct,
+                      // explicitly-approved exception).
                       return (
                         <a key={"cvid" + i} href={v.url} target="_blank" rel="noopener"
                            onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
                            aria-label={`${headline} (opens in a new tab)`}
-                           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, boxShadow: "0 2px 16px rgba(0,0,0,.32)" }}>
+                           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, boxShadow: `0 2px 16px rgba(0,0,0,.32), 0 0 22px 2px ${p.color}40` }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                             <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
@@ -1301,7 +1314,15 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               {isBeach(detail) && (
-                <div id="beach-conditions" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
+                // v6.90 — owner: "let's do an orange glow on this also... i love
+                // these little coupons, they are such a hidden gem." Same
+                // wf-deal-glow treatment already shipped on the Deal card
+                // (Detail.js:1270/1287, app/components/css.js) — this panel is a
+                // revenue-adjacent discovery surface too (it's the reason people
+                // scroll a beach's sheet at all), same register: slow orange
+                // box-shadow breathing, no scale/transform, respects
+                // prefers-reduced-motion via the shared .wf-deal-glow rule.
+                <div id="beach-conditions" className="wf-deal-glow" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 14, marginBottom: 14 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: "#2DD4BF" }}>🏖️ Beach conditions</div>
                     {/* v6.57: the same "Trending" flame as the card (kit.js's

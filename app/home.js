@@ -130,6 +130,7 @@ import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
+import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
@@ -163,7 +164,7 @@ import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
-import { creatorVideosFor } from "../lib/creatorVideos";
+import { creatorVideosFor, PLATFORM } from "../lib/creatorVideos";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
 // v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
@@ -244,10 +245,25 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
       )}
       <div style={{ position: "relative" }}>
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+        {/* v6.90 — owner review of the category row asked for "anything you can
+            do" to make it feel less flat. Two additive, guard-safe touches:
+            (a) a soft circular halo behind the active icon (background only,
+            radius 50%, no border — deliberately NOT the retired chip-bubble
+            shape check-ux.mjs bans, which was a bordered borderRadius:22
+            rounded-rect around the whole tile) and (b) a thin active-tile
+            underline, the same idiom already used one row down for the
+            sub-filter chips (line ~261), so the selected state reads
+            consistently top-to-bottom. Idle icon/label color stays the
+            literal "#FFFFFF" check-design.mjs asserts (owner call
+            2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+            <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
+              {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
+              <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+            </span>
             <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
+            {on && <span aria-hidden="true" style={{ position: "absolute", left: "28%", right: "28%", bottom: 1, height: 2.5, borderRadius: 2, background: C.accent }} />}
           </button>
         ); })}
         {trailing || null}
@@ -2086,8 +2102,8 @@ function generateHooks(places, locName) {
   const vals = local.filter((p) => p.rating >= 4.3 && p.priceNum != null && p.priceNum <= 1)
     .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   if (vals[0]) hooks.push({
-    id: "value", accent: "#22C55E", emoji: "💰", label: "Best value", highlightWord: "under $$",
-    hook: `Top ${mealLabel} spots near you under $$`,
+    id: "value", accent: "#22C55E", emoji: "💰", label: "Best value", highlightWord: "won't break the bank",
+    hook: `${vals[0].name} — top-rated ${mealLabel} that won't break the bank`,
     detail: `${vals[0].name} · ★${vals[0].rating} · ${vals[0].price || "$"}`,
     cta: "Show me →", action: { type: "experience", key: "value" },
   });
@@ -2115,16 +2131,16 @@ function generateHooks(places, locName) {
   const foodTop = localByScore.find((p) => (primaryCategory(p) || "") === "Food");
   const nightTop = localByScore.find((p) => (primaryCategory(p) || "") === "Nightlife");
   if (foodTop && nightTop) hooks.push({
-    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "tonight",
-    hook: `Quick local itinerary for tonight`,
+    id: "itinerary", accent: "#F97316", emoji: "🗺️", label: "Tonight's plan", highlightWord: "decided",
+    hook: `${foodTop.name} → ${nightTop.name}. Tonight, decided.`,
     detail: `${foodTop.name} for dinner → ${nightTop.name} for drinks`,
     cta: "See both →", action: { type: "detail", place: foodTop },
   });
 
   // Wayfind Picks — the flagship branded entry into the curated picks sheet.
   if (byScore.length >= 5) hooks.push({
-    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "top 10",
-    hook: `The top 10 picks near ${city} right now`,
+    id: "top5", accent: "#F97316", emoji: "🧭", label: `Wayfind Picks · ${city}`, highlightWord: "#1",
+    hook: `We ranked all of ${city}. Here's who's #1.`,
     detail: byScore.slice(0, 3).map((p) => p.name).join("  ·  "),
     theme: "best", placeId: byScore[0].id,
     themeTitle: `Wayfind Picks · Top 10 in ${city}`,
@@ -6059,6 +6075,34 @@ function PageInner({ initialEvents = null }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, center]);
 
+  // v6.92 (owner, 2026-08-02): "i want to feature all of the cards that has a
+  // link to an influencer video inside of the trending near you" — a
+  // dedicated hero-rail slide for EVERY nearby place with a real, verified
+  // creator video (any platform/creator, not just Cindy/TikTok), separate
+  // from (and never replacing) the real-popularity buzzPick slide above. Not
+  // a day-rotated single winner — every qualifying place gets its own card,
+  // swipeable in the SAME rail the Trending slide already lives in, so
+  // nothing new is added to the page outside that rail. Sourced from the
+  // already-loaded nearby pool (creatorVideosFor() needs name/city, which the
+  // wf_buzz_picks RPC rows don't carry).
+  const videoHeroPlaces = useMemo(() => {
+    if (screen !== "suggested" || !center) return [];
+    const nearbyPool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true)
+      .filter((p) => p && p.id && (p.distMi == null || p.distMi <= 25));
+    const out = [];
+    const seen = new Set();
+    for (const p of nearbyPool) {
+      if (seen.has(p.id)) continue;
+      const vids = creatorVideosFor(p, locName);
+      if (!vids.length) continue;
+      seen.add(p.id);
+      out.push({ place: p, video: vids[0] });
+    }
+    out.sort((a, b) => promOf(b.place) - promOf(a.place));
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen, center, suggested, places, locName]);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   // v6.44 (owner, 2026-07-28): and NEVER a beach that isn't actually near you.
@@ -7759,6 +7803,27 @@ function PageInner({ initialEvents = null }) {
                       ariaLabel="Trending near you"
                       onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} goIntent("/trending-now"); }}
                     />
+                    {/* v6.92 (owner): same per-place creator-video slides as the
+                        events-loaded branch below — this "no events yet" branch
+                        renders its own copy of the rail, so it needs its own
+                        copy of the cards to stay consistent. */}
+                    {videoHeroPlaces.map(({ place, video }) => {
+                      const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
+                      const photo = (place.photos && place.photos[0]) || place.photo || null;
+                      return (
+                        <LocalPlanHeroCard
+                          key={"video-hero-empty-" + place.id}
+                          image={photo}
+                          badge={plat.label + " find"}
+                          badgeColor={plat.color}
+                          icon="sparkles"
+                          title={place.name}
+                          subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
+                          ariaLabel={plat.label + " find: " + place.name}
+                          onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} openDetail(place); }}
+                        />
+                      );
+                    })}
                     {/* v6.55 (owner): "...at the end will be the reminder, so
                         we engage with them technically twice" — the same
                         Seasonal Picks slide repeats as the closing card. */}
@@ -7907,6 +7972,35 @@ function PageInner({ initialEvents = null }) {
                             }
                           }}
                         />
+                        {/* v6.92 (owner): "i want to feature all of the cards
+                            that has a link to an influencer video inside of
+                            the trending near you" — one dedicated slide per
+                            nearby place with a real creator video, riding
+                            right alongside the Trending slide in this SAME
+                            rail. Every qualifying place gets a card (not a
+                            day-rotated single winner); badge/color come from
+                            the one PLATFORM source in lib/creatorVideos.js so
+                            any future platform is covered with no extra code.
+                            Uses the place's own real photo, never the
+                            creator's video thumbnail (same never-re-host rule
+                            as the Detail.js card). */}
+                        {videoHeroPlaces.map(({ place, video }) => {
+                          const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
+                          const photo = (place.photos && place.photos[0]) || place.photo || null;
+                          return (
+                            <LocalPlanHeroCard
+                              key={"video-hero-" + place.id}
+                              image={photo}
+                              badge={plat.label + " find"}
+                              badgeColor={plat.color}
+                              icon="sparkles"
+                              title={place.name}
+                              subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
+                              ariaLabel={plat.label + " find: " + place.name}
+                              onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} openDetail(place); }}
+                            />
+                          );
+                        })}
                         {/* v6.55 (owner): "...at the end will be the reminder, so
                             we engage with them technically twice" — the same
                             Seasonal Picks slide repeats as the closing card. */}
@@ -8789,21 +8883,32 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
     return () => { dead = true; };
   }, [categories.join("|"), lat, lng]);
 
+  // v6.90 — owner: "make sure they are displayed by rating and discount,
+  // point based on the activity time of today." Same small, capped, order-
+  // only bonuses as IntentPartnerPick.js's evidenceScore, kept in sync so the
+  // two mixed-provider rails behave consistently — see
+  // lib/experienceNowRank.js. Rating/quality10 stays the base term; unrated
+  // deals keep the exact -1 sentinel (sorts last, untouched by any bonus).
+  const nowHour = siteHourFloat();
   const cards = useMemo(() => {
     const rows = [];
     for (const t of (Array.isArray(experiences) ? experiences : [])) {
       if (!t?.image || !(t.code || t.product_code)) continue;
       const offerId = t.code || t.product_code;
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10), kind: "experience" });
+      const base = Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10);
+      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour), kind: "experience" });
     }
     for (const d of (Array.isArray(deals) ? deals : [])) {
       const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
       if (!image || !d.id) continue;
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: d.discount || d.badge || "", score: Number(d.quality10 || 0) || -1, href: d.href, kind: "deal" });
+      const dBase = Number(d.quality10 || 0);
+      const discountText = d.discount || d.badge || "";
+      const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
+      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, href: d.href, kind: "deal" });
     }
     const seen = new Set();
     return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals]);
+  }, [experiences, deals, nowHour]);
 
   if (!cards.length) return null;
   return (
@@ -9175,7 +9280,20 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               <div style={{ marginTop: 2 }}>{aiSummary.card_line_2}</div>
             </div>
           ) : null}
-          <div className="wf-place-card-actions" style={{ display: "flex", gap: 6, marginTop: 9, flexWrap: "wrap" }}>
+          {/* v6.90 — owner: "the button on the main menu look off, the share
+              button is way off to the side... can we make sure these cards
+              are the same everywhere, I like image 1 [the sheet cards]."
+              Root cause: css.js's .wf-place-card-share{margin-left:auto}
+              right-aligns Share in a plain flex row, but IconicPlaceCard.js's
+              sheet cards already cancel that via a second class,
+              wf-sheet-card-actions (a 4-column grid — see css.js), which is
+              exactly the tight layout the owner is pointing at. Adding the
+              same class here makes every PlaceCard use that one layout
+              instead of two different ones. This row can render a 5th item
+              (Book on Viator) that the sheet cards never do; css.js adds a
+              :has(.wf-place-card-book) 5-column variant so that case stays
+              consistent too, rather than breaking under the 4-column grid. */}
+          <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9 }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
                 className="wf-place-card-book"

@@ -339,6 +339,11 @@ export const WF_PLACE_CARD_CSS = `
 }
 .wf-sheet-card-actions>.wf-place-card-save,
 .wf-sheet-card-actions>.wf-place-card-share{min-width:0!important;margin-left:0!important;padding-inline:8px!important}
+/* v6.90 — the home PlaceCard can render a 5th action (Book on Viator, first
+   in row order) that the 4-column sheet-card layout above was never built
+   for. :has() lets the same wf-sheet-card-actions class stay the single
+   action-row layout everywhere instead of forking a second one. */
+.wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(70px,.8fr) minmax(64px,.8fr) 42px 42px minmax(76px,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
