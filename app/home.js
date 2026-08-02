@@ -168,7 +168,8 @@ import BestNearby from "./components/BestNearby";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
-import { creatorVideosFor, PLATFORM, regionsWithFinds } from "../lib/creatorVideos";
+import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
+import CreatorAvatar from "./components/CreatorAvatar";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
 // v6.45 (owner, with screenshots: a taste chip that just read "2", and chips
@@ -2283,6 +2284,66 @@ function LocalPlanHeroCard({ image, badge, badgeColor, icon, navIcon = false, ti
   );
 }
 
+// v6.94 — the Social Media Find hero slide, CONSOLIDATED (owner: "the social
+// hero card [should be] the second hero card in the order... my problem
+// right now... it defaults to one user"). Before this, videoHeroPlaces
+// rendered ONE LocalPlanHeroCard PER matching place — in a metro where one
+// creator (cindy.selects) has most of the curated spots, that meant several
+// near-identical cards in a row, which read as "it's always the same
+// person" even though the underlying library has 4 creators. This is now a
+// single bespoke card (custom, not LocalPlanHeroCard — same pattern as the
+// date-night/family slides below, which are also bespoke divs, not that
+// shared component) at slide #2, carrying the real creator-pill overlay the
+// owner asked to reuse from the sheet's own card design, and it always opens
+// the location-organized browse view (setSocialFind({browse:true})) instead
+// of one specific video — see lib/creatorVideos.js's spotsByCity().
+function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStats, setSocialFind, logEvent }) {
+  if (!videoHeroPlaces.length && !socialFindRegions.length) return null;
+  const near = videoHeroPlaces.length > 0;
+  const lead = near ? videoHeroPlaces[0] : null;
+  const leadPlat = lead ? (PLATFORM[lead.video.platform] || PLATFORM.tiktok) : PLATFORM.tiktok;
+  const pillHandle = near ? lead.video.creator : (socialFindStats.topCreator && socialFindStats.topCreator.handle);
+  const pillPlatKey = near ? lead.video.platform : (socialFindStats.topCreator && socialFindStats.topCreator.spots[0] && socialFindStats.topCreator.spots[0].platform);
+  const pillPlat = PLATFORM[pillPlatKey] || PLATFORM.tiktok;
+  const moreCreators = Math.max(0, socialFindStats.creatorCount - 1);
+  const title = near ? "They did the scouting, so you don't have to" : "Creator finds, coming to your area";
+  const sub = near ? "Watch the video, see why they recommend it ›" : `Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`;
+  // v6.94: the card's own photo is the FEATURED PLACE's real photo (same
+  // never-re-host-the-creator's-thumbnail rule as Detail.js and the old
+  // per-place cards this replaces) — never a stock "influencer" photo, which
+  // would be fabricated and go stale the moment the lead creator/place
+  // rotates. No lead (the "not near you yet" state) falls back to the same
+  // themed gradient LocalPlanHeroCard already uses for a photo-less slide.
+  const photo = lead ? (lead.place.photos && lead.place.photos[0]) || lead.place.photo || null : null;
+  return (
+    <div
+      role="button" tabIndex={0} onKeyDown={KB_CLICK}
+      onClick={() => { try { logEvent("creator_video_hero_open", null, { id: lead ? lead.place.id : null, platform: lead ? lead.video.platform : null, near, src: "hero_swipe_consolidated" }); } catch (e) {} setSocialFind({ browse: true }); }}
+      aria-label="Social media find"
+      style={{ position: "relative", flexShrink: 0, width: "93%", scrollSnapAlign: "start", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", cursor: "pointer", background: photo ? C.card : `linear-gradient(135deg, ${leadPlat.color}3D 0%, #171C26 55%, #0B0E14 100%)` }}
+    >
+      {photo && <img src={photo} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.4) 42%, rgba(5,7,11,.95) 100%)" }} />
+      <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${leadPlat.color}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
+        <Icon name="sparkles" size={12} color={leadPlat.color} /><span style={{ fontSize: 10.5, fontWeight: 800, color: leadPlat.color, letterSpacing: "0.4px", textTransform: "uppercase" }}>Social media find</span>
+      </div>
+      <div style={{ position: "absolute", left: 14, right: 14, bottom: pillHandle ? 88 : 14 }}>
+        <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>{title}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,.9)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{sub}</div>
+      </div>
+      {pillHandle && (
+        <div style={{ position: "absolute", left: 12, right: 12, bottom: 12, background: "rgba(13,17,23,.82)", border: `1.5px solid ${pillPlat.color}`, borderRadius: 14, padding: "9px 11px", display: "flex", alignItems: "center", gap: 10, backdropFilter: "blur(6px)" }}>
+          <CreatorAvatar handle={pillHandle} platform={pillPlatKey} size={38} color={pillPlat.color} />
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>@{pillHandle}</div>
+            <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.7)", marginTop: 1 }}>{moreCreators > 0 ? `+ ${moreCreators} more creator${moreCreators === 1 ? "" : "s"} · ${socialFindStats.spotCount} spots scouted` : `${socialFindStats.spotCount} spots scouted on Wayfind`}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   if (!event || !event.dest) return null;
   const f = formatEventDate(event.date, event.time);
@@ -3139,6 +3200,17 @@ function PageInner({ initialEvents = null }) {
       compassHandlerRef.current = h;
       window.addEventListener("deviceorientation", h, true);
       setCompassOn(true);
+      // v6.94 (owner: map submenu controls weren't explained) — the button
+      // itself now carries a "Compass" label (see Map.js), but what it DOES
+      // (the needle tracks true north as you turn — the map itself doesn't
+      // rotate) still isn't obvious from a label alone. One-time toast,
+      // first activation only, same wf_*_v1-gated pattern taste scoring uses.
+      try {
+        if (!localStorage.getItem("wf_map_compass_hint_v1")) {
+          localStorage.setItem("wf_map_compass_hint_v1", "1");
+          setTimeout(() => showToast("Compass needle now tracks true north as you turn"), 350);
+        }
+      } catch (e) {}
       setTimeout(() => { if (!got && compassHandlerRef.current === h) { stopCompass(); showToast("Compass not supported on this device"); } }, 2500);
     } catch (e) { showToast("Compass not available"); }
   };
@@ -6126,6 +6198,15 @@ function PageInner({ initialEvents = null }) {
   // is hot-reloaded.
   const socialFindRegions = useMemo(() => regionsWithFinds(), []);
 
+  // v6.94 — "make image 1 the default... organized by location" (owner). The
+  // browse-by-city default view the consolidated hero card below now opens
+  // into. `center` isn't in videoHeroPlaces's deps chain (that list already
+  // depends on it), so this stays a light, separate memo.
+  const socialFindByCity = useMemo(() => spotsByCity(center), [center]);
+  // Static over the curated library, same one-time-memo reasoning as
+  // socialFindRegions above.
+  const socialFindStats = useMemo(() => libraryStats(), []);
+
   // v6.50 beach hero slide: wf_nearest_beaches (already granted), best rated
   // of the three nearest inside 20 mi. Fails soft to no slide.
   // v6.44 (owner, 2026-07-28): and NEVER a beach that isn't actually near you.
@@ -7412,7 +7493,7 @@ function PageInner({ initialEvents = null }) {
     // places: the place+video the user tapped in from, every other nearby
     // find (for the "more near you" strip), and the region-availability list
     // for the "not here yet" recommendation mode.
-    socialFind, setSocialFind, videoHeroPlaces, socialFindRegions,
+    socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
     mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
     // experience badge screen (G4)
@@ -7781,6 +7862,11 @@ function PageInner({ initialEvents = null }) {
                         seasonal still closes the rail. Literal JSX order — no
                         rotation. */}
                     <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
+                    {/* v6.94 (owner): Social Media Find is now the SECOND hero
+                        card, always — one consolidated card instead of one
+                        per place, so it never "defaults to one user." It opens
+                        the location-organized Browse sheet by default. */}
+                    <SocialFindHeroCard videoHeroPlaces={videoHeroPlaces} socialFindRegions={socialFindRegions} socialFindStats={socialFindStats} setSocialFind={setSocialFind} logEvent={logEvent} />
                     {seasonalHeroSlide("top")}
                     {/* THE 23-MILE RULE (owner, 2026-07-28). This slide used to
                         render unconditionally and only swap its COPY when no
@@ -7842,50 +7928,9 @@ function PageInner({ initialEvents = null }) {
                       ariaLabel="Trending near you"
                       onOpen={() => { try { logEvent("buzz_hero_open", null, { id: null, src: "hero_swipe" }); } catch (e2) {} goIntent("/trending-now"); }}
                     />
-                    {/* v6.92 (owner): same per-place creator-video slides as the
-                        events-loaded branch below — this "no events yet" branch
-                        renders its own copy of the rail, so it needs its own
-                        copy of the cards to stay consistent. v6.93: badge is
-                        now the platform-agnostic "Social media find" (owner:
-                        "dont call it the tik tok find"), each card gets the
-                        pulsing platform-colored glow, and it opens the
-                        dedicated Social Media Find sheet instead of the
-                        regular place Detail sheet. */}
-                    {videoHeroPlaces.map(({ place, video }) => {
-                      const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
-                      const photo = (place.photos && place.photos[0]) || place.photo || null;
-                      return (
-                        <LocalPlanHeroCard
-                          key={"video-hero-empty-" + place.id}
-                          image={photo}
-                          badge="Social media find"
-                          badgeColor={plat.color}
-                          icon="sparkles"
-                          title={place.name}
-                          subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
-                          ariaLabel={"Social media find: " + place.name}
-                          onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} setSocialFind({ place, video }); }}
-                        />
-                      );
-                    })}
-                    {/* v6.93 (owner: "if no videos are available for that
-                        region then we make a recommendation for areas where
-                        videos are available") — only when this region has
-                        genuinely zero curated finds, one card invites the
-                        user into the bookshelf's "coming to your area" view
-                        instead of showing nothing. */}
-                    {videoHeroPlaces.length === 0 && socialFindRegions.length > 0 && (
-                      <LocalPlanHeroCard
-                        key="video-hero-empty-recommend"
-                        badge="Social media find"
-                        badgeColor={PLATFORM.tiktok.color}
-                        icon="sparkles"
-                        title="Creator finds, coming to your area"
-                        subtitle={`Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`}
-                        ariaLabel="Social media finds in other areas"
-                        onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: null, platform: null, src: "hero_swipe_recommend" }); } catch (e2) {} setSocialFind({ place: null, video: null }); }}
-                      />
-                    )}
+                    {/* v6.94: per-place/recommend Social Media Find cards
+                        consolidated into the single SocialFindHeroCard above
+                        (position #2) — see that component's comment. */}
                     {/* v6.55 (owner): "...at the end will be the reminder, so
                         we engage with them technically twice" — the same
                         Seasonal Picks slide repeats as the closing card. */}
@@ -7937,6 +7982,10 @@ function PageInner({ initialEvents = null }) {
                             trending cards keep their existing destinations
                             and behavior as the following slides. */}
                         <DiscoveryHeroCard onOpen={() => { try { logEvent("discovery_hero_open", null, { src: "hero_top" }); } catch (e) {} goIntent("/nearby"); }} />
+                        {/* v6.94 (owner): Social Media Find — consolidated,
+                            always the SECOND card. See branch above / the
+                            component's own comment for the full rationale. */}
+                        <SocialFindHeroCard videoHeroPlaces={videoHeroPlaces} socialFindRegions={socialFindRegions} socialFindStats={socialFindStats} setSocialFind={setSocialFind} logEvent={logEvent} />
                         {seasonalHeroSlide("top")}
                         <div style={{ position: "relative", flexShrink: 0, width: "93%" /* date-night + family slides always follow */, scrollSnapAlign: "start" }}>
                           <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: featured.id, kind: featured.destKind, src: "foryou_hero" }); } catch (e2) {} }} style={{ display: "block", position: "relative", height: EV_HERO_H, borderRadius: 18, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,.4)", textDecoration: "none" }}>
@@ -8034,53 +8083,10 @@ function PageInner({ initialEvents = null }) {
                             }
                           }}
                         />
-                        {/* v6.92 (owner): "i want to feature all of the cards
-                            that has a link to an influencer video inside of
-                            the trending near you" — one dedicated slide per
-                            nearby place with a real creator video, riding
-                            right alongside the Trending slide in this SAME
-                            rail. Every qualifying place gets a card (not a
-                            day-rotated single winner); badge/color come from
-                            the one PLATFORM source in lib/creatorVideos.js so
-                            any future platform is covered with no extra code.
-                            Uses the place's own real photo, never the
-                            creator's video thumbnail (same never-re-host rule
-                            as the Detail.js card). v6.93: badge reads "Social
-                            media find" (owner: "dont call it the tik tok
-                            find"), the card pulses with the platform's color
-                            (.wf-social-glow), and it opens the dedicated
-                            Social Media Find sheet instead of Detail.js. */}
-                        {videoHeroPlaces.map(({ place, video }) => {
-                          const plat = PLATFORM[video.platform] || PLATFORM.tiktok;
-                          const photo = (place.photos && place.photos[0]) || place.photo || null;
-                          return (
-                            <LocalPlanHeroCard
-                              key={"video-hero-" + place.id}
-                              image={photo}
-                              badge="Social media find"
-                              badgeColor={plat.color}
-                              icon="sparkles"
-                              title={place.name}
-                              subtitle={video.creator ? `Featured on ${plat.label} by @${video.creator} ›` : `Featured on ${plat.label} ›`}
-                              ariaLabel={"Social media find: " + place.name}
-                              onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: place.id, platform: video.platform, src: "hero_swipe" }); } catch (e2) {} setSocialFind({ place, video }); }}
-                            />
-                          );
-                        })}
-                        {/* v6.93 — same "not in your region yet" recommendation
-                            card as the empty-events branch above. */}
-                        {videoHeroPlaces.length === 0 && socialFindRegions.length > 0 && (
-                          <LocalPlanHeroCard
-                            key="video-hero-recommend"
-                            badge="Social media find"
-                            badgeColor={PLATFORM.tiktok.color}
-                            icon="sparkles"
-                            title="Creator finds, coming to your area"
-                            subtitle={`Live now in ${socialFindRegions.length} other spot${socialFindRegions.length === 1 ? "" : "s"} ›`}
-                            ariaLabel="Social media finds in other areas"
-                            onOpen={() => { try { logEvent("creator_video_hero_open", null, { id: null, platform: null, src: "hero_swipe_recommend" }); } catch (e2) {} setSocialFind({ place: null, video: null }); }}
-                          />
-                        )}
+                        {/* v6.94: per-place/recommend Social Media Find cards
+                            consolidated into the single SocialFindHeroCard
+                            above (position #2) — see that component's
+                            comment. */}
                         {/* v6.55 (owner): "...at the end will be the reminder, so
                             we engage with them technically twice" — the same
                             Seasonal Picks slide repeats as the closing card. */}
