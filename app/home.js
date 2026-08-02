@@ -6880,6 +6880,43 @@ function PageInner({ initialEvents = null }) {
     setLocName("");
   }
 
+  // v6.97 (owner: "a near me button to reset my location would be nice, I
+  // got stuck looking around and had no idea where I was") — this file
+  // already had clearSearchedLocation() above: it resets a manual city
+  // search back toward GPS, but it was never wired to any button, never
+  // told the MAP to actually fly the camera anywhere (so the map view would
+  // stay wherever the user had panned), and left the location name blank
+  // instead of naming where "near me" now points. Finishing it into a real
+  // one-tap recenter: clears the manual override, re-fetches a fresh GPS fix
+  // if one isn't already held (same call/pattern as the initial-mount
+  // request below), snaps both the search center AND the map camera there,
+  // and names it via the same reverse geocode every other center-set uses.
+  async function recenterToMe() {
+    manualRef.current = false;
+    try { localStorage.removeItem("wf_center"); } catch (e) {}
+    if (deviceLoc && isFinite(deviceLoc.lat)) {
+      setCenter({ lat: deviceLoc.lat, lng: deviceLoc.lng });
+      setMapFocus({ lat: deviceLoc.lat, lng: deviceLoc.lng, ts: Date.now() });
+      try { setLocName(await reverseGeocode(deviceLoc.lat, deviceLoc.lng)); } catch (e) {}
+      try { logEvent("recenter_to_me", null, { hadFix: true }); } catch (e) {}
+      return;
+    }
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setDeviceLoc(c);
+        setLocApprox(false);
+        setCenter(c);
+        setMapFocus({ ...c, ts: Date.now() });
+        try { setLocName(await reverseGeocode(c.lat, c.lng)); } catch (e) {}
+        try { logEvent("recenter_to_me", null, { hadFix: false }); } catch (e) {}
+      },
+      () => { try { logEvent("recenter_to_me_denied", null, {}); } catch (e) {} },
+      { timeout: 8000 }
+    );
+  }
+
   // Coverage gate: ask the server whether this location is live / unlock / alert.
   // One RPC; the result drives whether the feed or the CityGate door renders.
   useEffect(() => {
@@ -7535,7 +7572,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
@@ -7678,6 +7715,15 @@ function PageInner({ initialEvents = null }) {
               "Find my vibe" button in the header. */}
           {/* Owner (2026-07-21, final call): the sparkle (Find my vibe) lives
               beside search; the dice experiment is retired. */}
+          {/* v6.97 (owner: "a near me button to reset my location... I got
+              stuck looking around and had no idea where I was") — one-tap
+              recenter back to the device's real GPS location, same row as
+              search since that is where the owner asked for it (it also
+              shows on the map's own floating search row when opened, via
+              the shared `screen !== "map" || mapSearchOpen` gate above). */}
+          <button className="wf-locate-button" onClick={recenterToMe} aria-label="Near me — recenter to your current location" title="Near me" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
+          </button>
           <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="sparkles" size={17} color={C.accent} />
           </button>
