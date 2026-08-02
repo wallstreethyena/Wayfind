@@ -55,6 +55,15 @@ export default function ViatorRail({ title, items, theme, onLog, onOpenExternal 
             {(t.image || categoryImage) ? <div style={{ position: "relative", height: 86, overflow: "hidden" }}>
               <img src={t.image || categoryImage} data-fallback={t.image ? categoryImage : ""} alt="" loading="lazy" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback && ev.currentTarget.src !== fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: t.image ? "none" : "saturate(.82) contrast(.96)" }} />
               {!t.image && categoryImage ? <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(5,9,15,.12),rgba(5,9,15,.56))" }} /> : null}
+              {/* Demand badge rides ONLY on Viator's own flag as passed through
+                  verbatim by the API route (t.sellingFast) — same convention as
+                  the Local-tours grid in Events.js — never a computed guess.
+                  t.sellingOut also honored for the wf_experiences-backed source
+                  (lib/experiencesServe.js rowToCard) so this rail stays correct
+                  no matter which pipeline fed it. It is cosmetic only: per
+                  lib/experiencesData.js's Gate-2 isolation, this flag never
+                  enters rankExperiences and cannot move a card's position. */}
+              {(t.sellingFast || t.sellingOut) ? <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, background: "#B33A2B", color: "#fff", fontSize: 9.5, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "3px 8px" }}>Selling fast</span> : null}
             </div> : null}
             <div style={{ padding: "8px 10px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>

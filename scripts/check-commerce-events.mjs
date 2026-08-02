@@ -64,9 +64,21 @@ if (mod) {
   ok(CONTEXT_FIELDS.length >= 12 && !CONTEXT_FIELDS.includes("user_id") && !CONTEXT_FIELDS.includes("lat"),
     "the context whitelist carries no account id and no raw coordinates");
 
-  // forbidden VALUE shapes, not just names
+  // forbidden VALUE shapes, not just names.
+  //
+  // commercePayload's own contract (lib/commerce.js) is deliberately
+  // environment-dependent: it THROWS in development so the mistake is loud and
+  // cheap to catch, but in production it DROPS the offending field instead of
+  // throwing, so a bad value can never crash a rendering page. Vercel sets
+  // NODE_ENV=production for the whole build — including this prebuild guard
+  // step, which runs before `next build` ever starts — so asserting "it always
+  // throws" only ever held in an interactive dev shell and fails every real
+  // build. The actual security property this guard exists to prove is narrower
+  // and env-independent: the email must never reach the emitted payload,
+  // whether that's enforced by throwing or by silently dropping the field.
   const emailAttempt = tryPayload("commerce_impression", { merchant: "someone@example.com" });
-  ok(!emailAttempt.ok, "a correctly-NAMED field carrying an email is rejected — personal data escapes by value, not by field name");
+  const emailLeaked = emailAttempt.ok && JSON.stringify(emailAttempt.v).includes("someone@example.com");
+  ok(!emailLeaked, "a correctly-NAMED field carrying an email never reaches the emitted payload, in dev (throw) or production (silent drop) — personal data escapes by value, not by field name");
 
   // (4) coarse rank only
   ok(rankBucket(1) === "top3" && rankBucket(7) === "4-10" && rankBucket(99) === "11+",

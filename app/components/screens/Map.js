@@ -27,7 +27,7 @@ function BeachChips({ p, isBeach, beachSignals }) {
 }
 
 export default function MapScreen({ ctx }) {
-  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, isBeach, beachSignals } = ctx;
+  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow } = ctx;
               const dateChips = [];
               const now = new Date();
               for (let i = 0; i < 14; i++) {
@@ -154,22 +154,22 @@ export default function MapScreen({ ctx }) {
                       </button>
                       {mapDrawer && (
                         <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px" }}>
+                          {/* v6.88 (owner: "Sofra Kitchen Bar & Bistro looks like two
+                              different restaurants depending on where I see it"): this
+                              drawer used to render its own trimmed-down row (rank +
+                              52px thumbnail + name + score chip) instead of the SAME
+                              PlaceCard every other ranked list on the site uses — so a
+                              place picked up the category eyebrow, the "Top X pick"
+                              award, the experience tag chips (Romantic/Hidden gem/etc.)
+                              and the Save/Like/Dislike/Share row everywhere EXCEPT here.
+                              PlaceCard was already threaded onto ctx for other G4 screens
+                              (see the "module-scope components" block in home.js's ctx);
+                              this drawer just wasn't using it. `view` is the exact same
+                              array/object references the rest of the app renders with
+                              PlaceCard, so the numbers on a card here now match the
+                              numbers on that same place everywhere else in this session. */}
                           {view.map((p, i) => (
-                            <div key={p.id} onClick={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} style={{ display: "flex", alignItems: "center", gap: 11, padding: "10px 0", borderBottom: i < view.length - 1 ? `1px solid ${C.border}` : "none", cursor: "pointer" }}>
-                              <div style={{ flexShrink: 0, width: 24, textAlign: "center", fontSize: 13, fontWeight: 800, color: C.light }}>{i + 1}</div>
-                              <FallbackImg src={p.photo} icon={iconForPlace(p)} style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
-                                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
-                                  <PlaceScoreChip p={p} size={11} />
-                                  {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open</span>}
-                                  {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
-                                  {p.distMi != null && <span style={{ fontSize: 11, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
-                                  <BeachChips p={p} isBeach={isBeach} beachSignals={beachSignals} />
-                                </div>
-                              </div>
-                              <span style={{ color: C.muted, fontSize: 18, flexShrink: 0 }}>›</span>
-                            </div>
+                            <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNow} />
                           ))}
                         </div>
                       )}

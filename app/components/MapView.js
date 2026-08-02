@@ -2,9 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { distanceRingData } from "../../lib/mapExplorer";
+import { distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../../lib/mapExplorer";
 
-const MAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
+// Below this zoom level the map is showing enough area that the 15mi ring
+// is basically hugging the edge of the viewport, so the outer ring expands
+// to 30mi (matching the remembered "zoom of 30 miles out... expanded to the
+// last line 30"). 9.5 sits below both fixed init zooms (11 / 11.55) so
+// normal framing never triggers it; it only kicks in once the user
+// deliberately zooms out.
+const RING_EXPAND_ZOOM_THRESHOLD = 9.5;
+
+// Was "https://tiles.openfreemap.org/styles/liberty" — liberty is a LIGHT
+// basemap (background #f8f4f0, light-blue water) that this component then
+// force-darkened with CSS filters (brightness .72-.73, a dark multiply
+// overlay) to fit the app's near-black theme. That's a lossy compensation:
+// it muddies the basemap and, worse, competes for attention with the vivid
+// per-category pin colors and orange rings drawn on top. OpenFreeMap (same
+// CDN, no API key, confirmed reachable) also serves "dark", a genuinely
+// separate style (verified: distinct byte-for-byte JSON, near-black
+// rgb(12,12,12) background, monochrome grayscale roads/water/parks — a
+// dark-matter-style basemap purpose-built as a neutral backdrop for color
+// overlays). Swapping to it needs far less corrective filtering below and
+// lets the orange/purple/teal/pink pins and rings read clearly, which is
+// what "pins were more beautiful, I could easily see things" is describing.
+const MAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
 
 // v6.43 — THE BLANK MAP. maplibre-gl v6 is ESM-only and derives its Web Worker
 // URL from `import.meta.url`. Next 14's client webpack output replaces that
@@ -52,6 +73,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   const markersRef = useRef([]);
   const lastOriginRef = useRef("");
   const placesByIdRef = useRef(new Map());
+  const ringZoomedOutRef = useRef(false);
   const [failed, setFailed] = useState(false);
 
   const clearMarkers = () => {
@@ -98,7 +120,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     }
 
     const ringSource = map.getSource("wf-rings");
-    const ringData = origin && rings ? distanceRingData(origin) : { type: "FeatureCollection", features: [] };
+    const ringMiles = ringZoomedOutRef.current ? MAP_RING_MILES_ZOOMED_OUT : MAP_RING_MILES;
+    const ringData = origin && rings ? distanceRingData(origin, ringMiles) : { type: "FeatureCollection", features: [] };
     if (ringSource) ringSource.setData(ringData);
 
     if (fit && !bounds.isEmpty()) map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 });
@@ -168,6 +191,38 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   }, []);
 
   useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Zoom-responsive ring expansion: when the user zooms out past
+  // RING_EXPAND_ZOOM_THRESHOLD, swap the 5/10/15mi rings for 5/10/30mi;
+  // swap back once they zoom back in. `zoom` fires continuously during a
+  // drag-zoom, so the handler itself is cheap (just reads map.getZoom())
+  // and only touches the source — recomputing the ring polygons — via a
+  // trailing debounce, and only when the threshold is actually crossed.
+  useEffect(() => {
+    const map = mapRef.current;
+    const origin = deviceLoc || center;
+    if (!map || !rings || !origin || origin.lat == null || origin.lng == null) return undefined;
+    let debounceId = null;
+    const applyRingsForZoom = () => {
+      const source = map.getSource("wf-rings");
+      if (!source) return;
+      const zoomedOut = map.getZoom() < RING_EXPAND_ZOOM_THRESHOLD;
+      if (zoomedOut === ringZoomedOutRef.current) return;
+      ringZoomedOutRef.current = zoomedOut;
+      source.setData(distanceRingData(origin, zoomedOut ? MAP_RING_MILES_ZOOMED_OUT : MAP_RING_MILES));
+    };
+    const onZoom = () => {
+      if (debounceId) clearTimeout(debounceId);
+      debounceId = setTimeout(applyRingsForZoom, 120);
+    };
+    map.on("zoom", onZoom);
+    if (map.isStyleLoaded()) applyRingsForZoom();
+    return () => {
+      if (debounceId) clearTimeout(debounceId);
+      map.off("zoom", onZoom);
+    };
+  }, [deviceLoc, center, rings]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !focus || focus.lat == null || focus.lng == null) return;
@@ -175,9 +230,17 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   }, [focus && focus.ts]);
 
   if (failed) return <MapFallback count={(places || []).length} />;
-  return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: compact ? "#0C1420" : "#E7EBEF" }}>
-    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "saturate(.62) contrast(1.05) brightness(.73)" : "saturate(.68) contrast(1.12) brightness(.72)" }} />
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.42), rgba(3,8,14,.16) 55%, rgba(3,8,14,.46))" : "linear-gradient(160deg, rgba(3,8,20,.34), rgba(3,8,20,.08) 48%, rgba(3,8,20,.38))", mixBlendMode: "multiply" }} />
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.1)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.5)" }} />
+  // Filters below used to force a LIGHT basemap (liberty) dark: heavy
+  // brightness reduction (.72-.73) plus a dark multiply overlay. Now that
+  // MAP_STYLE is natively a near-black, grayscale basemap, that same heavy
+  // dimming would crush it toward pure black and make roads/labels hard to
+  // read — the opposite of "I could easily see things". Contrast/sharpness
+  // is kept (slightly increased) so the muted basemap stays crisp, and
+  // brightness/overlay are pulled back since there's no light background
+  // left to hide.
+  return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: compact ? "#0C1420" : "#0B1119" }}>
+    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "contrast(1.12) brightness(.98)" : "contrast(1.18) brightness(1.02)" }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.22), rgba(3,8,14,.06) 55%, rgba(3,8,14,.26))" : "linear-gradient(160deg, rgba(3,8,20,.16), rgba(3,8,20,.02) 48%, rgba(3,8,20,.2))", mixBlendMode: "multiply" }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.1)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)" }} />
   </div>;
 }
