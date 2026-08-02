@@ -17,6 +17,19 @@
  * FLOOR is a ratchet, not a target. It is deliberately below the current count
  * so ordinary removals don't trip it, but far above zero so a truncated or
  * half-merged manifest can never pass. Raise it as the suite grows.
+ *
+ * DEPLOY-TIME GOTCHA (found 2026-08-02, map fallback bug): npm only runs the
+ * "prebuild" script automatically when the build is invoked as `npm run
+ * build`. vercel.json's buildCommand had drifted to `npx next build`, which
+ * calls the next binary directly and skips npm's pre/post script lifecycle
+ * entirely — so this whole guard suite, including test-map-worker.mjs (the
+ * byte-identity check that stops a maplibre-gl upgrade from silently
+ * shipping a stale/renamed worker file and reproducing the "map could not
+ * load" incident), never ran on a real deploy. There is no other CI in this
+ * repo (no .github/workflows), so Vercel's build was the only place these
+ * guards could run. Keep vercel.json's buildCommand as `npm run build` (or
+ * anything else that goes through npm's script lifecycle) — never point it
+ * at `next build` / `npx next build` directly.
  */
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
