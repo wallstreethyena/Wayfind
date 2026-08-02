@@ -240,22 +240,32 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       // cause rather than guess: it ships water at fill-color rgb(27,27,29)
       // against a rgb(12,12,12) land/background — an ~15-value RGB gap that's
       // imperceptible once the compensating filter below is layered on top.
-      // This recolors just the water-family layers to a real navy so water
-      // reads as water at a glance, same as the old Google-Maps-era dark
-      // style did. Deliberately NOT a revert to the real Google Maps JS
+      // This recolors just the water-family layers so water reads as water
+      // at a glance. Deliberately NOT a revert to the real Google Maps JS
       // embed this app used before "design release 01" — that was swapped
       // out specifically to kill a real per-load Google Maps bill (same
       // motivation as the v6.41 "map bill" fix) and bringing it back would
       // reintroduce that cost. This keeps the free OpenFreeMap tiles and
-      // just fixes their palette. Verified: WCAG relative-luminance contrast
-      // of the stock water vs land was 1.14:1 (functionally invisible); this
-      // shade measures 3.19:1 against the same land color — a real,
-      // measured jump, not a guess at "looks better".
-      const WF_WATER_BLUE = "#2563A8";
+      // just fixes their palette.
+      // v6.98 (owner: "this map is ugly", live screenshot of a Parrish/
+      // Kissimmee-style FL subdivision) — the flat #2563A8 fill at full
+      // opacity from v6.94 fixed contrast in isolation but was tuned against
+      // a map with one or two big lakes, not against the dozens of small
+      // retention ponds every Florida subdivision is built around. At full
+      // saturation/opacity those ponds read as a scatter of bright blue
+      // confetti instead of quiet background detail. Fix: same hue (water
+      // still unmistakably reads as water, contrast intact), but desaturated
+      // and drawn at partial opacity over the near-black land so a couple of
+      // big lakes still pop while a subdivision full of small ponds recedes
+      // instead of dominating the frame. fill-opacity is a real paint
+      // property on this layer (not a filter/blend hack), so it composites
+      // once at the vector-tile level rather than the CSS filter below
+      // additionally darkening it a second time.
+      const WF_WATER_BLUE = "#2C4A68";
       try {
-        if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", WF_WATER_BLUE);
+        if (map.getLayer("water")) { map.setPaintProperty("water", "fill-color", WF_WATER_BLUE); map.setPaintProperty("water", "fill-opacity", 0.78); }
         if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-color", WF_WATER_BLUE);
-        if (map.getLayer("water_name")) map.setPaintProperty("water_name", "text-color", "hsla(205,65%,74%,0.9)");
+        if (map.getLayer("water_name")) map.setPaintProperty("water_name", "text-color", "hsla(205,45%,68%,0.85)");
       } catch (e) {}
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
