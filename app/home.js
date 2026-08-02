@@ -139,6 +139,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
+import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
 import { frontPageEvents } from "../lib/frontEvents";
 import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
@@ -2297,6 +2298,25 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
   );
 }
 
+// v6.72 — converted from kit's app-chrome palette to the collection card
+// language (design-system rollout §3a, owner directive 2026-07-31): every
+// tile here navigates into a collection surface (RankedExperiencePage /
+// CollectionHero), so the tile is the front door of a room it previously did
+// not resemble — flat grey kit.C.card boxes next to the darker, subtler
+// collection pages they open.
+//
+// Palette-only swap: first pass also pulled in RankedRow's full 17px/750 type
+// scale and its trailing chevron, matching a single-column list row. In this
+// 2-column grid that wrapped 5 of 8 labels to two lines and read crammed
+// (owner review, live 390px screenshot, 2026-08-02) — a chevron eats ~24px of
+// an already-narrow ~150px column, and RankedRow's larger type was sized for
+// a full-width row, not a half-width tile. Reverted to the original 13px/700
+// sizing (which never wrapped) and dropped the chevron: in a grid every tile
+// is already an obviously tappable card, unlike a single-column list row
+// where the chevron signals "this row goes somewhere." Only the palette
+// moved. All eight handlers, the eatMetro fallback branch, the
+// wf-discovery-grid / wf-discovery-link class hooks, and the 42px min height
+// are unchanged.
 function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonight, onDrive, onBudget, onSurprise, eatMetro, onEat }) {
   return (
     <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9, marginBottom: 12 }}>
@@ -2317,8 +2337,9 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onDateNight, onTonig
         ["wallet", "Big fun, small budget", onBudget],
         ["dice", "Surprise me", onSurprise],
       ].map(([ic, lbl, go]) => (
-        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer", lineHeight: 1.12, minHeight: 42 }}>
-          <Icon name={ic} size={19} color={C.accent} /><span>{lbl}</span>
+        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${COLLECTION.border}`, background: COLLECTION.card, color: COLLECTION.text, cursor: "pointer", minHeight: 42 }}>
+          <Icon name={ic} size={19} color={COLLECTION.accent} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.15 }}>{lbl}</span>
         </button>
       ))}
     </div>
