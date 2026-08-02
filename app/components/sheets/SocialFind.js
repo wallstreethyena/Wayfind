@@ -17,9 +17,9 @@
 // Same bottom-sheet chrome as sheets/Detail.js (sheetBg/sheet/Grabber/
 // history-back-to-close via ctx.sheetDragStart et al, wired in home.js the
 // same way DetailSheet is).
-import { useState } from "react";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators } from "../../../lib/creatorVideos";
+import CreatorAvatar from "../CreatorAvatar";
 
 const closeBtnOverlay = { position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer" };
 const closeBtnPlain = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 15, fontWeight: 700, cursor: "pointer" };
@@ -42,49 +42,44 @@ function profileUrlFor(platform, handle) {
   return null;
 }
 
-// Initials fallback — used as the BASE layer under every avatar (see
-// CreatorAvatar) so there is never a blank/broken circle: the real photo, if
-// it loads, simply covers this; if it fails (platform unsupported, TikTok
-// blocked the fetch, etc.) this was already there and nothing visibly breaks.
-function initials(handle) {
-  const s = String(handle || "").replace(/[^a-zA-Z0-9]/g, "");
-  if (!s) return "★";
-  return (s[0] + (s[1] || "")).toUpperCase();
-}
-
-// v6.93 (owner: "cindy selects has a profile pic why can we not include that
-// instead of CS") — real photo via /api/creator-avatar (server-side scrape +
-// cache of TikTok's profile page, proxied through our own origin — see that
-// route's header for the full story and the accepted risk). Only TikTok is
-// implemented; any other platform 404s immediately. The initials circle is
-// always rendered first and the photo is layered on top only once it has
-// actually loaded, so a failure is invisible — never a broken-image icon.
-function CreatorAvatar({ handle, platform, size, color }) {
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
-  const src = handle && platform === "tiktok" ? `/api/creator-avatar?handle=${encodeURIComponent(handle)}&platform=tiktok` : null;
-  return (
-    <div aria-hidden="true" style={{ position: "relative", flexShrink: 0, width: size, height: size, borderRadius: "50%", overflow: "hidden", background: `linear-gradient(135deg, ${color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(size * 0.33), fontWeight: 900, color: "#fff" }}>
-      {initials(handle)}
-      {src && !failed && (
-        <img
-          src={src}
-          alt=""
-          onLoad={() => setLoaded(true)}
-          onError={() => setFailed(true)}
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: loaded ? 1 : 0, transition: "opacity 180ms ease" }}
-        />
-      )}
-    </div>
-  );
-}
+// v6.94: CreatorAvatar moved to app/components/CreatorAvatar.js so the same
+// real-photo component also renders on the home hero card. Import above.
 
 const seeAllBtn = { display: "inline-flex", alignItems: "center", gap: 4, background: "none", border: "none", padding: 0, color: C.accent, fontSize: 12.5, fontWeight: 800, cursor: "pointer" };
 
 export default function SocialFindSheet({ ctx }) {
-  const { socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, openExternal, locName } = ctx;
+  const { socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats, sheetDragStart, sheetDragMove, sheetDragEnd, logEvent, openDetail, openExternal, locName } = ctx;
   if (!socialFind) return null;
   const close = () => window.history.back();
+
+  // Mode D (v6.94, owner: "my problem right now... it defaults to one user —
+  // we need to make [this] the default but make it organized by location and
+  // allow the user to see everything that is going on"). This is the DEFAULT
+  // entry point from the consolidated hero card: every curated find, grouped
+  // by city, nearest-first (spotsByCity — real coordinates, never a guessed
+  // proximity). A spot opens straight into Mode A when it's already hydrated
+  // nearby (matched by video.url, same rule as the Library sheet below);
+  // otherwise it links straight to the real video.
+  if (socialFind.browse) {
+    return (
+      <BrowseSheet
+        onClose={close}
+        onDragStart={sheetDragStart}
+        onDragMove={sheetDragMove}
+        onDragEnd={sheetDragEnd}
+        logEvent={logEvent}
+        byCity={socialFindByCity || []}
+        stats={socialFindStats}
+        onOpenSpot={(spot) => {
+          const local = (videoHeroPlaces || []).find((o) => o.video.url === spot.video.url);
+          if (local) { setSocialFind({ place: local.place, video: local.video }); return; }
+          try { logEvent("creator_video", null, { platform: spot.video.platform, creator: spot.video.creator || "", src: "social_find_browse" }); } catch (e) {}
+          openExternal(spot.video.url);
+        }}
+        onSeeCreators={() => setSocialFind({ library: true })}
+      />
+    );
+  }
 
   // Mode C: "this shelf needs to have all of the influencers in our app easy
   // to see, all organized nicely, in one page" (owner) — the full directory,
@@ -109,6 +104,7 @@ export default function SocialFindSheet({ ctx }) {
           try { logEvent("creator_video", null, { platform: spot.platform, creator: spot.video.creator || "", src: "social_find_library" }); } catch (e) {}
           openExternal(spot.video.url);
         }}
+        onBrowse={() => setSocialFind({ browse: true })}
       />
     );
   }
@@ -253,7 +249,7 @@ export default function SocialFindSheet({ ctx }) {
 // Mode C — the full creator directory. Grouped by creator (most-featured
 // first), with a trailing "verified but uncredited" bucket for the rare
 // entry with no real handle to attribute (never invent one).
-function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, logEvent }) {
+function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, onBrowse, logEvent }) {
   const { creators, unattributed } = allCreators();
   const totalSpots = creators.reduce((n, c) => n + c.count, 0) + unattributed.length;
   const cities = new Set();
@@ -273,7 +269,10 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
             <button onClick={onClose} aria-label="Close" style={closeBtnPlain}>✕</button>
           </div>
           <div style={{ fontSize: 21, fontWeight: 850, color: C.text, lineHeight: 1.25, marginBottom: 6 }}>Every creator we've featured</div>
-          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5, marginBottom: 20 }}>{creators.length} creator{creators.length === 1 ? "" : "s"} · {totalSpots} spot{totalSpots === 1 ? "" : "s"} · {cities.size} cit{cities.size === 1 ? "y" : "ies"}, growing every week.</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>{creators.length} creator{creators.length === 1 ? "" : "s"} · {totalSpots} spot{totalSpots === 1 ? "" : "s"} · {cities.size} cit{cities.size === 1 ? "y" : "ies"}, growing every week.</div>
+            {onBrowse && <button onClick={onBrowse} style={{ ...seeAllBtn, flexShrink: 0 }}>Browse by location ›</button>}
+          </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {creators.map((c) => {
@@ -339,6 +338,79 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          <div style={{ fontSize: 10.5, color: C.muted, marginTop: 20, lineHeight: 1.5 }}>Curated by Wayfind, never sponsored. Tapping a spot opens it here if it's near you, or takes you straight to the creator's real video.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Mode D (v6.94) — "browse by location," the new DEFAULT view opened from the
+// consolidated hero card. Every curated find grouped by city, nearest-to-the-
+// viewer first (byCity comes from spotsByCity(center) in lib/creatorVideos.js
+// — real published city centroids, never a guessed distance). Each row shows
+// the same real-photo CreatorAvatar as everywhere else in this sheet, so a
+// browsing user sees exactly who found the spot before they tap in.
+function BrowseSheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot, onSeeCreators, byCity, stats, logEvent }) {
+  const totalSpots = (byCity || []).reduce((n, g) => n + g.spots.length, 0);
+
+  return (
+    <div style={sheetBg} onClick={onClose}>
+      <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => onDragStart(e, onClose)} onTouchMove={onDragMove} onTouchEnd={onDragEnd}>
+        <Grabber />
+        <div style={{ padding: "4px 18px 26px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <Icon name="sparkles" size={13} color={PLATFORM.tiktok.color} />
+              <span style={{ fontSize: 10.5, fontWeight: 900, color: PLATFORM.tiktok.color, textTransform: "uppercase", letterSpacing: "1.2px" }}>Social Media Find</span>
+            </div>
+            <button onClick={onClose} aria-label="Close" style={closeBtnPlain}>✕</button>
+          </div>
+          <div style={{ fontSize: 21, fontWeight: 850, color: C.text, lineHeight: 1.25, marginBottom: 6 }}>Every spot, by location</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 20 }}>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.5 }}>
+              {stats && stats.creatorCount > 0 ? `${stats.creatorCount} creator${stats.creatorCount === 1 ? "" : "s"} · ` : ""}
+              {totalSpots} spot{totalSpots === 1 ? "" : "s"} · {(byCity || []).length} cit{(byCity || []).length === 1 ? "y" : "ies"}, nearest first.
+            </div>
+            {onSeeCreators && <button onClick={onSeeCreators} style={{ ...seeAllBtn, flexShrink: 0 }}>By creator ›</button>}
+          </div>
+
+          {totalSpots === 0 ? (
+            <div style={{ fontSize: 13.5, color: C.muted, lineHeight: 1.55 }}>Nothing curated yet — check back soon, the library grows every week.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {(byCity || []).map((group) => (
+                <div key={group.city}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 10 }}>
+                    <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text }}>{group.city}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: C.muted }}>
+                      {group.distMi != null ? `${group.distMi < 10 ? group.distMi.toFixed(1) : Math.round(group.distMi)} mi` : ""} · {group.spots.length} spot{group.spots.length === 1 ? "" : "s"}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {group.spots.map((s) => {
+                      const plat = PLATFORM[s.video.platform] || PLATFORM.tiktok;
+                      return (
+                        <button
+                          key={s.key}
+                          onClick={() => { try { logEvent("creator_video_hero_open", null, { platform: s.video.platform, src: "social_find_browse" }); } catch (e) {} onOpenSpot(s); }}
+                          style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "9px 11px", borderRadius: 12, background: C.card, border: `1px solid ${C.border}`, cursor: "pointer" }}
+                        >
+                          <CreatorAvatar handle={s.video.creator} platform={s.video.platform} size={34} color={plat.color} />
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: C.text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</div>
+                            <div style={{ fontSize: 11, color: C.muted, marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.video.creator ? `@${s.video.creator} on ${plat.label}` : plat.label}</div>
+                          </div>
+                          <span aria-hidden="true" style={{ flexShrink: 0, fontSize: 15, fontWeight: 700, color: C.muted }}>›</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 

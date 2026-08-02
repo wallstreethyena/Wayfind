@@ -48,22 +48,61 @@ function MapFallback({ count }) {
   </div>;
 }
 
+// v6.94 (owner: "we do not have the pin we used to") — the MapLibre rewrite
+// ("design release 01") dropped the actual pin SHAPES this app used with
+// real Google Maps and replaced both with plain flat circles. Recovered
+// verbatim from git history (commit 989e2d6, the original MapView.js) rather
+// than redrawn from memory — same teardrop paths, same face detail on the
+// origin pin, same purple event pin. Ranked PLACE pins are deliberately left
+// as the existing native MapLibre circle+label layers below (not converted
+// to teardrop DOM markers) — those were ALSO plain circles in the original
+// Google Maps version (see medalColor()), so there is no regression there,
+// and keeping them as one cheap vector layer instead of N DOM markers is
+// what keeps the map fast to load with many places on screen.
+// Color-parameterized (unlike the original, which only ever rendered orange
+// for a real device GPS fix): current MapView also falls back to this same
+// pin for the SEARCH CENTER when no device location is known, and that is a
+// meaningfully different claim ("this is roughly where we're searching", not
+// "this is you") — worth keeping visually distinct rather than collapsing
+// both into one hardcoded color.
+function originPinSvg(color) {
+  return "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='40' viewBox='0 0 30 40'>" +
+    "<path d='M15 1.5 C8 1.5 2.7 6.7 2.7 13.6 C2.7 22.5 15 38 15 38 C15 38 27.3 22.5 27.3 13.6 C27.3 6.7 22 1.5 15 1.5 Z' fill='" + color + "' stroke='#ffffff' stroke-width='1.2'/>" +
+    "<circle cx='15' cy='13.4' r='8.2' fill='#0D1117'/>" +
+    "<rect x='10.4' y='9.8' width='9.2' height='5.4' rx='1' fill='#ffffff'/>" +
+    "<rect x='13' y='7.6' width='4' height='2.6' rx='0.6' fill='#ffffff'/>" +
+    "<rect x='11.6' y='11.1' width='2' height='2.3' fill='#0D1117'/>" +
+    "<rect x='16.4' y='11.1' width='2' height='2.3' fill='#0D1117'/>" +
+    "<rect x='10.7' y='15.2' width='1.7' height='1.7' fill='#ffffff'/>" +
+    "<rect x='13.6' y='15.2' width='1.7' height='1.7' fill='#ffffff'/>" +
+    "<rect x='16.5' y='15.2' width='1.7' height='1.7' fill='" + color + "'/>" +
+    "</svg>";
+}
+const WF_EVENT_PIN_SVG =
+  "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='34' viewBox='0 0 26 34'>" +
+  "<path d='M13 1 C7 1 2.3 5.5 2.3 11.5 C2.3 19 13 32 13 32 C13 32 23.7 19 23.7 11.5 C23.7 5.5 19 1 13 1 Z' fill='#A78BFA' stroke='#0D1117' stroke-width='1.3'/>" +
+  "<circle cx='13' cy='11.5' r='4.4' fill='#0D1117'/>" +
+  "</svg>";
+
 function markerNode({ label, color, kind, selected }) {
-  const el = document.createElement("button");
-  el.type = "button";
+  const el = document.createElement("div");
+  el.setAttribute("role", "button");
+  el.tabIndex = 0;
   el.setAttribute("aria-label", label);
+  if (kind === "origin" || kind === "event") {
+    const w = kind === "origin" ? 30 : 26, h = kind === "origin" ? 40 : 34;
+    el.style.cssText = "width:" + w + "px;height:" + h + "px;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));" + (selected ? "filter:drop-shadow(0 4px 8px rgba(0,0,0,.4)) drop-shadow(0 0 0 3px rgba(255,255,255,.35));" : "");
+    el.innerHTML = kind === "origin" ? originPinSvg(color || "#F97316") : WF_EVENT_PIN_SVG;
+    return el;
+  }
   el.style.cssText = [
-    "width:" + (kind === "origin" ? 24 : kind === "event" ? 30 : 34) + "px",
-    "height:" + (kind === "origin" ? 24 : kind === "event" ? 30 : 34) + "px",
-    "border-radius:50%",
-    "border:2px solid rgba(255,255,255,.96)",
+    "width:34px", "height:34px", "border-radius:50%", "border:2px solid rgba(255,255,255,.96)",
     "background:" + color,
-    "box-shadow:0 5px 14px rgba(0,0,0,.34),0 0 0 " + (kind === "origin" ? "7px rgba(249,115,22,.2)" : (selected ? "4px" : "2px") + " rgba(255,255,255,.2)"),
-    "color:#fff;font:800 " + (kind === "origin" ? "0" : "12px") + "/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
+    "box-shadow:0 5px 14px rgba(0,0,0,.34),0 0 " + (selected ? "4px" : "2px") + " rgba(255,255,255,.2)",
+    "color:#fff;font:800 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
     "display:grid;place-items:center;padding:0;cursor:pointer",
   ].join(";");
-  if (kind === "event") el.innerHTML = "<span style='font-size:14px;line-height:1'>✦</span>";
-  else if (kind !== "origin") el.textContent = label.replace(/^\D*(\d+).*$/, "$1");
+  el.textContent = label.replace(/^\D*(\d+).*$/, "$1");
   return el;
 }
 
@@ -108,14 +147,14 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     eventList.forEach((event) => {
       const node = markerNode({ label: event.venue || event.name || "Event", color: "#8B5CF6", kind: "event" });
       node.addEventListener("click", (e) => { e.stopPropagation(); onSelectEvent && onSelectEvent(event); });
-      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([event.lng, event.lat]).addTo(map));
+      markersRef.current.push(new Marker({ element: node, anchor: "bottom" }).setLngLat([event.lng, event.lat]).addTo(map));
       bounds.extend([event.lng, event.lat]);
     });
 
     const origin = deviceLoc || center;
     if (origin && origin.lat != null && origin.lng != null) {
       const node = markerNode({ label: deviceLoc ? "Your location" : "Search center", color: deviceLoc ? "#3B82F6" : "#F97316", kind: "origin" });
-      markersRef.current.push(new Marker({ element: node, anchor: "center" }).setLngLat([origin.lng, origin.lat]).addTo(map));
+      markersRef.current.push(new Marker({ element: node, anchor: "bottom" }).setLngLat([origin.lng, origin.lat]).addTo(map));
       if (fit) bounds.extend([origin.lng, origin.lat]);
     }
 
@@ -157,6 +196,28 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
     map.on("load", () => {
       clearWatchdog();
+      // v6.94 (owner: "it looks so dark i cant tell water form land") —
+      // fetched OpenFreeMap's "dark" style JSON directly to confirm the root
+      // cause rather than guess: it ships water at fill-color rgb(27,27,29)
+      // against a rgb(12,12,12) land/background — an ~15-value RGB gap that's
+      // imperceptible once the compensating filter below is layered on top.
+      // This recolors just the water-family layers to a real navy so water
+      // reads as water at a glance, same as the old Google-Maps-era dark
+      // style did. Deliberately NOT a revert to the real Google Maps JS
+      // embed this app used before "design release 01" — that was swapped
+      // out specifically to kill a real per-load Google Maps bill (same
+      // motivation as the v6.41 "map bill" fix) and bringing it back would
+      // reintroduce that cost. This keeps the free OpenFreeMap tiles and
+      // just fixes their palette. Verified: WCAG relative-luminance contrast
+      // of the stock water vs land was 1.14:1 (functionally invisible); this
+      // shade measures 3.19:1 against the same land color — a real,
+      // measured jump, not a guess at "looks better".
+      const WF_WATER_BLUE = "#2563A8";
+      try {
+        if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", WF_WATER_BLUE);
+        if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-color", WF_WATER_BLUE);
+        if (map.getLayer("water_name")) map.setPaintProperty("water_name", "text-color", "hsla(205,65%,74%,0.9)");
+      } catch (e) {}
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
       map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });

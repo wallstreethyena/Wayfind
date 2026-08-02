@@ -164,10 +164,20 @@ ok(noEventsRailAt >= 0 && eventsRailAt >= 0, "both real hero-rail anchors are pr
 // onOpen (it opened nothing before). Seasonal must still CLOSE the rail, which
 // is asserted below, so the v6.55 "engage them technically twice" decision is
 // intact.
-const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,900}?\*\/\}\s*)?<DiscoveryHeroCard onOpen=\{[\s\S]{0,400}?\/>\s*\{seasonalHeroSlide\("top"\)\}/;
+//
+// v6.94 (owner, on the record): "i want te social hero card to be the second
+// hero card in the order of hero card" — the consolidated SocialFindHeroCard
+// (see home.js / lib/creatorVideos.js spotsByCity) now sits BETWEEN the
+// orientation card and Seasonal Picks, pushing seasonal to third. Re-pointed
+// again, same as every prior reversal in this block: LEAD_RX now requires
+// DiscoveryHeroCard -> (its own optional comment +) SocialFindHeroCard ->
+// seasonalHeroSlide("top"), and the anchor-distance budget grows to fit the
+// extra card + comment in the no-events rail (whose own preceding comment is
+// also the longest of the two).
+const LEAD_RX = /<HeroRail>\s*(\{\/\*[\s\S]{0,900}?\*\/\}\s*)?<DiscoveryHeroCard onOpen=\{[\s\S]{0,400}?\/>\s*(\{\/\*[\s\S]{0,600}?\*\/\}\s*)?<SocialFindHeroCard[\s\S]{0,500}?\/>\s*\{seasonalHeroSlide\("top"\)\}/;
 for (const [name, anchor] of [["no-events rail", noEventsRailAt], ["featured-event rail", eventsRailAt]]) {
   const heroRailAt = home.lastIndexOf("<HeroRail>", anchor);
-  ok(heroRailAt >= 0 && anchor - heroRailAt < 600, `the ${name}'s own <HeroRail> opening tag is found near its anchor`);
+  ok(heroRailAt >= 0 && anchor - heroRailAt < 1400, `the ${name}'s own <HeroRail> opening tag is found near its anchor`);
   ok(LEAD_RX.test(home.slice(heroRailAt, heroRailAt + 1400)), `the orientation card leads the ${name} and OPENS a page, with Seasonal Picks immediately after — deterministic JSX order, no rotation`);
   const closeAt = home.indexOf("</HeroRail>", heroRailAt);
   ok(closeAt >= 0, `the ${name}'s closing </HeroRail> is found`);

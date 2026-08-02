@@ -60,11 +60,21 @@ export default function MapScreen({ ctx }) {
                     <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
                   </div>
                   {mapMode === "places" && (
-                    <button onClick={toggleCompass} aria-label="Compass" title="Compass" style={{ position: "absolute", top: 156, left: 12, zIndex: 5, width: 42, height: 42, borderRadius: "50%", background: compassOn ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
+                    // v6.94 (owner: "the submenu for the maps is not explaind
+                    // either") — this was an icon-only circle with only a
+                    // hover `title`, which never shows on a touch device, so
+                    // there was no way to learn what it does without tapping
+                    // it blind. Widened into a small labeled pill (same
+                    // language as the Events/FIFA toggle stack above it) so
+                    // "Compass" is always visible, and toggleCompass (below)
+                    // now explains what turning it on actually does the
+                    // first time, via a one-time toast.
+                    <button onClick={toggleCompass} aria-label="Toggle compass heading" title="Compass — needle points north" style={{ position: "absolute", top: 156, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: compassOn ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                       <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
                         <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
                         <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
                       </span>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: compassOn ? "#fff" : C.muted, letterSpacing: ".2px" }}>Compass</span>
                     </button>
                   )}
                   {mapMode === "events" && (
@@ -143,13 +153,22 @@ export default function MapScreen({ ctx }) {
                       </div>
                     );
                   })()}
+                  {/* v6.94 (owner: "the letter inside of it seem like its
+                      not fitting inside of it") — the collapsed strip was
+                      a hard maxHeight:52 with overflow:hidden, and the
+                      grabber (16px) + text row's UNSET line-height (which
+                      varies by browser/font, commonly 1.15-1.3x the
+                      13px/11.5px font sizes here) could exceed that,
+                      clipping descenders off the bottom row. Explicit
+                      line-height makes the row's real height predictable,
+                      and 58px gives it headroom instead of an exact fit. */}
                   {mapMode === "places" && !mapPreview && view.length > 0 && (
-                    <div style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "rgba(10,16,27,.94)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: `1px solid ${C.border}`, borderRadius: 18, boxShadow: "0 14px 38px rgba(0,0,0,.55)", maxHeight: mapDrawer ? "min(58%, 460px)" : 52, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "rgba(10,16,27,.94)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: `1px solid ${C.border}`, borderRadius: 18, boxShadow: "0 14px 38px rgba(0,0,0,.55)", maxHeight: mapDrawer ? "min(58%, 460px)" : 58, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
                       <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "7px auto 5px" }} />
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "0 16px 9px" }}>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: C.text }}>{view.length} place{view.length === 1 ? "" : "s"} {sortBy === "near" ? "nearest first" : "ranked by fit"}</span>
-                          <span style={{ fontSize: 11.5, color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
+                        <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "8px auto 6px" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "0 16px 10px" }}>
+                          <span style={{ fontSize: 13, lineHeight: "17px", fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{view.length} place{view.length === 1 ? "" : "s"} {sortBy === "near" ? "nearest first" : "ranked by fit"}</span>
+                          <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
                         </div>
                       </button>
                       {mapDrawer && (
