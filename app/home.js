@@ -2353,7 +2353,7 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
       <div style={{ position: "absolute", top: 12, left: 12, display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,.6)", border: `1px solid ${leadPlat.color}99`, borderRadius: 999, padding: "4px 11px", backdropFilter: "blur(4px)" }}>
         <Icon name="sparkles" size={12} color={leadPlat.color} /><span style={{ fontSize: 10.5, fontWeight: 800, color: leadPlat.color, letterSpacing: "0.4px", textTransform: "uppercase" }}>Social media find</span>
       </div>
-      <div style={{ position: "absolute", left: 14, right: 14, bottom: hasPill ? 88 : 14 }}>
+      <div style={{ position: "absolute", left: 14, right: 14, bottom: hasPill ? 40 : 14 }}>
         <div style={{ fontSize: 16.5, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 4, textShadow: "0 1px 6px rgba(0,0,0,.7)", letterSpacing: "-0.2px" }}>{title}</div>
         <div style={{ fontSize: 12.5, fontWeight: 600, color: "rgba(255,255,255,.9)", textShadow: "0 1px 4px rgba(0,0,0,.7)" }}>{sub}</div>
       </div>
@@ -2366,18 +2366,18 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
           </div>
         </div>
       )}
-      {/* v6.95: the not-near state's pill — aggregate stat only, no specific
-          creator's name/photo attached to a region they haven't found
-          anything in (see the pillHandle comment above). */}
+      {/* v6.97 (owner: "remove the banner, i want the word but not that
+          rectangular box") — the not-near state used to render this as a
+          boxed pill (background, border, icon avatar) same visual weight as
+          the real-creator pill above. That chrome is gone; this is just the
+          words sitting on the photo, same treatment as the title/subtitle
+          above it. Aggregate stat only, still no specific creator's
+          name/photo attached to a region they haven't found anything in
+          (see the pillHandle comment above) — only what changed is HOW it's
+          drawn, not what it claims. */}
       {!pillHandle && hasPill && (
-        <div style={{ position: "absolute", left: 12, right: 12, bottom: 12, background: "rgba(13,17,23,.82)", border: `1.5px solid ${PLATFORM.tiktok.color}55`, borderRadius: 14, padding: "9px 11px", display: "flex", alignItems: "center", gap: 10, backdropFilter: "blur(6px)" }}>
-          <div aria-hidden="true" style={{ flexShrink: 0, width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #FF0050 0%, #0D1117 130%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Icon name="sparkles" size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>{socialFindStats.creatorCount} creator{socialFindStats.creatorCount === 1 ? "" : "s"}, {socialFindStats.spotCount} spots</div>
-            <div style={{ fontSize: 10.5, color: "rgba(255,255,255,.7)", marginTop: 1 }}>scouted on Wayfind so far</div>
-          </div>
+        <div style={{ position: "absolute", left: 14, right: 14, bottom: 14, fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,.92)", textShadow: "0 1px 4px rgba(0,0,0,.75)" }}>
+          {socialFindStats.creatorCount} creator{socialFindStats.creatorCount === 1 ? "" : "s"}, {socialFindStats.spotCount} spots scouted on Wayfind so far
         </div>
       )}
     </div>
