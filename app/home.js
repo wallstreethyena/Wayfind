@@ -9014,7 +9014,20 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
-const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", landmarks: "historical", arts: "museums", marinas: "water" };
+// v6.99 (owner: "spa and wellness links make no sense... i need affiliate
+// links for the menu they belong to") -- "spa" existed in SUBFILTERS.attractions
+// (the chip rendered, was tappable) but had NO entry here, so
+// SUB_TO_EXP[sub||"all"] fell back to "all" and silently served the generic
+// all-attractions rail under the Spa & Wellness tab. There is no ground-truthed
+// Viator spa/wellness tag in lib/experiencesData.js CATEGORIES today, so this
+// intentionally maps to a key ABSENT from CATEGORY_BY_KEY: paired with the
+// experiencesServe.js fix (unknown category -> zero rows, not all rows), that
+// correctly returns empty and lets UnifiedBrowseCommerceRail's existing
+// live-Viator-search fallback try a real "{city} spa" query instead of
+// mislabeling kayak/dolphin/manatee tours as spa experiences.
+// check-subfilter-coverage.mjs asserts every SUBFILTERS.attractions id has an
+// entry here so a future new chip cannot silently repeat this.
+const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", spa: "spa", landmarks: "historical", arts: "museums", marinas: "water" };
 
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
