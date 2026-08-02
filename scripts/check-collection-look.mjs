@@ -32,6 +32,7 @@ const ranked = read("app/components/RankedExperiencePage.js");
 const expScreen = read("app/components/screens/Experience.js");
 const ttd = read("app/components/ThingsToDoList.js");
 const hookDetail = read("app/components/sheets/HookDetail.js");
+const iconic = read("app/components/IconicPlaceCard.js");
 
 // ---------------------------------------------------------------- the hero
 // 1) It is the ONE hero: it owns the <header>, the scrim, and the wordmark.
@@ -185,7 +186,38 @@ ok(hookDetail.includes('href={"/?exp=" + b.key}'), "HookDetail badges are real l
   for (const k of [...new Set([...keys, ...mapped, ...badgeKeys])]) {
     ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(expMap) || new RegExp(`\\bk === "${k}"`).test(expBlock), `?exp=${k} resolves — it is either an EXPERIENCES key or explicitly handled by the deep-link switch`);
   }
+
+  // 9b) IconicPlaceCard (the /best-of, /tonight and other intent-page card —
+  // 2026-08-02, owner: "I need the cards to look like the cards from the main
+  // menu") gets the SAME chip-key-resolves protection, mirroring 9) above
+  // rather than importing from it: IconicPlaceCard owns its own
+  // experienceTags() adaptation of experienceBadges() for the same reason
+  // ThingsToDoList and HookDetail own theirs (see that function's header
+  // comment in IconicPlaceCard.js). Its q.add() keys must resolve exactly like
+  // every other surface's, and its EXP_META table (the icon/label it can
+  // actually render) must not silently drift ahead of what q.add() can emit —
+  // a key with no metadata would render "undefined undefined ›".
+  const iconicEbStart = iconic.indexOf("export function experienceTags(");
+  ok(iconicEbStart >= 0, "IconicPlaceCard.js still declares experienceTags() — the intent-page cards' chip source");
+  const iconicEbBody = iconic.slice(iconicEbStart, iconic.indexOf("\nexport default", iconicEbStart));
+  const iconicKeys = [...iconicEbBody.matchAll(/q\.add\("([a-z]+)"\)/g)].map((m) => m[1]);
+  ok(iconicKeys.length >= 10, "IconicPlaceCard.js's experienceTags still emits keys through q.add — if this parses to nothing the loops below assert nothing");
+  for (const k of new Set(iconicKeys)) {
+    ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(expMap) || new RegExp(`\\bk === "${k}"`).test(expBlock), `IconicPlaceCard ?exp=${k} resolves — it is either an EXPERIENCES key or explicitly handled by the deep-link switch`);
+  }
+  const metaStart = iconic.indexOf("const EXP_META = {");
+  ok(metaStart >= 0, "IconicPlaceCard.js still declares EXP_META — the icon/label table its chips render from");
+  const metaBlock = iconic.slice(metaStart, iconic.indexOf("\n};", metaStart));
+  for (const k of new Set(iconicKeys)) {
+    ok(new RegExp(`^\\s*${k}:\\s*\\{`, "m").test(metaBlock), `IconicPlaceCard's EXP_META carries an entry for "${k}" — every key experienceTags can emit must have a real icon/label or the chip renders blank`);
+  }
 }
+
+// 9c) THE NESTED-INTERACTIVE CONSTRAINT for IconicPlaceCard: the whole <li> is
+// onClick={openCard} (navigate to the detail page), same shape as
+// ThingsToDoList's <div role="button">. A chip tap must stopPropagation or it
+// both fires the chip's own navigation AND falls through to openCard.
+ok(/onClick=\{\(e\) => \{\s*\n\s*e\.stopPropagation\(\);\s*\n\s*e\.preventDefault\(\);\s*\n\s*if \(onBadge\)/.test(iconic), "IconicPlaceCard's experience-tag chips stopPropagate + preventDefault before navigating, same pattern as its Save/Like/Dislike/Share buttons");
 
 // 10) THE NESTED-ANCHOR CONSTRAINT. A tour row is itself an <a href> to the
 // booking URL. An <a> inside an <a> is invalid HTML: browsers reparent it, the

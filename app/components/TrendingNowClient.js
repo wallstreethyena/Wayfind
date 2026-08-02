@@ -175,7 +175,8 @@ export default function TrendingNowClient() {
                 saved={!!saved[r.place_id]} liked={!!liked[r.place_id]} disliked={!!disliked[r.place_id]}
                 onSave={toggleSave}
                 onLike={toggleLike} onDislike={toggleDislike}
-                onShare={sharePlace} />
+                onShare={sharePlace}
+                onBadge={(key) => { try { track("trending_chip", { exp: key, place_id: r.place_id }); } catch (e) {} window.location.href = "/?exp=" + key; }} />
             ))}
           </ol> : <p style={{ margin: "18px 0", fontSize: 13, color: "#8b93a1" }}>No trending picks fall within {radius} miles. Widen the filter to see more.</p>}
         </>

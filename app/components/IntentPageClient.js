@@ -489,7 +489,8 @@ export default function IntentPageClient({ intent }) {
                 saved={!!saved[r.id]} liked={!!liked[r.id]} disliked={!!disliked[r.id]}
                 onSave={toggleSave}
                 onLike={toggleLike} onDislike={toggleDislike}
-                onShare={sharePlace} />
+                onShare={sharePlace}
+                onBadge={(key) => { try { track("intent_chip", { intent, exp: key, place_id: r.id }); } catch (e) {} window.location.href = "/?exp=" + key; }} />
             );
           })}
         </ol> : <p style={{ margin: "18px 0", fontSize: 13, color: "#8b93a1" }}>No picks fall within {radius} miles. Widen the filter to see more.</p>}

@@ -11,6 +11,122 @@ import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { cuisineLabel } from "../../lib/dining";
+import { overrideFor } from "../../lib/placeOverrides";
+import * as Tags from "../../lib/tags";
+
+// ---------------------------------------------------------------------------
+// Experience-tag chips (owner: "I need the cards to look like the cards from
+// the main menu" — home.js's canonical PlaceCard shows a row of clickable
+// tag chips like "☕ Coffee ›", "💰 Great value ›", "⭐ Crowd favorite ›" and
+// this card had nothing computing them). This is a portable adaptation of
+// app/home.js's `experienceBadges(p, selectedKey, max, audit)` — same visual
+// contract and the same evidence discipline (nothing invented) — but it is a
+// LOCAL, independently-owned copy, not an import.
+//
+// Two reasons it must not import experienceBadges: (1)
+// scripts/check-collection-look.mjs asserts `experienceBadges` stays
+// physically declared inside app/home.js — home.js is a client component
+// module with its own closure (EXPERIENCES, HINTS, faveTier/isLocalFave/
+// isBestOf, the curated BEST_OF/LOCAL_FAVE name lists) and none of that is
+// exported; and (2) it is not this codebase's pattern anyway — every other
+// surface outside that closure (ThingsToDoList.js's Card, HookDetail.js when
+// rendered as its own module) already carries its own adapted chip logic
+// rather than reaching across the module boundary, and this follows suit.
+//
+// Signal availability differs from home.js's PlaceCard because the rows that
+// reach this component (IntentPageClient's toRow(), TrendingNowClient's buzz
+// rows) never carry Google's `labels` attribute array (Live music, Cocktails,
+// Wine, Beer via label, Sports, Breakfast, Good for groups, Dog friendly) or
+// the curated BEST_OF/LOCAL_FAVE name lists (home.js-local, geo-gated, not
+// exported anywhere). So "bestof", "livemusic", "cocktails", "wine", "sports",
+// "breakfast", "groups" and "dog" cannot be produced here — there is no real
+// signal to ground them in, and nothing here is allowed to invent one. Every
+// other key IS grounded in data these rows really carry: reputation
+// (localfav/gem/value from rating + reviews + price), setting (waterfront,
+// gated on the same lib/placeOverrides.js noWater override home.js reads;
+// name-evident rooftop/romantic/instagram), real Google place types
+// (family/outdoor/museum/nature/entertainment, gated through lib/tags.js's
+// identity/compatibility map — the same v2.0 trust layer home.js's
+// experienceBadges applies) and cuisine (via the shared lib/dining.js
+// cuisineLabel, the exact source home.js's badge engine already uses).
+const EXP_META = {
+  localfav: { icon: "⭐", label: "Crowd favorite" },
+  gem: { icon: "💎", label: "Hidden gem" },
+  value: { icon: "💰", label: "Great value" },
+  waterfront: { icon: "🌊", label: "Waterfront" },
+  rooftop: { icon: "🌆", label: "Rooftop" },
+  romantic: { icon: "💕", label: "Romantic" },
+  instagram: { icon: "📸", label: "Instagrammable" },
+  outdoor: { icon: "🌳", label: "Outdoor" },
+  family: { icon: "👨‍👩‍👧", label: "Best for families" },
+  museum: { icon: "🏛️", label: "Museum" },
+  nature: { icon: "🌿", label: "Nature & trails" },
+  entertainment: { icon: "🎢", label: "Attractions & fun" },
+  pizza: { icon: "🍕", label: "Pizza" },
+  sushi: { icon: "🍣", label: "Sushi" },
+  steak: { icon: "🥩", label: "Steakhouse" },
+  seafood: { icon: "🦐", label: "Seafood" },
+  burgers: { icon: "🍔", label: "Burgers" },
+  mexican: { icon: "🌮", label: "Mexican" },
+  italian: { icon: "🍝", label: "Italian" },
+  dessert: { icon: "🍰", label: "Bakery & sweets" },
+  coffee: { icon: "☕", label: "Coffee" },
+  beer: { icon: "🍺", label: "Great beer" },
+};
+// Same display precedence as home.js's `order` array in experienceBadges,
+// minus the keys this surface cannot ground in real data (see comment above).
+const EXP_ORDER = ["museum", "nature", "entertainment", "waterfront", "instagram", "rooftop", "romantic", "outdoor", "pizza", "sushi", "steak", "seafood", "burgers", "mexican", "italian", "dessert", "beer", "coffee", "family", "gem", "value", "localfav"];
+
+export function experienceTags(place, max) {
+  if (!place) return [];
+  const lim = max || 3;
+  const q = new Set();
+  const nm = (place.name || "").toLowerCase();
+  const said = (arr) => arr.some((w) => nm.includes(w));
+  const types = Array.isArray(place.types) ? place.types : [];
+  const ts = types.join(" ").toLowerCase();
+  const tokens = types.map((x) => String(x).toLowerCase());
+  const rating = Number(place.rating) || 0;
+  const reviews = Number(place.reviews) || 0;
+  const priceNum = place.priceLevel != null ? Number(place.priceLevel) : (place.priceNum != null ? Number(place.priceNum) : null);
+  // v5.75 parity: an override can hard-disable the waterfront read for an
+  // inland place whose name merely mentions water words (same source home.js
+  // reads through Ranking.overrideFor).
+  const ov = overrideFor(place);
+  const noWater = !!(ov && ov.noWater);
+
+  if (rating >= 4.6 && reviews >= 800) q.add("localfav");
+  if (rating >= 4.5 && reviews >= 2500) q.add("localfav");
+  if (rating >= 4.4 && reviews >= 15 && reviews < 800) q.add("gem");
+  if (rating >= 4.2 && priceNum != null && priceNum <= 2) q.add("value");
+
+  if (!noWater && said(["waterfront", "riverfront", "riverwalk", "on the river", "bayfront", "beachfront", "lakefront", "wharf", "dockside", "boathouse", "on the bay", "on the water"])) q.add("waterfront");
+  if (said(["rooftop", "roof top", "sky bar", "skybar", "skyline"])) q.add("rooftop");
+  if (said(["romantic", "date night", "intimate", "candlelit", "special occasion"])) q.add("romantic");
+  if (said(["instagram", "instagrammable", "photo spot", "photogenic", "aesthetic", "scenic", "great views", "amazing views", "beautiful views", "stunning views", "picturesque", "mural"])) q.add("instagram");
+
+  if (["zoo", "aquarium", "amusement_park", "water_park", "theme_park"].some((x) => ts.includes(x))) q.add("family");
+  if (tokens.some((x) => ["zoo", "national_park", "state_park", "botanical_garden", "campground", "beach", "park", "garden", "rv_park", "hiking_area"].includes(x))) q.add("outdoor");
+  if (["museum", "art_gallery"].some((x) => ts.includes(x)) || said(["museum", "gallery"])) q.add("museum");
+  if (tokens.some((x) => ["national_park", "state_park", "natural_feature", "botanical_garden", "campground", "hiking_area", "park", "garden"].includes(x)) || said(["preserve", "nature trail", "trailhead"])) q.add("nature");
+  if (["amusement_park", "theme_park", "water_park", "bowling_alley", "movie_theater", "aquarium", "zoo"].some((x) => ts.includes(x))) q.add("entertainment");
+  if (said(["skyway", "overlook", "lookout", "lighthouse", "observation deck"]) || tokens.includes("natural_feature")) q.add("instagram");
+
+  const cz = (cuisineLabel(place) || "").toLowerCase();
+  const CUIS = [["pizza", "pizza"], ["sushi", "sushi"], ["steak", "steak"], ["seafood", "seafood"], ["hamburger", "burgers"], ["burger", "burgers"], ["mexican", "mexican"], ["taco", "mexican"], ["italian", "italian"]];
+  for (const [needle, key] of CUIS) { if (cz.includes(needle) || nm.includes(needle)) q.add(key); }
+  if ((tokens.includes("bakery") && !cz) || cz.includes("bakery") || cz.includes("dessert") || /bakery|dessert|donut|doughnut|ice cream|gelato|patisserie|pastry/.test(nm)) q.add("dessert");
+  if (tokens.includes("coffee_shop") || (tokens.includes("cafe") && !cz) || cz.includes("coffee") || cz.includes("cafe") || /coffee|café|cafe\b|espresso|roaster/.test(nm)) q.add("coffee");
+  if (tokens.some((x) => x.includes("brew")) || /brewery|brewing|brewpub|brew pub|taproom/.test(nm)) q.add("beer");
+
+  let keys = EXP_ORDER.filter((k) => q.has(k) && EXP_META[k]);
+  // Same v2.0 trust gate as home.js: a tag must ALSO be compatible with the
+  // place's resolved identity, or it is dropped even with real evidence.
+  const identity = Tags.resolveIdentity(types, false);
+  keys = Tags.filterAllowed(identity, keys).shown;
+  return keys.slice(0, lim).map((k) => ({ key: k, icon: EXP_META[k].icon, label: EXP_META[k].label }));
+}
 
 const compactCount = (n) => Number(n) >= 1000
   ? (Math.round(Number(n) / 100) / 10) + "k"
@@ -30,8 +146,9 @@ const ThumbIcon = ({ down = false }) => (
   </svg>
 );
 
-export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike }) {
+export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge }) {
   if (!place) return null;
+  const expTags = experienceTags(place, 3);
   const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
   const status = businessStatus({
@@ -112,6 +229,32 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
               is for real per-card badges only, matching home.js's canonical
               PlaceCard (clickable category chips, never decorative repeats). */}
           <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+            {/* v6.89 (owner: "I need the cards to look like the cards from the
+                main menu"): real experience-tag chips, computed by
+                experienceTags() above from data this row actually carries —
+                see that function's header comment for exactly what it can and
+                cannot ground. Direct <button> children of
+                .wf-place-card-highlights so they inherit the SAME orange-pill
+                CSS (app/components/css.js) home.js's canonical PlaceCard chips
+                use — no separate styling to drift. stopPropagation matches
+                every other action in this card (Save/Like/Dislike/Share
+                below): the outer <li> navigates to the detail page on click,
+                and a chip tap must not also trigger that. Falls back to the
+                same ?exp=<key> deep link ThingsToDoList/HookDetail already use
+                when no onBadge callback is wired, since this card is portable
+                and cannot assume an in-app navigation handler exists. */}
+            {expTags.map((tag) => (
+              <button
+                key={tag.key}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  if (onBadge) onBadge(tag.key, place);
+                  else if (typeof window !== "undefined") window.location.href = "/?exp=" + tag.key;
+                }}
+              >{tag.icon} {tag.label} ›</button>
+            ))}
             {badge || null}
             {partnerHref ? (
               <a
