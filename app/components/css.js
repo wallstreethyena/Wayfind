@@ -399,6 +399,26 @@ export const WF_PLACE_CARD_CSS = `
 @media (prefers-reduced-motion:reduce){
   .wf-deal-glow{animation:none;box-shadow:0 0 16px 3px rgba(249,115,22,.24),0 4px 14px rgba(0,0,0,.25)}
 }
+
+/* v6.93 (owner: "there is no pulsing glow behind it") — a color-parameterized
+   twin of .wf-deal-glow for the Social Media Find surfaces (home hero card +
+   Detail sheet card). .wf-deal-glow is hardcoded orange; these cards span 4
+   platforms with 4 different brand colors (lib/creatorVideos.js PLATFORM), so
+   the color rides in via the --glow-rgb custom property (an "r,g,b" triplet,
+   set inline per-card) instead of being baked into the keyframe. Falls back
+   to TikTok pink if --glow-rgb is somehow unset. Same register as the deal
+   glow: box-shadow only, no scale/transform, same 2.6s breathing cadence and
+   the same explicitly-approved exception to kit.js's MOTION "no pulse in
+   chrome" rule (this is content-level emphasis on a discovery/social-proof
+   surface, not navigational chrome). */
+@keyframes wfSocialGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--glow-rgb,255,0,80),0),0 4px 14px rgba(0,0,0,.25)}
+  50%{box-shadow:0 0 26px 6px rgba(var(--glow-rgb,255,0,80),.42),0 4px 14px rgba(0,0,0,.25)}
+}
+.wf-social-glow{animation:wfSocialGlow 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  .wf-social-glow{animation:none;box-shadow:0 0 16px 3px rgba(var(--glow-rgb,255,0,80),.3),0 4px 14px rgba(0,0,0,.25)}
+}
 `;
 // v6.44 — the "Your taste" panel (owner: "image 4 is new and i love, just not
 // crazy on how it looks... we need to leverage the way that we enhanced the

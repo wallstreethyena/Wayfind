@@ -117,6 +117,13 @@ export const config = {
     // service role, so an unmetered script should not be able to spin it. It is a
     // NAVIGATION, so it is rateLimitOnly below, never same-origin blocked.
     "/api/commerce/go",
+    // Social Media Find creator avatar proxy (v6.93): each cache-miss makes a
+    // real outbound fetch to TikTok's profile page + CDN — not dollar-metered
+    // like Google Places, but a script hammering random handles could get our
+    // server IP rate-limited or blocked by TikTok, breaking the feature for
+    // everyone. Loaded via <img>, same shape as /api/photo, so it joins
+    // IMAGE_ROUTES below (rate-limit only, never same-origin blocked).
+    "/api/creator-avatar",
   ],
 };
 
@@ -137,7 +144,7 @@ const NAV_302_ROUTES = new Set(["/api/eats/go", "/api/viator/go", "/api/commerce
 // crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but
 // skip the same-origin block.
-const IMAGE_ROUTES = new Set(["/api/photo"]);
+const IMAGE_ROUTES = new Set(["/api/photo", "/api/creator-avatar"]);
 
 export function middleware(req) {
   const path = req.nextUrl && req.nextUrl.pathname;

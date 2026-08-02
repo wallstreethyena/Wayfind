@@ -19,7 +19,7 @@ import { supabase } from "../../../lib/supabase";
 import { isNative, nativePickPhoto } from "../../../lib/native";
 import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
-import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
+import { creatorVideosFor, PLATFORM, PLATFORM_RGB } from "../../../lib/creatorVideos";
 import { resolveDetailCta, detailVerdict, detailCtaLabel, DETAIL_CTA_TYPES } from "../../../lib/detailCta";
 import { emitCommerce, commerceHref, mintClickId } from "../../../lib/commerce";
 import { funnelProps } from "../../../lib/funnel";
@@ -789,21 +789,25 @@ export default function DetailSheet({ ctx }) {
                       // v6.91 (owner): "add a glowing light to the back of those
                       // that matched the color of the box, make it a global
                       // rule so we don't have to keep adjusting manually." The
-                      // glow reads p.color — the SAME PLATFORM color already
-                      // driving the border/badge/CTA above — so every platform
-                      // (today: tiktok/instagram/youtube/facebook) gets a
-                      // correctly-matched glow automatically; adding a 5th
-                      // platform to lib/creatorVideos.js's PLATFORM map lights
-                      // it up here with zero changes to this file. Static, no
-                      // animation/pulse — kit.js's MOTION token bans pulse/glow
-                      // loops in chrome, and the owner asked for a glow, not a
-                      // pulse (that's .wf-deal-glow's job, and it's a distinct,
-                      // explicitly-approved exception).
+                      // glow reads p.color/PLATFORM_RGB[v.platform] — the SAME
+                      // PLATFORM source already driving the border/badge/CTA
+                      // above — so every platform (today: tiktok/instagram/
+                      // youtube/facebook) gets a correctly-matched glow
+                      // automatically; adding a 5th platform to
+                      // lib/creatorVideos.js lights it up here with zero
+                      // changes to this file. v6.93 (owner: "there is no
+                      // pulsing glow behind it"): upgraded from the v6.91
+                      // static glow to the real pulsing .wf-social-glow
+                      // treatment (css.js) — the owner has now explicitly
+                      // asked for the pulse kit.js's MOTION token otherwise
+                      // bans in chrome, same approved-exception category as
+                      // .wf-deal-glow.
                       return (
                         <a key={"cvid" + i} href={v.url} target="_blank" rel="noopener"
                            onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
                            aria-label={`${headline} (opens in a new tab)`}
-                           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, boxShadow: `0 2px 16px rgba(0,0,0,.32), 0 0 22px 2px ${p.color}40` }}>
+                           className="wf-social-glow"
+                           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                             <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
