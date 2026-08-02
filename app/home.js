@@ -130,6 +130,7 @@ import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
+import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
 import * as Cats from "../lib/categories";
@@ -244,10 +245,25 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
       )}
       <div style={{ position: "relative" }}>
       <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+        {/* v6.90 — owner review of the category row asked for "anything you can
+            do" to make it feel less flat. Two additive, guard-safe touches:
+            (a) a soft circular halo behind the active icon (background only,
+            radius 50%, no border — deliberately NOT the retired chip-bubble
+            shape check-ux.mjs bans, which was a bordered borderRadius:22
+            rounded-rect around the whole tile) and (b) a thin active-tile
+            underline, the same idiom already used one row down for the
+            sub-filter chips (line ~261), so the selected state reads
+            consistently top-to-bottom. Idle icon/label color stays the
+            literal "#FFFFFF" check-design.mjs asserts (owner call
+            2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
-            <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+          <button key={m.id} onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+            <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
+              {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
+              <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
+            </span>
             <span style={{ fontSize: 13.2, fontWeight: on ? 700 : 500, color: on ? C.accent : "#FFFFFF", textAlign: "center", lineHeight: 1.15, letterSpacing: "0.25px" }}>{m.label}</span>
+            {on && <span aria-hidden="true" style={{ position: "absolute", left: "28%", right: "28%", bottom: 1, height: 2.5, borderRadius: 2, background: C.accent }} />}
           </button>
         ); })}
         {trailing || null}
@@ -8789,21 +8805,32 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
     return () => { dead = true; };
   }, [categories.join("|"), lat, lng]);
 
+  // v6.90 — owner: "make sure they are displayed by rating and discount,
+  // point based on the activity time of today." Same small, capped, order-
+  // only bonuses as IntentPartnerPick.js's evidenceScore, kept in sync so the
+  // two mixed-provider rails behave consistently — see
+  // lib/experienceNowRank.js. Rating/quality10 stays the base term; unrated
+  // deals keep the exact -1 sentinel (sorts last, untouched by any bonus).
+  const nowHour = siteHourFloat();
   const cards = useMemo(() => {
     const rows = [];
     for (const t of (Array.isArray(experiences) ? experiences : [])) {
       if (!t?.image || !(t.code || t.product_code)) continue;
       const offerId = t.code || t.product_code;
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10), kind: "experience" });
+      const base = Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10);
+      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour), kind: "experience" });
     }
     for (const d of (Array.isArray(deals) ? deals : [])) {
       const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
       if (!image || !d.id) continue;
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: d.discount || d.badge || "", score: Number(d.quality10 || 0) || -1, href: d.href, kind: "deal" });
+      const dBase = Number(d.quality10 || 0);
+      const discountText = d.discount || d.badge || "";
+      const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
+      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, href: d.href, kind: "deal" });
     }
     const seen = new Set();
     return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals]);
+  }, [experiences, deals, nowHour]);
 
   if (!cards.length) return null;
   return (

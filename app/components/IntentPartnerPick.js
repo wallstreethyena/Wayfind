@@ -9,6 +9,8 @@ import { dealScope } from "../../lib/dealSheet";
 import { nearestMetro } from "../../lib/orderInFeatured";
 import { clipCouponToWallet } from "../../lib/couponWallet";
 import { C, PlaceScoreChip } from "./kit";
+import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank";
+import { siteHourFloat } from "../../lib/nowContext";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -23,12 +25,25 @@ const DEAL_CATEGORIES = Object.freeze({
 });
 
 const dealImage = (deal) => deal?.image || (deal?.photoRef ? `/api/photo?ref=${encodeURIComponent(deal.photoRef)}&w=600` : "");
+// v6.90 — owner: "make sure they are displayed by rating and discount, point
+// based on the activity time of today — something great that is not the best
+// time of the day should show lower in ranking." Rating/quality stays the
+// base term (untouched below); discountDepthBonus and timeOfDayBonus are
+// small, capped, order-only additions layered on top — see
+// lib/experienceNowRank.js for why they're safe next to the pay-for-
+// placement rule and scripts/test-experience-now-rank.mjs for the proof.
+// Unrated inventory (base < 0) is left exactly as unrated: no bonus can pull
+// a card with no real evidence ahead of one that has it.
 const evidenceScore = (pick) => {
   const explicit = Number(pick?.quality10 || 0);
-  if (explicit > 0) return explicit;
-  const rating = Number(pick?.rating || 0);
-  const reviews = Number(pick?.reviews || 0);
-  return rating > 0 && reviews > 0 ? (rating * 2) + Math.min(0.4, Math.log10(reviews + 1) / 10) : -1;
+  const base = explicit > 0 ? explicit : (() => {
+    const rating = Number(pick?.rating || 0);
+    const reviews = Number(pick?.reviews || 0);
+    return rating > 0 && reviews > 0 ? (rating * 2) + Math.min(0.4, Math.log10(reviews + 1) / 10) : -1;
+  })();
+  if (base < 0) return base;
+  const text = [pick?.title, pick?.eyebrow, pick?.discount, pick?.badge].filter(Boolean).join(" ");
+  return base + discountDepthBonus(pick?.discount || pick?.badge || pick?.eyebrow || "") + timeOfDayBonus(text, siteHourFloat());
 };
 
 export default function IntentPartnerPick({ city, intent, inventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog }) {

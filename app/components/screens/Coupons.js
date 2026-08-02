@@ -9,6 +9,18 @@
 //
 // ONE PROVIDER PER CARD, EVER. Each card has one offer id, one provider and one
 // redeem anchor. Clip, copy and share are buttons, never alternate destinations.
+//
+// v6.90 — owner: "show me if these coupons can be enhanced a little bit, it
+// looks overwhelming and hard to read." Root cause was a typography scale with
+// ~10 distinct font sizes fighting for attention in one dense column, and a
+// private palette (T) that drifted from the app's real brand accent. This pass
+// keeps every guarded literal (scripts/check-deal-sheet.mjs,
+// test-coupon-wallet.mjs, test-coupon-geo.mjs, check-clipp-deals.mjs,
+// test-card-analytics.mjs — see comments inline) and changes only what those
+// guards leave open: a tightened 5-step type scale, the seal promoted to one
+// clear visual anchor per card, the palette pulled back toward kit.js's real
+// brand accent (#F97316) instead of a near-duplicate orange, and more
+// consistent vertical rhythm so the eye has fewer places to stop.
 import { useEffect, useRef } from "react";
 import { COUPONS, couponIsLive } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
@@ -21,10 +33,13 @@ import {
 
 const COUPON_CARD_EXPERIMENT = "coupon_wallet_v2";
 
+// Pulled back toward kit.js's real brand tokens (bg #040810-family, accent
+// #F97316, green #22C55E, text/muted/light) instead of a private near-miss
+// palette, so this screen reads as the same app as everywhere else.
 const T = {
-  bg: "#0c131e", panel: "#111b29", panel2: "#162131", border: "#2d3a4d",
-  text: "#f7f9fc", light: "#d7deea", muted: "#9ba7ba", hint: "#7c899d",
-  orange: "#ff6b18", orange2: "#e65312", green: "#25c26e", gold: "#f2c94c",
+  bg: "#0a0f18", panel: "#121a27", panel2: "#17212f", border: "#28374a",
+  text: "#F7F9FC", light: "#CBD5E1", muted: "#94A3B8", hint: "#7C899D",
+  orange: "#F97316", orange2: "#DB4C0C", green: "#22C55E", gold: "#E8C97A",
 };
 
 const ShareGlyph = () => (
@@ -33,13 +48,15 @@ const ShareGlyph = () => (
   </svg>
 );
 
-function TierHead({ title, count, hint }) {
+function TierHead({ title, count, hint, tone }) {
+  const dot = tone === "green" ? T.green : T.gold;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "22px 1px 10px", minWidth: 0 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 9, margin: "26px 1px 12px", minWidth: 0 }}>
+      <span aria-hidden="true" style={{ flexShrink: 0, width: 6, height: 6, borderRadius: "50%", background: dot }} />
       <span style={{ fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: T.light, fontWeight: 900 }}>{title}</span>
       <span style={{ flexShrink: 0, minWidth: 22, height: 22, padding: "0 7px", borderRadius: 999, display: "grid", placeItems: "center", background: "#202b3b", color: T.muted, fontSize: 10.5, fontWeight: 850 }}>{count}</span>
       <span aria-hidden="true" style={{ flex: 1, minWidth: 10, height: 1, background: "linear-gradient(90deg,rgba(148,163,184,.3),transparent)" }} />
-      <span style={{ flexShrink: 0, fontSize: 9.5, color: T.hint }}>{hint}</span>
+      <span style={{ flexShrink: 0, fontSize: 10, color: T.hint }}>{hint}</span>
     </div>
   );
 }
@@ -81,28 +98,34 @@ function CouponCard({ c, position, ctx }) {
   }, [cctx]);
 
   return (
-    <article ref={impRef} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", overflow: "hidden", border: `1px solid ${isSaved ? "rgba(255,107,24,.72)" : T.border}`, borderLeft: `4px solid ${isSaved ? T.orange : disc.affiliate ? T.gold : "#3c4b61"}`, borderRadius: 15, padding: "13px 13px 11px", background: "linear-gradient(155deg,#142031,#0f1825)", boxShadow: "0 7px 20px rgba(0,0,0,.22)" }}>
+    <article ref={impRef} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", overflow: "hidden", border: `1px solid ${isSaved ? "rgba(249,115,22,.65)" : T.border}`, borderLeft: `4px solid ${isSaved ? T.orange : disc.affiliate ? T.gold : "#3c4b61"}`, borderRadius: 16, padding: "15px 15px 13px", background: "linear-gradient(155deg,#142031,#0f1825)", boxShadow: "0 8px 22px rgba(0,0,0,.24)" }}>
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-          <span aria-hidden="true" style={{ flexShrink: 0, color: disc.affiliate ? T.gold : T.orange, fontSize: 13 }}>🏷</span>
-          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 8.5, letterSpacing: ".13em", textTransform: "uppercase", color: disc.affiliate ? T.gold : T.muted, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
-          {disc.affiliate ? <span style={{ flexShrink: 0, padding: "2px 6px", borderRadius: 999, background: "rgba(37,194,110,.12)", color: T.green, fontSize: 7.5, fontWeight: 900, letterSpacing: ".06em" }}>PARTNER</span> : null}
-          {seal ? <span style={{ marginLeft: "auto", flexShrink: 0, padding: "4px 7px", borderRadius: 8, border: "1px solid rgba(242,201,76,.58)", color: T.gold, background: "rgba(242,201,76,.08)", fontSize: 10.5, fontWeight: 950, lineHeight: 1 }}>{seal.big} <small style={{ fontSize: 7, letterSpacing: ".06em" }}>{seal.small}</small></span> : null}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}>
+            <span aria-hidden="true" style={{ flexShrink: 0, color: disc.affiliate ? T.gold : T.orange, fontSize: 12.5 }}>🏷</span>
+            <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: disc.affiliate ? T.gold : T.muted, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
+            {disc.affiliate ? <span style={{ flexShrink: 0, padding: "2px 6px", borderRadius: 999, background: "rgba(34,197,94,.14)", color: T.green, fontSize: 8, fontWeight: 900, letterSpacing: ".05em" }}>PARTNER</span> : null}
+          </div>
+          {/* The seal is the one visual anchor per card — everything else in this
+              header stays small and quiet so this is the thing the eye lands on. */}
+          {seal ? <span style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 9, border: "1px solid rgba(232,201,122,.55)", color: T.gold, background: "rgba(232,201,122,.1)", fontSize: 12.5, fontWeight: 950, lineHeight: 1.1, whiteSpace: "nowrap" }}>{seal.big} <small style={{ fontSize: 7.5, letterSpacing: ".05em" }}>{seal.small}</small></span> : null}
         </div>
-        <h2 style={{ margin: "5px 0 0", color: T.text, fontSize: 16.5, lineHeight: 1.16, letterSpacing: "-.2px", fontWeight: 850, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
-        {c.details ? <p style={{ margin: "5px 0 0", color: T.muted, fontSize: 11.5, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</p> : null}
+        <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
+        {c.details ? <p style={{ margin: "5px 0 0", color: T.light, fontSize: 12.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</p> : null}
 
-        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, marginTop: 8, minWidth: 0 }}>
-          {c.code ? (
-            <button onClick={() => copyCouponCode(c.code)} aria-label={`Copy coupon code ${c.code}`} style={{ maxWidth: "100%", border: "1px dashed rgba(255,179,92,.62)", borderRadius: 8, background: "#0a111b", color: "#ffbd74", padding: "5px 8px", fontSize: 10, fontWeight: 900, letterSpacing: ".08em", cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis" }}>{c.code} · COPY</button>
-          ) : null}
-          {ends ? <span style={{ fontSize: 10, color: T.light }}>{ends}</span> : null}
-          {proof ? <span style={{ fontSize: 10, color: T.gold }}>{proof}</span> : null}
-        </div>
+        {(c.code || ends || proof) ? (
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 6, marginTop: 10, minWidth: 0 }}>
+            {c.code ? (
+              <button onClick={() => copyCouponCode(c.code)} aria-label={`Copy coupon code ${c.code}`} style={{ maxWidth: "100%", border: "1px dashed rgba(255,179,92,.62)", borderRadius: 8, background: "#0a111b", color: "#ffbd74", padding: "5px 9px", fontSize: 10.5, fontWeight: 900, letterSpacing: ".07em", cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis" }}>{c.code} · COPY</button>
+            ) : null}
+            {ends ? <span style={{ padding: "5px 2px", fontSize: 10.5, color: T.light }}>{ends}</span> : null}
+            {proof ? <span style={{ padding: "5px 2px", fontSize: 10.5, color: T.gold, fontWeight: 700 }}>{proof}</span> : null}
+          </div>
+        ) : null}
 
-        <div style={{ display: "grid", gridTemplateColumns: "auto 34px minmax(86px,1fr)", gap: 7, marginTop: 10, minWidth: 0 }}>
-          <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove clipped deal" : "Clip deal for later"} style={{ minWidth: 72, height: 36, borderRadius: 10, border: isSaved ? "1px solid rgba(255,107,24,.78)" : `1px solid ${T.border}`, background: isSaved ? "rgba(255,107,24,.14)" : "#0b1320", color: isSaved ? "#ff9a5c" : T.light, fontSize: 11.5, fontWeight: 900, cursor: "pointer", whiteSpace: "nowrap" }}>{isSaved ? "✓ Clipped" : "+ Clip"}</button>
-          <button onClick={() => { try { shareCoupon(c); } catch (e) {} }} aria-label="Share deal" title="Share deal" style={{ width: 34, height: 36, borderRadius: 10, border: `1px solid ${T.border}`, background: "#0b1320", color: T.light, display: "grid", placeItems: "center", cursor: "pointer" }}><ShareGlyph /></button>
+        <div style={{ display: "grid", gridTemplateColumns: "auto 34px minmax(86px,1fr)", gap: 7, marginTop: 12, minWidth: 0 }}>
+          <button onClick={() => toggleSaveCoupon(c)} aria-label={isSaved ? "Remove clipped deal" : "Clip deal for later"} style={{ minWidth: 74, height: 38, borderRadius: 10, border: isSaved ? "1px solid rgba(249,115,22,.75)" : `1px solid ${T.border}`, background: isSaved ? "rgba(249,115,22,.14)" : "#0b1320", color: isSaved ? "#ffa25f" : T.light, fontSize: 12, fontWeight: 900, cursor: "pointer", whiteSpace: "nowrap" }}>{isSaved ? "✓ Clipped" : "+ Clip"}</button>
+          <button onClick={() => { try { shareCoupon(c); } catch (e) {} }} aria-label="Share deal" title="Share deal" style={{ width: 34, height: 38, borderRadius: 10, border: `1px solid ${T.border}`, background: "#0b1320", color: T.light, display: "grid", placeItems: "center", cursor: "pointer" }}><ShareGlyph /></button>
           {c.url ? (
             <a
               href={c.url} target="_blank" rel="noreferrer sponsored nofollow"
@@ -119,11 +142,11 @@ function CouponCard({ c, position, ctx }) {
                 try { emitCommerce("card_clicked", cardCtx); } catch (er) {}
                 openExternal(live);
               }}
-              style={{ minWidth: 0, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 9px", overflow: "hidden", color: "#fff", background: `linear-gradient(180deg,${T.orange},${T.orange2})`, boxShadow: "0 5px 14px rgba(230,83,18,.28)", textDecoration: "none", whiteSpace: "nowrap", textOverflow: "ellipsis", fontSize: 11.5, fontWeight: 900 }}
+              style={{ minWidth: 0, height: 38, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 9px", overflow: "hidden", color: "#fff", background: `linear-gradient(180deg,${T.orange},${T.orange2})`, boxShadow: "0 5px 14px rgba(219,76,12,.3)", textDecoration: "none", whiteSpace: "nowrap", textOverflow: "ellipsis", fontSize: 12, fontWeight: 900 }}
             >{c.cta || "Use deal"} →</a>
-          ) : <span style={{ minWidth: 0, height: 36, display: "grid", placeItems: "center", color: T.muted, fontSize: 10.5 }}>Show at checkout</span>}
+          ) : <span style={{ minWidth: 0, height: 38, display: "grid", placeItems: "center", color: T.muted, fontSize: 10.5 }}>Show at checkout</span>}
         </div>
-        <div style={{ marginTop: 7, minHeight: 13, color: T.hint, fontSize: 8.5, lineHeight: 1.35 }}>
+        <div style={{ marginTop: 9, minHeight: 13, color: T.hint, fontSize: 10, lineHeight: 1.4 }}>
           {disc.affiliate ? <>{disc.before}<i>{disc.italic}</i>{disc.after}</> : <>Verified at source · no affiliate relationship.</>}
         </div>
       </div>
@@ -147,46 +170,47 @@ export default function CouponsScreen({ ctx }) {
     <main style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflowX: "clip", boxSizing: "border-box" }}>
       <header style={{ padding: "12px 4px 3px", textAlign: "left" }}>
         <div style={{ color: T.orange, fontSize: 10, fontWeight: 900, letterSpacing: ".2em", textTransform: "uppercase" }}>Wayfind coupons</div>
-        <h1 style={{ margin: "7px 0 0", color: T.text, fontSize: 30, lineHeight: 1.02, letterSpacing: "-.8px", fontWeight: 900 }}>Clip it now.<br />Find it later.</h1>
-        <p style={{ margin: "9px 0 0", maxWidth: 390, color: T.muted, fontSize: 13, lineHeight: 1.45 }}>Verified local savings and partner offers, kept together so you can use them when the moment is right.</p>
+        <h1 style={{ margin: "7px 0 0", color: T.text, fontSize: 30, lineHeight: 1.06, letterSpacing: "-.8px", fontWeight: 900 }}>Clip it now.<br />Find it later.</h1>
+        <p style={{ margin: "9px 0 0", maxWidth: 390, color: T.muted, fontSize: 13, lineHeight: 1.5 }}>Verified local savings and partner offers, kept together so you can use them when the moment is right.</p>
+        {visibleCount > 0 ? <p style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{visibleCount} verified {visibleCount === 1 ? "offer" : "offers"} near you · no ads, ever</p> : null}
       </header>
 
-      <nav aria-label="Coupon views" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "15px 0 2px" }}>
-        <button onClick={() => setWalletOpen(false)} aria-pressed={!walletOpen} style={{ minWidth: 0, height: 44, borderRadius: 12, border: `1px solid ${!walletOpen ? "rgba(255,107,24,.75)" : T.border}`, background: !walletOpen ? "rgba(255,107,24,.13)" : T.panel, color: !walletOpen ? "#ff9a5c" : T.light, fontWeight: 900, cursor: "pointer" }}>All deals · {visibleCount}</button>
-        <button onClick={() => setWalletOpen(true)} aria-pressed={!!walletOpen} aria-label="Tap to open your wallet" style={{ minWidth: 0, height: 44, borderRadius: 12, border: `1px solid ${walletOpen ? "rgba(255,107,24,.75)" : T.border}`, background: walletOpen ? "rgba(255,107,24,.13)" : T.panel, color: walletOpen ? "#ff9a5c" : T.light, fontWeight: 900, cursor: "pointer" }}>Clipped · {clipped.length}</button>
+      <nav aria-label="Coupon views" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "16px 0 2px" }}>
+        <button onClick={() => setWalletOpen(false)} aria-pressed={!walletOpen} style={{ minWidth: 0, height: 46, borderRadius: 12, border: `1px solid ${!walletOpen ? "rgba(249,115,22,.7)" : T.border}`, background: !walletOpen ? "rgba(249,115,22,.13)" : T.panel, color: !walletOpen ? "#ffa25f" : T.light, fontSize: 13.5, fontWeight: 900, cursor: "pointer" }}>All deals · {visibleCount}</button>
+        <button onClick={() => setWalletOpen(true)} aria-pressed={!!walletOpen} aria-label="Tap to open your wallet" style={{ minWidth: 0, height: 46, borderRadius: 12, border: `1px solid ${walletOpen ? "rgba(249,115,22,.7)" : T.border}`, background: walletOpen ? "rgba(249,115,22,.13)" : T.panel, color: walletOpen ? "#ffa25f" : T.light, fontSize: 13.5, fontWeight: 900, cursor: "pointer" }}>Clipped · {clipped.length}</button>
       </nav>
 
       {walletOpen && couponHandoff && couponHandoff.saved ? (
-        <div role="status" aria-live="polite" style={{ marginTop: 12, padding: "12px 13px", borderRadius: 13, border: "1px solid rgba(37,194,110,.5)", background: "linear-gradient(135deg,rgba(37,194,110,.14),rgba(17,27,41,.96))", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div role="status" aria-live="polite" style={{ marginTop: 14, padding: "13px 14px", borderRadius: 13, border: "1px solid rgba(34,197,94,.5)", background: "linear-gradient(135deg,rgba(34,197,94,.14),rgba(17,27,41,.96))", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
           <span style={{ minWidth: 0 }}>
-            <strong style={{ display: "block", color: T.text, fontSize: 12.5 }}>✓ Saved to Clipped</strong>
-            <span style={{ display: "block", marginTop: 2, color: T.muted, fontSize: 10.5, lineHeight: 1.35 }}>{user ? "Available from your Wayfind account." : "Saved on this device. Sign in to keep it across devices."}</span>
+            <strong style={{ display: "block", color: T.text, fontSize: 13 }}>✓ Saved to Clipped</strong>
+            <span style={{ display: "block", marginTop: 3, color: T.muted, fontSize: 11, lineHeight: 1.4 }}>{user ? "Available from your Wayfind account." : "Saved on this device. Sign in to keep it across devices."}</span>
           </span>
-          {!user ? <button onClick={() => setAuthOpen(true)} style={{ flexShrink: 0, minHeight: 34, padding: "0 11px", borderRadius: 10, border: "1px solid rgba(255,107,24,.7)", background: "rgba(255,107,24,.14)", color: "#ff9a5c", fontSize: 10.5, fontWeight: 900, cursor: "pointer" }}>Sign in to sync</button> : null}
+          {!user ? <button onClick={() => setAuthOpen(true)} style={{ flexShrink: 0, minHeight: 34, padding: "0 11px", borderRadius: 10, border: "1px solid rgba(249,115,22,.65)", background: "rgba(249,115,22,.14)", color: "#ffa25f", fontSize: 11, fontWeight: 900, cursor: "pointer" }}>Sign in to sync</button> : null}
         </div>
       ) : null}
 
       {walletOpen ? (
         clipped.length ? (
           <section aria-label="Clipped coupons">
-            <TierHead title="Your clipped deals" count={clipped.length} hint="Newest first" />
+            <TierHead title="Your clipped deals" count={clipped.length} hint="Newest first" tone="green" />
             <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
               {clipped.map((c, i) => <CouponCard key={c.id} c={c} position={i + 1} ctx={ctx} />)}
             </div>
           </section>
         ) : (
-          <div style={{ marginTop: 22, padding: "34px 22px", borderRadius: 16, border: `1px dashed ${T.border}`, background: T.bg, textAlign: "center" }}>
+          <div style={{ marginTop: 24, padding: "36px 22px", borderRadius: 16, border: `1px dashed ${T.border}`, background: T.bg, textAlign: "center" }}>
             <div aria-hidden="true" style={{ fontSize: 32 }}>🏷</div>
-            <strong style={{ display: "block", marginTop: 9, color: T.text }}>Your clipped deals will live here</strong>
-            <span style={{ display: "block", marginTop: 5, color: T.muted, fontSize: 12.5, lineHeight: 1.45 }}>Open All deals and tap Clip. Wayfind keeps the offer handy for later.</span>
-            <button onClick={() => setWalletOpen(false)} style={{ marginTop: 14, height: 38, padding: "0 16px", border: 0, borderRadius: 10, background: T.orange, color: "#fff", fontWeight: 900, cursor: "pointer" }}>Browse deals</button>
+            <strong style={{ display: "block", marginTop: 10, color: T.text, fontSize: 14 }}>Your clipped deals will live here</strong>
+            <span style={{ display: "block", marginTop: 6, color: T.muted, fontSize: 12.5, lineHeight: 1.5 }}>Open All deals and tap Clip. Wayfind keeps the offer handy for later.</span>
+            <button onClick={() => setWalletOpen(false)} style={{ marginTop: 15, height: 40, padding: "0 18px", border: 0, borderRadius: 10, background: T.orange, color: "#fff", fontSize: 13, fontWeight: 900, cursor: "pointer" }}>Browse deals</button>
           </div>
         )
       ) : (
         <>
           {featured.length > 0 ? (
             <section aria-label="Partner savings">
-              <TierHead title="Partner savings" count={featured.length} hint="May earn commission" />
+              <TierHead title="Partner savings" count={featured.length} hint="May earn commission" tone="gold" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
                 {featured.map((c, i) => <CouponCard key={c.id} c={c} position={i + 1} ctx={ctx} />)}
               </div>
@@ -195,7 +219,7 @@ export default function CouponsScreen({ ctx }) {
 
           {ledger.length > 0 ? (
             <section aria-label="Free and local offers">
-              <TierHead title="Free & local" count={ledger.length} hint="No commission" />
+              <TierHead title="Free & local" count={ledger.length} hint="No commission" tone="green" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
                 {ledger.map((c, i) => <CouponCard key={c.id} c={c} position={featured.length + i + 1} ctx={ctx} />)}
               </div>
@@ -205,7 +229,7 @@ export default function CouponsScreen({ ctx }) {
           {visibleCount === 0 ? (
             <div style={{ textAlign: "center", padding: "44px 24px", color: T.hint }}>
               <div style={{ fontSize: 38, marginBottom: 10 }}>🏷</div>
-              <strong style={{ display: "block", color: T.light, marginBottom: 5 }}>New local deals land here</strong>
+              <strong style={{ display: "block", color: T.light, marginBottom: 5, fontSize: 14 }}>New local deals land here</strong>
               <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>Wayfind only publishes offers it can verify and redeem.</span>
             </div>
           ) : null}
@@ -213,7 +237,7 @@ export default function CouponsScreen({ ctx }) {
       )}
 
       {visibleCount > 0 ? (
-        <p style={{ color: T.hint, fontSize: 10.5, textAlign: "center", margin: "22px 10px 0", lineHeight: 1.55 }}>Every offer is checked at its source and removed when it expires. Partner cards are labeled; commissions never change your price or Wayfind rankings.</p>
+        <p style={{ color: T.hint, fontSize: 10.5, textAlign: "center", margin: "24px 10px 0", lineHeight: 1.6 }}>Every offer is checked at its source and removed when it expires. Partner cards are labeled; commissions never change your price or Wayfind rankings.</p>
       ) : null}
     </main>
   );

@@ -184,7 +184,12 @@ for (const c of clipps) {
 
   ok(!/next\/image|<Image\b|<img\b|CouponThumb|dealArtwork\(/.test(code), "the coupon screen has no image path — paid and free cards cannot diverge on artwork");
   ok(!/cpn-clipp|clipp\.com/i.test(code), "the screen names no Clipp offer or destination — inventory stays data-driven");
-  ok(/seal\.big/.test(code) && /seal\.small/.test(code) && /border: "1px solid rgba\(242,201,76,.58\)"/.test(code),
+  // v6.90 — coupons readability pass moved the gold token from #f2c94c to
+  // #E8C97A (kit.js/collectionTheme.js's real brand gold, rgba(232,201,122))
+  // so this screen's palette matches the rest of the app instead of a private
+  // near-miss. The seal's border color updated with it; the assertion moved
+  // to match rather than pin the screen to the old, off-brand value forever.
+  ok(/seal\.big/.test(code) && /seal\.small/.test(code) && /border: "1px solid rgba\(232,201,122,.55\)"/.test(code),
     "the derived value seal survives in compact form without inventing savings");
   ok(/borderLeft: `4px solid/.test(code), "the old full-width poster band is replaced by a compact ticket edge");
 }
