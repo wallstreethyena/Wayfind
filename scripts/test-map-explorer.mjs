@@ -1,20 +1,32 @@
 // The map is an exploration surface, not a six-query loading screen. It opens
-// on Food, draws local 1/2/3-mile context immediately, and keeps category
-// changes inside the same map instead of falling back to the old mixed pool.
+// on Food, draws local 5/10/15-mile context immediately (expanding to 30mi on
+// the outer ring once the owner zooms out past MapView's threshold), and
+// keeps category changes inside the same map instead of falling back to the
+// old mixed pool.
+//
+// v6.89 (owner: "the map used to be 5, 10 and 15 miles... it had a nice zoom
+// of 30 miles out"): this guard used to assert [1, 2, 3] — a regression from
+// whenever the rings were tightened down to a radius too small to be useful
+// for a things-to-do-near-you app. Updated to lock in the restored values
+// instead of re-baking the bug in as the "correct" behavior.
 import { readFileSync } from "node:fs";
-import { MAP_DEFAULT_CATEGORY, MAP_RING_MILES, distanceRingData } from "../lib/mapExplorer.js";
+import { MAP_DEFAULT_CATEGORY, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT, distanceRingData } from "../lib/mapExplorer.js";
 
 let pass = 0;
 const fail = (message) => { console.error("test-map-explorer: FAIL — " + message); process.exit(1); };
 const ok = (condition, message) => { if (!condition) fail(message); pass += 1; };
 
 ok(MAP_DEFAULT_CATEGORY === "food", "Food is the explicit map default");
-ok(JSON.stringify(MAP_RING_MILES) === JSON.stringify([1, 2, 3]), "local rings are exactly 1, 2, and 3 miles");
+ok(JSON.stringify(MAP_RING_MILES) === JSON.stringify([5, 10, 15]), "local rings are exactly 5, 10, and 15 miles");
+ok(JSON.stringify(MAP_RING_MILES_ZOOMED_OUT) === JSON.stringify([5, 10, 30]), "zoomed-out rings expand the outer ring to 30 miles");
 
 const data = distanceRingData({ lat: 28.5383, lng: -81.3792 });
 ok(data.features.filter((f) => f.properties.kind === "ring").length === 3, "three ring lines are generated");
-ok(data.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === "1 mi|2 mi|3 mi", "each ring has a readable distance label");
+ok(data.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === "5 mi|10 mi|15 mi", "each ring has a readable distance label");
 ok(data.features.every((f) => f.geometry && Array.isArray(f.geometry.coordinates)), "ring geometry is valid GeoJSON");
+
+const zoomedOutData = distanceRingData({ lat: 28.5383, lng: -81.3792 }, MAP_RING_MILES_ZOOMED_OUT);
+ok(zoomedOutData.features.filter((f) => f.properties.kind === "label").map((f) => f.properties.label).join("|") === "5 mi|10 mi|30 mi", "zoomed-out ring data swaps the outer label to 30 mi");
 
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok(/const \[cat, setCat\] = useState\(MAP_DEFAULT_CATEGORY\)/.test(home), "Food is the actual selected category on first render");
@@ -28,8 +40,9 @@ ok(!/Numbered by rank/.test(screen), "the bulky map legend is gone; numbered pin
 ok(/bottom: 76/.test(screen) && /Browse list/.test(screen), "the result drawer floats above bottom navigation and remains discoverable");
 
 const view = readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8");
-ok(/distanceRingData\(origin\)/.test(view), "MapView renders the shared immediate ring geometry");
+ok(/distanceRingData\(origin,/.test(view), "MapView renders the shared immediate ring geometry");
+ok(/MAP_RING_MILES_ZOOMED_OUT/.test(view), "MapView expands the outer ring on zoom-out instead of staying static");
 ok(/zoom: rings \? 11\.55 : 11/.test(view), "ring mode opens wide enough to show all three neighborhood rings");
 ok(/cluster:\s*true/.test(view) && /wf-place-cluster-count/.test(view), "dense results collapse into readable count bubbles instead of overlapping pins");
 
-console.log(`test-map-explorer: OK — ${pass} assertions (Food-first category map; immediate labeled 1/2/3-mile rings)`);
+console.log(`test-map-explorer: OK — ${pass} assertions (Food-first category map; immediate labeled 5/10/15-mile rings, 30mi on zoom-out)`);
