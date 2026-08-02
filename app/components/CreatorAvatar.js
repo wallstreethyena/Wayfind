@@ -32,6 +32,18 @@
 // of hidden: this photo goes stale if the creator changes their profile
 // picture, where TikTok's live scrape would not. Re-capture and replace the
 // file in public/creators/ if that happens — there is no auto-refresh here.
+//
+// v6.95 (owner: "for facebook also and tiktok instagram and even x we need
+// to fetch from everywhere") — X gets the SAME live-scrape treatment as
+// TikTok (see app/api/creator-avatar/route.js: a plain server fetch of
+// x.com/<handle> works, checked live, no login wall). Facebook gets the SAME
+// static-capture treatment as Instagram, for the same reason — checked live,
+// Facebook walls off a plain server request exactly like Instagram does.
+// FACEBOOK_AVATARS starts empty on purpose: the only Facebook entry in
+// lib/creatorVideos.js today (Mai-Kai) has no creator handle at all — its
+// own comment says "do not fabricate" one — so there is nothing real to
+// capture a photo FOR yet. Add an entry here the same way INSTAGRAM_AVATARS
+// entries were added, the moment a real Facebook creator handle exists.
 import { useState } from "react";
 
 // Real Instagram avatars, captured live (2026-08-02) from each creator's own
@@ -43,11 +55,16 @@ const INSTAGRAM_AVATARS = {
   neverboredinorlando: "/creators/neverboredinorlando.jpg",
 };
 
+// Real Facebook avatars — same capture method as INSTAGRAM_AVATARS above,
+// intentionally empty until a real Facebook creator handle exists to
+// capture a photo for. See the v6.95 header comment.
+const FACEBOOK_AVATARS = {};
+
 // Initials fallback — used as the BASE layer under every avatar so there is
 // never a blank/broken circle: the real photo, if it loads, simply covers
-// this; if it fails (platform unsupported, TikTok blocked the fetch, an
-// Instagram handle not yet in INSTAGRAM_AVATARS, etc.) this was already
-// there and nothing visibly breaks.
+// this; if it fails (platform unsupported, TikTok/X blocked the fetch, a
+// handle not yet in INSTAGRAM_AVATARS/FACEBOOK_AVATARS, etc.) this was
+// already there and nothing visibly breaks.
 function initials(handle) {
   const s = String(handle || "").replace(/[^a-zA-Z0-9]/g, "");
   if (!s) return "★";
@@ -57,7 +74,9 @@ function initials(handle) {
 function avatarSrc(handle, platform) {
   if (!handle) return null;
   if (platform === "tiktok") return `/api/creator-avatar?handle=${encodeURIComponent(handle)}&platform=tiktok`;
+  if (platform === "x") return `/api/creator-avatar?handle=${encodeURIComponent(handle)}&platform=x`;
   if (platform === "instagram") return INSTAGRAM_AVATARS[handle.toLowerCase()] || null;
+  if (platform === "facebook") return FACEBOOK_AVATARS[handle.toLowerCase()] || null;
   return null;
 }
 

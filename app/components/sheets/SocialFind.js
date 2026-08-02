@@ -39,6 +39,7 @@ function profileUrlFor(platform, handle) {
   if (platform === "tiktok") return `https://www.tiktok.com/@${handle}`;
   if (platform === "instagram") return `https://www.instagram.com/${handle}/`;
   if (platform === "youtube") return `https://www.youtube.com/@${handle}`;
+  if (platform === "x") return `https://x.com/${handle}`;
   return null;
 }
 
