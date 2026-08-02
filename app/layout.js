@@ -7,6 +7,7 @@ import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
 import GoogleTags from "./components/GoogleTags";
 import FooterVeil from "./components/FooterVeil";
+import NativeShellInit from "./components/NativeShellInit";
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -101,6 +102,9 @@ export default function RootLayout({ children }) {
             then sets __wfSentryReady so this shim stands down (no double capture). */}
         <script dangerouslySetInnerHTML={{ __html: "(function(){if(window.__wfSentryInit)return;window.__wfSentryInit=1;window.__wfSentryQueue=[];function p(e){try{if(window.__wfSentryReady)return;var q=window.__wfSentryQueue;if(q&&q.length<30)q.push(e)}catch(_){}}window.addEventListener('error',function(v){p({t:Date.now(),error:(v&&v.error)||null,message:v&&v.message,filename:v&&v.filename,lineno:v&&v.lineno})});window.addEventListener('unhandledrejection',function(v){p({t:Date.now(),reason:v&&v.reason,unhandledrejection:1})})})();" }} />
         <SentryClient />
+        {/* No-op on the website; wires push/camera/share/deep-links only
+            inside the Capacitor iOS wrapper — see lib/native.js. */}
+        <NativeShellInit />
         <PostHogProvider>
         {/* v5.38 a11y: keyboard users can jump past the app chrome. The link
             is visually hidden until focused, then appears top-left. */}

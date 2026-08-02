@@ -16,6 +16,7 @@ import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
 import * as Aff from "../../../lib/affiliates";
 import { supabase } from "../../../lib/supabase";
+import { isNative, nativePickPhoto } from "../../../lib/native";
 import BookingCTA, { hasBookingCTA } from "../BookingCTA";
 import BookItLink from "../BookItLink";
 import { creatorVideosFor, PLATFORM } from "../../../lib/creatorVideos";
@@ -426,6 +427,16 @@ export default function DetailSheet({ ctx }) {
     const accepted = files.filter((f) => f.size <= COMMENT_MAX_PHOTO_MB * 1024 * 1024).slice(0, room);
     if (!accepted.length) return;
     setPendingPhotos((prev) => [...prev, ...accepted.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))]);
+  }
+  // Native camera/photo-library picker (iOS wrapper only — nativePickPhoto
+  // resolves to null on the website, and onPickPhotos below already knows
+  // how to take a plain array of File objects, so this is a drop-in
+  // alternate SOURCE for the exact same upload path, not a parallel one).
+  async function onPickPhotoNative() {
+    const room = COMMENT_MAX_PHOTOS - existingPhotoUrls.length - pendingPhotos.length;
+    if (room <= 0) { showToast(`Up to ${COMMENT_MAX_PHOTOS} photos per post`); return; }
+    const file = await nativePickPhoto({ source: "PROMPT" });
+    if (file) onPickPhotos([file]);
   }
   function removeExistingPhoto(path) { setExistingPhotoUrls((prev) => prev.filter((p) => p !== path)); }
   function removePendingPhoto(previewUrl) {
@@ -1030,7 +1041,7 @@ export default function DetailSheet({ ctx }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
                       <input ref={photoInputRef} type="file" accept="image/*" multiple onChange={(e) => { onPickPhotos(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
                       <button
-                        onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                        onClick={() => isNative() ? onPickPhotoNative() : (photoInputRef.current && photoInputRef.current.click())}
                         disabled={existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS}
                         style={{ padding: "8px 14px", background: "transparent", border: `1.5px solid ${C.border}`, borderRadius: 12, color: existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS ? C.muted : C.light, fontSize: 13, fontWeight: 700, cursor: existingPhotoUrls.length + pendingPhotos.length >= COMMENT_MAX_PHOTOS ? "default" : "pointer" }}
                       >

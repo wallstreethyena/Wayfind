@@ -10,6 +10,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
+import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
@@ -585,6 +586,18 @@ function shareLink(title, url, onCopied, text, onShared) {
     } catch (e) { legacyCopy(); _sharePath("copied_legacy"); }
   };
   const touchDevice = (() => { try { return (typeof window !== "undefined") && (("ontouchstart" in window) || (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)); } catch (e) { return false; } })();
+  // Inside the iOS wrapper, the Capacitor share sheet is preferred over the
+  // web Share API: it doesn't compete with the WKWebView for the tap's
+  // transient user activation the way navigator.share sometimes does, and
+  // it's real native functionality (see lib/native.js). A no-op on the
+  // website — isNative() is false there, so this branch never runs.
+  if (isNative()) {
+    nativeShare({ title, text, url }).then((handled) => {
+      if (handled) { _sharePath("native_capacitor_ok"); credit(); }
+      else { _sharePath("native_capacitor_fail"); doCopy(); }
+    });
+    return;
+  }
   if (touchDevice && typeof navigator !== "undefined" && navigator.share) {
     try {
       const payload = text ? { title, text, url } : { title, url };
@@ -3786,9 +3799,47 @@ function PageInner({ initialEvents = null }) {
   async function signInWithProvider(provider) {
     if (!supabase) return;
     try {
+      if (provider === "apple" && isNative()) {
+        const credential = await nativeAppleCredential();
+        if (!credential) throw new Error("Native Apple sign-in is unavailable");
+        const { data, error } = await supabase.auth.signInWithIdToken({
+          provider: "apple",
+          token: credential.token,
+          nonce: credential.nonce,
+        });
+        if (error) { showToast(`Sign-in error: ${error.message}`); return; }
+
+        // Apple supplies a name only on the first authorization. Preserve it
+        // immediately so it is not lost on every later sign-in.
+        const profile = credential.profile;
+        const givenName = profile && profile.givenName;
+        const familyName = profile && profile.familyName;
+        if (givenName || familyName) {
+          const fullName = [givenName, familyName].filter(Boolean).join(" ");
+          await supabase.auth.updateUser({ data: { full_name: fullName, given_name: givenName || null, family_name: familyName || null } });
+        }
+        if (data && data.session) {
+          try { logEvent("login_completed", null, { method: "apple_native" }); } catch (e) {}
+          showToast("Signed in with Apple");
+          setAuthOpen(false);
+        }
+        return;
+      }
+      if (provider === "google" && isNative()) {
+        const session = await nativeOAuthSignIn(supabase, "google");
+        if (session) {
+          try { logEvent("login_completed", null, { method: "google_native" }); } catch (e) {}
+          showToast("Signed in with Google");
+          setAuthOpen(false);
+        }
+        return;
+      }
       const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: typeof window !== "undefined" ? (/\.vercel\.app$/i.test(window.location.hostname || "") ? CANON_ORIGIN : window.location.origin) : undefined } });
       if (error) showToast(`Sign-in error: ${error.message}`);
-    } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }
+    } catch (e) {
+      if (e && (e.code === "APPLE_SIGN_IN_CANCELLED" || /cancel/i.test(e.message || ""))) return;
+      showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in");
+    }
   }
   // Email + password. Works with no email sending at all if "Confirm email" is
   // turned off in Supabase. Sign in for existing accounts, sign up for new ones.

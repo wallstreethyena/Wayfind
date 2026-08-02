@@ -28,6 +28,17 @@
     "typescript": "5.4.5"
   },
   "dependencies": {
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/camera": "^8.2.2",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/push-notifications": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@googlemaps/js-api-loader": "1.16.8",
     "@sentry/nextjs": "^8.55.2",
     "@supabase/supabase-js": "^2.45.0",

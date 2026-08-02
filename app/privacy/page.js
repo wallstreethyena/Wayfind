@@ -22,13 +22,13 @@ export default function Privacy() {
     <div style={S.page}>
       <div style={S.wrap}>
         <h1 style={S.h1}>Privacy &amp; Disclosures</h1>
-        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective July 10, 2026</div>
+        <div style={S.date}>Wayfind &middot; Operated by WAYFIND LLC &middot; Effective August 1, 2026</div>
 
         <h2 style={S.h2}>What Wayfind is</h2>
         <p style={S.p}>Wayfind is a local discovery app that helps visitors find great places nearby. You can use most of it without an account. WAYFIND LLC is the data controller for the personal information described here.</p>
 
         <h2 style={S.h2}>What we collect</h2>
-        <p style={S.p}>If you create an account: your email address. Authentication credentials are managed by Supabase; Wayfind does not receive or store plaintext passwords. Supabase stores salted password hashes.</p>
+        <p style={S.p}>If you create an account: your email address. If you choose Sign in with Apple, Apple may provide the email address you choose to share (including a private relay address) and, on the first authorization, the name you choose to share. Authentication credentials are managed by Supabase and Apple; Wayfind does not receive or store plaintext passwords. Supabase stores salted password hashes for password-based accounts.</p>
         <p style={S.p}>If you use features: places you save, like, or write tips about, and coupons you keep. Your search location is used to find nearby places and power results. Preferences for signed-out visitors (saved spots, likes, settings) are stored on your own device and never leave it unless you sign in.</p>
 
         <h2 style={S.h2}>How long we keep it</h2>
@@ -48,7 +48,7 @@ export default function Privacy() {
         <p style={S.p}>We do not currently sell or share personal information for cross-context behavioral advertising, as those terms are defined under applicable law (for example, the CCPA/CPRA). We reserve the right to do so in the future. [OWNER/COUNSEL: before any sale or sharing of personal information begins, confirm and implement the consumer rights and mechanisms applicable law requires — for example, a &ldquo;Do Not Sell or Share My Personal Information&rdquo; link, an opt-out preference signal (e.g. Global Privacy Control), and updated disclosures in this policy — and update this section accordingly.]</p>
 
         <h2 style={S.h2}>International transfers</h2>
-        <p style={S.p}>Wayfind's providers (Vercel, Supabase, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US. [OWNER/COUNSEL: confirm transfer mechanisms with each provider — e.g. Standard Contractual Clauses / Data Privacy Framework participation.]</p>
+        <p style={S.p}>Wayfind's providers (Vercel, Supabase, Apple, PostHog, Google, Resend) process data in the United States. If you use Wayfind from outside the US, your data is transferred to and processed in the US. [OWNER/COUNSEL: confirm transfer mechanisms with each provider — e.g. Standard Contractual Clauses / Data Privacy Framework participation.]</p>
 
         <h2 style={S.h2}>Location data &amp; analytics</h2>
         <p style={S.p}>Your precise device location (if you grant it) is used in your browser to rank nearby places and is sent to Google's Places service to run your searches. Analytics events describe features used and screens viewed. [OWNER/COUNSEL: confirm and state whether coordinates or coarse location ever reach PostHog; if they do, either stop sending them or disclose it explicitly here.] See &ldquo;Sale or sharing of personal information&rdquo; above for how location data is treated with respect to sale or sharing.</p>
@@ -72,7 +72,7 @@ export default function Privacy() {
         <p style={S.p}>Some links to tickets, tours, hotels, and experiences (for example via Viator, GetYourGuide, Stay22 and its booking partners, and Travelpayouts and its partner brands such as Tiqets, Klook and TicketNetwork) are affiliate links. If you book through them, Wayfind may earn a commission at no extra cost to you. Commissions never influence our merit-based Wayfind Score. Where a placement is sponsored or commercially promoted, it is clearly labeled as such.</p>
 
         <h2 style={S.h2}>Service providers</h2>
-        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, PostHog for analytics, Resend for email, and Stay22 and Travelpayouts for booking-link optimization and affiliate tracking. Stay22 and Travelpayouts are third-party scripts that may set cookies to attribute bookings. [OWNER/COUNSEL: confirm the consent posture for these trackers for EU/UK visitors and document the opt-out mechanism.] Each processes only what is needed to provide the service.</p>
+        <p style={S.p}>Wayfind runs on Vercel and uses Google Maps Platform for places and maps, Supabase for accounts and data, Apple for optional Sign in with Apple authentication, PostHog for analytics, Resend for email, and Stay22 and Travelpayouts for booking-link optimization and affiliate tracking. Stay22 and Travelpayouts are third-party scripts that may set cookies to attribute bookings. [OWNER/COUNSEL: confirm the consent posture for these trackers for EU/UK visitors and document the opt-out mechanism.] Each processes only what is needed to provide the service.</p>
 
         <h2 style={S.h2}>Contact</h2>
         <p style={S.p}>WAYFIND LLC &middot; <a style={S.a} href="mailto:privacy@gowayfind.com">privacy@gowayfind.com</a></p>
