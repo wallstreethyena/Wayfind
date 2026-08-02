@@ -206,7 +206,17 @@ export default function IntentPageClient({ intent }) {
       const qs = def.queries(now);
       const results = await Promise.all(qs.map(async ({ cat, q }) => {
         try {
-          const u = "/api/places/search?q=" + encodeURIComponent(q) + "&lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2) + "&radius=32000&n=20&cat=" + encodeURIComponent(cat);
+          // v6.94 (owner: "the default for this page should be 30 miles...
+          // the hero card is called worth the drive") — every intent page
+          // shared one 32km (~20mi) radius (see lib/intentPages.js's own
+          // comment on the worth-the-drive entry), which is fine for
+          // family/date-night but self-defeating for a page whose entire
+          // premise is "day trips that earn the extra miles": it was
+          // literally narrower than the 30mi DRIVE_BAND.nearMi that
+          // lib/worthTheDrive.js's destination rail already assumes is this
+          // list's own radius. def.radiusM lets a specific intent widen its
+          // own search without moving the shared default for every other page.
+          const u = "/api/places/search?q=" + encodeURIComponent(q) + "&lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2) + "&radius=" + (def.radiusM || 32000) + "&n=20&cat=" + encodeURIComponent(cat);
           const r = await fetch(u);
           const j = r.ok ? await r.json() : null;
           return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
