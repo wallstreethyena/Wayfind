@@ -25,6 +25,7 @@ if (!native.includes("authorize({ nonce: hashedNonce })") || !native.includes("n
 if (!appleNative.includes("ASAuthorizationAppleIDProvider") || !appleNative.includes('request.nonce = call.getString("nonce")') || !appleNative.includes("credential.identityToken")) fail("native AuthenticationServices bridge is incomplete");
 if (!entitlements.includes("com.apple.developer.applesignin") || !entitlements.includes("<string>Default</string>")) fail("Sign in with Apple entitlement missing");
 if (!xcodeProject.includes("AppleSignInPlugin.swift in Sources") || !xcodeProject.includes("CODE_SIGN_ENTITLEMENTS = App/App.entitlements")) fail("Apple native bridge or entitlements are not attached to the App target");
+if (!xcodeProject.includes('CODE_SIGN_IDENTITY = "Apple Distribution";') || !xcodeProject.includes('PROVISIONING_PROFILE_SPECIFIER = "Wayfind App Store";')) fail("Release signing must use the WAYFIND LLC App Store distribution profile");
 if (!native.includes('redirectTo: NATIVE_OAUTH_CALLBACK') || !native.includes('Browser.open({ url: data.url') || !native.includes('App.addListener("appUrlOpen"') || !native.includes("exchangeCodeForSession(code)") || !native.includes("setSession({ access_token: accessToken")) fail("native Google OAuth must use the system browser and consume its callback");
 if (!native.includes('const NATIVE_OAUTH_CALLBACK = "wayfind://auth/callback"')) fail("native Google OAuth callback is missing");
 if (!readFileSync(new URL("../ios/App/App/Info.plist", import.meta.url), "utf8").includes("<string>wayfind</string>")) fail("iOS custom URL scheme for OAuth callback is missing");
@@ -32,4 +33,4 @@ const sceneDelegate = readFileSync(new URL("../ios/App/App/SceneDelegate.swift",
 if (!sceneDelegate.includes("registerPluginInstance(AppleSignInPlugin())")) fail("AppleSignIn native plugin must use instance registration because Capacitor ignores type registration while package auto-registration is enabled");
 if (!sceneDelegate.includes('plugin(withName: "AppleSignIn") != nil')) fail("iOS must fail at launch if AppleSignIn registration did not actually take effect");
 if (!capacitorConfig.includes('appendUserAgent: "WayfindNative/1.0"') || !native.includes("WayfindNative\\/\\d")) fail("native auth UI must have a first-request marker instead of racing Capacitor bridge initialization");
-console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAuth callback, Apple nonce verification, plugin registration, entitlement, and Supabase exchange");
+console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAuth callback, Apple nonce verification, plugin registration, entitlement, App Store signing, and Supabase exchange");
