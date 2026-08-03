@@ -12,20 +12,28 @@ import { distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../
 // deliberately zooms out.
 const RING_EXPAND_ZOOM_THRESHOLD = 9.5;
 
-// Was "https://tiles.openfreemap.org/styles/liberty" — liberty is a LIGHT
-// basemap (background #f8f4f0, light-blue water) that this component then
-// force-darkened with CSS filters (brightness .72-.73, a dark multiply
-// overlay) to fit the app's near-black theme. That's a lossy compensation:
-// it muddies the basemap and, worse, competes for attention with the vivid
-// per-category pin colors and orange rings drawn on top. OpenFreeMap (same
-// CDN, no API key, confirmed reachable) also serves "dark", a genuinely
-// separate style (verified: distinct byte-for-byte JSON, near-black
-// rgb(12,12,12) background, monochrome grayscale roads/water/parks — a
-// dark-matter-style basemap purpose-built as a neutral backdrop for color
-// overlays). Swapping to it needs far less corrective filtering below and
-// lets the orange/purple/teal/pink pins and rings read clearly, which is
-// what "pins were more beautiful, I could easily see things" is describing.
-const MAP_STYLE = "https://tiles.openfreemap.org/styles/dark";
+// v6.99 (owner: live Tripsy/Apple-Maps reference screenshots, "it needs to
+// look amazing... smooth and have detail and easy to see not dark") — went
+// through liberty (light, force-darkened with CSS filters — a lossy
+// compensation that muddied the basemap) and dark (OpenFreeMap's own
+// minimal near-black style — genuinely flat by design, no building fills,
+// near-invisible water/parks even after repainting individual layers) before
+// landing here. OpenFreeMap serves six public styles at this same free,
+// unlimited, no-API-key CDN (confirmed live: positron, bright, liberty,
+// dark, fiord, 3d) — "bright" is the rich one: ~150 layers, buildings
+// rendered as their own fill layer, landuse split out by type (parks,
+// schools, residential, commercial...), water and roads colored and
+// hierarchied like a real consumer map, not a flat backdrop. That is the
+// actual gap between "dark" and what Google Maps/Apple Maps look like — not
+// a light/dark question, a DETAIL question. "3d" is the same free tier with
+// extruded buildings, offered as an explicit user toggle (see styleMode)
+// rather than the default, since it needs pitch/rotation enabled and this
+// map's default interaction model is deliberately flat/simple.
+const MAP_STYLES = {
+  bright: "https://tiles.openfreemap.org/styles/bright",
+  "3d": "https://tiles.openfreemap.org/styles/3d",
+};
+const MAP_STYLE = MAP_STYLES.bright;
 
 // v6.43 — THE BLANK MAP. maplibre-gl v6 is ESM-only and derives its Web Worker
 // URL from `import.meta.url`. Next 14's client webpack output replaces that
@@ -106,7 +114,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright" }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -178,12 +186,16 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const startingPoint = center || { lat: 27.5689, lng: -82.4393 };
     const map = new MapLibreMap({
       container: containerRef.current,
-      style: MAP_STYLE,
+      style: MAP_STYLES[styleMode] || MAP_STYLES.bright,
       center: [startingPoint.lng, startingPoint.lat],
       zoom: rings ? 11.55 : 11,
+      pitch: styleMode === "3d" ? 55 : 0,
       attributionControl: true,
-      dragRotate: false,
-      pitchWithRotate: false,
+      // 3D needs pitch/rotation to actually read as 3D; the default flat
+      // style keeps the simpler fixed-north interaction model this map
+      // shipped with rather than defaulting everyone into rotate gestures.
+      dragRotate: styleMode === "3d",
+      pitchWithRotate: styleMode === "3d",
       cooperativeGestures: true,
     });
     mapRef.current = map;
@@ -235,38 +247,10 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     });
     map.on("load", () => {
       clearWatchdog();
-      // v6.94 (owner: "it looks so dark i cant tell water form land") —
-      // fetched OpenFreeMap's "dark" style JSON directly to confirm the root
-      // cause rather than guess: it ships water at fill-color rgb(27,27,29)
-      // against a rgb(12,12,12) land/background — an ~15-value RGB gap that's
-      // imperceptible once the compensating filter below is layered on top.
-      // This recolors just the water-family layers so water reads as water
-      // at a glance. Deliberately NOT a revert to the real Google Maps JS
-      // embed this app used before "design release 01" — that was swapped
-      // out specifically to kill a real per-load Google Maps bill (same
-      // motivation as the v6.41 "map bill" fix) and bringing it back would
-      // reintroduce that cost. This keeps the free OpenFreeMap tiles and
-      // just fixes their palette.
-      // v6.98 (owner: "this map is ugly", live screenshot of a Parrish/
-      // Kissimmee-style FL subdivision) — the flat #2563A8 fill at full
-      // opacity from v6.94 fixed contrast in isolation but was tuned against
-      // a map with one or two big lakes, not against the dozens of small
-      // retention ponds every Florida subdivision is built around. At full
-      // saturation/opacity those ponds read as a scatter of bright blue
-      // confetti instead of quiet background detail. Fix: same hue (water
-      // still unmistakably reads as water, contrast intact), but desaturated
-      // and drawn at partial opacity over the near-black land so a couple of
-      // big lakes still pop while a subdivision full of small ponds recedes
-      // instead of dominating the frame. fill-opacity is a real paint
-      // property on this layer (not a filter/blend hack), so it composites
-      // once at the vector-tile level rather than the CSS filter below
-      // additionally darkening it a second time.
-      const WF_WATER_BLUE = "#2C4A68";
-      try {
-        if (map.getLayer("water")) { map.setPaintProperty("water", "fill-color", WF_WATER_BLUE); map.setPaintProperty("water", "fill-opacity", 0.78); }
-        if (map.getLayer("waterway")) map.setPaintProperty("waterway", "line-color", WF_WATER_BLUE);
-        if (map.getLayer("water_name")) map.setPaintProperty("water_name", "text-color", "hsla(205,45%,68%,0.85)");
-      } catch (e) {}
+      // v6.99: "bright" ships proper per-layer colors already (water, parks,
+      // buildings, roads all distinct out of the box, verified against the
+      // live style JSON) — the v6.94/v6.98 water repaints above were working
+      // around "dark"'s near-invisible flat palette and do not apply here.
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
       map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
@@ -339,18 +323,36 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 14), duration: 650, essential: true });
   }, [focus && focus.ts]);
 
+  // v6.99 — 3D toggle: live-swap the style instead of remounting the whole
+  // map (setStyle() keeps the camera/markers logic intact; only the source
+  // effects above re-fire once the new style's "load" fires, which is why
+  // they are keyed off map.on("load") rather than assumed to have already
+  // run). Pitch/rotation only make sense once there is something to look at
+  // from an angle, so they flip together with the style rather than always
+  // being on.
+  const prevStyleModeRef = useRef(styleMode);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || prevStyleModeRef.current === styleMode) return;
+    prevStyleModeRef.current = styleMode;
+    try {
+      map.setStyle(MAP_STYLES[styleMode] || MAP_STYLES.bright);
+      map.dragRotate[styleMode === "3d" ? "enable" : "disable"]();
+      map.touchPitch[styleMode === "3d" ? "enable" : "disable"]();
+      map.easeTo({ pitch: styleMode === "3d" ? 55 : 0, duration: 500 });
+    } catch (e) {}
+  }, [styleMode]);
+
   if (failed) return <MapFallback count={(places || []).length} />;
-  // Filters below used to force a LIGHT basemap (liberty) dark: heavy
-  // brightness reduction (.72-.73) plus a dark multiply overlay. Now that
-  // MAP_STYLE is natively a near-black, grayscale basemap, that same heavy
-  // dimming would crush it toward pure black and make roads/labels hard to
-  // read — the opposite of "I could easily see things". Contrast/sharpness
-  // is kept (slightly increased) so the muted basemap stays crisp, and
-  // brightness/overlay are pulled back since there's no light background
-  // left to hide.
-  return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: compact ? "#0C1420" : "#0B1119" }}>
-    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: compact ? "contrast(1.12) brightness(.98)" : "contrast(1.18) brightness(1.02)" }} />
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", background: compact ? "linear-gradient(160deg, rgba(3,8,14,.22), rgba(3,8,14,.06) 55%, rgba(3,8,14,.26))" : "linear-gradient(160deg, rgba(3,8,20,.16), rgba(3,8,20,.02) 48%, rgba(3,8,20,.2))", mixBlendMode: "multiply" }} />
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.1)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.08)" }} />
+  // v6.99 — "bright" is a real light basemap (cream/white land, colored
+  // parks and buildings), not the near-black "dark" style the filter/overlay
+  // below used to be tuned for. A dark multiply overlay on a light style
+  // would just muddy exactly the color/detail this was switched TO for, so
+  // it is gone; a very small contrast lift is kept so the map still reads
+  // crisply on OLED phone screens, same reasoning as before, opposite
+  // direction.
+  return <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#F3F0E8" }}>
+    <div ref={containerRef} style={{ position: "absolute", inset: 0, filter: "contrast(1.04) saturate(1.05)" }} />
+    <div aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", border: "1px solid rgba(15,23,42,.08)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.4)" }} />
   </div>;
 }

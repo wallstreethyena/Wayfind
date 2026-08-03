@@ -3218,6 +3218,10 @@ function PageInner({ initialEvents = null }) {
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
   const [compassOn, setCompassOn] = useState(false);
+  // v6.99 — owner ask: an explicit 3D option alongside the default flat
+  // "bright" basemap. Off by default: pitch/rotation is a real interaction
+  // mode change, not something to default everyone into.
+  const [map3D, setMap3D] = useState(false);
   const compassNeedleRef = useRef(null);
   const compassHandlerRef = useRef(null);
   const stopCompass = () => { try { if (compassHandlerRef.current) { window.removeEventListener("deviceorientation", compassHandlerRef.current, true); compassHandlerRef.current = null; } } catch (e) {} setCompassOn(false); };
@@ -7572,7 +7576,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
