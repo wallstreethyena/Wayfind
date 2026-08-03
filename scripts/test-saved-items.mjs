@@ -24,7 +24,16 @@ const home = read("app/home.js");
 ok(/async function saveMonetizedItem\(item\)/.test(home) && /requireAuth\(/.test(home.slice(home.indexOf("saveMonetizedItem"))), "home has a signed-in-gated save handler");
 ok(/<UnifiedBrowseCommerceRail[^>]*onSave={saveMonetizedItem}/.test(home), "the mixed-provider rail gets the save handler");
 ok(/categories=\{\["attractions",\s*"more"\]\}/.test(home), "the mixed rail includes attraction and discount inventory");
-ok(/item_type: "experience"/.test(home) && /item_type: "deal"/.test(home), "experience + deal cards call onSave with the right item_type");
+// 2026-08-02 — this required the LITERAL `item_type: "experience"`, which only
+// ever existed in BookableExpRail (deleted: zero mount sites). The surviving
+// unified rail always passed `item_type: card.kind`, so the assertion was
+// green because of a dead component and would have stayed green if the LIVE
+// rail's save had been broken. Asserted as a chain now: the save reads the
+// card's own kind, and the rail demonstrably produces both kinds — which is
+// what "the right item_type" actually means.
+ok(/item_type: card\.kind/.test(home), "the mixed rail's save passes the card's own kind as item_type");
+ok(/kind: "experience"/.test(home) && /kind: "deal"/.test(home), "the mixed rail builds BOTH experience and deal cards, so card.kind resolves to both saved item types");
+ok(/item_type: "deal"/.test(home), "the deal rail's own save still names its item type");
 ok(/provider: "viator"/.test(home), "saved experiences carry their provider");
 
 // ── Saved tab reads BOTH stores ──

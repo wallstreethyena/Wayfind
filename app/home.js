@@ -134,6 +134,7 @@ import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
+import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
 import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
@@ -226,15 +227,6 @@ function iconForPlace(p) {
   return "\uD83D\uDCCD";
 }
 
-// v6.79 (AGENTS.md §6b) — ONE decision point for a Viator tour href. Returns the
-// attributed url, or null when NEXT_PUBLIC_VIATOR_PID is unset. Callers MUST NOT
-// write `|| t.url`: that renders the bare viator.com link, which converts and
-// pays us nothing. Anchors gate on the null (React omits a null href, and the
-// rails above skip the row), so an unattributable tour simply does not render.
-function viatorHrefOrNull(url) {
-  const h = Aff.viatorDirectUrl(url);
-  return h || null;
-}
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
@@ -9018,47 +9010,61 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // "All" shows top trending; each sub-menu shows experiences themed to it
 // (lib/experiencesData catalog keys). Every href is affiliate-wrapped via
 // viatorDirectUrl (the ONE tracking builder). Fails soft to no rail.
-// v6.99 (owner: "spa and wellness links make no sense... i need affiliate
-// links for the menu they belong to") -- "spa" existed in SUBFILTERS.attractions
-// (the chip rendered, was tappable) but had NO entry here, so
-// SUB_TO_EXP[sub||"all"] fell back to "all" and silently served the generic
-// all-attractions rail under the Spa & Wellness tab. There is no ground-truthed
-// Viator spa/wellness tag in lib/experiencesData.js CATEGORIES today, so this
-// intentionally maps to a key ABSENT from CATEGORY_BY_KEY: paired with the
-// experiencesServe.js fix (unknown category -> zero rows, not all rows), that
-// correctly returns empty and lets UnifiedBrowseCommerceRail's existing
-// live-Viator-search fallback try a real "{city} spa" query instead of
-// mislabeling kayak/dolphin/manatee tours as spa experiences.
-// check-subfilter-coverage.mjs asserts every SUBFILTERS.attractions id has an
-// entry here so a future new chip cannot silently repeat this.
-const SUB_TO_EXP = { all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme", tours: "all", spa: "spa", landmarks: "historical", arts: "museums", marinas: "water" };
+// 2026-08-02 — the chip -> inventory decision moved OUT of this file into
+// lib/browseCommerceMap.js, so a guard can import and CALL it instead of
+// regexing a literal out of a 9,500-line client component. See that file for
+// why one catalogue key per chip was never enough. The three behaviours that
+// matter here:
+//   - a chip with no table inventory (spa) returns catalogParam === null and we
+//     skip the table read entirely rather than sending an empty cat= that the
+//     route's `|| "all"` default would silently widen back to everything;
+//   - a chip may name SEVERAL catalogues ("Outdoors" = nature+adventure+kayaking);
+//   - the live-search fallback uses the chip's own human query text, never a
+//     catalogue key, so an empty market searches "Sarasota family attractions
+//     and theme parks" instead of the literal "Sarasota theme".
 
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
 // separate visual sections. Cards without real artwork fail closed.
 function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, city, region }) {
-  const cat = SUB_TO_EXP[sub || "all"] || "all";
+  const plan = chipCommerce(sub || "all");
+  const cat = plan.catalogParam;
   const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
   const [deals, setDeals] = useState(null);
 
   useEffect(() => {
     if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
-    if (!includeExperiences || !cat || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
+    if (!includeExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
     let dead = false;
+    const searchText = chipSearchQuery(sub || "all", city);
+    const liveSearch = async () => {
+      // GATED ON `city`, deliberately. With no known city this must
+      // never fall back to Florida markets for an out-of-region visitor —
+      // that is the regression test-experiences-location exists to hold.
+      // `region` rides along for the same reason: the anti-foreign filter in
+      // /api/viator/tours returns 0 tours without it.
+      if (!city) return [];
+      try {
+        const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(searchText) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(sub || "all")).then((r) => (r.ok ? r.json() : null));
+        return rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
+      } catch (e) { return []; }
+    };
+    // cat === null means NOTHING in wf_experiences belongs under this chip.
+    // Going straight to search is the honest path; hitting the table would only
+    // ask a question whose only correct answer is "none".
+    if (cat === null) {
+      liveSearch().then((rows) => { if (!dead) setExperiences(rows); });
+      return () => { dead = true; };
+    }
     const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
     fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
       if (dead) return;
       let rows = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 12);
-      if (!rows.length && city) {
-        try {
-          const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(`${city} ${cat}`) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
-          rows = rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 12);
-        } catch (e) {}
-      }
+      if (!rows.length) rows = await liveSearch();
       setExperiences(rows);
     });
     return () => { dead = true; };
-  }, [initialExperiences, includeExperiences, cat, lat, lng, city, region]);
+  }, [initialExperiences, includeExperiences, cat, sub, lat, lng, city, region]);
 
   useEffect(() => {
     if (!categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
@@ -9094,17 +9100,38 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
       const dBase = Number(d.quality10 || 0);
       const discountText = d.discount || d.badge || "";
       const dScore = dBase > 0 ? dBase + discountDepthBonus(discountText) + timeOfDayBonus(String(d.title || "") + " " + discountText, nowHour) : -1;
-      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, href: d.href, kind: "deal" });
+      // ATTRIBUTION, not cosmetics. lib/dealsData.js shapes every row with
+      // surface:"deal_rail" baked into the href, because that is where deals
+      // were first served. Rendering that href here reported every browse-rail
+      // deal click as an intent-rail click, so the two surfaces could not be
+      // told apart in any revenue comparison. Same provider, same offer id,
+      // same redirect — only the surface tag differs, and it is now the tag of
+      // the rail that actually rendered it. Falls back to the server's href if
+      // the row somehow lacks a provider, so a re-tag can never lose the link.
+      const dealHref = commerceHref({ provider: d.provider, offerId: d.id, surface: "browse_partner_rail", contentId: sub || "all" }) || d.href;
+      rows.push({ key: `${d.provider || "deal"}:${d.id}`, provider: d.provider, merchant: d.providerLabel || "Verified partner", offerId: d.id, title: d.title, image, discount: discountText, score: dScore, href: dealHref, kind: "deal" });
     }
     const seen = new Set();
     return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals, nowHour]);
+  }, [experiences, deals, nowHour, sub]);
 
   if (!cards.length) return null;
+  // The heading NAMES THE FILTER. It used to read "Bookable highlights near
+  // {city}" — byte-identical to IntentPartnerPick's heading on the intent
+  // pages, so two rails with different inventory, different ranking and
+  // different providers were indistinguishable to a user and to anyone reading
+  // a screenshot. Naming the active chip also makes a mismatch self-evident:
+  // "Spa & wellness — bookable near Sarasota" over a dolphin cruise is a bug
+  // you can SEE, where the old generic heading hid exactly that.
+  const chipLabel = (() => {
+    if (!sub || sub === "all") return null;
+    const hit = (SUBFILTERS.attractions || []).find((x) => x && x.id === sub);
+    return hit ? hit.label : null;
+  })();
   return (
     <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>Bookable highlights near {city || "you"}</span>
+        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
         <span style={{ fontSize: 9.5, color: C.muted }}>Verified partners</span>
       </div>
       <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, scrollSnapType: "x proximity" }}>
@@ -9134,65 +9161,16 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
   );
 }
 
-function BookableExpRail({ sub, lat, lng, onSave, city, region }) {
-  const cat = SUB_TO_EXP[sub || "all"];
-  const [items, setItems] = useState(null);
-  useEffect(() => {
-    if (!cat || !isFinite(lat)) { setItems([]); return; }
-    let dead = false;
-    setItems(null);
-    const q = new URLSearchParams({ lat: String(lat), lng: String(lng), mi: "60", cat, limit: "12", page: "0" });
-    fetch("/api/experiences?" + q.toString()).then((r) => (r.ok ? r.json() : null), () => null).then(async (res) => {
-      if (dead) return;
-      let arr = rankExperiences(res && Array.isArray(res.items) ? res.items : []).slice(0, 10);
-      // If the local inventory is dark, search the user's actual city — never
-      // never fall back to Florida markets for an out-of-region visitor.
-      if (!arr.length && city) {
-        try {
-          const live = await fetch("/api/viator/tours?q=" + encodeURIComponent(city) + "&region=" + encodeURIComponent(region || city) + "&lat=" + encodeURIComponent(lat) + "&lng=" + encodeURIComponent(lng) + "&intent=" + encodeURIComponent(cat)).then((r) => (r.ok ? r.json() : null));
-          arr = rankExperiences(live && Array.isArray(live.items) ? live.items : []).slice(0, 10);
-        } catch (e) {}
-      }
-      setItems(arr);
-    });
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cat, lat, lng, city, region]);
-  if (!cat || items === null) return null; // no skeleton flash — the rail appears when real
-  if (!items.length) return null;
-  return (
-    <div style={{ margin: "2px 0 14px" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{sub === "all" || !sub ? "Bookable experiences — trending" : "Bookable experiences for this"}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>via Viator</span>
-      </div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4 }}>
-        {items.map((t) => (
-          <a key={t.code || t.url} href={viatorHrefOrNull(t.url)} target="_blank" rel="noreferrer sponsored" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || t.url; try { logEvent("tickets_out", null, { kind: "ttd_rail", sub: sub || "all", code: t.code }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 200px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none" }}>
-            {t.image ? <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} /> : null}
-            <div style={{ padding: "8px 10px" }}>
-              <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 3, flexWrap: "wrap" }}>
-                {t.rating > 0 && t.reviews > 0 ? <PlaceScoreChip p={{ rating: t.rating, reviews: t.reviews }} size={12} /> : <span style={{ fontSize: 10.5, fontWeight: 700, color: C.muted }}>New</span>}
-                <span style={{ fontSize: 11, color: C.muted }}>{t.fromPrice ? `from $${t.fromPrice}` : ""}</span>
-                <button aria-label={"Save " + t.title} onClick={(e) => { e.preventDefault(); e.stopPropagation(); try { onSave && onSave({ item_type: "experience", item_id: t.code || t.url, item_title: t.title, item_image: t.image || null, item_url: Aff.viatorDirectUrl(t.url), provider: "viator" }); } catch (er) {} }} style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, background: "transparent", borderRadius: 999, color: C.light, fontSize: 12, fontWeight: 700, padding: "3px 9px", cursor: "pointer" }}>♡ Save</button>
-              </div>
-            </div>
-          </a>
-        ))}
-      </div>
-      <div style={{ fontSize: 10, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>Wayfind may earn a commission when you book through this link, at no extra cost to you. It never changes our scores or rankings.</div>
-    </div>
-  );
-}
 
 // Undercover Tourist discount-ticket / theme-park-hotel deal rail (CJ, PID
 // 101643573 — see lib/deals.js). Shipped v6.66, geo-gated v6.76, then silently
 // dropped from the homepage during the design-release-01 rewrite (merge
 // 46be253, 2026-07-24) — the backend (lib/dealsData.js, /api/deals) was never
 // touched and is still live; only this component + its two render call sites
-// were lost. Restored 2026-07-25, card chrome now matched 1:1 to BookableExpRail
-// (its sibling Viator rail just above) per owner request: same 200px card, same
+// were lost. Restored 2026-07-25, card chrome matched 1:1 to what is now
+// UnifiedBrowseCommerceRail (BookableExpRail, the sibling Viator rail this
+// originally matched, was deleted 2026-08-02 — it had zero mount sites and
+// check-unified-commerce-rail already forbade mounting it) — same 200px card, same
 // <img> height 86 object-fit cover, same title clamp, same disclosure footer —
 // the two rails should read as one visual system, not two different eras of UI.
 function UTDealsRail({ category, onSave, lat, lng }) {
