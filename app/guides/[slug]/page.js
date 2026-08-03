@@ -73,6 +73,8 @@ import PremiumIntentHero from "../../components/PremiumIntentHero";
 // the above-the-fold handoff under a 50/50 experiment — measured dwell on these
 // pages is 0-25s, so almost nobody reaches the pill. Control renders nothing.
 import ExploreBridge from "../../components/ExploreBridge";
+import IntentPartnerPick from "../../components/IntentPartnerPick";
+import { guideRailIntent } from "../../../lib/railPlacement";
 import { LANDING_CITIES, rankedFor, whyLine } from "../../../lib/landing";
 
 // 15 minutes. Long enough that the weather fetch is nearly free, short enough
@@ -294,6 +296,9 @@ export default async function GuidePage({ params }) {
   // new metered Places spend beyond the first render per city.
   const bridgeSlug = String(g.region || "Orlando").toLowerCase().replace(/\s+/g, "-");
   const bridgeCity = LANDING_CITIES[bridgeSlug] || null;
+  // What this guide sells under, derived from what it IS — the same
+  // guideIntent() classification the primary CTA uses. null for hotel guides.
+  const railIntent = guideRailIntent(guideIntent(g));
   let bridgePicks = [];
   if (bridgeCity) {
     try {
@@ -397,6 +402,33 @@ export default async function GuidePage({ params }) {
       ) : null}
       <p className="wf-guide-intro" style={S.p}>{g.intro}</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/guides/" + params.slug} pageType="guide" />
+      {/* AUDIT F2 (2026-08-02) — guides took ~276 of the 685 visitors across
+          the top 25 pages (40%, and a floor, since that list truncates at 25)
+          and carried no bookable rail at all. The curated partner inventory
+          and the theme-park deals rail mounted only on the intent pages, which
+          take single digits each. /guides/things-to-do-orlando-not-theme-parks
+          is the site's SECOND most-visited page at 63 visitors, over a market
+          holding 193 link-checked Viator products and 10 theme-park deals.
+
+          The intent is derived from what the guide IS, through the same
+          guideIntent() classification the primary CTA already uses, mapped in
+          lib/railPlacement.js — so a restaurant guide sells food/wine evening
+          experiences, and a hotel guide sells nothing here at all because it
+          already monetizes through Stay22 on its own links and a second rail
+          would compete with the page's converting path.
+
+          Sits BELOW the intro and ABOVE the picks: the guide's own editorial
+          earns the reader first. These never enter the guide's ranking, and
+          the component carries its own commission disclosure. */}
+      {railIntent && bridgeCity ? (
+        <IntentPartnerPick
+          city={bridgeCity.name}
+          intent={railIntent}
+          inventory={[]}
+          lat={bridgeCity.lat}
+          lng={bridgeCity.lng}
+        />
+      ) : null}
       <div className="wf-guide-disclosure">Wayfind may earn a commission from partner links in this guide. It never changes our rankings: every pick is here on merit, and we say so when something isn&apos;t worth your money.</div>
       {/* v6.71 — the per-pick link wall is GONE. Each pick used to carry
           "Check tours & tickets" + "Check rates" + "Open in Wayfind"; measured
