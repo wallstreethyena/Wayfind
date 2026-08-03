@@ -13,18 +13,8 @@ const AUDIT = (process.env.NEXT_PUBLIC_WF_SHOW_AFFILIATE_AUDIT || "") === "1";
 // Static display names so a card can pass just the provider key. wf_deals rails
 // pass the DB display_name explicitly (which overrides this); browse cards rely
 // on this map.
-export const PROVIDER_LABELS = {
-  viator: "Viator",
-  undercover_tourist: "Undercover Tourist",
-  stay22: "Stay22",
-  ticketmaster: "Ticketmaster",
-  ticketsmarter: "TicketSmarter",
-  klook: "Klook",
-  // On-card merchant attribution is what Clipp's partner terms permit (and this
-  // chip is exactly that). What they forbid is the name/domain in SEO keywords,
-  // domains or misspellings — scripts/check-clipp-deals.mjs enforces that side.
-  clipp: "Clipp",
-};
+export { PROVIDER_LABELS } from "../../lib/providerLabels";
+import { PROVIDER_LABELS } from "../../lib/providerLabels";
 
 export default function AffiliateChip({ provider, label }) {
   if (!provider) {
