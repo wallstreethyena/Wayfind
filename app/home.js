@@ -3223,6 +3223,11 @@ function PageInner({ initialEvents = null }) {
   // container, fresh watchdog window) so a real transient failure -- a slow
   // cell connection, a background-tab stall -- recovers with one tap.
   const [mapRetryKey, setMapRetryKey] = useState(0);
+  // Owner ask (2026-08-03): the Map tab should open defaulted to Activities
+  // the first time it is visited in a session. Guard lives here (not in
+  // MapScreen) so it survives MapScreen's own mount/unmount as the user
+  // switches screens -- it should fire once per session, not once per visit.
+  const mapDefaultAppliedRef = useRef(false);
   const compassNeedleRef = useRef(null);
   const compassHandlerRef = useRef(null);
   const stopCompass = () => { try { if (compassHandlerRef.current) { window.removeEventListener("deviceorientation", compassHandlerRef.current, true); compassHandlerRef.current = null; } } catch (e) {} setCompassOn(false); };
@@ -7577,7 +7582,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen

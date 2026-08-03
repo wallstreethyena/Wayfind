@@ -1,7 +1,9 @@
 "use client";
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // tasteBoost is exclusive to the map's default ranking blend and moves with it.
+import { useEffect } from "react";
 import { C, scoreLabel, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
+import { MAP_DEFAULT_CATEGORY } from "../../../lib/mapExplorer";
 
 function tasteBoost(place) {
   try { const k = String((place && place.type) || ""); if (!k) return 0; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); return Math.min(3, (t[k] || 0) * 0.5); } catch (e) { return 0; }
@@ -27,7 +29,22 @@ function BeachChips({ p, isBeach, beachSignals }) {
 }
 
 export default function MapScreen({ ctx }) {
-  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow } = ctx;
+  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
+  // Owner ask (2026-08-03): "we should open the map defaulted to activities
+  // showing the activities near the user" -- `cat` is shared, single-source-
+  // of-truth state across Home/Map/Itinerary (see CategoryMenu's own header
+  // comment), so this only nudges it the FIRST time the Map tab is opened in
+  // a session, and only if the user has not already picked something else
+  // (cat is still sitting on the untouched app-wide default). Once set, the
+  // ref guard means this never fires again this session, so a deliberate
+  // later choice of Food/Nightlife/etc. on Home is never silently overridden
+  // just because the user also happens to open the Map tab.
+  useEffect(() => {
+    if (!mapDefaultAppliedRef || mapDefaultAppliedRef.current) return;
+    mapDefaultAppliedRef.current = true;
+    if (cat === MAP_DEFAULT_CATEGORY) { setCat("attractions"); setSub("all"); setVibe("all"); setMapBrowse(true); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
               const dateChips = [];
               const now = new Date();
               for (let i = 0; i < 14; i++) {
@@ -50,7 +67,7 @@ export default function MapScreen({ ctx }) {
                           collapses — the primary tile row stays; only the
                           sub-row expands down after a category is chosen. */}
                       {(<>
-                      <CategoryMenu showSubs={false} activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} setMapBrowse(true); if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen((v) => !v)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
+                      <CategoryMenu activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} setMapBrowse(true); if (cat !== id) { setCat(id); setSub("all"); setVibe("all"); } }} onSub={(v) => setSub(v)} trailing={<button onClick={() => setMapSearchOpen((v) => !v)} aria-label="Search" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 5, padding: "8px 3px", borderRadius: 12, background: "transparent", border: "1px solid transparent", cursor: "pointer", flex: 1, minWidth: 0 }}><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={C.muted} strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="6.2" /><path d="M20 20l-4.4-4.4" /></svg><span style={{ fontSize: 10.5, fontWeight: 600, color: C.muted, textAlign: "center", lineHeight: 1.12 }}>Search</span></button>} />
                       </>)}
                     </div>
                   </div>
@@ -64,11 +81,11 @@ export default function MapScreen({ ctx }) {
                       stack's vertical position but on the right, well clear
                       of both the left-side button column and MapView's own
                       bottom-right zoom control. */}
-                  <button onClick={recenterToMe} aria-label="Near me — recenter the map to your current location" title="Near me" style={{ position: "absolute", top: 104, right: 12, zIndex: 5, width: 44, height: 44, borderRadius: 14, background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <button onClick={recenterToMe} aria-label="Near me — recenter the map to your current location" title="Near me" style={{ position: "absolute", top: 164, right: 12, zIndex: 5, width: 44, height: 44, borderRadius: 14, background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
                   </button>
                   <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} rings styleMode={map3D ? "3d" : "bright"} fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                  <div style={{ position: "absolute", top: 104, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
+                  <div style={{ position: "absolute", top: 164, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.light : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
                     <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
                   </div>
@@ -82,7 +99,7 @@ export default function MapScreen({ ctx }) {
                     // "Compass" is always visible, and toggleCompass (below)
                     // now explains what turning it on actually does the
                     // first time, via a one-time toast.
-                    <button onClick={toggleCompass} aria-label="Toggle compass heading" title="Compass — needle points north" style={{ position: "absolute", top: 156, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: compassOn ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <button onClick={toggleCompass} aria-label="Toggle compass heading" title="Compass — needle points north" style={{ position: "absolute", top: 216, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: compassOn ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                       <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
                         <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
                         <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
@@ -98,7 +115,7 @@ export default function MapScreen({ ctx }) {
                     // than the default since 3D needs pitch/rotation enabled,
                     // a real change to how the map is driven, not just a
                     // color swap. Same pill language as Compass above it.
-                    <button onClick={() => setMap3D((v) => !v)} aria-label={map3D ? "Switch to flat map" : "Switch to 3D map"} title={map3D ? "3D on — tap for flat map" : "Tap for 3D buildings"} style={{ position: "absolute", top: 208, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: map3D ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                    <button onClick={() => setMap3D((v) => !v)} aria-label={map3D ? "Switch to flat map" : "Switch to 3D map"} title={map3D ? "3D on — tap for flat map" : "Tap for 3D buildings"} style={{ position: "absolute", top: 268, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: map3D ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={map3D ? "#fff" : "#F97316"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 3 7l9 5 9-5-9-5Z" /><path d="M3 12l9 5 9-5" /><path d="M3 17l9 5 9-5" /></svg>
                       <span style={{ fontSize: 9, fontWeight: 700, color: map3D ? "#fff" : C.muted, letterSpacing: ".2px" }}>{map3D ? "3D" : "2D"}</span>
                     </button>

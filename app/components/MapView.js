@@ -12,6 +12,19 @@ import { distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../
 // deliberately zooms out.
 const RING_EXPAND_ZOOM_THRESHOLD = 9.5;
 
+// Owner ask (2026-08-03): the map should OPEN already framing the full
+// 30-mile radius (5/10/30mi rings), not a tight ~10mi crop that only shows
+// the 5/10/15mi rings -- the tight rings are for once the user zooms in on
+// their immediate area, but the DEFAULT view on opening the Map tab is the
+// zoomed-out tier. Solved empirically: at the old default zoom (11.55) a
+// 10mi ring already spans roughly 40% of a typical phone viewport, so a
+// 30mi RADIUS (60mi across) needs to sit about 2.3 zoom levels further out
+// to fit comfortably on screen -- which lands just below
+// RING_EXPAND_ZOOM_THRESHOLD, so the existing zoom-driven ring-swap logic
+// naturally starts in its "zoomed out" state instead of needing a separate
+// code path.
+const MAP_DEFAULT_ZOOM = 9.15;
+
 // v6.99 (owner: live Tripsy/Apple-Maps reference screenshots, "it needs to
 // look amazing... smooth and have detail and easy to see not dark") — went
 // through liberty (light, force-darkened with CSS filters — a lossy
@@ -128,7 +141,10 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   const markersRef = useRef([]);
   const lastOriginRef = useRef("");
   const placesByIdRef = useRef(new Map());
-  const ringZoomedOutRef = useRef(false);
+  // Owner ask: the map should default to the zoomed-out 5/10/30mi ring set
+  // (see MAP_DEFAULT_ZOOM above) rather than starting on 5/10/15mi and
+  // waiting for a zoom event to correct it.
+  const ringZoomedOutRef = useRef(!!rings);
   const [failed, setFailed] = useState(false);
 
   const clearMarkers = () => {
@@ -184,7 +200,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const originKey = `${Number(origin.lat).toFixed(5)}|${Number(origin.lng).toFixed(5)}`;
       if (originKey !== lastOriginRef.current) {
         lastOriginRef.current = originKey;
-        map.easeTo({ center: [origin.lng, origin.lat], zoom: rings ? 11.55 : 11, duration: 450 });
+        map.easeTo({ center: [origin.lng, origin.lat], zoom: rings ? MAP_DEFAULT_ZOOM : 11, duration: 450 });
       }
     }
   };
@@ -196,7 +212,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       container: containerRef.current,
       style: MAP_STYLES[styleMode] || MAP_STYLES.bright,
       center: [startingPoint.lng, startingPoint.lat],
-      zoom: rings ? 11.55 : 11,
+      zoom: rings ? MAP_DEFAULT_ZOOM : 11,
       pitch: styleMode === "3d" ? 55 : 0,
       attributionControl: true,
       // 3D needs pitch/rotation to actually read as 3D; the default flat
@@ -296,7 +312,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
     }
-    map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
+    // Owner ask (2026-08-03), layered on top of the retry/timeout fix above:
+    // once the map has genuinely rendered once, a LATER error (a dropped
+    // tile request while panning, a missing glyph, a flaky reconnect) is
+    // normal map operation, not "the map could not load" -- only a failure
+    // before the map's first successful load should ever trip the fallback.
+    map.on("error", (event) => { if (event && event.error && !map.loaded() && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
     return () => { clearWatchdog(); if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility); clearMarkers(); map.remove(); mapRef.current = null; };
     // The map is intentionally created only once; state is projected in redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
