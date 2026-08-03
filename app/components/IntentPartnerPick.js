@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
-import { resolvedIntentPartnerPicks } from "../../lib/intentPartnerPicks";
+import { resolvedIntentPartnerPicks, fetchPartnerInventory } from "../../lib/intentPartnerPicks";
 import { rankExperiences } from "../../lib/experiencesData";
 import { couponsForIntent } from "../../lib/coupons";
 import { dealScope } from "../../lib/dealSheet";
@@ -48,6 +48,25 @@ const evidenceScore = (pick) => {
 
 export default function IntentPartnerPick({ city, intent, inventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog }) {
   const [networkDeals, setNetworkDeals] = useState([]);
+  // SELF-SUPPLY (2026-08-02, audit F2). `inventory` is where every pick's IMAGE
+  // comes from, and a pick without an image is dropped below — so a caller that
+  // could not run IntentPageClient's fetch got a rail that resolved its curated
+  // picks correctly and then rendered nothing at all. Measured before this
+  // existed: 18 of 18 guide pages. Mounting the rail on the surfaces that
+  // actually carry traffic required the component to be able to feed itself.
+  //
+  // A caller that DOES supply inventory is untouched: IntentPageClient still
+  // wins and this fetch never fires, so the capability is added without
+  // changing the path that already worked.
+  const [selfInventory, setSelfInventory] = useState(null);
+  const suppliedInventory = Array.isArray(inventory) && inventory.length ? inventory : null;
+  useEffect(() => {
+    if (suppliedInventory || !city || !intent) return;
+    let dead = false;
+    fetchPartnerInventory(city, intent).then((rows) => { if (!dead) setSelfInventory(rows); });
+    return () => { dead = true; };
+  }, [city, intent, suppliedInventory]);
+  const activeInventory = suppliedInventory || selfInventory || [];
 
   useEffect(() => {
     const categories = DEAL_CATEGORIES[intent] || [];
@@ -98,7 +117,7 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
     // the shared score ordering puts the strongest evidence first and leaves
     // unrated products after every score-bearing product.
     () => {
-      const bookable = rankExperiences(resolvedIntentPartnerPicks(city, intent, inventory, 12));
+      const bookable = rankExperiences(resolvedIntentPartnerPicks(city, intent, activeInventory, 12));
       const seen = new Set();
       return [...bookable, ...networkDeals, ...localCoupons].filter((pick) => {
         const key = `${pick.provider}:${pick.offerId}`;
@@ -107,7 +126,7 @@ export default function IntentPartnerPick({ city, intent, inventory, accent = "#
         return true;
       }).sort((a, b) => evidenceScore(b) - evidenceScore(a));
     },
-    [city, intent, inventory, networkDeals, localCoupons]
+    [city, intent, activeInventory, networkDeals, localCoupons]
   );
   const rootRef = useRef(null);
   const railRef = useRef(null);
