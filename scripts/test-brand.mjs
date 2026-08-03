@@ -56,7 +56,15 @@ for (const p of walk(join(root, "app"))) {
 }
 
 // Viator tiles carry the ONE house chip (PlaceScoreChip), not raw Google stars.
-ok((home.match(/PlaceScoreChip p=\{\{ rating: t\.rating, reviews: t\.reviews \}\}/g) || []).length >= 2, "Viator tiles lost the house PlaceScoreChip");
+// 2026-08-02 — the pattern no longer pins the loop variable to `t`. It counted
+// `rating: t.rating` specifically, so deleting the dead BookableExpRail (which
+// happened to use `t`) dropped the count below 2 even though BOTH surviving
+// rails render the chip — one of them over `card`. The invariant is "every
+// Viator tile renderer uses the house chip", and the variable it iterates is
+// not part of that. Still COUNTED rather than `includes`d, because one rail
+// having the chip says nothing about the other.
+const houseChips = (home.match(/PlaceScoreChip p=\{\{ rating: [A-Za-z_$][\w$]*\.rating, reviews: [A-Za-z_$][\w$]*\.reviews \}\}/g) || []).length;
+ok(houseChips >= 2, `Viator tiles lost the house PlaceScoreChip (found ${houseChips} tile renderers using it, expected at least 2)`);
 ok(!/`★ \$\{t\.rating\}`|>★ \{t\.rating\}/.test(home), "raw Google-star lead is back on Viator tiles");
 
 // Things to Do rows wear the EXACT standard card shell (owner, 2026-07-22):

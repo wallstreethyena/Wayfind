@@ -4,6 +4,7 @@
 // a SEAM ONLY (that RPC does not exist yet — nothing may pretend it does).
 import { readFileSync } from "fs";
 import { TB_SECTIONS, isRenderablePick, dedupeBrands, tbPhotoUrl } from "../lib/todaysBest.js";
+import { chipCommerce } from "../lib/browseCommerceMap.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -132,7 +133,21 @@ ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engi
 // v6.56 (owner, 2026-07-22 — supersedes the v6.46 no-rail rule): a PERMANENT
 // bookable-experiences rail on Things to do — trending on All, themed per
 // sub-menu — and the affiliate key on EVERY tour link.
-ok(/const SUB_TO_EXP = \{ all: "all", outdoors: "adventure", beaches: "water", museums: "museums", family: "theme"/.test(home), "the sub-menu -> experience-catalog mapping drifted");
+// 2026-08-02 — this used to pin the SUB_TO_EXP literal verbatim, including
+// `outdoors: "adventure"`. That froze a defect in place as the definition of
+// correct: `adventure` alone silently dropped the nature and kayaking
+// catalogues, hiding 35 + 37 Sarasota products from the Outdoors chip, and any
+// fix to it read as "drift". The DECISION above ("themed per sub-menu") is
+// right; the literal was never the way to hold it. The map now lives in
+// lib/browseCommerceMap.js and is asserted by CALLING it — trending on All,
+// genuinely themed inventory on every other chip.
+ok(chipCommerce("all").fullCatalog === true, "the All chip is the whole trending catalogue");
+for (const chip of ["outdoors", "beaches", "museums", "family", "landmarks", "arts", "marinas"]) {
+  const plan = chipCommerce(chip);
+  ok(plan.known, `the "${chip}" sub-menu has its own commerce plan`);
+  ok(plan.fullCatalog === false, `the "${chip}" sub-menu is THEMED, not the generic all-attractions feed`);
+}
+ok(chipCommerce("outdoors").catalogs.length >= 3, "Outdoors spans its several real catalogues (nature + adventure + kayaking), not just one");
 ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub=\{sub\} includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(home), "the unified commerce rail renders once and only adds experience inventory on sub-filters");
 // v6.79: these two assertions used to require the literal `|| t.url` /
 // `|| r.booking_url` fallback. The DECISION they encode is right — a tour href
