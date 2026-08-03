@@ -94,7 +94,13 @@ export async function GET(req) {
   if (!provider || !offerId) return fail("missing-provider-or-offer");
   if (!PROVIDERS[provider]) return fail("unknown-provider");
 
-  const { dest, error } = await resolveOffer(provider, offerId);
+  // The surface rides along as the provider's tracking sub-id, where the
+  // network supports one (CityPASS/CJ today; every other provider ignores it).
+  // It can only change an attribution tag on a link we were already going to
+  // emit — never the destination, never the host allowlist — and
+  // cityPassTrackedUrl re-sanitises it to [\w.:-]{0,40} before it reaches a
+  // URL, so a crafted surface cannot shape the outbound link.
+  const { dest, error } = await resolveOffer(provider, offerId, { subId: surface });
   if (error || !dest) return fail(error || "unresolved");
 
   try { emit("provider_redirect_started"); } catch {}

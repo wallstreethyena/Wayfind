@@ -254,6 +254,7 @@ node scripts/check-commerce-redirect.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
 node scripts/check-citypass.mjs
+node scripts/check-coupon-link-attribution.mjs
 node scripts/check-food-tour-rail.mjs
 node scripts/test-booking-resolve-extraction.mjs
 node scripts/check-guide-conversion.mjs

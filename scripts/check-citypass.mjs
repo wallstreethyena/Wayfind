@@ -60,7 +60,23 @@ const cards = COUPONS.filter((c) => c.id.startsWith("cpn-citypass-"));
 ok(cards.length === CP.CITYPASS_MARKETS.length, `one card per verified market (${cards.length}/${CP.CITYPASS_MARKETS.length})`);
 for (const c of cards) {
   ok(/^(?:Orlando|Tampa Bay) CityPASS®$/.test(c.business), `${c.id}: first reference follows the destination + CityPASS® naming rule (got ${c.business})`);
-  ok(typeof c.url === "string" && c.url.includes("anrdoezrs.net"), `${c.id}: ships the TRACKED url, never a bare citypass.com link`);
+  // 2026-08-02 (audit F5) — this required the literal "anrdoezrs.net" in the
+  // card's url, i.e. the CJ link rendered directly into the DOM. That is now
+  // the thing we are removing: a live CJ href in crawlable markup is a billable
+  // click for any JS-rendering crawler. The INVARIANT is unchanged and is
+  // asserted in both directions — the card must never ship a bare citypass.com
+  // link, and the tracked destination must still be reachable — but the click
+  // now leaves from the server, so the card carries OUR path.
+  ok(typeof c.url === "string" && c.url.startsWith("/api/commerce/go?"),
+     `${c.id}: the card links to our redirect, not straight at the partner (got ${String(c.url).slice(0, 60)})`);
+  ok(!/citypass\.com|anrdoezrs\.net/i.test(String(c.url)),
+     `${c.id}: no partner or CJ host appears in the markup at all — neither a bare citypass.com link nor a live CJ href`);
+  {
+    const q = new URLSearchParams(String(c.url).split("?")[1] || "");
+    ok(q.get("provider") === "citypass", `${c.id}: the redirect names the citypass provider`);
+    ok(q.get("offer") === c.id.replace(/^cpn-/, ""), `${c.id}: the redirect carries this market's offer id`);
+    ok(/^coupon_citypass_/.test(q.get("surface") || ""), `${c.id}: the surface tag survives, so CJ still reports coupon clicks separately from the intent rail's`);
+  }
   ok(D.dealNetwork(c) === "CityPASS", `${c.id}: dealNetwork names CityPASS, so the card discloses the commission (got ${D.dealNetwork(c)})`);
   const d = D.dealDisclosure(c);
   ok(d.affiliate === true && /CityPASS/.test(d.italic), `${c.id}: the disclosure names the network`);
