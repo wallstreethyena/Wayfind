@@ -51,21 +51,20 @@ ok(!isMonetized("https://www.ringling.org/tickets-admission/"),
 const live = liveCoupons("2026-08-02");
 ok(live.length > 0, "liveCoupons returned a non-empty set — an empty set would make every assertion below vacuous");
 
-// ── the one documented exemption ──────────────────────────────────────────
-// NAMED, not a pattern, so it cannot quietly grow. cpn-klook-us-attractions-5
-// keeps its raw https://www.klook.com/?aid=127667 link because closing it means
-// deciding WHICH Klook program gets paid — the legacy `aid` this link carries,
-// or Travelpayouts (PROVIDERS.klook -> tpDeepLink), which is what our redirect
-// would wrap it with. That is an owner decision, not a code one, and
-// test-klook-coupons independently requires the aid form today. See the comment
-// on the coupon in lib/coupons.js. Exposure is bounded by its 2026-08-02
-// expiry, after which the card auto-hides and the link stops rendering.
-const EXEMPT = new Set(["cpn-klook-us-attractions-5"]);
-// The exemption must describe something that EXISTS. A stale name in this set
-// would silently widen nothing today and hide a real leak the day a coupon
-// happens to reuse the id.
+// ── no exemptions ─────────────────────────────────────────────────────────
+// There was one, for cpn-klook-us-attractions-5, held open while the owner
+// decided which Klook program to keep. Decision (2026-08-02): standardize on
+// Travelpayouts, the program PROVIDERS.klook and /api/commerce/go already use.
+// The legacy ?aid=127667 link is retired, so the exemption is gone with it and
+// this guard now covers every coupon without carve-outs.
+const EXEMPT = new Set();
 for (const id of EXEMPT) {
   ok(COUPONS.some((c) => c.id === id), `exempted coupon "${id}" still exists — a stale exemption is a hole waiting for a name collision`);
+}
+// The retired mechanism must not come back by another door.
+for (const c of COUPONS) {
+  ok(!/[?&]aid=\d+/.test(String(c.url || "")),
+     `coupon "${c.id}" carries a legacy ?aid= affiliate id — Klook runs through Travelpayouts now, and a second mechanism splits attribution`);
 }
 
 // ── the invariant ─────────────────────────────────────────────────────────
@@ -99,4 +98,4 @@ for (const c of ours) {
 
 // The success line states its own coverage AND what it does not cover, so a
 // reader can falsify it. "0 leaks" would be a lie while an exemption exists.
-console.log(`check-coupon-link-attribution: OK — ${pass} assertions (${COUPONS.length} coupons evaluated by CALLING the module, ${ours.length} routed through /api/commerce/go, ${EXEMPT.size} documented exemption(s): ${[...EXEMPT].join(", ")}; every other coupon link is either ours or a non-affiliate operator page)`);
+console.log(`check-coupon-link-attribution: OK — ${pass} assertions (${COUPONS.length} coupons evaluated by CALLING the module, ${ours.length} routed through /api/commerce/go, ${EXEMPT.size} exemptions; every coupon link is either ours or a non-affiliate operator page, and no legacy ?aid= id survives)`);

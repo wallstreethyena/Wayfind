@@ -25,8 +25,13 @@ for (const cut of ["HOTELONAPP", "EUPTPUS5OFF", "EUMOBUS5OFF"]) {
 }
 ok(klook.length === 1, "exactly ONE Klook code survives the cut — got " + klook.length);
 for (const c of klook) {
-  ok(/^https:\/\/www\.klook\.com\//.test(c.url), c.id + ": url on www.klook.com (s.klook.com is untracked; never invent deep paths)");
-  ok(/[?&]aid=\d+/.test(c.url), c.id + ": url carries the affiliate aid param (click attribution)");
+  // 2026-08-02 — these REQUIRED the legacy ?aid= link. The owner's decision is
+  // to run one Klook path, Travelpayouts (promoId 4110 / campaignId 137), which
+  // is what PROVIDERS.klook and /api/commerce/go already use. So the aid form is
+  // now forbidden rather than required, and the only permitted link is ours.
+  ok(!/[?&]aid=\d+/.test(String(c.url || "")), c.id + ": no legacy ?aid= id — Klook attribution runs through Travelpayouts, and two mechanisms split the credit");
+  ok(!c.url || String(c.url).startsWith("/api/commerce/go?"), c.id + ": any Klook link goes through our redirect (which wraps it with Travelpayouts), never a raw klook.com URL");
+  ok(c.url === null || String(c.url).startsWith("/api/"), c.id + ": with no verifiable Klook landing page, the card ships its CODE and no button rather than an untracked link");
   ok(typeof c.code === "string" && /^[A-Z0-9]+$/.test(c.code), c.id + ": code is a real uppercase code (code attribution)");
   ok(c.expires === null || /^\d{4}-\d{2}-\d{2}$/.test(c.expires), c.id + ": expiry is a real date or null (auto-hide contract)");
 }
