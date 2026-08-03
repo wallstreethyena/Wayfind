@@ -48,11 +48,19 @@ const MAP_STYLE = MAP_STYLES.bright;
 // scripts/test-map-worker.mjs in prebuild.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
-function MapFallback({ count }) {
+function MapFallback({ count, onRetry }) {
+  // v6.100 (owner: "you ar epissing e off", live screenshot of this exact
+  // fallback right after the Bright-style ship) -- this used to be a dead
+  // end: no way back to a working map short of a full page reload. onRetry
+  // (wired by the parent via a remount key) tears down the stuck MapLibre
+  // instance and gives it a fresh container + a fresh watchdog window, so a
+  // transient failure -- slow cell connection, a backgrounded-tab stall --
+  // recovers with one tap instead of stranding the user on this screen.
   return <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, #17212E 0%, #0A111B 72%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, padding: 22, textAlign: "center" }}>
     <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div>
     <div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{count ? `${count} places ready to explore` : "Map preview"}</div>
     <div style={{ maxWidth: 240, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map could not load right now. Your ranked results are still available below.</div>
+    {onRetry ? <button onClick={onRetry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}
   </div>;
 }
 
@@ -114,7 +122,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright" }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -228,7 +236,17 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // backgrounded time against it.
     let watchdog = null;
     const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
-    const armWatchdog = () => { clearWatchdog(); watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 15000); };
+    // v6.100 -- 15s was tuned against the old "dark" style (47 layers, ~21KB
+    // style JSON). "bright" evaluates 119 layers (~48KB JSON, same tile
+    // source/network cost, but real building/landuse/water detail to paint)
+    // -- more CPU-bound style-layer work per frame before loaded() can flip,
+    // which matters most on exactly the lower-end/cellular devices most
+    // likely to hit this watchdog at all. Verified via curl: bright style
+    // JSON is 48713 bytes vs dark's 20959 (2.3x), 119 vs 47 layers (2.5x);
+    // the shared sprite atlas is byte-identical, so this is real render
+    // headroom, not guessed. 26s gives roughly that same multiple of margin
+    // over the original 15s tuned for dark.
+    const armWatchdog = () => { clearWatchdog(); watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 26000); };
     const isHidden = () => typeof document !== "undefined" && document.hidden;
     if (!isHidden()) armWatchdog();
     const onVisibility = () => {
@@ -343,7 +361,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     } catch (e) {}
   }, [styleMode]);
 
-  if (failed) return <MapFallback count={(places || []).length} />;
+  if (failed) return <MapFallback count={(places || []).length} onRetry={onRetry} />;
   // v6.99 — "bright" is a real light basemap (cream/white land, colored
   // parks and buildings), not the near-black "dark" style the filter/overlay
   // below used to be tuned for. A dark multiply overlay on a light style

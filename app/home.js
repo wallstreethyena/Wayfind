@@ -3215,6 +3215,14 @@ function PageInner({ initialEvents = null }) {
   // "bright" basemap. Off by default: pitch/rotation is a real interaction
   // mode change, not something to default everyone into.
   const [map3D, setMap3D] = useState(false);
+  // v6.100 (owner: "you ar epissing e off" + a live screenshot of
+  // "The map could not load right now" on the just-shipped Bright style) --
+  // MapFallback used to be a dead end: once the watchdog gave up there was
+  // no way back to a working map short of a full page reload. Bumping this
+  // remounts <MapView> from scratch (fresh MapLibre instance, fresh
+  // container, fresh watchdog window) so a real transient failure -- a slow
+  // cell connection, a background-tab stall -- recovers with one tap.
+  const [mapRetryKey, setMapRetryKey] = useState(0);
   const compassNeedleRef = useRef(null);
   const compassHandlerRef = useRef(null);
   const stopCompass = () => { try { if (compassHandlerRef.current) { window.removeEventListener("deviceorientation", compassHandlerRef.current, true); compassHandlerRef.current = null; } } catch (e) {} setCompassOn(false); };
@@ -7569,7 +7577,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
