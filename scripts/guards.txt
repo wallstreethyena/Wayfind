@@ -95,6 +95,7 @@ node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
 node scripts/test-subfilters.mjs
+node scripts/test-experience-concepts.mjs
 node scripts/check-subfilter-experience-coverage.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs

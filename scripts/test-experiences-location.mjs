@@ -21,7 +21,7 @@ ok(destsWithin(null, 60).length === 5, "no location → all markets (unchanged)"
 
 // ── the rail fetches live for the user's city when the pre-pull is dark ──
 const home = read("app/home.js");
-ok(/function UnifiedBrowseCommerceRail\(\{ sub,[^)]*city, region \}\)/.test(home), "the unified rail takes the user's city + region");
+ok(/function UnifiedBrowseCommerceRail\(\{ cat: browseCat = "attractions", sub,[^)]*city, region \}\)/.test(home), "the unified rail takes its CATEGORY plus the user's city + region");
 // 2026-08-02 — these two used to pin the fallback's exact SYNTAX: the literal
 // `if (!rows.length && city)` and the template `${city} ${cat}`. Both went red
 // when the fallback was extracted into liveSearch() and the search text became
@@ -40,11 +40,25 @@ ok(/const liveSearch = async \(\) => \{[\s\S]{0,600}?if \(!city\) return \[\];/.
 ok(/never fall back to Florida markets for an out-of-region visitor/.test(home), "the intent is documented at the fallback");
 // 3. The query is city-scoped and is HUMAN text, proven by CALLING the
 //    resolver rather than by matching the template that builds it.
-ok(/encodeURIComponent\(searchText\)/.test(home) && /const searchText = chipSearchQuery\(sub \|\| "all", city\)/.test(home), "the live search asks for the chip's own query text, built from the user's city");
-for (const [chip, city] of [["spa", "Sarasota"], ["family", "Tampa"], ["museums", "Orlando"]]) {
-  const q = chipSearchQuery(chip, city);
-  ok(q.startsWith(city + " "), `chipSearchQuery("${chip}") is scoped to the user's city (got "${q}")`);
-  ok(!CATEGORY_BY_KEY[q.replace(city + " ", "")], `chipSearchQuery("${chip}") is human search text, not a bare catalogue key (got "${q}")`);
+ok(/encodeURIComponent\(searchText\)/.test(home) && /const searchText = chipSearchQuery\(browseCat, sub \|\| "all", city\)/.test(home), "the live search asks for the chip's own query text, scoped to its CATEGORY and the user's city");
+// 2026-08-04 — chips are keyed by CATEGORY:SUB now, because sub ids collide
+// across the seven browse categories ("all" exists in every one). Passing a
+// bare sub silently resolved to the attractions fallback. The food cases are
+// the point of the change: Viator has no food tag, so the live-search text is
+// the only thing that can carry the intent into an empty market.
+for (const [cat, chip, city] of [
+  ["attractions", "spa", "Sarasota"], ["attractions", "museums", "Orlando"],
+  ["food", "all", "Tampa"], ["food", "dessert", "Tampa"],
+  ["nightlife", "bars", "Orlando"], ["shopping", "outlets", "Sarasota"],
+]) {
+  const q = chipSearchQuery(cat, chip, city);
+  ok(q.startsWith(city + " "), `chipSearchQuery("${cat}:${chip}") is scoped to the user's city (got "${q}")`);
+  ok(!CATEGORY_BY_KEY[q.replace(city + " ", "")], `chipSearchQuery("${cat}:${chip}") is human search text, not a bare catalogue key (got "${q}")`);
+}
+// The food chips must actually ask for FOOD, not for the generic attractions text.
+for (const chip of ["all", "breakfast", "dinner", "dessert"]) {
+  ok(/food|tasting|chocolate|brunch|crawl|coffee/i.test(chipSearchQuery("food", chip, "Tampa")),
+     `the food:${chip} live search asks for something food-shaped (got "${chipSearchQuery("food", chip, "Tampa")}")`);
 }
 ok(/&region=" \+ encodeURIComponent\(region \|\| city\)/.test(home), "the live search passes the REGION (state) — required, or the anti-foreign filter returns 0 tours");
 ok(/<UnifiedBrowseCommerceRail[^>]*city=\{locName \? locName\.split\(","\)\[0\] : ""\}/.test(home), "the rail is passed the current location's city");

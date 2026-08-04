@@ -135,6 +135,7 @@ import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
 import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
 import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
+import { chipAffinityBonus } from "../lib/experienceConcepts";
 import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
 import { safeUrl, openExternal as safeOpenExternal } from "../lib/links";
 import * as Hol from "../lib/holidays";
@@ -8249,9 +8250,24 @@ function PageInner({ initialEvents = null }) {
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
-                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail sub="family" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
-                  {browseCat === "hotels" && center && <UnifiedBrowseCommerceRail sub="stays" categories={["stays", "travel"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "family" && center && <UnifiedBrowseCommerceRail cat="family" sub="all" initialExperiences={browseTours} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail cat="attractions" sub={sub} includeExperiences={!!(sub && sub !== "all")} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "hotels" && center && <UnifiedBrowseCommerceRail cat="hotels" sub="all" categories={["stays", "travel"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {/* 2026-08-04 (owner: "I want every single Viator deeplink option showing up
+                      on my sheets... if it's for food give me food tours... I want this done
+                      everywhere"). Food, Nightlife, Shopping and Beach had NO bookable rail at
+                      all — the rail mounted on three of seven browse categories. Food was the
+                      sharpest gap: 35 food tours across 11 markets sat in wf_experiences and
+                      could not surface under a food heading, because the harvest tags them
+                      `private`/`historical` and nothing could ask for "food". They now ride the
+                      derived concepts in lib/experienceConcepts.js via lib/browseCommerceMap.
+                      Each passes its OWN category so the chip map cannot cross-resolve — "all"
+                      exists in all seven categories and "family" is both a sub-chip and a
+                      category. Ranking is unchanged: rankExperiences, highest score first. */}
+                  {browseCat === "food" && center && <UnifiedBrowseCommerceRail cat="food" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "nightlife" && center && <UnifiedBrowseCommerceRail cat="nightlife" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "shopping" && center && <UnifiedBrowseCommerceRail cat="shopping" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
+                  {browseCat === "beach" && center && <UnifiedBrowseCommerceRail cat="beach" sub={sub} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} />}
                   {/* The two NATIONAL categories. They had no render path at all, so both
                       rows sat dark since 2026-07-22 despite being live attributed CJ links —
                       built, working, and earning nothing for want of a mount. Placed beside
@@ -9026,8 +9042,8 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
 // One commerce rail per browse surface. It combines verified Viator inventory
 // and network deals before rendering, so provider boundaries never become
 // separate visual sections. Cards without real artwork fail closed.
-function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, city, region }) {
-  const plan = chipCommerce(sub || "all");
+function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includeExperiences = true, initialExperiences, categories = [], lat, lng, onSave, city, region }) {
+  const plan = chipCommerce(browseCat, sub || "all");
   const cat = plan.catalogParam;
   const [experiences, setExperiences] = useState(() => Array.isArray(initialExperiences) ? initialExperiences : null);
   const [deals, setDeals] = useState(null);
@@ -9036,7 +9052,7 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
     if (Array.isArray(initialExperiences)) { setExperiences(initialExperiences); return; }
     if (!includeExperiences || !Number.isFinite(lat) || !Number.isFinite(lng)) { setExperiences([]); return; }
     let dead = false;
-    const searchText = chipSearchQuery(sub || "all", city);
+    const searchText = chipSearchQuery(browseCat, sub || "all", city);
     const liveSearch = async () => {
       // GATED ON `city`, deliberately. With no known city this must
       // never fall back to Florida markets for an out-of-region visitor —
@@ -9064,7 +9080,7 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
       setExperiences(rows);
     });
     return () => { dead = true; };
-  }, [initialExperiences, includeExperiences, cat, sub, lat, lng, city, region]);
+  }, [initialExperiences, includeExperiences, cat, browseCat, sub, lat, lng, city, region]);
 
   useEffect(() => {
     if (!categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setDeals([]); return; }
@@ -9092,7 +9108,14 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
       if (!t?.image || !(t.code || t.product_code)) continue;
       const offerId = t.code || t.product_code;
       const base = Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10);
-      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour), kind: "experience" });
+      // chipAffinityBonus is ORDER-ONLY and capped at 0.5 on the same ~0-10
+      // scale as `base`. It exists because every Food sub-chip draws from one
+      // pool of food tours — Viator sells no "dessert catalogue" — so Dessert
+      // used to render the identical list as Food/All. This lets a chocolate
+      // tour edge past an EQUALLY-rated generic food tour under Dessert without
+      // ever leapfrogging a clearly better one, which is what keeps the owner's
+      // "ranked from highest score" true.
+      rows.push({ key: `viator:${offerId}`, provider: "viator", merchant: "Viator", offerId, title: t.title, image: t.image, rating: Number(t.rating || 0), reviews: Number(t.reviews || 0), price: t.fromPrice ? `from $${Math.round(t.fromPrice)}` : "", duration: t.duration || "", score: base + timeOfDayBonus(String(t.title || ""), nowHour) + chipAffinityBonus(browseCat, sub || "all", t.title), kind: "experience" });
     }
     for (const d of (Array.isArray(deals) ? deals : [])) {
       const image = d.image || (d.photoRef ? "/api/photo?ref=" + encodeURIComponent(d.photoRef) + "&w=600" : "");
@@ -9113,7 +9136,7 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
     }
     const seen = new Set();
     return rows.filter((row) => { const name = String(row.title || "").toLowerCase(); if (seen.has(name)) return false; seen.add(name); return true; }).sort((a, b) => b.score - a.score);
-  }, [experiences, deals, nowHour, sub]);
+  }, [experiences, deals, nowHour, sub, browseCat]);
 
   if (!cards.length) return null;
   // The heading NAMES THE FILTER. It used to read "Bookable highlights near
@@ -9125,7 +9148,7 @@ function UnifiedBrowseCommerceRail({ sub, includeExperiences = true, initialExpe
   // you can SEE, where the old generic heading hid exactly that.
   const chipLabel = (() => {
     if (!sub || sub === "all") return null;
-    const hit = (SUBFILTERS.attractions || []).find((x) => x && x.id === sub);
+    const hit = ((SUBFILTERS[browseCat] || SUBFILTERS.attractions) || []).find((x) => x && x.id === sub);
     return hit ? hit.label : null;
   })();
   return (
