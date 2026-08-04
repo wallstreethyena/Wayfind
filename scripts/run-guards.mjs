@@ -70,7 +70,17 @@ console.log(`run-guards: ${guards.length} guards from scripts/guards.txt`);
 
 for (let i = 0; i < guards.length; i++) {
   const cmd = guards[i];
-  const r = spawnSync(cmd, { shell: true, stdio: "inherit" });
+  // WF_SUPPRESS_ANALYTICS: guards invoke real redirect handlers, and those end in
+  // captureServer(). This suite runs inside `npm run prebuild` DURING THE VERCEL
+  // BUILD, where the PostHog key is set — so without this every build fired the
+  // guards' deliberately-broken fixtures into the production project as real
+  // events, and minted a new "person" for each one. See lib/serverEvents.js.
+  // Set here rather than per-guard so a future guard cannot forget it.
+  const r = spawnSync(cmd, {
+    shell: true,
+    stdio: "inherit",
+    env: { ...process.env, WF_SUPPRESS_ANALYTICS: "1" },
+  });
   if (r.error) {
     console.error(`\nrun-guards: FAIL — could not run guard ${i + 1}/${guards.length}: ${cmd}`);
     console.error(`  ${r.error.message}`);

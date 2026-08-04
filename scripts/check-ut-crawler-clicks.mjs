@@ -19,6 +19,17 @@
  * Layer 1 alone would be enough if every renderer were honest; layer 3 alone
  * would still leak the URL to anything that scrapes HTML without following it.
  */
+// Belt and braces: run-guards sets this for every guard it spawns, but this file
+// invokes a real redirect handler, so a DIRECT `node scripts/<this>.mjs` must not
+// emit into production either.
+//
+// NOTE ON ORDERING: ESM imports HOIST, so this assignment does not run before the
+// imports below despite appearing above them. That is fine and is why the gate
+// lives in a function: lib/serverEvents.analyticsSuppressed() reads process.env at
+// CALL time, and every capture happens later, in this file's body. A gate that
+// snapshotted the env at module load would NOT be safe here.
+process.env.WF_SUPPRESS_ANALYTICS = "1";
+
 import { readFileSync } from "node:fs";
 import path from "node:path";
 

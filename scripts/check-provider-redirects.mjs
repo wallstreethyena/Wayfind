@@ -29,6 +29,20 @@ globalThis.fetch = async (url, init) => {
   return originalFetch(url, init);
 };
 
+// run-guards sets WF_SUPPRESS_ANALYTICS=1 for every guard it spawns, because
+// guards that invoke redirect handlers were firing their fixtures into the
+// PRODUCTION PostHog project during Vercel builds. THIS guard is the exception:
+// its entire assertion is that the route DOES capture, so suppression would turn
+// it into decoration that passes while proving nothing.
+//
+// Opting out is safe here and only here, because the fetch stub above intercepts
+// us.i.posthog.com/capture/ and returns a fake 200 — no request can leave this
+// process regardless of the flag. That interception is a STRONGER protection
+// than suppression: it also lets the payload be inspected.
+// check-guards-emit-no-analytics accepts either protection and enforces that a
+// route-invoking guard has at least one.
+delete process.env.WF_SUPPRESS_ANALYTICS;
+
 // Force a public PostHog key so serverEvents.js does not early-return.
 process.env.NEXT_PUBLIC_POSTHOG_KEY = "test-key-not-real";
 
