@@ -27,6 +27,7 @@ npm run check:jsx
 node scripts/check-hydration-style.mjs
 node scripts/check-imports.mjs
 npm run check:dupes
+node scripts/test-dupes-imports.mjs
 npm run check:env
 node scripts/test-tags.mjs
 node scripts/check-libs.mjs
