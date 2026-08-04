@@ -18,6 +18,7 @@ import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
+import { parseAttribution, hasAttribution } from "../lib/attribution";
 import { priceWord } from "../lib/price";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 import { onIdle } from "../lib/idleTask";
@@ -5846,7 +5847,17 @@ function PageInner({ initialEvents = null }) {
       // arrived for a specific screen, place, list, or experience gets it
       // without a greeting on top.
       const deepLink = sp0.get("q") || sp0.get("go") || sp0.get("place") || sp0.get("list") || sp0.get("exp");
-      if (deepLink) { /* deep link owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
+      // 2026-08-04: a paid click already declared real intent by choosing a
+      // specific ad -- same principle as deep links above, and the same
+      // first-touch signal lib/attribution.js already captures for campaign
+      // params elsewhere in the app. Ambushing that visitor with a "tell us
+      // the mood" quiz 3.2s after landing was undoing the ad, not helping it:
+      // intro_dismissed/intro_shown (how many people who saw the gate exited
+      // it on purpose vs. just left) fell from 78% to 14% day-over-day as
+      // paid volume ramped up. Paid/campaign traffic now skips the auto-show,
+      // same as a deep link -- it can still open the sheet via "Find my vibe".
+      const paidVisit = hasAttribution(parseAttribution(window.location.search));
+      if (deepLink || paidVisit) { /* deep link or paid click owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
         const t = setTimeout(() => { if (claimInterrupt("intro")) setIntroOpen(true); }, 3200);
         return () => clearTimeout(t);
       }
