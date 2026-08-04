@@ -8,6 +8,11 @@ import { join } from "node:path";
 
 const tmp = mkdtempSync(join(tmpdir(), "wf-bookit-"));
 for (const f of ["monetize", "travelpayouts"]) copyFileSync(`lib/${f}.js`, join(tmp, `${f}.mjs`));
+// venueOffers rides along because monetize.js now imports it (audit F4 — the
+// exact venue→offer path that made Book-it work for attractions and tours).
+// Copied as .js, NOT .mjs: monetize's specifier is the literal
+// "./venueOffers.js", so renaming it here breaks resolution in the temp dir.
+copyFileSync("lib/venueOffers.js", join(tmp, "venueOffers.js"));
 const Mz = await import(join(tmp, "monetize.mjs"));
 const Tp = await import(join(tmp, "travelpayouts.mjs"));
 

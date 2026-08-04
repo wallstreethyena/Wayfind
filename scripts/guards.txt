@@ -66,6 +66,7 @@ node scripts/test-explore-menu.mjs
 node scripts/test-destinations.mjs
 node scripts/test-travelpayouts.mjs
 node scripts/test-book-it.mjs
+node scripts/test-book-it-venues.mjs
 node scripts/check-water.mjs
 node scripts/check-auth.mjs
 node scripts/check-canon.mjs

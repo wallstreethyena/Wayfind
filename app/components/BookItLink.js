@@ -18,7 +18,7 @@ import { useRef, useEffect } from "react";
 import { C } from "./kit";
 import { bookItTarget, SPONSOR_LABEL } from "../../lib/monetize";
 import { TP_PROGRAMS, isTpProgramLive, tpDeepLink } from "../../lib/travelpayouts";
-import { emitCommerce, mintClickId } from "../../lib/commerce";
+import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 
 // Inlined at build time (NEXT_PUBLIC_*). Unset → dark; owner sets "on" to enable.
 const BOOK_IT_ON = process.env.NEXT_PUBLIC_BOOK_IT === "on";
@@ -33,7 +33,24 @@ export default function BookItLink({ detail, city, logEvent, openExternal, addRe
   const live = Object.keys(TP_PROGRAMS).filter(isTpProgramLive);
   const target = bookItTarget(detail, { available: live, city });
   if (!target) return null;
-  const href = tpDeepLink(target.provider, target.url, detail.id);
+  // TWO SHAPES (2026-08-04, audit F4).
+  //
+  //   kind "offer"  — an EXACT hand-verified product for this venue
+  //                   (lib/venueOffers.js). It carries an offer ID and NO
+  //                   destination, so it links through /api/commerce/go and the
+  //                   partner URL never enters the browser bundle. This is what
+  //                   makes Book-it work at all for attractions and tours,
+  //                   which resolved to null on every place before it.
+  //
+  //   kind "search" — the pre-existing tracked destination-search link, still
+  //                   wrapped client-side by tpDeepLink. Unchanged.
+  //
+  // The offer path is both exact and safer: nothing to leak, and no chance of a
+  // search landing in the wrong city — the failure that took the tiqets /
+  // klook / wegotrip search builders out in July.
+  const href = target.kind === "offer"
+    ? commerceHref({ provider: target.provider, offerId: target.offerId, surface: "detail_book_it", contentId: detail.id || null })
+    : tpDeepLink(target.provider, target.url, detail.id);
   if (!href) return null; // provider isn't a live TP program → nothing renders
   const brand = (TP_PROGRAMS[target.provider] || {}).brand || target.provider;
   const open = (u) => { try { (openExternal || ((x) => window.open(x, "_blank", "noopener")))(u); } catch (e) {} };
