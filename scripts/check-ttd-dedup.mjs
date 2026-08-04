@@ -15,8 +15,18 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const tb = readFileSync(new URL("../lib/todaysBest.js", import.meta.url), "utf8");
 
 // 1) Rail + interleaving list are mutually exclusive by sub (no double-render).
-ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub=\{sub\} includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(home),
-  "the single commerce rail includes tours ONLY on a sub-filter (so it never doubles the tours ThingsToDoList interleaves in ALL)");
+// 2026-08-04 — the mount gained a cat="attractions" prop when the rail was
+// extended to all seven browse categories, so pinning the whole string broke.
+// The INVARIANT is unchanged and is what is asserted: on ATTRACTIONS, the rail
+// pulls experience inventory only for a real sub-filter, so it never doubles
+// the tours ThingsToDoList already interleaves under "all".
+{
+  const mount = (home.match(/\{browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^\n]*/) || [""])[0];
+  ok(mount.length > 0, "the attractions commerce rail is mounted");
+  ok(/cat="attractions"/.test(mount), "it declares its own category, so the chip map cannot cross-resolve a sub id shared with another category");
+  ok(/includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(mount),
+    "the single commerce rail includes tours ONLY on a sub-filter (so it never doubles the tours ThingsToDoList interleaves in ALL)");
+}
 ok(/browseCat === "attractions" && \(sub === "all" \|\| !sub\) && <ThingsToDoList/.test(home),
   "ThingsToDoList still renders in the ALL view (the two gates are complements)");
 
