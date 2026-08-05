@@ -33,10 +33,30 @@ for (const h of handles) {
      `"${h}" records the evidence its assignment was made on, so a reviewer can check the call without re-reading the corpus`);
   if (row.archetype !== null) ok(!!ARCHETYPES[row.archetype], `"${h}" names a real archetype ("${row.archetype}")`);
 }
-// Everything is provisional today, so NOTHING is public. Asserted directly.
+// THE RULE, NOT THE STATE. This used to assert "nothing renders publicly",
+// which was true while every row was provisional and became WRONG the moment
+// the owner confirmed four of them (2026-08-05). A guard that encodes today's
+// data as the invariant blocks the very change it was written to make safe.
+//
+// What must always hold is the RULE: provisional never resolves, confirmed and
+// assigned always does. Both directions, so neither can rot.
 const publicRoles = handles.map(archetypeFor).filter(Boolean);
-ok(publicRoles.length === 0,
-   `nothing renders publicly yet (got ${publicRoles.length}) — every assignment is provisional until confirmed, and confirmation is a per-creator decision`);
+for (const h of handles) {
+  const row = ASSIGNMENTS[h];
+  const got = archetypeFor(h);
+  if (row.provisional || row.removed || !row.archetype) {
+    ok(got === null, `"${h}" does not resolve publicly (provisional=${!!row.provisional}, removed=${!!row.removed}, archetype=${JSON.stringify(row.archetype)})`);
+  } else {
+    ok(!!got, `"${h}" is confirmed and assigned, so it DOES resolve — otherwise confirmation would be a no-op`);
+    ok(got.key === row.archetype, `"${h}" resolves to the role it was assigned (${row.archetype})`);
+    ok(Array.isArray(got.intents), `"${h}" carries its routing intents`);
+  }
+}
+// The confirmed set must be non-empty now, or every "does resolve" branch above
+// is vacuous and this guard is only testing the null path.
+const confirmed = handles.filter((h) => !ASSIGNMENTS[h].provisional && !ASSIGNMENTS[h].removed && ASSIGNMENTS[h].archetype);
+ok(confirmed.length > 0, `at least one assignment is confirmed (got ${confirmed.length}) — with none, the resolve-path assertions never run`);
+ok(publicRoles.length === confirmed.length, `exactly the confirmed assignments render publicly (${publicRoles.length} vs ${confirmed.length})`);
 
 // ── 2. UNASSIGNED AND UNKNOWN RENDER NOTHING ──────────────────────────────
 ok(archetypeFor("theerynlalonde") === null, "a creator with archetype:null renders no role");
@@ -44,6 +64,17 @@ ok(archetypeFor("theerynlalonde") === null, "a creator with archetype:null rende
 // the gate short-circuits before the unassigned branch runs, so it cannot see a
 // default-label regression. A mutation adding `|| ARCHETYPES.lifestyle_creator`
 // passed it. resolveRole is exercised directly to reach that branch.
+// THE GATE ITSELF, exercised with a synthetic row. After the 2026-08-05
+// confirmations no REAL row is both provisional AND assigned, so the real data
+// stopped testing the gate entirely — removing `row.provisional` from
+// resolveRole passed every assertion, because the only provisional rows left
+// have archetype:null and return null for that reason instead. Same
+// green-for-the-wrong-reason hole as the default-label one, one confirmation
+// later. This fixture keeps the gate under test no matter what the data does.
+ok(resolveRole({ archetype: "food_expert", provisional: true }) === null,
+   "a PROVISIONAL but ASSIGNED row still resolves to null — this is the gate that stops an unconfirmed role reaching a real person's card, and no live row exercises it any more");
+ok(!!resolveRole({ archetype: "food_expert", provisional: false }),
+   "control: the same row WITHOUT the provisional flag does resolve, so the null above is the gate and not the archetype being unreadable");
 ok(resolveRole({ archetype: null, provisional: false }) === null,
    "a CONFIRMED creator with no archetype still resolves to null — never a default label like \"Lifestyle Creator\"");
 ok(resolveRole({ archetype: "food_expert", provisional: false, removed: true }) === null,
@@ -79,7 +110,14 @@ for (const k of ARCHETYPE_KEYS) {
   ok(typeof ARCHETYPES[k].line === "string" && !/^category|^type:/i.test(ARCHETYPES[k].line),
      `"${k}" has a card line in their language, not ours`);
 }
-ok(creatorsForIntent("eatnow").length === 0, "creatorsForIntent returns nobody while every assignment is provisional — routing is live but empty, which is the correct state today");
+// Routing must actually route now that something is confirmed — a role that
+// does not decide where content surfaces is a badge, and badges rot.
+{
+  const routed = new Set();
+  for (const i of routedIntents()) for (const h of creatorsForIntent(i)) routed.add(h);
+  ok(routed.size > 0, `confirmed creators are reachable through their intents (got ${routed.size}) — otherwise the role is decorative`);
+  for (const h of routed) ok(!ASSIGNMENTS[h].provisional, `"${h}" is routed only because it is CONFIRMED — routing must never surface a provisional role`);
+}
 ok(creatorsForIntent("").length === 0, "an empty intent routes to nobody");
 
 // ── 4. ASSIGNMENTS COVER LIVE CREATORS ONLY ───────────────────────────────
@@ -116,4 +154,4 @@ ok(row && row.archetype === "food_expert", "positive control: katelynintampa has
 ok(!!draftArchetypeFor("katelynintampa"), "positive control: the DRAFT accessor does surface it, so the public null is the provisional gate and not an empty table");
 ok(draftArchetypeFor("nobody-at-all") === null, "negative control: the draft accessor still refuses an unknown handle");
 
-console.log(`test-creator-archetypes: OK — ${pass} assertions (${ARCHETYPE_KEYS.length} archetypes, ${routing.length} routing to real intents; ${handles.length} draft assignments over ${live.length} live creators, ALL provisional so ${publicRoles.length} render publicly; no UI surface reaches past the gate)`);
+console.log(`test-creator-archetypes: OK — ${pass} assertions (${ARCHETYPE_KEYS.length} archetypes, ${routing.length} routing to real intents; ${handles.length} draft assignments over ${live.length} live creators, ${confirmed.length} confirmed and ${publicRoles.length} rendering publicly; no UI surface reaches past the gate)`);
