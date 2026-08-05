@@ -5,9 +5,10 @@ Only this lane writes to this file. See docs/lanes/README.md.
 **Identity:** `codex (Wayfind lane) <codex@openai.com>` — the worktree-scoped `user.name` in
 this clone. Confirmed by the owner 2026-08-05. Commit trailer is `Lane: codex (Wayfind lane)`.
 
-> **Not registered in `docs/lanes/README.md` yet.** That table lists claude.exe, gwen, llama,
-> deepseek, kimi and gemini — no `codex` row. Adding one means editing a shared file, which the
-> one-file-per-lane rule forbids a lane from doing, so it is left for the owner.
+**Registered** in `docs/lanes/README.md` (2026-08-05, at the owner's instruction — that table is
+shared, so a lane does not edit it unprompted). **Pane is `—`, unassigned:** no pane number for
+this lane is recorded anywhere in the repo, and it was left blank rather than guessed. `QUEUE.md`
+is owner-only and still has no `codex` row either.
 
 ## Current task
 _(none)_
