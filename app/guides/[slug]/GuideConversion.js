@@ -29,7 +29,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
   useEffect(() => {
     try {
       if (!cta || !cta.monetized) {
-        track("primary_cta_null", { slug, region, resolved: (cta && cta.kind) || "none" });
+        track("primary_cta_null", { slug, region, resolved: (cta && cta.kind) || "none", exact: !!(cta && cta.exact) });
       }
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,6 +47,10 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           try {
             track("commerce_impression", {
               slug, region, cta_kind: cta.kind, monetized: !!cta.monetized,
+              // exact=false means the destination is a SEARCH, not a bookable
+              // product. Without it cta_kind:"tour" conflated the two and a 0%
+              // click rate could not be read as a bad offer or a vague label.
+              exact: !!cta.exact,
               place: cta.place || null, has_social: !!social,
               // Carried so a DEGRADED social lookup is countable rather than
               // looking like a place that simply has no reviews.
@@ -82,7 +86,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
             {...(cta.sponsored ? { target: "_blank", rel: "noreferrer sponsored" } : {})}
             onClick={() => {
               try {
-                track("commerce_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, place: cta.place || null });
+                track("commerce_cta_clicked", { slug, region, cta_kind: cta.kind, monetized: !!cta.monetized, exact: !!cta.exact, place: cta.place || null });
               } catch (e) {}
               step("cta", { cta_kind: cta.kind });
             }}
