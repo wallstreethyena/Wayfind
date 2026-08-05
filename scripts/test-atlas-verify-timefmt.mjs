@@ -69,4 +69,33 @@ ok(nums(card({ know_before: "Open 11 AM." }), HOURS).length === 0
 ok(nums(card({ know_before: "Doors at 7:00 PM." }), "Live music from 7 PM nightly.").length === 0,
   "it works in the other direction too — model writes 7:00 PM, source says 7 PM");
 
-console.log(`test-atlas-verify-timefmt: OK — ${pass} assertions (sourced hours pass in either format, invented minutes and figures still caught)`);
+// ── 24-HOUR CLOCK, same instant ───────────────────────────────────────────
+// Measured on live rejections: "Kitchen runs 11:00-21:00" was rejected against a
+// corpus saying "11:00 AM - 9:00 PM". One time, two notations, nothing mapping
+// between them — so every 24-hour reference failed on style alone.
+ok(nums(card({ know_before: "Kitchen runs 11:00-21:00." }), "Monday: 11:00 AM – 9:00 PM").length === 0,
+  "21:00 does not match a sourced 9:00 PM — the same instant rejected on notation");
+ok(nums(card({ know_before: "Last seating 22:30." }), "Saturday: 10:30 PM – 1:00 AM").length === 0,
+  "22:30 does not match a sourced 10:30 PM");
+// The morning/evening collapse this must NOT cause.
+ok(nums(card({ best_time: "Shows at 9:30 PM." }), "Monday: 9:30 AM – 4:00 PM").length > 0,
+  "9:30 PM was accepted against a corpus that only said 9:30 AM — the fold collapsed morning into evening");
+ok(nums(card({ know_before: "Doors 12:15." }), "Monday: 12:15 PM – 6:00 PM").length === 0,
+  "a bare sub-13 time stopped matching");
+
+// ── STATE ABBREVIATIONS ───────────────────────────────────────────────────
+// unsourced-entity:*:Florida was rejected 19 times in 7 days: the address says
+// "FL", the writer says "Florida", and both name the same state.
+const ADDR = "1211 Central Ave, St. Petersburg, FL 33705";
+const ents = (c, corpus) => verifyAtlasEditorial(c, corpus, []).filter((p) => p.check === "unsourced-entity");
+ok(ents(card({ hook: "A magic theatre in Florida." }), ADDR).length === 0,
+  "\"Florida\" is rejected against an address carrying FL");
+ok(ents(card({ hook: "A magic theatre in Georgia." }), ADDR).length > 0,
+  "the WRONG state was accepted — expansion must not make every state match");
+ok(ents(card({ hook: "A magic theatre in Florida." }), "1 Peachtree St, Atlanta, GA 30303").length > 0,
+  "Florida passed against a Georgia address");
+// Words that are also postal codes must not expand inside prose.
+ok(ents(card({ local_tip: "Say hi to the box office." }), ADDR).length === 0,
+  "an ordinary word was treated as a state abbreviation");
+
+console.log(`test-atlas-verify-timefmt: OK — ${pass} assertions (sourced hours pass in either format including 24-hour; state abbreviations resolve both ways; invented minutes, wrong states and unsourced figures still caught)`);
