@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { resolvedIntentPartnerPicks, fetchPartnerInventory } from "../../lib/intentPartnerPicks";
-import { rankExperiences } from "../../lib/experiencesData";
+import { rankExperiences, experienceWayfindScore } from "../../lib/experiencesData";
 import { couponsForIntent } from "../../lib/coupons";
 import { dealScope } from "../../lib/dealSheet";
 import { nearestMetro } from "../../lib/orderInFeatured";
@@ -39,7 +39,12 @@ const evidenceScore = (pick) => {
   const base = explicit > 0 ? explicit : (() => {
     const rating = Number(pick?.rating || 0);
     const reviews = Number(pick?.reviews || 0);
-    return rating > 0 && reviews > 0 ? (rating * 2) + Math.min(0.4, Math.log10(reviews + 1) / 10) : -1;
+    // Same defect the browse rail had (2026-08-05): `rating * 2 + log10(reviews)`
+    // lets rating dominate, so a 5.0 from three reviewers outranked a 4.7 from
+    // two thousand. experienceWayfindScore is the Bayesian blend that weights
+    // review DEPTH; /10 puts it on the same 0-10 scale as quality10 above and
+    // the capped bonuses below. Unrated inventory keeps its -1 sentinel.
+    return rating > 0 && reviews > 0 ? experienceWayfindScore({ rating, reviews }) / 10 : -1;
   })();
   if (base < 0) return base;
   const text = [pick?.title, pick?.eyebrow, pick?.discount, pick?.badge].filter(Boolean).join(" ");
