@@ -4418,7 +4418,7 @@ function PageInner({ initialEvents = null }) {
       setRolling(false);
       setDiceFace("🎲");
       if (res.length) { const pick = res[Math.floor(Math.random() * res.length)]; diceRouteRef.current = true; setSurprisePool(res); setSurprisePick(pick); setScreen("surprise"); try { window.scrollTo(0, 0); } catch {} }
-      else showToast("Nothing found nearby, try another");
+      else showToast("Nothing in that mood near you right now \u2014 roll again");
     }, 900);
   }
 
@@ -8987,7 +8987,7 @@ function ExperienceCategoryRail({ metro, lat, lng, logEvent }) {
           ))}
         </div>
       ) : st.items.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>No bookable experiences in this category near you yet.</div>
+        <div style={{ fontSize: 12.5, color: C.muted, padding: "8px 2px" }}>Nothing bookable in this one yet — we&apos;d rather show none than pad it with another category&apos;s tours.</div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
           {st.items.map((t) => {
