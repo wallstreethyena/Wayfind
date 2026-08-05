@@ -17,9 +17,19 @@ const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 // durable first-party storage
 ok(/localStorage\.getItem\("wf_device"\)/.test(d) && /localStorage\.setItem\("wf_device", id\)/.test(d), "id persists in first-party localStorage");
-ok(/document\.cookie = "wf_device=" \+ encodeURIComponent\(v\)/.test(d) && /SameSite=Lax/.test(d) && /Secure/.test(d), "id mirrored to a long-lived, SameSite=Lax, Secure first-party cookie");
+// 2026-08-04: the cookie read/write moved OUT of deviceId()'s body into the
+// exported writeWfCookie/readWfCookie primitives in this same module, so
+// lib/introGate.js could reuse the opt-out contract instead of pasting a
+// second copy of it (which is the drift this module's header warns about).
+// The assertion follows the code: the invariant is "the id is mirrored to a
+// long-lived SameSite=Lax/Secure first-party cookie", not "this literal
+// string appears in this function". Asserted on the writer AND on deviceId()
+// actually calling it for wf_device — a shared writer nobody calls would
+// otherwise pass.
+ok(/export function writeWfCookie\(/.test(d) && /document\.cookie = name \+ "=" \+ encodeURIComponent\(value\)/.test(d) && /SameSite=Lax/.test(d) && /Secure/.test(d), "cookie writer sets a long-lived, SameSite=Lax, Secure first-party cookie");
+ok(/writeWfCookie\("wf_device", v\)/.test(d), "the device id is mirrored to that first-party cookie");
 ok(/WF_DID_MAXAGE = 2 \* 365 \* 24 \* 3600/.test(d), "the cookie lives ~2 years (as durable as a first-party cookie legally gets)");
-ok(/if \(!id\) id = readCookie\(\);/.test(d), "reads back from the sibling first-party store so a partial clear doesn't reset the id");
+ok(/if \(!id\) id = readCookie\(\);/.test(d) && /const readCookie = \(\) => readWfCookie\("wf_device"\)/.test(d), "reads back from the sibling first-party store so a partial clear doesn't reset the id");
 
 // the LEGAL guardrails
 ok(/navigator\.doNotTrack === "1"/.test(d) && /localStorage\.getItem\("wf_optout"\) === "1"/.test(d), "honors Do-Not-Track + an explicit wf_optout opt-out");

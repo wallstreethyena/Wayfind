@@ -12,6 +12,19 @@ import { distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../
 // deliberately zooms out.
 const RING_EXPAND_ZOOM_THRESHOLD = 9.5;
 
+// Owner ask (2026-08-03): the map should OPEN already framing the full
+// 30-mile radius (5/10/30mi rings), not a tight ~10mi crop that only shows
+// the 5/10/15mi rings -- the tight rings are for once the user zooms in on
+// their immediate area, but the DEFAULT view on opening the Map tab is the
+// zoomed-out tier. Solved empirically: at the old default zoom (11.55) a
+// 10mi ring already spans roughly 40% of a typical phone viewport, so a
+// 30mi RADIUS (60mi across) needs to sit about 2.3 zoom levels further out
+// to fit comfortably on screen -- which lands just below
+// RING_EXPAND_ZOOM_THRESHOLD, so the existing zoom-driven ring-swap logic
+// naturally starts in its "zoomed out" state instead of needing a separate
+// code path.
+const MAP_DEFAULT_ZOOM = 9.15;
+
 // v6.99 (owner: live Tripsy/Apple-Maps reference screenshots, "it needs to
 // look amazing... smooth and have detail and easy to see not dark") — went
 // through liberty (light, force-darkened with CSS filters — a lossy
@@ -48,11 +61,19 @@ const MAP_STYLE = MAP_STYLES.bright;
 // scripts/test-map-worker.mjs in prebuild.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
-function MapFallback({ count }) {
+function MapFallback({ count, onRetry }) {
+  // v6.100 (owner: "you ar epissing e off", live screenshot of this exact
+  // fallback right after the Bright-style ship) -- this used to be a dead
+  // end: no way back to a working map short of a full page reload. onRetry
+  // (wired by the parent via a remount key) tears down the stuck MapLibre
+  // instance and gives it a fresh container + a fresh watchdog window, so a
+  // transient failure -- slow cell connection, a backgrounded-tab stall --
+  // recovers with one tap instead of stranding the user on this screen.
   return <div style={{ position: "absolute", inset: 0, background: "linear-gradient(145deg, #17212E 0%, #0A111B 72%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 9, padding: 22, textAlign: "center" }}>
     <div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div>
     <div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{count ? `${count} places ready to explore` : "Map preview"}</div>
     <div style={{ maxWidth: 240, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map could not load right now. Your ranked results are still available below.</div>
+    {onRetry ? <button onClick={onRetry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}
   </div>;
 }
 
@@ -114,13 +135,16 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright" }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const lastOriginRef = useRef("");
   const placesByIdRef = useRef(new Map());
-  const ringZoomedOutRef = useRef(false);
+  // Owner ask: the map should default to the zoomed-out 5/10/30mi ring set
+  // (see MAP_DEFAULT_ZOOM above) rather than starting on 5/10/15mi and
+  // waiting for a zoom event to correct it.
+  const ringZoomedOutRef = useRef(!!rings);
   const [failed, setFailed] = useState(false);
 
   const clearMarkers = () => {
@@ -176,7 +200,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const originKey = `${Number(origin.lat).toFixed(5)}|${Number(origin.lng).toFixed(5)}`;
       if (originKey !== lastOriginRef.current) {
         lastOriginRef.current = originKey;
-        map.easeTo({ center: [origin.lng, origin.lat], zoom: rings ? 11.55 : 11, duration: 450 });
+        map.easeTo({ center: [origin.lng, origin.lat], zoom: rings ? MAP_DEFAULT_ZOOM : 11, duration: 450 });
       }
     }
   };
@@ -188,7 +212,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       container: containerRef.current,
       style: MAP_STYLES[styleMode] || MAP_STYLES.bright,
       center: [startingPoint.lng, startingPoint.lat],
-      zoom: rings ? 11.55 : 11,
+      zoom: rings ? MAP_DEFAULT_ZOOM : 11,
       pitch: styleMode === "3d" ? 55 : 0,
       attributionControl: true,
       // 3D needs pitch/rotation to actually read as 3D; the default flat
@@ -228,7 +252,17 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // backgrounded time against it.
     let watchdog = null;
     const clearWatchdog = () => { if (watchdog) { clearTimeout(watchdog); watchdog = null; } };
-    const armWatchdog = () => { clearWatchdog(); watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 15000); };
+    // v6.100 -- 15s was tuned against the old "dark" style (47 layers, ~21KB
+    // style JSON). "bright" evaluates 119 layers (~48KB JSON, same tile
+    // source/network cost, but real building/landuse/water detail to paint)
+    // -- more CPU-bound style-layer work per frame before loaded() can flip,
+    // which matters most on exactly the lower-end/cellular devices most
+    // likely to hit this watchdog at all. Verified via curl: bright style
+    // JSON is 48713 bytes vs dark's 20959 (2.3x), 119 vs 47 layers (2.5x);
+    // the shared sprite atlas is byte-identical, so this is real render
+    // headroom, not guessed. 26s gives roughly that same multiple of margin
+    // over the original 15s tuned for dark.
+    const armWatchdog = () => { clearWatchdog(); watchdog = setTimeout(() => { watchdog = null; if (!map.loaded()) setFailed(true); }, 26000); };
     const isHidden = () => typeof document !== "undefined" && document.hidden;
     if (!isHidden()) armWatchdog();
     const onVisibility = () => {
@@ -278,7 +312,12 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.on("mouseenter", layer, () => { map.getCanvas().style.cursor = "pointer"; });
       map.on("mouseleave", layer, () => { map.getCanvas().style.cursor = ""; });
     }
-    map.on("error", (event) => { if (event && event.error && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
+    // Owner ask (2026-08-03), layered on top of the retry/timeout fix above:
+    // once the map has genuinely rendered once, a LATER error (a dropped
+    // tile request while panning, a missing glyph, a flaky reconnect) is
+    // normal map operation, not "the map could not load" -- only a failure
+    // before the map's first successful load should ever trip the fallback.
+    map.on("error", (event) => { if (event && event.error && !map.loaded() && /style|tile|network/i.test(String(event.error.message || event.error))) { clearWatchdog(); setFailed(true); } });
     return () => { clearWatchdog(); if (typeof document !== "undefined") document.removeEventListener("visibilitychange", onVisibility); clearMarkers(); map.remove(); mapRef.current = null; };
     // The map is intentionally created only once; state is projected in redraw.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -343,7 +382,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     } catch (e) {}
   }, [styleMode]);
 
-  if (failed) return <MapFallback count={(places || []).length} />;
+  if (failed) return <MapFallback count={(places || []).length} onRetry={onRetry} />;
   // v6.99 — "bright" is a real light basemap (cream/white land, colored
   // parks and buildings), not the near-black "dark" style the filter/overlay
   // below used to be tuned for. A dark multiply overlay on a light style

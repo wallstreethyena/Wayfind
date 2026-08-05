@@ -7,11 +7,15 @@
 // together, unlike the old wiring where PageInner's copy of the hook could
 // fire before this lazy chunk had rendered anything into the ref.
 // IntroIcon + its INTRO_PATHS data table are exclusive to this overlay.
-// The 3.2s auto-show timer stays in PageInner (it's a useEffect); it just
-// flips introOpen, which arrives here as a normal ctx value.
+// The auto-show timer stays in PageInner (it's a useEffect); it just flips
+// introOpen, which arrives here as a normal ctx value. Since 2026-08-04 that
+// timer waits for 2 minutes of VISIBLE time and fires at most once per device
+// (INTRO_MIN_VISIBLE_MS / lib/introGate.js); introTriggerRef carries how this
+// particular open happened so intro_shown can say so.
 import { useEffect, useRef } from "react";
 import { C, useDialogFocus, Icon } from "../kit";
 import { nowContext } from "../../../lib/nowContext.js";
+import { markIntroSeen } from "../../../lib/introGate.js";
 
 // Premium redesign, Phase 4: the mood tiles draw from the app's one line-icon
 // language instead of an emoji grid, calmer and on-brand.
@@ -45,7 +49,7 @@ function IntroIcon({ k, size = 22, color = "#FF8A3D" }) {
 }
 
 export default function IntroSheet({ ctx }) {
-  const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience } = ctx;
+  const { introOpen, setIntroOpen, introSel, setIntroSel, user, locName, weather, suggested, liveOpen, EXPERIENCES, logEvent, openExperience, introTriggerRef } = ctx;
   const introDlgRef = useRef(null);
   const introLocation = String(locName || "").replace(/\s*,\s*/g, ", ").trim();
   // WHY THIS INSTRUMENTATION EXISTS (2026-07-31)
@@ -77,7 +81,13 @@ export default function IntroSheet({ ctx }) {
     if (introShown.current) return;
     introShown.current = true;
     introOpenedAt.current = Date.now();
-    try { logEvent("intro_shown", null, { loc: introLocation || null }); } catch (e) {}
+    // 2026-08-04: `loc` alone could not tell a gate that fired from one that
+    // never got the chance. trigger/visible_ms/attempt make the new timing
+    // readable — visible_ms proves the 2-minute gate held (and shows the drift
+    // past it while retries waited out an open dialog), attempt shows which
+    // retry landed. Their absence-side counterpart is intro_stand_down.
+    const _tg = (introTriggerRef && introTriggerRef.current) || {};
+    try { logEvent("intro_shown", null, { loc: introLocation || null, trigger: _tg.trigger || "manual", visible_ms: _tg.visible_ms == null ? null : _tg.visible_ms, attempt: _tg.attempt || 0 }); } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -96,7 +106,7 @@ export default function IntroSheet({ ctx }) {
         });
       }
     } catch (e) {}
-    try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
+    markIntroSeen(); // durable, once per DEVICE — see lib/introGate.js
     setIntroOpen(false);
   };
   // useDialogFocus invokes this with no argument on Escape; the explicit call
