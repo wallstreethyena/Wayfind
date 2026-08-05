@@ -212,7 +212,9 @@ export default function IntroSheet({ ctx }) {
                 <span>Find your moment</span>
                 {introLocation ? <span className="wf-intro-location">{introLocation}</span> : null}
               </div>
-              <h2 className="wf-intro-prompt">Tell us the mood.<br />We’ll handle the shortlist.</h2>
+              {/* Owner, 2026-08-04: four words, hard cap — the second clause was
+                  explaining the mechanic to someone already looking at it. */}
+              <h2 className="wf-intro-prompt">What are you feeling?</h2>
               <p className="wf-intro-sub">One choice is enough. Wayfind will surface the places that fit this moment—not another endless list.</p>
             {/* v5.25: the six adaptive mood tiles ARE the moment picker — same
                 adaptive rules the home row used: evenings lead with Date Night
