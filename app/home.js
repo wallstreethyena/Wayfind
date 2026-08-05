@@ -10,6 +10,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
+import { introSeen, markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
@@ -1043,6 +1044,31 @@ const EXPERIENCES = {
 //      hour out must appear), independent of the food-heavy local pool.
 let CITY_NOW = "you";
 function cityFixM(s) { return String(s || "").replace(/Best of Sarasota/g, "Best of " + CITY_NOW); }
+// 2026-08-04 (owner decision) — the welcome/mood gate's auto-show timing.
+//
+// The gate used to pop 3.2s after landing. Measured over the days after it
+// shipped, intro_dismissed/intro_shown (people who exited it on PURPOSE — cta/
+// skip/close/backdrop/escape — rather than abandoning the tab) fell 78% → 73%
+// → 37% → 14% day over day as paid traffic ramped, and site-wide bounce went
+// 22% → 55%. A full-screen modal 3.2s after landing is the leading
+// explanation. Commit 6cb95ec took paid/campaign traffic out of the auto-show;
+// this is the other half — for everyone else the gate stops being an
+// onboarding interruption and becomes a re-engagement prompt for people who
+// already chose to stay.
+//
+// Two minutes of VISIBLE time, not wall-clock: a visitor who opens the tab,
+// switches apps for three minutes and comes back must NOT be greeted by a
+// modal over content they never got to read. That is strictly worse than 3.2s,
+// because by then they were actually interested.
+//
+// Known and intended consequence: of 727 real visitor sessions in the trailing
+// 14 days, 84 lasted past 1 minute and 35 past 5 minutes — the median ends
+// under 15 seconds. So ~88–90% of visitors will never see this overlay. That
+// is the outcome the owner asked for after seeing those numbers. Do not lower
+// the threshold, and do not add an earlier second trigger to compensate.
+const INTRO_MIN_VISIBLE_MS = 120000; // 2 minutes of document.visibilityState === "visible"
+const INTRO_RETRY_MS = 20000;        // same cadence the giveaway prompt uses
+const INTRO_MAX_RETRIES = 8;         // bounded — never "queued behind a dialog forever"
 // v4.60 PROTECTED (check-ux.mjs): the first-time "moment builder". Each chip
 // maps to a REAL engine capability — no promise the ranking cannot keep.
 const MOMENT_CHIPS = [
@@ -3072,7 +3098,11 @@ function PageInner({ initialEvents = null }) {
           // Session already used its one interruption: give up quietly.
           if (sessionStorage.getItem("wf_interrupted")) return;
           // No value delivered yet, or another dialog is up: queue a retry.
-          if (!sessionStorage.getItem("wf_value_seen") || dialogOpenRef.current) {
+          // Either signal counts here — this is deliberately the SAME set of
+          // sessions this prompt reached before wf_value_seen was narrowed to
+          // "opened a place" on 2026-08-04. The intro gate reads the strict
+          // signal; the giveaway keeps the loose one it was written against.
+          if ((!sessionStorage.getItem("wf_value_seen") && !sessionStorage.getItem("wf_results_seen")) || dialogOpenRef.current) {
             if (attempt < 8) t = setTimeout(() => fire(attempt + 1), 20000);
             return;
           }
@@ -3799,7 +3829,26 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => { try { const qq = new URLSearchParams(window.location.search).get("q"); if (qq && qq.trim()) pendingQRef.current = qq.trim(); } catch (e) {} }, []);
   useEffect(() => { if (!pendingQRef.current || !center) return; const qq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(qq); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center]);
+  // The landing URL's query string, captured during the FIRST RENDER — before
+  // any effect can rewrite it.
+  //
+  // Found in browser verification 2026-08-04: the auto-show gate below used to
+  // read window.location.search inside its own effect, and by then the query
+  // could already be gone. The ?q strip two lines above fires as soon as
+  // `center` is known, and on a RETURNING device (a saved wf_center) that is
+  // the same commit — and it is declared EARLIER, so it runs first. Result: a
+  // deep-link visitor with a saved location got the mood gate anyway, because
+  // the effect saw a bare "/" and concluded there was no deep link. Same
+  // exposure for the paid/campaign check, whose utm params are read from the
+  // same string. Render runs before every effect, so capturing here is what
+  // makes "the landing URL" mean the URL the visitor actually landed on.
+  const landingSearchRef = useRef(typeof window === "undefined" ? "" : window.location.search);
   const [introOpen, setIntroOpen] = useState(false);
+  // How this open happened, read by IntroSheet's intro_shown: "timer" (the
+  // 2-minute visible-time gate), "param" (?intro=1) or "manual" (Find my
+  // vibe). visible_ms proves the gate works and shows how far past 120s it
+  // drifted waiting out retries; attempt shows which retry landed.
+  const introTriggerRef = useRef({ trigger: "manual", visible_ms: null, attempt: 0 });
   const [introSel, setIntroSel] = useState([]);
   const [locBannerGone, setLocBannerGone] = useState(false);
   // v5.39: the approximate-location notice is a fixed toast (no layout
@@ -4535,7 +4584,7 @@ function PageInner({ initialEvents = null }) {
     );
   }
   function openMoment(sel) {
-    try { sessionStorage.setItem("wf_intro_seen", "1"); } catch (e) {}
+    markIntroSeen(); // durable, once per device — see lib/introGate.js
     setIntroOpen(false);
     try { logEvent("intro_build", null, { chips: sel.join(",") }); } catch (e) {}
     const spec = composeMoment(sel, cityNow);
@@ -5836,13 +5885,34 @@ function PageInner({ initialEvents = null }) {
 
   // v4.60: first visit gets the moment builder — one screen that explains
   // Wayfind and gets the user to a win without typing. Skippable, remembered.
-  // v5.25: once per SESSION (sessionStorage), not once ever — the concierge
-  // greets each visit but never nags within one. The ~3.2s delay lets weather,
-  // location and the open-now count load so the greeting arrives personal.
+  //
+  // v6.x (2026-08-04, owner decision) REPLACES v5.25's "once per SESSION, the
+  // concierge greets each visit but never nags within one". It is now ONCE PER
+  // DEVICE, EVER (lib/introGate.js — durable first-party cookie mirrored into
+  // localStorage, honouring the same DNT/wf_optout contract as the device id),
+  // and the auto-show waits for INTRO_MIN_VISIBLE_MS of time the visitor
+  // actually spent LOOKING at the page. See the constant's comment for the
+  // measured reason. Written down rather than deleted so the next reader does
+  // not "fix" this back to once-per-session.
+  //
+  // At two minutes the visitor is by definition engaged, so the same courtesy
+  // rules the giveaway prompt uses apply: never over another dialog, never
+  // after wf_value_seen (inverted from the giveaway, which WAITS for it — a
+  // visitor who has already OPENED A PLACE is doing the exact thing the mood
+  // picker exists to start), and a bounded retry instead of either firing
+  // rudely or giving up invisibly.
+  //
+  // "Opened a place", NOT "the feed painted" (owner decision 2026-08-04).
+  // wf_value_seen used to mean both, and the passive one fires within seconds
+  // of every successful load — standing down on it would have suppressed this
+  // overlay on 100% of visits instead of the intended ~88–90%. The weaker
+  // signal now lives in wf_results_seen and only the giveaway reads it.
   useEffect(() => {
     try {
-      const sp0 = new URLSearchParams(window.location.search);
-      if (sp0.get("intro") === "1") { try { sessionStorage.setItem("wf_interrupted", "intro"); } catch (e) {} setIntroOpen(true); return; }
+      const sp0 = new URLSearchParams(landingSearchRef.current);
+      // ?intro=1 is the QA/demo door: immediate, and it bypasses BOTH gates
+      // (the 2-minute wait and the once-ever flag).
+      if (sp0.get("intro") === "1") { try { sessionStorage.setItem("wf_interrupted", "intro"); } catch (e) {} introTriggerRef.current = { trigger: "param", visible_ms: 0, attempt: 0 }; setIntroOpen(true); return; }
       // v5.37: EVERY deep link owns its visit, not just ?q — a visitor who
       // arrived for a specific screen, place, list, or experience gets it
       // without a greeting on top.
@@ -5856,11 +5926,68 @@ function PageInner({ initialEvents = null }) {
       // it on purpose vs. just left) fell from 78% to 14% day-over-day as
       // paid volume ramped up. Paid/campaign traffic now skips the auto-show,
       // same as a deep link -- it can still open the sheet via "Find my vibe".
-      const paidVisit = hasAttribution(parseAttribution(window.location.search));
-      if (deepLink || paidVisit) { /* deep link or paid click owns this visit */ } else if (!sessionStorage.getItem("wf_intro_seen")) {
-        const t = setTimeout(() => { if (claimInterrupt("intro")) setIntroOpen(true); }, 3200);
-        return () => clearTimeout(t);
-      }
+      const paidVisit = hasAttribution(parseAttribution(landingSearchRef.current));
+      if (deepLink || paidVisit) return; // deep link or paid click owns this visit
+      if (introSeen()) return;           // durable, once per device — NOT sessionStorage
+
+      // --- accumulate VISIBLE time only -------------------------------------
+      let visibleMs = 0;
+      let since = document.visibilityState === "visible" ? Date.now() : 0;
+      const accrued = () => visibleMs + (since ? Date.now() - since : 0);
+      let timer = null;
+      let attempt = -1;   // -1 = still counting to the threshold; >=0 = retry n
+      let done = false;
+
+      const standDown = (why) => {
+        done = true;
+        // Without this, "nobody reached two minutes" and "the gate is broken"
+        // are the same shape in PostHog: an absence of intro_shown. Same
+        // reasoning as check-intro-instrumentation's header — the failure this
+        // prevents is a silently unreadable funnel, not a broken page.
+        try { logEvent("intro_stand_down", null, { why, visible_ms: Math.round(accrued()), attempt: Math.max(0, attempt) }); } catch (e) {}
+      };
+
+      const fire = () => {
+        timer = null;
+        if (done) return;
+        const n = Math.max(0, attempt);
+        let valueSeen = false;
+        try { valueSeen = !!sessionStorage.getItem("wf_value_seen"); } catch (e) {}
+        if (valueSeen) { standDown("value_seen"); return; }
+        if (dialogOpenRef.current) {
+          if (n < INTRO_MAX_RETRIES) {
+            // Log the first deferral only: one row is enough to make "queued
+            // behind an open dialog" visible, eight would be noise.
+            if (attempt < 0) { try { logEvent("intro_stand_down", null, { why: "dialog_open", visible_ms: Math.round(accrued()), attempt: 0 }); } catch (e) {} }
+            attempt = n + 1;
+            arm();
+            return;
+          }
+          standDown("retries_exhausted");
+          return;
+        }
+        if (!claimInterrupt("intro")) { standDown("interrupt_claimed"); return; }
+        introTriggerRef.current = { trigger: "timer", visible_ms: Math.round(accrued()), attempt: n };
+        done = true;
+        setIntroOpen(true);
+      };
+
+      const arm = () => {
+        if (timer) { clearTimeout(timer); timer = null; }
+        if (done || document.visibilityState !== "visible") return;
+        timer = setTimeout(fire, attempt < 0 ? Math.max(0, INTRO_MIN_VISIBLE_MS - accrued()) : INTRO_RETRY_MS);
+      };
+
+      const onVis = () => {
+        if (document.visibilityState === "visible") { if (!since) since = Date.now(); arm(); }
+        else {
+          if (since) { visibleMs += Date.now() - since; since = 0; }
+          if (timer) { clearTimeout(timer); timer = null; }
+        }
+      };
+      document.addEventListener("visibilitychange", onVis);
+      arm();
+      return () => { document.removeEventListener("visibilitychange", onVis); if (timer) clearTimeout(timer); };
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -5900,10 +6027,24 @@ function PageInner({ initialEvents = null }) {
   }, [lightbox, cuisineSheet, diceChoose, hookDetail, newListOpen, renamingList, listMenu, saveTarget, radiusSheet, menuSheet, wxOpen]);
   useDialogFocus(gwPop, gwPopDlgRef, () => gwPopClose("esc"));
   useDialogFocus(gwOpen, gwRulesDlgRef, () => setGwOpen(false));
-  // v5.37: "value seen" — results actually rendered for this visitor. The
-  // giveaway waits for this signal (see the coordinator by gwPop above).
+  // v5.37: results actually rendered for this visitor. The giveaway waits for
+  // this signal (see the coordinator by gwPop above).
+  //
+  // 2026-08-04 (owner decision) — this used to write wf_value_seen, and that
+  // made wf_value_seen mean two very different things: "the feed painted" and
+  // "the visitor opened a place". The feed paints on essentially every
+  // successful homepage load within a few seconds, so the passive meaning
+  // always won. When the intro gate started standing down on wf_value_seen,
+  // that would have suppressed the overlay on 100% of visits rather than the
+  // intended ~88–90% — a feature that ships dead.
+  //
+  // So the two signals are now separate keys. wf_value_seen means ONE thing:
+  // the visitor opened a place (home.js, openDetail). wf_results_seen is the
+  // weaker "results painted" signal, which is all the giveaway ever needed —
+  // it is kept as a separate key precisely so the giveaway's reach does NOT
+  // change as a side effect of an intro-gate decision.
   useEffect(() => {
-    if (suggested && suggested.length) { try { sessionStorage.setItem("wf_value_seen", "1"); } catch (e) {} }
+    if (suggested && suggested.length) { try { sessionStorage.setItem("wf_results_seen", "1"); } catch (e) {} }
   }, [suggested]);
 
   // v4.58: build number leaves the visible UI (launch polish) but stays
@@ -7597,7 +7738,7 @@ function PageInner({ initialEvents = null }) {
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
-    introOpen, setIntroOpen, introSel, setIntroSel,
+    introOpen, setIntroOpen, introSel, setIntroSel, introTriggerRef,
   };
 
   return (
@@ -7745,7 +7886,9 @@ function PageInner({ initialEvents = null }) {
           <button className="wf-locate-button" onClick={recenterToMe} aria-label="Near me — recenter to your current location" title="Near me" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
           </button>
-          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+          {/* The once-ever flag gates the AUTO-show only. This button opens the
+              sheet on demand, forever, and must never consult introSeen(). */}
+          <button className="wf-vibe-button" onClick={() => { setIntroSel([]); introTriggerRef.current = { trigger: "manual", visible_ms: null, attempt: 0 }; setIntroOpen(true); try { logEvent("intro_reopen", null, { src: "search_sparkle" }); } catch (e) {} }} aria-label="Find my vibe" title="Find my vibe" style={{ flexShrink: 0, width: 40, height: 40, alignSelf: "center", marginLeft: 8, borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.accent, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
             <Icon name="sparkles" size={17} color={C.accent} />
           </button>
         </div>
