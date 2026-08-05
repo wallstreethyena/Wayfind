@@ -150,7 +150,7 @@ export default function ExperienceScreen({ ctx }) {
                 <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>{exp.icon}</div>
                   <strong style={{ display: "block", color: C.light }}>No {intentScopeLabel ? intentScopeLabel(activeBadge) : "spots"} within {expMi} miles of {locName ? locName.split(",")[0] : "you"} yet</strong>
-                  <span style={{ fontSize: 13 }}>We searched {expMi} miles. {expMi < 60 ? "Widen the range to look farther." : "Try another moment or change your area."}</span>
+                  <span style={{ fontSize: 13 }}>We searched {expMi} miles and nothing cleared the bar. {expMi < 60 ? "Widen the range and we'll keep looking." : "Try another moment, or move the map."}</span>
                   {expMi < 60 && (
                     <div style={{ marginTop: 14 }}>
                       <button onClick={() => setExpMi(60)} style={{ padding: "9px 16px", borderRadius: 999, background: C.adim, border: `1px solid ${C.border}`, color: C.light, fontSize: 13, fontWeight: 800, cursor: "pointer", minHeight: 44 }}>Search within 60 miles</button>
