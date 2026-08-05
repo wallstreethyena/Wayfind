@@ -29,8 +29,22 @@ Two lanes can never conflict, because two lanes never touch the same file.
 | gwen | 4 | `docs/lanes/gwen.md` |
 | llama | 5 | `docs/lanes/llama.md` |
 | deepseek | 6 | `docs/lanes/deepseek.md` |
+| codex | — | `docs/lanes/codex.md` |
 | kimi | 8 | `docs/lanes/kimi.md` |
 | gemini | 9 | `docs/lanes/gemini.md` |
+
+**codex's pane is unassigned.** The lane is real — it has committed as
+`codex (Wayfind lane) <codex@openai.com>` since at least #543 — but no pane number for it is
+recorded anywhere in this repo, and pane 7 being the only gap in the sequence is a coincidence
+worth nothing until the owner says otherwise. Left as `—` rather than guessed, because a wrong
+workspace coordinate here routes tasks to the wrong window. Owner to fill in.
+
+**The registry is what makes a lane's identity discoverable, and its absence has already cost
+once.** Until 2026-08-05 this table listed no `codex` row and `docs/lanes/` held no `codex.md`,
+so an agent running in the codex clone read `CLAUDE.md`'s "This lane is `claude.exe`" as its
+label and stamped two commits (`7376423`, `ba48154`) with the wrong lane — putting two lanes'
+work under one `git log --grep` answer, which is the exact failure the trailer convention
+exists to end. A lane that commits must appear here. See `docs/lanes/codex.md`.
 
 ## Owner-only files — no agent commits to these
 
