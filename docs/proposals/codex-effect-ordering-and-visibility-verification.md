@@ -1,6 +1,6 @@
 # Proposal — two rules from the intro-gate lane: read the LANDING url, and prove the browser state you claim to have tested
 
-- **Lane:** claude-exe (Wayfind lane)
+- **Lane:** codex (Wayfind lane)
 - **Target file if adopted:** `CLAUDE.md`. Rule 1 belongs with the "the check ran and answered
   a question you were not asking" family. Rule 2 belongs directly beneath "Mobile verification
   means a real 390px viewport", which it generalises.

@@ -3,7 +3,7 @@
 - **Change:** the welcome/mood overlay's auto-show now waits **2 minutes of visible time** and
   fires **at most once per device, ever** (PR #590). Paid and deep-link traffic already skipped
   it (`6cb95ec`).
-- **Author:** claude-exe (Wayfind lane), 2026-08-05.
+- **Author:** codex (Wayfind lane), 2026-08-05.
 - **Status:** baselines below are **measured**, not estimated. Evaluation dates are set. Until
   the D+7 read happens, this change is a **hypothesis**, per the repo's measurement rule.
 
