@@ -96,6 +96,7 @@ node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
 node scripts/test-subfilters.mjs
 node scripts/test-experience-concepts.mjs
+node scripts/test-creator-archetypes.mjs
 node scripts/check-copy-no-empty-hype.mjs
 node scripts/test-rail-score-order.mjs
 node scripts/check-subfilter-experience-coverage.mjs
