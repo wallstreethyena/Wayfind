@@ -135,7 +135,7 @@ import * as Culture from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
-import { DISPLAY_CHIPS, rankExperiences } from "../lib/experiencesData";
+import { DISPLAY_CHIPS, rankExperiences, experienceWayfindScore } from "../lib/experiencesData";
 import { chipCommerce, chipSearchQuery } from "../lib/browseCommerceMap";
 import { chipAffinityBonus } from "../lib/experienceConcepts";
 import { discountDepthBonus, timeOfDayBonus } from "../lib/experienceNowRank";
@@ -9300,7 +9300,23 @@ function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub, includ
     for (const t of (Array.isArray(experiences) ? experiences : [])) {
       if (!t?.image || !(t.code || t.product_code)) continue;
       const offerId = t.code || t.product_code;
-      const base = Number(t.rating || 0) * 2 + Math.min(.4, Math.log10(Number(t.reviews || 0) + 1) / 10);
+      // THE WAYFIND SCORE, not a second opinion (owner: "they are not being
+      // displayed by highest to lowest score", 2026-08-05).
+      //
+      // rankExperiences() had already ordered these correctly — by
+      // experienceWayfindScore, the Bayesian blend that weights review DEPTH.
+      // This line then re-sorted them by `rating * 2 + log10(reviews)`, where
+      // reviews contribute at most 0.4, so rating dominates and the correct
+      // order was destroyed immediately after being computed. Measured:
+      //
+      //   4.7 with 2000 reviews  ->  Score 94, railBase 9.73  (shown 3rd)
+      //   5.0 with 3 reviews     ->  Score 79, railBase 10.06 (shown 1st)
+      //
+      // A 5.0 from three people outranked a 4.7 from two thousand. Divided by
+      // 10 so the 0-100 Score shares the 0-10 scale the deal rows and the
+      // capped bonuses already use — the bonuses stay proportionally what they
+      // were, and merit still decides the order.
+      const base = experienceWayfindScore(t) / 10;
       // chipAffinityBonus is ORDER-ONLY and capped at 0.5 on the same ~0-10
       // scale as `base`. It exists because every Food sub-chip draws from one
       // pool of food tours — Viator sells no "dessert catalogue" — so Dessert
