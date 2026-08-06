@@ -156,6 +156,28 @@ const nextConfig = {
   // in every app/api/cron/*/route.js) so excluding them here does not reopen
   // the stale-URL problem this redirect exists to close -- they are
   // machine-only endpoints that are never linked, shared, or indexed.
+  // APPLE APP SITE ASSOCIATION — an internal REWRITE, never a redirect.
+  //
+  // Apple requires the document at exactly
+  // /.well-known/apple-app-site-association: no file extension, Content-Type
+  // application/json, and NO redirect (Apple does not follow one). A rewrite
+  // is internal, so the 200 comes back on the requested URL and all three
+  // hold. app/api/aasa/route.js sets the Content-Type explicitly, which an
+  // extensionless file in public/ could not do -- it would be served as
+  // application/octet-stream and rejected.
+  //
+  // This sits ABOVE redirects() in the file only for readability; Next runs
+  // rewrites and redirects in separate phases, and the vercel.app canonical
+  // redirect below is host-conditional so it never touches a request Apple
+  // makes to www.gowayfind.com.
+  async rewrites() {
+    return [
+      {
+        source: "/.well-known/apple-app-site-association",
+        destination: "/api/aasa",
+      },
+    ];
+  },
   async redirects() {
     return [
       {
