@@ -42,6 +42,14 @@ const ringling = [
 ];
 const good = await resolveGuideProduct({ name: "The Ringling" }, "Sarasota", { fetchImpl: respond(ringling) });
 ok(good && /viator\.com/.test(good.url), `a matching Sarasota product must resolve (got ${JSON.stringify(good)})`);
+// THE ASSERTION THIS GUARD SHIPPED WITHOUT. resolveVerified's offer (toOffer in
+// lib/bookingResolver) carries productCode/productUrl and NO title, so
+// offer.title is always undefined. Asserting only the url let that through, the
+// label fell back to the pick name, and production rendered
+// "See tickets: What the hour actually covers" — a guide SECTION HEADING sold as
+// a bookable product.
+ok(good && good.title === "The Ringling Museum Admission Ticket, Sarasota",
+  `the resolved PRODUCT TITLE must survive the resolver (got ${JSON.stringify(good && good.title)})`);
 
 /* ── 2. THE WRONG-PLACE CASE, which is the whole point ────────────────────── */
 // A Houston product for a Sarasota guide. The weak token check would accept
@@ -124,9 +132,21 @@ ok(wp && wp.length <= 62, `an upgraded label must stay button-sized at 390px (go
 ok(!/\s\u2026$/.test(wp || ""), "truncation must not leave a dangling space before the ellipsis");
 const shortT = productCtaLabel("Ybor City Ghost Walk", "Ybor City");
 ok(shortT === "See tickets: Ybor City Ghost Walk", `a short title must not be truncated (got "${shortT}")`);
-ok(productCtaLabel("", "Gatorland") === "See tickets: Gatorland",
-  "with no product title the label falls back to the pick");
-ok(productCtaLabel("", "") === null, "with nothing to name, there is no label");
+ok(productCtaLabel("", "Gatorland") === "See tickets & availability",
+  "with no product title the label must not name the pick — see 6c");
+ok(productCtaLabel("", "") === "See tickets & availability",
+  "with nothing to name, the label stays honest rather than absent");
+
+/* ── 6c. a label may name ONLY a real product title ───────────────────────── */
+// Guide picks are editorial section headings, not venues. Naming one implies it
+// is bookable. This is the production bug, asserted directly.
+const HEADING = "What the hour actually covers";
+ok(productCtaLabel(null, HEADING) === "See tickets & availability",
+  `with no product title the label must name NOTHING, not the pick heading (got "${productCtaLabel(null, HEADING)}")`);
+ok(!String(productCtaLabel("", HEADING)).includes(HEADING),
+  "an empty title must never fall through to the pick heading");
+ok(productCtaLabel("Haunted Ybor City Ghost Walk", HEADING) === "See tickets: Haunted Ybor City Ghost Walk",
+  "a real product title is still named in full");
 
 /* ── 7. pickAsPlace must not fabricate bookability ────────────────────────── */
 const place = pickAsPlace({ name: "Siesta Key Beach" }, "Sarasota");
