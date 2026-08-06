@@ -37,6 +37,7 @@ import { fileURLToPath } from "node:url";
 import { placeAllowed } from "../lib/placeFilter.js";
 import { marketReviewFloor, passesMarketFloor } from "../lib/marketFloor.js";
 import { localCategoryBoost } from "../lib/localCategorySignals.js";
+import { wayfindScore } from "../lib/wayfindScore.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -48,10 +49,16 @@ const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 
 // drifts from its source. A copied formula with no lock is a silent divergence
 // waiting to happen — the parity number would keep reporting against a ranker
 // the site no longer uses.
-const wfScore = (r, n) => (((n || 0) / ((n || 0) + 60)) * (r || 0) + (60 / ((n || 0) + 60)) * 3.9) * 10;
+// wayfindScore is IMPORTED now, not copied (2026-08-06). The copy that stood
+// here mirrored lib/landing.js faithfully — and lib/landing.js was itself wrong:
+// bayes*10 on a 0–50 scale, and 39 for an unrated place. Both are fixed, and a
+// mirror that cannot drift is better than a lock that watches one.
 const distancePenalty = (mi) => (mi <= 4 ? 0 : Math.min(30, (mi - 4) * 1.3));
 function shippedScore(p) {
-  return wfScore(p.rating, p.reviews) - distancePenalty(p.distMi || 0) + localCategoryBoost(p);
+  // Same null contract as the shipped ranker: an unrated place does not compete.
+  const q = wayfindScore(p.rating, p.reviews);
+  if (q == null) return -Infinity;
+  return q - distancePenalty(p.distMi || 0) + localCategoryBoost(p);
   // NOTE: the CURATED_NAMES +15 term is deliberately omitted — CURATED_NAMES is
   // a local Set in landing.js built from lib/sources CURATED. It applies
   // identically to BOTH sides of this comparison, so it cannot change the

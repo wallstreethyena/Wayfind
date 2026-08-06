@@ -67,11 +67,25 @@ ok(pageSrc2.includes("Know before you go:") && pageSrc2.includes("ed.watchOut, e
 ok(pageSrc2.includes("Sourced:"), "sources footnote renders (transparency = the brand)");
 ok(/water QUALITY[\s\S]{0,80}no wired source/i.test(parts), "water quality stays absent until a real source is wired");
 ok(parts.includes("navigator.share"), "native share with clipboard fallback");
-// the inlined formula must never drift from lib/google's wayfindScore
+// THE FORMULA IS NO LONGER COPIED, so this no longer compares two copies of
+// its constants (2026-08-06). It used to read `const m = 60; const C = 3.9;`
+// out of both lib/google.js and lib/beaches.js and assert they matched — a
+// real check while beaches.js inlined the formula, and one that could never
+// have caught what actually went wrong: lib/landing.js held a THIRD
+// implementation, using those same constants in a different expression, on a
+// 0–50 scale, returning 39 for an unrated place. Same constants, different
+// formula, and not one of the two files this looked at.
+//
+// Both now import lib/wayfindScore.js, so drift is impossible rather than
+// detected. The assertion becomes the stronger one: that neither file has gone
+// back to declaring its own. The FORMULA is exercised by running it, in
+// scripts/check-ranking-integrity.mjs.
 const gsrc = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
 const bsrc = readFileSync(new URL("../lib/beaches.js", import.meta.url), "utf8");
-const consts = (src) => { const m = src.match(/const m = (\d+);\s*\n?\s*const C = ([\d.]+);/); return m && m[1] + "/" + m[2]; };
-ok(consts(gsrc) === "60/3.9" && consts(bsrc) === "60/3.9", "beaches.js formula constants match lib/google wayfindScore (60/3.9)");
+const importsShared = (src) => /from "\.\/wayfindScore\.js"/.test(src);
+ok(importsShared(gsrc), "lib/google.js takes the Wayfind Score from lib/wayfindScore.js");
+ok(importsShared(bsrc), "lib/beaches.js takes the Wayfind Score from lib/wayfindScore.js");
+ok(!/function wayfindScore\s*\(/.test(bsrc), "lib/beaches.js no longer declares its own copy of the formula");
 const og = readFileSync(new URL("../app/api/og/beaches/route.js", import.meta.url), "utf8");
 ok(og.includes("beach-adobestock-216195684.jpeg"), "share card matches the owned beach hero artwork");
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");

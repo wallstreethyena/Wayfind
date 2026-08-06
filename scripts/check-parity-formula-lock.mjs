@@ -27,15 +27,28 @@ const parity = readFileSync(join(ROOT, "scripts/census-parity.mjs"), "utf8");
 // change to operands, constants or operators does.
 const norm = (s) => s.replace(/\s+/g, "");
 
-// ── 1. wfScore ────────────────────────────────────────────────────────────
-const wfLanding = landing.match(/const wfScore = \(r, n\) => ([^;]+);/);
-ok(!!wfLanding, "lib/landing.js still defines `const wfScore = (r, n) => ...` — if this moved, the parity lock cannot see it and MUST be updated, not deleted");
-const wfParity = parity.match(/const wfScore = \(r, n\) => ([^;]+);/);
-ok(!!wfParity, "scripts/census-parity.mjs still defines its wfScore copy");
-if (wfLanding && wfParity) {
-  ok(norm(wfLanding[1]) === norm(wfParity[1]),
-    `wfScore has DRIFTED between lib/landing.js and scripts/census-parity.mjs.\n    landing: ${wfLanding[1].trim()}\n    parity : ${wfParity[1].trim()}\n    The parity metric would be ranking with a formula the site no longer uses.`);
-}
+// ── 1. the score ──────────────────────────────────────────────────────────
+// UPDATED, NOT DELETED (2026-08-06), exactly as the old message demanded.
+//
+// This used to compare two COPIES of `const wfScore = (r, n) => ...`, one in
+// lib/landing.js and one in scripts/census-parity.mjs, and assert the text
+// matched. It did match — and both were wrong. The copy in landing.js returned
+// bayes*10 on a 0–50 scale against a distance penalty tuned for 0–100, and
+// returned 39 for an UNRATED place. Two identical copies of a wrong formula is
+// exactly what a text-parity lock cannot see.
+//
+// Both now import lib/wayfindScore.js, so there is nothing left to drift. The
+// assertion becomes: neither may go back to declaring its own, and both must
+// honour the null contract, or the parity metric is once again ranking with a
+// formula the site does not use.
+ok(/import \{ wayfindScore \} from "\.\/wayfindScore\.js"/.test(landing),
+  "lib/landing.js imports the shared Wayfind Score");
+ok(/import \{ wayfindScore \} from "\.\.\/lib\/wayfindScore\.js"/.test(parity),
+  "scripts/census-parity.mjs imports the SAME shared Wayfind Score — a copy here is how the parity metric silently stops measuring the shipped ranker");
+ok(!/const wfScore = \(r, n\) =>/.test(landing) && !/const wfScore = \(r, n\) =>/.test(parity),
+  "neither file declares its own copy of the formula any more");
+ok(/q == null/.test(landing) && /q == null/.test(parity),
+  "both branch on a null score — the parity ranker must drop unrated places the same way the site does");
 
 // ── 2. the distance penalty inside the _s expression ──────────────────────
 const penLanding = landing.match(/mi <= 4 \? 0 : Math\.min\(30, \(mi - 4\) \* 1\.3\)/);
@@ -46,12 +59,14 @@ ok(!!penParity, "scripts/census-parity.mjs mirrors the same distance penalty");
 // ── 3. the terms the _s expression is built from ──────────────────────────
 // If landing.js grows a NEW term, parity silently stops matching the shipped
 // ranker. Catch the term list, not just the pieces we already copied.
-const sExpr = landing.match(/p\._s = ([^;]+);/);
-ok(!!sExpr, "lib/landing.js still assigns p._s = ... in rankedFor");
+// _s is now assigned inside a block (the null branch), so capture the whole
+// forEach body rather than a single-statement expression.
+const sExpr = landing.match(/pool\.forEach\(\(p\) => \{([\s\S]*?)\n  \}\);/);
+ok(!!sExpr, "lib/landing.js still builds p._s inside rankedFor's pool.forEach");
 if (sExpr) {
   // Dotted call sites are captured whole ("CURATED_NAMES.has", not
   // "CURATED_NAMES"), so the allowlist must carry the exact captured form.
-  const known = ["wfScore", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
+  const known = ["wayfindScore", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
   const calls = [...sExpr[1].matchAll(/([A-Za-z_$][A-Za-z0-9_$.]*)\s*\(/g)].map((m) => m[1]);
   const unknown = calls.filter((c) => !known.includes(c));
   ok(unknown.length === 0,
@@ -63,10 +78,16 @@ if (sExpr) {
 // about. Run the same comparison against a deliberately mutated formula and
 // assert it is rejected.
 {
-  const mutated = wfLanding ? wfLanding[1].replace("3.9", "4.9") : "x";
-  const shouldFail = wfParity ? norm(mutated) === norm(wfParity[1]) : false;
-  ok(shouldFail === false, "self-test: a mutated wfScore (3.9 -> 4.9) must NOT compare equal — if it does, this lock is comparing nothing");
+  // There is no longer a pair of copied formulas to diff, so the self-test
+  // proves the thing that replaced it: the import assertions are real regex
+  // matches against real files, and a file that does NOT import the shared
+  // score is rejected. Run them against a fabricated source that declares its
+  // own copy — the exact regression this lock now exists to stop.
+  const impostor = 'const wfScore = (r, n) => (((n||0)/((n||0)+60))*(r||0) + (60/((n||0)+60))*3.9) * 10;';
+  const wouldPass = /import \{ wayfindScore \} from "\.\/wayfindScore\.js"/.test(impostor)
+    && !/const wfScore = \(r, n\) =>/.test(impostor);
+  ok(wouldPass === false, "self-test: a file that declares its own wfScore copy must NOT satisfy the import assertions — if it does, this lock is comparing nothing");
 }
 
 if (fails) { console.error(`check-parity-formula-lock: ${fails} failure(s)`); process.exit(1); }
-console.log("check-parity-formula-lock: OK — wfScore, distance penalty and the _s term list match lib/landing.js; mutation self-test rejected a drifted formula");
+console.log("check-parity-formula-lock: OK — both files import the ONE Wayfind Score, both drop unrated places, distance penalty and the _s term list match lib/landing.js; self-test rejected a file carrying its own copy");
