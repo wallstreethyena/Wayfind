@@ -21,9 +21,16 @@
 // This is not hypothetical for this repo. The identical shape ("there were two
 // defaults; one changed, the other still matched") is one of the four recorded
 // false greens that motivated the rule.
-import { execFileSync } from "node:child_process";
+// PARSED IN-PROCESS, not via `plutil`. plutil is a macOS binary and Vercel
+// builds on Linux, so shelling out to it failed the build outright with
+// `spawnSync plutil ENOENT`. scripts/lib/plistParse.mjs parses both plist
+// formats in JS and scripts/test-plist-parse.mjs proves it byte-identical to
+// plutil wherever plutil exists. Skipping this check off-Mac would have been
+// strictly worse than deleting it: green on CI while verifying nothing.
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readPlist } from "./lib/plistParse.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("check-ios-device-family: FAIL — " + m); process.exit(1); };
@@ -31,7 +38,7 @@ const ok = (c, m) => { if (!c) fail(m); pass += 1; };
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PBXPROJ = path.join(REPO, "ios/App/App.xcodeproj/project.pbxproj");
-const proj = JSON.parse(execFileSync("plutil", ["-convert", "json", "-o", "-", PBXPROJ], { encoding: "utf8" }));
+const proj = readPlist(PBXPROJ);
 const objects = proj.objects;
 
 // Resolve the App target's own build configurations through the object graph,
@@ -63,7 +70,7 @@ ok(declared === configs.length, `every one of the ${configs.length} configuratio
 
 // And the raw-text count, as a second, independent read. If the object-graph walk
 // ever silently resolved fewer configurations than exist, this catches it.
-const raw = execFileSync("/bin/cat", [PBXPROJ], { encoding: "utf8" });
+const raw = readFileSync(PBXPROJ, "utf8");
 const all = raw.match(/TARGETED_DEVICE_FAMILY = "[^"]*";/g) || [];
 ok(all.length === declared, `the raw file contains exactly ${declared} TARGETED_DEVICE_FAMILY settings, matching the ${declared} resolved through the object graph (got ${all.length}: ${all.join(" ")}) — a mismatch means one is hiding somewhere the graph walk does not reach`);
 const bad = all.filter((s) => !/= "1";$/.test(s));
