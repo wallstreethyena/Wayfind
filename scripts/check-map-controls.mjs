@@ -60,5 +60,31 @@ ok(/\bmapMode\b/.test(map) && /\bsetMapMode\b/.test(map), "mapMode/setMapMode we
 // Both sides non-empty, or the file above proves nothing about what it reads.
 ok(all.length > 2000 && /MapView/.test(map), "the sources did not load — every assertion above would pass vacuously");
 
+
+// ── TICKET 4a: the floating controls are RAISED, not debug squares ────────
+// A raised control is lighter than what it sits on. These were dark blocks on a
+// light basemap — darker than the map itself — which is what made them read as
+// debug UI rather than product.
+const mapSrc = src["app/components/screens/Map.js"];
+const ctrls = [...mapSrc.matchAll(/position: "absolute", top: (\d+), (left|right): (\d+), zIndex: 5, width: 46/g)]
+  .map((m) => ({ top: Number(m[1]), side: m[2] }));
+ok(ctrls.length === 2, `expected 2 floating 46px controls, found ${ctrls.length} — under 2 and the rules below read nothing`);
+ok(ctrls.every((c) => c.side === "right"), "the floating controls are not both top-right");
+if (ctrls.length === 2) {
+  const gap = Math.abs(ctrls[0].top - ctrls[1].top);
+  ok(gap >= 56, `the two controls are ${gap}px apart and would overlap or trip the header/overlap invariant (need >= 56)`);
+  ok(gap <= 62, `the two controls are ${gap}px apart — they should read as one stack, not two strays`);
+}
+ok(!/background: "rgba\(10,16,27,\.88\)"[^}]*zIndex: 5, width: 4/.test(mapSrc), "a floating control is dark again");
+ok((mapSrc.match(/inset 0 1px 0 rgba\(255,255,255,\.9\)/g) || []).length >= 2, "a control lost its inset top highlight — it is what sells a raised control, and BOTH need it");
+ok((mapSrc.match(/linear-gradient\(160deg, rgba\(255,255,255,\.97\)/g) || []).length >= 2, "a control is no longer lighter than the basemap — BOTH must be");
+// Both need a REAL active state, not just a colour swap on an icon.
+ok((mapSrc.match(/aria-pressed=/g) || []).length >= 2, "the controls do not expose a pressed state");
+ok(/deviceLoc \? \{ background: "linear-gradient\(160deg, #FDBA74/.test(mapSrc), "recenter has no active fill when locked to the user");
+ok(/map3D \? \{ background: "linear-gradient\(160deg, #FDBA74/.test(mapSrc), "the 3D toggle has no active fill when 3D is on");
+// An empty control container must not float on the map.
+ok(/\(MAP_EVENTS_ON \|\| Hol\.worldCup\(new Date\(\)\)\) && <div/.test(mapSrc),
+  "the Events/FIFA container mounts with no buttons in it — an empty dark box on the map");
+
 if (bad) { console.error(`\ncheck-map-controls: FAIL — ${bad}/${n} assertions`); process.exit(1); }
 console.log(`check-map-controls: OK — ${n} assertions (compass gone at the registration level, not just the button; events control opt-in via NEXT_PUBLIC_MAP_EVENTS with MapView's props and mapMode intact)`);
