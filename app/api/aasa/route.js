@@ -46,15 +46,30 @@ export const dynamic = "force-static";
 export const APP_ID = "VZGMT57ND7.com.gowayfind.app";
 
 /**
- * Only www. The canonical host is https://www.gowayfind.com (lib/site.js
- * SITE_URL, and 32 of the 34 hard-coded URLs in the codebase). The apex is
- * deliberately NOT declared: if gowayfind.com redirects to www — which is the
- * normal canonical setup — Apple's fetch of the apex document follows nothing
- * and the association silently fails while LOOKING configured. Declaring the
- * apex is a one-line change once its response has actually been checked, and
- * shipping it unverified would be the "styled surface with no door" pattern.
+ * BOTH HOSTS. www.gowayfind.com is canonical (lib/site.js SITE_URL, and 32 of
+ * the 34 hard-coded URLs in the codebase), so it is what Wayfind's own share
+ * links use and the one that must work.
+ *
+ * The apex was previously left unclaimed because its response could not be
+ * checked — every request from the verifying machine returned 429, INCLUDING
+ * requests to www, so that was the IP being rate-limited rather than anything
+ * about the apex. Owner decision 2026-08-05: claim it, because the outcomes are
+ * asymmetric. Apple evaluates each domain independently:
+ *
+ *   apex serves the document -> non-www shared links open the app
+ *   apex redirects to www    -> Apple's fetch of the apex fails, that domain
+ *                               does not associate, and www is UNAFFECTED
+ *
+ * Worst case is a silent no-op identical to not claiming it; best case is a
+ * whole class of shared links that stops bouncing to Safari.
+ *
+ * STILL UNVERIFIED, recorded rather than glossed: fetch
+ * https://gowayfind.com/.well-known/apple-app-site-association from any machine
+ * Vercel is not rate-limiting. HTTP 200, Content-Type application/json and zero
+ * redirects means the apex genuinely works; anything else means this entry is
+ * inert and should be fixed at the host layer or dropped.
  */
-export const APPLINK_DOMAINS = Object.freeze(["www.gowayfind.com"]);
+export const APPLINK_DOMAINS = Object.freeze(["www.gowayfind.com", "gowayfind.com"]);
 
 export const AASA = Object.freeze({
   applinks: {

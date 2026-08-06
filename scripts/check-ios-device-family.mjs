@@ -1,15 +1,28 @@
 // scripts/check-ios-device-family.mjs
 //
-// THE INVARIANT: the App target ships iPhone-only (TARGETED_DEVICE_FAMILY = "1")
-// in EVERY build configuration.
+// THE INVARIANT: the App target ships iPhone + iPad
+// (TARGETED_DEVICE_FAMILY = "1,2") in EVERY build configuration.
 //
-// WHY. Declaring iPad support is a promise the app has to keep. Wayfind is a
-// remote-URL Capacitor shell around a layout designed and verified at 390px; an
-// iPad build is judged on iPad, needs its own screenshots, and gives a reviewer
-// a second surface on which to find a stretched phone layout — which is
-// guideline 4.2 territory for a wrapped site. iPhone-only costs nothing: an
-// iPhone app still installs and runs on iPad in compatibility mode, it simply
-// is not graded there.
+// ── A PRODUCT DECISION WITH A NAMED OWNER, NOT A DEFAULT ─────────────────
+// Owner decision, 2026-08-05: ship iPad. An earlier version of this guard
+// asserted "1" (iPhone-only) on the strength of a work order that recommended
+// it. That was the wrong call to make on a work order's say-so — it is a
+// product decision — and the owner's actual choice is iPad.
+//
+// The tradeoff is recorded so nobody "helpfully" flips it back: declaring iPad
+// support is a promise the app has to keep. Wayfind is a remote-URL Capacitor
+// shell around a layout designed and verified at 390px, so an iPad build is
+// JUDGED on iPad, needs its own screenshot set, and gives a reviewer a second
+// surface on which to find a stretched phone layout — guideline 4.2 territory
+// for a wrapped site. That is the cost the owner accepted in exchange for being
+// listed as an iPad app.
+//
+// UISupportedInterfaceOrientations~ipad in Info.plist becomes LIVE again with
+// this setting. It was deliberately left in place when the target was
+// iPhone-only for exactly this reason.
+//
+// If this is revisited, it is revisited by the OWNER, and this comment and the
+// assertion below change together.
 //
 // ── WHY THIS COUNTS INSTEAD OF MATCHING ───────────────────────────────────
 // The setting appears TWICE, once per build configuration (Debug, Release).
@@ -62,8 +75,8 @@ ok(names.includes("Debug") && names.includes("Release"), `both Debug and Release
 let declared = 0;
 for (const c of configs) {
   const v = c.buildSettings && c.buildSettings.TARGETED_DEVICE_FAMILY;
-  ok(v !== undefined, `${c.name}: TARGETED_DEVICE_FAMILY is set (absent means Xcode's default, which is iPhone+iPad)`);
-  ok(String(v) === "1", `${c.name}: TARGETED_DEVICE_FAMILY is "1" (iPhone only), got ${JSON.stringify(v)}. "1,2" promises an iPad build that is judged on iPad and needs its own screenshots.`);
+  ok(v !== undefined, `${c.name}: TARGETED_DEVICE_FAMILY is set EXPLICITLY. Xcode's default happens to be iPhone+iPad too, so an absent setting would give the right build for the wrong reason — and would flip silently if that default ever changed.`);
+  ok(String(v) === "1,2", `${c.name}: TARGETED_DEVICE_FAMILY is "1,2" (iPhone + iPad), got ${JSON.stringify(v)}. Owner decision 2026-08-05 — "1" would silently drop the iPad listing this submission is built around.`);
   declared += 1;
 }
 ok(declared === configs.length, `every one of the ${configs.length} configurations was checked, not just the first`);
@@ -73,7 +86,7 @@ ok(declared === configs.length, `every one of the ${configs.length} configuratio
 const raw = readFileSync(PBXPROJ, "utf8");
 const all = raw.match(/TARGETED_DEVICE_FAMILY = "[^"]*";/g) || [];
 ok(all.length === declared, `the raw file contains exactly ${declared} TARGETED_DEVICE_FAMILY settings, matching the ${declared} resolved through the object graph (got ${all.length}: ${all.join(" ")}) — a mismatch means one is hiding somewhere the graph walk does not reach`);
-const bad = all.filter((s) => !/= "1";$/.test(s));
-ok(bad.length === 0, `no configuration still declares iPad support (offending: ${bad.join(" ")})`);
+const bad = all.filter((s) => !/= "1,2";$/.test(s));
+ok(bad.length === 0, `every configuration declares iPhone + iPad (offending: ${bad.join(" ")})`);
 
-console.log(`check-ios-device-family: OK — ${pass} assertions (all ${declared} App-target build configurations [${names.join(", ")}] resolved through the pbxproj object graph declare TARGETED_DEVICE_FAMILY = "1"; counted, not matched, because includes() cannot tell 1 changed from 2)`);
+console.log(`check-ios-device-family: OK — ${pass} assertions (all ${declared} App-target build configurations [${names.join(", ")}] resolved through the pbxproj object graph declare TARGETED_DEVICE_FAMILY = "1,2"; counted, not matched, because includes() cannot tell 1 changed from 2)`);
