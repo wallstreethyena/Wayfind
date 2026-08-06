@@ -233,8 +233,127 @@ function iconForPlace(p) {
 // FINAL MENU (founder call, Jul 3). This component is the single source of
 // truth for the category menu on home, map, and itinerary; any change here is
 // site-wide by construction. Do not fork per-screen variants.
-function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true }) {
+// The scroll fade only exists when the row genuinely overflows — a permanent
+// gradient promises movement that may not be there, which is its own small lie.
+function MapFpFade() {
+  const [over, setOver] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current && ref.current.previousSibling;
+    if (!el) return;
+    const check = () => setOver(el.scrollWidth > el.clientWidth + 2);
+    check();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(check) : null;
+    if (ro) ro.observe(el);
+    el.addEventListener("scroll", check, { passive: true });
+    return () => { if (ro) ro.disconnect(); el.removeEventListener("scroll", check); };
+  }, []);
+  return <span ref={ref} className="wf-mapfp-fade" aria-hidden="true" style={{ display: over ? "block" : "none" }} />;
+}
+
+// Left/right arrows move between pills, per the tablist pattern. Attached as a
+// ref callback so it works on both rows without either owning the listener.
+function mapfpArrowKeys(node) {
+  if (!node || node.__wfKeys) return;
+  node.__wfKeys = true;
+  node.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    const tabs = [...node.querySelectorAll('[role="tab"]')];
+    const i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+    if (next) next.focus();
+  });
+}
+
+function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, showSubs = true, compact }) {
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
+  // COMPACT — the MAP variant only (work order 2026-08-06, ticket 2).
+  //
+  // A SEPARATE BRANCH, NOT A CHANGE TO THE SHARED ONE. CategoryMenu has four
+  // call sites: the home feed, home's browse-in-place row, Itinerary and the
+  // map. Restyling the component itself would silently reshape three screens the
+  // work order never mentions, and two guards are pinned to the existing render
+  // (check-design requires the literal "#FFFFFF" idle lettering, an owner call
+  // from 2026-07-21; check-ux bans the old borderRadius:22 chip strip). The
+  // shared path below is untouched, so both still hold.
+  //
+  // WHY INLINE PILLS. Stacked icon-over-label forces a tall row and squeezes
+  // long names — "Activities" and "Shopping" had nowhere to go at 390px. Side by
+  // side they fit on one line, which is what takes the panel under 150px.
+  if (compact) {
+    const open = !!(activeCat && subs.length > 1);
+    return (
+      <div className="wf-mapfp">
+        <style dangerouslySetInnerHTML={{ __html: `
+          .wf-mapfp{background:rgba(10,14,20,.86);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.13);border-radius:19px;overflow:hidden}
+          .wf-mapfp-row{position:relative}
+          .wf-mapfp-scroll{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:9px 11px}
+          .wf-mapfp-scroll::-webkit-scrollbar{display:none}
+          /* Scroll affordance. pointer-events:none so it can never eat a tap on
+             the pill underneath, and it is only rendered when the row actually
+             overflows — a permanent fade would imply movement that is not there. */
+          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:44px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.92))}
+          /* 32px visual pill, 44px touch target — the extra comes from padding on
+             a transparent wrapper, never from height, or the row grows again. */
+          .wf-mapfp-tap{flex:none;scroll-snap-align:start;background:none;border:0;padding:6px 0;cursor:pointer;display:block}
+          .wf-mapfp-pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
+          .wf-mapfp-pill span{font-size:12.5px;font-weight:600;color:#FFFFFF;line-height:1}
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 4px rgba(249,115,22,.16),0 4px 14px rgba(249,115,22,.3)}
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill span{color:#0B0F14;font-weight:800}
+          .wf-mapfp-tap:focus-visible .wf-mapfp-pill{outline:2px solid ${C.accent};outline-offset:2px}
+          /* 26px sub pill + 9px top/bottom = 44px touch target. Measured 40px at 390px
+             with the shared 6px padding, which is under the floor. */
+          .wf-mapfp-subs .wf-mapfp-tap{padding:9px 0}
+          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.09);margin:0 11px}
+          /* Height/opacity transition so the row slides rather than snaps. */
+          .wf-mapfp-subs{overflow:hidden;max-height:0;opacity:0;transition:max-height .18s ease-out,opacity .18s ease-out}
+          .wf-mapfp-subs.is-open{max-height:64px;opacity:1}
+          .wf-mapfp-sub{display:flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;color:#FFFFFF;white-space:nowrap;line-height:1}
+          /* Subfilters are SECONDARY: a tint, never a solid fill, so they cannot
+             compete with the active category pill directly above them. */
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
+          @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
+        ` }} />
+        <div className="wf-mapfp-row">
+          <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
+            {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+              <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
+                onClick={() => onCat(m.id, m.label)}>
+                <span className="wf-mapfp-pill">
+                  <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
+                  <span>{m.label}</span>
+                </span>
+              </button>
+            ); })}
+            {trailing || null}
+          </div>
+          <MapFpFade />
+        </div>
+        {/* MOUNTED ONLY WHEN A CATEGORY IS SELECTED. On landing the panel is one
+            pill row — that is the ~100px the work order asks for. */}
+        {open ? (
+          <>
+            <div className="wf-mapfp-divider" />
+            <div className={"wf-mapfp-subs is-open"}>
+              <div className="wf-mapfp-row">
+                <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
+                  {subs.map((sf) => { const son = sub === sf.id; return (
+                    <button key={sf.id} role="tab" aria-selected={son ? "true" : "false"} className="wf-mapfp-tap"
+                      onClick={() => onSub(sf.id)}>
+                      <span className="wf-mapfp-sub">{sf.label}</span>
+                    </button>
+                  ); })}
+                </div>
+                <MapFpFade />
+              </div>
+            </div>
+          </>
+        ) : null}
+      </div>
+    );
+  }
   return (
     <div style={{ marginBottom: tight ? 7 : 10, background: "transparent", border: "none", borderRadius: 0, padding: heading ? "10px 2px 10px" : (tight ? "2px 2px 2px" : "4px 2px 8px") }}>
       {heading && (
