@@ -8124,6 +8124,28 @@ function PageInner({ initialEvents = null }) {
                   geometry so the swap below is shift-free. Deliberately NOT
                   gated on `suggested` — the first screen must never be blank
                   while a Places search runs. */}
+              {/* v6.58 (2026-08-06, owner): THE RANKED LIST LEADS THE FEED.
+              
+                  #624 opened this card by default; it was still rendered LAST, under the
+                  events rail, the hero carousel and the discovery grid, so a visitor who
+                  never scrolled still never saw it. Opening a thing nobody reaches only
+                  makes the thing nobody reaches look better.
+              
+                  MEASURED (PostHog, 14 days to 2026-08-05): 259 single-page sessions
+                  landed on "/", MEDIAN duration 10 seconds, 130 of them over inside those
+                  10 seconds. "/" bounced 84% of 373 visitors in 30 days, while everyone
+                  who got past the first screen went on to 9.5 pages. So the ordering
+                  below is the product decision, not a style one: ANSWER FIRST, controls
+                  after. Events, the hero rail and the discovery grid all still render,
+                  immediately underneath, unchanged.
+              
+                  It also MOVED OUT of the events-present branch it was nested in, so the
+                  ranked list now renders when there are no events nearby too — the case
+                  where a visitor most needs something to look at.
+              
+                  Position asserted by scripts/check-home-answer-first.mjs. */}
+              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+
               {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
               {!browseCat && foryouEvents === null && discoveryMenu}
               {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
@@ -8412,13 +8434,6 @@ function PageInner({ initialEvents = null }) {
                           </div>
                         </ViatorCommerceLink>
                       )}
-                      {/* v6.46 (owner): ONE near-black expandable card under the events
-                          card — "Best places to eat nearby" + "Top things to do", both on
-                          the day's engines (wf_best_picks food / wf_things_to_do: Viator
-                          tours + attractions + beaches ranked together). Replaces the
-                          client-ranked v6.25 food card; the Today's Best accordion stays
-                          retired (component + engines in repo). */}
-                      {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
