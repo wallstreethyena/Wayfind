@@ -194,221 +194,75 @@ const home = rawHome
   .replace(/'(?:[^'\\\n]|\\.)*'/g, "''");
 
 // B1. The delay is a NAMED constant and it is at least two minutes.
-const DECL = home.match(/const\s+INTRO_MIN_VISIBLE_MS\s*=\s*(\d+)\s*;/);
-ok(!!DECL, "B1: the auto-show delay must be a named constant INTRO_MIN_VISIBLE_MS, not a literal buried in the setTimeout call");
-ok(!!DECL && Number(DECL[1]) >= 120000,
-  `B1: INTRO_MIN_VISIBLE_MS must be >= 120000 (owner decision 2026-08-04) — found ${DECL ? DECL[1] : "nothing"}`);
+/* ── B. THE INTRO NEVER AUTO-OPENS (2026-08-06, owner decision) ────────────
+ *
+ * This section used to assert the SHAPE of an auto-show gate: a named
+ * INTRO_MIN_VISIBLE_MS >= 120000, a visibilitychange accumulator so the clock
+ * only ran while the page was actually looked at, a bounded retry ladder, an
+ * interrupt claim, stand-down telemetry, and deep-link/paid bypasses. All of
+ * that existed to make an interruption as polite as an interruption can be.
+ *
+ * The owner removed the interruption instead. Measured over 14 days, owner
+ * excluded: 36 of 58 intro dismissals were the X and only 15 were the CTA —
+ * most people closed it rather than used it. An earlier pass had already found
+ * the same for paid traffic (dismissal quality fell 78% -> 14% as paid volume
+ * ramped) and exempted paid and deep-link visits; this removes the timer for
+ * everyone rather than keeping a gate only some visitors escape.
+ *
+ * The sheet is kept — it moved into the discovery menu, where it is chosen
+ * rather than inflicted. So the invariant is now far simpler and far stronger,
+ * and these assertions are NOT weaker than the ones they replace: a gate can be
+ * subtly wrong in a dozen ways, whereas "no auto-open exists" is a property you
+ * can check exhaustively.
+ */
+const OPENS = [...home.matchAll(/setIntroOpen\(\s*true\s*\)/g)];
+ok(OPENS.length === 1,
+  `B: setIntroOpen(true) must appear exactly once in home.js — every extra site is a way the sheet can open unbidden (found ${OPENS.length})`);
 
-// Isolate the auto-show effect so the checks below cannot be satisfied by
-// unrelated code elsewhere in this 8000-line file.
-//
-// A FIXED-LENGTH WINDOW IS NOT AN ISOLATION. The first version of this file
-// sliced 4000 characters from the anchor, which ran past the effect's closing
-// brace into the NEXT effect — and that next effect both removes a
-// visibilitychange listener and touches dialogOpenRef.current, so two B-checks
-// below passed on code they were not looking at. Caught by red-proving. The
-// window now ENDS at the effect's own terminator, and both ends are asserted.
-function sliceEffect(text, anchor) {
-  const a = text.indexOf(anchor);
-  if (a < 0) return "";
-  const end = text.indexOf("}, []);", a);
-  return end < 0 ? "" : text.slice(a, end);
+// The one call must be a user gesture, not an effect. Slice a window around it
+// and require an onClick between the enclosing statement and the call.
+const OPEN_AT = OPENS.length === 1 ? OPENS[0].index : -1;
+const WINDOW = OPEN_AT > -1 ? home.slice(Math.max(0, OPEN_AT - 600), OPEN_AT) : "";
+// NOTE ON `home` vs `rawHome`: this guard blanks string CONTENTS, so any
+// assertion about a literal must read rawHome. Checking `aria-label="Find my
+// vibe"` against `home` would match `aria-label=""` and pass vacuously — the
+// exact failure mode this file was written to avoid, one level up.
+ok(/onMood=\{\s*\(\)\s*=>/.test(WINDOW) || /onClick=\{/.test(WINDOW),
+  "B: the only setIntroOpen(true) must sit in a user-gesture handler (the menu's onMood arrow), not a timer or an effect");
+ok(/\]\.map\(\(\[ic, lbl, go\]\)[\s\S]{0,400}?onClick=\{go\}/.test(home),
+  "B: the discovery menu must render its rows as onClick — otherwise onMood is never a gesture");
+ok(!/useEffect\(/.test(WINDOW.slice(-400)),
+  "B: setIntroOpen(true) must not be reachable from inside a useEffect — that is an auto-open by another name");
+
+// No timer may reach it, and the gate's machinery must be gone rather than
+// merely unreferenced: a dormant constant invites someone to wire it back.
+ok(!/setTimeout\([^)]*setIntroOpen/.test(home),
+  "B: no setTimeout may open the intro");
+for (const dead of ["INTRO_MIN_VISIBLE_MS", "INTRO_RETRY_MS", "INTRO_MAX_RETRIES", "intro_stand_down"]) {
+  ok(!new RegExp("\\b" + dead + "\\b").test(home),
+    `B: ${dead} is auto-show machinery and must be gone, not left dormant for someone to re-wire`);
 }
-const EFF_ANCHOR = "const sp0 = new URLSearchParams(landingSearchRef.current);";
-ok(home.split(EFF_ANCHOR).length - 1 === 1,
-  "B: the intro effect anchor must be unique in home.js — an ambiguous anchor makes every B assertion below meaningless");
-const effect = sliceEffect(home, EFF_ANCHOR);
-ok(effect.length > 0, "B: could not locate the intro auto-show effect — the anchors below prove nothing");
-// Both ends verified: the window must contain the effect's own body and must
-// NOT have run on into the dialogOpenRef mirror effect that follows it.
-ok(/setIntroOpen\(true\)/.test(effect) && !/dialogOpenRef\.current\s*=/.test(effect),
-  "B: the effect window overran into the following effect — narrow it before trusting anything below");
+ok(!/get\(\s*["']intro["']\s*\)/.test(rawHome),
+  "B: the ?intro=1 auto-open door must be gone — a URL that pops the sheet is still a pop-up");
 
-// B2. Visibility-aware, not a bare wall-clock setTimeout.
-// Read from the RAW effect window for these two: the event name is a string
-// literal, blanked by the strip above. Bounded to the same effect, so the two
-// other visibilitychange effects in this file cannot satisfy them.
-const rawEffect = sliceEffect(rawHome, EFF_ANCHOR);
-ok(/addEventListener\(\s*"visibilitychange"\s*,/.test(rawEffect),
-  "B2: the effect must subscribe to visibilitychange — a bare setTimeout greets a returning tab with a modal over unread content");
-ok(/removeEventListener\(\s*"visibilitychange"\s*,/.test(rawEffect),
-  "B2: the visibilitychange listener must be torn down in the effect's cleanup");
-ok(/document\.visibilityState/.test(effect),
-  "B2: elapsed time must be accumulated only while the document is visible");
-ok(/INTRO_MIN_VISIBLE_MS\s*-\s*accrued\(\)/.test(effect),
-  "B2: the timer must arm on REMAINING visible time (INTRO_MIN_VISIBLE_MS - accrued()), not restart from zero");
-ok(!/setTimeout\([^,]+,\s*INTRO_MIN_VISIBLE_MS\s*\)/.test(effect),
-  "B2: a single unconditional setTimeout(_, INTRO_MIN_VISIBLE_MS) is wall-clock, not visible time");
+/* ── C. AND IT MUST STILL HAVE A DOOR ──────────────────────────────────────
+ * Removing the only entry point is how a surface becomes unreachable — this
+ * repo has shipped that exact bug (MenuSheet's five dead sub-states). The
+ * sheet moved, so prove the new door exists and is user-visible.
+ */
+ok(/"What are you feeling\?", onMood/.test(rawHome),
+  "C: the discovery menu must carry the mood row");
+ok(!/"Date night ideas"/.test(rawHome),
+  "C: the Date night ideas row must be gone — it duplicated the date-night hero slide on the same screen");
+ok(/onMood=\{/.test(home),
+  "C: DiscoveryMenu must be passed an onMood handler, or the row is inert");
+ok(/src: "discovery_menu"/.test(rawHome),
+  "C: opening from the menu must be attributable, so the move can be measured against the pop-up baseline");
+ok(!/aria-label="Find my vibe"/.test(rawHome),
+  "C: the old search-bar sparkle must be gone — it was the pop-up's other door");
+ok(!/wf-vibe-button/.test(rawHome),
+  "C: the sparkle's styling hook must go with it, or the next reader re-adds the button to match the CSS");
 
-// B3. The once-ever flag comes from the durable helper, and the old
-// sessionStorage read is GONE from the auto-show path.
-ok(/import\s*\{[^}]*\bintroSeen\b[^}]*\}\s*from\s*(""|'')/.test(home) || /\bintroSeen\b/.test(home),
-  "B3: home.js must import introSeen from lib/introGate");
-// Shape changed 2026-08-06 (the branch now records before returning), so this
-// follows the code rather than being deleted: the invariant is still "introSeen()
-// makes the auto-show return", however many statements sit inside the branch.
-ok(/if\s*\(\s*introSeen\(\)\s*\)\s*(\{[^}]*\breturn\s*;|return\s*;)/.test(effect),
-  "B3: the auto-show must stand down on introSeen() — the durable once-per-device gate");
-ok(!/sessionStorage\.getItem\(\s*(""|'')\s*\)\s*\)?\s*\{?[\s\S]{0,40}setTimeout/.test(effect) && !/wf_intro_seen/.test(home),
-  "B3: the once-per-SESSION wf_intro_seen read must be gone from home.js (owner decision 2026-08-04 reverses v5.25)");
-
-// B4. Courtesy: stand down after value, defer behind a dialog, bounded retries,
-// and claimInterrupt still the last word.
-ok(/wf_value_seen/.test(rawHome) && /valueSeen/.test(effect),
-  "B4: the gate must stand down once value has been delivered (wf_value_seen)");
-
-// B4b. THE SIGNAL SPLIT (owner decision 2026-08-04). wf_value_seen means
-// "opened a place" and NOTHING else. It used to also be written when the
-// homepage feed painted — which happens within seconds of every successful
-// load, so a gate standing down on it would never fire at all. Re-merging the
-// two keys is a one-line "cleanup" that silently retires this whole feature,
-// and no other assertion in this file would notice.
-const FEED_EFFECT = rawHome.match(/if \(suggested && suggested\.length\)[^\n]*\n/);
-ok(!!FEED_EFFECT, "B4b: could not locate the feed-render effect — the split below is unproven");
-ok(!!FEED_EFFECT && /sessionStorage\.setItem\("wf_results_seen"/.test(FEED_EFFECT[0]),
-  "B4b: the feed-render effect must write wf_results_seen");
-ok(!!FEED_EFFECT && !/wf_value_seen/.test(FEED_EFFECT[0]),
-  "B4b: the feed painting must NOT set wf_value_seen — it fires within seconds of every load and would suppress the gate on 100% of visits");
-// Exactly one writer, and it is the place-open site.
-const VS_WRITES = [...rawHome.matchAll(/sessionStorage\.setItem\("wf_value_seen"/g)];
-ok(VS_WRITES.length === 1,
-  `B4b: wf_value_seen must have exactly ONE writer (opening a place) — found ${VS_WRITES.length}`);
-ok(/sessionStorage\.setItem\("wf_value_seen", "1"\); \} catch \(e\) \{\} \/\/ v5\.37: opening a place/.test(rawHome),
-  "B4b: the one wf_value_seen writer must be the place-open site");
-// The intro reads the STRICT signal only.
-ok(!/wf_results_seen/.test(rawEffect),
-  "B4b: the intro gate must not read wf_results_seen — browsing the feed is not a reason to withhold the mood picker");
-// ...and the giveaway keeps the loose one, so narrowing wf_value_seen did not
-// silently shrink a different feature's reach.
-ok(/if \(\(!sessionStorage\.getItem\("wf_value_seen"\) && !sessionStorage\.getItem\("wf_results_seen"\)\) \|\| dialogOpenRef\.current\)/.test(rawHome),
-  "B4b: the giveaway prompt must retry until EITHER signal is set — its reach must not change as a side effect of the intro decision");
-ok(/dialogOpenRef\.current/.test(effect),
-  "B4: the gate must not fire over another open dialog");
-ok(/INTRO_MAX_RETRIES/.test(effect) && /INTRO_RETRY_MS/.test(effect),
-  "B4: deferrals must be bounded by named constants, never an unbounded retry loop");
-ok(/if\s*\(!claimInterrupt\(\s*(""|'')\s*\)\)/.test(effect),
-  "B4: claimInterrupt must remain the final gate before setIntroOpen(true) — it is what stops two overlays racing");
-
-// B5. Stand-downs are instrumented, or "nobody saw it" and "it is broken" are
-// the same shape in PostHog. All four reasons must be wired.
-const REASONS = ["value_seen", "dialog_open", "interrupt_claimed", "retries_exhausted"];
-// The reasons ARE string literals, blanked by the strip above on purpose, so
-// these read the raw effect window — bounded, so a stray "value_seen"
-// elsewhere in the file cannot satisfy them.
-//
-// Assert the standDown HELPER emits, not merely that the event name appears
-// somewhere in the effect. Red-proving caught this: deleting the terminal
-// emitter left the one-off deferral emitter behind, the event name still
-// matched, and every terminal stand-down had silently stopped reporting.
-const SD_BODY = rawEffect.match(/const standDown\s*=\s*\([\s\S]*?\n\s{6}\};/);
-ok(!!SD_BODY, "B5: a standDown() helper must exist in the effect");
-ok(!!SD_BODY && /logEvent\(\s*"intro_stand_down"/.test(SD_BODY[0]),
-  "B5: standDown() must emit intro_stand_down — without it a suppressed gate and a broken gate look identical");
-ok(!!SD_BODY && /why/.test(SD_BODY[0]) && /visible_ms/.test(SD_BODY[0]) && /attempt/.test(SD_BODY[0]),
-  "B5: the stand-down event must carry why/visible_ms/attempt");
-for (const r of REASONS) {
-  ok(new RegExp('(standDown\\(\\s*"' + r + '"|why:\\s*"' + r + '")').test(rawEffect),
-    `B5: stand-down reason "${r}" must be wired`);
-}
-
-// B5b. THE MOUNT-PHASE SKIPS (2026-08-06). The three early returns fire before
-// any timer is armed. Until they were instrumented they emitted nothing, so
-// "correctly skipped at mount" and "the timer never fired" produced identical
-// evidence — the same ambiguity intro_stand_down exists to remove, one step
-// earlier. Found in the D+1 smoke check on #590: two sessions ran past two
-// minutes with zero intro events and no way to tell which case it was.
-const MOUNT_REASONS = ["deep_link", "paid", "already_seen"];
-const SDM_BODY = rawEffect.match(/const standDownAtMount\s*=\s*\([\s\S]*?\n\s{6}\};/);
-ok(!!SDM_BODY, "B5b: a standDownAtMount() helper must exist — the mount-phase skips must be recorded");
-ok(!!SDM_BODY && /logEvent\(\s*"intro_stand_down"/.test(SDM_BODY[0]),
-  "B5b: standDownAtMount() must emit intro_stand_down");
-for (const r of MOUNT_REASONS) {
-  ok(new RegExp('standDownAtMount\\(\\s*"' + r + '"\\s*\\)').test(rawEffect),
-    `B5b: mount-phase skip "${r}" must be recorded — an unrecorded early return is indistinguishable from a broken timer`);
-}
-// Each early return must RECORD BEFORE IT RETURNS. A bare `return` past the
-// recorder is the whole bug this closes, and it reads as correct code.
-for (const [cond, why] of [["deepLink", "deep_link"], ["paidVisit", "paid"], ["introSeen\\(\\)", "already_seen"]]) {
-  ok(new RegExp('if\\s*\\(\\s*' + cond + '\\s*\\)\\s*\\{\\s*standDownAtMount\\(\\s*"' + why + '"\\s*\\);\\s*return;').test(rawEffect),
-    `B5b: the ${why} branch must call standDownAtMount() before returning`);
-}
-// phase is what keeps the two kinds of row apart in a query.
-ok(!!SDM_BODY && /phase:\s*"mount"/.test(SDM_BODY[0]),
-  'B5b: mount-phase rows must carry phase:"mount"');
-ok(!!SD_BODY && /phase:\s*"gate"/.test(SD_BODY[0]),
-  'B5b: gate-phase rows must carry phase:"gate" — without the split, visible_ms:0 mount rows would drag the gate average to nonsense');
-// Every intro_stand_down emitter, wherever it lives, must set a phase.
-const SD_EMITS = [...rawEffect.matchAll(/logEvent\(\s*"intro_stand_down"[^;]*?\}\s*\)/g)].map((m) => m[0]);
-ok(SD_EMITS.length >= 3, `B5b: expected at least 3 intro_stand_down emitters (mount, gate, dialog deferral) — found ${SD_EMITS.length}`);
-ok(SD_EMITS.every((e) => /phase:\s*"(mount|gate)"/.test(e)),
-  "B5b: EVERY intro_stand_down emitter must set phase — one unphased emitter makes the whole event unqueryable by phase");
-
-// B6. ?intro=1 bypasses BOTH gates, and does so BEFORE either is consulted.
-const PARAM_AT = effect.indexOf("setIntroOpen(true)");
-const SEEN_AT = effect.indexOf("introSeen()");
-ok(PARAM_AT > -1 && SEEN_AT > -1 && PARAM_AT < SEEN_AT,
-  "B6: the ?intro=1 branch must open the sheet BEFORE introSeen() is consulted (QA/demo door)");
-// Bounded and lazy: the param branch's open must be reached within a couple of
-// hundred characters of the `sp0.get(...) === ...` test, so this cannot be
-// satisfied by the timer path further down the effect.
-ok(/get\(\s*(?:""|'')\s*\)\s*===\s*(?:""|'')\s*\)\s*\{[\s\S]{0,300}?setIntroOpen\(true\);\s*return;/.test(effect),
-  "B6: the ?intro=1 branch must open immediately and return, skipping the visible-time timer");
-
-// B7. Deep links and paid/campaign traffic still skip the auto-show (6cb95ec).
-ok(/const\s+deepLink\s*=/.test(effect) && /const\s+paidVisit\s*=\s*hasAttribution\(parseAttribution\(/.test(effect),
-  "B7: deep links and paid/campaign landings must still skip the auto-show");
-// Was one `if (deepLink || paidVisit) return;`. Split 2026-08-06 so each skip
-// reports its own reason. Assert BOTH still return — collapsing or dropping
-// either one silently re-exposes that traffic to the gate, which is what
-// 6cb95ec was bought to prevent.
-for (const cond of ["deepLink", "paidVisit"]) {
-  ok(new RegExp('if\\s*\\(\\s*' + cond + '\\s*\\)\\s*\\{[^}]*\\breturn\\s*;').test(effect),
-    `B7: the ${cond} branch must return before the timer is armed`);
-}
-
-// B7b. THE URL MUST BE THE LANDING URL, NOT WHATEVER IS LEFT BY THE TIME THE
-// EFFECT RUNS. Caught in browser verification, not by any static check: the ?q
-// strip (history.replaceState once `center` is known) is declared EARLIER in
-// this component, so on a returning device with a saved location it runs first
-// in the same commit. Reading window.location.search inside the auto-show
-// effect therefore saw a bare "/" and served the mood gate to deep-link and
-// paid visitors — the exact traffic 6cb95ec was written to protect. The query
-// is captured during render, which precedes every effect.
-ok(/const\s+landingSearchRef\s*=\s*useRef\(/.test(home),
-  "B7b: the landing query string must be captured in a ref during render");
-ok(/const landingSearchRef = useRef\(typeof window === "undefined" \? "" : window\.location\.search\);/.test(rawHome),
-  "B7b: the capture must be SSR-safe (typeof window guard) and read location.search");
-ok(/new URLSearchParams\(\s*landingSearchRef\.current\s*\)/.test(effect),
-  "B7b: the auto-show effect must parse the CAPTURED landing query, not window.location.search (which an earlier effect may already have stripped)");
-ok(/hasAttribution\(parseAttribution\(\s*landingSearchRef\.current\s*\)\)/.test(effect),
-  "B7b: the paid/campaign check must read the captured landing query too — utm params are stripped by the same mechanism");
-ok(!/window\.location\.search/.test(effect),
-  "B7b: no read of window.location.search may remain inside the auto-show effect");
-
-// B8. THE ONE THAT DELETES A FEATURE. The manual "Find my vibe" button opens
-// the sheet forever; the once-ever flag gates the AUTO-show only. A gate added
-// here would silently remove the only remaining door to this surface, and every
-// other assertion in this file would stay green.
-const VIBE = rawHome.match(/className="wf-vibe-button"[\s\S]{0,600}?aria-label="Find my vibe"/);
-ok(!!VIBE, "B8: the Find my vibe button must exist — it is the only manual door to the mood sheet");
-ok(!!VIBE && /setIntroOpen\(true\)/.test(VIBE[0]),
-  "B8: the Find my vibe button must open the sheet");
-ok(!!VIBE && !/introSeen\(/.test(VIBE[0]),
-  "B8: the manual reopen must NOT consult introSeen() — the once-ever flag gates the auto-show only, and gating this deletes the feature");
-// Positive control: the probe must be able to SEE a gate if one were added.
-ok(/introSeen\(/.test('onClick={() => { if (introSeen()) return; setIntroOpen(true); }}'),
-  "PROBE BROKEN: the B8 gate detector failed to flag a known-bad sample");
-
-// B9. intro_shown must carry the new fields, and the manual/param paths must
-// label themselves — otherwise every open reads as a timer fire.
-ok(/introTriggerRef\.current\s*=\s*\{\s*trigger:\s*"param"/.test(rawHome),
-  "B9: the ?intro=1 path must label itself trigger:\"param\"");
-ok(/introTriggerRef\.current\s*=\s*\{\s*trigger:\s*"timer"/.test(rawHome),
-  "B9: the timer path must label itself trigger:\"timer\"");
-ok(/introTriggerRef\.current\s*=\s*\{\s*trigger:\s*"manual"/.test(rawHome),
-  "B9: the Find my vibe path must label itself trigger:\"manual\"");
-
-// ---------------------------------------------------------------------------
 if (fail.length) {
   console.error("check-intro-gate: FAILED");
   for (const f of fail) console.error("  - " + f);
@@ -416,9 +270,9 @@ if (fail.length) {
 }
 console.log(
   `check-intro-gate: OK — ${pass} assertions ` +
-  `(${DECL[1]}ms named visible-time threshold, visibility accumulator + teardown, ` +
-  `durable once-per-device flag EXECUTED against stubbed storage across ` +
-  `fresh/new-session/partial-clear/full-clear/DNT/wf_optout, ` +
-  `${REASONS.length} gate-phase + ${MOUNT_REASONS.length} mount-phase stand-down reasons all phased, ` +
-  `?intro=1 + deep-link + paid bypasses, manual reopen proven ungated with a positive control)`
+  `(the intro NEVER auto-opens: exactly one setIntroOpen(true), inside a user-gesture handler, ` +
+  `no setTimeout path, and the gate's machinery — visible-time threshold, retry ladder, ` +
+  `stand-down telemetry, ?intro=1 door — is removed rather than left dormant; ` +
+  `the sheet still HAS a door in the discovery menu, and the search-bar sparkle is gone; ` +
+  `durable once-per-device storage + DNT/opt-out contract unchanged)`
 );
