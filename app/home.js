@@ -6039,8 +6039,27 @@ function PageInner({ initialEvents = null }) {
       // paid volume ramped up. Paid/campaign traffic now skips the auto-show,
       // same as a deep link -- it can still open the sheet via "Find my vibe".
       const paidVisit = hasAttribution(parseAttribution(landingSearchRef.current));
-      if (deepLink || paidVisit) return; // deep link or paid click owns this visit
-      if (introSeen()) return;           // durable, once per device — NOT sessionStorage
+      // Record the MOUNT-phase skips too (2026-08-06). These three branches
+      // return before any timer is armed, and until now they emitted nothing at
+      // all — so a session that skipped the gate at mount and a session whose
+      // timer was broken produced the same evidence: silence. That is the exact
+      // ambiguity intro_stand_down exists to remove, reproduced one step
+      // earlier. Found in the D+1 smoke check: two sessions ran past two minutes
+      // with zero intro events, and there was no way to tell "correctly skipped"
+      // from "never fired".
+      //
+      // `phase` is what keeps the event readable: "mount" is a skip decided at
+      // load, "gate" is the 2-minute mark reached and then suppressed. Only
+      // "gate" rows carry a meaningful visible_ms.
+      const standDownAtMount = (why) => {
+        try { logEvent("intro_stand_down", null, { why, phase: "mount", visible_ms: 0, attempt: 0 }); } catch (e) {}
+      };
+      // Deep link and paid are distinct product decisions with distinct owners
+      // (6cb95ec bought the paid one), so they are reported separately rather
+      // than as one "not eligible".
+      if (deepLink) { standDownAtMount("deep_link"); return; }   // the visitor asked for a specific screen
+      if (paidVisit) { standDownAtMount("paid"); return; }       // the ad already declared intent
+      if (introSeen()) { standDownAtMount("already_seen"); return; } // durable, once per device — NOT sessionStorage
 
       // --- accumulate VISIBLE time only -------------------------------------
       let visibleMs = 0;
@@ -6056,7 +6075,7 @@ function PageInner({ initialEvents = null }) {
         // are the same shape in PostHog: an absence of intro_shown. Same
         // reasoning as check-intro-instrumentation's header — the failure this
         // prevents is a silently unreadable funnel, not a broken page.
-        try { logEvent("intro_stand_down", null, { why, visible_ms: Math.round(accrued()), attempt: Math.max(0, attempt) }); } catch (e) {}
+        try { logEvent("intro_stand_down", null, { why, phase: "gate", visible_ms: Math.round(accrued()), attempt: Math.max(0, attempt) }); } catch (e) {}
       };
 
       const fire = () => {
@@ -6070,7 +6089,7 @@ function PageInner({ initialEvents = null }) {
           if (n < INTRO_MAX_RETRIES) {
             // Log the first deferral only: one row is enough to make "queued
             // behind an open dialog" visible, eight would be noise.
-            if (attempt < 0) { try { logEvent("intro_stand_down", null, { why: "dialog_open", visible_ms: Math.round(accrued()), attempt: 0 }); } catch (e) {} }
+            if (attempt < 0) { try { logEvent("intro_stand_down", null, { why: "dialog_open", phase: "gate", visible_ms: Math.round(accrued()), attempt: 0 }); } catch (e) {} }
             attempt = n + 1;
             arm();
             return;

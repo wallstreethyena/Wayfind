@@ -244,7 +244,10 @@ ok(!/setTimeout\([^,]+,\s*INTRO_MIN_VISIBLE_MS\s*\)/.test(effect),
 // sessionStorage read is GONE from the auto-show path.
 ok(/import\s*\{[^}]*\bintroSeen\b[^}]*\}\s*from\s*(""|'')/.test(home) || /\bintroSeen\b/.test(home),
   "B3: home.js must import introSeen from lib/introGate");
-ok(/if\s*\(\s*introSeen\(\)\s*\)\s*return\s*;/.test(effect),
+// Shape changed 2026-08-06 (the branch now records before returning), so this
+// follows the code rather than being deleted: the invariant is still "introSeen()
+// makes the auto-show return", however many statements sit inside the branch.
+ok(/if\s*\(\s*introSeen\(\)\s*\)\s*(\{[^}]*\breturn\s*;|return\s*;)/.test(effect),
   "B3: the auto-show must stand down on introSeen() — the durable once-per-device gate");
 ok(!/sessionStorage\.getItem\(\s*(""|'')\s*\)\s*\)?\s*\{?[\s\S]{0,40}setTimeout/.test(effect) && !/wf_intro_seen/.test(home),
   "B3: the once-per-SESSION wf_intro_seen read must be gone from home.js (owner decision 2026-08-04 reverses v5.25)");
@@ -308,6 +311,38 @@ for (const r of REASONS) {
     `B5: stand-down reason "${r}" must be wired`);
 }
 
+// B5b. THE MOUNT-PHASE SKIPS (2026-08-06). The three early returns fire before
+// any timer is armed. Until they were instrumented they emitted nothing, so
+// "correctly skipped at mount" and "the timer never fired" produced identical
+// evidence — the same ambiguity intro_stand_down exists to remove, one step
+// earlier. Found in the D+1 smoke check on #590: two sessions ran past two
+// minutes with zero intro events and no way to tell which case it was.
+const MOUNT_REASONS = ["deep_link", "paid", "already_seen"];
+const SDM_BODY = rawEffect.match(/const standDownAtMount\s*=\s*\([\s\S]*?\n\s{6}\};/);
+ok(!!SDM_BODY, "B5b: a standDownAtMount() helper must exist — the mount-phase skips must be recorded");
+ok(!!SDM_BODY && /logEvent\(\s*"intro_stand_down"/.test(SDM_BODY[0]),
+  "B5b: standDownAtMount() must emit intro_stand_down");
+for (const r of MOUNT_REASONS) {
+  ok(new RegExp('standDownAtMount\\(\\s*"' + r + '"\\s*\\)').test(rawEffect),
+    `B5b: mount-phase skip "${r}" must be recorded — an unrecorded early return is indistinguishable from a broken timer`);
+}
+// Each early return must RECORD BEFORE IT RETURNS. A bare `return` past the
+// recorder is the whole bug this closes, and it reads as correct code.
+for (const [cond, why] of [["deepLink", "deep_link"], ["paidVisit", "paid"], ["introSeen\\(\\)", "already_seen"]]) {
+  ok(new RegExp('if\\s*\\(\\s*' + cond + '\\s*\\)\\s*\\{\\s*standDownAtMount\\(\\s*"' + why + '"\\s*\\);\\s*return;').test(rawEffect),
+    `B5b: the ${why} branch must call standDownAtMount() before returning`);
+}
+// phase is what keeps the two kinds of row apart in a query.
+ok(!!SDM_BODY && /phase:\s*"mount"/.test(SDM_BODY[0]),
+  'B5b: mount-phase rows must carry phase:"mount"');
+ok(!!SD_BODY && /phase:\s*"gate"/.test(SD_BODY[0]),
+  'B5b: gate-phase rows must carry phase:"gate" — without the split, visible_ms:0 mount rows would drag the gate average to nonsense');
+// Every intro_stand_down emitter, wherever it lives, must set a phase.
+const SD_EMITS = [...rawEffect.matchAll(/logEvent\(\s*"intro_stand_down"[^;]*?\}\s*\)/g)].map((m) => m[0]);
+ok(SD_EMITS.length >= 3, `B5b: expected at least 3 intro_stand_down emitters (mount, gate, dialog deferral) — found ${SD_EMITS.length}`);
+ok(SD_EMITS.every((e) => /phase:\s*"(mount|gate)"/.test(e)),
+  "B5b: EVERY intro_stand_down emitter must set phase — one unphased emitter makes the whole event unqueryable by phase");
+
 // B6. ?intro=1 bypasses BOTH gates, and does so BEFORE either is consulted.
 const PARAM_AT = effect.indexOf("setIntroOpen(true)");
 const SEEN_AT = effect.indexOf("introSeen()");
@@ -322,8 +357,14 @@ ok(/get\(\s*(?:""|'')\s*\)\s*===\s*(?:""|'')\s*\)\s*\{[\s\S]{0,300}?setIntroOpen
 // B7. Deep links and paid/campaign traffic still skip the auto-show (6cb95ec).
 ok(/const\s+deepLink\s*=/.test(effect) && /const\s+paidVisit\s*=\s*hasAttribution\(parseAttribution\(/.test(effect),
   "B7: deep links and paid/campaign landings must still skip the auto-show");
-ok(/if\s*\(\s*deepLink\s*\|\|\s*paidVisit\s*\)\s*return\s*;/.test(effect),
-  "B7: the deepLink/paidVisit branch must return before the timer is armed");
+// Was one `if (deepLink || paidVisit) return;`. Split 2026-08-06 so each skip
+// reports its own reason. Assert BOTH still return — collapsing or dropping
+// either one silently re-exposes that traffic to the gate, which is what
+// 6cb95ec was bought to prevent.
+for (const cond of ["deepLink", "paidVisit"]) {
+  ok(new RegExp('if\\s*\\(\\s*' + cond + '\\s*\\)\\s*\\{[^}]*\\breturn\\s*;').test(effect),
+    `B7: the ${cond} branch must return before the timer is armed`);
+}
 
 // B7b. THE URL MUST BE THE LANDING URL, NOT WHATEVER IS LEFT BY THE TIME THE
 // EFFECT RUNS. Caught in browser verification, not by any static check: the ?q
@@ -377,6 +418,7 @@ console.log(
   `check-intro-gate: OK — ${pass} assertions ` +
   `(${DECL[1]}ms named visible-time threshold, visibility accumulator + teardown, ` +
   `durable once-per-device flag EXECUTED against stubbed storage across ` +
-  `fresh/new-session/partial-clear/full-clear/DNT/wf_optout, ${REASONS.length} stand-down reasons, ` +
+  `fresh/new-session/partial-clear/full-clear/DNT/wf_optout, ` +
+  `${REASONS.length} gate-phase + ${MOUNT_REASONS.length} mount-phase stand-down reasons all phased, ` +
   `?intro=1 + deep-link + paid bypasses, manual reopen proven ungated with a positive control)`
 );
