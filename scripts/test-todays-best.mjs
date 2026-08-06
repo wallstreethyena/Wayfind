@@ -112,8 +112,21 @@ ok((home.match(/image="\/cards\/beach-adobestock-216195684\.jpeg"/g) || []).leng
 ok(/width: "93%" \/\* date-night \+ family slides always follow \*\//.test(home), 'slide 1 always peeks — date-night and family slides always follow');
 ok(/datenight_hero_open/.test(home) && /family_hero_open/.test(home), 'date-night + family hero slides exist');
 ok(/window\.location\.assign\("\/date-night\?lat="/.test(home) && /window\.location\.assign\("\/family\?lat="/.test(home), 'both slides open their destination pages with the live location');
-ok(/src: "search_sparkle"/.test(home) && !/wfDice3d/.test(home), 'the sparkle lives beside search; the dice is retired (owner)');
-ok((home.match(/aria-label="Find my vibe"/g) || []).length === 1, 'exactly one Find-my-vibe button');
+// 2026-08-06 (owner decision, SUPERSEDES "the sparkle lives beside search").
+// The search-bar sparkle is gone and "What are you feeling?" moved into the
+// discovery menu, taking the Date night ideas slot — date night is already a
+// hero slide on this same screen (asserted two lines above), so the menu entry
+// was doubling up while the mood sheet had no home but an interruption.
+// The dice stays retired; that half of the old rule is unchanged.
+ok(!/wfDice3d/.test(home), 'the dice stays retired (owner)');
+ok(!/aria-label="Find my vibe"/.test(home),
+  'no Find-my-vibe button beside search — the mood sheet is reached from the discovery menu, not a search-bar icon');
+ok(!/src: "search_sparkle"/.test(home),
+  'the search_sparkle open path is gone with the button that fired it');
+ok(/src: "discovery_menu"/.test(home),
+  'the mood sheet must be openable from the discovery menu, or it has no door at all');
+ok(/"What are you feeling\?", onMood/.test(home),
+  'the discovery menu row must be wired to the mood handler');
 ok(/wf_return_to/.test(home) && /sessionStorage.getItem\("wf_return_to"\)/.test(home), 'closing a detail returns to the referring Wayfind page (global fix)');
 const sr = readFileSync(new URL("../app/ShareRedirect.js", import.meta.url), "utf8");
 ok(/u.origin === window.location.origin/.test(sr) && /wf_return_to/.test(sr), 'ShareRedirect records ONLY same-origin non-home referrers — back can never eject off-site');
