@@ -94,34 +94,56 @@ function MapFallback({ count, onRetry }) {
 // meaningfully different claim ("this is roughly where we're searching", not
 // "this is you") — worth keeping visually distinct rather than collapsing
 // both into one hardcoded color.
-function originPinSvg(color) {
-  return "<svg xmlns='http://www.w3.org/2000/svg' width='30' height='40' viewBox='0 0 30 40'>" +
-    "<path d='M15 1.5 C8 1.5 2.7 6.7 2.7 13.6 C2.7 22.5 15 38 15 38 C15 38 27.3 22.5 27.3 13.6 C27.3 6.7 22 1.5 15 1.5 Z' fill='" + color + "' stroke='#ffffff' stroke-width='1.2'/>" +
-    "<circle cx='15' cy='13.4' r='8.2' fill='#0D1117'/>" +
-    "<rect x='10.4' y='9.8' width='9.2' height='5.4' rx='1' fill='#ffffff'/>" +
-    "<rect x='13' y='7.6' width='4' height='2.6' rx='0.6' fill='#ffffff'/>" +
-    "<rect x='11.6' y='11.1' width='2' height='2.3' fill='#0D1117'/>" +
-    "<rect x='16.4' y='11.1' width='2' height='2.3' fill='#0D1117'/>" +
-    "<rect x='10.7' y='15.2' width='1.7' height='1.7' fill='#ffffff'/>" +
-    "<rect x='13.6' y='15.2' width='1.7' height='1.7' fill='#ffffff'/>" +
-    "<rect x='16.5' y='15.2' width='1.7' height='1.7' fill='" + color + "'/>" +
-    "</svg>";
-}
 const WF_EVENT_PIN_SVG =
   "<svg xmlns='http://www.w3.org/2000/svg' width='26' height='34' viewBox='0 0 26 34'>" +
   "<path d='M13 1 C7 1 2.3 5.5 2.3 11.5 C2.3 19 13 32 13 32 C13 32 23.7 19 23.7 11.5 C23.7 5.5 19 1 13 1 Z' fill='#A78BFA' stroke='#0D1117' stroke-width='1.3'/>" +
   "<circle cx='13' cy='11.5' r='4.4' fill='#0D1117'/>" +
   "</svg>";
 
+// The pulse lives on the GLOW, not the pin: scaling the mark itself would move
+// its tip off the coordinate every frame. Injected once, and disabled entirely
+// under prefers-reduced-motion.
+function ensureOriginPinCss() {
+  if (typeof document === "undefined" || document.getElementById("wf-origin-pin-css")) return;
+  const st = document.createElement("style");
+  st.id = "wf-origin-pin-css";
+  st.textContent = "@keyframes wfOriginGlow{0%,100%{filter:drop-shadow(0 0 3px rgba(252,95,6,.55)) drop-shadow(0 2px 3px rgba(15,23,35,.35))}50%{filter:drop-shadow(0 0 7px rgba(252,95,6,.95)) drop-shadow(0 2px 3px rgba(15,23,35,.35))}}"
+    + ".wf-origin-pin{animation:wfOriginGlow 2.6s ease-in-out infinite}"
+    + "@media (prefers-reduced-motion: reduce){.wf-origin-pin{animation:none}}";
+  document.head.appendChild(st);
+}
+
 function markerNode({ label, color, kind, selected }) {
+  ensureOriginPinCss();
   const el = document.createElement("div");
   el.setAttribute("role", "button");
   el.tabIndex = 0;
   el.setAttribute("aria-label", label);
   if (kind === "origin" || kind === "event") {
-    const w = kind === "origin" ? 30 : 26, h = kind === "origin" ? 40 : 34;
+    // TICKET 4b — THE USER IS THE WAYFIND PIN.
+    //
+    // It was drawn as a generic pin in the same visual language as places, so
+    // the user's own position read as a search result. Now it is the brand mark
+    // itself (public/brand/wayfind-pin.svg — 32x36, gradient, transparent
+    // centre, no glow halo baked in).
+    //
+    // OUTLINE PIN = YOU. FILLED CIRCLE WITH A RANK = SOMEWHERE WE RECOMMEND.
+    // The two vocabularies must never converge; that is the whole point.
+    //
+    // anchor:"bottom" on the Marker puts the element's BOTTOM EDGE on the
+    // coordinate, so the pin's tip lands on the true position rather than its
+    // centre — verified against a known lat/lng, not by eye.
+    if (kind === "origin") {
+      el.style.cssText = "width:30px;height:34px;cursor:pointer;position:relative;";
+      el.innerHTML =
+        // Ground shadow, so it sits ON the map instead of floating above it.
+        '<span aria-hidden="true" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:15px;height:5px;border-radius:50%;background:rgba(15,23,35,.34);filter:blur(1.5px)"></span>' +
+        '<img src="/brand/wayfind-pin.svg" alt="" width="30" height="34" class="wf-origin-pin" style="display:block;width:30px;height:34px;position:relative;filter:drop-shadow(0 0 4.5px rgba(252,95,6,.75)) drop-shadow(0 2px 3px rgba(15,23,35,.35))" />';
+      return el;
+    }
+    const w = 26, h = 34;
     el.style.cssText = "width:" + w + "px;height:" + h + "px;cursor:pointer;filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));" + (selected ? "filter:drop-shadow(0 4px 8px rgba(0,0,0,.4)) drop-shadow(0 0 0 3px rgba(255,255,255,.35));" : "");
-    el.innerHTML = kind === "origin" ? originPinSvg(color || "#F97316") : WF_EVENT_PIN_SVG;
+    el.innerHTML = WF_EVENT_PIN_SVG;   // origin returned above; only events reach here
     return el;
   }
   el.style.cssText = [
