@@ -13,6 +13,27 @@ Keep the names stable: the welcome experience selects these files at runtime.
 | `wayfind-logo-header-transparent.png` | Transparent wordmark crop. | Welcome overlay, on editorial imagery. |
 | `wayfind-pin-transparent.png` | Transparent pin mark. | Welcome overlay accent only. |
 
+### Vector marks
+
+Prefer these over the PNGs wherever the surface can take an SVG: they stay sharp
+at any size and the pin is rendered on the map at 30px, where a raster crop
+visibly softens. All four were tracked but sitting in `_to_delete/`, unlisted
+here, which is why nothing used them — a work order called the pin "already
+produced" and it read as missing.
+
+| File | Purpose | Use |
+| --- | --- | --- |
+| `wayfind-pin.svg` | The pin mark alone, 32x36, orange gradient, transparent centre, no glow halo. | The user's own location on the map. NOT for places -- see below. |
+| `wayfind-logo.svg` | Full wordmark, white lettering with the gradient pin. | On dark backgrounds. |
+| `wayfind-logo-ink.svg` | Same wordmark, near-black lettering (`#0E1116`). | On light backgrounds. |
+| `wayfind-logo-bold.svg` | Heavier wordmark cut, white lettering, slightly wider. | Where the wordmark must hold at small sizes or over busy imagery. |
+
+**The pin is the USER, never a place.** Outline pin = you are here; filled circle
+with a rank number = somewhere we are recommending. Using the pin for a place
+makes the user's own position read as a search result, which is the one thing the
+map must never say. `app/components/MapView.js` keeps those two vocabularies
+apart deliberately.
+
 ## Editorial discovery imagery
 
 | File | Editorial description | Where it appears | SEO/accessibility treatment |
