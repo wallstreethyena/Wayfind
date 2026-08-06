@@ -3244,9 +3244,25 @@ function PageInner({ initialEvents = null }) {
   // COMPASS REMOVED (owner, 2026-08-06) — control, state, refs, the
   // deviceorientation handler registered with capture:true, and the
   // screen-change cleanup effect that called stopCompass(). Removing the button
-  // alone would have left the listener registered on every Map visit, which is
-  // exactly the leak the work order called out. scripts/check-map-controls.mjs
-  // fails if any of it returns.
+  // alone would have left the listener registered on every Map visit.
+  // scripts/check-map-controls.mjs fails if any of it returns.
+  // v6.99 — owner ask: an explicit 3D option alongside the default flat
+  // "bright" basemap. Off by default: pitch/rotation is a real interaction
+  // mode change, not something to default everyone into.
+  const [map3D, setMap3D] = useState(false);
+  // v6.100 (owner: "you ar epissing e off" + a live screenshot of
+  // "The map could not load right now" on the just-shipped Bright style) --
+  // MapFallback used to be a dead end: once the watchdog gave up there was
+  // no way back to a working map short of a full page reload. Bumping this
+  // remounts <MapView> from scratch (fresh MapLibre instance, fresh
+  // container, fresh watchdog window) so a real transient failure -- a slow
+  // cell connection, a background-tab stall -- recovers with one tap.
+  const [mapRetryKey, setMapRetryKey] = useState(0);
+  // Owner ask (2026-08-03): the Map tab should open defaulted to Activities
+  // the first time it is visited in a session. Guard lives here (not in
+  // MapScreen) so it survives MapScreen's own mount/unmount as the user
+  // switches screens -- it should fire once per session, not once per visit.
+  const mapDefaultAppliedRef = useRef(false);
 
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
