@@ -91,6 +91,73 @@ ok(/q == null/.test(LANDING) || /q === null/.test(LANDING),
 ok(!/\* 10;/.test(LANDING.slice(0, LANDING.indexOf("_s ="))) ,
   "no bayes*10 expression survives above the ranker — that was the 0–50 scale");
 
+/* ── 4. proximity actually bites, and the head is diverse ──────────────
+   RUN over the exact rows the live engine returned for food near Parrish at
+   07:00 on 2026-08-06. The old curve (-0.2 past 17mi) left a 21.9-mile drive
+   at the top of a section titled "Best places to eat NEARBY". */
+const tb = await import(new URL("../lib/todaysBest.js", import.meta.url).href).catch(() => null);
+ok(!!tb, "lib/todaysBest.js loads in plain node");
+
+if (tb) {
+  const { byVisibleScore, driveDeduction, diversifyHead, PROXIMITY_FREE_MI, PROXIMITY_PER_MI, PROXIMITY_MAX } = tb;
+
+  ok(driveDeduction(PROXIMITY_FREE_MI) === 0, `nothing is deducted inside ${PROXIMITY_FREE_MI}mi`);
+  ok(driveDeduction(NaN) === 0 && driveDeduction(undefined) === 0, "an unknown distance is not penalised — tours have no coordinates");
+  ok(driveDeduction(120) === PROXIMITY_MAX, `the deduction caps at ${PROXIMITY_MAX} — past that, further is already out of the running`);
+  ok(driveDeduction(22) > driveDeduction(10) + 1,
+    `a 22mi drive costs more than a point beyond a 10mi one (${driveDeduction(22).toFixed(2)} vs ${driveDeduction(10).toFixed(2)}) — the rule it replaced separated them by 0.2, which changed no order at all`);
+
+  // The measured rows, verbatim.
+  const PARRISH = [
+    { name: "Anna Maria Island Beach Cafe", distance_mi: 23.5, rating: 4.5, reviews: 5206, primary_type: "cafe" },
+    { name: "Melt N Dip",                   distance_mi: 21.9, rating: 4.9, reviews: 1782, primary_type: "dessert_shop" },
+    { name: "American Honey Creamery",      distance_mi: 10.4, rating: 4.7, reviews: 737,  primary_type: "dessert_shop" },
+    { name: "Cracker Barrel",               distance_mi: 10.5, rating: 4.5, reviews: 5847, primary_type: "american_restaurant" },
+    { name: "Rocco's Tacos",                distance_mi: 15.9, rating: 4.6, reviews: 7055, primary_type: "mexican_restaurant" },
+    { name: "Chick-fil-A",                  distance_mi: 12.7, rating: 4.5, reviews: 3574, primary_type: "fast_food_restaurant" },
+  ];
+  const ordered = byVisibleScore(PARRISH);
+  ok(ordered[0].distance_mi < 12,
+    `the top pick for "nearby" is inside 12 miles (got ${ordered[0].name} at ${ordered[0].distance_mi}mi) — this exact list used to lead with a 21.9-mile drive`);
+  ok(ordered.findIndex((r) => r.name === "Melt N Dip") > 2 && ordered.findIndex((r) => r.name === "Anna Maria Island Beach Cafe") > 2,
+    "both 20-mile-plus rows fall out of the top three");
+
+  // Unrated must not compete. It used to score 0 here and 39 in landing.js —
+  // wrong in both directions, from two different invented numbers.
+  // The discriminating case. Scoring an unrated place 0 ALSO puts it last in a
+  // list of good places — by luck, not by contract. It only diverges against a
+  // rated row whose distance penalty drives it below zero, which is exactly
+  // where the old code got it wrong: "we have never heard of it" outranked
+  // "we know it is terrible".
+  const terribleFar = { name: "terrible-far", distance_mi: 30, rating: 1.0, reviews: 5000, primary_type: "bar" };
+  const unratedNear = { name: "unrated-near", distance_mi: 0.5, rating: null, reviews: 0, primary_type: "cafe" };
+  const both = byVisibleScore([unratedNear, terribleFar]);
+  ok(both[both.length - 1].name === "unrated-near",
+    `an unrated place sorts BELOW even a 1-star place 30 miles away (got ${both.map((r) => r.name).join(" > ")}) — it does not rank on a number nobody gave it. Scoring it 0 instead of excluding it reverses this.`);
+  const withUnrated = byVisibleScore([unratedNear, ...PARRISH]);
+  ok(withUnrated[withUnrated.length - 1].name === "unrated-near",
+    "and it stays last in a real list, from half a mile away");
+
+  // Diversity of the head.
+  const clones = [
+    { name: "taco1", distance_mi: 1, rating: 4.9, reviews: 5000, primary_type: "mexican_restaurant" },
+    { name: "taco2", distance_mi: 1, rating: 4.8, reviews: 5000, primary_type: "mexican_restaurant" },
+    { name: "taco3", distance_mi: 1, rating: 4.7, reviews: 5000, primary_type: "mexican_restaurant" },
+    { name: "cafe1", distance_mi: 2, rating: 4.4, reviews: 5000, primary_type: "cafe" },
+    { name: "bar1",  distance_mi: 2, rating: 4.3, reviews: 5000, primary_type: "bar" },
+  ];
+  const head = byVisibleScore(clones).slice(0, 3).map((r) => r.primary_type);
+  ok(new Set(head).size === 3, `no two of the top three share a primary_type (got ${JSON.stringify(head)}) — three taco bars is not a shortlist`);
+  ok(byVisibleScore(clones)[0].name === "taco1", "the single best row still leads — diversity reorders the head, it does not override the ranking");
+
+  // Totality: these run inside a render.
+  for (const bad of [null, undefined, [], [null], [{}], [{ rating: "x" }]]) {
+    let threw = false;
+    try { byVisibleScore(bad); diversifyHead(bad); } catch (e) { threw = true; }
+    ok(!threw, `byVisibleScore/diversifyHead survive ${JSON.stringify(bad)}`);
+  }
+}
+
 if (fail.length) {
   console.error(`check-ranking-integrity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
