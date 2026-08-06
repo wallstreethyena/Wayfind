@@ -6,8 +6,15 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 // The owner's drive rule, exact numbers (17 free, -0.2 per started 5mi block)
-ok(driveDeduction(17) === 0 && driveDeduction(5) === 0 && driveDeduction(NaN) === 0, "17mi or less / unknown: no deduction");
-ok(Math.abs(driveDeduction(18) - 0.2) < 1e-9 && Math.abs(driveDeduction(22.1) - 0.4) < 1e-9 && Math.abs(driveDeduction(32) - 0.6) < 1e-9, "-0.2 per started 5mi block past 17");
+// RETUNED 2026-08-06 (docs/RANKING_AND_FEATURING_SPEC §3). The old rule —
+// -0.2 past 17mi, another -0.2 per 5-mile block — was measured against the
+// live engine and changed NO order: a 0.2 deduction against a 0.75 spread of
+// scores is noise, so "Best places to eat NEARBY" led with a 21.9-mile drive.
+// Now: free inside 5mi, then 0.12 per mile, capped at 3.0.
+ok(driveDeduction(5) === 0 && driveDeduction(3) === 0 && driveDeduction(NaN) === 0, "5mi or less / unknown: no deduction");
+ok(Math.abs(driveDeduction(10) - 0.6) < 1e-9 && Math.abs(driveDeduction(17) - 1.44) < 1e-9 && Math.abs(driveDeduction(22.1) - 2.052) < 1e-9, "0.12 per mile past the first 5");
+ok(driveDeduction(30) === 3.0 && driveDeduction(120) === 3.0, "capped at 3.0 — past ~30mi further distance stops mattering, it is already out of the running");
+ok(driveDeduction(21.9) > driveDeduction(10.4) + 1, "a 21.9mi drive is penalised more than a point beyond a 10.4mi one — the old rule separated them by 0.2 and led with the far one");
 const near = { id: "a", rating: 4.6, reviews: 3000, distance_mi: 5, kind: "place" };
 const far = { id: "b", rating: 4.8, reviews: 5000, distance_mi: 30, kind: "place" };
 const sorted = byVisibleScore([far, near]);
