@@ -1,7 +1,7 @@
 "use client";
 // Extracted from app/home.js (G4, July 2026 decomposition). Render-only.
 // tasteBoost is exclusive to the map's default ranking blend and moves with it.
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { C, scoreLabel, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { MAP_DEFAULT_CATEGORY } from "../../../lib/mapExplorer";
 
@@ -35,6 +35,7 @@ function BeachChips({ p, isBeach, beachSignals }) {
 const MAP_EVENTS_ON = String(process.env.NEXT_PUBLIC_MAP_EVENTS || "").trim() === "1";
 
 export default function MapScreen({ ctx }) {
+  const mapCardTouch = useRef(0);
   const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
   // Owner ask (2026-08-03): "we should open the map defaulted to activities
   // showing the activities near the user" -- `cat` is shared, single-source-
@@ -90,7 +91,7 @@ export default function MapScreen({ ctx }) {
                   <button onClick={recenterToMe} aria-label="Near me — recenter the map to your current location" title="Near me" style={{ position: "absolute", top: 164, right: 12, zIndex: 5, width: 44, height: 44, borderRadius: 14, background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
                   </button>
-                  <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} rings styleMode={map3D ? "3d" : "bright"} fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+                  <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} rings styleMode={map3D ? "3d" : "bright"} fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + (view || []).findIndex((x) => x && x.id === p.id) }); } catch (e) {} try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 164, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.light : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
                     {MAP_EVENTS_ON ? <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button> : null}
@@ -130,35 +131,65 @@ export default function MapScreen({ ctx }) {
                     </div>
                   )}
                   {mapMode !== "events" && mapPreview && (() => {
+                    // TICKET 3 — ONE PLACE CARD, NOT THE DRAWER.
+                    //
+                    // Capped at 175px so the map, the distance rings and the user
+                    // pin all stay visible behind it. The old card replaced the
+                    // map with a list, which is the thing that stopped the map
+                    // being a map.
+                    //
+                    // The footer is the point of a ranked map and was missing
+                    // entirely: `n of N - ranked by fit`, with arrows that step
+                    // through the ranked set. Opening the card does NOT move the
+                    // camera — only the arrows do, because recentering under the
+                    // user's finger is disorienting.
                     const mp = mapPreview;
+                    const ranked = (view || []).filter((x) => x && x.id);
+                    const idx = ranked.findIndex((x) => x.id === mp.id);
+                    const pos = idx >= 0 ? idx + 1 : null;
+                    const step = (dir) => {
+                      if (idx < 0 || !ranked.length) return;
+                      const next = ranked[(idx + dir + ranked.length) % ranked.length];
+                      if (!next) return;
+                      setMapPreview(next);
+                      // The camera moves HERE and only here.
+                      setMapFocus({ lat: next.lat, lng: next.lng, ts: Date.now() });
+                      try { logEvent("map_card_page", next, { direction: dir > 0 ? "next" : "prev", rank: 1 + ranked.indexOf(next) }); } catch (e) {}
+                    };
                     const sl = scoreLabel(mp.wfScore);
-                    const opensLater = liveOpen(mp) === false && mp.nextOpen && mp.nextOpen.today;
-                    const openList = (view || []).filter((x) => x && liveOpen(x) === true && x.distMi != null);
-                    const closestOpen = openList.length ? openList.reduce((a, b) => (b.distMi < a.distMi ? b : a)) : null;
-                    let tag = null;
-                    if (closestOpen && closestOpen.id === mp.id) tag = { t: "Closest open spot", c: C.green };
-                    else if (mp.distMi != null && mp.distMi >= 25 && (mp.rating || 0) >= 4.5) tag = { t: "Worth the drive", c: C.gold };
+                    const meta = [mp.cuisine || mp.type, mp.distMi != null ? mp.distMi.toFixed(1) + " mi" : null,
+                      mp.distMi != null ? Math.max(1, Math.round(mp.distMi * 2.2)) + " min drive" : null].filter(Boolean).join(" \u00b7 ");
+                    const openNow = liveOpen(mp);
                     return (
-                      <div style={{ position: "absolute", left: 12, right: 12, bottom: 22, zIndex: 6 }}>
-                        <div style={{ position: "relative", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 10px 34px rgba(0,0,0,.6)" }}>
-                          <div onClick={() => openDetail(mp)} style={{ display: "flex", cursor: "pointer", minWidth: 0 }}>
-                            <FallbackImg src={mp.photo} icon="📍" style={{ width: 96, height: 96, objectFit: "cover", flexShrink: 0, display: "block" }} />
-                            <div style={{ padding: "10px 12px", minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", paddingRight: 22 }}>{mp.name}</div>
-                              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 4 }}>
-                                {sl && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.text }}>{sl.word}</span>}
-                                <PlaceScoreChip p={mp} size={12} />
-                                {liveOpen(mp) === true && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>Open</span>}
-                                {liveOpen(mp) === false && <span style={{ fontSize: 11.5, fontWeight: 700, color: opensLater ? C.gold : C.red }}>{opensLater ? mp.nextOpen.label : "Closed"}</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {mp.distMi.toFixed(1)} mi</span>}
-                                {mp.distMi != null && <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>· ≈ {Math.max(4, Math.round((mp.distMi * 1.3 / 28) * 60) + 3)} min drive</span>}
-                                <BeachChips p={mp} isBeach={isBeach} beachSignals={beachSignals} />
-                              </div>
-                              {tag && <div style={{ fontSize: 11, fontWeight: 800, color: tag.c, marginTop: 5 }}>{tag.t}</div>}
-                              <div style={{ fontSize: 11.5, fontWeight: 700, color: C.light, marginTop: tag ? 4 : 5 }}>See details →</div>
+                      <div
+                        onTouchStart={(e) => { mapCardTouch.current = e.touches[0].clientY; }}
+                        onTouchEnd={(e) => {
+                          const dy = e.changedTouches[0].clientY - (mapCardTouch.current || 0);
+                          if (dy > 60) setMapPreview(null);   // swipe down dismisses
+                        }}
+                        style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, maxHeight: 175, overflow: "hidden", background: "rgba(11,15,20,.95)", WebkitBackdropFilter: "blur(14px)", backdropFilter: "blur(14px)", border: `1px solid ${C.border}`, borderRadius: 18, boxShadow: "0 12px 34px rgba(0,0,0,.5)" }}>
+                        <div aria-hidden="true" style={{ width: 34, height: 4, borderRadius: 2, background: "rgba(255,255,255,.24)", margin: "7px auto 4px" }} />
+                        <button onClick={() => setMapPreview(null)} aria-label="Close" style={{ position: "absolute", top: 4, right: 4, width: 44, height: 44, border: "none", background: "transparent", color: "#fff", fontSize: 15, cursor: "pointer" }}>&#10005;</button>
+                        <div style={{ display: "flex", gap: 11, padding: "0 12px 9px", minWidth: 0 }}>
+                          <FallbackImg src={mp.photo} icon="\ud83d\udccd" style={{ width: 74, height: 74, borderRadius: 13, objectFit: "cover", flexShrink: 0, display: "block" }} />
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: 16, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mp.name}</div>
+                            <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
+                            <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "nowrap", overflow: "hidden" }}>
+                              {sl ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: C.accent, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.4)", borderRadius: 8, padding: "2px 7px" }}>{sl}</span> : null}
+                              {mp.price ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: C.light, background: "rgba(255,255,255,.07)", borderRadius: 8, padding: "2px 7px" }}>{mp.price}</span> : null}
+                              {openNow === true ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: C.green, background: "rgba(34,197,94,.14)", borderRadius: 8, padding: "2px 7px" }}>Open now</span> : null}
                             </div>
                           </div>
-                          <button onClick={(ev) => { ev.stopPropagation(); setMapPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                        </div>
+                        <button onClick={() => { try { logEvent("map_card_cta", mp, { rank: pos }); } catch (e) {} openDetail(mp); }}
+                          style={{ display: "block", width: "calc(100% - 24px)", margin: "0 12px", height: 44, borderRadius: 12, border: "none", background: C.accent, color: "#0B0F14", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>See details &rarr;</button>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 12px 9px" }}>
+                          <span style={{ fontSize: 11.5, color: C.muted }}>{pos ? `${pos} of ${ranked.length} \u00b7 ranked by fit` : "ranked by fit"}</span>
+                          <span style={{ display: "flex", gap: 4 }}>
+                            <button onClick={() => step(-1)} aria-label="Previous place" style={{ width: 34, height: 30, border: `1px solid ${C.border}`, background: "transparent", color: C.light, borderRadius: 9, cursor: "pointer" }}>&#8249;</button>
+                            <button onClick={() => step(1)} aria-label="Next place" style={{ width: 34, height: 30, border: `1px solid ${C.border}`, background: "transparent", color: C.light, borderRadius: 9, cursor: "pointer" }}>&#8250;</button>
+                          </span>
                         </div>
                       </div>
                     );

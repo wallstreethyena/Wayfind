@@ -135,7 +135,7 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
@@ -167,7 +167,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
-      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place" }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
+      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
       bounds.extend([place.lng, place.lat]);
     });
     const placeSource = map.getSource("wf-places");
@@ -288,8 +288,41 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
       map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
-      map.addLayer({ id: "wf-place-pins", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: { "circle-color": ["get", "color"], "circle-radius": 17, "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.96)", "circle-opacity": .96 } });
-      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["to-string", ["get", "rank"]], "text-size": 12, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
+      // TICKET 4c + 3 — the Wayfind marker vocabulary, and the selected state.
+      //
+      // Places are a CIRCLE layer, not DOM markers, so every part of this is a
+      // data-driven paint expression rather than CSS. That is also why 3's pin
+      // selection and 4c's redesign had to ship together: they are the same
+      // expressions, and doing them separately meant writing one twice.
+      //
+      // THE OUTER RING is the piece that makes this read as ours rather than
+      // Google's — 1.5px orange at 45%, standing ~4.5px clear of the chip. It is
+      // a second circle underneath with a transparent fill, because a circle
+      // layer has exactly one stroke.
+      const R_BASE = ["case", ["==", ["get", "rank"], 1], 16.5, 14.5];
+      const R_SEL = ["case", ["==", ["get", "sel"], 1], ["*", R_BASE, 1.4], R_BASE];
+      // Unselected pins drop back so the card reads as anchored to ONE place —
+      // but only once something is actually selected.
+      const OPACITY = ["case", ["==", ["get", "sel"], 1], 1, ["==", ["get", "anySel"], 1], .42, .96];
+      map.addLayer({ id: "wf-place-halo", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: {
+        "circle-color": "rgba(0,0,0,0)",
+        "circle-radius": ["+", R_SEL, 4.5],
+        "circle-stroke-width": ["case", ["==", ["get", "rank"], 1], 2, 1.5],
+        "circle-stroke-color": "#F97316",
+        "circle-stroke-opacity": ["*", 0.45, OPACITY],
+      } });
+      map.addLayer({ id: "wf-place-pins", type: "circle", source: "wf-places", filter: ["!", ["has", "point_count"]], paint: {
+        // Selected turns the body WHITE so the rank still reads against it.
+        "circle-color": ["case", ["==", ["get", "sel"], 1], "#FFFFFF", ["get", "color"]],
+        "circle-radius": R_SEL,
+        "circle-stroke-width": 2.5,
+        "circle-stroke-color": "rgba(255,255,255,.96)",
+        "circle-opacity": OPACITY,
+      } });
+      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["to-string", ["get", "rank"]], "text-size": ["case", ["==", ["get", "rank"], 1], 13.5, 12], "text-allow-overlap": true }, paint: { "text-color": ["case", ["==", ["get", "sel"], 1], "#0B0F14", "#FFFFFF"], "text-opacity": OPACITY } });
+      // The downward pointer, drawn as a glyph because a circle layer cannot
+      // make a triangle. Filtered to the selection so exactly one can exist.
+      map.addLayer({ id: "wf-place-pointer", type: "symbol", source: "wf-places", filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "sel"], 1]], layout: { "text-field": "\u25BC", "text-size": 14, "text-offset": [0, 1.5], "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF", "text-halo-color": "rgba(0,0,0,.35)", "text-halo-width": 1 } });
       map.addSource("wf-rings", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
       map.addLayer({ id: "wf-rings-glow", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#F97316", "line-width": 6, "line-opacity": .18 } });
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });
@@ -323,7 +356,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { redraw(); }, [places, center, category, deviceLoc, events, fit, rings, selectedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Zoom-responsive ring expansion: when the user zooms out past
   // RING_EXPAND_ZOOM_THRESHOLD, swap the 5/10/15mi rings for 5/10/30mi;
