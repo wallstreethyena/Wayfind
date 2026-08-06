@@ -45,14 +45,28 @@
 // capture a photo FOR yet. Add an entry here the same way INSTAGRAM_AVATARS
 // entries were added, the moment a real Facebook creator handle exists.
 import { useState } from "react";
+import { mayHostPhoto } from "../../lib/creatorRights";
 
 // Real Instagram avatars, captured live (2026-08-02) from each creator's own
 // public profile — not a fallback, not a stock photo standing in for them.
 // Keyed by the exact handle used in lib/creatorVideos.js CURATED entries.
+// v6.98b — one entry per consented creator, by CONVENTION: /creators/<handle>.jpg.
+// scripts/check-creator-avatars.mjs asserts that every creator with photo
+// consent in lib/creatorRights.js has an entry here AND a real file behind it,
+// so "we added an influencer and forgot the picture" fails the build instead of
+// quietly rendering initials forever. Instagram cannot be scraped server-side
+// (Meta serves a login wall to datacenter requests — see the v6.95 note above),
+// so these are captured by hand and committed. That is the trade: a manual step
+// that is checked, rather than an automated one that silently 404s.
 const INSTAGRAM_AVATARS = {
   katelynintampa: "/creators/katelynintampa.jpg",
   "fashion.eat.travel": "/creators/fashion.eat.travel.jpg",
   neverboredinorlando: "/creators/neverboredinorlando.jpg",
+  alexandramartin_tv: "/creators/alexandramartin_tv.jpg",
+  secretsoftampabay: "/creators/secretsoftampabay.jpg",
+  influencetampa: "/creators/influencetampa.jpg",
+  tampaterrencee: "/creators/tampaterrencee.jpg",
+  lifeinparrish: "/creators/lifeinparrish.jpg",
 };
 
 // Real Facebook avatars — same capture method as INSTAGRAM_AVATARS above,
@@ -83,7 +97,19 @@ function avatarSrc(handle, platform) {
 export default function CreatorAvatar({ handle, platform, size, color }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const src = avatarSrc(handle, platform);
+  // v6.98 — CONSENT GATE, and it lives HERE rather than at each call site so a
+  // new surface cannot forget it. Without a written consent record in
+  // lib/creatorRights.js this renders initials and never requests the photo.
+  //
+  // Why the default is no: /api/creator-avatar reads the profile photo with
+  // arrayBuffer() and re-serves the BYTES from our origin. Hunley v. Instagram
+  // (9th Cir. 2023) protects EMBEDDING precisely because the embedding site
+  // "does not store a copy" — hosting the copy is the one thing that defence
+  // does not reach. Layer Fla. Stat. 540.08 on top (a person's photograph, used
+  // for a commercial purpose, without express consent, remedy includes "a
+  // reasonable royalty") and an un-consented avatar is the single most
+  // expensive pixel on the site.
+  const src = mayHostPhoto(handle) ? avatarSrc(handle, platform) : null;
   return (
     <div aria-hidden="true" style={{ position: "relative", flexShrink: 0, width: size, height: size, borderRadius: "50%", overflow: "hidden", background: `linear-gradient(135deg, ${color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: Math.round(size * 0.33), fontWeight: 900, color: "#fff" }}>
       {initials(handle)}

@@ -20,6 +20,7 @@
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators } from "../../../lib/creatorVideos";
 import CreatorAvatar from "../CreatorAvatar";
+import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 
 const closeBtnOverlay = { position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer" };
 const closeBtnPlain = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 15, fontWeight: 700, cursor: "pointer" };
@@ -275,6 +276,26 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
             {onBrowse && <button onClick={onBrowse} style={{ ...seeAllBtn, flexShrink: 0 }}>Browse by location ›</button>}
           </div>
 
+          {/* v6.98 — THE DISCLOSURE, above the list rather than under it.
+              Two separate exposures are being answered here. Fla. Stat. 540.08
+              gives a person whose name or likeness is used commercially without
+              consent a claim whose remedy expressly includes "a reasonable
+              royalty" — i.e. a court making us pay the compensation the owner
+              was worried about. Lanham Act s. 43(a) false endorsement is the
+              other, and it is not cured by fine print; it is cured by not
+              making the claim. So the badge no longer says these people are
+              ours, and this says plainly that they are not.
+              The removal line is offered BEFORE anyone has to ask, because the
+              cheapest possible resolution to "why am I on your site" is a
+              working email address and a fast yes. */}
+          <div style={{ border: "1px solid " + C.line, borderRadius: 12, padding: "11px 13px", marginBottom: 18, background: "rgba(255,255,255,.02)" }}>
+            <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>{AFFILIATION_DISCLOSURE}</div>
+            <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, marginTop: 6 }}>
+              {REMOVAL_PROMPT}{" "}
+              <a href={"mailto:" + REMOVAL_CONTACT + "?subject=Creator%20removal%20request"} style={{ color: C.accent, fontWeight: 700, textDecoration: "none" }}>{REMOVAL_CONTACT}</a>
+            </div>
+          </div>
+
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {creators.map((c) => {
               const plat = PLATFORM[c.spots[0].platform] || PLATFORM.tiktok;
@@ -288,10 +309,10 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ display: "inline-flex", alignItems: "center", gap: 5, background: `${plat.color}1f`, border: `1px solid ${plat.color}55`, borderRadius: 999, padding: "2px 8px", marginBottom: 6 }}>
                         <Icon name="sparkles" size={9} color={plat.color} />
-                        <span style={{ fontSize: 9.5, fontWeight: 800, color: plat.color, letterSpacing: ".4px", textTransform: "uppercase" }}>Wayfind Creator</span>
+                        <span style={{ fontSize: 9.5, fontWeight: 800, color: plat.color, letterSpacing: ".4px", textTransform: "uppercase" }}>{creatorLabel(plat.label)}</span>
                       </div>
                       <div style={{ fontSize: 17, fontWeight: 850, color: C.text, letterSpacing: "-.2px" }}>@{c.handle}</div>
-                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{c.count} spot{c.count === 1 ? "" : "s"} featured on Wayfind</div>
+                      <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{c.count} spot{c.count === 1 ? "" : "s"} we link to from their posts</div>
                     </div>
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: profileUrl ? 14 : 0 }}>
