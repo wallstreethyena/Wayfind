@@ -19,10 +19,16 @@
 // resolves to nothing, requestReview() rejects into a catch, and the JS reports
 // "plugin-unavailable" forever. Nothing errors at build time. So the two names
 // are read out of the two files and compared.
+// PARSED IN-PROCESS, not via `plutil`. plutil is a macOS binary and Vercel
+// builds on Linux, so shelling out to it failed the build outright with
+// `spawnSync plutil ENOENT`. scripts/lib/plistParse.mjs parses both plist
+// formats in JS and scripts/test-plist-parse.mjs proves it byte-identical to
+// plutil wherever plutil exists. Skipping this check off-Mac would have been
+// strictly worse than deleting it: green on CI while verifying nothing.
 import { readFileSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readPlist } from "./lib/plistParse.mjs";
 import { decide, readState, MIN_MOMENTS, COOLDOWN_DAYS, STORAGE_KEY } from "../lib/appRating.js";
 
 let pass = 0;
@@ -100,7 +106,7 @@ ok(/SKStoreReviewController\.requestReview\(in:/.test(swift),
 // The plugin then does not exist at runtime, and the failure is indistinguishable
 // from a name mismatch. Resolved through the object graph, not grepped —
 // the same trap as Copy Bundle Resources.
-const proj = JSON.parse(execFileSync("plutil", ["-convert", "json", "-o", "-", path.join(REPO, "ios/App/App.xcodeproj/project.pbxproj")], { encoding: "utf8" }));
+const proj = readPlist(path.join(REPO, "ios/App/App.xcodeproj/project.pbxproj"));
 const objects = proj.objects;
 const target = Object.values(objects).find((o) => o.isa === "PBXNativeTarget" && o.name === "App")
   || Object.values(objects).find((o) => o.isa === "PBXNativeTarget");
