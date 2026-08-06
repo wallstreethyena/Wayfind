@@ -28,8 +28,14 @@ function BeachChips({ p, isBeach, beachSignals }) {
   );
 }
 
+// EVENTS CONTROL — FLAGGED OFF, NOT DELETED (owner, 2026-08-06). Removing the
+// control takes event pins off the map, which is a deliberate consequence: Events
+// remains its own tab. mapMode/setMapMode and MapView's events/onSelectEvent props
+// are untouched, so restoring this is one env var and no code change.
+const MAP_EVENTS_ON = String(process.env.NEXT_PUBLIC_MAP_EVENTS || "").trim() === "1";
+
 export default function MapScreen({ ctx }) {
-  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
+  const { mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view, featuredBoost, communityBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef } = ctx;
   // Owner ask (2026-08-03): "we should open the map defaulted to activities
   // showing the activities near the user" -- `cat` is shared, single-source-
   // of-truth state across Home/Map/Itinerary (see CategoryMenu's own header
@@ -87,26 +93,15 @@ export default function MapScreen({ ctx }) {
                   <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} rings styleMode={map3D ? "3d" : "bright"} fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                   <div style={{ position: "absolute", top: 164, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.light : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
-                    <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button>
+                    {MAP_EVENTS_ON ? <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button> : null}
                   </div>
-                  {mapMode === "places" && (
-                    // v6.94 (owner: "the submenu for the maps is not explaind
-                    // either") — this was an icon-only circle with only a
-                    // hover `title`, which never shows on a touch device, so
-                    // there was no way to learn what it does without tapping
-                    // it blind. Widened into a small labeled pill (same
-                    // language as the Events/FIFA toggle stack above it) so
-                    // "Compass" is always visible, and toggleCompass (below)
-                    // now explains what turning it on actually does the
-                    // first time, via a one-time toast.
-                    <button onClick={toggleCompass} aria-label="Toggle compass heading" title="Compass — needle points north" style={{ position: "absolute", top: 216, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: compassOn ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                      <span ref={compassNeedleRef} style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1, transition: "transform .15s linear", willChange: "transform" }}>
-                        <span style={{ fontSize: 8, fontWeight: 800, color: compassOn ? "#fff" : C.accent }}>N</span>
-                        <svg width="12" height="16" viewBox="0 0 12 16"><path d="M6 0 L11 9 L6 6.5 L1 9 Z" fill={compassOn ? "#fff" : "#F97316"} /><path d="M6 16 L11 9 L6 11.5 L1 9 Z" fill="rgba(255,255,255,.35)" /></svg>
-                      </span>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: compassOn ? "#fff" : C.muted, letterSpacing: ".2px" }}>Compass</span>
-                    </button>
-                  )}
+                  {/* COMPASS REMOVED (owner, 2026-08-06). It floated over the map
+                      competing with the thing people came to look at, and its
+                      deviceorientation listener was registered with capture:true —
+                      removing only the button would have leaked a global listener on
+                      every Map visit. The registration path goes with it; see
+                      scripts/check-map-controls.mjs, which fails if either the control
+                      or the listener comes back. */}
                   {mapMode === "places" && (
                     // v6.99 (owner: "give the user an option to go 3d also")
                     // — OpenFreeMap's free tier includes a "3d" style

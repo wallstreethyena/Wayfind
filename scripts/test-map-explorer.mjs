@@ -64,7 +64,38 @@ ok(/setCat\("attractions"\)/.test(screen) && /MAP_DEFAULT_CATEGORY/.test(screen)
 ok(/key=\{mapRetryKey\}/.test(screen) && /onRetry=\{/.test(screen), "the map view remounts on retry via a key change");
 ok(!/Numbered by rank/.test(screen), "the bulky map legend is gone; numbered pins and the result drawer carry that meaning");
 ok(/bottom: 76/.test(screen) && /Browse list/.test(screen), "the result drawer floats above bottom navigation and remains discoverable");
-ok(/top: 164, right: 12/.test(screen) && /top: 216, left: 12/.test(screen) && /top: 268, left: 12/.test(screen), "floating map buttons are pushed down to clear the taller header now that the sub-filter row is visible");
+// FLOATING CONTROLS CLEAR THE HEADER — asserted as the INVARIANT, not as three
+// pixel coordinates (owner-approved rewrite, 2026-08-06).
+//
+// This previously read:
+//   /top: 164, right: 12/ && /top: 216, left: 12/ && /top: 268, left: 12/
+// which were the recenter button, THE COMPASS and the 3D toggle. It pinned the
+// implementation rather than the property it was written to protect, so it
+// failed the moment the compass was removed — a change that cannot affect
+// whether the surviving controls clear the header. A guard that breaks on a
+// change it does not measure is a guard that gets edited to pass, which is worse
+// than not having it.
+//
+// The property: every absolutely-positioned floating control on the map sits
+// BELOW the header chrome, and no two of them overlap. Both survive the controls
+// being removed, added, or repositioned.
+const HEADER_CLEAR_PX = 150;  // work order 2026-08-06: the filter panel is capped here
+const CONTROL_BOX_PX = 56;    // largest control footprint, for the overlap check
+// Scoped to the floating CONTROLS specifically — `zIndex: 5` is what the map's
+// control layer uses, and matching bare `position:absolute` also caught the
+// panel and overlay wrappers at top:0/top:7, which are supposed to be up there.
+const tops = [...screen.matchAll(/position:\s*"absolute",\s*top:\s*(\d+),\s*(left|right):\s*(\d+),\s*zIndex:\s*5\b/g)]
+  .map((m) => ({ top: Number(m[1]), side: m[2] }));
+ok(tops.length >= 2, `the map renders ${tops.length} absolutely-positioned controls — under 2 means this assertion is reading nothing and would pass vacuously`);
+const tooHigh = tops.filter((t) => t.top < HEADER_CLEAR_PX);
+ok(tooHigh.length === 0, `a floating map control sits at top:${tooHigh.map((t) => t.top).join(",")} px, inside the header band (must clear ${HEADER_CLEAR_PX}px) — it would be covered by the filter panel`);
+for (const side of ["left", "right"]) {
+  const col = tops.filter((t) => t.side === side).map((t) => t.top).sort((a, b) => a - b);
+  for (let i = 1; i < col.length; i++) {
+    ok(col[i] - col[i - 1] >= CONTROL_BOX_PX,
+      `two ${side}-side controls at top:${col[i - 1]} and top:${col[i]} are ${col[i] - col[i - 1]}px apart and would overlap (need ${CONTROL_BOX_PX}px)`);
+  }
+}
 
 const view = readFileSync(new URL("../app/components/MapView.js", import.meta.url), "utf8");
 ok(/distanceRingData\(origin,/.test(view), "MapView renders the shared immediate ring geometry");
