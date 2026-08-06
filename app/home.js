@@ -1027,15 +1027,20 @@ const ADAPT_MIN = 8;
 // (url:"") entries, so only a genuinely-renderable video earns the boost + badge —
 // same predicate for both, so boosted <=> badged. Displayed wfScore is UNTOUCHED
 // (this only moves the hidden sort). Applied on the main ranked browse/search feed;
-// to remove or retune, change VIDEO_BOOST or delete hasCreatorVideo at its call sites.
-// v6.96 — VIDEO_BOOST is now the CEILING of a range, not a flat value, and the
-// range is computed in lib/creatorBoost.js: gated by a quality floor (4.2 stars
-// / 30 reviews, owner decision) and scaled by the reel's reach. It stays
-// declared and exported-by-reference here because it is the number this file's
-// ranking was calibrated around — 45 still clears the 30-point max distance
-// penalty, which is why a featured place 20 minutes away can still surface.
-// To retune the feature, edit lib/creatorBoost.js, not this line.
-const VIDEO_BOOST = 45;
+// to remove or retune the feature, edit lib/creatorBoost.js.
+//
+// v6.97 (owner) — the boost is BOUNDED RELATIVE TO QUALITY: capped at 15% of
+// the place's own wayfindScore, with reel reach spreading it across that
+// envelope. A floor-quality place therefore gets a small share of a small
+// number and can no longer outrank an excellent one, while reach still tells a
+// 650-like post apart from an 11,900-like one. All of it lives in
+// lib/creatorBoost.js; this file only calls creatorBoostFor().
+//
+// The flat 45-point constant that stood on this line is DELETED. It had been
+// dead since v6.96 — nothing read it — and its comment claimed it set a ceiling
+// that it did not set. A ranking spec was later written off that dead constant,
+// and an agent asked the owner to re-decide a question the code had already
+// answered. check-creator-video-boost.mjs now asserts it stays gone.
 // The BADGE, deliberately not the same predicate as the boost. A place below
 // the quality floor keeps its creator video and its badge — we are not hiding
 // her work — it simply is not moved up a list headed "best near you". The
