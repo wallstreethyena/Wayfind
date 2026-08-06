@@ -88,14 +88,30 @@ export default function MapScreen({ ctx }) {
                       stack's vertical position but on the right, well clear
                       of both the left-side button column and MapView's own
                       bottom-right zoom control. */}
-                  <button onClick={recenterToMe} aria-label="Near me — recenter the map to your current location" title="Near me" style={{ position: "absolute", top: 164, right: 12, zIndex: 5, width: 44, height: 44, borderRadius: 14, background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={C.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
+                  {/* TICKET 4a — PREMIUM FLOATING CONTROLS.
+                      A raised control is LIGHTER than what it sits on. These were
+                      dark squares on a light basemap, darker than the map itself,
+                      which is what made them read as debug UI. The inset top
+                      highlight is what sells it as a physical raised control
+                      rather than a flat swatch.
+                      Stacked top-right, 46px, 10px apart. The gap is 10 and not
+                      the specified 9 for one reason: 46+10 = 56, which is the
+                      overlap floor test-map-explorer enforces. 9 would put them
+                      55px apart and trip a guard that exists to stop exactly this
+                      class of collision. */}
+                  <button onClick={recenterToMe} aria-label="Near me \u2014 recenter the map to your current location" title="Near me" aria-pressed={!!deviceLoc}
+                    style={{ position: "absolute", top: 164, right: 12, zIndex: 5, width: 46, height: 46, borderRadius: 999, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", ...(deviceLoc ? { background: "linear-gradient(160deg, #FDBA74, #F97316)", border: "1px solid rgba(255,255,255,.75)", boxShadow: "0 6px 18px rgba(249,115,22,.34), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.55)" } : { background: "linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,243,248,.9))", border: "1px solid rgba(255,255,255,.9)", boxShadow: "0 6px 18px rgba(15,23,35,.22), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.9)" }) }}>
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={deviceLoc ? "#FFFFFF" : "#F97316"} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3.2" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
                   </button>
                   <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} rings styleMode={map3D ? "3d" : "bright"} fit={!!(mapListOverride && mapListOverride.length)} places={mapListOverride && mapListOverride.length ? mapListOverride : mapMode === "events" ? [] : (mapMode === "fifa" ? (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, Hol.fitFor("worldcup", q)]).filter((x) => x[1] >= 8).map((x) => [x[0], x[1] + featuredBoost(x[0].name) + (x[0].wfScore || 50)]).sort((a, b) => b[1] - a[1]).slice(0, 12).map((x) => x[0]); })() : (mapBrowse ? view : (() => { const seen = new Set(); const pool = [...(mapPool || []), ...(suggested || []), ...(places || [])].filter((q) => q && q.id && !seen.has(q.id) && seen.add(q.id)); return pool.map((q) => [q, (q.wfScore || 50) + featuredBoost(q.name) + tasteBoost(q) + communityBoost(q) - (liked && liked[q.id] ? 8 : 0)]).sort((a, b) => b[1] - a[1]).slice(0, 10).map((x) => x[0]); })()))} events={mapEvents} center={center} category={cat} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + (view || []).findIndex((x) => x && x.id === p.id) }); } catch (e) {} try { logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                  <div style={{ position: "absolute", top: 164, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
+                  {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
+                      Cup out of season this container rendered as an EMPTY dark box
+                      floating on the map — a control with nothing in it. Only mount it
+                      when it would actually hold a button. */}
+                  {(MAP_EVENTS_ON || Hol.worldCup(new Date())) && <div style={{ position: "absolute", top: 164, left: 12, zIndex: 5, display: "flex", flexDirection: "column", background: "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, borderRadius: 16, overflow: "hidden", boxShadow: "0 4px 16px rgba(0,0,0,.45)" }}>
                     {Hol.worldCup(new Date()) ? <button onClick={() => setMapMode(mapMode === "fifa" ? "places" : "fifa")} style={{ padding: "7px 13px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "fifa" ? C.light : "transparent", color: mapMode === "fifa" ? "#fff" : C.light }}>⚽ FIFA</button> : null}
                     {MAP_EVENTS_ON ? <button onClick={() => { if (mapMode === "events") { setMapMode("places"); } else { setMapMode("events"); if (!events) loadEvents(); } }} style={{ padding: "7px 15px", fontSize: 13, fontWeight: 800, border: "none", cursor: "pointer", background: mapMode === "events" ? C.light : "transparent", color: mapMode === "events" ? "#fff" : C.light }}>🎟️ Events</button> : null}
-                  </div>
+                  </div>}
                   {/* COMPASS REMOVED (owner, 2026-08-06). It floated over the map
                       competing with the thing people came to look at, and its
                       deviceorientation listener was registered with capture:true —
@@ -111,9 +127,10 @@ export default function MapScreen({ ctx }) {
                     // than the default since 3D needs pitch/rotation enabled,
                     // a real change to how the map is driven, not just a
                     // color swap. Same pill language as Compass above it.
-                    <button onClick={() => setMap3D((v) => !v)} aria-label={map3D ? "Switch to flat map" : "Switch to 3D map"} title={map3D ? "3D on — tap for flat map" : "Tap for 3D buildings"} style={{ position: "absolute", top: 268, left: 12, zIndex: 5, minWidth: 56, padding: "6px 10px 7px", borderRadius: 14, background: map3D ? C.light : "rgba(10,16,27,.88)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: `1px solid ${C.border}`, boxShadow: "0 4px 16px rgba(0,0,0,.45)", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={map3D ? "#fff" : "#F97316"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 3 7l9 5 9-5-9-5Z" /><path d="M3 12l9 5 9-5" /><path d="M3 17l9 5 9-5" /></svg>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: map3D ? "#fff" : C.muted, letterSpacing: ".2px" }}>{map3D ? "3D" : "2D"}</span>
+                    <button onClick={() => setMap3D((v) => !v)} aria-label={map3D ? "Switch to flat map" : "Switch to 3D map"} title={map3D ? "3D on \u2014 tap for flat map" : "Tap for 3D buildings"} aria-pressed={!!map3D}
+                      style={{ position: "absolute", top: 220, right: 12, zIndex: 5, width: 46, height: 46, borderRadius: 999, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 1, ...(map3D ? { background: "linear-gradient(160deg, #FDBA74, #F97316)", border: "1px solid rgba(255,255,255,.75)", boxShadow: "0 6px 18px rgba(249,115,22,.34), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.55)" } : { background: "linear-gradient(160deg, rgba(255,255,255,.97), rgba(240,243,248,.9))", border: "1px solid rgba(255,255,255,.9)", boxShadow: "0 6px 18px rgba(15,23,35,.22), 0 1px 2px rgba(15,23,35,.16), inset 0 1px 0 rgba(255,255,255,.9)" }) }}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={map3D ? "#FFFFFF" : "#64748B"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5Z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                      <span style={{ fontSize: 8.5, fontWeight: 800, color: map3D ? "#FFFFFF" : "#64748B", letterSpacing: ".2px", lineHeight: 1 }}>{map3D ? "3D" : "2D"}</span>
                     </button>
                   )}
                   {mapMode === "events" && (
