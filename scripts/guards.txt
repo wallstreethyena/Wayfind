@@ -305,3 +305,4 @@ node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-universal-link
 node scripts/check-push-registration.mjs
 node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
+node scripts/check-credentialed-paths.mjs
