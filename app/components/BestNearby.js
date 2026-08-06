@@ -20,6 +20,7 @@ import { useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+import { TILE_SOURCE, tileLabel } from "../../lib/categoryTiles.js";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
@@ -138,7 +139,20 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // scripts/check-home-answer-first.mjs asserts it is a real section id.
 export const DEFAULT_SECTION = "eat";
 
-export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
+/**
+ * `category` is K3 Phase 2, and it is the whole point of the work order.
+ *
+ * Before this, tapping a category on the home screen set `browseCat`, which
+ * rendered a DIFFERENT branch of app/home.js — this component unmounted, its
+ * rows were thrown away, and a fresh Google Places search started from nothing.
+ * That teardown is the leave: the answer a visitor was reading disappeared the
+ * moment they expressed a preference about it.
+ *
+ * With a category passed in, this component stays MOUNTED and re-ranks under
+ * the bar. The list re-fetches, the headline count follows it, and the reader
+ * watches their own list narrow instead of watching the page empty.
+ */
+export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog, category }) {
   // v6.57 (2026-08-06, owner): the FIRST section is open on arrival.
   //
   // MEASURED, not a preference. 259 single-page sessions landed on "/" in the
@@ -231,8 +245,13 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     return { kindOf: "trends", beach, todays, report };
   };
 
+  // K3 Phase 2: the ranked rail serves WHICHEVER category the bar has selected,
+  // falling back to food. TILE_SOURCE is the one map from a bar tile to a
+  // wf_best_picks category, shared with the bar's own photo fetch, so the
+  // circle and the list it filters can never be reading different things.
+  const eatCategory = (category && TILE_SOURCE[category]) || "food";
   const load = (id) =>
-    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10 })
+    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: eatCategory, limit: 10 })
     : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10 })
     : loadTrends();
 
@@ -242,7 +261,11 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // now the one almost every visitor takes.
   const ensureLoaded = (id) => {
     if (!id) return;
-    const centerKey = center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "";
+    // The cache key carries the CATEGORY as well as the centre. Without it the
+    // rows already in hand would satisfy the next category's request and the
+    // list would silently refuse to change — the failure mode that looks
+    // exactly like "the filter does nothing".
+    const centerKey = (center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "") + "|" + (category || "");
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
     setRows((r) => {
       if (r[id]) return r;
@@ -264,7 +287,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     ensureLoaded(open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, center && center.lat, center && center.lng]);
+  }, [open, center && center.lat, center && center.lng, category]);
 
   const toggle = (id) => {
     const next = open === id ? null : id;
@@ -292,7 +315,15 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // goes to the taller hero. All trends machinery stays; flip to bring back.
   const SHOW_TRENDS = false;
   const SECTIONS = [
-    { id: "eat", label: "Best places to eat nearby", sub: "Ranked for this exact hour", icon: "food" },
+    // The rail names whatever it is currently showing. Leaving it as "Best
+    // places to eat nearby" while it lists cocktail bars is the same class of
+    // lie as a count that does not match its list.
+    {
+      id: "eat",
+      label: category && tileLabel(category) ? "Best " + tileLabel(category).toLowerCase() + " nearby" : "Best places to eat nearby",
+      sub: "Ranked for this exact hour",
+      icon: category && TILE_SOURCE[category] ? category : "food",
+    },
     { id: "todo", label: "Top things to do", sub: "Tours, beaches and attractions, one list", icon: "attractions" },
     ...(SHOW_TRENDS ? [{ id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" }] : []),
   ];
@@ -366,8 +397,12 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // that says "0 places scored" is worse than a headline with no count, and
     // one that says "30" when the engine returned 12 is worse than both.
     const factors = "scored on reviews, distance and time of day";
+    // K3 Phase 2: the headline follows the bar. "40 places" -> "12 places" is
+    // the visible proof that the tap was heard — and it is still list.length,
+    // so it can only ever say what is actually rendered underneath it.
+    const catLabel = category ? tileLabel(category) : null;
     return {
-      lead: open === "todo" ? "Things to do near you," : "Open now near you,",
+      lead: open === "todo" ? "Things to do near you," : catLabel ? catLabel + " near you," : "Open now near you,",
       tail: "ranked for " + hourLabel(ctx.hour) + " " + ctx.dayName + ".",
       sub: (n ? n + " places " + factors : "Ranked " + factors) + " · no paid placement",
     };

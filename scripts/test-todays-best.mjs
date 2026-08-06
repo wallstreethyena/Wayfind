@@ -47,12 +47,21 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 // "Best places to eat nearby" sits under the events card instead. The
 // component, lib, and engines stay in the repo for when it returns.
 ok(!/<TodaysBest /.test(home), "the accordion is unmounted (owner call)");
-ok(/<BestNearby center=\{center\} weather=\{weather\}/.test(home), "the combined BestNearby card is mounted with live center + weather (v6.46)");
+// v6.98 (K3 Phase 2): loosened from an exact prop PREFIX to a prop
+// PRESENCE check, because the card now also takes `category`. The claim
+// being protected is unchanged — it is mounted, and it is ranking against
+// a live centre and live weather rather than defaults.
+ok(/<BestNearby\b[^>]*center=\{center\}[^>]*weather=\{weather\}/.test(home), "the combined BestNearby card is mounted with live center + weather (v6.46)");
 
 // v6.46: the combined card's own contract
 const bn = readFileSync(new URL("../app/components/BestNearby.js", import.meta.url), "utf8");
 ok(bn.includes("Best places to eat nearby") && bn.includes("Top things to do"), "both menus live in the ONE card");
-ok(bn.includes('category: "food"') && bn.includes("fetchTodaysBest") && bn.includes("fetchThingsToDo"), "eat rides wf_best_picks(food); things-to-do rides wf_things_to_do — the day's engines, no client re-ranking");
+// v6.98 (K3 Phase 2): the eat rail serves whichever category the bar has
+// selected, so the literal `category: "food"` became a variable. Both
+// halves of the original claim are still pinned and are what matter: the
+// default is STILL food, and the ranking still happens in the engine
+// rather than being re-done on the client after the fact.
+ok(/category: eatCategory/.test(bn) && /TILE_SOURCE\[category\]\)\s*\|\|\s*"food"/.test(bn) && bn.includes("fetchTodaysBest") && bn.includes("fetchThingsToDo"), "eat rides wf_best_picks — the K3 category when one is selected, food otherwise; things-to-do rides wf_things_to_do — the day's engines, no client re-ranking");
 ok(bn.includes('CARD_BG = "#0B0E15"'), "card is the owner's almost-black, one step lighter than the page");
 ok(/r\.selling_out \? <SellingFast \/> : null/.test(bn), "Selling-fast badge renders ONLY on the engine's flag (Viator's own signal)");
 ok(bn.includes("affiliate links; Wayfind may earn a commission"), "affiliate disclosure renders with the tours");

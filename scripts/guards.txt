@@ -309,6 +309,7 @@ node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
 node scripts/check-ranking-integrity.mjs
 node scripts/check-creator-video-boost.mjs
+node scripts/check-category-bar.mjs
 node scripts/check-creator-events.mjs
 node scripts/check-guard-integrity.mjs
 node scripts/check-creator-rights.mjs
