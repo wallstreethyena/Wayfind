@@ -173,6 +173,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
+import { creatorBoostFor } from "../lib/creatorBoost";
 import CreatorAvatar from "./components/CreatorAvatar";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
@@ -583,7 +584,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0) };
+    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (creatorBoostFor(p)) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -1025,7 +1026,19 @@ const ADAPT_MIN = 8;
 // same predicate for both, so boosted <=> badged. Displayed wfScore is UNTOUCHED
 // (this only moves the hidden sort). Applied on the main ranked browse/search feed;
 // to remove or retune, change VIDEO_BOOST or delete hasCreatorVideo at its call sites.
-const VIDEO_BOOST = 45; // clears the 30-pt max distance penalty and lifts a featured place near the top
+// v6.96 — VIDEO_BOOST is now the CEILING of a range, not a flat value, and the
+// range is computed in lib/creatorBoost.js: gated by a quality floor (4.2 stars
+// / 30 reviews, owner decision) and scaled by the reel's reach. It stays
+// declared and exported-by-reference here because it is the number this file's
+// ranking was calibrated around — 45 still clears the 30-point max distance
+// penalty, which is why a featured place 20 minutes away can still surface.
+// To retune the feature, edit lib/creatorBoost.js, not this line.
+const VIDEO_BOOST = 45;
+// The BADGE, deliberately not the same predicate as the boost. A place below
+// the quality floor keeps its creator video and its badge — we are not hiding
+// her work — it simply is not moved up a list headed "best near you". The
+// no-silent-boost invariant still holds in the direction that matters: every
+// boosted place has a video, so every boosted place is labeled.
 function hasCreatorVideo(p) { try { return creatorVideosFor(p).length > 0; } catch (e) { return false; } }
 // featuredBoost takes the PLACE (needs coords to geo-gate). WAYFIND_FEATURED +
 // gems are first-party FL data; a same-named place outside the curated region
@@ -3542,7 +3555,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0);
+      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p) + (creatorBoostFor(p));
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3620,7 +3633,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (creatorBoostFor(p)); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -5806,7 +5819,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (creatorBoostFor(b))) - ((a.wfScore || 0) + featuredBoost(a) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (creatorBoostFor(a))));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -6247,7 +6260,7 @@ function PageInner({ initialEvents = null }) {
         // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + _ctxBoost(b) + (hasCreatorVideo(b) ? VIDEO_BOOST : 0)) - ((a.wfScore || 0) + featuredBoost(a) + _ctxBoost(a) + (hasCreatorVideo(a) ? VIDEO_BOOST : 0)));
+        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + _ctxBoost(b) + (creatorBoostFor(b))) - ((a.wfScore || 0) + featuredBoost(a) + _ctxBoost(a) + (creatorBoostFor(a))));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -7560,7 +7573,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (hasCreatorVideo(p) ? VIDEO_BOOST : 0));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (creatorBoostFor(p)));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -9507,8 +9520,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id]);
-  // v5.99: the "Creator video" badge is shown iff the place got the VIDEO_BOOST
-  // (same hasCreatorVideo predicate) — the boost is labeled, never silent.
+  // v5.99 / v6.96: the "Creator video" badge is shown whenever a place HAS a
+  // renderable creator video. Until v6.96 that was the same set as "got the
+  // boost"; a quality floor now makes the boosted set a subset. The invariant
+  // this line exists to protect is one-directional and still holds: a boosted
+  // place is always labeled, so the ranking thumb is never silent.
   const badges = [...(hasCreatorVideo(p) ? [{ key: "creatorvideo", icon: "🎬", label: "Creator video" }] : []), ...(featuredBoost(p) > 0 ? [{ key: "featured", icon: "🏅", label: "Featured" }] : []), ...experienceBadges(p, selectedBadge, 3)];
   const pcat = primaryCategory(p);
   const m = rank ? medal(rank) : null;
