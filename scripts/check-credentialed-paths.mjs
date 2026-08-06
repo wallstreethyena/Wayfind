@@ -40,8 +40,13 @@ for (const k of keys) {
   ok(String(GUARD_STUB_ENV[k] || "").length > 0, `${k} must have a non-empty stub value`);
 }
 // The stub must be obviously fake, so nobody mistakes it for a real credential.
-ok(/^P0+$/.test(GUARD_STUB_ENV.NEXT_PUBLIC_VIATOR_PID || ""),
-  "the Viator PID stub must be visibly synthetic (all zeros), never a real-looking id");
+// Every stub must be visibly synthetic — an optional letter prefix then zeros —
+// so nobody can mistake one for a real credential or be tempted to "fix" it by
+// pasting a live value in.
+for (const k of keys) {
+  ok(/^[A-Za-z]*0+$/.test(String(GUARD_STUB_ENV[k])),
+    `${k} stub ${JSON.stringify(GUARD_STUB_ENV[k])} must be visibly synthetic (letters then zeros), never a real-looking id`);
+}
 
 /* ── 2. every listed guard exists and states a reason ─────────────────────── */
 ok(CREDENTIALED_GUARDS.length > 0, "CREDENTIALED_GUARDS must not be empty");

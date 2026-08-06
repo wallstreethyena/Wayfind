@@ -51,6 +51,13 @@ export const GUARD_STUB_ENV = Object.freeze({
   // branch in lib/guideCta. Same fixture value check-monetized-degrade and
   // test-affiliates already use, so the suite speaks one dialect.
   NEXT_PUBLIC_VIATOR_PID: "P00000000",
+  // Aff.ticketsUrl() falls back to GetYourGuide when Viator is absent
+  // (lib/affiliates: `if (VIATOR) ... if (GYG) ...`), so BOTH credentials gate
+  // the same branch. Stubbing only Viator made the bare probe wrong on Vercel,
+  // where GYG is set: the branch was still reachable and the premise assertion
+  // in check-credentialed-paths failed the build. It was right to — the model
+  // was incomplete, not the guard.
+  NEXT_PUBLIC_GYG_PID: "0000000",
 });
 
 /**
