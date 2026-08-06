@@ -259,13 +259,6 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // toggle() so the default-open section on mount and a user's tap go through
   // exactly ONE loading path — two copies would drift, and the mount path is
   // now the one almost every visitor takes.
-  // Bumped on every category/centre change. A response tagged with a stale
-  // token is DROPPED. Without this, tapping Food then Night out within a
-  // second left whichever RPC resolved last on screen -- so the bar could read
-  // "Night out", the headline could read "Night out near you," and the rows
-  // could be restaurants.
-  const reqToken = useRef(0);
-
   const ensureLoaded = (id) => {
     if (!id) return;
     // The cache key carries the CATEGORY as well as the centre. Without it the
@@ -273,18 +266,13 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // list would silently refuse to change — the failure mode that looks
     // exactly like "the filter does nothing".
     const centerKey = (center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "") + "|" + (category || "");
-    if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; reqToken.current += 1; setRows({}); }
+    if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
     setRows((r) => {
       if (r[id]) return r;
       // THE GATE, applied to whichever rail loaded. The "eat" rail is
       // unaffected in practice (restaurants read indoor), so this is one
       // call site rather than two branches that can drift apart.
-      const mine = reqToken.current;
-      (async () => {
-        const data = await load(id);
-        if (mine !== reqToken.current) return; // a newer category is already in flight
-        setRows((r2) => ({ ...r2, [id]: gateOutdoor(data, nowCtx()) }));
-      })();
+      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: gateOutdoor(data, nowCtx()) })); })();
       return { ...r, [id]: "loading" };
     });
   };
@@ -300,11 +288,6 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     ensureLoaded(open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, center && center.lat, center && center.lng, category]);
-
-  // "See all" is a statement about the list in front of you, not a preference
-  // that follows you into a different one. Without this, expanding Food to ten
-  // rows and tapping Night out collapsed ~750px and re-expanded it.
-  useEffect(() => { setShowAll(false); }, [category]);
 
   const toggle = (id) => {
     const next = open === id ? null : id;
@@ -421,10 +404,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     return {
       lead: open === "todo" ? "Things to do near you," : catLabel ? catLabel + " near you," : "Open now near you,",
       tail: "ranked for " + hourLabel(ctx.hour) + " " + ctx.dayName + ".",
-      // "Ranked " + factors read "Ranked scored on reviews, distance and time
-      // of day" -- ungrammatical, and shown to EVERY visitor for the whole mount
-      // fetch, then permanently for any category with no rows.
-      sub: (n ? n + " places " + factors : "Ranked on reviews, distance and time of day") + " · no paid placement",
+      sub: (n ? n + " places " + factors : "Ranked " + factors) + " · no paid placement",
     };
   })();
 
