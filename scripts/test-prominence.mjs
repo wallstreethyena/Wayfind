@@ -11,20 +11,28 @@ let pass = 0;
 const fail = (m) => { console.error("test-prominence: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
 
-// Mirror the two formulas so this stays node-testable without the Next runtime,
-// and assert the mirrors match what lib/google.js actually ships.
+// wayfindScore is no longer MIRRORED here (2026-08-06). It moved to
+// lib/wayfindScore.js — zero imports, node-loadable — so this guard imports the
+// real function instead of a fourth handwritten copy of it. A mirror asserted
+// against source TEXT is what let three divergent implementations coexist:
+// lib/landing.js used the same constants in a different expression, on a 0–50
+// scale, and every text-matching check in the repo stayed green.
+//
+// prominenceScore is still mirrored, because it lives in lib/google.js and that
+// module cannot be loaded outside the Next runtime.
 const src = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
-ok(/export function wayfindScore\(rating, reviews\)/.test(src), "wayfindScore is exported");
+const { wayfindScore } = await import(new URL("../lib/wayfindScore.js", import.meta.url).href);
+// Imported AND re-exported, deliberately: a bare `export { x } from "./y"`
+// creates no local binding, and prominenceScore() in this file calls
+// wayfindScore — check-lib-call-imports caught exactly that before it shipped.
+ok(/import \{ wayfindScore \} from "\.\/wayfindScore\.js"/.test(src), "lib/google.js imports wayfindScore from the one shared module (a local binding, because prominenceScore calls it)");
+ok(/export \{ wayfindScore \};/.test(src), "lib/google.js still re-exports wayfindScore for its existing importers");
 ok(/export function prominenceScore\(rating, reviews\)/.test(src), "prominenceScore is exported");
-ok(/const m = 60;/.test(src), "wayfindScore still uses m=60 (displayed score unchanged)");
+ok(wayfindScore(4.6, 3000) === 92, "the REAL wayfindScore still returns 92 for 4.6/3000 — the displayed score is unchanged by the move");
+ok(wayfindScore(null, 0) === null, "the REAL wayfindScore returns null for an unrated place");
 ok(/0\.6 \* quality \+ 0\.4 \* volume/.test(src), "prominence weights quality 0.6 / volume 0.4");
 ok(/Math\.log10\(1 \+ \(reviews \|\| 0\)\) \/ 6/.test(src), "prominence uses log10 volume over 6 decades");
 
-const wayfindScore = (rating, reviews) => {
-  if (!rating) return null;
-  const m = 60, C = 3.9, v = reviews || 0;
-  return Math.round((((v / (v + m)) * rating + (m / (v + m)) * C) / 5) * 100);
-};
 const prominenceScore = (rating, reviews) => {
   if (!rating) return null;
   const quality = wayfindScore(rating, reviews) / 100;
