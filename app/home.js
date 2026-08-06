@@ -171,7 +171,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 import BestNearby from "./components/BestNearby";
 import CreatorFinds from "./components/CreatorFinds";
 import CategoryBar from "./components/CategoryBar";
-import { fetchCategoryTiles, tilesFrom } from "../lib/categoryTiles";
+import { fetchCategoryTiles, tilesFrom, TILE_SOURCE, tileLabel } from "../lib/categoryTiles";
 import LocalEdit from "./components/LocalEdit";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
@@ -3446,6 +3446,9 @@ function PageInner({ initialEvents = null }) {
   // the bar falls back to its glyphs and the control still works, because a
   // photograph is decoration over a category tap that must never depend on it.
   const [catTiles, setCatTiles] = useState(() => tilesFrom({}));
+  // K3 Phase 2: the bar's own selection. Deliberately NOT browseCat — see
+  // pickBarCat below for why that distinction is the entire fix.
+  const [barCat, setBarCat] = useState(null);
   useEffect(() => {
     if (!WF_CATEGORY_BAR || !center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     let cancelled = false;
@@ -3804,6 +3807,27 @@ function PageInner({ initialEvents = null }) {
     } catch (e) {}
   }, [suggested]);
   const pickBrowse = (id) => { const nv = browseCat === id ? null : id; setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  // K3 PHASE 2 — THE ACTUAL BOUNCE FIX.
+  //
+  // A bar tap NEVER sets browseCat. Setting it is what rendered a different
+  // branch of this file, unmounted BestNearby, threw away its rows and started
+  // a fresh Google Places search from nothing. That teardown is the leave: the
+  // answer someone was reading vanished the moment they expressed a preference
+  // about it, and ~50% of sessions on "/" end inside ten seconds.
+  //
+  // barCat re-ranks the list that is already on screen, under the bar, with the
+  // headline count following it. Browse mode is still reachable — as a
+  // deliberate "browse all", which is what the work order asks for.
+  //
+  // Family falls through to browse, and that is a data fact rather than a
+  // special case: it has no wf_best_picks category (wf_inventory carries no
+  // family rows), so there is nothing to re-rank in place.
+  const pickBarCat = (id) => {
+    const nv = barCat === id ? null : id;
+    if (nv && !TILE_SOURCE[nv]) { pickBrowse(id); return; }
+    setBarCat(nv);
+    setSub("all");
+  };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     const ctx = condCtxFromNow(nowContext({ weather }));
@@ -8223,7 +8247,7 @@ function PageInner({ initialEvents = null }) {
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <BestNearby category={WF_CATEGORY_BAR ? barCat : null} center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {/* v6.97 — "Finds from local creators" gets its own row (owner, on the
                   approved mockup: "your differentiator... it keeps its own row"). The
                   list was already being computed on every render and handed to
@@ -8241,10 +8265,16 @@ function PageInner({ initialEvents = null }) {
                   is untouched and keeps all four call sites, so flipping the env var
                   off falls back to something already known to work. */}
               {WF_CATEGORY_BAR ? (
-                <CategoryBar cats={catTiles} activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home_k3" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+                <CategoryBar cats={catTiles} activeCat={barCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home_k3" }); } catch (e) {} pickBarCat(id); }} onSub={(v) => setSub(v)} />
               ) : (
                 <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               )}
+              {/* Browse mode is now a DESTINATION, not the consequence of a tap. */}
+              {WF_CATEGORY_BAR && barCat && tileLabel(barCat) ? (
+                <button onClick={() => pickBrowse(barCat)} style={{ display: "block", width: "100%", margin: "2px 0 10px", padding: "9px 0", minHeight: 44, background: "transparent", border: "1px solid rgba(255,255,255,.12)", borderRadius: 10, color: C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+                  Browse all {tileLabel(barCat).toLowerCase()} →
+                </button>
+              ) : null}
 
               {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
               {!browseCat && foryouEvents === null && discoveryMenu}

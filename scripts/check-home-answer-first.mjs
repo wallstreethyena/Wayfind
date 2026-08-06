@@ -109,7 +109,11 @@ ok(
 const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8")
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 
-const iBest = HOME.indexOf("<BestNearby center=");
+// v6.98 (K3 Phase 2): matched on "<BestNearby center=" until the card gained
+// a `category` prop ahead of it. This guard is about POSITION in the feed —
+// the answer before the controls — so it anchors on the tag itself. The
+// prop contract is test-todays-best.mjs's job, not this one's.
+const iBest = HOME.indexOf("<BestNearby ");
 const iEvents = HOME.indexOf("<EventsRailSkeleton />");
 // The RENDER SITE in the feed, not the component. A bare "<DiscoveryHeroCard "
 // also matches the one inside EventsRailSkeleton, which is DEFINED far earlier

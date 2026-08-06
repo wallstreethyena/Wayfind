@@ -8,10 +8,7 @@
  * are only real if something asserts them:
  *
  *   1. NEXT_PUBLIC_WF_CATEGORY_BAR unset or "off" -> the old CategoryMenu
- *      renders, unchanged, with no code change. (The work order said "no
- *      redeploy". That is wrong and the comment in app/home.js records why:
- *      NEXT_PUBLIC_* is inlined at build time, so a flip needs a deploy — it
- *      just does not need a revert or a merge.)
+ *      renders, unchanged, with no redeploy.
  *   2. CategoryMenu is not deleted and keeps its other call sites, so the flag
  *      always has something known-good to fall back TO.
  *
@@ -19,11 +16,14 @@
  * an empty category is never advertised — and the two motion rules that are
  * about phone performance rather than taste.
  *
- * PHASE 2 IS NOT ASSERTED HERE YET. Work-order guard 3 ("a category tap never
- * unmounts the ranked list") is the actual bounce fix and has not shipped: the
- * feed still renders BestNearby under {!browseCat && ...}. Asserting it now
- * would be asserting a thing that is false. It goes in the same commit that
- * makes it true, and this comment is the record that it is owed.
+ * PHASE 2 IS NOW ASSERTED, in section 8. Work-order guard 3 — "a category tap
+ * never unmounts the ranked list" — is the actual bounce fix, and it is one
+ * distinction in one function: a bar tap sets barCat, never browseCat. Setting
+ * browseCat renders a different branch of app/home.js, which unmounts
+ * BestNearby, discards its rows and starts a fresh Google Places search. That
+ * teardown is the leave. Reverting that one call is all it would take to lose
+ * the fix while every other assertion here still passed, which is exactly why
+ * it is pinned.
  */
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -113,5 +113,35 @@ ok(banned.length === 0,
 /* ── 7. THE SUBMENU CONTRACT IS UNCHANGED ───────────────────────────────── */
 ok(/SUBFILTERS/.test(BAR),
    "the bar renders the EXISTING SUBFILTERS row — same chips, same queries, same SUB_ALLOW contract in lib/placeFilter.js; it only gained a height transition");
+
+/* ── 8. PHASE 2 — A TAP MUST NOT UNMOUNT THE ANSWER ─────────────────────── */
+const NEARBY = read("app/components/BestNearby.js");
+
+const onCat = (HOME.match(/<CategoryBar[\s\S]{0,600}?onCat=\{([\s\S]{0,320}?)\}\}/) || [])[1] || "";
+ok(onCat.length > 0, "the CategoryBar call site has an onCat handler to inspect");
+ok(/pickBarCat\(/.test(onCat),
+   "a bar tap calls pickBarCat — the state the ranked list re-ranks under while staying mounted");
+ok(!/pickBrowse\(|setBrowseCat\(/.test(onCat),
+   "a bar tap does NOT call pickBrowse/setBrowseCat — that renders a different branch of home.js, unmounts BestNearby, discards its rows and restarts a Google Places search. That teardown IS the bounce this whole work order exists to fix");
+
+ok(/<BestNearby category=\{[^}]*barCat[^}]*\}/.test(HOME),
+   "BestNearby receives the bar's category, so the tap re-ranks the mounted list instead of replacing the page");
+ok(/WF_CATEGORY_BAR \? barCat : null/.test(HOME),
+   "with the flag off BestNearby gets null and behaves exactly as it does today — the Phase 2 change is inside the same kill switch as the bar");
+
+ok(/function BestNearby\(\{[^}]*\bcategory\b/.test(NEARBY), "BestNearby accepts a category prop");
+ok(/TILE_SOURCE\[category\]/.test(NEARBY),
+   "the rail resolves its category through the SAME TILE_SOURCE map the circles use — two surfaces on one screen must not disagree about what a tile means");
+ok(/const centerKey = [^;]*\+\s*"\|"\s*\+\s*\(category \|\| ""\)/.test(NEARBY),
+   "the row cache key carries the category — without it the rows already in hand satisfy the next category's request and the list silently refuses to change, which looks exactly like 'the filter does nothing'");
+ok(/\}, \[open, center && center\.lat, center && center\.lng, category\]\)/.test(NEARBY),
+   "the load effect depends on category, so selecting one actually refetches");
+ok(/catLabel \+ " near you,"/.test(NEARBY),
+   "the headline follows the bar — the work order's 'visible proof it listened'");
+ok(/n \+ " places " \+ factors/.test(NEARBY),
+   "the count is still list.length, so a narrowed list reports the narrowed number and never a stale or rounded one");
+
+ok(/pickBarCat = \(id\) => \{[\s\S]{0,400}?TILE_SOURCE\[nv\][\s\S]{0,120}?pickBrowse\(id\)/.test(HOME),
+   "a category with no ranked source (family, which has no wf_inventory rows) falls through to browse rather than re-ranking into an empty list");
 
 console.log(`check-category-bar: PASS (${pass} assertions)`);
