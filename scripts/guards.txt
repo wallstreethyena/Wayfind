@@ -292,3 +292,4 @@ node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
 node scripts/check-known-for.mjs
 node scripts/check-guide-cta-honesty.mjs
+node scripts/check-guide-product-resolution.mjs

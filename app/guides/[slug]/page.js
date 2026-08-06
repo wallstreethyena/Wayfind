@@ -6,7 +6,8 @@
 import { notFound } from "next/navigation";
 import { GUIDES } from "../../../lib/guides";
 import { SITE_URL } from "../../../lib/site";
-import { experienceSearchUrl } from "../../../lib/affiliates";
+import { experienceSearchUrl, viatorProductGoUrl } from "../../../lib/affiliates";
+import { resolveGuideProduct, productCtaLabel } from "../../../lib/guideProductResolve";
 // ONE primary CTA per guide, resolved through THE predicate in
 // lib/bookingResolve — the same one the app's Detail sheet uses. The per-pick
 // experienceGoUrl()/hotelSearchUrl() calls this file used to make were a PARALLEL
@@ -143,8 +144,44 @@ export default async function GuidePage({ params }) {
   const appUrl = (name) => "/?q=" + encodeURIComponent(name);
 
   // ── the ONE primary CTA, resolved once, server-side ─────────────────────
-  const primaryCta = guidePrimaryCta(g);
+  let primaryCta = guidePrimaryCta(g);
   const continueTo = guideContinue(g, params.slug, GUIDES);
+
+  // ── UPGRADE A SEARCH INTO A PRODUCT, at render time ──────────────────────
+  // #599 made the tour label honest: a CTA that only has a Viator SEARCH says
+  // "Find tours in {region}" instead of promising tickets. Honest, but a floor —
+  // measured 2026-08-05, ALL NINE tour guides were on that floor and 0 of 20
+  // readers clicked.
+  //
+  // This is the ceiling. The page is already an async server component with ISR,
+  // so it can ask Viator for the actual product and bake it in. resolveVerified
+  // (the default-deny, geo-confirmed predicate behind /api/viator/go) decides —
+  // NOT the weaker "region token appears in the title" check — because a guide
+  // caches its CTA for a day, so a wrong-place product here is served to
+  // everyone rather than to one clicker.
+  //
+  // Fail-soft in every direction: no key, no candidates, an ambiguous field or a
+  // geo mismatch all leave the honest search label exactly as it was.
+  if (primaryCta && primaryCta.kind === "tour" && !primaryCta.exact && primaryCta.place) {
+    const pick = (g.picks || []).find((p) => p && p.name === primaryCta.place);
+    const region = g.region || "Orlando";
+    const hit = pick ? await resolveGuideProduct(pick, region).catch(() => null) : null;
+    // The href goes through OUR redirect, never a bare partner URL — the route
+    // re-validates the destination host before it can become a Location.
+    const href = hit ? viatorProductGoUrl(hit.url, region, "guide", "guide") : null;
+    if (href) {
+      // Name what the click OPENS. A long title is truncated on a word boundary
+      // so the button stays one line at 390px; the full title still rides the
+      // events as product_title.
+      primaryCta = {
+        ...primaryCta,
+        href,
+        exact: true,
+        productTitle: hit.title || primaryCta.place,
+        label: productCtaLabel(hit.title, primaryCta.place),
+      };
+    }
+  }
 
   // LIVE DEAL CARDS. A guide opts in by listing REGISTRY IDS — it cannot supply
   // an offer, a price or a URL of its own, so an unregistered deal has no route
