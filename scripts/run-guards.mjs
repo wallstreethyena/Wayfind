@@ -34,6 +34,7 @@
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
+import { CREDENTIALED_GUARDS, credentialedEnv } from "./lib/guardEnv.mjs";
 
 const MANIFEST = path.resolve("scripts/guards.txt");
 const FLOOR = 140;
@@ -93,4 +94,32 @@ for (let i = 0; i < guards.length; i++) {
   }
 }
 
-console.log(`\nrun-guards: OK — ${guards.length}/${guards.length} guards green in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+// ── THE CREDENTIALED PASS ────────────────────────────────────────────────────
+// Some assertions cannot execute without a public partner credential, so bare
+// they pass VACUOUSLY. That is how the guide exact-CTA rule went stale through
+// four PRs while every local run was green — see scripts/lib/guardEnv.mjs.
+// These guards therefore run a second time with stubbed credentials, so both
+// the credentialed and the degraded path are actually exercised.
+let credOk = 0;
+for (const g of CREDENTIALED_GUARDS) {
+  console.log(`\nrun-guards: credentialed pass — ${g.cmd}`);
+  const r = spawnSync(g.cmd, {
+    shell: true,
+    stdio: "inherit",
+    env: { ...credentialedEnv(), WF_SUPPRESS_ANALYTICS: "1" },
+  });
+  if (r.error) {
+    console.error(`\nrun-guards: FAIL — credentialed pass could not run: ${g.cmd}`);
+    console.error(`  ${r.error.message}`);
+    process.exit(1);
+  }
+  if (r.status !== 0) {
+    console.error(`\nrun-guards: FAIL — credentialed pass exited ${r.status}: ${g.cmd}`);
+    console.error(`  reason this guard is in the credentialed set: ${g.why}`);
+    console.error("  This pass exists because the assertion above cannot run without the credential.");
+    process.exit(r.status || 1);
+  }
+  credOk++;
+}
+
+console.log(`\nrun-guards: OK — ${guards.length}/${guards.length} guards + ${credOk} credentialed re-run(s) green in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
