@@ -78,8 +78,29 @@ const Flame = () => (
 
 const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach day · high UV", poor: "Not a beach day", unsafe: "Beach advisories active", too_far: null };
 
+// Which section greets a visitor. Food is the default because it is the only
+// rail that is answerable at every hour of the day — "top things to do" is
+// empty-ish at 11pm, and an empty first impression is worse than a collapsed
+// one. Set to null to restore the pre-2026-08-06 all-collapsed behaviour;
+// scripts/check-home-answer-first.mjs asserts it is a real section id.
+export const DEFAULT_SECTION = "eat";
+
 export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
-  const [open, setOpen] = useState(null); // "eat" | "todo" | "trends"
+  // v6.57 (2026-08-06, owner): the FIRST section is open on arrival.
+  //
+  // MEASURED, not a preference. 259 single-page sessions landed on "/" in the
+  // 14 days to 2026-08-05; the MEDIAN one lasted 10 seconds and 130 of them
+  // ended inside those 10 seconds. The ranked list — the entire product — sat
+  // below the events rail, below the link grid, inside a collapsed accordion.
+  // `result_count_shown` fired 3,766 times in 30 days for a list almost nobody
+  // scrolled far enough to open. A visitor was asked for ~15 decisions before
+  // being shown one recommendation.
+  //
+  // Opening by default costs one Supabase read on mount (wf_best_picks, the
+  // same read a tap already triggered) and removes the tap that was losing
+  // them. `toggle` still closes it, so the accordion is not being deleted —
+  // its default is being inverted.
+  const [open, setOpen] = useState(DEFAULT_SECTION); // "eat" | "todo" | "trends" | null
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
   // v6.71 (Wave 2): "Top things to do" mixes beach rows in with tours and
@@ -159,11 +180,12 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10 })
     : loadTrends();
 
-  const toggle = (id) => {
-    const next = open === id ? null : id;
-    setOpen(next);
-    if (!next) return;
-    try { onLog && onLog("best_nearby_open", null, { section: id }); } catch (e) {}
+  // Fetching a section, independent of what caused it to open. Pulled out of
+  // toggle() so the default-open section on mount and a user's tap go through
+  // exactly ONE loading path — two copies would drift, and the mount path is
+  // now the one almost every visitor takes.
+  const ensureLoaded = (id) => {
+    if (!id) return;
     const centerKey = center ? center.lat.toFixed(3) + "," + center.lng.toFixed(3) : "";
     if (fetchedFor.current !== centerKey) { fetchedFor.current = centerKey; setRows({}); }
     setRows((r) => {
@@ -174,6 +196,30 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
       (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: gateOutdoor(data, nowCtx()) })); })();
       return { ...r, [id]: "loading" };
     });
+  };
+
+  // The default-open section cannot fetch until there is a location to rank
+  // against, and `center` arrives asynchronously (saved wf_center, then URL,
+  // then geolocation). So this waits for a real centre rather than firing a
+  // request with lat=undefined — which is what an unconditional mount fetch
+  // would have done, once per visitor, for nothing.
+  useEffect(() => {
+    if (!open) return;
+    if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
+    ensureLoaded(open);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, center && center.lat, center && center.lng]);
+
+  const toggle = (id) => {
+    const next = open === id ? null : id;
+    setOpen(next);
+    if (!next) return;
+    // `trigger` separates a deliberate tap from the section that was already
+    // open on arrival. Without it the default-open fire would silently inflate
+    // best_nearby_open and make the before/after read on this change
+    // uninterpretable — which is the only reason the change is being made.
+    try { onLog && onLog("best_nearby_open", null, { section: id, trigger: "tap" }); } catch (e) {}
+    ensureLoaded(id);
   };
 
   // Owner call: rows open OUR detail sheet (the same card the main menu
