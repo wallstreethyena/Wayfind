@@ -141,14 +141,19 @@ ok(home.includes("openCurated") && home.includes("EXPLORE_TILES"), "curated engi
 // right; the literal was never the way to hold it. The map now lives in
 // lib/browseCommerceMap.js and is asserted by CALLING it — trending on All,
 // genuinely themed inventory on every other chip.
-ok(chipCommerce("all").fullCatalog === true, "the All chip is the whole trending catalogue");
+ok(chipCommerce("attractions", "all").fullCatalog === true, "the All chip is the whole trending catalogue");
 for (const chip of ["outdoors", "beaches", "museums", "family", "landmarks", "arts", "marinas"]) {
-  const plan = chipCommerce(chip);
+  const plan = chipCommerce("attractions", chip);
   ok(plan.known, `the "${chip}" sub-menu has its own commerce plan`);
   ok(plan.fullCatalog === false, `the "${chip}" sub-menu is THEMED, not the generic all-attractions feed`);
 }
-ok(chipCommerce("outdoors").catalogs.length >= 3, "Outdoors spans its several real catalogues (nature + adventure + kayaking), not just one");
-ok(/browseCat === "attractions" && center && <UnifiedBrowseCommerceRail sub=\{sub\} includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(home), "the unified commerce rail renders once and only adds experience inventory on sub-filters");
+ok(chipCommerce("attractions", "outdoors").catalogs.length >= 3, "Outdoors spans its several real catalogues (nature + adventure + kayaking), not just one");
+// 2026-08-04 — asserted on the mount's PROPS rather than its exact string; the
+// rail gained a cat= prop when it was extended to all seven browse categories.
+{
+  const mount = (home.match(/\{browseCat === "attractions" && center && <UnifiedBrowseCommerceRail[^\n]*/) || [""])[0];
+  ok(/includeExperiences=\{!!\(sub && sub !== "all"\)\}/.test(mount), "the unified commerce rail renders once and only adds experience inventory on sub-filters");
+}
 // v6.79: these two assertions used to require the literal `|| t.url` /
 // `|| r.booking_url` fallback. The DECISION they encode is right — a tour href
 // must carry the affiliate wrapper — but pinning the fallback froze the leak in

@@ -95,6 +95,10 @@ node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
 node scripts/test-subfilters.mjs
+node scripts/test-experience-concepts.mjs
+node scripts/test-creator-archetypes.mjs
+node scripts/check-copy-no-empty-hype.mjs
+node scripts/test-rail-score-order.mjs
 node scripts/check-subfilter-experience-coverage.mjs
 node scripts/test-klook-coupons.mjs
 node scripts/test-sheet-booking.mjs
@@ -278,6 +282,7 @@ node scripts/check-doc-ownership.mjs
 node scripts/check-locks.mjs
 node scripts/check-guide-deal-cards.mjs
 node scripts/check-intro-instrumentation.mjs
+node scripts/check-intro-gate.mjs
 node scripts/check-hub-conversion.mjs
 node scripts/test-intent-header-clarity.mjs
 node scripts/check-viator-redirect-layer.mjs
@@ -286,3 +291,6 @@ node scripts/check-unified-commerce-rail.mjs
 node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
 node scripts/check-guards-emit-no-analytics.mjs
+node scripts/check-known-for.mjs
+node scripts/check-atlas-retry-cron.mjs
+node scripts/check-guide-cta-honesty.mjs

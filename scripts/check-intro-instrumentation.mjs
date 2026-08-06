@@ -81,6 +81,31 @@ ok(RAW_HANDLER.test('<div onClick={dismissIntro}>'),
 ok(/const\s+dismissIntro\s*=\s*\(\s*\)\s*=>\s*closeIntro\(/.test(src),
   "dismissIntro must delegate to closeIntro so the Escape path is attributed");
 
+// --- the 2026-08-04 timing change must stay readable -----------------------
+// intro_shown's payload used to be { loc } alone. With the auto-show now
+// waiting 2 minutes of VISIBLE time and firing once per DEVICE, `loc` cannot
+// distinguish a gate that fired from one that never got the chance — which is
+// exactly the unreadable-funnel failure in this file's header, in a new place.
+// Asserted on the emitted OBJECT (the logEvent call's third argument), not on
+// bare property names anywhere in the file.
+const SHOWN_CALL = src.match(/logEvent\(\s*["']intro_shown["']\s*,\s*[^,]+,\s*\{([\s\S]*?)\}\s*\)/);
+ok(!!SHOWN_CALL, "intro_shown must pass a properties object");
+for (const prop of ["trigger", "visible_ms", "attempt"]) {
+  ok(!!SHOWN_CALL && new RegExp("(^|[,{\\s])" + prop + "\\s*:").test(SHOWN_CALL[1]),
+    `intro_shown must carry "${prop}" — without it the 2-minute visible-time gate is unmeasurable`);
+}
+// Positive control: the property probe must detect a property that is present
+// and reject one that is not, or "all three found" means nothing.
+ok(/(^|[,{\s])trigger\s*:/.test("{ loc: null, trigger: 'timer' }") && !/(^|[,{\s])nope\s*:/.test("{ loc: null, trigger: 'timer' }"),
+  "PROBE BROKEN: the intro_shown property regex cannot tell present from absent");
+
+// The durable once-per-device flag replaces the session flag on every exit
+// path. If this reverts, the gate silently becomes a per-visit nag again.
+ok(/markIntroSeen\(\s*\)/.test(src),
+  "closeIntro must spend the durable once-per-device flag via markIntroSeen()");
+ok(!/sessionStorage\.setItem\(\s*["']wf_intro_seen["']/.test(src),
+  "the raw sessionStorage wf_intro_seen write must be gone — it is once per DEVICE now (owner decision 2026-08-04)");
+
 // --- the once-guard, so one visit cannot emit two dismissals ---------------
 ok(/introExited\s*\.\s*current/.test(src),
   "a once-guard ref must gate intro_dismissed — backdrop+escape can both fire");

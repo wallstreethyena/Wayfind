@@ -82,7 +82,9 @@ if (!/what are you in the mood for/i.test(page)) fail("mood kicker missing");
 // v5.26 — the welcome greeting speaks in feels-like temperature, saying so
 // explicitly when the heat index diverges from the thermometer.
 if (!page.includes('but feels like " + felt')) fail("welcome greeting must speak in feels-like temperature");
-if (!page.includes("wf_intro_seen")) fail("intro persistence missing");
+// v6.x: the flag itself moved into lib/introGate.js (durable, once per device).
+// Assert the PERSISTENCE still happens, wherever the key literal now lives.
+if (!page.includes("markIntroSeen()")) fail("intro persistence missing");
 if (!page.includes("function composeMoment(")) fail("moment composer missing");
 if (!/wayfind it<\/button>/i.test(page)) fail("intro CTA missing");
 if (!page.includes("Find my vibe")) fail("re-entry pill missing");
@@ -193,8 +195,16 @@ if (!page.includes('_bad ? "cozyindoor" : "outdoors"')) fail("weather-adaptive O
 if (!page.includes("weather.feels != null ? weather.feels : weather.temp")) fail("mood heat check must prefer feels-like temp");
 if (!page.includes('_wkndMorn ? "brunch" : "eatnow"')) fail("weekend-morning Brunch swap missing");
 if (!page.includes('_eve ? ["datenight", "nightout", eatKey, "hiddengems", outsideKey, "familyfun"]')) fail("six-tile adaptive order missing from the welcome pop-up");
-if (!page.includes('sessionStorage.getItem("wf_intro_seen")')) fail("welcome pop-up session guard missing (must show once per session, not once ever)");
-if (!page.includes("setIntroOpen(true), 3200")) fail("welcome pop-up auto-show delay missing (~3.2s so the greeting arrives personal)");
+// 2026-08-04 (owner decision) REVERSES what these two lines used to assert.
+// They read "must show once per session, not once ever" and "~3.2s so the
+// greeting arrives personal" — both are now the bug, not the contract. See
+// INTRO_MIN_VISIBLE_MS in home.js and lib/introGate.js for the measured
+// reason. Rewritten rather than deleted so restoring the old behaviour trips
+// a guard instead of looking like a fix. check-intro-gate.mjs is the real
+// lock on this; these two keep check-ux honest about the same decision.
+if (!page.includes("introSeen()")) fail("welcome pop-up must consult the durable once-per-DEVICE gate (lib/introGate.js), not sessionStorage");
+if (page.includes('sessionStorage.getItem("wf_intro_seen")')) fail("welcome pop-up auto-show reverted to the once-per-SESSION flag");
+if (!/const INTRO_MIN_VISIBLE_MS = (\d+)/.test(page) || Number(page.match(/const INTRO_MIN_VISIBLE_MS = (\d+)/)[1]) < 120000) fail("welcome pop-up auto-show must wait >= 2 minutes of visible time (INTRO_MIN_VISIBLE_MS)");
 if (!page.includes("wfIntroIn")) fail("welcome pop-up entrance animation missing");
 if ((page.match(/mood: true/g) || []).length < 8) fail("all six pop-up intents must be mood:true so every tile fires the moment engine");
 // v5.25 — the Outside beach fix: 30-mi start radius, a public-beach query, and

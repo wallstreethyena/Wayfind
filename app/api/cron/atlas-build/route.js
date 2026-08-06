@@ -360,14 +360,22 @@ export async function GET(req) {
 
   // Pick the category to work: the requested one, else the first (in owner order)
   // that still has missing rows.
+  // A FAILED SELECTOR IS NOT AN EMPTY QUEUE. This used to return [] on any
+  // non-2xx, so an unreachable selector produced `done: true, "no missing rows"`
+  // and job-watch saw a healthy idle job. On 2026-08-05 that hid a 401 (the
+  // service key is a legacy JWT; legacy keys were disabled 2026-07-16) — the
+  // backlog looked drained while nothing could be selected at all. Exactly the
+  // shape of the 5-day outage that ran behind HTTP 200s.
+  let selectorError = null;
   async function missing(cat) {
     try {
       const r = await fetch(`${s.url}/rest/v1/rpc/${retryMode ? "wf_atlas_retryable" : "wf_atlas_missing"}`, {
         method: "POST", headers: svcH, cache: "no-store",
         body: JSON.stringify({ p_category: cat, p_metros: METROS, p_limit: limit }),
       });
-      return r.ok ? await r.json() : [];
-    } catch (e) { return []; }
+      if (!r.ok) { selectorError = `rpc ${r.status}`; return []; }
+      return await r.json();
+    } catch (e) { selectorError = "rpc threw"; return []; }
   }
 
   let category = reqCat, places = [];
@@ -384,6 +392,13 @@ export async function GET(req) {
   if (!category || !places.length) {
     // Idle, not broken. attempted:0 is what stops a self-terminating job from
     // reading as an incident in /api/cron/job-watch.
+    // Idle and BROKEN are now different outcomes. An empty queue is `done`;
+    // a selector that could not be reached is an error with a non-200, so
+    // job-watch pages instead of recording a healthy no-op.
+    if (selectorError) {
+      await recordPulse(retryMode ? "atlas-retry" : "atlas-build", { attempted: 0, succeeded: 0, note: "SELECTOR UNREACHABLE: " + selectorError });
+      return Response.json({ ok: false, done: false, error: "selector-unreachable", detail: selectorError }, { status: 503 });
+    }
     await recordPulse(retryMode ? "atlas-retry" : "atlas-build", { attempted: 0, succeeded: 0, note: "no missing rows in target categories/metros" });
     return Response.json({ ok: true, done: true, note: "no missing rows in target categories/metros" });
   }
