@@ -158,6 +158,82 @@ if (tb) {
   }
 }
 
+/* ── 8. ONE ARITHMETIC: every surface orders through lib/rankPlaces.js ─────
+ *
+ * Spec guard 8. app/home.js composed the ordering SIX times, in six subtly
+ * different expressions, and they disagreed about what an unrated place is
+ * worth (50 on three rows, 0 on the other three) — so the same unknown place
+ * sat mid-pack on the personalised feed and dead last on the fit sorts, on one
+ * screen, on one visit.
+ *
+ * Two things are asserted, and the second is the one that matters: that the
+ * extraction was actually behaviour-identical. The six original expressions are
+ * retyped here verbatim from the commit that removed them, and run against
+ * placeScore() over every combination of inputs including the awkward ones. A
+ * refactor that quietly changes results is not a refactor.
+ */
+{
+  const { placeScore, UNRATED_MIDPACK, UNRATED_LAST, FAVE_TIER_WEIGHT, CURATED_BONUS } =
+    await import(new URL("../lib/rankPlaces.js", import.meta.url).href);
+  const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8");
+
+  ok(FAVE_TIER_WEIGHT === 4 && CURATED_BONUS === 15, "the shared weights are the historical ones (4 a fave tier, 15 curated)");
+
+  // No hand-composed ordering survives outside the module. RED: reinstate any
+  // of the six by writing `wfScore ... + featuredBoost(` in one expression.
+  const handRolled = (HOME.match(/wfScore[^;\n]{0,120}\+\s*featuredBoost\(/g) || []);
+  ok(handRolled.length === 0,
+     `no surface composes its own ordering from wfScore + boosts (found ${handRolled.length}: ${JSON.stringify(handRolled.slice(0, 2))}) — six of these drifted apart before they were unified`);
+  const routed = (HOME.match(/placeScore\(\{|byPlaceScore\(/g) || []).length;
+  ok(routed >= 6, `every ranking site routes through placeScore/byPlaceScore (found ${routed}, expected >= 6)`);
+
+  // THE EQUIVALENCE. Six expressions, exactly as they were written.
+  const was = {
+    ps:   (p) => (p.wfScore || 50) + p.boost - p.dist + p.fave * 4 + p.feat + p.comm + (p.cur ? 15 : 0) + p.cre,
+    hol:  (p) => (p.wfScore || 50) + p.fit + p.pin + p.feat + p.cre,
+    base: (p) => (p.wfScore != null ? p.wfScore : 50) + p.feat + p.comm + p.cre,
+    fitA: (p) => (p.wfScore || 0) + p.feat + (p.cur ? 15 : 0) + p.ctx + p.cre,
+    fitB: (p) => (p.wfScore || 0) + p.feat + p.ctx + p.cre,
+    cond: (p) => (p.wfScore || 0) + p.fave * 4 + p.feat + p.comm + p.cre,
+  };
+  const now = {
+    ps:   (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: p.boost, distancePenalty: p.dist, faveTier: p.fave, featured: p.feat, community: p.comm, curated: !!p.cur, evidence: p.cre }),
+    hol:  (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: p.fit + p.pin, featured: p.feat, evidence: p.cre }),
+    base: (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: p.feat, community: p.comm, evidence: p.cre }),
+    fitA: (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: p.feat, curated: !!p.cur, contextBoost: p.ctx, evidence: p.cre }),
+    fitB: (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: p.feat, contextBoost: p.ctx, evidence: p.cre }),
+    cond: (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: p.fave, featured: p.feat, community: p.comm, evidence: p.cre }),
+  };
+  let n = 0; const bad = [];
+  for (const wfScore of [null, undefined, 0, 1, 42, 50, 78, 92, 100])
+    for (const a of [0, 1, 7, 15, 30]) for (const b of [0, 1, 7, 15, 30]) for (const cur of [false, true]) {
+      const p = { wfScore, boost: a, dist: b, fave: a % 4, feat: b, comm: a, cur, cre: b, fit: a, pin: b, ctx: a };
+      for (const k of Object.keys(was)) { n += 1; if (was[k](p) !== now[k](p)) bad.push(`${k} @ wfScore=${wfScore}: was ${was[k](p)}, now ${now[k](p)}`); }
+    }
+  ok(n >= 2000, `the equivalence sweep actually ran (${n} evaluations) — a loop that compared nothing would pass silently`);
+  ok(bad.length === 0, `placeScore reproduces all six original expressions exactly over ${n} evaluations (${bad.length} mismatches: ${JSON.stringify(bad.slice(0, 3))})`);
+
+  // ZERO IS A SCORE, NOT AN ABSENCE — and the two surviving readings of that are
+  // pinned so the next commit collapses them deliberately, not by accident.
+  ok(placeScore({ quality: 0, unratedBase: 50 }) === 50, "a computed 0 currently falls back like an unrated place on five of the six sites (historical `||` coercion, preserved)");
+  ok(placeScore({ quality: 0, unratedBase: 50, zeroIsUnrated: false }) === 0, "…while boostBase's `!= null` reading keeps it a real 0 — the seventh disagreement, now visible in one file instead of six");
+  ok(placeScore({ quality: null, unratedBase: UNRATED_LAST }) === 0 && placeScore({ quality: null, unratedBase: UNRATED_MIDPACK }) === 50,
+     "an unrated place is still worth 0 on some surfaces and 50 on others — DELIBERATELY not fixed in the extraction commit, so this reads as the bug it is");
+
+  // Commission can never become a term.
+  // CODE, not prose. The first version of this assertion failed on the module's
+  // OWN header, which says "commission is not a term" — a guard that cannot
+  // tell a rule from a violation of it is worse than no guard, and the spec's
+  // own instruction is to assert syntactic position rather than a bare
+  // substring. Comments are stripped before asking.
+  const RANK_SRC = readFileSync(path.join(REPO, "lib/rankPlaces.js"), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+  ok(!/affiliate|commission|payout|partner_priority|partnerPriority/i.test(RANK_SRC),
+     "lib/rankPlaces.js contains no affiliate/commission/payout identifier — every surface and the App Store description claim rankings are merit-based, and this file is where that is true or false");
+  ok(!/^import .*(affiliate|commerce|monetize|deals)/m.test(RANK_SRC), "…and imports nothing that could carry one in");
+}
+
 if (fail.length) {
   console.error(`check-ranking-integrity: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

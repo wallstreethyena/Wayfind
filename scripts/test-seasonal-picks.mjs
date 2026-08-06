@@ -87,7 +87,13 @@ ok(fetchAt >= 0, "the sheet-fetch effect still exists at its known anchor");
 const fetchBody = fetchAt >= 0 ? home.slice(fetchAt, home.indexOf("}, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey", fetchAt)) : "";
 ok(/const _qs = typeof exp\.queries === "function" \? exp\.queries\(\) : exp\.queries;/.test(fetchBody), "the sheet-fetch path resolves exp.queries (function or array) just like the legacy moment screen does");
 ok(/const _ctxBoost = \(p\) => \{ try \{ return exp\.boost \? exp\.boost\(p\) : 0; \} catch \(e\) \{ return 0; \} \};/.test(fetchBody), "the sheet-fetch path's context boost defaults to 0 when an experience declares none — additive, not a replacement");
-ok(/\(b\.wfScore \|\| 0\) \+ featuredBoost\(b\) \+ _ctxBoost\(b\)/.test(fetchBody), "ranking is wfScore PLUS the context boost — seasonality nudges on top of rating, it never replaces it");
+// v6.98: the six hand-written ordering expressions were unified into
+// lib/rankPlaces.js, so this no longer pins the literal addition — the
+// arithmetic is proven equivalent over 2700 evaluations in
+// check-ranking-integrity.mjs. The CLAIM is unchanged and is what is
+// checked: quality and the context boost are SEPARATE ADDITIVE TERMS, so
+// seasonality nudges a rating and can never stand in for one.
+ok(/byPlaceScore\(\(p\) => \(\{[\s\S]{0,240}?quality: p\.wfScore/.test(fetchBody) && /byPlaceScore\(\(p\) => \(\{[\s\S]{0,240}?contextBoost: _ctxBoost\(p\)/.test(fetchBody), "ranking is wfScore PLUS the context boost — seasonality nudges on top of rating, it never replaces it");
 
 // 3. openExpSheet computes a LIVE season name at open time (never a stale
 //    hardcoded season baked in at build time).
