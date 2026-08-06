@@ -36,6 +36,50 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 const slugs = Object.keys(GUIDES);
 ok(slugs.length >= 10, `expected the guide registry to be populated (got ${slugs.length})`);
 
+// WHAT AN EXACT LABEL MAY NAME. This assertion previously demanded the label
+// contain cta.place — the raw pick name. That encoded the bug: pick names are
+// editorial ("Gatorland: the classic park"), and #611 stops naming them. The
+// old rule therefore FAILED the fix on Vercel, which is the only environment
+// with a Viator PID and so the only place an exact CTA exists at all.
+//
+// The rule is: name the product title when one resolved, else the VENUE derived
+// from the pick, else name nothing and say so.
+function exactLabelIsHonest(cta) {
+  const label = String(cta.label || "");
+  const place = String(cta.place || "");
+  const want = cta.productTitle || pickVenueLabel(place);
+  if (!want) return label === "See tickets & availability";
+  // It must name the right thing...
+  if (!label.includes(String(want).slice(0, 30))) return false;
+  // ...and must NOT still carry the editorial remainder. Containment alone is
+  // too weak: "See tickets for Gatorland: the classic park" contains
+  // "Gatorland", so an includes() check passes the very bug being rejected.
+  if (place && place !== want && label.includes(place)) return false;
+  return true;
+}
+
+// Driven with fixtures, because no guide resolves exact without a PID and the
+// loop below would otherwise assert nothing on a dev box — which is exactly how
+// the stale rule survived until a Vercel build rejected it.
+const EXACT_FIXTURES = [
+  [{ exact: true, place: "Gatorland: the classic park", label: "See tickets for Gatorland" }, true,
+   "the venue, with the editorial suffix stripped"],
+  [{ exact: true, place: "Gatorland: the classic park", label: "See tickets for Gatorland: the classic park" }, false,
+   "THE SHIPPED BUG: the full pick heading"],
+  [{ exact: true, place: "What the hour actually covers", label: "See tickets & availability" }, true,
+   "prose pick -> names nothing, honestly"],
+  [{ exact: true, place: "What the hour actually covers", label: "See tickets: What the hour actually covers" }, false,
+   "prose pick must never be named"],
+  [{ exact: true, place: "Winter Park Scenic Boat Tour", productTitle: "Clear Kayak Sunset Tour through The Winter Park chain",
+     label: "See tickets: Clear Kayak Sunset Tour through The Winter\u2026" }, true,
+   "resolved product title wins over the pick"],
+];
+for (const [cta, want, why] of EXACT_FIXTURES) {
+  ok(exactLabelIsHonest(cta) === want, `exact-label rule (${why}): expected ${want} for "${cta.label}"`);
+}
+ok(EXACT_FIXTURES.some(([c]) => exactLabelIsHonest(c)) && EXACT_FIXTURES.some(([c]) => !exactLabelIsHonest(c)),
+  "PROBE BROKEN: the exact-label rule must be capable of both answers");
+
 let monetized = 0, tours = 0, deals = 0, searches = 0;
 
 for (const slug of slugs) {
@@ -65,9 +109,8 @@ for (const slug of slugs) {
       // pick itself (Winter Park Scenic Boat Tour resolves to a kayak tour on
       // the same lake chain), so naming the pick would over-promise exactly the
       // way the old label did.
-      const names = cta.productTitle || cta.place;
-      ok(names && (cta.label.includes(names) || cta.label.includes(String(names).slice(0, 30))),
-        `${slug}: an exact CTA must name what it opens, got "${cta.label}"`);
+      ok(exactLabelIsHonest(cta),
+        `${slug}: an exact CTA must name what it opens — the product title, or the VENUE from the pick, or nothing at all — got "${cta.label}"`);
     } else {
       const region = GUIDES[slug].region || "Orlando";
       ok(cta.label.includes(region),
