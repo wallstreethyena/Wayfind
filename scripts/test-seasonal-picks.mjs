@@ -87,28 +87,35 @@ ok(fetchAt >= 0, "the sheet-fetch effect still exists at its known anchor");
 const fetchBody = fetchAt >= 0 ? home.slice(fetchAt, home.indexOf("}, [hookDetail && hookDetail.id, hookDetail && hookDetail.fetchKey", fetchAt)) : "";
 ok(/const _qs = typeof exp\.queries === "function" \? exp\.queries\(\) : exp\.queries;/.test(fetchBody), "the sheet-fetch path resolves exp.queries (function or array) just like the legacy moment screen does");
 ok(/const _ctxBoost = \(p\) => \{ try \{ return exp\.boost \? exp\.boost\(p\) : 0; \} catch \(e\) \{ return 0; \} \};/.test(fetchBody), "the sheet-fetch path's context boost defaults to 0 when an experience declares none — additive, not a replacement");
-// ASSERT THE CLAIM, NOT A CALL SHAPE. #635 rewrote this to expect
-// `byPlaceScore((p) => ({ quality, contextBoost }))` — a shape app/home.js has
-// never contained. `placeScore`/`byPlaceScore` appear ZERO times in that file
-// across every commit in recent history, so the assertion pinned a refactor that
-// was specified but not wired, and went red the moment it landed. The code it
-// was guarding was correct the whole time.
+// ASSERT THE CLAIM, IN WHATEVER SHAPE THE CODE IS WRITTEN.
 //
-// So this now reads the real ordering expressions and asserts the PROPERTY:
-// quality and the context boost are separate terms ADDED together, so
-// seasonality nudges a rating and can never stand in for one. It survives new
-// terms being added (curatedFor, creatorBoost already are) and it survives the
-// byPlaceScore extraction if that ever actually lands.
+// This has now been wrong twice in opposite directions. #635 pinned the
+// byPlaceScore parts-object before home.js had one; I then pinned the literal
+// `+ _ctxBoost(b)` addition an hour before the migration landed and gave home.js
+// the parts-object after all. A guard that pins a SPELLING breaks on every
+// refactor of correct code, and each break costs someone an investigation.
+//
+// The claim never changed: quality and the context boost are SEPARATE ADDITIVE
+// terms, so seasonality nudges a rating and can never stand in for one. Both
+// spellings express it, so both are accepted, and the actual failure — the boost
+// replacing or scaling quality — is caught in either.
 const sortFits = [...home.matchAll(/const sortFit = \(arr\) => arr[\s\S]{0,400}?;\n/g)].map((m) => m[0]);
 ok(sortFits.length >= 2, `found ${sortFits.length} ranking expressions in home.js — under 2 and this assertion reads nothing`);
 for (const [i, expr] of sortFits.entries()) {
-  ok(/b\.wfScore/.test(expr) && /a\.wfScore/.test(expr), `ranking expression ${i + 1} does not use wfScore on both operands`);
-  ok(/\+\s*_ctxBoost\(b\)/.test(expr) && /\+\s*_ctxBoost\(a\)/.test(expr),
-    `ranking expression ${i + 1}: the context boost is not ADDED to quality — seasonality nudges a rating, it never replaces it`);
-  // The failure this exists to catch: the boost scaling or replacing quality.
-  ok(!/_ctxBoost\([ab]\)\s*\*/.test(expr) && !/\*\s*_ctxBoost\(/.test(expr),
-    `ranking expression ${i + 1}: the context boost MULTIPLIES quality instead of nudging it`);
-  ok(!/=\s*_ctxBoost\([ab]\)\s*[-)]/.test(expr), `ranking expression ${i + 1}: the context boost stands in for quality`);
+  const parts = /byPlaceScore\(|placeScore\(\{/.test(expr);
+  if (parts) {
+    ok(/quality:\s*p\.wfScore/.test(expr), `ranking expression ${i + 1}: quality is not the place's own wfScore`);
+    ok(/contextBoost:\s*_ctxBoost\(p\)/.test(expr),
+      `ranking expression ${i + 1}: the context boost is not a separate term — seasonality nudges a rating, it never replaces it`);
+    // placeScore ADDS contextBoost to quality; lib/rankPlaces.js is where that
+    // arithmetic lives and check-ranking-integrity proves it over 2700 cases.
+  } else {
+    ok(/b\.wfScore/.test(expr) && /a\.wfScore/.test(expr), `ranking expression ${i + 1} does not use wfScore on both operands`);
+    ok(/\+\s*_ctxBoost\(b\)/.test(expr) && /\+\s*_ctxBoost\(a\)/.test(expr),
+      `ranking expression ${i + 1}: the context boost is not ADDED to quality`);
+    ok(!/_ctxBoost\([ab]\)\s*\*/.test(expr) && !/\*\s*_ctxBoost\(/.test(expr),
+      `ranking expression ${i + 1}: the context boost MULTIPLIES quality instead of nudging it`);
+  }
 }
 
 // 3. openExpSheet computes a LIVE season name at open time (never a stale
