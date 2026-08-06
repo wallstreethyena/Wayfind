@@ -3241,62 +3241,13 @@ function PageInner({ initialEvents = null }) {
   const [mapBrowse, setMapBrowse] = useState(true); // Map opens on Food; category browsing is immediate and avoids six parallel searches.
   const [mapPool, setMapPool] = useState([]); // neutral map: all-category pool (cached searches)
   const [mapListOverride, setMapListOverride] = useState(null); // v4.95: a list's map icon pins THAT list on the in-app map (never a Google-Maps directions-to-all handoff)
-  const [compassOn, setCompassOn] = useState(false);
-  // v6.99 — owner ask: an explicit 3D option alongside the default flat
-  // "bright" basemap. Off by default: pitch/rotation is a real interaction
-  // mode change, not something to default everyone into.
-  const [map3D, setMap3D] = useState(false);
-  // v6.100 (owner: "you ar epissing e off" + a live screenshot of
-  // "The map could not load right now" on the just-shipped Bright style) --
-  // MapFallback used to be a dead end: once the watchdog gave up there was
-  // no way back to a working map short of a full page reload. Bumping this
-  // remounts <MapView> from scratch (fresh MapLibre instance, fresh
-  // container, fresh watchdog window) so a real transient failure -- a slow
-  // cell connection, a background-tab stall -- recovers with one tap.
-  const [mapRetryKey, setMapRetryKey] = useState(0);
-  // Owner ask (2026-08-03): the Map tab should open defaulted to Activities
-  // the first time it is visited in a session. Guard lives here (not in
-  // MapScreen) so it survives MapScreen's own mount/unmount as the user
-  // switches screens -- it should fire once per session, not once per visit.
-  const mapDefaultAppliedRef = useRef(false);
-  const compassNeedleRef = useRef(null);
-  const compassHandlerRef = useRef(null);
-  const stopCompass = () => { try { if (compassHandlerRef.current) { window.removeEventListener("deviceorientation", compassHandlerRef.current, true); compassHandlerRef.current = null; } } catch (e) {} setCompassOn(false); };
-  const toggleCompass = async () => {
-    if (compassOn) { stopCompass(); return; }
-    try {
-      if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-        const r = await DeviceOrientationEvent.requestPermission();
-        if (r !== "granted") { showToast("Compass blocked \u2014 allow Motion & Orientation in Safari settings"); return; }
-      }
-      let got = false;
-      const h = (e) => {
-        let deg = null;
-        if (typeof e.webkitCompassHeading === "number" && !isNaN(e.webkitCompassHeading)) deg = e.webkitCompassHeading;
-        else if (e.absolute === true && typeof e.alpha === "number") deg = 360 - e.alpha;
-        if (deg == null) return;
-        got = true;
-        const el = compassNeedleRef.current; if (el) el.style.transform = "rotate(" + (-deg) + "deg)";
-      };
-      compassHandlerRef.current = h;
-      window.addEventListener("deviceorientation", h, true);
-      setCompassOn(true);
-      // v6.94 (owner: map submenu controls weren't explained) — the button
-      // itself now carries a "Compass" label (see Map.js), but what it DOES
-      // (the needle tracks true north as you turn — the map itself doesn't
-      // rotate) still isn't obvious from a label alone. One-time toast,
-      // first activation only, same wf_*_v1-gated pattern taste scoring uses.
-      try {
-        if (!localStorage.getItem("wf_map_compass_hint_v1")) {
-          localStorage.setItem("wf_map_compass_hint_v1", "1");
-          setTimeout(() => showToast("Compass needle now tracks true north as you turn"), 350);
-        }
-      } catch (e) {}
-      setTimeout(() => { if (!got && compassHandlerRef.current === h) { stopCompass(); showToast("Compass not supported on this device"); } }, 2500);
-    } catch (e) { showToast("Compass not available"); }
-  };
-  useEffect(() => { if (screen !== "map" && compassHandlerRef.current) stopCompass(); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen]);
+  // COMPASS REMOVED (owner, 2026-08-06) — control, state, refs, the
+  // deviceorientation handler registered with capture:true, and the
+  // screen-change cleanup effect that called stopCompass(). Removing the button
+  // alone would have left the listener registered on every Map visit, which is
+  // exactly the leak the work order called out. scripts/check-map-controls.mjs
+  // fails if any of it returns.
+
   const [mapDate, setMapDate] = useState("all");
   const [mapPreview, setMapPreview] = useState(null);
   const [mapDrawer, setMapDrawer] = useState(false);
@@ -7760,7 +7711,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, compassOn, compassNeedleRef, toggleCompass, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
