@@ -114,27 +114,60 @@ GROUP BY day, trigger ORDER BY day DESC, shown DESC
 
 ## 4. `intro_stand_down` — the new absence-side signal
 
-Ships with #590, so it **does not exist in the taxonomy yet**; it will appear after deploy.
-Without it, "nobody saw the intro" and "the intro is broken" are the same shape — an absence of
+Shipped with #590; the mount-phase half was added the next day (see below). Without this event,
+"nobody saw the intro" and "the intro is broken" are the same shape — an absence of
 `intro_shown`.
 
+Two phases, and the distinction matters for every query below:
+
+| `phase` | meaning | `visible_ms` |
+|---|---|---|
+| `mount` | skipped at load — the effect returned before arming a timer | always `0` |
+| `gate` | the 2-minute mark was reached, then the overlay was suppressed | real |
+
 ```sql
-SELECT properties.why AS why, count() AS n,
+SELECT properties.phase AS phase, properties.why AS why, count() AS n,
        round(avg(toFloat(properties.visible_ms)), 0) AS avg_visible_ms,
        round(avg(toFloat(properties.attempt)), 2) AS avg_attempt
 FROM events
 WHERE timestamp >= now() - INTERVAL 7 DAY AND event = 'intro_stand_down'
-GROUP BY why ORDER BY n DESC
+GROUP BY phase, why ORDER BY phase, n DESC
 ```
 
-How to read each reason:
+**Always group by `phase`.** `mount` rows carry `visible_ms: 0` by definition, so averaging
+across both phases produces a meaningless number.
 
-- **`value_seen`** — reached 2 minutes, but had already opened a place. Working as designed.
+### `phase = "gate"` — reached 2 minutes, then suppressed
+
+- **`value_seen`** — had already opened a place. Working as designed.
 - **`interrupt_claimed`** — another prompt took the session's one interruption. Almost always the
   giveaway; see §5.
 - **`dialog_open`** — deferred at least once behind an open dialog. Logged once per session.
 - **`retries_exhausted`** — gave up after 8 × 20s still blocked. If this is more than a rounding
   error, the coordination between prompts needs work, not the timer.
+
+### `phase = "mount"` — skipped at load, before any timer was armed
+
+Added 2026-08-06 (D+1). The original design left these three branches emitting **nothing**, which
+reproduced the exact ambiguity this event exists to remove, one step earlier: a session correctly
+skipped at mount and a session whose timer was broken both produced silence.
+
+Found by the D+1 smoke check itself — two sessions ran past two minutes with zero intro events
+and there was no way to tell which case it was. That is the guardrail catching a hole in its own
+instrument, which is the point of running a D+1 read at all.
+
+- **`deep_link`** — arrived on `?q`/`?go`/`?place`/`?list`/`?exp`.
+- **`paid`** — arrived on a campaign/click-ID landing (`6cb95ec`). Watch this one: it is the
+  traffic the paid skip was bought to protect, and a sudden fall to zero means the attribution
+  parse broke, not that spend stopped.
+- **`already_seen`** — the durable once-per-device flag was set. Expect this to become the
+  **dominant** row over time as the installed base accumulates the cookie. That is the design
+  working, not a fault.
+
+**The denominator this gives you:** `intro_shown(trigger="timer")` + all `gate` rows = sessions
+that reached two minutes. Adding the `mount` rows accounts for every other session the effect
+saw. An unexplained gap between that total and session count means the effect is not running at
+all — which nothing else in this plan would have surfaced.
 
 ## 5. The known confound: the giveaway prompt
 
