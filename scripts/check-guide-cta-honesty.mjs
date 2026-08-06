@@ -21,7 +21,7 @@
  * over the resolver's source would pass on a label built at runtime.
  */
 import { GUIDES } from "../lib/guides.js";
-import { guidePrimaryCta, guideIntent } from "../lib/guideCta.js";
+import { guidePrimaryCta, guideIntent, pickVenueLabel } from "../lib/guideCta.js";
 import { couponForPlaceName } from "../lib/coupons.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 import { readFileSync } from "node:fs";
@@ -35,6 +35,50 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 const slugs = Object.keys(GUIDES);
 ok(slugs.length >= 10, `expected the guide registry to be populated (got ${slugs.length})`);
+
+// WHAT AN EXACT LABEL MAY NAME. This assertion previously demanded the label
+// contain cta.place — the raw pick name. That encoded the bug: pick names are
+// editorial ("Gatorland: the classic park"), and #611 stops naming them. The
+// old rule therefore FAILED the fix on Vercel, which is the only environment
+// with a Viator PID and so the only place an exact CTA exists at all.
+//
+// The rule is: name the product title when one resolved, else the VENUE derived
+// from the pick, else name nothing and say so.
+function exactLabelIsHonest(cta) {
+  const label = String(cta.label || "");
+  const place = String(cta.place || "");
+  const want = cta.productTitle || pickVenueLabel(place);
+  if (!want) return label === "See tickets & availability";
+  // It must name the right thing...
+  if (!label.includes(String(want).slice(0, 30))) return false;
+  // ...and must NOT still carry the editorial remainder. Containment alone is
+  // too weak: "See tickets for Gatorland: the classic park" contains
+  // "Gatorland", so an includes() check passes the very bug being rejected.
+  if (place && place !== want && label.includes(place)) return false;
+  return true;
+}
+
+// Driven with fixtures, because no guide resolves exact without a PID and the
+// loop below would otherwise assert nothing on a dev box — which is exactly how
+// the stale rule survived until a Vercel build rejected it.
+const EXACT_FIXTURES = [
+  [{ exact: true, place: "Gatorland: the classic park", label: "See tickets for Gatorland" }, true,
+   "the venue, with the editorial suffix stripped"],
+  [{ exact: true, place: "Gatorland: the classic park", label: "See tickets for Gatorland: the classic park" }, false,
+   "THE SHIPPED BUG: the full pick heading"],
+  [{ exact: true, place: "What the hour actually covers", label: "See tickets & availability" }, true,
+   "prose pick -> names nothing, honestly"],
+  [{ exact: true, place: "What the hour actually covers", label: "See tickets: What the hour actually covers" }, false,
+   "prose pick must never be named"],
+  [{ exact: true, place: "Winter Park Scenic Boat Tour", productTitle: "Clear Kayak Sunset Tour through The Winter Park chain",
+     label: "See tickets: Clear Kayak Sunset Tour through The Winter\u2026" }, true,
+   "resolved product title wins over the pick"],
+];
+for (const [cta, want, why] of EXACT_FIXTURES) {
+  ok(exactLabelIsHonest(cta) === want, `exact-label rule (${why}): expected ${want} for "${cta.label}"`);
+}
+ok(EXACT_FIXTURES.some(([c]) => exactLabelIsHonest(c)) && EXACT_FIXTURES.some(([c]) => !exactLabelIsHonest(c)),
+  "PROBE BROKEN: the exact-label rule must be capable of both answers");
 
 let monetized = 0, tours = 0, deals = 0, searches = 0;
 
@@ -65,9 +109,8 @@ for (const slug of slugs) {
       // pick itself (Winter Park Scenic Boat Tour resolves to a kayak tour on
       // the same lake chain), so naming the pick would over-promise exactly the
       // way the old label did.
-      const names = cta.productTitle || cta.place;
-      ok(names && (cta.label.includes(names) || cta.label.includes(String(names).slice(0, 30))),
-        `${slug}: an exact CTA must name what it opens, got "${cta.label}"`);
+      ok(exactLabelIsHonest(cta),
+        `${slug}: an exact CTA must name what it opens — the product title, or the VENUE from the pick, or nothing at all — got "${cta.label}"`);
     } else {
       const region = GUIDES[slug].region || "Orlando";
       ok(cta.label.includes(region),
@@ -108,6 +151,57 @@ for (const slug of slugs) {
 }
 ok(tourDealOpportunities >= 1,
   `PROBE BROKEN: no tour-intent guide currently has a matching live offer, so the rung above was never exercised (got ${tourDealOpportunities})`);
+
+// 8. AN EXACT LABEL MAY NAME ONLY A VENUE, never a pick heading.
+//    Shipped 2026-08-06: "See tickets for Gatorland: the classic park". #606
+//    fixed the render-time upgrade path; this is the sibling path in guideCta,
+//    and it was invisible locally because no pick resolves verifiedUrl without
+//    an API key — so pickVenueLabel is DRIVEN directly here.
+const VENUE_CASES = [
+  ["Gatorland: the classic park", "Gatorland", "editorial suffix stripped"],
+  ["Wild Florida \u2014 the airboat experience", "Wild Florida", "em-dash suffix stripped"],
+  ["The Ringling", "The Ringling", "a bare venue survives"],
+  ["Winter Park Scenic Boat Tour", "Winter Park Scenic Boat Tour", "a long all-proper name survives"],
+  ["Museum of Fine Arts", "Museum of Fine Arts", "connectors are discounted, not counted against it"],
+  ["What the hour actually covers", null, "THE PRODUCTION BUG: prose must never be named"],
+  ["Seventh Avenue and the cigar legacy", null, "a heading is prose even when it starts with a proper noun"],
+  ["Tickets, timing, and the cash catch", null, "a list heading is prose"],
+  ["the verdict", null, "lowercase prose"],
+  ["", null, "nothing to name"],
+];
+for (const [input, want, why] of VENUE_CASES) {
+  const got = pickVenueLabel(input);
+  ok(got === want, `pickVenueLabel(${JSON.stringify(input)}) should be ${JSON.stringify(want)} (${why}) — got ${JSON.stringify(got)}`);
+}
+// Positive + negative controls: the rule must be capable of both answers, or the
+// cases above are all passing for the wrong reason.
+ok(VENUE_CASES.some(([i]) => pickVenueLabel(i) !== null), "PROBE BROKEN: pickVenueLabel names nothing at all");
+ok(VENUE_CASES.some(([i]) => pickVenueLabel(i) === null), "PROBE BROKEN: pickVenueLabel never refuses");
+
+// EVERY real pick that can reach this path must be nameable or explicitly not.
+// A pick with a curated viatorUrl is the only input this label ever sees.
+for (const slug of slugs) {
+  for (const p of (GUIDES[slug].picks || [])) {
+    if (!p || !p.viatorUrl) continue;
+    const v = pickVenueLabel(p.name);
+    ok(v === null || !/[:\u2014\u2013]/.test(v),
+      `${slug}: pick ${JSON.stringify(p.name)} yields ${JSON.stringify(v)} — an editorial suffix must never reach the label`);
+  }
+}
+
+// 8b. THE WIRING. pickVenueLabel is driven directly above with ten cases, but
+//     the exact branch that CONSUMES it cannot be reached offline: verifiedUrl
+//     needs NEXT_PUBLIC_VIATOR_PID, which lib/affiliates reads at module load,
+//     so no guide resolves exact without it. This is therefore a POSITION check
+//     and is weaker than a call — stated plainly so it reads as weaker.
+const cta_src = readFileSync(REPO + "lib/guideCta.js", "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+ok(/const\s+venue\s*=\s*exact\s*\?\s*pickVenueLabel\(/.test(cta_src),
+  "the exact branch must derive its name through pickVenueLabel");
+ok(!/See tickets for \$\{p\.name\}/.test(cta_src),
+  "the exact label must never interpolate the raw pick name — that is the shipped bug");
+ok(/See tickets & availability/.test(cta_src),
+  "an unnameable venue must fall back to a label that names nothing");
 
 // 7. The events must carry `exact`, or none of this is readable.
 const conv = readFileSync(REPO + "app/guides/[slug]/GuideConversion.js", "utf8")
