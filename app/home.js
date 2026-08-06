@@ -178,6 +178,12 @@ import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
 import { creatorBoostFor } from "../lib/creatorBoost";
+// THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
+// six times in six subtly different expressions; the terms are still computed
+// here — faveTier/featuredBoost/curatedFor stay put because
+// check-geo-gated-boosts.mjs pins them to this file — but the addition itself
+// now happens in exactly one place. check-ranking-integrity.mjs guard 8.
+import { placeScore, byPlaceScore, UNRATED_MIDPACK, UNRATED_LAST } from "../lib/rankPlaces";
 import CreatorAvatar from "./components/CreatorAvatar";
 // THE TASTE MODEL (owner, 2026-07-22): per-user preference vector, consented
 // re-rank (Phase 2), and the transparency panel (Phase 3). See lib/taste.js.
@@ -610,7 +616,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: (p.wfScore || 50) + boost - distPenalty + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (curatedFor(p) ? 15 : 0) + (creatorBoostFor(p)) };
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -3630,7 +3636,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => (p.wfScore || 50) + Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p) + featuredBoost(p) + (creatorBoostFor(p));
+      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: creatorBoostFor(p) });
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3708,7 +3714,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => (p.wfScore != null ? p.wfScore : 50) + featuredBoost(p) + communityBoost(p) + (creatorBoostFor(p)); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -5921,7 +5927,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + (curatedFor(b) ? 15 : 0) + _ctxBoost(b) + (creatorBoostFor(b))) - ((a.wfScore || 0) + featuredBoost(a) + (curatedFor(a) ? 15 : 0) + _ctxBoost(a) + (creatorBoostFor(a))));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: creatorBoostFor(p) })));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -6362,7 +6368,7 @@ function PageInner({ initialEvents = null }) {
         // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort((a, b) => ((b.wfScore || 0) + featuredBoost(b) + _ctxBoost(b) + (creatorBoostFor(b))) - ((a.wfScore || 0) + featuredBoost(a) + _ctxBoost(a) + (creatorBoostFor(a))));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: creatorBoostFor(p) })));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -7675,7 +7681,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => (p.wfScore || 0) + faveTier(p) * 4 + featuredBoost(p) + communityBoost(p) + (creatorBoostFor(p)));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
