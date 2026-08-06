@@ -252,6 +252,69 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   ok(/Or change the mood/.test(BN), "the row is labelled, so the chips read as alternatives rather than filters already applied");
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// v6.97b — THE REST OF THE APPROVED SCROLL: creator finds get their own row,
+// the guides finally get linked from home, and the six categories move below
+// the answer instead of being the first thing a stranger has to solve.
+// ═══════════════════════════════════════════════════════════════════════════
+{
+  const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+
+  // ── order on the page: answer, then creators, then categories ──
+  const iBestNearby = HOME.indexOf("<BestNearby center=");
+  const iFinds = HOME.indexOf("<CreatorFinds items=");
+  const iCats = HOME.indexOf("<CategoryMenu tight activeCat=");
+  ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
+  ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
+  ok(iFinds < iCats, "the six categories sit BELOW the answer and the creator row — they stop being the first thing a stranger has to solve");
+
+  // ── one list, two surfaces ──
+  ok(/<CreatorFinds items=\{videoPlaces\}/.test(HOME) && /<BestNearby[^>]*videoPlaces=\{videoPlaces\}/.test(HOME),
+     "the ranked-list section and the creator row read the SAME videoPlaces array — two derivations of one list is how these surfaces drift apart");
+  ok(!/videoPlaces=\{\(\(\) =>/.test(HOME),
+     "videoPlaces is no longer an IIFE inlined in JSX, recomputed every render for a section that is switched off");
+
+  // ── THE TDZ RULE, learned the hard way ──
+  // useMemo evaluates its dependency ARRAY on the first render, so a hook that
+  // reads a `const` declared further down throws "Cannot access before
+  // initialization" and takes the whole page down. `check:jsx` passes on it —
+  // tsc does not model temporal dead zones. This shipped-blocking bug was
+  // caught by hand; this assertion is why it cannot come back.
+  const iMemo = HOME.indexOf("const videoPlaces = useMemo(");
+  ok(iMemo > 0, "videoPlaces is memoised");
+  for (const dep of ["suggested", "places", "locName"]) {
+    const iDecl = HOME.indexOf(`const [${dep},`);
+    ok(iDecl > 0 && iDecl < iMemo,
+       `"${dep}" is declared BEFORE the videoPlaces useMemo that depends on it — a later declaration is a temporal-dead-zone crash on first render, and tsc does not see it`);
+  }
+
+  // ── the bridge ──
+  ok(/<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
+  const LE = readFileSync(path.join(REPO, "app/components/LocalEdit.js"), "utf8");
+  ok(/if \(!rows\.length\) return null;/.test(LE),
+     "LocalEdit renders NOTHING when no guide covers the reader's area — a 'local edit' heading over guides from three hours away is a false claim");
+  const radius = Number((LE.match(/LOCAL_EDIT_RADIUS_MI = (\d+)/) || [])[1]);
+  ok(radius > 0 && radius <= 120, `the local radius is real and bounded (${radius} mi)`);
+  ok(/export function readMinutes/.test(LE) && /WORDS_PER_MIN/.test(LE),
+     "read time is COMPUTED from the guide's own body — a hand-typed '5 min' is a number nobody ever updates");
+  ok(/g\.teaser/.test(LE) && !/teaser:\s*"/.test(LE),
+     "the teaser is the guide's OWN teaser, not new copy written here that can drift from what the article delivers");
+
+  // ── the creator row ──
+  const CF = readFileSync(path.join(REPO, "app/components/CreatorFinds.js"), "utf8");
+  ok(/if \(!rows\.length\) return null;/.test(CF),
+     "the creator row renders nothing when empty — an empty 'your differentiator' shelf advertises the absence");
+  // Tests the PROPERTY (does it read a video thumbnail field?), not the word.
+  // The first version grepped for "thumbnail" in raw source and failed on this
+  // component's own comment explaining that it never uses one — the same
+  // comment-matching mistake that bit the "old eyebrow is gone" check.
+  ok(/p\.photo/.test(CF) && !/\bv\.thumbnail\b|videos\[0\]\.thumbnail/.test(CF),
+     "cards use the PLACE's own photo and never read a video thumbnail field (the never-re-host rule)");
+  ok(/creatorBoostFor/.test(CF),
+     "the row orders by the same creator boost the ranked list above it uses — two surfaces disagreeing about which pick matters is the drift this codebase keeps fixing");
+  ok(/PLATFORM\[v\.platform\]/.test(CF), "the platform badge comes from the single PLATFORM source, so a new platform is covered automatically");
+}
+
 // THE REPORT MUST BE THE LAST THING BEFORE THE SUMMARY.
 //
 // It used to sit in the middle of this file. `ok()` here COLLECTS failures
