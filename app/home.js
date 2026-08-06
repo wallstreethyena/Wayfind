@@ -7832,7 +7832,16 @@ function PageInner({ initialEvents = null }) {
               <span className="wf-wordmark-text" aria-hidden="true" />
               <span className="wf-wordmark-pin" aria-hidden="true" />
             </div>
-            {locName && <span style={{ fontSize: 13, fontWeight: 400, color: C.muted, marginLeft: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>· {locName}</span>}
+            {/* The location used to sit HERE, and could not fit. Measured on
+                production at 390px: the row is 362px, the wordmark sprite is a
+                fixed 154px, and the weather (71px) and Sign in (86px) are both
+                flex-shrink:0 — so `· Parrish, FL` was allotted 23px of the 72px
+                it needs and rendered as a bare ellipsis. Still clipped at 430px
+                (63/72). It is not a tuning problem: trimming the weather label
+                AND shrinking the brand 20% still only reached 69px, and
+                "Parrish, FL" is a SHORT name — "St. Petersburg, FL" needs 118px.
+                A variable-length city cannot share this row, so it gets its own
+                (see below) where any name fits. Locked by check-home-location. */}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             {weather && (weather.feels != null || weather.temp != null) && (
@@ -7852,6 +7861,21 @@ function PageInner({ initialEvents = null }) {
             ))}
           </div>
         </div>
+        )}
+        {/* WHERE "near you" IS. Its own full-width line, so a long city name
+            ("St. Petersburg, FL") fits exactly as well as a short one — the
+            failure the top row could not be tuned out of. Owner's report that
+            motivated the Near-me button was "I got stuck looking around and had
+            no idea where I was"; that button shipped while the label naming the
+            place stayed invisible on every phone. Not interactive on purpose:
+            search and Near-me are both one row below, and a status line should
+            not become a fourth sub-44px tap target. The approximate-location
+            caveat already has its own banner and is not duplicated here. */}
+        {screen !== "map" && locName && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 8, minWidth: 0, color: C.muted }}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="2.8" /></svg>
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: ".1px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{locName}</span>
+          </div>
         )}
         {wxOpen && weather && Array.isArray(weather.hourly) && weather.hourly.length > 0 && (
           <div style={{ marginTop: -6, marginBottom: 12, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.panel} 62%)`, border: "none", borderRadius: "0 0 18px 18px", padding: "12px 8px 14px", boxShadow: "0 12px 26px rgba(0,0,0,.4)" }}>
