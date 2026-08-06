@@ -294,3 +294,4 @@ node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
 node scripts/check-guide-cta-honesty.mjs
 node scripts/check-native-no-ad-tracking.mjs
+node scripts/check-ios-privacy-manifest.mjs
