@@ -14,8 +14,14 @@ is owner-only and still has no `codex` row either.
 _(none)_
 
 ## Blocked on
-**Owner adoption:** `docs/proposals/codex-effect-ordering-and-visibility-verification.md` — two
-rules for `CLAUDE.md`. Not in force until an owner commit lands them in `CLAUDE.md`.
+**Owner adoption**, two proposals, neither in force until an owner commit lands them:
+
+- `docs/proposals/codex-effect-ordering-and-visibility-verification.md` — two rules for
+  `CLAUDE.md` (effects read a URL an earlier effect may have rewritten; assert the browser state
+  you claim to have tested).
+- `docs/proposals/codex-union-merge-is-local-only.md` — `merge=union` on `scripts/guards.txt`
+  protects local merges but not GitHub's PR merge, so `docs/lanes/README.md:16`'s "caused **zero**
+  conflicts" is conditional on branch freshness. Found via #587.
 
 ## Do not interrupt
 no
