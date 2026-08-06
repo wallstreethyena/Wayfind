@@ -141,10 +141,7 @@ ok(/catLabel \+ " near you,"/.test(NEARBY),
 ok(/n \+ " places " \+ factors/.test(NEARBY),
    "the count is still list.length, so a narrowed list reports the narrowed number and never a stale or rounded one");
 
-// Pins the BEHAVIOUR (a sourceless tile falls through to browse), not the
-// local variable it happened to be written with. The first version pinned
-// `TILE_SOURCE[nv]` and went red on a rename that changed nothing.
-ok(/pickBarCat = \(id\) => \{[\s\S]{0,600}?TILE_SOURCE\[(?:id|nv)\][\s\S]{0,160}?pickBrowse\(id\)/.test(HOME),
+ok(/pickBarCat = \(id\) => \{[\s\S]{0,400}?TILE_SOURCE\[nv\][\s\S]{0,120}?pickBrowse\(id\)/.test(HOME),
    "a category with no ranked source (family, which has no wf_inventory rows) falls through to browse rather than re-ranking into an empty list");
 
 console.log(`check-category-bar: PASS (${pass} assertions)`);

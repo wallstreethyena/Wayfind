@@ -3454,11 +3454,7 @@ function PageInner({ initialEvents = null }) {
   const [catTiles, setCatTiles] = useState(() => tilesFrom({}));
   // K3 Phase 2: the bar's own selection. Deliberately NOT browseCat — see
   // pickBarCat below for why that distinction is the entire fix.
-  // Starts on food, never null: the bar dims every UNSELECTED circle, so a
-  // null state dimmed all six at once and the row read as broken rather than
-  // as resting. Food is also what the list underneath already opens on
-  // (DEFAULT_SECTION), so the bar now agrees with the answer it sits above.
-  const [barCat, setBarCat] = useState(WF_CATEGORY_BAR ? "food" : null);
+  const [barCat, setBarCat] = useState(null);
   useEffect(() => {
     if (!WF_CATEGORY_BAR || !center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     let cancelled = false;
@@ -3833,11 +3829,9 @@ function PageInner({ initialEvents = null }) {
   // special case: it has no wf_best_picks category (wf_inventory carries no
   // family rows), so there is nothing to re-rank in place.
   const pickBarCat = (id) => {
-    // No deselect. Tapping the active circle used to set barCat back to null,
-    // which dimmed the whole row again -- a control that can turn itself off
-    // into a broken-looking state is not a control.
-    if (!TILE_SOURCE[id]) { pickBrowse(id); return; }
-    setBarCat(id);
+    const nv = barCat === id ? null : id;
+    if (nv && !TILE_SOURCE[nv]) { pickBrowse(id); return; }
+    setBarCat(nv);
     setSub("all");
   };
   const openCuisine = (label, fromPlace) => {
@@ -8267,7 +8261,7 @@ function PageInner({ initialEvents = null }) {
                   trends section — which is switched off. Computed, then discarded,
                   every render. Now it is lifted to `videoPlaces` above and BOTH
                   surfaces read the same array, so they can never disagree. */}
-              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <CreatorFinds items={videoPlaces} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
                   stranger has to solve"). Same component, same six categories, same

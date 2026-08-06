@@ -59,7 +59,7 @@ export default function CategoryBar({ cats, activeCat, onCat, sub, onSub }) {
         .wf-k3-slot{width:${CIRCLE_SELECTED}px;height:${CIRCLE_SELECTED}px;display:flex;align-items:center;justify-content:center}
         /* TRANSFORM ONLY, NEVER WIDTH. Animating width relayouts the whole row
            every frame on a mid-range phone; transform is composited on the GPU. */
-        .wf-k3-circle{width:${CIRCLE_BASE}px;height:${CIRCLE_BASE}px;border-radius:50%;overflow:hidden;position:relative;background:${C.panel};border:1px solid rgba(255,255,255,.10);transform:scale(1);transition:transform 380ms var(--k3-ease),filter 240ms ease,box-shadow 240ms ease;filter:saturate(.85) brightness(.62)}
+        .wf-k3-circle{width:${CIRCLE_BASE}px;height:${CIRCLE_BASE}px;border-radius:50%;overflow:hidden;position:relative;background:${C.panel};border:1px solid rgba(255,255,255,.10);transform:scale(1);transition:transform 380ms var(--k3-ease),filter 240ms ease,box-shadow 240ms ease;filter:saturate(.35) blur(1.1px)}
         .wf-k3-circle img{width:100%;height:100%;object-fit:cover;display:block}
         /* GLYPH FALLBACK, not a broken image. A category with no ranked photo
            (today: Family, which the home browse serves from a live search
