@@ -20,7 +20,10 @@
 // class of bug: it looks shipped and does nothing.
 import { creatorVideosFor, videosByKey, allCreators, spotsByCity, libraryStats, PLATFORM } from "../lib/creatorVideos.js";
 import * as creatorBoost from "../lib/creatorBoost.js";
-import { creatorBoostFor } from "../lib/creatorBoost.js";
+import { creatorBoostFor, evidenceBoost, EVIDENCE_CAP_FRAC } from "../lib/creatorBoost.js";
+// The real ordering key the home list sorts on, so the invariant below is
+// asserted end to end rather than against a formula retyped into this file.
+import { driveDeduction } from "../lib/todaysBest.js";
 import { archetypeFor, summaryFor, ASSIGNMENTS } from "../lib/creatorArchetypes.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -58,9 +61,16 @@ ok(entries.some((e) => e.creators.includes("alexandramartin_tv")), "the alexandr
 // If someone deletes hasCreatorVideo from home.js, every curated video silently
 // stops affecting rank and nothing else in the suite notices.
 const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8");
-const boostDecl = HOME.match(/const VIDEO_BOOST\s*=\s*(\d+)/);
-ok(!!boostDecl, "app/home.js still declares VIDEO_BOOST — the constant the whole feature rides on");
-ok(Number(boostDecl[1]) > 30, `VIDEO_BOOST is ${boostDecl && boostDecl[1]}, which must exceed the 30-point max distance penalty or a featured place 20 minutes away never surfaces`);
+// v6.97 — VIDEO_BOOST IS GONE, and its ABSENCE is now the assertion.
+//
+// It was dead for an entire version. Nothing read it after v6.96 moved the
+// boost into lib/creatorBoost.js, but it stayed declared — because THIS guard
+// demanded it — carrying a comment describing it as "the CEILING of a range"
+// that it did not set. A ranking spec was then written off that dead constant,
+// and an agent asked the owner to re-decide a question the code had already
+// answered. A constant that lies costs more than no constant.
+ok(!/const VIDEO_BOOST\s*=/.test(HOME),
+   "app/home.js declares no VIDEO_BOOST — the boost is computed in lib/creatorBoost.js, and a leftover constant here misstates what sets it to every future reader");
 // UPDATED v6.96, not deleted. This used to count `hasCreatorVideo(p) ? VIDEO_BOOST : 0`.
 // That expression no longer exists anywhere: the boost is a computed range now,
 // so the ranking sites call creatorBoostFor() directly. The INVARIANT is
@@ -87,12 +97,36 @@ ok(creatorBoostFor({ id: "x", name: "n", reviews: 5000 }) === 0, "an UNRATED pla
   ok(creatorBoostFor({ id: palmette.pid, name: "x", rating: 3.7, reviews: 56 }) === 0, "…while earning no rank boost at all");
 }
 {
-  const w = (r) => creatorBoostFor({ id: "x", name: "n", rating: 4.6, reviews: 500, __r: r });
-  const at = (r) => Math.round(creatorBoost.CREATOR_BOOST_MIN + (creatorBoost.CREATOR_BOOST_MAX - creatorBoost.CREATOR_BOOST_MIN) * creatorBoost.reachWeight(r));
-  ok(at(11900) > at(2800) && at(2800) > at(650), `more reach earns a bigger boost (650→+${at(650)}, 2800→+${at(2800)}, 11900→+${at(11900)}) — the owner's whole ask`);
-  ok(at(0) === creatorBoost.CREATOR_BOOST_MIN, "a video with no recorded reach still earns the MINIMUM boost, never nothing");
-  ok(at(10 ** 9) <= creatorBoost.CREATOR_BOOST_MAX, "reach is capped — a viral post cannot buy an unbounded rank");
-  ok(at(650) >= 20, `the low end of the real corpus is still meaningfully boosted (+${at(650)}) — a scale that flattens small creators to nothing is not a scale`);
+  // ── THE CURVE — asserted on RETURNED VALUES, not on constants ────────────
+  // Q = 91 is 4.6★ / 500 reviews through wayfindScore(), a real shape from the
+  // curated corpus rather than a number invented for the test.
+  const Q = 91;
+  const at = (r) => evidenceBoost(Q, r);
+  ok(at(11900) > at(2800) && at(2800) > at(650),
+     `more reach earns a bigger boost (650→+${at(650)}, 2800→+${at(2800)}, 11900→+${at(11900)}) — the owner's ask, and the thing a hard clamp at the cap would have destroyed`);
+  ok(at(0) > 0, "a video with no recorded reach still earns something, never nothing");
+  ok(at(10 ** 9) <= Math.ceil(EVIDENCE_CAP_FRAC * Q),
+     `the boost is capped at ${EVIDENCE_CAP_FRAC * 100}% of the place's OWN quality (+${at(10 ** 9)} against ${Q}) — a viral post cannot buy unbounded rank`);
+  ok(at(11900) - at(650) >= 4,
+     `the reach band still SPREADS (+${at(650)} → +${at(11900)}) — a bound that lands 650 likes and 11,900 likes on the same number is not a scale, it is a clamp`);
+
+  // ── BOUNDED RELATIVE TO QUALITY ──────────────────────────────────────────
+  ok(evidenceBoost(98, 10 ** 9) > evidenceBoost(80, 10 ** 9),
+     "a better place has more headroom than a floor-quality one — the ceiling is a share of quality, never a flat number");
+  ok(evidenceBoost(null, 10 ** 9) === 0 && evidenceBoost(0, 10 ** 9) === 0,
+     "an unrated place earns no evidence boost — 15% of nothing is nothing, and the floor already failed it closed");
+
+  // ── THE §0.1 INVARIANT, END TO END ON THE REAL ORDERING KEY ──────────────
+  // key = wayfindScore/10 − driveDeduction(mi) + boost/10   (lib/todaysBest.js)
+  const key = (q, mi, reach) => q / 10 - driveDeduction(mi) + (reach == null ? 0 : evidenceBoost(q, reach)) / 10;
+  ok(key(98, 1, null) > key(80, 1, 10 ** 9),
+     `an excellent place with no video outranks a floor-quality place with a viral one (${key(98, 1, null).toFixed(2)} vs ${key(80, 1, 10 ** 9).toFixed(2)}) — evidence re-orders the qualified set, it never inverts it`);
+  ok(key(98, 1, null) > key(80, 25, 10 ** 9),
+     `…and beats its 25-mile version comfortably (${key(98, 1, null).toFixed(2)} vs ${key(80, 25, 10 ** 9).toFixed(2)}) — distance now outweighs the evidence term, which it did not before v6.97`);
+  ok(key(91, 3, 650) > key(91, 3, null),
+     "a creator video still visibly lifts a place above its own unboosted self — this is bounded, not neutered");
+  ok(key(91, 3, 11900) > key(98, 3, null),
+     "…and a well-backed good place can still beat an unbacked better one — evidence has to be able to change the answer or it is decoration");
 }
 {
   // THE HEAD CAP, at the exact numbers the owner chose.
