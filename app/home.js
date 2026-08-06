@@ -3832,7 +3832,11 @@ function PageInner({ initialEvents = null }) {
     // into a broken-looking state is not a control.
     if (!TILE_SOURCE[id]) { pickBrowse(id); return; }
     setBarCat(id);
-    setSub("all");
+    // DO NOT touch `sub` here. An effect keyed on [cat, sub, vibe, ...] calls
+    // scrollRef.scrollTo({top:0}) -- so setting sub teleported the reader to
+    // the top of the page on every category tap, and fired up to 8 Google
+    // Places requests whose results this screen never renders. BestNearby is
+    // not passed `sub` at all; it re-ranks from `category` alone.
   };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;

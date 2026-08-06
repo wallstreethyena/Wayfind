@@ -83,8 +83,10 @@ const family = tiles.find((t) => t.id === "family");
 ok(food && typeof food.photoUrl === "string" && food.photoUrl.length > 0, "a category with a ranked row gets a real photo URL");
 ok(family && family.photoUrl === null && family.glyph,
    "a category with no ranked row gets its GLYPH and a null photo — never a borrowed photograph from a neighbouring category, which would claim a place is family-friendly because it happened to rank in Activities");
-ok(TILE_SOURCE.family === null,
-   "family maps to no wf_best_picks category on purpose — wf_inventory carries no family rows (checked live), and the home browse serves it from a live search instead");
+ok(TILE_SOURCE.family === "family",
+   "family maps to a REAL wf_best_picks category. It was null, which made the tile fall through to browse: the page tore down, BestNearby unmounted, and the bar went on showing Food selected while the page showed Family. wf_best_picks now serves family as a virtual category over google_types (park, museum, zoo, aquarium, playground, family_restaurant...), the same shape as things_to_do and eat — 190 places within 25mi of Parrish, 858 statewide, all of which were already in wf_inventory and merely unmapped");
+ok(Object.values(TILE_SOURCE).every((v) => typeof v === "string" && v.length > 0),
+   "EVERY tile has a real ranked source. A tile with no source silently becomes a trapdoor out of the page, which is exactly how the family bug shipped");
 ok(tiles.every((t) => t.count === undefined),
    "Phase 1 sets NO counts at all — wf_best_picks returns a capped list and the browse a tap opens is a different source, so any number here would not match the list it opens");
 ok(Object.keys(TILE_GLYPH).length >= 6, "every tile has a fallback glyph");
