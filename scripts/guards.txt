@@ -290,6 +290,7 @@ node scripts/check-intent-partner-picks.mjs
 node scripts/check-unified-commerce-rail.mjs
 node scripts/test-event-rail-images.mjs
 node scripts/test-experience-now-rank.mjs
+node scripts/check-guards-emit-no-analytics.mjs
 node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
 node scripts/check-guide-cta-honesty.mjs

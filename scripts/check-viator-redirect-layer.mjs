@@ -174,6 +174,14 @@ ok(none.status === 302, "a query-less call must still redirect rather than throw
   // with .env.production.local sourced, which is how 5c541b4 turned a
   // live-affiliate guard into decoration for six hours. Pinning a fixed stub
   // regardless of environment keeps the verdict identical in every shell.
+  // run-guards sets WF_SUPPRESS_ANALYTICS=1 for every guard it spawns (guards
+  // were firing fixtures into the PRODUCTION PostHog project during Vercel
+  // builds). This block asserts that the route DOES capture, so suppression
+  // would make it pass while proving nothing. Opting out is safe here because
+  // the fetch stub below intercepts every request — nothing leaves the process
+  // regardless of the flag. check-guards-emit-no-analytics enforces that a
+  // route-invoking guard has one protection or the other.
+  delete process.env.WF_SUPPRESS_ANALYTICS;
   process.env.NEXT_PUBLIC_POSTHOG_KEY = "phc_guard_stub";
   // captureServer posts to PostHog; intercept rather than reach the network.
   globalThis.fetch = async (url, init) => {
