@@ -22,7 +22,7 @@
  * for no gain, but DEFAULT_SECTION is a plain constant, so it is read by
  * running the module rather than by grepping for it.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -191,6 +191,77 @@ const rowMax = Number((BN.match(/const ROW_MAX_H = (\d+);/) || [])[1]);
 ok(rowMax >= 96, `ROW_MAX_H is at least 96 (got ${rowMax}) — 64 was the pre-reason row and a two-line why adds ~32px, so the last rows get clipped`);
 ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is computed from ROW_MAX_H, not from a literal");
 
+// ═══════════════════════════════════════════════════════════════════════════
+// v6.97 — THE ANSWER HEADLINE, THE HEAD SLICE, AND THE MOOD ROW.
+//
+// The surface now states an answer before it asks anything: a headline, a real
+// count, three results, a way to see the rest, and four moods. Each of those is
+// a promise to a reader who has about ten seconds, and each can rot silently.
+// ═══════════════════════════════════════════════════════════════════════════
+{
+  // Reuses the module-level BN, which already strips {/* JSX comments */} with
+  // the NARROW pattern this repo learned the hard way (a greedy /* */ strip
+  // once deleted 158KB of live code from app/home.js because regex literals
+  // contain "/*"). Re-reading raw would make every assertion below match this
+  // file's own explanatory comments — which is exactly how the "old eyebrow is
+  // gone" check first failed: the only remaining occurrence was in a comment
+  // describing its removal.
+
+  // ── the headline ──
+  ok(/<h2[^>]*>\s*\{headline\.lead\}/.test(BN.replace(/\n\s*/g, " ")),
+     "the answer renders as an h2 — it is the page's real heading, not decorative text");
+  ok(/backgroundClip: "text"[\s\S]{0,80}\{headline\.tail\}/.test(BN),
+     "…with the time-of-day half carrying the gradient, as approved");
+  ok(!/Nearby, right now/.test(BN),
+     "the old eyebrow is gone — it described the section instead of answering the question");
+
+  // ── every number in it is real ──
+  ok(/const n = openList\.length;/.test(BN),
+     "the headline's count comes from the list actually rendered, never a literal");
+  ok(/n \? n \+ " places "/.test(BN),
+     "the count clause is DROPPED when the list is empty or loading — '0 places scored' is worse than no count");
+  ok(!/\b30 places\b/.test(BN) && !/See all 30\b/.test(BN),
+     "no hard-coded result count survives from the mockup — the mockup said 30, the engine says what it says");
+  ok(/See all \{list\.length\} ranked near you/.test(BN),
+     "the see-all label counts the real list, so it can never over-promise");
+  ok(/hourLabel\(ctx\.hour\)[\s\S]{0,40}ctx\.dayName/.test(BN),
+     "the hour and day come from the same nowContext() the RANKING uses — a headline on a different clock than the sort is a lie about what was ranked");
+  ok(/Math\.floor/.test(BN.slice(BN.indexOf("function hourLabel"), BN.indexOf("function hourLabel") + 400)),
+     "the hour label is whole-hour — minute precision on a daypart-bucketed ranking claims accuracy the sort does not have");
+  ok(/no paid placement/.test(BN), "the integrity line ships with the answer, not buried in a footer");
+
+  // ── the head slice ──
+  const head = BN.match(/const HEAD_COUNT = (\d+)/);
+  ok(!!head && Number(head[1]) === 3, `HEAD_COUNT is 3 (got ${head && head[1]}) — the approved design shows three above the fold`);
+  ok((BN.match(/showAll \? list : list\.slice\(0, HEAD_COUNT\)/g) || []).length === 2,
+     "BOTH lists (eat and things-to-do) slice to the head — one that ignored it would push the other's see-all off screen");
+  ok(/setShowAll\(false\);/.test(BN.slice(BN.indexOf("const toggle ="), BN.indexOf("const toggle =") + 400)),
+     "switching section resets see-all — it is a statement about the list in front of you, not a sticky preference");
+
+  // ── the mood row points at REAL pages ──
+  const moodBlock = BN.slice(BN.indexOf("const MOODS = ["), BN.indexOf("];", BN.indexOf("const MOODS = [")));
+  const hrefs = [...moodBlock.matchAll(/href: "([^"]+)"/g)].map((m) => m[1]);
+  ok(hrefs.length >= 3, `the mood row has real destinations (got ${hrefs.length})`);
+  for (const h of hrefs) {
+    const dir = path.join(REPO, "app", h.replace(/^\//, ""));
+    ok(existsSync(path.join(dir, "page.js")),
+       `mood chip "${h}" resolves to a real page (app${h}/page.js) — a chip that 404s is a dead end at the exact moment someone is deciding to trust this`);
+  }
+  ok(/href: null/.test(moodBlock),
+     "the current view renders as SELECTED STATE, not a link to the page the reader is already on");
+  ok(/Or change the mood/.test(BN), "the row is labelled, so the chips read as alternatives rather than filters already applied");
+}
+
+// THE REPORT MUST BE THE LAST THING BEFORE THE SUMMARY.
+//
+// It used to sit in the middle of this file. `ok()` here COLLECTS failures
+// rather than exiting on the first one (so a run reports everything wrong at
+// once, which is the better behaviour) — but that makes placement load-bearing:
+// every assertion written below the report was collected into `fail` and then
+// never looked at. Nineteen assertions were added in v6.97 and silently
+// discarded; the guard cheerfully printed "69 assertions passed" while holding
+// nine real failures. Anything appended after this block is invisible.
+// scripts/check-guard-integrity.mjs asserts this ordering across the suite.
 if (fail.length) {
   console.error(`check-home-answer-first: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

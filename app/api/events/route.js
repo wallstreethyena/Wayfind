@@ -15,6 +15,7 @@ import { processEvents, siteTodayStr } from "../../../lib/eventsPipeline.js";
 import { siteAnchorDate } from "../../../lib/siteTime.js";
 import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } from "../../../lib/eventResolve.js";
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
+import { creatorEventsFor } from "../../../lib/creatorEvents.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 
 function isoNowZ() {
@@ -554,6 +555,12 @@ async function aggregateEvents({ lat, lng, keyword, radius, city }) {
       withDeadline("Eventbrite", fromEventbriteOrgs(lat, lng, radius)),
       withDeadline("Business", fromBusinessFeeds(lat, lng, radius)),
       withDeadline("Local staples", Promise.resolve(localStaplesFor(lat, lng))),
+      // v6.96d — events a creator surfaced (lib/creatorEvents.js). Joins here,
+      // as one more provider, so it inherits this route's validation, dedup,
+      // geo guard and cap rather than growing a parallel path. Synchronous and
+      // pure: it emits ONLY entries whose research is still in date, so an
+      // expired festival contributes nothing instead of last year's dates.
+      withDeadline("Creator picks", Promise.resolve(creatorEventsFor(lat, lng))),
     ]);
 
     const configuredCount = results.filter((r) => r.configured).length;

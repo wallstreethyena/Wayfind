@@ -308,3 +308,6 @@ node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
 node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
 node scripts/check-ranking-integrity.mjs
+node scripts/check-creator-video-boost.mjs
+node scripts/check-creator-events.mjs
+node scripts/check-guard-integrity.mjs

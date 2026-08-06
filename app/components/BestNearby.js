@@ -51,6 +51,41 @@ function Medal({ i }) {
 // Pinned by scripts/check-home-answer-first.mjs.
 const ROW_MAX_H = 100;
 
+// v6.97 — the answer-first head. The mockup the owner approved shows THREE
+// results and then a way to see the rest, not ten. Three is what fits above the
+// fold on a phone, and the fold is the entire problem this surface was built to
+// fix (259 single-page sessions on `/`, median 10 seconds).
+//
+// "See all" expands IN PLACE rather than navigating. A separate list page would
+// re-rank with its own code path, and two lists that disagree about the same
+// places is the exact bug class this session has spent its time removing —
+// wayfindScore had five implementations, the answer-first list ignored the
+// creator boost the grid below it applied. One list, one ranking.
+const HEAD_COUNT = 3;
+
+// The mood row. Every one of these is a REAL route that already exists and
+// already ranks — no chip here is a placeholder, and none of them is a filter
+// that silently returns the same list. `/` is "right now", which is where the
+// reader already is, so it renders as the selected state rather than a link to
+// the page they are on.
+const MOODS = [
+  { label: "Right now", href: null },
+  { label: "Date night", href: "/date-night" },
+  { label: "Family", href: "/family" },
+  { label: "Hidden gems", href: "/hidden-gems" },
+];
+
+// 22.4 -> "10pm". Whole hours only: "10:24pm" claims a precision the ranking
+// does not have (wf_best_picks buckets the day into four dayparts), and a
+// minute-accurate label on an hour-accurate ranking is a small lie that gets
+// noticed.
+function hourLabel(h) {
+  const n = Math.floor(((Number(h) % 24) + 24) % 24);
+  const ampm = n >= 12 ? "pm" : "am";
+  const h12 = n % 12 === 0 ? 12 : n % 12;
+  return h12 + ampm;
+}
+
 function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href }) {
   const inner = (
     <>
@@ -118,7 +153,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // same read a tap already triggered) and removes the tap that was losing
   // them. `toggle` still closes it, so the accordion is not being deleted —
   // its default is being inverted.
-  const [open, setOpen] = useState(DEFAULT_SECTION); // "eat" | "todo" | "trends" | null
+  const [open, setOpen] = useState(DEFAULT_SECTION);
+  // Reset when the section changes: "see all" is a statement about the list in
+  // front of you, not a preference that should follow you into a different one.
+  const [showAll, setShowAll] = useState(false); // "eat" | "todo" | "trends" | null
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
   // v6.71 (Wave 2): "Top things to do" mixes beach rows in with tours and
@@ -231,6 +269,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   const toggle = (id) => {
     const next = open === id ? null : id;
     setOpen(next);
+    setShowAll(false);
     if (!next) return;
     // `trigger` separates a deliberate tap from the section that was already
     // open on arrival. Without it the default-open fire would silently inflate
@@ -318,12 +357,39 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     </>
   );
 
+  // Built here, not in JSX, so the honesty rules are readable in one place.
+  const headline = (() => {
+    const ctx = nowCtx();
+    const openList = Array.isArray(rows[open]) ? rows[open] : [];
+    const n = openList.length;
+    // The COUNT clause is dropped entirely while loading or empty. A headline
+    // that says "0 places scored" is worse than a headline with no count, and
+    // one that says "30" when the engine returned 12 is worse than both.
+    const factors = "scored on reviews, distance and time of day";
+    return {
+      lead: open === "todo" ? "Things to do near you," : "Open now near you,",
+      tail: "ranked for " + hourLabel(ctx.hour) + " " + ctx.dayName + ".",
+      sub: (n ? n + " places " + factors : "Ranked " + factors) + " · no paid placement",
+    };
+  })();
+
   return (
     <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
       <style dangerouslySetInnerHTML={{ __html: `.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 1px 8px" }}>
-        <span style={{ fontSize: 11.5, fontWeight: 750, color: "#DCE5F0", display: "inline-flex", alignItems: "center", gap: 6 }}><span style={{ width: 5, height: 5, borderRadius: "50%", background: C.accent, boxShadow: "0 0 8px rgba(249,115,22,.55)" }} />Nearby, right now</span>
-        <span style={{ fontSize: 10.5, color: "#7F8DA0" }}>Updated for this hour</span>
+      {/* v6.97 — THE ANSWER, stated before anything is asked of the reader.
+          This replaced an eyebrow that read "Nearby, right now / Updated for
+          this hour": true, but it described the section instead of answering
+          the question, and a stranger who lands here has about ten seconds.
+          Every number in it is real — the hour and day come from the same
+          nowContext() the ranking uses, and the count is the length of the
+          list actually rendered below, never a round figure. */}
+      <div style={{ padding: "13px 1px 11px" }}>
+        <h2 style={{ margin: 0, fontSize: 21, fontWeight: 820, letterSpacing: "-.7px", lineHeight: 1.16, color: C.text }}>
+          {headline.lead}
+          <br />
+          <span style={{ background: "linear-gradient(120deg, #FDA60A, #FB3502)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{headline.tail}</span>
+        </h2>
+        <div style={{ marginTop: 6, fontSize: 11.5, color: "#7F8DA0", lineHeight: 1.4 }}>{headline.sub}</div>
       </div>
       {SECTIONS.map((sdef, si) => {
         const isOpen = open === sdef.id;
@@ -354,7 +420,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                 ) : list.length ? (
                   <>
                     {sdef.id === "eat"
-                      ? list.map((p, i) => (
+                      ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
                           <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} why={reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
@@ -363,7 +429,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))
-                      : list.map((r, i) => r.kind === "experience" ? (
+                      : (showAll ? list : list.slice(0, HEAD_COUNT)).map((r, i) => r.kind === "experience" ? (
                           <Row key={r.id} i={i} href={r.booking_url} thumb={r.image_url || null} title={r.title} why={reasonLine([r.subtitle])}
                             badge={r.selling_out ? <SellingFast /> : null}
                             meta={<>
@@ -382,6 +448,51 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))}
+                    {/* v6.97 — the rest of the list, in place. The count is
+                        list.length, so it can never over-promise: if the engine
+                        returned 12 near you, this says 12. */}
+                    {!showAll && list.length > HEAD_COUNT ? (
+                      <button
+                        onClick={() => { setShowAll(true); try { onLog && onLog("best_nearby_see_all", null, { section: sdef.id, total: list.length }); } catch (e) {} }}
+                        className="wf-bn-focus"
+                        style={{ display: "block", width: "100%", marginTop: 10, padding: "11px 0", minHeight: TARGET, background: "transparent", border: "1px solid rgba(249,115,22,.35)", borderRadius: 10, color: C.accent, fontSize: 12.5, fontWeight: 750, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
+                      >
+                        See all {list.length} ranked near you →
+                      </button>
+                    ) : null}
+                    {showAll && list.length > HEAD_COUNT ? (
+                      <button
+                        onClick={() => setShowAll(false)}
+                        className="wf-bn-focus"
+                        style={{ display: "block", width: "100%", marginTop: 10, padding: "10px 0", minHeight: TARGET, background: "transparent", border: "1px solid rgba(255,255,255,.12)", borderRadius: 10, color: C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
+                      >
+                        Show fewer
+                      </button>
+                    ) : null}
+                    {/* The mood row. Chips, not the eight-item text-link grid
+                        that used to compete with the results — and every one is
+                        a real ranked page, not a filter that returns this list
+                        with a different heading. "Right now" is the page the
+                        reader is already on, so it is state, not a link. */}
+                    {sdef.id === "eat" ? (
+                      <div style={{ marginTop: 14 }}>
+                        <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 7 }}>Or change the mood</div>
+                        <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+                          {MOODS.map((m) => m.href ? (
+                            <a key={m.label} href={m.href} className="wf-bn-focus"
+                              onClick={() => { try { onLog && onLog("best_nearby_mood", null, { mood: m.label }); } catch (e) {} }}
+                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "#121A23", border: "1px solid " + C.line, color: "#C9D4DF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
+                              {m.label}
+                            </a>
+                          ) : (
+                            <span key={m.label} aria-current="true"
+                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "linear-gradient(160deg,#FDA60A,#FB3502)", color: "#fff", fontSize: 12, fontWeight: 750, whiteSpace: "nowrap" }}>
+                              {m.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     {sdef.id === "todo" && list.some((r) => r.kind === "experience") ? (
                       <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
                     ) : null}
