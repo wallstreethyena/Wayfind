@@ -303,3 +303,4 @@ node scripts/check-ios-privacy-manifest.mjs
 node scripts/check-ios-device-family.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-universal-links.mjs
 node scripts/check-push-registration.mjs
+node scripts/check-map-place-card.mjs
