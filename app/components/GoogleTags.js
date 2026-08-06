@@ -22,6 +22,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { ga4Id, adsId, trackPageView } from "../../lib/analytics";
 import { captureAttribution } from "../../lib/attribution";
+import { isNative } from "../../lib/native";
 
 export default function GoogleTags() {
   const pathname = usePathname();
@@ -44,6 +45,23 @@ export default function GoogleTags() {
     try { trackPageView(pathname); } catch (e) {}
   }, [pathname]);
 
+  // NATIVE SHELL: no gtag.js at all (2026-08-05, App Store readiness ticket 4).
+  //
+  // Google Ads conversion tags inside the app are third-party advertising
+  // measurement — "used to track you" in Apple's privacy questionnaire — and
+  // this build ships no App Tracking Transparency prompt and no
+  // NSUserTrackingUsageDescription. Declaring tracking without ATT is a 5.1.2
+  // rejection; shipping the tags while declaring no tracking misrepresents the
+  // privacy label, which is worse because it surfaces later.
+  //
+  // AFTER the hooks above, never before — hooks must not be conditional.
+  //
+  // Nothing of value is lost: these tags exist to attribute WEB campaign
+  // traffic, and there is no gclid inside the app. PostHog and Sentry stay:
+  // first-party product analytics and crash reporting are not "tracking" under
+  // Apple's definition while nothing is shared with data brokers or joined to
+  // third-party ad data.
+  if (isNative()) return null;
   if (!ads && !ga4) return null; // nothing configured — render nothing at all
 
   const configLines = [

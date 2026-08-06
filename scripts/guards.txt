@@ -293,3 +293,4 @@ node scripts/test-experience-now-rank.mjs
 node scripts/check-known-for.mjs
 node scripts/check-atlas-retry-cron.mjs
 node scripts/check-guide-cta-honesty.mjs
+node scripts/check-native-no-ad-tracking.mjs
