@@ -1,18 +1,38 @@
 -- supabase/push-token-register.sql
 --
--- NOT APPLIED BY THIS PR. Filed for owner review and manual application, the
--- same way supabase/place-products-geo.sql was. Nothing in the repo runs it.
+-- APPLIED TO PRODUCTION 2026-08-05 (owner-directed), migration
+-- `push_token_register_heartbeat_and_lockdown`. Nothing in the repo runs this
+-- file; it is the reviewed source of truth for what is deployed.
 --
--- ── WHAT IS BROKEN TODAY ──────────────────────────────────────────────────
--- app/components/NativeShellInit.js writes the APNs token with
---     supabase.from("device_push_tokens").upsert(...)
--- and device_push_tokens DOES NOT EXIST. Verified against the live database,
--- not inferred:
---     select count(*) from information_schema.tables
---      where table_schema='public' and table_name='device_push_tokens';  -> 0
--- So every push registration since the shell shipped has failed silently
--- (the call is inside a try/catch that swallows). Push is a re-engagement
--- channel with zero tokens in it.
+-- ── WHAT WAS FOUND AT APPLY TIME, WHICH WAS NOT WHAT WAS EXPECTED ─────────
+-- When PR #610 was written, device_push_tokens DID NOT EXIST -- measured, not
+-- inferred (information_schema count 0), which is why every push registration
+-- since the native shell shipped had failed silently inside a swallowing
+-- try/catch.
+--
+-- By the time this was applied, an EARLIER VARIANT of the table and function
+-- was already deployed by another hand. It was close but not this: it had NO
+-- wf_job_pulse heartbeat (ticket 2c missing entirely), pinned search_path to
+-- `public` without pg_temp, accepted tokens as short as 16 characters, and did
+-- not btrim. Critically, `revoke all ... from anon, authenticated` had NEVER
+-- been run -- anon and authenticated still held full INSERT/SELECT/UPDATE/
+-- DELETE/TRUNCATE grants, so RLS-with-no-policies was the ONLY thing standing
+-- between the public and a table of device tokens.
+--
+-- Applying this replaced that variant with the reviewed one.
+--
+-- ── VERIFIED BY CALLING IT, NOT BY "THE MIGRATION RAN" ────────────────────
+--   register + re-register            -> 1 row, no duplicate, updated_at bumped
+--   heartbeat                         -> one wf_job_pulse row per call, note=platform
+--   short / null token, bad platform  -> all three RAISE; a valid call in the
+--                                        same block still succeeded, so
+--                                        "rejected" is not "broken for everything"
+--   rejected calls                    -> wrote 0 rows
+--   null device_id on re-register     -> existing device_id PRESERVED (coalesce)
+--   as role anon: SELECT / INSERT / DELETE -> permission denied
+--   as role anon: the RPC             -> allowed, which is the point
+-- Every control row and test heartbeat was deleted afterwards; the table and
+-- the push_register pulse count were both back to 0.
 --
 -- ── WHY AN RPC AND NOT JUST THE TABLE ─────────────────────────────────────
 -- A directly-writable table needs an INSERT policy permissive enough for a

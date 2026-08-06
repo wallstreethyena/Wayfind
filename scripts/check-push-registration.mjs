@@ -21,9 +21,10 @@
 // ── WHAT THIS GUARD CANNOT DO ────────────────────────────────────────────
 // It cannot execute the SQL or reach the database. The RPC is proven to be
 // CALLED WITH THE RIGHT SHAPE, not proven to work. Stated here so the weaker
-// check reads as weaker (CLAUDE.md) — the real confirmation is the verification
-// block at the bottom of supabase/push-token-register.sql, run by the owner
-// after applying it.
+// check reads as weaker (CLAUDE.md). The deployed function was verified for
+// real on 2026-08-05 by CALLING it against production — register, re-register,
+// heartbeat, every rejection path, and the anon lockdown — and the results are
+// recorded in the header of supabase/push-token-register.sql.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -97,10 +98,15 @@ const pulseBlock = (sql.match(/begin\s*\n\s*insert\s+into\s+public\.wf_job_pulse
 ok(/exception\s+when\s+others/i.test(pulseBlock),
    "the pulse insert is wrapped in its own exception handler — a heartbeat that cannot be written must never fail the registration it is describing");
 
-// ── 6. IT IS FILED, NOT SILENTLY APPLIED ─────────────────────────────────
-// The repo must not imply this ran. Nothing here executes it.
+// ── 6. THE FILE STATES ITS TRUE DEPLOYMENT STATUS ────────────────────────
+// This assertion used to require the string "NOT APPLIED BY THIS PR", which was
+// correct while the migration was pending and became a FALSE STATEMENT the
+// moment it was applied (2026-08-05). The invariant was never "it is unapplied"
+// — it is that a reader can tell which, because a migration file that reads as
+// "done" when it is not is how it gets forgotten, and one that reads as
+// "pending" when it is live is how it gets applied twice.
 const raw = read("supabase/push-token-register.sql");
-ok(/NOT APPLIED BY THIS PR/i.test(raw),
-   "the SQL states plainly that it is filed for review rather than applied — the client change is inert until the owner runs it, and a file that reads as 'done' is how that gets forgotten");
+ok(/^--\s*(APPLIED TO PRODUCTION \d{4}-\d{2}-\d{2}|NOT APPLIED)/m.test(raw),
+   "the SQL declares its deployment status in the header — either \"APPLIED TO PRODUCTION <date>\" or \"NOT APPLIED\". A file that says neither leaves the next reader guessing whether running it is a no-op or a duplicate.");
 
-console.log(`check-push-registration: OK — ${pass} assertions (aps-environment=production; the client calls wf_register_push_token via RPC with no client-supplied user id and no direct table write; ${clientArgs.length} argument names cross-checked against the SQL signature [${sqlArgs.join(", ")}]; definer + pinned search_path + RLS + table revoked + function granted; fail-soft heartbeat present. NOT proven: that the SQL runs — it is unapplied, and the verification block at the end of the .sql is the real check.)`);
+console.log(`check-push-registration: OK — ${pass} assertions (aps-environment=production; the client calls wf_register_push_token via RPC with no client-supplied user id and no direct table write; ${clientArgs.length} argument names cross-checked against the SQL signature [${sqlArgs.join(", ")}]; definer + pinned search_path + RLS + table revoked + function granted; fail-soft heartbeat present. This guard reads the FILE; the deployed function was verified separately by calling it — see the verification block in the .sql.)`);
