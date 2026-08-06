@@ -17,6 +17,7 @@
 // time, reserved-height loading, honest empty states.
 // scripts/test-todays-best.mjs locks the contract.
 import { useState, useRef, useEffect } from "react";
+import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { PLATFORM } from "../../lib/creatorVideos";
@@ -42,7 +43,15 @@ function Medal({ i }) {
   );
 }
 
-function Row({ i, thumb, title, meta, badge, trailing, onClick, href }) {
+// The expanded panel is overflow:hidden with a hard maxHeight. This must be
+// >= the TALLEST a row can get or the last rows are silently clipped — a bug
+// with no error, no warning and no signature in a diff. 64 was the pre-reason
+// row; a two-line why at 12px/1.35 adds ~32px. 100 leaves headroom without
+// making the collapse animation feel loose.
+// Pinned by scripts/check-home-answer-first.mjs.
+const ROW_MAX_H = 100;
+
+function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href }) {
   const inner = (
     <>
       <Medal i={i} />
@@ -54,7 +63,16 @@ function Row({ i, thumb, title, meta, badge, trailing, onClick, href }) {
           <span style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</span>
           {badge}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
+        {why ? (
+          // The WHY, above the numbers. wf_best_picks has always returned a
+          // `reasons text[]` — "Breakfast — right for the hour", "A cool treat
+          // for a 83° day", "Local favorite — 4.9★ from 1782 reviews" — and no
+          // surface has ever rendered it. The engine was explaining itself to
+          // nobody. Two lines max so a long reason cannot push the row height
+          // around; the list must not reflow when it refreshes on the hour.
+          <div style={{ fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
+        ) : null}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: why ? 4 : 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
       </div>
       {trailing}
     </>
@@ -323,7 +341,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
               </span>
             </button>
-            <div style={{ overflow: "hidden", maxHeight: isOpen ? 10 * 64 + 220 : 0, opacity: isOpen ? 1 : 0, transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease" }}>
+            <div style={{ overflow: "hidden", maxHeight: isOpen ? 10 * ROW_MAX_H + 220 : 0, opacity: isOpen ? 1 : 0, transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease" }}>
               <div style={{ padding: "0 2px 12px 12px" }}>
                 {data === "loading" ? (
                   <>
@@ -337,7 +355,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                   <>
                     {sdef.id === "eat"
                       ? list.map((p, i) => (
-                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name}
+                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} why={reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
@@ -346,7 +364,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))
                       : list.map((r, i) => r.kind === "experience" ? (
-                          <Row key={r.id} i={i} href={r.booking_url} thumb={r.image_url || null} title={r.title}
+                          <Row key={r.id} i={i} href={r.booking_url} thumb={r.image_url || null} title={r.title} why={reasonLine([r.subtitle])}
                             badge={r.selling_out ? <SellingFast /> : null}
                             meta={<>
                               <PlaceScoreChip p={{ rating: r.rating, reviews: r.reviews }} size={12} />
@@ -355,7 +373,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             </>}
                             trailing={<span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 11px", fontSize: 11, fontWeight: 800 }}>Book ↗</span>} />
                         ) : (
-                          <Row key={r.id} i={i} thumb={tbPhotoUrl(r.photo_ref, 240)} title={r.title}
+                          <Row key={r.id} i={i} thumb={tbPhotoUrl(r.photo_ref, 240)} title={r.title} why={reasonLine([r.subtitle])}
                             onClick={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
                             badge={r.category === "beach" && beachPop[r.id] != null && beachPop[r.id] >= TRENDING_POPULARITY_THRESHOLD ? <Flame /> : null}
                             meta={<>

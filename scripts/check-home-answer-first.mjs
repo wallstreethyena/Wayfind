@@ -139,6 +139,58 @@ ok(
   `<BestNearby> is not nested inside the events-present branch (${iBest} vs ${eventsBranch}) — it must render when there are no events nearby too`
 );
 
+/* ── 7. THE REASON LINE ────────────────────────────────────────────────
+   wf_best_picks returns `reasons text[]` and wf_things_to_do returns
+   `subtitle`. Both have always come back over the wire and NEITHER was ever
+   rendered — the engine explained every pick to nobody, while the list showed
+   a distance and a score and left "why" to the imagination.
+
+   §A RUNS reasonLine over the real shapes the RPC produces, including the ones
+   that are not arrays of strings. It is a total function over untrusted data;
+   a throw here renders nothing at all. */
+// Imported from lib/, not from the component — a plain-node guard cannot
+// parse JSX, and pure logic that a guard must EXECUTE belongs in lib/ anyway
+// (same reason lib/score.js exists).
+const bn = await import(new URL("../lib/reasonLine.js", import.meta.url).href).catch(() => null);
+
+if (bn && typeof bn.reasonLine === "function") {
+  const { reasonLine } = bn;
+  ok(reasonLine(["Breakfast — right for the hour", "Local favorite — 4.8★ from 1128 reviews"])
+     === "Breakfast — right for the hour · Local favorite — 4.8★ from 1128 reviews",
+     "reasonLine joins the engine's two reasons into one sentence");
+  ok(reasonLine(["Breakfast — right for the hour"]) === "Breakfast — right for the hour",
+     "a single reason renders alone, without a dangling separator");
+  ok(reasonLine(["a", "b", "c"]) === "a · b",
+     "at most TWO reasons — a third cannot fit two lines at 390px, and the row height is load-bearing");
+  ok(reasonLine(["x", "x"]) === "x", "a repeated reason is not printed twice");
+  ok(reasonLine(["  ", "real"]) === "real", "blank entries are dropped, not rendered as empty separators");
+  // Every one of these is a shape the wire can actually produce.
+  for (const bad of [null, undefined, [], [null], [""], ["   "], [undefined, null], 42, "str", {}]) {
+    let out, threw = false;
+    try { out = reasonLine(bad); } catch (e) { threw = true; }
+    ok(!threw, `reasonLine(${JSON.stringify(bad)}) does not throw — it runs inside a render`);
+    ok(out === null, `reasonLine(${JSON.stringify(bad)}) returns null, not "" — the caller branches on truthiness`);
+  }
+} else {
+  fail.push("could not import reasonLine from lib/reasonLine.js");
+}
+
+/* §B — it must actually be PASSED to the row, on every list that has one. A
+   perfect formatter nothing calls is decoration. */
+const BN = readFileSync(SRC_PATH, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+const whyProps = [...BN.matchAll(/why=\{reasonLine\(/g)].length;
+ok(whyProps >= 3, `every row list passes why={reasonLine(...)} (found ${whyProps}, expected 3: eat, tours, things-to-do)`);
+ok(/function Row\(\{[^}]*\bwhy\b/.test(BN), "Row accepts a `why` prop");
+ok(/\{why \? \(/.test(BN), "Row renders the why line conditionally — a place with no reason must not get an empty div");
+
+/* §C — the clip. The expanded panel is overflow:hidden with a hard maxHeight
+   tuned to the pre-reason row. Taller rows silently lose the bottom of the
+   list: no error, no warning, nothing in a diff. */
+ok(/const ROW_MAX_H = (\d+);/.test(BN), "the row height budget is a named constant");
+const rowMax = Number((BN.match(/const ROW_MAX_H = (\d+);/) || [])[1]);
+ok(rowMax >= 96, `ROW_MAX_H is at least 96 (got ${rowMax}) — 64 was the pre-reason row and a two-line why adds ~32px, so the last rows get clipped`);
+ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is computed from ROW_MAX_H, not from a literal");
+
 if (fail.length) {
   console.error(`check-home-answer-first: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
