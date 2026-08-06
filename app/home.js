@@ -592,7 +592,7 @@ function applyAffinity(places, affinities) {
     // capped at 30. Ordering only — displayed wfScore never changes.
     const _d = p.distMi || 0;
     const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -1002,15 +1002,30 @@ function wayfindNotes(name) {
   if (n.indexOf("universal") >= 0) return WAYFIND_NOTES["universal orlando resort"];
   return null;
 }
-// Owner-curation signals from the Supabase place_signals view: just the
-// place_ids the owner account has liked. Owner likes boost globally (+4,
-// below WAYFIND_FEATURED tiers so deliberate curation still outranks a tap).
-// Community likes carry zero rank weight by design. Money never touches rank.
-const SIGNALS = { map: {}, loaded: false };
-function communityBoost(p) {
-  if (!p || !p.id) return 0;
-  return SIGNALS.map[p.id] ? 4 : 0;
-}
+// OWNER CURATION LIVES IN lib/memberSignals.js, NOT HERE.
+//
+// A `communityBoost()` used to sit at this spot, reading a `place_signals`
+// relation for "the place_ids the owner account has liked" and adding +4. That
+// relation has never existed: it is absent from every commit in this repo's
+// history AND from the live database (checked information_schema, 2026-08-06),
+// so the client read 404'd on every page load, the error path set loaded=true
+// so it never retried, and the boost has been exactly 0 for every place since
+// the day it was written. Deleting it is behaviour-preserving BY CONSTRUCTION.
+//
+// It is not being restored, because the signal it described is already
+// implemented and working somewhere else. lib/memberSignals.js is explicit that
+// it is "the ONE place the community like signal is aggregated into a ranking
+// input... so the owner's editorial weight and the anonymous-device floor are
+// applied in exactly one choke point (no parallel matchers — the standing
+// lesson)": /api/signals/likes -> aggregateLikeSignals() -> Ranking.memberDelta,
+// where an owner like already counts as weight 50. Creating `place_signals` to
+// feed this second path would have applied the same signal TWICE, and would
+// have required exposing which account is the owner's to the anon client — the
+// one thing that file says must never happen ("ownerId + weight are SERVER env
+// only and are NEVER derived from any client input").
+//
+// So the fix for a dead read was to delete the dead reader, not to build the
+// table it wanted. Locked by scripts/check-owner-curation-one-path.mjs.
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
 const curatedFor = (p) => (p && inCuratedRegion(p) ? CURATED_BY_NAME.get(_wfNorm(p.name)) : undefined);
@@ -3663,7 +3678,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -3884,13 +3899,6 @@ function PageInner({ initialEvents = null }) {
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail]);
-  useEffect(() => {
-    if (!supabase || SIGNALS.loaded) return;
-    supabase.from("place_signals").select("place_id").then(({ data }) => {
-      SIGNALS.loaded = true;
-      if (data) data.forEach((r) => { if (r && r.place_id) SIGNALS.map[r.place_id] = true; });
-    }, () => { SIGNALS.loaded = true; });
-  }, []);
   const [disliked, setDisliked] = useState({});
   const [likedItems, setLikedItems] = useState({});
   // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
@@ -7603,7 +7611,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), community: communityBoost(p), evidence: creatorBoostFor(p) }));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorBoostFor(p) }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -7805,7 +7813,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, communityBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen
