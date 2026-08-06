@@ -169,6 +169,8 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS } from ".
 // so the content guardrails still grep every curated name and note.
 import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND_FEATURED, CURATED_NOTES } from "./components/curatedData";
 import BestNearby from "./components/BestNearby";
+import CreatorFinds from "./components/CreatorFinds";
+import LocalEdit from "./components/LocalEdit";
 import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
@@ -3475,6 +3477,23 @@ function PageInner({ initialEvents = null }) {
   const [buzzPick, setBuzzPick] = useState(null);
   const [buzzWhy, setBuzzWhy] = useState(null);
   const [suggested, setSuggested] = useState(null);
+
+  // v6.97 — ONE creator-finds list, read by BOTH the ranked-list section and the
+  // "Finds from local creators" row, so the two can never disagree about which
+  // creator pick matters. Previously an IIFE inlined in the JSX: recomputed on
+  // every render and handed to a section that is switched off.
+  //
+  // DECLARED HERE, NOT WITH THE OTHER DERIVED VALUES ABOVE, and that is
+  // load-bearing: useMemo evaluates its dependency array on the first render, so
+  // placing it before `suggested` throws "Cannot access before initialization"
+  // and takes the whole home page down. tsc does not catch it — `check:jsx`
+  // passed on exactly that version.
+  const videoPlaces = useMemo(() => {
+    try {
+      const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp));
+      return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8);
+    } catch (e) { return []; }
+  }, [suggested, places, locName]);
   const [gateStatus, setGateStatus] = useState(null);
   const [gateBump, setGateBump] = useState(0); // bump to re-check coverage after an unlock completes
   const [homeTodo, setHomeTodo] = useState(null);
@@ -8130,8 +8149,6 @@ function PageInner({ initialEvents = null }) {
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
-              {/* v3.21: shared CategoryMenu; home, map, and itinerary render the same system. */}
-              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
                   geometry so the swap below is shift-free. Deliberately NOT
@@ -8157,7 +8174,21 @@ function PageInner({ initialEvents = null }) {
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={(() => { try { const pool = dedupePlaces([...(suggested || []), ...(places || [])].filter(Boolean), true).filter((pp) => hasCreatorVideo(pp)); return pool.map((pp) => ({ p: pp, videos: creatorVideosFor(pp, locName) || [] })).filter((x) => x.videos.length).sort((a, b) => ((b.p.wfScore ?? 0) - (a.p.wfScore ?? 0))).slice(0, 8); } catch (e) { return []; } })()} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {/* v6.97 — "Finds from local creators" gets its own row (owner, on the
+                  approved mockup: "your differentiator... it keeps its own row"). The
+                  list was already being computed on every render and handed to
+                  BestNearby as `videoPlaces`, where the only reader is the Local
+                  trends section — which is switched off. Computed, then discarded,
+                  every render. Now it is lifted to `videoPlaces` above and BOTH
+                  surfaces read the same array, so they can never disagree. */}
+              {!browseCat && <CreatorFinds items={videoPlaces} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
+                  categories still exist, untouched. They stop being the first thing a
+                  stranger has to solve"). Same component, same six categories, same
+                  behaviour — position only. It used to be the first thing on the page,
+                  which made a visitor solve a taxonomy before seeing a single result. */}
+              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
 
               {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
               {!browseCat && foryouEvents === null && discoveryMenu}
@@ -8447,6 +8478,12 @@ function PageInner({ initialEvents = null }) {
                           </div>
                         </ViatorCommerceLink>
                       )}
+              {/* v6.97 — THE MISSING BRIDGE (owner's own note on the mockup). The
+                  guides pull real traffic from Google every month and every reader
+                  dead-ends there, because nothing on the home screen has ever linked
+                  to one. Renders only where a guide genuinely covers the reader's
+                  area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
+              {!browseCat && <LocalEdit center={center} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
                   <img src="/icon-192.png" alt="" width={34} height={34} style={{ borderRadius: 8 }} />
