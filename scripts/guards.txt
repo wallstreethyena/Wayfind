@@ -298,3 +298,5 @@ node scripts/check-guide-product-resolution.mjs
 node scripts/check-map-controls.mjs
 node scripts/check-map-filter-panel.mjs
 node scripts/check-native-no-ad-tracking.mjs
+node scripts/test-plist-parse.mjs
+node scripts/check-ios-privacy-manifest.mjs
