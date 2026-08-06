@@ -12,6 +12,7 @@ import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
 import { introSeen, markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn, nativeShare } from "../lib/native";
+import { noteHighPointAndMaybeAsk } from "../lib/appRating";
 import { wcRotation } from "../lib/shareCards";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
@@ -729,7 +730,15 @@ function shareLink(title, url, onCopied, text, onShared) {
   // website — isNative() is false there, so this branch never runs.
   if (isNative()) {
     nativeShare({ title, text, url }).then((handled) => {
-      if (handled) { _sharePath("native_capacitor_ok"); credit(); }
+      if (handled) {
+        _sharePath("native_capacitor_ok"); credit();
+        // THE high point in this product: the user just recommended
+        // Wayfind to another person under their own name. Gated in
+        // lib/appRating.js (3 shares minimum, 120-day cooldown, native
+        // only) and fire-and-forget -- a rating prompt must never be
+        // able to fail a share.
+        try { noteHighPointAndMaybeAsk(); } catch (e) {}
+      }
       else { _sharePath("native_capacitor_fail"); doCopy(); }
     });
     return;
