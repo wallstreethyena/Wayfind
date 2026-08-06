@@ -60,8 +60,14 @@ for (const slug of slugs) {
     // 3. A search label names the REGION (what it really searches), an exact
     //    label names the PLACE (what it really opens).
     if (cta.exact) {
-      ok(cta.place && cta.label.includes(cta.place),
-        `${slug}: an exact product CTA must name the place, got "${cta.label}"`);
+      // Name what the click OPENS. When a product resolved, that is the PRODUCT
+      // title — a resolved product is often a related experience rather than the
+      // pick itself (Winter Park Scenic Boat Tour resolves to a kayak tour on
+      // the same lake chain), so naming the pick would over-promise exactly the
+      // way the old label did.
+      const names = cta.productTitle || cta.place;
+      ok(names && (cta.label.includes(names) || cta.label.includes(String(names).slice(0, 30))),
+        `${slug}: an exact CTA must name what it opens, got "${cta.label}"`);
     } else {
       const region = GUIDES[slug].region || "Orlando";
       ok(cta.label.includes(region),
