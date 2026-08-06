@@ -14,12 +14,12 @@
 // `grep 'PrivacyInfo.xcprivacy in Resources'` passes on a project where that
 // PBXBuildFile is declared and then never listed in any phase's `files` array —
 // which IS the failure above. CLAUDE.md: assert the syntactic position, not the
-// substring. plutil converts the pbxproj to JSON, and this resolves
+// substring. The pbxproj is parsed into an object graph and this resolves
 // target -> buildPhases -> PBXResourcesBuildPhase -> files[] -> fileRef -> path.
 import { readFileSync, existsSync } from "node:fs";
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { readPlist } from "./lib/plistParse.mjs";
 
 let pass = 0;
 const fail = (m) => { console.error("check-ios-privacy-manifest: FAIL — " + m); process.exit(1); };
@@ -29,7 +29,13 @@ const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const MANIFEST = path.join(REPO, "ios/App/App/PrivacyInfo.xcprivacy");
 const PBXPROJ = path.join(REPO, "ios/App/App.xcodeproj/project.pbxproj");
 
-const plistJson = (p) => JSON.parse(execFileSync("plutil", ["-convert", "json", "-o", "-", p], { encoding: "utf8" }));
+// IN-PROCESS, not `plutil`. plutil is a macOS binary and Vercel builds on
+// Linux — shelling out to it failed the build with `spawnSync plutil ENOENT`.
+// scripts/lib/plistParse.mjs parses both formats in JS, and
+// scripts/test-plist-parse.mjs proves it byte-identical to plutil wherever
+// plutil exists. Skipping these checks off-Mac would have been strictly worse
+// than deleting them: green on CI while verifying nothing.
+const plistJson = (p) => readPlist(p);
 
 // ── 1. THE FILE EXISTS AND PARSES ────────────────────────────────────────
 ok(existsSync(MANIFEST), "ios/App/App/PrivacyInfo.xcprivacy exists — without it every upload is rejected with ITMS-91053 before a reviewer sees the build");
