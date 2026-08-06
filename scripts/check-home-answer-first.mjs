@@ -91,9 +91,57 @@ ok(
   'a deliberate tap emits best_nearby_open with trigger:"tap", so it stays separable from the section that was already open on arrival'
 );
 
+/* ── 6. POSITION: the ranked list must LEAD the feed ─────────────────────
+   #624 opened the card; it still rendered last, under the events rail, the
+   hero carousel and the discovery grid. Opening a thing nobody scrolls to only
+   makes the thing nobody scrolls to look better. So the ordering itself is now
+   an invariant.
+
+   Asserted by INDEX ORDER in the feed's JSX, which is the only place the
+   ordering exists — there is no layout config to read. Comments are stripped
+   first, so a comment mentioning BestNearby cannot satisfy it. */
+// ONLY the JSX comment form is stripped. A blanket block-comment strip was
+// tried first and deleted 158 KB of live code — app/home.js contains regex
+// literals and strings holding "/*", so a non-greedy /\/\*...\*\//g runs away
+// and every index below silently becomes -1. The probes underneath exist
+// because that failure looked exactly like a passing guard until they were
+// added.
+const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8")
+  .replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+
+const iBest = HOME.indexOf("<BestNearby center=");
+const iEvents = HOME.indexOf("<EventsRailSkeleton />");
+// The RENDER SITE in the feed, not the component. A bare "<DiscoveryHeroCard "
+// also matches the one inside EventsRailSkeleton, which is DEFINED far earlier
+// in the file — so the naive index comparison failed against a definition
+// rather than a position in the feed. Index order only means something between
+// two things rendered in the same tree.
+const iHero = HOME.indexOf("<DiscoveryHeroCard onOpen=");
+const iMenu = HOME.indexOf("const discoveryMenu");
+const iMenuUse = HOME.indexOf("{discoveryMenu}");
+
+ok(iBest > -1, "app/home.js renders <BestNearby>");
+ok(iEvents > -1, "PROBE: the events rail is still in the feed (if this is -1 the comparisons below prove nothing)");
+ok(iHero > -1, "PROBE: the promo hero card is still in the feed");
+ok(iMenuUse > -1, "PROBE: the discovery grid is still in the feed");
+
+ok(iBest < iEvents, `<BestNearby> renders BEFORE the events rail (${iBest} vs ${iEvents}) — the ranked list leads the feed`);
+ok(iBest < iHero, `<BestNearby> renders BEFORE the promo hero card (${iBest} vs ${iHero}) — a stranger meets an answer, not an advert for us`);
+ok(iBest < iMenuUse, `<BestNearby> renders BEFORE the discovery grid (${iBest} vs ${iMenuUse}) — results before controls`);
+
+/* It must also sit OUTSIDE the events-present branch. Nested there, a visitor
+   with no events nearby saw no ranked list at all — the case where they most
+   need something to look at. */
+const eventsBranch = HOME.indexOf("foryouEvents && foryouEvents.length > 0");
+ok(eventsBranch > -1, "PROBE: the events-present branch exists");
+ok(
+  iBest < eventsBranch,
+  `<BestNearby> is not nested inside the events-present branch (${iBest} vs ${eventsBranch}) — it must render when there are no events nearby too`
+);
+
 if (fail.length) {
   console.error(`check-home-answer-first: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-home-answer-first: ${pass} assertions passed (default section "${decl[2]}", ${ids.length} sections)`);
+console.log(`check-home-answer-first: ${pass} assertions passed (default section "${decl[2]}", ${ids.length} sections, ranked list leads the feed at index ${iBest})`);
