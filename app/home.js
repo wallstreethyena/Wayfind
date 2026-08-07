@@ -2627,17 +2627,22 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
       event.name + " at " + venue + ". Found on Wayfind."
     );
   };
+  // v7.01 (owner, 2026-08-07): matched to the creator-finds cards — a photo on
+  // top, then the name and date BELOW it on the card background, same rounded
+  // thumbnail treatment, so the events rail and the creators rail read as one
+  // system. Was a photo-top-half + dark-info-panel-inside card. The share
+  // button, the internal/external href, the category-art fallback, and every
+  // logEvent are all preserved.
   return (
-    <div className="wf-event-share-card" style={{ position: "relative", width: 176, height: 132, flexShrink: 0, scrollSnapAlign: "start", borderRadius: 15, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 46%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.3)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.055),0 10px 24px rgba(0,0,0,.24)" }}>
-      <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ position: "absolute", inset: 0, display: "block", textDecoration: "none", color: "inherit" }}>
-        {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: 72, objectFit: "cover", filter: "saturate(1.02) contrast(1.05) brightness(.8)" }} /> : null}
-        <div data-event-art-scrim style={{ position: "absolute", top: 0, left: 0, right: 0, height: 72, background: railImage ? "linear-gradient(180deg,rgba(0,0,0,.12) 0%,rgba(0,0,0,.48) 52%,rgba(0,0,0,.82) 100%)" : "linear-gradient(135deg,rgba(5,9,15,.22),rgba(5,9,15,.74))" }} />
-        {!railImage ? <Icon name={seg.iconName || "ticket"} size={42} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", left: 68, top: 13, opacity: 0.42 }} /> : null}
-        <div style={{ position: "absolute", zIndex: 1, top: 72, left: 0, right: 0, bottom: 0, boxSizing: "border-box", padding: "8px 10px 8px", display: "flex", flexDirection: "column", background: "linear-gradient(180deg,#111925 0%,#0B111A 100%)", borderTop: `1px solid ${seg.color}33` }}>
-          <div style={{ maxWidth: 154, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.15, letterSpacing: "-.12px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{event.name}</div>
-          <div style={{ marginTop: "auto", color: relativeLabel ? C.accent : seg.color, fontSize: 9.5, lineHeight: 1, fontWeight: 850, letterSpacing: ".35px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            {when}{f.time ? " · " + f.time : ""}
-          </div>
+    <div className="wf-event-share-card" style={{ position: "relative", width: 156, flexShrink: 0, scrollSnapAlign: "start", textAlign: "left", background: "transparent" }}>
+      <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+        <span style={{ display: "block", width: "100%", height: 108, borderRadius: 12, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 60%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.22)", position: "relative" }}>
+          {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(1.02) contrast(1.03) brightness(.86)" }} /> : null}
+          {!railImage ? <Icon name={seg.iconName || "ticket"} size={40} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", opacity: 0.5 }} /> : null}
+        </span>
+        <div style={{ marginTop: 6, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.22, letterSpacing: "-.12px", minHeight: 31, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{event.name}</div>
+        <div style={{ marginTop: 3, color: relativeLabel ? C.accent : seg.color, fontSize: 10, lineHeight: 1, fontWeight: 850, letterSpacing: ".35px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {when}{f.time ? " · " + f.time : ""}
         </div>
       </a>
       <button type="button" onClick={shareEvent} aria-label={"Share " + event.name} title="Share event" style={{ position: "absolute", zIndex: 3, top: 8, right: 8, width: 27, height: 27, borderRadius: 999, display: "grid", placeItems: "center", padding: 0, cursor: "pointer", color: "#E5EAF2", background: "rgba(7,11,17,.72)", border: "1px solid rgba(226,232,240,.25)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.28)" }}><Icon name="share" size={13} color="#E5EAF2" strokeWidth={1.8} /></button>
@@ -2710,7 +2715,7 @@ function EventsRailSkeleton() {
       </HeroRail>
       <div aria-hidden="true" style={{ display: "flex", gap: 8, minHeight: EV_RAIL_MIN_H, paddingBottom: 4, overflow: "hidden" }}>
         {[0, 1, 2].map((i) => (
-          <div key={i} className="wf-sk" style={{ width: 150, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+          <div key={i} className="wf-sk" style={{ width: 156, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
         ))}
       </div>
     </div>
@@ -10029,7 +10034,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 132; // exact compact-event height; skeleton/live swap stays shift-free
+const EV_RAIL_MIN_H = 158; // exact compact-event height (photo 108 + name/date below); skeleton/live swap stays shift-free
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed
