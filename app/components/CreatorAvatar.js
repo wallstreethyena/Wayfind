@@ -71,6 +71,7 @@ const INSTAGRAM_AVATARS = {
   tampaiman: "/creators/tampaiman.jpg",
   _adatewithkait: "/creators/_adatewithkait.jpg",
   magicalmaddieb: "/creators/magicalmaddieb.jpg",
+  stufftodointampabay: "/creators/stufftodointampabay.jpg",
 };
 
 // Real Facebook avatars — same capture method as INSTAGRAM_AVATARS above,
