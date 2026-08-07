@@ -31,19 +31,30 @@
 // the ranking is bad; an honest empty state teaches them it is careful."
 // This is that rule, applied to the one surface that never got it.
 import { PLATFORM } from "../../lib/creatorVideos";
-import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity } from "../../lib/creatorFinds";
+import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
 
 // Re-exported so existing importers keep working; the logic itself lives in
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
-export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity };
+export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots };
 
 export default function CreatorFinds({ items, byCity, onOpenPlace, onBrowse, onLog }) {
   const rows = orderFinds(items).slice(0, CREATOR_FINDS_MAX);
   const bridge = bridgeCity(byCity, rows.length);
-  // Nothing local AND nowhere honest to point them. Render NOTHING rather than
-  // an empty shelf — an empty "your differentiator" row advertises the absence.
-  if (!rows.length && !bridge) return null;
+  // 2026-08-07 (owner: "I don't see creators on Sarasota"). When the loaded
+  // Google pool surfaced NO creator-video place — so `rows` is empty — the row
+  // used to show only a single "More finds in {city}" arrow, which reads as
+  // absence. But the registry DOES hold that city's scouted spots
+  // (spotsByCity → byCity); they were simply not in the pool Google loaded
+  // nearby. Render them directly as cards (name + creator + platform) so the
+  // differentiator is visible. Photos need a placeId backfill that is blocked
+  // on the service key, so these cards are photoless for now — the same honest
+  // shape the browse sheet already uses. Tapping opens the browse sheet.
+  const scouted = scoutedSpots(byCity, bridge, rows.length, CREATOR_FINDS_MAX);
+  // Nothing local, no registry spots, AND nowhere to point them. Render NOTHING
+  // rather than an empty shelf — an empty "your differentiator" row advertises
+  // the absence.
+  if (!rows.length && !scouted.length && !bridge) return null;
   // "Local" is a claim. With no local find at all, the heading names the place
   // the finds are actually in, rather than calling another city's spots yours.
   const heading = rows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
@@ -70,7 +81,29 @@ export default function CreatorFinds({ items, byCity, onOpenPlace, onBrowse, onL
             </button>
           );
         })}
-        {bridge ? (
+        {/* Registry-hydrated cards when the pool surfaced nothing: the city's
+            actual scouted spots, name + creator + platform, photoless for now.
+            Tapping opens the browse sheet where the reel plays. */}
+        {scouted.map((s, i) => {
+          const v = s && s.video;
+          const plat = v && PLATFORM[v.platform];
+          return (
+            <button key={s.key || i} onClick={() => { try { onLog && onLog("creator_find_open", { id: s.key, name: s.name }, { pos: i, creator: (v && v.creator) || null, hydrated: "registry" }); } catch (e) {} if (onBrowse) onBrowse(); }}
+              style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+              <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, position: "relative" }}>
+                {plat ? (
+                  <span style={{ position: "absolute", top: 6, left: 6, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 9.5, fontWeight: 800, color: plat.color }}>
+                    <span style={{ width: 5, height: 5, borderRadius: 3, background: plat.color, display: "inline-block" }} />{plat.label}
+                  </span>
+                ) : null}
+                <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1 }}>📍</span>
+              </span>
+              <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28 }}>{s.name}</span>
+              {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}
+            </button>
+          );
+        })}
+        {bridge && !scouted.length ? (
           <button onClick={() => { try { onLog && onLog("creator_find_bridge_open", null, { city: bridge.city, spots: bridge.count, local: rows.length }); } catch (e) {} if (onBrowse) onBrowse(); }}
             style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
             <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}` }}>

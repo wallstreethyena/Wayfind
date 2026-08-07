@@ -98,4 +98,46 @@ ok(/governedWayfindScore\(/.test(LANDING), "…and the landing rank runs through
     "the exact pair he circled (Two Scoops vs Rocco's) orders by the displayed number, whichever way the scores fall");
 }
 
+// ── THE CHIP MUST SHOW THE SORTED NUMBER (2026-08-07 root cause) ────────────
+// BestNearby ranked every row by byVisibleScore (governed_score) then handed
+// the score chip a STRIPPED { rating, reviews } with no distance, so the chip
+// recomputed the BASE and a 9.3 base sat below a 9.2 governed. Two locks:
+//
+// 1. On the screenshot fixture, the DISPLAYED (rounded /10) governed number is
+//    non-increasing down the sorted list — i.e. no visible inversion is
+//    possible once the chip reads governed_score.
+{
+  const toDisp = (v) => (v == null ? null : Math.round((v / 10) * 10) / 10);
+  const shot = [
+    { name: "American Honey Creamery", rating: 4.7, reviews: 737, distance_mi: 13 },
+    { name: "Rocco's Tacos & Tequila Bar", rating: 4.6, reviews: 7055, distance_mi: 3.7 },
+    { name: "Yard House", rating: 4.6, reviews: 2609, distance_mi: 3.4 },
+    { name: "Two Scoops", rating: 4.7, reviews: 1477, distance_mi: 20 },
+    { name: "Small Town Creamery", rating: 4.7, reviews: 602, distance_mi: 18 },
+  ];
+  const out = byVisibleScore(shot.map((r) => ({ ...r })));
+  for (let i = 1; i < out.length; i++) {
+    const a = toDisp(out[i - 1].governed_score), b = toDisp(out[i].governed_score);
+    ok(a >= b, `displayed chip is non-increasing down the sorted list: ${out[i-1].name} shows ${a} then ${out[i].name} shows ${b}`);
+  }
+}
+// 2. The kit chip PREFERS governed_score, and BestNearby's ranked place rows
+//    pass the FULL row (which carries it), never a stripped { rating, reviews }.
+{
+  const kit = readFileSync(path.resolve("app/components/kit.js"), "utf8");
+  ok(/Number\.isFinite\(p\.governed_score\)\s*\?\s*p\.governed_score/.test(kit),
+    "PlaceScoreChip prefers p.governed_score — the exact number the sort used — over a recompute that can drift from it");
+  const bn = readFileSync(path.resolve("app/components/BestNearby.js"), "utf8");
+  // The two RANKED place-row chips (eat + todo) must receive the whole row.
+  ok((bn.match(/<PlaceScoreChip p=\{p\}/g) || []).length >= 1 && (bn.match(/<PlaceScoreChip p=\{r\}/g) || []).length >= 1,
+    "BestNearby's ranked rows pass the full row object to the chip (carrying governed_score + distance), not a stripped pair");
+  // The specific regression: a ranked place row must NOT feed the chip a bare
+  // { rating: X.rating, reviews: X.reviews } — that strips distance and defeats
+  // the governing law. (The Viator EXPERIENCE row legitimately has no wayfind
+  // score/distance, so one stripped pair — r.rating/r.reviews on a tour — is
+  // allowed; assert there is at most that one.)
+  const stripped = (bn.match(/<PlaceScoreChip p=\{\{ rating:/g) || []).length;
+  ok(stripped <= 1, `at most the one tour row strips the chip input (got ${stripped}) — a ranked place row that strips it recreates the shown!=sorted inversion`);
+}
+
 console.log(`check-score-law: OK — ${pass} assertions (the governing rule: +0.7 creator video, −0.2 past 17mi, shown == sorted, null stays null, ties-only diversity)`);

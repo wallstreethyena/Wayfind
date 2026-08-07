@@ -314,8 +314,16 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
 
   // ── the creator row ──
   const CF = readFileSync(path.join(REPO, "app/components/CreatorFinds.js"), "utf8");
-  ok(/if \(!rows\.length && !bridge\) return null;/.test(CF),
-     "the creator row renders nothing when there is neither a local find NOR an honest place to point at — an empty 'your differentiator' shelf advertises the absence");
+  // 2026-08-07: the empty-state guard, updated for registry-hydrated cards. The
+  // row now renders the nearest city's SCOUTED spots when the pool is empty
+  // (owner: "I don't see creators on Sarasota"), so the null-return condition
+  // gained `!scouted.length`. The invariant is unchanged: render NOTHING only
+  // when there is genuinely nothing — no local find, no registry spots, and no
+  // bridge.
+  ok(/if \(!rows\.length && !scouted\.length && !bridge\) return null;/.test(CF),
+     "the creator row renders nothing ONLY when there is no local find, no scouted registry spot, AND no bridge — an empty 'your differentiator' shelf advertises the absence");
+  ok(/scouted\.map\(/.test(CF) && /scoutedSpots\(byCity, bridge, rows\.length/.test(CF),
+     "when the pool is empty, the row hydrates the bridge city's scouted spots via scoutedSpots() and renders them as cards");
   // Tests the PROPERTY (does it read a video thumbnail field?), not the word.
   // The first version grepped for "thumbnail" in raw source and failed on this
   // component's own comment explaining that it never uses one — the same
@@ -334,6 +342,22 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // The rule is EXECUTED here, not grepped. That is why it lives in lib/ — a
   // grep proves a constant exists, only a run proves the rule holds.
   const CFL = await import(new URL("../lib/creatorFinds.js", import.meta.url).href);
+  // Executed, not grepped: scoutedSpots is pure logic in lib/, so prove it.
+  {
+    const byCity = [{ city: "Sarasota", distMi: 4, spots: [
+      { key: "a", name: "Marie Selby Botanical Gardens", city: "Sarasota", video: { platform: "tiktok", creator: "thefloridaqueenie_" } },
+      { key: "b", name: "Perspire Sauna Studio", city: "Sarasota", video: { platform: "tiktok", creator: "theerynlalonde" } },
+      { key: "c", name: "Quiero Coffee", city: "Sarasota", video: { platform: "instagram", creator: "tampaiman" } },
+    ] }];
+    const br = CFL.bridgeCity(byCity, 0);
+    const spots = CFL.scoutedSpots(byCity, br, 0);
+    ok(spots.length === 3 && spots[0].name === "Marie Selby Botanical Gardens",
+      `an empty pool renders the city's 3 real scouted spots, not a lone arrow (got ${spots.map((s) => s.name).join(", ")})`);
+    ok(CFL.scoutedSpots(byCity, br, 5).length === 0,
+      "when the pool ALREADY has finds (rowCount>0), the with-photo path is untouched — no registry fallback");
+    ok(CFL.scoutedSpots(byCity, null, 0).length === 0, "no bridge -> no scouted fallback");
+    ok(CFL.scoutedSpots(null, br, 0).length === 0, "no byCity -> no scouted fallback (fail-closed)");
+  }
   ok(CFL.CREATOR_FINDS_MIN >= 2 && CFL.CREATOR_FINDS_MIN <= 4, `the thin-row threshold is real and small (${CFL.CREATOR_FINDS_MIN})`);
   ok(CFL.CREATOR_BRIDGE_MAX_MI > 0 && CFL.CREATOR_BRIDGE_MAX_MI <= 120, `"worth the drive" is bounded (${CFL.CREATOR_BRIDGE_MAX_MI} mi)`);
 
