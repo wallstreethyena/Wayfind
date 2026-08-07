@@ -178,8 +178,14 @@ if (bn && typeof bn.reasonLine === "function") {
 /* §B — it must actually be PASSED to the row, on every list that has one. A
    perfect formatter nothing calls is decoration. */
 const BN = readFileSync(SRC_PATH, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
-const whyProps = [...BN.matchAll(/why=\{reasonLine\(/g)].length;
-ok(whyProps >= 3, `every row list passes why={reasonLine(...)} (found ${whyProps}, expected 3: eat, tours, things-to-do)`);
+// The eat row may PREFER an editorial/known-for hook and fall back to
+// reasonLine (why={hooks[id] || reasonLine(...)}); tours and things-to-do pass
+// it directly. The invariant is unchanged: every row list still routes `why`
+// through reasonLine as its source or its fallback — a row must never be left
+// with no engine reason line. Matching reasonLine INSIDE the why prop keeps
+// this red if anyone drops the fallback, while allowing the hook to win.
+const whyProps = [...BN.matchAll(/why=\{[^}]*reasonLine\(/g)].length;
+ok(whyProps >= 3, `every row list routes why through reasonLine as source or fallback (found ${whyProps}, expected 3: eat, tours, things-to-do)`);
 ok(/function Row\(\{[^}]*\bwhy\b/.test(BN), "Row accepts a `why` prop");
 ok(/\{why \? \(/.test(BN), "Row renders the why line conditionally — a place with no reason must not get an empty div");
 
