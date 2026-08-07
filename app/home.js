@@ -5784,6 +5784,17 @@ function PageInner({ initialEvents = null }) {
           const c = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setDeviceLoc(c);
           if (manualRef.current) return;
+          // STABILITY (owner 2026-08-07: "every refresh I get something different,
+          // it switches back and forth"). Desktop geolocation is IP/Wi-Fi based and
+          // returns a slightly different point on each load; this handler used to
+          // setCenter() UNCONDITIONALLY, so the whole nearby list re-ranked around a
+          // new spot every refresh. Auto-geo now only SEEDS a first-ever visit: a
+          // returning device (a saved wf_center) keeps that center as the stable
+          // anchor, and the locate button recenters explicitly (it clears wf_center
+          // first, so it is not affected by this guard).
+          let hasSaved = false;
+          try { hasSaved = !!localStorage.getItem("wf_center"); } catch (e) {}
+          if (hasSaved) return;
           const name = await reverseGeocode(c.lat, c.lng);
           setCenter(c);
           setLocName(name);
