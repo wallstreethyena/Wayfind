@@ -69,8 +69,17 @@ function CouponCard({ c, position, ctx }) {
   const proof = dealProofPoint(c);
   const disc = dealDisclosure(c);
   const scope = dealScope(c);
-  const hasArt = false;
-  const variant = "clip_no_art";
+  // Venue thumb (owner-approved 2026-08-07): a 52px identity tile so the eye
+  // can tell WHAT the deal is for without reading. Photo only when the registry
+  // row carries the venue's own location-verified Google photoRef (rendered via
+  // our cached same-origin /api/photo proxy — never a partner or merchant
+  // host); otherwise the row's explicit category icon. Data-driven both ways —
+  // nothing here is inferred from intents, same rule as dealArtwork.
+  const thumbPhoto = typeof c.venuePhotoRef === "string" && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(c.venuePhotoRef)
+    ? "/api/photo?ref=" + encodeURIComponent(c.venuePhotoRef) + "&w=160" : null;
+  const thumbIcon = !thumbPhoto && typeof c.icon === "string" && c.icon ? c.icon : null;
+  const hasArt = !!thumbPhoto;
+  const variant = thumbPhoto ? "clip_venue_art" : "clip_no_art";
   const category = disc.affiliate ? "deal_money" : "deal_free";
   const cityId = scope.kind === "metro" ? scope.metro : null;
   const cctx = disc.affiliate ? {
@@ -100,17 +109,31 @@ function CouponCard({ c, position, ctx }) {
   return (
     <article ref={impRef} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", overflow: "hidden", border: `1px solid ${isSaved ? "rgba(249,115,22,.65)" : T.border}`, borderLeft: `4px solid ${isSaved ? T.orange : disc.affiliate ? T.gold : "#3c4b61"}`, borderRadius: 16, padding: "15px 15px 13px", background: "linear-gradient(155deg,#142031,#0f1825)", boxShadow: "0 8px 22px rgba(0,0,0,.24)" }}>
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}>
-            <span aria-hidden="true" style={{ flexShrink: 0, color: disc.affiliate ? T.gold : T.orange, fontSize: 12.5 }}>🏷</span>
-            <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: disc.affiliate ? T.gold : T.muted, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
-            {disc.affiliate ? <span style={{ flexShrink: 0, padding: "2px 6px", borderRadius: 999, background: "rgba(34,197,94,.14)", color: T.green, fontSize: 8, fontWeight: 900, letterSpacing: ".05em" }}>PARTNER</span> : null}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
+          {/* Venue identity tile — spans header + title height so the eye reads
+              picture-then-price. Photo only from the row's own verified
+              photoRef via /api/photo; explicit category emoji otherwise. */}
+          {(thumbPhoto || thumbIcon) ? (
+            <div aria-hidden="true" style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, background: "rgba(232,201,122,.08)", display: "grid", placeItems: "center" }}>
+              {thumbPhoto
+                ? <img src={thumbPhoto} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                : <span style={{ fontSize: 26, lineHeight: 1 }}>{thumbIcon}</span>}
+            </div>
+          ) : null}
+          <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}>
+                <span aria-hidden="true" style={{ flexShrink: 0, color: disc.affiliate ? T.gold : T.orange, fontSize: 12.5 }}>🏷</span>
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: disc.affiliate ? T.gold : T.muted, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
+                {disc.affiliate ? <span style={{ flexShrink: 0, padding: "2px 6px", borderRadius: 999, background: "rgba(34,197,94,.14)", color: T.green, fontSize: 8, fontWeight: 900, letterSpacing: ".05em" }}>PARTNER</span> : null}
+              </div>
+              {/* The seal is the one visual anchor per card — everything else in this
+                  header stays small and quiet so this is the thing the eye lands on. */}
+              {seal ? <span style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 9, border: "1px solid rgba(232,201,122,.55)", color: T.gold, background: "rgba(232,201,122,.1)", fontSize: 12.5, fontWeight: 950, lineHeight: 1.1, whiteSpace: "nowrap" }}>{seal.big} <small style={{ fontSize: 7.5, letterSpacing: ".05em" }}>{seal.small}</small></span> : null}
+            </div>
+            <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
           </div>
-          {/* The seal is the one visual anchor per card — everything else in this
-              header stays small and quiet so this is the thing the eye lands on. */}
-          {seal ? <span style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 9, border: "1px solid rgba(232,201,122,.55)", color: T.gold, background: "rgba(232,201,122,.1)", fontSize: 12.5, fontWeight: 950, lineHeight: 1.1, whiteSpace: "nowrap" }}>{seal.big} <small style={{ fontSize: 7.5, letterSpacing: ".05em" }}>{seal.small}</small></span> : null}
         </div>
-        <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
         {c.details ? <p style={{ margin: "5px 0 0", color: T.light, fontSize: 12.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</p> : null}
 
         {(c.code || ends || proof) ? (
