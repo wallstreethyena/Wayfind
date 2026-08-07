@@ -324,6 +324,22 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
      "the creator row renders nothing ONLY when there is no local find, no scouted registry spot, AND no bridge — an empty 'your differentiator' shelf advertises the absence");
   ok(/scouted\.map\(/.test(CF) && /scoutedSpots\(byCity, bridge, rows\.length/.test(CF),
      "when the pool is empty, the row hydrates the bridge city's scouted spots via scoutedSpots() and renders them as cards");
+  // 2026-08-07 (owner: pin placeholders "not what I wanted"): the scouted cards
+  // resolve REAL venue photos. Locked by structure — the search route now
+  // returns photo_ref, and the component hydrates + renders it.
+  {
+    const searchRoute = readFileSync(path.join(REPO, "app/api/places/search/route.js"), "utf8");
+    ok(/photo_ref: photoRef/.test(searchRoute) && /p\.photos\[0\]\.name/.test(searchRoute),
+      "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
+    ok(/resolveScoutedPhoto\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
+      "CreatorFinds resolves each scouted spot's photo through the cached search endpoint");
+    ok(/scoutedPhotos\[s\.key\] \? <img/.test(CF),
+      "…and renders that photo in the card (the pin shows only while loading or on a genuine miss)");
+    ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
+      "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
+    ok(/center=\{center\}/.test(HOME) || /center: center/.test(HOME),
+      "home.js passes the viewer center to CreatorFinds so the photo search is location-biased");
+  }
   // Tests the PROPERTY (does it read a video thumbnail field?), not the word.
   // The first version grepped for "thumbnail" in raw source and failed on this
   // component's own comment explaining that it never uses one — the same
