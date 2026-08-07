@@ -164,6 +164,17 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // rest of the app uses (wf_place_popularity_scored, keyed by place_id) for
   // whichever beach rows land in THIS list — one query per open, not per row.
   const [beachPop, setBeachPop] = useState({});
+  // 2026-08-07 (owner: "a one-liner that says what the place is known for and why
+  // to go"). This is the identity hook the main PlaceCard feed already renders,
+  // brought onto the ranked list. TWO SOURCES, SAME PRECEDENCE AS THE MAIN FEED:
+  //   1. /api/known-for — researched wf_editorial copy about THIS place (what it
+  //      is known for). No model. WINS whenever it exists.
+  //   2. /api/blurbs cacheOnly:true — the validated "Known for" line from the
+  //      shared 30-day pool. RENDER-SAFE: reads only what the pool already holds,
+  //      never generates while the reader waits (check-no-llm-in-render-path).
+  // When neither has anything real, the row keeps its existing engine reason line
+  // (reasonLine) — a row never LOSES text, and nothing generic is invented.
+  const [hooks, setHooks] = useState({});
   useEffect(() => {
     const todo = rows.todo;
     if (!Array.isArray(todo) || !todo.length || !supabase) return;
@@ -179,6 +190,40 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     })();
     return () => { dead = true; };
   }, [rows.todo]);
+
+  // Resolve the "known for / why go" hook for the eat rows once they load.
+  // Keyed on the row place_ids, so a new location re-resolves and a warm one
+  // does not refetch. Both calls fail soft: on any error the row simply keeps
+  // its reason line. The blurbs call is cacheOnly (render-path contract).
+  useEffect(() => {
+    const eat = rows.eat;
+    if (!Array.isArray(eat) || !eat.length) return;
+    const items = eat.filter((p) => p && p.place_id).map((p) => ({ id: p.place_id, name: p.name, type: p.primary_type || "", rating: p.rating, reviews: p.reviews }));
+    const ids = items.map((p) => p.id);
+    if (!ids.length) return;
+    let dead = false;
+    (async () => {
+      const next = {};
+      // 1) Researched editorial hook — wins where it exists.
+      try {
+        const r = await fetch("/api/known-for", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ids }) });
+        const d = await r.json();
+        if (d && d.lines && typeof d.lines === "object") for (const id of ids) if (d.lines[id]) next[id] = d.lines[id];
+      } catch (e) {}
+      // 2) Validated generated "Known for" line from the shared pool. cacheOnly:
+      //    true keeps this off the generation path — a page view never waits on
+      //    a model. Only fills ids the editorial hook did not already answer.
+      try {
+        const r = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cacheOnly: true, city: "", places: items }) });
+        const d = await r.json();
+        if (d && d.blurbs && typeof d.blurbs === "object") for (const id of ids) if (!next[id] && d.blurbs[id]) { const b = d.blurbs[id]; next[id] = typeof b === "string" ? b : (b.card_line_1 || ""); }
+      } catch (e) {}
+      if (dead || !Object.keys(next).length) return;
+      setHooks((prev) => ({ ...prev, ...next }));
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Array.isArray(rows.eat) ? rows.eat.map((p) => p && p.place_id).join(",") : ""]);
 
   // v6.72: nowContext is the single source of the hour AND the outdoor gate.
   // `now()` is a function, not a memo, so a rail opened at 17:29 and again at
@@ -428,7 +473,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                   <>
                     {sdef.id === "eat"
                       ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
-                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} why={reasonLine(p.reasons)}
+                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} why={hooks[p.place_id] || reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
