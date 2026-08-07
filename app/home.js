@@ -175,7 +175,8 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
-import { creatorBoostFor, displayedWfScore } from "../lib/creatorBoost";
+import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
+import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore";
 // THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
 // six times in six subtly different expressions; the terms are still computed
 // here — faveTier/featuredBoost/curatedFor stay put because
@@ -598,11 +599,14 @@ function applyAffinity(places, affinities) {
       boost += ((badgeW[b] || 0) / maxB) * 9;
     }
     boost = Math.max(-20, Math.min(boost, 30));
-    // v4.24: proximity dominates. First 4 miles free, then ~1.3 pts per mile,
-    // capped at 30. Ordering only — displayed wfScore never changes.
+    // THE GOVERNING LAW (owner, 2026-08-07 — lib/wayfindScore.js): distance
+    // costs a flat FAR_PENALTY past FAR_MILES, IN the displayed score, and the
+    // ordering uses the same term. The v4.24 hidden per-mile model (1.3/mi
+    // past 4, cap 30) is retired — it reordered against the number on the
+    // chip, which is the exact defect the law exists to end.
     const _d = p.distMi || 0;
-    const distPenalty = _d <= 4 ? 0 : Math.min(30, (_d - 4) * 1.3);
-    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: creatorBoostFor(p) }) };
+    const distPenalty = _d > FAR_MILES ? FAR_PENALTY : 0;
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -1065,7 +1069,7 @@ const ADAPT_MIN = 8;
 // envelope. A floor-quality place therefore gets a small share of a small
 // number and can no longer outrank an excellent one, while reach still tells a
 // 650-like post apart from an 11,900-like one. All of it lives in
-// lib/creatorBoost.js; this file only calls creatorBoostFor().
+// lib/creatorBoost.js; this file passes the flat law term (CREATOR_VIDEO_BONUS).
 //
 // The flat 45-point constant that stood on this line is DELETED. It had been
 // dead since v6.96 — nothing read it — and its comment claimed it set a ceiling
@@ -3610,7 +3614,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: creatorBoostFor(p) });
+      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 });
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3688,7 +3692,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: creatorBoostFor(p) }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -4126,12 +4130,42 @@ function PageInner({ initialEvents = null }) {
       // v4.56 PROTECTED (check-auth.mjs): a reset-password email link lands the
       // user here with a recovery session. Open the set-new-password sheet.
       if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false); } catch (e) {} }
-      setUser(session && session.user ? session.user : null);
+      // ONLY AN EXPLICIT SIGN-OUT SIGNS THE UI OUT (owner-reported, 2026-08-07:
+      // "I keep getting logged out while browsing"). This line used to hand
+      // setUser a null whenever the event carried no session — which treats
+      // EVERY null-session auth event as a logout. The SDK fires null sessions
+      // routinely when nothing has ended: INITIAL_SESSION before storage
+      // resolves on a fresh page load (guides ↔ app are full navigations, so
+      // every crossing rolled these dice), and transient states when iOS
+      // backgrounds the tab and token refresh races the resume. Measured in
+      // PostHog over 14 days: 23 null INITIAL_SESSIONs against only 7 real
+      // sign-outs — three of every four "logouts" the UI showed were fiction,
+      // with a valid session sitting in localStorage the whole time. Server
+      // auth logs agree: the owner's Google logins SUCCEEDED (02:29Z, 12:20Z)
+      // while the UI dropped him moments later. A session that has a user
+      // always applies; the ONLY event allowed to clear one is SIGNED_OUT.
+      if (session && session.user) setUser(session.user);
+      else if (_event === "SIGNED_OUT") setUser(null);
       try { if (typeof window !== "undefined" && window.posthog) window.posthog.capture("auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
-    return () => { active = false; if (sub && sub.subscription) sub.subscription.unsubscribe(); };
+    // SELF-HEAL ON RESUME. iOS suspends timers in background tabs, so the
+    // SDK's auto-refresh can miss its window and the first taps after a
+    // resume run on a stale token. Re-reading getSession() on visibility
+    // makes the SDK refresh if needed and re-syncs the UI's user — restored
+    // session or genuine expiry — instead of leaving whatever the last flap
+    // wrote.
+    const revalidate = () => {
+      if (document.visibilityState && document.visibilityState !== "visible") return;
+      supabase.auth.getSession().then(({ data }) => {
+        if (!active) return;
+        if (data && data.session && data.session.user) setUser(data.session.user);
+      }).catch(() => {});
+    };
+    window.addEventListener("visibilitychange", revalidate);
+    window.addEventListener("focus", revalidate);
+    return () => { active = false; window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
@@ -5894,7 +5928,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: creatorBoostFor(p) })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 })));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -6335,7 +6369,7 @@ function PageInner({ initialEvents = null }) {
         // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: creatorBoostFor(p) })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 })));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -7680,7 +7714,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorBoostFor(p) }));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];

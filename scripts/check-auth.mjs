@@ -10,6 +10,18 @@ const xcodeProject = readFileSync(new URL("../ios/App/App.xcodeproj/project.pbxp
 const capacitorConfig = readFileSync(new URL("../capacitor.config.ts", import.meta.url), "utf8");
 const fail = (m) => { console.error("check-auth: FAIL — " + m); process.exit(1); };
 if (!s.includes('_event === "PASSWORD_RECOVERY"')) fail("PASSWORD_RECOVERY handler missing");
+// ── SESSION STABILITY (owner-reported, 2026-08-07) ─────────────────────────
+// "I keep getting logged out while browsing." Only an explicit SIGNED_OUT may
+// clear the UI's user; every other null-session auth event (INITIAL_SESSION
+// before storage resolves, transient refresh races on iOS tab resume) is NOT
+// a logout. Measured: 23 spurious null INITIAL_SESSIONs vs 7 real sign-outs
+// in 14 days. The banned pattern is the exact regression.
+if (/setUser\(session && session\.user \? session\.user : null\)/.test(s))
+  fail("onAuthStateChange treats every null-session event as a logout again — only SIGNED_OUT may clear the user (2026-08-07)");
+if (!/else if \(_event === "SIGNED_OUT"\) setUser\(null\)/.test(s))
+  fail("the explicit SIGNED_OUT branch is missing — a real sign-out must still clear the user");
+if (!s.includes('window.addEventListener("visibilitychange", revalidate)'))
+  fail("the tab-resume self-heal is missing — iOS suspends refresh timers in background tabs, so getSession must re-run on visibility");
 if (!s.includes("resetPasswordForEmail")) fail("forgot-password sender missing");
 if (!s.includes("redirectTo: CANON_ORIGIN")) fail("reset email not pinned to canonical domain");
 if (!s.includes("updateUser({ password: newPw })")) fail("set-new-password action missing");

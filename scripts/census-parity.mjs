@@ -37,7 +37,8 @@ import { fileURLToPath } from "node:url";
 import { placeAllowed } from "../lib/placeFilter.js";
 import { marketReviewFloor, passesMarketFloor } from "../lib/marketFloor.js";
 import { localCategoryBoost } from "../lib/localCategorySignals.js";
-import { wayfindScore } from "../lib/wayfindScore.js";
+import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
+import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : d; };
@@ -53,12 +54,13 @@ const arg = (n, d) => { const i = process.argv.indexOf("--" + n); return i >= 0 
 // here mirrored lib/landing.js faithfully — and lib/landing.js was itself wrong:
 // bayes*10 on a 0–50 scale, and 39 for an unrated place. Both are fixed, and a
 // mirror that cannot drift is better than a lock that watches one.
-const distancePenalty = (mi) => (mi <= 4 ? 0 : Math.min(30, (mi - 4) * 1.3));
+// THE GOVERNING LAW (owner, 2026-08-07): flat −2 strictly past 17 miles, in
+// the displayed score — mirroring lib/landing.js exactly, as this file must.
 function shippedScore(p) {
   // Same null contract as the shipped ranker: an unrated place does not compete.
   const q = wayfindScore(p.rating, p.reviews);
   if (q == null) return -Infinity;
-  return q - distancePenalty(p.distMi || 0) + localCategoryBoost(p);
+  return governedWayfindScore(q, { hasCreatorVideo: hasCreatorVideoAt(p), distanceMi: isFinite(p.distMi) && p.distMi > 0 ? p.distMi : null }) + localCategoryBoost(p);
   // NOTE: the CURATED_NAMES +15 term is deliberately omitted — CURATED_NAMES is
   // a local Set in landing.js built from lib/sources CURATED. It applies
   // identically to BOTH sides of this comparison, so it cannot change the
@@ -134,7 +136,7 @@ async function main() {
   const unreachable = fromCensus.filter((p) => !poolIds.has(p.place_id));
 
   console.log(`═══ RANKING PARITY — ${citySlug} × ${catSlug} ═══`);
-  console.log(`  ranking held constant (shipped wfScore + distance penalty + localCategoryBoost, marketReviewFloor applied to both)`);
+  console.log(`  ranking held constant (shipped governed Wayfind Score (law: +7 video, −2 past 17mi) + localCategoryBoost, marketReviewFloor applied to both)`);
   console.log(`  candidate sets: census ${censusRows.length} rows   vs   rankedFor() retrieval ${poolRows.length} rows\n`);
   console.log(`  the shipped ranker's top 15 FROM THE CENSUS:`);
   fromCensus.forEach((p, i) => console.log(`    ${String(i + 1).padStart(2)}. ${String(Math.round(shippedScore(p))).padStart(3)}  ${(p.name || "").slice(0, 38).padEnd(38)} ${poolIds.has(p.place_id) ? "" : "<- retrieval never saw it"}`));

@@ -316,3 +316,4 @@ node scripts/check-guard-integrity.mjs
 node scripts/check-creator-rights.mjs
 node scripts/check-creator-avatars.mjs
 node scripts/check-brand-pin.mjs
+node scripts/check-score-law.mjs

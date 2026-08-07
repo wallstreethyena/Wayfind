@@ -84,7 +84,7 @@ ok(
 /* ── 3. the landing ranker must not score an unrated place ─────────────── */
 const LANDING = readFileSync(path.join(REPO, "lib/landing.js"), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-ok(/import \{ wayfindScore \} from "\.\/wayfindScore\.js"/.test(LANDING),
+ok(/import \{ wayfindScore, governedWayfindScore \} from "\.\/wayfindScore\.js"/.test(LANDING),
   "lib/landing.js imports the shared score rather than restating it");
 ok(/q == null/.test(LANDING) || /q === null/.test(LANDING),
   "lib/landing.js branches on a null score — without it an unrated place ranks on a number it never earned");
@@ -99,15 +99,18 @@ const tb = await import(new URL("../lib/todaysBest.js", import.meta.url).href).c
 ok(!!tb, "lib/todaysBest.js loads in plain node");
 
 if (tb) {
-  const { byVisibleScore, driveDeduction, diversifyHead, PROXIMITY_FREE_MI, PROXIMITY_PER_MI, PROXIMITY_MAX } = tb;
+  const { byVisibleScore, diversifyHead } = tb;
+  const { governedWayfindScore, wayfindScore, FAR_MILES, FAR_PENALTY } = await import(new URL("../lib/wayfindScore.js", import.meta.url).href);
 
-  ok(driveDeduction(PROXIMITY_FREE_MI) === 0, `nothing is deducted inside ${PROXIMITY_FREE_MI}mi`);
-  ok(driveDeduction(NaN) === 0 && driveDeduction(undefined) === 0, "an unknown distance is not penalised — tours have no coordinates");
-  ok(driveDeduction(120) === PROXIMITY_MAX, `the deduction caps at ${PROXIMITY_MAX} — past that, further is already out of the running`);
-  ok(driveDeduction(22) > driveDeduction(10) + 1,
-    `a 22mi drive costs more than a point beyond a 10mi one (${driveDeduction(22).toFixed(2)} vs ${driveDeduction(10).toFixed(2)}) — the rule it replaced separated them by 0.2, which changed no order at all`);
+  // THE GOVERNING LAW (owner, 2026-08-07): distance is a flat −2 strictly past
+  // 17 miles, IN the displayed number. The per-mile curve this block used to
+  // lock was rank-only — it is what rendered a shown 9.2 below two shown 9.0s
+  // on the owner's Bradenton screenshot, and it is retired by name.
+  ok(FAR_MILES === 17 && FAR_PENALTY === 2, "the law's distance constants are the owner's numbers");
+  ok(governedWayfindScore(90, { distanceMi: NaN }) === 90 && governedWayfindScore(90, {}) === 90, "an unknown distance is not penalised — tours have no coordinates");
+  ok(governedWayfindScore(90, { distanceMi: 120 }) === 88, "the deduction is flat — past 17 miles further distance costs the same visible 0.2");
 
-  // The measured rows, verbatim.
+  // The measured rows, verbatim (Parrish, 2026-08-06 07:00).
   const PARRISH = [
     { name: "Anna Maria Island Beach Cafe", distance_mi: 23.5, rating: 4.5, reviews: 5206, primary_type: "cafe" },
     { name: "Melt N Dip",                   distance_mi: 21.9, rating: 4.9, reviews: 1782, primary_type: "dessert_shop" },
@@ -117,10 +120,15 @@ if (tb) {
     { name: "Chick-fil-A",                  distance_mi: 12.7, rating: 4.5, reviews: 3574, primary_type: "fast_food_restaurant" },
   ];
   const ordered = byVisibleScore(PARRISH);
-  ok(ordered[0].distance_mi < 12,
-    `the top pick for "nearby" is inside 12 miles (got ${ordered[0].name} at ${ordered[0].distance_mi}mi) — this exact list used to lead with a 21.9-mile drive`);
-  ok(ordered.findIndex((r) => r.name === "Melt N Dip") > 2 && ordered.findIndex((r) => r.name === "Anna Maria Island Beach Cafe") > 2,
-    "both 20-mile-plus rows fall out of the top three");
+  // THE SCREENSHOT ASSERTION. Rendered order equals governed-score order —
+  // a row showing a higher number may never sit below a row showing a lower
+  // one. This is the exact defect of 2026-08-07 made into a build failure.
+  ok(ordered.every((r, i) => i === 0 || (ordered[i - 1].governed_score ?? -Infinity) >= (r.governed_score ?? -Infinity)),
+    "rendered order never contradicts the displayed score — a shown 9.2 below a shown 9.0 fails the build");
+  ok(ordered.every((r) => r.governed_score === governedWayfindScore(wayfindScore(r.rating, r.reviews), { hasCreatorVideo: !!r.creator_video, distanceMi: r.distance_mi })),
+    "every row's carried governed_score IS the law applied to its own facts — the chip, the sort key and the law are one number");
+  ok(ordered.findIndex((r) => r.name === "Melt N Dip") === 0,
+    "Melt N Dip (4.9★/1782, shown 9.5 after the −0.2 drive) leads — the law prefers the best place and SAYS what the drive cost it, instead of hiding a bigger penalty in the key");
 
   // Unrated must not compete. It used to score 0 here and 39 in landing.js —
   // wrong in both directions, from two different invented numbers.
@@ -146,9 +154,22 @@ if (tb) {
     { name: "cafe1", distance_mi: 2, rating: 4.4, reviews: 5000, primary_type: "cafe" },
     { name: "bar1",  distance_mi: 2, rating: 4.3, reviews: 5000, primary_type: "bar" },
   ];
-  const head = byVisibleScore(clones).slice(0, 3).map((r) => r.primary_type);
-  ok(new Set(head).size === 3, `no two of the top three share a primary_type (got ${JSON.stringify(head)}) — three taco bars is not a shortlist`);
-  ok(byVisibleScore(clones)[0].name === "taco1", "the single best row still leads — diversity reorders the head, it does not override the ranking");
+  // UNDER THE LAW (owner, 2026-08-07: "ranked by the Wayfind score,
+  // everywhere, every time") variety may only break TIES. These five all
+  // carry different governed scores, so the head is strict score order even
+  // though the top three share a type — a 9.6 taco bar above a 8.6 cafe is
+  // the ranking keeping its word, not a shortlist defect.
+  const head = byVisibleScore(clones).slice(0, 3).map((r) => r.name);
+  ok(head.join(",") === "taco1,taco2,taco3", `distinct scores render in strict score order (got ${JSON.stringify(head)}) — variety never contradicts the chip`);
+  // …and when scores DO tie, variety still gets its say:
+  const tied = [
+    { name: "tacoA", distance_mi: 1, rating: 4.8, reviews: 5000, primary_type: "mexican_restaurant" },
+    { name: "tacoB", distance_mi: 1, rating: 4.8, reviews: 5000, primary_type: "mexican_restaurant" },
+    { name: "cafeT", distance_mi: 1, rating: 4.8, reviews: 5000, primary_type: "cafe" },
+  ];
+  const tiedHead = byVisibleScore(tied).slice(0, 2).map((r) => r.primary_type);
+  ok(new Set(tiedHead).size === 2, `equal scores diversify the head (got ${JSON.stringify(tiedHead)}) — ties are where taste is allowed to speak`);
+  ok(byVisibleScore(clones)[0].name === "taco1", "the single best row still leads");
 
   // Totality: these run inside a render.
   for (const bad of [null, undefined, [], [null], [{}], [{ rating: "x" }]]) {
