@@ -109,7 +109,7 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   return (
     <section aria-label="Finds from local creators" style={{ marginBottom: 12 }}>
       <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>
-      <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
         {rows.map(({ p, videos }, i) => {
           const v = (videos || [])[0];
           const plat = v && PLATFORM[v.platform];
@@ -124,7 +124,7 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
                   </span>
                 ) : null}
               </span>
-              <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28 }}>{p.name}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28, minHeight: 32, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</span>
               {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}
             </button>
           );
@@ -147,7 +147,7 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
                 ) : null}
                 {!scoutedPhotos[s.key] ? <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1, opacity: 0.5 }}>📍</span> : null}
               </span>
-              <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28 }}>{s.name}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28, minHeight: 32, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{s.name}</span>
               {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}
             </button>
           );
