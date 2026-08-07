@@ -33,6 +33,20 @@ const MEDAL = [CHAMPAGNE.base, "#C7CCD6", "#B8804A"]; // gold, silver, bronze
 
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
+// The ranked row wants ONE punchy hook line — what the place is known for — not
+// a paragraph (owner, 2026-08-07). Editorial composes hook + local_tip and the
+// blurb writes two sentences; the tip / second sentence belong on the detail
+// sheet, so keep only the FIRST sentence and drop the trailing period for a
+// tagline feel. The row then renders it on a single line (CSS ellipsis). Returns
+// "" so a place with no real hook falls back to its engine reason line.
+function toHookLine(raw) {
+  const s = String(raw || "").replace(/\s+/g, " ").trim();
+  if (!s) return "";
+  const m = s.match(/^(.*?[.!?])(?:\s|$)/);
+  const first = m && m[1].length >= 24 ? m[1] : s;
+  return first.replace(/\s*[.!?]+$/, "").trim();
+}
+
 // Rank medal: top three only — a trophy in gold, silver, bronze.
 function Medal({ i }) {
   if (i > 2) return <span style={{ width: 20, textAlign: "center", fontSize: 12, fontWeight: 800, color: C.muted, flexShrink: 0 }}>{i + 1}</span>;
@@ -86,7 +100,7 @@ function hourLabel(h) {
   return h12 + ampm;
 }
 
-function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href }) {
+function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOneLine }) {
   const inner = (
     <>
       <Medal i={i} />
@@ -105,7 +119,9 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href }) {
           // surface has ever rendered it. The engine was explaining itself to
           // nobody. Two lines max so a long reason cannot push the row height
           // around; the list must not reflow when it refreshes on the hour.
-          <div style={{ fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
+          <div style={whyOneLine
+            ? { fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+            : { fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
         ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: why ? 4 : 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
       </div>
@@ -473,7 +489,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                   <>
                     {sdef.id === "eat"
                       ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
-                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} why={hooks[p.place_id] || reasonLine(p.reasons)}
+                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id])} why={toHookLine(hooks[p.place_id]) || reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
