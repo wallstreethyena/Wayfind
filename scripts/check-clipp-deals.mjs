@@ -240,7 +240,16 @@ for (const c of clipps) {
     "a REMOTE image is refused — an artwork band is not worth handing a third party control of what renders in a Wayfind card");
   ok(dealArtwork({}) === null, "no usable image yields NULL, so the card renders with no band rather than a placeholder");
 
-  ok(!/next\/image|<Image\b|<img\b|CouponThumb|dealArtwork\(/.test(code), "the coupon screen has no image path — paid and free cards cannot diverge on artwork");
+  // TRANSLATED 2026-08-07 (owner-approved venue thumbs — "hard to see what the
+  // coupon is for"). The parity protection this carried is asserted directly:
+  // ONE image slot, fed only by the row's own venuePhotoRef through OUR
+  // /api/photo proxy, with the row's explicit icon as fallback. Paid and free
+  // cards run the identical code path — divergence now requires a registry row,
+  // not a renderer branch. test-coupon-wallet.mjs holds the deeper assertions.
+  ok((code.match(/<img\b/g) || []).length === 1 && !/next\/image|<Image\b|dealArtwork\(/.test(code),
+    "the coupon screen has exactly ONE image slot (the venue thumb) and no artwork-band pipeline — paid and free cards share the identical path");
+  ok(/encodeURIComponent\(c\.venuePhotoRef\)/.test(code) && !/googleusercontent|maps\.googleapis/.test(code),
+    "the thumb resolves through OUR /api/photo proxy from the row's own ref — never a remote image host");
   ok(!/cpn-clipp|clipp\.com/i.test(code), "the screen names no Clipp offer or destination — inventory stays data-driven");
   // v6.90 — coupons readability pass moved the gold token from #f2c94c to
   // #E8C97A (kit.js/collectionTheme.js's real brand gold, rgba(232,201,122))
@@ -337,6 +346,12 @@ ok(CLIPP_MERCHANT_OFFERS.length > 0, "the merchant registry is non-empty (an emp
     ok(typeof m.merchant === "string" && m.merchant.length > 1, `${m.offerId}: names its merchant`);
     ok(typeof m.area === "string" && m.area.length > 1, `${m.offerId}: carries a town label for the geo-gate`);
     ok(m.kind === "dining" || m.kind === "activity", `${m.offerId}: kind is dining|activity (got ${m.kind})`);
+    ok(typeof m.icon === "string" && m.icon.length >= 1 && m.icon.length <= 8,
+      `${m.offerId}: carries an explicit category icon — the card's no-photo visual identity is data, never inferred`);
+    if (m.photoRef !== undefined) {
+      ok(/^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(String(m.photoRef)),
+        `${m.offerId}: photoRef matches the SSRF-safe /api/photo shape (got ${String(m.photoRef).slice(0, 40)}…)`);
+    }
     ok(isClippDest(m.dest), `${m.offerId}: its destination passes the allowlist`);
     ok(/^https:\/\/www\.clipp\.com\/all-offers\/[a-z0-9-]+$/.test(String(m.dest)),
       `${m.offerId}: the dest is a per-merchant offer page, not a city page`);

@@ -135,7 +135,14 @@ ok(featured.length >= 4 && ledger.length >= 6, `both tiers have real inventory (
 /* ── 6. artwork rules from the work order ─────────────────────────────────── */
 ok(D.dealArtwork({}) === null, "no usable image → NULL, so the card renders with no band (never a placeholder or a stretched thumbnail)");
 ok(D.dealArtwork({ image: "https://merchant.example/x.jpg" }) === null, "a remote/merchant image is refused — never hotlinked");
-ok(!/CouponThumb|<Image\b|<img\b|dealArtwork\(/.test(code), "the coupon wallet renders no imagery — no cropped, generic or maintenance-heavy photo slot");
+// TRANSLATED 2026-08-07 (owner-approved venue thumbs). The maintenance-heavy
+// slot this banned was a generic/cropped poster image; what ships instead is
+// ONE 52px identity thumb fed exclusively by registry data (the venue's own
+// location-verified photoRef via our /api/photo proxy, or the row's explicit
+// icon). The deep assertions live in test-coupon-wallet.mjs + check-clipp-deals;
+// here the structural claim is: one slot, no artwork-band pipeline.
+ok((code.match(/<img\b/g) || []).length === 1 && !/CouponThumb|<Image\b|dealArtwork\(/.test(code),
+  "the coupon wallet renders exactly ONE data-driven venue thumb and no poster/artwork pipeline");
 {
   const { DEAL_SHEET_INTERNALS } = D;
   /* GENERATED ART CAN NEVER REACH A CARD.

@@ -21,7 +21,27 @@ ok(/borderLeft: `4px solid/.test(src), "cards use a compact ticket edge instead 
 ok(/display: "grid", gap: 10/.test(src), "the deal feed is vertical, not a horizontal poster rail");
 ok(!/flex: "0 0 316px"|scrollSnapType: "x mandatory"|overflowX: "auto"/.test(src), "the fixed poster carousel cannot widen the mobile page");
 ok(/overflowX: "clip"/.test(src) && /maxWidth: "100%"/.test(src), "the screen explicitly contains horizontal overflow");
-ok(!/next\/image|<Image\b|<img\b|CouponThumb|dealArtwork\(/.test(src), "the wallet has no image pipeline or photo slot to crop, break or mismatch");
+// TRANSLATED 2026-08-07, owner-approved. Was: "no image pipeline at all". The
+// owner reviewed the shipped text-only cards live and asked for a visual
+// identity per card ("hard to see what the coupon is for"). What ships is a
+// single 52px venue THUMB, and every protection the blanket ban carried is
+// asserted individually instead of by absence:
+//   crop/break/mismatch → the only <img> src is the row's OWN location-verified
+//   photoRef through our cached same-origin /api/photo proxy (shape-checked
+//   inline), with the row's explicit emoji as the no-photo path — nothing is
+//   inferred, so a mismatched photo requires a wrong registry row, which is
+//   what the registry evidence rules govern.
+{
+  const imgs = src.match(/<img\b/g) || [];
+  ok(imgs.length === 1, `exactly ONE image slot — the venue thumb (got ${imgs.length}); a second is the poster-rail creep the old ban existed for`);
+  ok(!/next\/image|<Image\b|dealArtwork\(/.test(src), "no next/image pipeline and no dealArtwork call — the poster-band system stays out of the wallet");
+  ok(/\/api\/photo\?ref=.*encodeURIComponent\(c\.venuePhotoRef\)/.test(src),
+    "the thumb src is OUR cached /api/photo proxy fed by the row's own venuePhotoRef — never a partner, merchant or bare Google host");
+  ok(/^places\\\/\[A-Za-z0-9_-\]\+\\\/photos\\\/\[A-Za-z0-9_-\]\+\$/.test("places\\/[A-Za-z0-9_-]+\\/photos\\/[A-Za-z0-9_-]+$") && src.includes("places\\/[A-Za-z0-9_-]+\\/photos\\/[A-Za-z0-9_-]+$"),
+    "the ref is shape-checked before building the URL (same SSRF-safe shape /api/photo enforces)");
+  ok(!/googleusercontent|maps\.googleapis|clipp\.com|dpbolvw/.test(src), "no remote image host appears anywhere in the screen");
+  ok(/thumbIcon/.test(src) && /c\.icon/.test(src), "the explicit per-row category icon is the no-photo path — visual identity without inference");
+}
 ok(/seal\.big/.test(src) && /seal\.small/.test(src), "the verified savings value, not a generic photo, is the card's visual anchor");
 ok((src.match(/<a\b/g) || []).length === 1, "one coupon card has exactly one redeem anchor");
 ok(/rel="noreferrer sponsored nofollow"/.test(src), "the redeem anchor keeps affiliate link semantics");
