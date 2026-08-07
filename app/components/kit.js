@@ -291,7 +291,16 @@ export function PlaceScoreChip({ p, size = 12 }) {
   // vanishes on exactly the best places) and returns the base score untouched for
   // anything below the 4.2*/30-review floor. Self-heal below is unchanged except
   // that it now feeds a real place object through the same adjuster.
-  let s = toDisplayScore(displayedWfScore(p));
+  // THE GOVERNING LAW, shown == sorted (2026-08-07 root cause): when a row was
+  // ranked by byVisibleScore it carries `governed_score` — the EXACT number the
+  // sort used (base +0.7 video −0.2 past 17mi). Prefer it, so the chip can never
+  // disagree with the row's position. The bug this closes: BestNearby's ranked
+  // rows were handing this chip a stripped { rating, reviews } with no distance,
+  // so displayedWfScore recomputed the BASE (no −0.2) while the list sorted on
+  // the governed score — a 9.3 chip sitting below a 9.2 (Two Scoops, 20mi, over
+  // Rocco's, 3.7mi). Falls back to displayedWfScore (which applies distance when
+  // the full place object carries distMi/distance_mi) for un-ranked surfaces.
+  let s = toDisplayScore(p && Number.isFinite(p.governed_score) ? p.governed_score : displayedWfScore(p));
   if (s == null && p && Number(p.rating) > 0) s = toDisplayScore(displayedWfScore({ ...p, wfScore: wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0) }));
   if (s == null) {
     // Honest pending state — never a fabricated number, never the raw Google

@@ -432,7 +432,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
-                              <PlaceScoreChip p={{ rating: p.rating, reviews: p.reviews }} size={12} />
+                              <PlaceScoreChip p={p} size={12} />
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))
@@ -451,7 +451,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                             badge={r.category === "beach" && beachPop[r.id] != null && beachPop[r.id] >= TRENDING_POPULARITY_THRESHOLD ? <Flame /> : null}
                             meta={<>
                               {isFinite(r.distance_mi) ? <span>{r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}
-                              <PlaceScoreChip p={{ rating: r.rating, reviews: r.reviews }} size={12} />
+                              <PlaceScoreChip p={r} size={12} />
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))}
