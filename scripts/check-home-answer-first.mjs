@@ -358,6 +358,41 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   ok(picked && picked.count === DEEP.spots.length,
      "the count printed is that city's OWN spot total — never arithmetic against what the reader is already looking at, which is the kind of number that goes subtly wrong");
 
+  // ── orderFinds is DISTANCE-FIRST (2026-08-07, owner screenshot from
+  // Parrish: the LOCAL finds row led with a big-reach Bradenton TikTok spot
+  // while his own town's creator spots existed — reach outranked nearness on
+  // a surface whose whole name is "local"). Proven by CALLING it: an
+  // own-band low-reach spot must beat a farther high-reach one; within a
+  // band the old boost-then-score judgement must still hold; unknown
+  // distance sorts last, never guessed closer.
+  {
+    const near = { p: { name: "PJ Sandwich", distMi: 2, wfScore: 80 } };
+    const farBig = { p: { name: "Spinning Coffee", distMi: 11, wfScore: 95 } };
+    const noDist = { p: { name: "Mystery", wfScore: 99 } };
+    const o1 = CFL.orderFinds([farBig, noDist, near]).map((x) => x.p.name);
+    ok(o1[0] === "PJ Sandwich", `a 2-mi spot outranks an 11-mi spot on the LOCAL row regardless of score/reach (got ${o1.join(" > ")})`);
+    ok(o1[o1.length - 1] === "Mystery", "unknown distance sorts LAST — never silently treated as nearby");
+    const sameBandA = { p: { name: "A", distMi: 3, wfScore: 90 } };
+    const sameBandB = { p: { name: "B", distMi: 5, wfScore: 95 } };
+    const o2 = CFL.orderFinds([sameBandA, sameBandB]).map((x) => x.p.name);
+    ok(o2[0] === "B", "within one distance band the score/boost judgement still decides (same-band 95 beats 90)");
+    ok(Number.isFinite(CFL.CREATOR_FINDS_BAND_MI) && CFL.CREATOR_FINDS_BAND_MI >= 5 && CFL.CREATOR_FINDS_BAND_MI <= 15,
+      `the band width is a sane constant (${CFL.CREATOR_FINDS_BAND_MI} mi) — raw-mile sorting would let GPS jitter reshuffle the row`);
+  }
+
+  // ── displayName beats the matcher root on every browse surface (2026-08-07:
+  // the sheet showed a Parrish place literally named "Ryan" — the deliberately
+  // shortened MATCH root leaking into the UI as a label). Proven by calling
+  // the real builder over the real registry.
+  {
+    const CV = await import(new URL("../lib/creatorVideos.js", import.meta.url).href);
+    const groups = CV.spotsByCity({ lat: 27.5864, lng: -82.4257 }); // Parrish
+    const all = groups.flatMap((g) => g.spots.map((x) => x.name));
+    ok(all.length > 10, `the browse builder returns real inventory (${all.length} spots) — an empty walk would make the next check vacuous`);
+    ok(!all.includes("Ryan"), "no spot renders under the bare matcher root \"Ryan\" — displayName carries the human label");
+    ok(all.includes("Ryan's Coffee House"), "…and the Parrish coffee house appears under its actual name");
+  }
+
   // The distance decides; it is never SHOWN. lib/creatorVideos.js says in its
   // own comment that CITY_COORDS is for sorting and is "never shown to a
   // user" — a "35 mi" label built from a city centroid would break that and
