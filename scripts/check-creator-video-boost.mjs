@@ -274,4 +274,36 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
   ok(summaryFor("someone-we-never-heard-of") === null, "an unknown handle summarises to nothing, never a default");
 }
 
+// ── §6. THE DISPLAYED SCORE (2026-08-07) ─────────────────────────────────────
+// Owner: "whenever we have a place card with an influencer video I want the
+// Wayfind Score to go higher — I was expecting this but I don't see it." They
+// were right: every call site of creatorBoostFor() fed a SORT KEY and nothing
+// reached a rendered number. displayedWfScore() closes that. These assertions
+// CALL the function and check returned values rather than reading source text,
+// because both defects worth guarding here are arithmetic.
+{
+  const { displayedWfScore } = await import("../lib/creatorBoost.js");
+  const P = (wfScore, extra) => ({ id: "guard-synthetic", name: "Guard Synthetic", wfScore, ...extra });
+
+  // THE CLAMP — the assertion that matters most, and the one nobody thinks to
+  // write. toDisplayScore() returns null above 100, so an unclamped 98 + 15%
+  // = 113 makes the badge VANISH from the best creator-backed places on the
+  // site: the feature would read as "our scores disappeared". Proven on a
+  // synthetic place, never the live library, so curation cannot make it vacuous.
+  ok(displayedWfScore(P(98)) <= 100, "displayedWfScore never exceeds 100 — above it toDisplayScore() nulls and the badge disappears entirely");
+  ok(displayedWfScore(P(140)) === 100, "…and it clamps rather than passing an out-of-range score straight through");
+
+  // A place with no creator video is returned EXACTLY as it arrived. If this
+  // drifts, every score on the site moves and only some of them should.
+  ok(displayedWfScore(P(83)) === 83, "a place with no creator video displays its base score, unchanged");
+  ok(displayedWfScore(P(null)) === null, "an unrated place stays null — the 'Score pending' contract is untouched");
+  ok(displayedWfScore(null) === null, "a missing place does not throw and does not invent a number");
+
+  // Floor and cap are INHERITED from creatorBoostFor rather than restated.
+  // Asserting them THROUGH the display path is what proves the inheritance is
+  // real, instead of a comment claiming it.
+  ok(displayedWfScore(P(83, { rating: 4.0, reviews: 500 })) === 83, "a place below the 4.2-star floor is not lifted by the display path either");
+  ok(displayedWfScore(P(83, { rating: 4.9, reviews: 12 })) === 83, "…nor is a place below the 30-review floor");
+}
+
 console.log(`check-creator-video-boost: PASS (${pass} assertions)`);
