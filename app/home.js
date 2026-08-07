@@ -8386,7 +8386,7 @@ function PageInner({ initialEvents = null }) {
                   trends section — which is switched off. Computed, then discarded,
                   every render. Now it is lifted to `videoPlaces` above and BOTH
                   surfaces read the same array, so they can never disagree. */}
-              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
                   stranger has to solve"). Same component, same six categories, same

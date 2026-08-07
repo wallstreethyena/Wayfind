@@ -30,15 +30,43 @@
 // the nearest covered metro ('worth the drive')... A thin list teaches someone
 // the ranking is bad; an honest empty state teaches them it is careful."
 // This is that rule, applied to the one surface that never got it.
+import { useEffect, useState } from "react";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
+
+// Cross-render cache so a scouted spot's resolved photo survives re-renders and
+// tab returns without re-hitting the search endpoint. Keyed by name|city.
+const _scoutedPhotoCache = new Map();
+const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+
+// Resolve ONE scouted spot's venue photo by name near the viewer, through the
+// SAME cached /api/places/search the pool uses (which now returns photo_ref),
+// then the guarded /api/photo proxy. Returns "" (not null) on any miss so the
+// cache records "looked, found none" and never retries in a loop.
+async function resolveScoutedPhoto(name, city, center) {
+  const key = `${name}|${city}`;
+  if (_scoutedPhotoCache.has(key)) return _scoutedPhotoCache.get(key);
+  if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return "";
+  try {
+    const q = encodeURIComponent(`${name} ${city}`);
+    const r = await fetch(`/api/places/search?q=${q}&lat=${center.lat}&lng=${center.lng}&limit=1`);
+    const j = await r.json();
+    const first = j && Array.isArray(j.places) ? j.places[0] : null;
+    const ref = first && (first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name)) || null;
+    const url = ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "";
+    _scoutedPhotoCache.set(key, url);
+    return url;
+  } catch (e) {
+    return "";
+  }
+}
 
 // Re-exported so existing importers keep working; the logic itself lives in
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots };
 
-export default function CreatorFinds({ items, byCity, onOpenPlace, onBrowse, onLog }) {
+export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog }) {
   const rows = orderFinds(items).slice(0, CREATOR_FINDS_MAX);
   const bridge = bridgeCity(byCity, rows.length);
   // 2026-08-07 (owner: "I don't see creators on Sarasota"). When the loaded
@@ -51,6 +79,26 @@ export default function CreatorFinds({ items, byCity, onOpenPlace, onBrowse, onL
   // on the service key, so these cards are photoless for now — the same honest
   // shape the browse sheet already uses. Tapping opens the browse sheet.
   const scouted = scoutedSpots(byCity, bridge, rows.length, CREATOR_FINDS_MAX);
+
+  // Real venue photos for the scouted cards (owner, 2026-08-07: pin placeholders
+  // "not what I wanted"). These places were not in the loaded pool, so we resolve
+  // each one's Google photo by name — once, cached — and render it in place of
+  // the pin. The pin shows only while a photo is loading or genuinely absent.
+  const [scoutedPhotos, setScoutedPhotos] = useState({});
+  useEffect(() => {
+    let alive = true;
+    const need = scouted.filter((s) => s && s.name && !(s.key in scoutedPhotos));
+    if (!need.length) return;
+    Promise.all(need.map(async (s) => {
+      const url = await resolveScoutedPhoto(s.name, s.city, center);
+      return [s.key, url];
+    })).then((pairs) => {
+      if (!alive) return;
+      setScoutedPhotos((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = u; return next; });
+    });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scouted.map((s) => s && s.key).join(","), center && center.lat, center && center.lng]);
   // Nothing local, no registry spots, AND nowhere to point them. Render NOTHING
   // rather than an empty shelf — an empty "your differentiator" row advertises
   // the absence.
@@ -90,13 +138,14 @@ export default function CreatorFinds({ items, byCity, onOpenPlace, onBrowse, onL
           return (
             <button key={s.key || i} onClick={() => { try { onLog && onLog("creator_find_open", { id: s.key, name: s.name }, { pos: i, creator: (v && v.creator) || null, hydrated: "registry" }); } catch (e) {} if (onBrowse) onBrowse(); }}
               style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-              <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, position: "relative" }}>
+              <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, position: "relative", overflow: "hidden" }}>
+                {scoutedPhotos[s.key] ? <img src={scoutedPhotos[s.key]} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
                 {plat ? (
-                  <span style={{ position: "absolute", top: 6, left: 6, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 9.5, fontWeight: 800, color: plat.color }}>
+                  <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 9.5, fontWeight: 800, color: plat.color }}>
                     <span style={{ width: 5, height: 5, borderRadius: 3, background: plat.color, display: "inline-block" }} />{plat.label}
                   </span>
                 ) : null}
-                <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1 }}>📍</span>
+                {!scoutedPhotos[s.key] ? <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1, opacity: 0.5 }}>📍</span> : null}
               </span>
               <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28 }}>{s.name}</span>
               {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}

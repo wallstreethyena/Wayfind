@@ -67,11 +67,20 @@ function skeletons(googlePlaces) {
     if (!p || !p.id) return null;
     const name = typeof p.displayName === "string" ? p.displayName : (p.displayName && p.displayName.text) || null;
     const loc = p.location || {};
+    // First photo RESOURCE NAME (places/<id>/photos/<ref>) — the same shape
+    // /api/photo validates and proxies. The field mask already pays for
+    // places.photos; surfacing the ref here lets a caller render a venue photo
+    // without a second Details round-trip. Added 2026-08-07 for the creator
+    // "scouted spots" cards, which resolve a photo by name when the loaded pool
+    // had no photo-bearing place for them.
+    const photoRef = Array.isArray(p.photos) && p.photos[0] && typeof p.photos[0].name === "string"
+      ? p.photos[0].name : null;
     return {
       id: p.id, name,
       lat: typeof loc.latitude === "number" ? loc.latitude : null,
       lng: typeof loc.longitude === "number" ? loc.longitude : null,
       category: catFromTypes(p.types),
+      photo_ref: photoRef,
       signals: { rating: p.rating || null, reviews: p.userRatingCount || 0 },
     };
   }).filter(Boolean);
