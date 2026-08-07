@@ -46,7 +46,7 @@ const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60)
 const HOOK_ABBR = /(?:^|\s)(?:st|ave|blvd|rd|dr|mt|ft|mr|mrs|ms|jr|sr|no|vs|etc|co|inc|dept|hwy|pt|ln)\.$/i;
 const HOOK_STOP = /\s+(?:a|an|the|and|or|of|with|to|for|in|on|at|by|from|off|into|its|their|this|that|not|but|where|which|while|as|is|was)$/i;
 const HOOK_PLACEHOLDER = /\b(independent verification|none confirmed|this research pass|not (?:yet )?(?:been )?(?:confirmed|completed|verified)|unverified|pending verification)\b/i;
-const HOOK_CAP = 42;
+const HOOK_CAP = 40;
 function toHookLine(raw, name) {
   let s = String(raw || "").replace(/\s+/g, " ").trim();
   if (!s || HOOK_PLACEHOLDER.test(s)) return ""; // never surface a pending-research note
@@ -148,8 +148,8 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOn
           // nobody. Two lines max so a long reason cannot push the row height
           // around; the list must not reflow when it refreshes on the hour.
           <div style={whyOneLine
-            ? { fontSize: 11.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-            : { fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
+            ? { fontSize: 12.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+            : { fontSize: 12.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
         ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: why ? 4 : 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
       </div>
@@ -515,6 +515,28 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                   trendsBody(data)
                 ) : list.length ? (
                   <>
+                    {/* Mood chips at the TOP of the eat section (owner 2026-08-07:
+                        "place the mood on top not the bottom") — switch the mood
+                        before scanning the list. Still real ranked routes only. */}
+                    {sdef.id === "eat" ? (
+                      <div style={{ marginTop: 2, marginBottom: 12 }}>
+                        <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 7 }}>Or change the mood</div>
+                        <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
+                          {MOODS.map((m) => m.href ? (
+                            <a key={m.label} href={m.href} className="wf-bn-focus"
+                              onClick={() => { try { onLog && onLog("best_nearby_mood", null, { mood: m.label }); } catch (e) {} }}
+                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "#121A23", border: "1px solid " + C.line, color: "#C9D4DF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
+                              {m.label}
+                            </a>
+                          ) : (
+                            <span key={m.label} aria-current="true"
+                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "linear-gradient(160deg,#FDA60A,#FB3502)", color: "#fff", fontSize: 12, fontWeight: 750, whiteSpace: "nowrap" }}>
+                              {m.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
                     {sdef.id === "eat"
                       ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
                           <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id], p.name)} why={toHookLine(hooks[p.place_id], p.name) || reasonLine(p.reasons)}
@@ -564,30 +586,6 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                       >
                         Show fewer
                       </button>
-                    ) : null}
-                    {/* The mood row. Chips, not the eight-item text-link grid
-                        that used to compete with the results — and every one is
-                        a real ranked page, not a filter that returns this list
-                        with a different heading. "Right now" is the page the
-                        reader is already on, so it is state, not a link. */}
-                    {sdef.id === "eat" ? (
-                      <div style={{ marginTop: 14 }}>
-                        <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 7 }}>Or change the mood</div>
-                        <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-                          {MOODS.map((m) => m.href ? (
-                            <a key={m.label} href={m.href} className="wf-bn-focus"
-                              onClick={() => { try { onLog && onLog("best_nearby_mood", null, { mood: m.label }); } catch (e) {} }}
-                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "#121A23", border: "1px solid " + C.line, color: "#C9D4DF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
-                              {m.label}
-                            </a>
-                          ) : (
-                            <span key={m.label} aria-current="true"
-                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "linear-gradient(160deg,#FDA60A,#FB3502)", color: "#fff", fontSize: 12, fontWeight: 750, whiteSpace: "nowrap" }}>
-                              {m.label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
                     ) : null}
                     {sdef.id === "todo" && list.some((r) => r.kind === "experience") ? (
                       <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
