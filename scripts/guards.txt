@@ -307,6 +307,7 @@ node scripts/check-map-place-card.mjs
 node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-app-rating.mjs
 node scripts/check-credentialed-paths.mjs
 node scripts/check-home-answer-first.mjs
+node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
 node scripts/check-creator-video-boost.mjs
