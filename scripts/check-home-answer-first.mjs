@@ -252,6 +252,126 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   ok(/Or change the mood/.test(BN), "the row is labelled, so the chips read as alternatives rather than filters already applied");
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+// v6.97b — THE REST OF THE APPROVED SCROLL: creator finds get their own row,
+// the guides finally get linked from home, and the six categories move below
+// the answer instead of being the first thing a stranger has to solve.
+//
+// RESTORED in v6.98. This entire block shipped in #631 and was DELETED by
+// #632 — a PR about creator photo consent, which touched none of the code
+// below. Sixteen assertions went with it and the suite stayed green, because
+// a guard that checks less still passes. check-guard-integrity.mjs catches
+// assertions written BELOW the report; nothing caught assertions removed
+// outright. The TDZ rule at the bottom is the one that took the home page
+// down once already, and it has been unprotected since 2026-08-06.
+// ═══════════════════════════════════════════════════════════════════════════
+{
+  const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+
+  // ── order on the page: answer, then creators, then categories ──
+  // Anchor on the TAG, not on whichever prop happened to come first: #634
+  // added `category=` to <BestNearby> and this restored assertion went red on
+  // the very first run, which is the same pin-the-literal-source fragility
+  // that broke four guards this week. The claim is about ORDER, not props.
+  const iBestNearby = HOME.indexOf("<BestNearby ");
+  const iFinds = HOME.indexOf("<CreatorFinds items=");
+  const iCats = HOME.indexOf("<CategoryMenu tight activeCat=");
+  ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
+  ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
+  ok(iFinds < iCats, "the six categories sit BELOW the answer and the creator row — they stop being the first thing a stranger has to solve");
+
+  // ── one list, two surfaces ──
+  ok(/<CreatorFinds items=\{videoPlaces\}/.test(HOME) && /<BestNearby[^>]*videoPlaces=\{videoPlaces\}/.test(HOME),
+     "the ranked-list section and the creator row read the SAME videoPlaces array — two derivations of one list is how these surfaces drift apart");
+  ok(!/videoPlaces=\{\(\(\) =>/.test(HOME),
+     "videoPlaces is no longer an IIFE inlined in JSX, recomputed every render for a section that is switched off");
+
+  // ── THE TDZ RULE, learned the hard way ──
+  // useMemo evaluates its dependency ARRAY on the first render, so a hook that
+  // reads a `const` declared further down throws "Cannot access before
+  // initialization" and takes the whole page down. `check:jsx` passes on it —
+  // tsc does not model temporal dead zones. This shipped-blocking bug was
+  // caught by hand; this assertion is why it cannot come back.
+  const iMemo = HOME.indexOf("const videoPlaces = useMemo(");
+  ok(iMemo > 0, "videoPlaces is memoised");
+  for (const dep of ["suggested", "places", "locName"]) {
+    const iDecl = HOME.indexOf(`const [${dep},`);
+    ok(iDecl > 0 && iDecl < iMemo,
+       `"${dep}" is declared BEFORE the videoPlaces useMemo that depends on it — a later declaration is a temporal-dead-zone crash on first render, and tsc does not see it`);
+  }
+
+  // ── the bridge ──
+  ok(/<LocalEdit center=\{center\}/.test(HOME), "the home screen links to the guides — they pull traffic from Google and dead-end without this");
+  const LE = readFileSync(path.join(REPO, "app/components/LocalEdit.js"), "utf8");
+  ok(/if \(!rows\.length\) return null;/.test(LE),
+     "LocalEdit renders NOTHING when no guide covers the reader's area — a 'local edit' heading over guides from three hours away is a false claim");
+  const radius = Number((LE.match(/LOCAL_EDIT_RADIUS_MI = (\d+)/) || [])[1]);
+  ok(radius > 0 && radius <= 120, `the local radius is real and bounded (${radius} mi)`);
+  ok(/export function readMinutes/.test(LE) && /WORDS_PER_MIN/.test(LE),
+     "read time is COMPUTED from the guide's own body — a hand-typed '5 min' is a number nobody ever updates");
+  ok(/g\.teaser/.test(LE) && !/teaser:\s*"/.test(LE),
+     "the teaser is the guide's OWN teaser, not new copy written here that can drift from what the article delivers");
+
+  // ── the creator row ──
+  const CF = readFileSync(path.join(REPO, "app/components/CreatorFinds.js"), "utf8");
+  ok(/if \(!rows\.length && !bridge\) return null;/.test(CF),
+     "the creator row renders nothing when there is neither a local find NOR an honest place to point at — an empty 'your differentiator' shelf advertises the absence");
+  // Tests the PROPERTY (does it read a video thumbnail field?), not the word.
+  // The first version grepped for "thumbnail" in raw source and failed on this
+  // component's own comment explaining that it never uses one — the same
+  // comment-matching mistake that bit the "old eyebrow is gone" check.
+  ok(/p\.photo/.test(CF) && !/\bv\.thumbnail\b|videos\[0\]\.thumbnail/.test(CF),
+     "cards use the PLACE's own photo and never read a video thumbnail field (the never-re-host rule)");
+  ok(/PLATFORM\[v\.platform\]/.test(CF), "the platform badge comes from the single PLATFORM source, so a new platform is covered automatically");
+
+  // ── v6.98 COVERAGE: one card is worse than none ──
+  // The row was built for empty and for full, never for ONE. A reader in
+  // Parrish got a single orphan card with dead space beside it, which reads as
+  // a broken feature rather than as thin coverage. RANKING_AND_FEATURING_SPEC
+  // §4 already ruled: below three, offer the nearest covered metro instead of
+  // rendering a thin local list.
+  //
+  // The rule is EXECUTED here, not grepped. That is why it lives in lib/ — a
+  // grep proves a constant exists, only a run proves the rule holds.
+  const CFL = await import(new URL("../lib/creatorFinds.js", import.meta.url).href);
+  ok(CFL.CREATOR_FINDS_MIN >= 2 && CFL.CREATOR_FINDS_MIN <= 4, `the thin-row threshold is real and small (${CFL.CREATOR_FINDS_MIN})`);
+  ok(CFL.CREATOR_BRIDGE_MAX_MI > 0 && CFL.CREATOR_BRIDGE_MAX_MI <= 120, `"worth the drive" is bounded (${CFL.CREATOR_BRIDGE_MAX_MI} mi)`);
+
+  const FAR = { city: "Faraway", spots: [1, 2, 3], distMi: CFL.CREATOR_BRIDGE_MAX_MI + 1 };
+  const THIN = { city: "Thintown", spots: [1], distMi: 5 };
+  const DEEP = { city: "Deepcity", spots: [1, 2, 3, 4, 5], distMi: 30 };
+  const NOCOORD = { city: "Unplaced", spots: [1, 2, 3], distMi: null };
+
+  ok(CFL.bridgeCity([THIN, DEEP], 1) && CFL.bridgeCity([THIN, DEEP], 1).city === "Deepcity",
+     "ONE local find bridges to the nearest city that actually has depth — this is the Parrish case the owner reported, and the whole reason this rule exists");
+  ok(CFL.bridgeCity([DEEP], CFL.CREATOR_FINDS_MIN) === null,
+     "a healthy row is left alone — the bridge appears only BELOW the threshold, never as permanent furniture");
+  ok(CFL.bridgeCity([THIN], 1) === null,
+     "it never points at a city as thin as the one the reader is standing in — sending someone thirty miles for one card is the same disappointment, one town over");
+  ok(CFL.bridgeCity([FAR], 0) === null,
+     `a city past ${CFL.CREATOR_BRIDGE_MAX_MI} mi is a different trip, not a suggestion`);
+  ok(CFL.bridgeCity([NOCOORD], 0) === null,
+     "a city with no coordinates is SKIPPED, never guessed at — same fail-closed rule as beachMilesFrom()");
+  ok(CFL.bridgeCity(undefined, 0) === null && CFL.bridgeCity(null, 1) === null,
+     "no city data at all is not a crash and not a claim");
+  const picked = CFL.bridgeCity([DEEP], 0);
+  ok(picked && picked.count === DEEP.spots.length,
+     "the count printed is that city's OWN spot total — never arithmetic against what the reader is already looking at, which is the kind of number that goes subtly wrong");
+
+  // The distance decides; it is never SHOWN. lib/creatorVideos.js says in its
+  // own comment that CITY_COORDS is for sorting and is "never shown to a
+  // user" — a "35 mi" label built from a city centroid would break that and
+  // claim a precision the data cannot back up.
+  ok(!/distMi/.test(CF),
+     "the row never renders a distance — city centroids sort, they do not measure, and lib/creatorVideos.js promises they are never shown");
+  ok(/Creators in \$\{bridge\.city\}/.test(CF) && /rows\.length \? "Finds from local creators"/.test(CF),
+     "with no local find the heading names the city the finds are ACTUALLY in — 'local' is a claim, and another city's spots are not the reader's");
+  ok(/byCity=\{socialFindByCity\}/.test(HOME),
+     "the row reads the SAME spotsByCity memo the bookshelf hero already uses — a second derivation is how two surfaces start disagreeing about where the finds are");
+  ok(/onBrowse=\{\(\) => setSocialFind\(\{ browse: true \}\)\}/.test(HOME),
+     "the bridge opens the existing library browse view rather than inventing a second destination for the same content");
+}
+
 // THE REPORT MUST BE THE LAST THING BEFORE THE SUMMARY.
 //
 // It used to sit in the middle of this file. `ok()` here COLLECTS failures
