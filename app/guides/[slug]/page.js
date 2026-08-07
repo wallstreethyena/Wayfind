@@ -17,6 +17,7 @@ import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
 import GuideDealCards from "./GuideDealCards";
+import GuideEmailCapture from "./GuideEmailCapture";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -141,7 +142,17 @@ export default async function GuidePage({ params }) {
   // v5.75 (SEO): return a real 404 for unknown guide slugs instead of a
   // 200-status "not found" body — otherwise Google indexes infinite junk URLs.
   if (!g) notFound();
-  const appUrl = (name) => "/?q=" + encodeURIComponent(name);
+  // PLACE-INTENT DEEP LINK. A guide's "Open in Wayfind" names a SPECIFIC
+  // place, but a bare "/?q=" ran the app's area-first search: "Airboat the
+  // Everglades headwaters" geocoded to Everglades City, recentered the app 100
+  // miles from the guide's region, and showed a generic food rail (measured
+  // 2026-08-07: 389 guide entry sessions, 0 detail opens). `intent=place`
+  // tells home.js to resolve the query as a POI near the guide's own region
+  // and open its detail sheet; `near` pins the search to the region so the
+  // reader's physical location (or a POI word that doubles as a town name)
+  // cannot hijack the handoff.
+  const nearCity = (g.region || "Orlando") + ", FL";
+  const appUrl = (name) => "/?q=" + encodeURIComponent(name) + "&intent=place&near=" + encodeURIComponent(nearCity);
 
   // ── the ONE primary CTA, resolved once, server-side ─────────────────────
   let primaryCta = guidePrimaryCta(g);
@@ -560,6 +571,11 @@ export default async function GuidePage({ params }) {
         social={social}
         socialStatus={socialStatus}
       />
+      {/* Email capture (2026-08-07): guides are ~46% of external entries with a
+          2.2% D+1 return — an owned channel is the only realistic comeback
+          path for a trip planner reading weeks ahead. Sits after the
+          conversion block so the monetized CTA keeps first position. */}
+      <GuideEmailCapture slug={params.slug} region={g.region || "Orlando"} />
       <p style={{ ...S.p, marginTop: 30 }}>
         Planning the rest of your trip? <a href="/" style={S.footerLink}>Wayfind</a> ranks every restaurant, attraction, and hotel near you with live hours and honest scores, and our <a href={"/culture/" + (g.region === "Tampa" ? "tampa" : g.region === "Sarasota" ? "sarasota" : "orlando")} style={S.footerLink}>{g.region || "Orlando"} culture guide</a> covers what to eat, say, and never skip.
       </p>
