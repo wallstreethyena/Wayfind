@@ -36,7 +36,7 @@ const {
   CJ_PID, CJ_CLIPP_LINK_ID, CJ_CLIPP_ADVERTISER_ID,
   clippDeepLink, isClippDest, isDeadPixelForm, hasCjPid, affiliateForwards, destIsAlive,
 } = await import(path.resolve("lib/deals.js"));
-const { CLIPP_MARKETS, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
+const { CLIPP_MARKETS, CLIPP_MERCHANT_OFFERS, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
 const { COUPONS } = await import(path.resolve("lib/coupons.js"));
 
 const SARASOTA = "https://www.clipp.com/states/fl/cities/sarasota";
@@ -85,7 +85,7 @@ for (const [bad, why] of [
 }
 ok(clippTrackedUrl("clipp-fl-nowhere") === null, "an unknown offer id yields null, never a guessed market page");
 ok(clippTrackedUrl("") === null && clippTrackedUrl(null) === null, "an empty offer id yields null");
-for (const m of CLIPP_MARKETS) {
+for (const m of [...CLIPP_MARKETS, ...CLIPP_MERCHANT_OFFERS]) {
   const t = clippTrackedUrl(m.offerId, "clickid1");
   ok(typeof t === "string" && hasCjPid(t), `${m.offerId}: the tracked url exists and carries the PID`);
   // Guarded because a malformed `dest` makes clippTrackedUrl return NULL by design
@@ -105,11 +105,69 @@ ok(isClippDest("https://www.clipp.com/local-coupons/fl/sarasota") === false,
   "the /local-coupons/ shape is REFUSED — it renders Clipp's own 'Sorry, something went wrong!' page, and sending a user there with our tracking attached is worse than sending them nowhere");
 ok(isClippDest("https://www.clipp.com/states/fl/cities/bradenton") === true, "a sibling verified market path is allowed");
 ok(isClippDest("https://www.clipp.com/states/fl/cities/../../admin") === false, "path traversal is refused");
+// The per-merchant shape (2026-08-07). Widened deliberately for
+// CLIPP_MERCHANT_OFFERS; membership still comes from the registry, so the
+// allowlist here is about SHAPE, and the negatives prove the widening did not
+// open anything else.
+ok(isClippDest("https://www.clipp.com/all-offers/30-casual-dining-tampa-fl-deal-12863814") === true,
+  "a per-merchant /all-offers/ page is allowed — the certificate pages the 2026-08-07 harvest verified in a browser");
+ok(isClippDest("https://www.clipp.com/all-offers/") === false, "the bare /all-offers/ index is refused (empty slug)");
+ok(isClippDest("https://www.clipp.com/all-offers/../admin") === false, "path traversal through /all-offers/ is refused");
+ok(isClippDest("https://www.clipp.com/all-offers/x/y") === false, "a nested path under /all-offers/ is refused");
 
 /* ── 4. the UI never ships a partner URL (commerce.js rule 2) ─────────────── */
-const clipps = COUPONS.filter((c) => c.commerce && c.commerce.provider === "clipp");
+const allClipps = COUPONS.filter((c) => c.commerce && c.commerce.provider === "clipp");
+const _MARKET_IDS = new Set(CLIPP_MARKETS.map((m) => m.offerId));
+const _MERCHANT_IDS = new Set(CLIPP_MERCHANT_OFFERS.map((m) => m.offerId));
+const clipps = allClipps.filter((c) => _MARKET_IDS.has(c.commerce.offerId));
+const merchantCards = allClipps.filter((c) => _MERCHANT_IDS.has(c.commerce.offerId));
+ok(clipps.length + merchantCards.length === allClipps.length,
+  "every Clipp coupon belongs to exactly one registry family — a card with an offer id in neither registry is a card nothing verified");
 ok(clipps.length >= 2, `both verified Clipp city cards are live — got ${clipps.length}`);
 ok(clipps.length === CLIPP_MARKETS.length, "one card per verified market — no card without a verified market behind it");
+ok(merchantCards.length === CLIPP_MERCHANT_OFFERS.length,
+  `one card per verified merchant offer — got ${merchantCards.length} cards for ${CLIPP_MERCHANT_OFFERS.length} offers`);
+
+// ── 4-merchant. The per-merchant family (2026-08-07). Same commerce rules as
+// the city cards; DIFFERENT art + intent rules, asserted separately:
+//   • NO image — the five CLIPP_DINING_ART photos are city-market-only by their
+//     own comment ("a card for ONE venue must use that venue's own photo_ref
+//     instead"), and until merchant photo_refs are wired the honest render is
+//     the imageless card (dealArtwork → null → no band).
+//   • intents split by registry kind: dining → eatnow moods; activity →
+//     familyfun/nightout. Neither family leaks onto outdoors/cozyindoor.
+//   • business/match carry the place-card alignment, so they must be non-empty
+//     strings (couponForPlaceName keys on them).
+for (const c of merchantCards) {
+  const row = clippOfferById(c.commerce.offerId);
+  ok(typeof c.url === "string" && c.url.startsWith("/api/commerce/go?"),
+    `${c.id}: url is OUR redirect path, so the server mints the click and validates the destination`);
+  ok(!/clipp\.com|dpbolvw|cj\.dotomi/.test(String(c.url)),
+    `${c.id}: the card carries NO partner domain`);
+  ok(/[?&]provider=clipp(&|$)/.test(c.url) && /[?&]offer=clipp-m-/.test(c.url), `${c.id}: the redirect carries provider + merchant offer`);
+  ok(!!row, `${c.id}: its offer id resolves to a verified merchant row`);
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(String(c.expires)),
+    `${c.id}: carries the shared re-verify expiry — certificates rotate weekly, so the card must auto-hide if nobody re-verifies`);
+  ok(c.code === null, `${c.id}: no invented promo code (Clipp deals are link-only)`);
+  ok(c.image === undefined || c.image === null,
+    `${c.id}: a single-venue card ships NO image — the city-market art would be a wrong photo, and dealArtwork renders imageless honestly`);
+  ok(typeof c.business === "string" && c.business.length > 1,
+    `${c.id}: business names the merchant — this is what couponForPlaceName aligns to a place card`);
+  if (row && row.kind === "activity") {
+    ok(Array.isArray(c.intents) && c.intents.includes("familyfun") && !c.intents.includes("eatnow"),
+      `${c.id}: an ACTIVITY certificate rides the familyfun/nightout moods, not the dining ones`);
+  } else {
+    ok(Array.isArray(c.intents) && c.intents.includes("eatnow"),
+      `${c.id}: a DINING certificate is tagged onto the dining intent`);
+  }
+  ok(!c.intents.includes("outdoors") && !c.intents.includes("cozyindoor"),
+    `${c.id}: NOT tagged onto non-fit moods — a deals strip that shows up everywhere is an ad, not a deal`);
+  ok(typeof c.badge === "string" && c.badge.length > 0 && c.badge.length <= 14,
+    `${c.id}: carries a short badge`);
+  ok(Array.isArray(c.match) && c.match.every((s) => typeof s === "string" && s.length > 1),
+    `${c.id}: match variants (if any) are real name strings`);
+}
+
 for (const c of clipps) {
   ok(typeof c.url === "string" && c.url.startsWith("/api/commerce/go?"),
     `${c.id}: url is OUR redirect path, so the server mints the click and validates the destination`);
@@ -258,6 +316,31 @@ for (const m of CLIPP_MARKETS) {
     `${m.offerId}: the page had inventory when verified — a market that exists but is EMPTY is not shippable, we would be sending users to a blank page`);
   ok(Array.isArray(v.sample) && v.sample.length >= 2, `${m.offerId}: records sample merchants seen on the page`);
   ok(isClippDest(m.dest), `${m.offerId}: its destination passes the allowlist`);
+}
+
+/* ── 7b. every MERCHANT row carries its browser evidence (2026-08-07) ─────── */
+// A merchant slug is as unverifiable-by-machine as a market page (same Akamai
+// 403), so the same discipline: the row records when a browser saw the offer and
+// WHICH city page it was on — which is what lets a future audit distinguish
+// "inventory rotated" from "the slug was never real".
+ok(CLIPP_MERCHANT_OFFERS.length > 0, "the merchant registry is non-empty (an empty registry would make this section vacuous)");
+{
+  const ids = new Set();
+  for (const m of CLIPP_MERCHANT_OFFERS) {
+    ok(!ids.has(m.offerId), `${m.offerId}: offer ids are unique`);
+    ids.add(m.offerId);
+    ok(/^clipp-m-[a-z0-9-]+$/.test(String(m.offerId)), `${m.offerId}: merchant ids carry the clipp-m- prefix so the two families cannot collide`);
+    const v = m.verified || {};
+    ok(/^\d{4}-\d{2}-\d{2}$/.test(String(v.on)), `${m.offerId}: records the date a browser actually saw the offer`);
+    ok(typeof v.seenOn === "string" && v.seenOn.length > 2,
+      `${m.offerId}: records WHICH city page the offer was harvested from`);
+    ok(typeof m.merchant === "string" && m.merchant.length > 1, `${m.offerId}: names its merchant`);
+    ok(typeof m.area === "string" && m.area.length > 1, `${m.offerId}: carries a town label for the geo-gate`);
+    ok(m.kind === "dining" || m.kind === "activity", `${m.offerId}: kind is dining|activity (got ${m.kind})`);
+    ok(isClippDest(m.dest), `${m.offerId}: its destination passes the allowlist`);
+    ok(/^https:\/\/www\.clipp\.com\/all-offers\/[a-z0-9-]+$/.test(String(m.dest)),
+      `${m.offerId}: the dest is a per-merchant offer page, not a city page`);
+  }
 }
 
 /* ── the provider registration, asserted by CALLING it ───────────────────── */

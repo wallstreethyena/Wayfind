@@ -177,5 +177,36 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
   ok(orlandoIds.size < liveIds.size, `Orlando sees strictly fewer deals than the registry holds (${orlandoIds.size} < ${liveIds.size}) — the gate is actually removing something`);
 }
 
+// ── METRO_TOWNS ↔ nearestMetro consistency (2026-08-07) ────────────────────
+// The gate compares a deal's metro (dealScope, via METRO_TOWNS) to the VIEWER's
+// metro (nearestMetro, from coordinates). If a town's mapping disagrees with
+// what nearestMetro returns for someone standing in that town, that town's
+// deals are invisible to exactly the people who live nearest them — silently.
+// Proven necessary by a red-prove on 2026-08-07: palmetto mis-mapped to
+// "orlando" tripped NOTHING before this section existed. Coordinates are the
+// town centers; both sides call the REAL resolvers.
+{
+  const { dealScope } = await import("../lib/dealSheet.js");
+  const TOWN_COORDS = {
+    bradenton: [27.4989, -82.5748], "lakewood ranch": [27.4189, -82.3926],
+    parrish: [27.5864, -82.4257], palmetto: [27.5214, -82.5723],
+    osprey: [27.1959, -82.4903], englewood: [26.962, -82.3526],
+    clearwater: [27.9659, -82.8001], "pinellas park": [27.8428, -82.6995],
+    "tierra verde": [27.6886, -82.7226], brandon: [27.9378, -82.2859],
+    riverview: [27.8661, -82.3265], lithia: [27.8612, -82.201],
+    valrico: [27.9378, -82.2364], ruskin: [27.7209, -82.4326],
+    "land o lakes": [28.2189, -82.4576], "plant city": [28.0186, -82.1129],
+  };
+  for (const [town, [la, ln]] of Object.entries(TOWN_COORDS)) {
+    const dealSide = dealScope({ area: town });
+    const viewerSide = nearestMetro(la, ln);
+    ok(dealSide.kind === "metro", `${town}: resolves to a metro (unresolved towns fail closed and the deal never renders)`);
+    ok(dealSide.metro === viewerSide,
+      `${town}: deal-side metro (${dealSide.metro}) matches the viewer-side metro (${viewerSide}) — disagreement hides the town's deals from its own residents`);
+  }
+  // negative control: a town nobody mapped stays unplaced, not guessed.
+  ok(dealScope({ area: "Ocala" }).kind === "unplaced", "an unmapped town is unplaced — the consistency table above must not imply guessing is safe");
+}
+
 console.log(`test-coupon-geo: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
