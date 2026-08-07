@@ -21,7 +21,6 @@ const EXCLUDED = {
   "check-bundle.mjs": "runs in `npm run audit:regression` — needs a completed next build, too slow for every prebuild",
   "check-headers.mjs": "runs in `npm run audit:regression` — asserts deployed response headers, needs a live origin",
   "check-moment.mjs": "STALE as of 2026-07-28: fails on 'trust copy must appear in overlay AND sheet'. The UI it guards changed in the design release; needs triage — either the copy regressed or the guard is obsolete. Deliberately not wired in while red.",
-  "check-creator-avatars.mjs": "WRITTEN AND PASSING ITS OWN LOGIC, BLOCKED ON 5 ASSETS (2026-08-06). It enforces the owner's global rule — every consented creator must have a committed profile photo — and it currently fails naming exactly which are missing: alexandramartin_tv, secretsoftampabay, influencetampa, tampaterrencee, lifeinparrish. Instagram serves a login wall to server-side requests, so the photos cannot be fetched automatically and must be supplied by hand into public/creators/<handle>.jpg. Excluded rather than listed ONLY so it does not break deploys in the meantime. THE MOMENT those 5 files land, delete this line and add it to guards.txt — that is the whole activation step, and until then the rule is documentation, not enforcement.",
   "check-ux.mjs": "STALE as of 2026-07-28: fails on 'mood kicker missing'. Same situation as check-moment.mjs — triage, then either fix the surface or retire the guard.",
 };
 
