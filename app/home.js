@@ -175,7 +175,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
-import { creatorBoostFor } from "../lib/creatorBoost";
+import { creatorBoostFor, displayedWfScore } from "../lib/creatorBoost";
 // THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
 // six times in six subtly different expressions; the terms are still computed
 // here — faveTier/featuredBoost/curatedFor stay put because
@@ -372,7 +372,17 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
         </div>
       )}
       <div style={{ position: "relative" }}>
-      <div style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+      {/* wf-catrow / wf-cattile (2026-08-07) exist ONLY so the wide-desktop
+          tier in css.js can reach this row. There is no mobile rule for either
+          class — at phone width the inline styles below are the whole story and
+          are byte-identical to what shipped before. On a 1060px column six
+          `flex:1` tiles become 170px wide with a 31px glyph adrift in the
+          middle of each, which is what made the row read as decoration rather
+          than as a control; the desktop rule caps the row and adds the hover
+          affordance a pointer expects. Deliberately NOT a bordered chip —
+          check-ux.mjs bans that shape for category strips and it is banned for
+          good reason. */}
+      <div className="wf-catrow" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -385,7 +395,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
             <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
               {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
               <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
@@ -9600,7 +9610,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete above already refused rows with no rating signals at all, so
   // past this line a Score is always computable and always shown.
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
-  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
+  // v7.00 — creator evidence is now VISIBLE on the card, not just in the sort.
+  // displayedWfScore() inherits the 4.2*/30-review floor and the 15% cap and
+  // clamps at 100; see the comment at its declaration for why the clamp is the
+  // whole fix rather than a nicety.
+  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(displayedWfScore(p));
   const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const cardCuisine = Dining.cuisineLabel(p);
   const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;

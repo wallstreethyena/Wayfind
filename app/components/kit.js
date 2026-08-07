@@ -255,6 +255,7 @@ export function offerLabel(o) {
   return "Offer";
 }
 
+import { displayedWfScore } from "../../lib/creatorBoost.js";
 export { priceGlyphs } from "../../lib/dining.js";
 
 export function scoreLabel(wf) {
@@ -285,8 +286,13 @@ export function PlaceScoreChip({ p, size = 12 }) {
   // Bayesian formula the ranking uses (lib/google.js wayfindScore — the one
   // score mechanism, everywhere). "Score pending" is now reserved for rows
   // with no signals at all, which cardComplete() keeps off cards entirely.
-  let s = toDisplayScore(p && p.wfScore);
-  if (s == null && p && Number(p.rating) > 0) s = toDisplayScore(wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0));
+  // v7.00 — the chip shows the number INCLUDING creator evidence. displayedWfScore
+  // clamps at 100 (a 98 + 15% is 113, which toDisplayScore nulls, i.e. the badge
+  // vanishes on exactly the best places) and returns the base score untouched for
+  // anything below the 4.2*/30-review floor. Self-heal below is unchanged except
+  // that it now feeds a real place object through the same adjuster.
+  let s = toDisplayScore(displayedWfScore(p));
+  if (s == null && p && Number(p.rating) > 0) s = toDisplayScore(displayedWfScore({ ...p, wfScore: wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0) }));
   if (s == null) {
     // Honest pending state — never a fabricated number, never the raw Google
     // star. Missing / invalid / stale score data resolves here safely.
