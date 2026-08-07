@@ -25,7 +25,13 @@ export const maxDuration = 60;
 const HOURLY_CAP = 80;
 const EXP_FRESH_DAYS = 90;
 
-const FIELD_MASK = ["places.id", "places.displayName", "places.location", "places.rating", "places.userRatingCount", "places.types", "places.businessStatus", "places.regularOpeningHours", "places.utcOffsetMinutes"].join(",");
+// places.photos is REQUIRED here (2026-08-07). It was missing, so every city
+// this route ever unlocked was born photo-less: measured in wf_inventory,
+// core metros carry 94–99% photo_ref coverage while ALL 12 unlocked metros
+// (miami, new-york-ny, chicago-il, dubai…) sat at 0% — 1,100+ rows rendering
+// as blank thumbnails on every card. scripts/backfill-photo-refs.mjs is the
+// one-time catch-up for those rows; this mask keeps new cities whole.
+const FIELD_MASK = ["places.id", "places.displayName", "places.location", "places.rating", "places.userRatingCount", "places.types", "places.businessStatus", "places.regularOpeningHours", "places.utcOffsetMinutes", "places.photos"].join(",");
 // Category searches that establish coverage for a new city (query → app category).
 const PULLS = [
   { q: "best restaurants", cat: "food" },
@@ -141,7 +147,23 @@ export async function POST(req) {
           p_google_types: Array.isArray(p.types) ? p.types : [], p_source: "unlock",
         }),
       });
-      if (r.ok) added += 1;
+      if (r.ok) {
+        added += 1;
+        // wf_add_inventory_place predates photos and takes no photo param;
+        // patching the row after insert is additive and leaves the RPC's
+        // contract alone. The value is the full Places resource name
+        // ("places/{id}/photos/{ref}"), the exact shape /api/photo's REF_RX
+        // proxy guard accepts and what every core-metro row already stores.
+        const ph = p.photos && p.photos[0] && p.photos[0].name;
+        if (ph && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(ph)) {
+          try {
+            await fetch(`${s.url}/rest/v1/wf_inventory?place_id=eq.${encodeURIComponent(p.id)}&photo_ref=is.null`, {
+              method: "PATCH", headers: { ...svcH, Prefer: "return=minimal" }, cache: "no-store",
+              body: JSON.stringify({ photo_ref: ph }),
+            });
+          } catch (e) {}
+        }
+      }
     } catch (e) {}
   });
 
