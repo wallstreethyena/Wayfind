@@ -194,7 +194,7 @@ import CreatorAvatar from "./components/CreatorAvatar";
 // Favorites entry row needs the same answer to count what has been learned.
 // The view calls it and renders; it knows nothing about how the price
 // dimension is stored or which Google tokens collapse together.
-import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips } from "../lib/taste";
+import { signalWeights as tasteSignals, applyLocalTaste, blendTaste as tasteBlend, localToVector as tasteLocalToVector, tasteChips, hasLearnedTaste, tasteNorm } from "../lib/taste";
 import { canonicalShareUrl } from "../lib/site";
 
 const BUILD = "beta";
@@ -589,14 +589,37 @@ function computeAffinities(sigs) {
 // Blend Wayfind Score with personal affinity AND distance to re-rank the feed.
 // Nearby places rank above equally-scored distant ones.
 function applyAffinity(places, affinities) {
-  const { catW, badgeW } = affinities;
+  const { catW, badgeW, tagW } = affinities;
   const maxC = Math.max(...Object.values(catW).map(Math.abs), 0.01);
   const maxB = Math.max(...Object.values(badgeW).map(Math.abs), 0.01);
+  // 2026-08-07 root-cause fix: the durable TAG dims (google_types/tags — the
+  // dimensions that distinguish a coffee shop from a pizzeria WITHIN a
+  // category) were learned, displayed as "things learned", and never applied.
+  // With a concentrated vector, the category fold alone normalizes to a
+  // near-uniform boost across a same-category feed — the owner toggled
+  // personalization and correctly observed that nothing moved. Tags are the
+  // signal that actually reorders; fold them in, bounded to ±10 so no tag
+  // pile-up can outshout the Score by more than the existing clamp.
+  const maxT = Math.max(...Object.values(tagW || {}).map(Math.abs), 0.01);
   return places.map((p) => {
     const pc = (primaryCategory(p) || "").toLowerCase();
     let boost = ((catW[pc] || 0) / maxC) * 14;
     for (const b of experienceBadges(p, null, 6).map((x) => x.key)) {
       boost += ((badgeW[b] || 0) / maxB) * 9;
+    }
+    if (tagW) {
+      // tasteNorm, NOT toLowerCase: vector keys were written through
+      // lib/taste's norm() ("mexican_restaurant" → "mexican restaurant"), so
+      // a reader with a different normalizer matches nothing — the same
+      // dead-dimension bug this fold exists to fix, one layer down.
+      const ptags = []
+        .concat(Array.isArray(p.tags) ? p.tags : [])
+        .concat(Array.isArray(p.google_types) ? p.google_types : [])
+        .concat(Array.isArray(p.types) ? p.types : [])
+        .map((t) => tasteNorm(t)).filter(Boolean);
+      let tsum = 0;
+      for (const t of new Set(ptags)) tsum += (tagW[t] || 0);
+      boost += Math.max(-10, Math.min((tsum / maxT) * 10, 10));
     }
     boost = Math.max(-20, Math.min(boost, 30));
     // THE GOVERNING LAW (owner, 2026-08-07 — lib/wayfindScore.js): distance
@@ -4121,9 +4144,26 @@ function PageInner({ initialEvents = null }) {
   useEffect(() => {
     if (!supabase) { setAuthReady(true); return; }
     let active = true;
+    let retryTimer = null;
     supabase.auth.getSession().then(({ data }) => {
       if (active && data && data.session && data.session.user) setUser(data.session.user);
       if (active) setAuthReady(true);
+      // BELT FOR THE LOAD-TIME RACE (2026-08-07, owner: "I refreshed and got
+      // logged out"). getSession() can resolve null on a fresh load while a
+      // valid token sits in storage — the SDK's storage read can lose a race
+      // (navigator.locks contention when guides ↔ app navigations overlap
+      // tabs). The resume self-heal below never fires for a same-tab reload
+      // (no visibilitychange, no focus), so a lost race stayed lost until the
+      // next backgrounding. One delayed re-read closes that window; a user who
+      // is GENUINELY signed out just gets a second null and nothing changes.
+      if (active && !(data && data.session && data.session.user)) {
+        retryTimer = setTimeout(() => {
+          if (!active) return;
+          supabase.auth.getSession().then(({ data: d2 }) => {
+            if (active && d2 && d2.session && d2.session.user) setUser(d2.session.user);
+          }).catch(() => {});
+        }, 1200);
+      }
       try { if (typeof window !== "undefined" && (window.location.search.indexOf("code=") >= 0 || window.location.search.indexOf("error") >= 0 || window.location.hash.indexOf("access_token") >= 0)) window.history.replaceState({}, "", window.location.pathname); } catch (e) {}
     }).catch(() => { if (active) setAuthReady(true); });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -4165,7 +4205,7 @@ function PageInner({ initialEvents = null }) {
     };
     window.addEventListener("visibilitychange", revalidate);
     window.addEventListener("focus", revalidate);
-    return () => { active = false; window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
+    return () => { active = false; if (retryTimer) clearTimeout(retryTimer); window.removeEventListener("visibilitychange", revalidate); window.removeEventListener("focus", revalidate); if (sub && sub.subscription) sub.subscription.unsubscribe(); };
   }, []);
 
   // v5.49: the single sign-in gate for every favorite-like persistence action
@@ -8169,10 +8209,17 @@ function PageInner({ initialEvents = null }) {
           // (category namespace matches catW; the visible Score is untouched.)
           const _vec = tasteVecRef.current || {};
           if (_vec.category) for (const [k, v] of Object.entries(_vec.category)) affinities.catW[k] = (affinities.catW[k] || 0) + v * 0.4;
+          // 2026-08-07: the durable TAG dims ride along too — they are the
+          // discriminating signal within a category and were previously
+          // learned-but-never-applied (the dead-toggle root cause).
+          affinities.tagW = { ..._vec.tag };
           const activeSignals = signals.filter((s) => s.action === "like" || s.action === "dislike");
           // Personalize only after explicit opt-in or an explicit reaction.
-          // Without that, the feed is pure moment/Score order.
-          const hasTaste = activeSignals.length >= 2 || Object.keys(_vec.category || {}).length > 0;
+          // Without that, the feed is pure moment/Score order. The gate lives
+          // in lib/taste.js (hasLearnedTaste) so the test suite can CALL it —
+          // and it counts every dimension applyAffinity consumes, not just
+          // category (the mismatch that made the toggle read as dead).
+          const hasTaste = hasLearnedTaste(_vec, activeSignals.length);
           // The setting and reset controls are available in Favorites before
           // sign-in. Signing in syncs the same private vector; it is not a
           // prerequisite for on-device recommendations.
@@ -8188,6 +8235,17 @@ function PageInner({ initialEvents = null }) {
           reasons.push("the time of day");
           if (weather) reasons.push("today's weather");
           if (Object.values(lists).some((l) => (l.places || []).length)) reasons.push("places you have saved");
+          // THE LAW ↔ PERSONALIZATION SEAM, disclosed (2026-08-07). The
+          // governing law is "shown == sorted"; personalization is the ONE
+          // owner-approved exemption ("it never changes a place's Score —
+          // only the order you see them in", the Favorites toggle's own copy).
+          // An exemption the reader can't see is indistinguishable from the
+          // hidden-term defect the law retired, so when the taste re-rank is
+          // ACTIVE the feed says so in its reasons line — and because this
+          // string is gated on the same `personalized` flag that gates
+          // applyAffinity, the toggle now has visible feedback: flip it and
+          // this reason appears/disappears with the reorder itself.
+          if (personalized) reasons.push("your taste (on — Favorites ▸ Personalization)");
           // ── HERO PICK ──────────────────────────────────────────────────────
           // One standout to greet you. The feed is already tuned to time of day
           // and today's weather upstream, so the hero draws from that tuned list

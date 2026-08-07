@@ -60,3 +60,15 @@ if (!sceneDelegate.includes("registerPluginInstance(AppleSignInPlugin())")) fail
 if (!sceneDelegate.includes('plugin(withName: "AppleSignIn") != nil')) fail("iOS must fail at launch if AppleSignIn registration did not actually take effect");
 if (!capacitorConfig.includes('appendUserAgent: "WayfindNative/1.0"') || !native.includes("WayfindNative\\/\\d")) fail("native auth UI must have a first-request marker instead of racing Capacitor bridge initialization");
 console.log("check-auth: OK — recovery contract + native Google/Apple UI, OAuth callback, Apple nonce verification, plugin registration, entitlement, App Store signing, and Supabase exchange");
+
+// ── 2026-08-07: the LOAD-TIME race retry (owner: "I refreshed and got logged
+// out"). getSession() can resolve null on a fresh load while a valid token
+// sits in storage (locks contention across guides↔app navigations), and the
+// resume self-heal never fires for a same-tab reload. One delayed re-read
+// must exist, and it must be cleaned up on unmount (a leaked timer calling
+// setUser after unmount is a React warning today and a stale-closure bug
+// tomorrow).
+if (!/retryTimer = setTimeout\(/.test(s) || !/if \(retryTimer\) clearTimeout\(retryTimer\)/.test(s)) {
+  fail("the load-race getSession retry (with cleanup) is missing — a same-tab reload that loses the storage race stays signed out until the next backgrounding");
+}
+

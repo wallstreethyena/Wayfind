@@ -2,7 +2,7 @@
 // from EXPLICIT signals, decays honestly, stays bounded, and — the brand rule —
 // NEVER touches the Wayfind Score. Ranking is unchanged in Phase 1.
 import { readFileSync } from "fs";
-import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, isLearnableValue, tasteLabel, tasteChips, TAG_LABEL, TASTE_TAU_MS, SIGNAL_WEIGHT, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector } from "../lib/taste.js";
+import { signalWeights, decayedWeight, blendTaste, applyLocalTaste, localToVector, affinityFor, isLearnableValue, tasteLabel, tasteChips, TAG_LABEL, TASTE_TAU_MS, SIGNAL_WEIGHT, TASTE_EDITOR_OPTIONS, manualTasteSignals, summarizeTasteVector, hasLearnedTaste, tasteNorm } from "../lib/taste.js";
 
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
@@ -277,6 +277,49 @@ ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit/.test(home), "affin
 // creator terms are now IN the displayed score (that is the whole law:
 // shown == sorted). The assertion flips accordingly.
 ok(home.includes("THE GOVERNING LAW") && !home.includes("displayed wfScore never changes"), "the ranking comment carries the governing law, not the retired 'display never changes' claim");
+
+
+// ── 2026-08-07: the DEAD-TOGGLE root cause, locked by CALLING the seam ──────
+// The owner turned personalization on and correctly observed nothing moved.
+// Two causes, both asserted here so neither can return:
+//  (a) the gate counted only the category dimension — his real vector was
+//      2 category dims + 17 tag dims, so the discriminating signal never
+//      unlocked the re-rank;
+//  (b) the tag dimension was learned and DISPLAYED but consumed by nothing.
+ok(hasLearnedTaste({ tag: { "mexican restaurant": 3 } }, 0) === true,
+  "a TAG-only vector unlocks personalization — the exact shape of the owner's real vector no longer reads as dead");
+ok(hasLearnedTaste({ category: { food: 5 } }, 0) === true, "a category vector still unlocks it");
+ok(hasLearnedTaste({}, 2) === true, "two explicit session reactions still unlock it");
+ok(hasLearnedTaste({}, 0) === false, "nothing learned and no reactions -> the feed stays pure Score order (the gate can say no)");
+ok(hasLearnedTaste({ price: { "2": 4 } }, 0) === false,
+  "a PRICE-only vector does NOT unlock it — applyAffinity does not consume price, and a gate that opens for an unapplied dimension recreates the dead toggle");
+
+// (b) the tag fold consumes what signalWeights writes — SAME normalizer both
+// sides, proven by round-trip: what a like on a mexican_restaurant place
+// learns is matchable against that place's own google_types via tasteNorm.
+{
+  const learned = signalWeights("like", { category: "food", google_types: ["mexican_restaurant"] }).filter((x) => x.dimension === "tag");
+  ok(learned.length === 1, "fixture learns exactly one tag dim (guards the round-trip below from vacuity)");
+  const key = learned[0].value;
+  ok(tasteNorm("mexican_restaurant") === key,
+    `tasteNorm(place type) equals the stored vector key ("${key}") — a reader with its own toLowerCase would match nothing and the dimension would be dead again`);
+}
+
+// The feed call site really consumes the tag dimension and gates on the
+// SHARED helper (syntactic-position checks on the exact seam, comments stripped).
+{
+  const homeCode = home.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/affinities\.tagW = \{ \.\.\._vec\.tag \}/.test(homeCode), "the durable tag dims are handed to applyAffinity (the learned-but-never-applied gap)");
+  ok(/const hasTaste = hasLearnedTaste\(_vec, activeSignals\.length\)/.test(homeCode), "the gate is the shared, tested helper — not a re-derived category-only check");
+  ok(/\.map\(\(t\) => tasteNorm\(t\)\)/.test(homeCode), "applyAffinity normalizes place tags through tasteNorm, the writer's own normalizer");
+  // THE LAW SEAM: personalization is the one disclosed exemption to
+  // shown == sorted. The disclosure string must be gated by the SAME
+  // `personalized` flag that gates applyAffinity — one flag, two effects,
+  // so the reorder can never run undisclosed.
+  ok(/if \(personalized\) reasons\.push\("your taste/.test(homeCode), "the feed DISCLOSES the taste re-rank in its reasons line when (and only when) it is active");
+  const gateUses = (homeCode.match(/personalized \? applyAffinity/g) || []).length;
+  ok(gateUses === 1, `applyAffinity runs behind the personalized flag exactly once (got ${gateUses})`);
+}
 
 console.log(`test-taste: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
