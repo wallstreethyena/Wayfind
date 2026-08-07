@@ -23,7 +23,19 @@ const ORLANDO = { lat: 28.5384, lng: -81.3789 };
 const MIAMI = { lat: 25.76, lng: -80.19 }; // >75mi from every covered metro
 
 const CLIPP_IDS = ["cpn-clipp-fl-sarasota", "cpn-clipp-fl-bradenton", "cpn-clipp-fl-tampa", "cpn-clipp-fl-orlando"];
-const KLOOK_NATIONAL = "cpn-klook-us-attractions-5";
+// REPOINTED 2026-08-07: the specimen for "nationwide renders everywhere" was
+// the real S3USATT card, purged today (expired 08-02, registry ruling). Zero
+// real nationwide deals remain, so the invariant is proven on a synthetic
+// fixture — the same technique as the cpn-unplaceable rogue below. If real
+// national inventory returns, these assertions cover it automatically via the
+// dealScope(...).kind === "everywhere" checks; the fixture just keeps the
+// three viewer blocks non-vacuous meanwhile.
+const NATIONAL_FIXTURE = Object.freeze({
+  id: "cpn-national-fixture", business: "Fixture Co", area: "United States",
+  title: "t", details: "d", code: null, url: "https://example.com",
+  expires: null, intents: ["outdoors"], match: [],
+});
+const WITH_NATIONAL = [...COUPONS, NATIONAL_FIXTURE];
 
 // Positive control: the area resolver places Bradenton in the Sarasota metro,
 // so a Bradenton card is local to a Sarasota viewer (and vice versa).
@@ -47,10 +59,11 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
 // lib/dealsData.js holds for the UT rail (#510); two surfaces disagreeing about
 // what "near you" means is how one of them quietly goes wrong.
 {
-  const noCenter = dealTiers(COUPONS, TODAY);
+  const noCenter = dealTiers(WITH_NATIONAL, TODAY);
   const shown = [...noCenter.featured, ...noCenter.ledger];
   const ids = new Set(shown.map((c) => c.id));
   ok(shown.length > 0, `something still renders with no location (got ${shown.length}) — an empty result would make the next two vacuous`);
+  ok(ids.has(NATIONAL_FIXTURE.id), "the nationwide fixture renders with no viewer location");
   ok(CLIPP_IDS.every((id) => !ids.has(id)), "with no viewer location, NO city-scoped Clipp card renders — each is an unproven proximity claim");
   ok(shown.every((c) => dealScope(c).kind === "everywhere"), "…and everything that does render is nationwide, i.e. true regardless of where the user is");
 }
@@ -69,23 +82,23 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
 // Matching metro: viewer in Sarasota sees the Sarasota-metro cards (Sarasota + Bradenton)
 // plus nationwide, but not Tampa or Orlando.
 {
-  const here = dealTiers(COUPONS, TODAY, SARASOTA);
+  const here = dealTiers(WITH_NATIONAL, TODAY, SARASOTA);
   const ids = new Set([...here.featured, ...here.ledger].map((c) => c.id));
   ok(ids.has("cpn-clipp-fl-sarasota"), "Sarasota viewer sees the Sarasota Clipp card");
   ok(ids.has("cpn-clipp-fl-bradenton"), "Sarasota viewer sees the Bradenton Clipp card (same metro)");
   ok(!ids.has("cpn-clipp-fl-tampa"), "Sarasota viewer does NOT see the Tampa Clipp card");
   ok(!ids.has("cpn-clipp-fl-orlando"), "Sarasota viewer does NOT see the Orlando Clipp card");
-  ok(ids.has(KLOOK_NATIONAL), "Sarasota viewer still sees the national Klook code");
+  ok(ids.has(NATIONAL_FIXTURE.id), "Sarasota viewer still sees nationwide inventory (fixture)");
 }
 
 // Mismatching metro: an Orlando visitor must never see Sarasota/Bradenton/Tampa cards.
 {
-  const away = dealTiers(COUPONS, TODAY, ORLANDO);
+  const away = dealTiers(WITH_NATIONAL, TODAY, ORLANDO);
   const ids = new Set([...away.featured, ...away.ledger].map((c) => c.id));
   ok(ids.has("cpn-clipp-fl-orlando"), "Orlando viewer sees the Orlando Clipp card");
   ok(!ids.has("cpn-clipp-fl-sarasota") && !ids.has("cpn-clipp-fl-bradenton") && !ids.has("cpn-clipp-fl-tampa"),
     "Orlando visitor sees NONE of the Sarasota/Bradenton/Tampa Clipp cards");
-  ok(ids.has(KLOOK_NATIONAL), "Orlando visitor still sees the national Klook code");
+  ok(ids.has(NATIONAL_FIXTURE.id), "Orlando visitor still sees nationwide inventory (fixture)");
 }
 
 // Bradenton viewer: nearestMetro resolves to Sarasota, so the whole Sarasota metro is local.
@@ -100,10 +113,10 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
 
 // Outside coverage: a Miami visitor gets nationwide/unplaced only; no metro-scoped cards.
 {
-  const out = dealTiers(COUPONS, TODAY, MIAMI);
+  const out = dealTiers(WITH_NATIONAL, TODAY, MIAMI);
   const ids = new Set([...out.featured, ...out.ledger].map((c) => c.id));
   ok(!CLIPP_IDS.some((id) => ids.has(id)), "Miami visitor sees no Clipp market cards");
-  ok(ids.has(KLOOK_NATIONAL), "Miami visitor still sees the national Klook code");
+  ok(ids.has(NATIONAL_FIXTURE.id), "Miami visitor still sees nationwide inventory (fixture)");
 }
 
 // Supabase `offers` rows flow through the same gate: normalizeOfferRow sets `area`
@@ -170,6 +183,9 @@ ok(dealScope({ area: "Europe travel" }).kind === "unplaced", "an unrecognised ar
   // mechanical reason while the behaviour it cares about was fine. Comparing against
   // the LIVE REGISTRY is what the assertion always meant, and it cannot drift again.
   const liveIds = new Set(COUPONS.filter((c) => couponIsLive(c, TODAY)).map((c) => c.id));
+  // Plain COUPONS here on purpose: this block audits gate-vs-registry identity,
+  // so the synthetic fixture must NOT be in the input - it would read as a
+  // minted card, which is exactly what the assertion exists to catch.
   const orlando = dealTiers(COUPONS, TODAY, ORLANDO);
   const orlandoIds = new Set([...orlando.featured, ...orlando.ledger].map((c) => c.id));
   ok(liveIds.size > 0 && orlandoIds.size > 0, `both sides are non-empty (registry ${liveIds.size}, Orlando ${orlandoIds.size}) — two empties must never pass`);

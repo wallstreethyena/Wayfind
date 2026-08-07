@@ -18,12 +18,16 @@ const klook = COUPONS.filter((c) => c.business === "Klook");
 // code must still be verbatim (never invent a code), AND the cut three must stay
 // gone. The second half is the stronger claim — it stops them drifting back in.
 const codes = klook.map((c) => c.code);
-ok(codes.includes("S3USATT"), "S3USATT present verbatim (never invent a code)");
-for (const cut of ["HOTELONAPP", "EUPTPUS5OFF", "EUMOBUS5OFF"]) {
+// ── TRANSLATED AGAIN 2026-08-07: S3USATT joined the cut ─────────────────────
+// The code expired 2026-08-02, its robot fired 08-03, and the registry ruled
+// PURGE (dead weight; auto-hidden since). Same one-way ratchet as the owner's
+// 07-29 cut: the guard now asserts the ABSENCE, so an expired dashboard code
+// cannot drift back in without a fresh harvest consciously rewriting this file.
+for (const cut of ["S3USATT", "HOTELONAPP", "EUPTPUS5OFF", "EUMOBUS5OFF"]) {
   ok(!codes.includes(cut),
     cut + " stays CUT — a generic-travel code (Europe rail, Europe mobility, app hotels) on a local-discovery deal sheet is the junk offer the page promises not to show");
 }
-ok(klook.length === 1, "exactly ONE Klook code survives the cut — got " + klook.length);
+ok(klook.length === 0, "ZERO Klook code cards remain after the 08-07 purge — got " + klook.length);
 for (const c of klook) {
   // 2026-08-02 — these REQUIRED the legacy ?aid= link. The owner's decision is
   // to run one Klook path, Travelpayouts (promoId 4110 / campaignId 137), which
@@ -35,5 +39,4 @@ for (const c of klook) {
   ok(typeof c.code === "string" && /^[A-Z0-9]+$/.test(c.code), c.id + ": code is a real uppercase code (code attribution)");
   ok(c.expires === null || /^\d{4}-\d{2}-\d{2}$/.test(c.expires), c.id + ": expiry is a real date or null (auto-hide contract)");
 }
-ok(klook.find((c) => c.code === "S3USATT").expires === "2026-08-02", "S3USATT expiry matches the dashboard (2026-08-02)");
 console.log(`test-klook-coupons: OK — ${pass} assertions (verbatim codes, tracked urls, honest expiries)`);

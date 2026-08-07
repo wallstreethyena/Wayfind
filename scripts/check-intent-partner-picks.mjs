@@ -97,7 +97,18 @@ for (const row of PLACE_PARTNER_PICKS) {
 
 for (const deal of PARTNER_DEAL_COUPONS) {
   ok(deal.badge === "Provider deal", `${deal.id} uses a durable deal label rather than a stale percentage`);
-  ok(deal.verifiedOn === "2026-08-01" && deal.expires === "2026-08-08", `${deal.id} fails closed after its seven-day verification window`);
+  // RE-AIMED 2026-08-07: this pinned verifiedOn/expires as two literal dates,
+  // which meant ANY legitimate renewal went red (pin-the-literal fragility -
+  // the same class the repo's own re-anchor notes call out). The invariant it
+  // always meant: every partner deal FAILS CLOSED on a bounded verification
+  // window. Asserted as dates now: well-formed, expiry strictly after the
+  // verification, and never more than 21 days of unverified life (the registry
+  // renews on a <=17-day cadence; 21 is the hard ceiling, not the target).
+  ok(/^\d{4}-\d{2}-\d{2}$/.test(deal.verifiedOn || "") && /^\d{4}-\d{2}-\d{2}$/.test(deal.expires || ""), `${deal.id} carries real verifiedOn/expires dates`);
+  {
+    const spanDays = (Date.parse(deal.expires) - Date.parse(deal.verifiedOn)) / 86400000;
+    ok(spanDays > 0 && spanDays <= 21, `${deal.id} fails closed on a bounded verification window (${spanDays} days from ${deal.verifiedOn} to ${deal.expires})`);
+  }
   ok(!deal.image, `${deal.id} does not invent or crop a generic coupon image`);
   ok(PARTNER_OFFER_REGISTRY[deal.commerce.offerId]?.provider === deal.commerce.provider, `${deal.id} resolves to the server-side exact product`);
   ok(/^\/api\/commerce\/go\?/.test(deal.url || ""), `${deal.id} links through Wayfind rather than exposing the partner destination`);
