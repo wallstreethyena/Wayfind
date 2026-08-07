@@ -68,4 +68,34 @@ const LANDING = readFileSync(path.join(REPO, "lib/landing.js"), "utf8");
 ok(!/Math\.min\(30, \(mi - 4\) \* 1\.3\)/.test(LANDING), "the landing pages' 1.3/mi model is gone");
 ok(/governedWayfindScore\(/.test(LANDING), "…and the landing rank runs through the governed score");
 
+
+// ── THE OWNER'S 2026-08-07 14:47Z SCREENSHOT, AS A FIXTURE ──────────────────
+// Six real rows from his Bradenton feed, ratings/reviews/distances as shown:
+// the pre-law bundle rendered 9.2s (Rocco's 3.7mi, Yard House 3.4mi) ABOVE
+// 9.3s (Two Scoops 20mi, Small Town Creamery 18mi) — the hidden per-mile
+// penalty. The law forbids that forever: run his exact case through the REAL
+// byVisibleScore and assert the emitted order is monotonic in the displayed
+// governed score. If this ever goes red, the inversion he reported is back.
+{
+  const { byVisibleScore } = await import(path.resolve("lib/todaysBest.js"));
+  const shot = [
+    { name: "American Honey Creamery", rating: 4.7, reviews: 737, distance_mi: 13 },
+    { name: "Rocco's Tacos & Tequila Bar", rating: 4.6, reviews: 7055, distance_mi: 3.7 },
+    { name: "Yard House", rating: 4.6, reviews: 2609, distance_mi: 3.4 },
+    { name: "Two Scoops", rating: 4.7, reviews: 1477, distance_mi: 20 },
+    { name: "Small Town Creamery", rating: 4.7, reviews: 602, distance_mi: 18 },
+    { name: "Anna Maria Island Beach Cafe", rating: 4.5, reviews: 900, distance_mi: 18 },
+  ];
+  const out = byVisibleScore(shot.map((r) => ({ ...r })));
+  ok(out.length === shot.length, "the screenshot fixture survives ranking intact (no row dropped)");
+  for (let i = 1; i < out.length; i++) {
+    const a = out[i - 1].governed_score, b = out[i].governed_score;
+    ok(a >= b, `screenshot fixture stays monotonic: ${out[i - 1].name} (${a}) may not rank above a HIGHER-scored ${out[i].name} (${b})`);
+  }
+  const twoScoops = out.find((r) => r.name === "Two Scoops");
+  const roccos = out.find((r) => r.name === "Rocco's Tacos & Tequila Bar");
+  ok(out.indexOf(twoScoops) < out.indexOf(roccos) === (twoScoops.governed_score > roccos.governed_score),
+    "the exact pair he circled (Two Scoops vs Rocco's) orders by the displayed number, whichever way the scores fall");
+}
+
 console.log(`check-score-law: OK — ${pass} assertions (the governing rule: +0.7 creator video, −0.2 past 17mi, shown == sorted, null stays null, ties-only diversity)`);

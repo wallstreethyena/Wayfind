@@ -1,0 +1,42 @@
+# .github/workflows/guards.yml — MERGE PROTECTION, ENFORCED (2026-08-07).
+#
+# Owner: "how can we make sure going forward that each time we are merging we
+# are checking to make sure things are done correctly?"
+#
+# Until now the 290-guard prebuild suite ran on whichever machine prepared the
+# PR — protection by convention. This workflow makes it protection by
+# MACHINE: every pull request and every push to main runs the full guard
+# suite AND a production build on GitHub's own runners. A red suite blocks
+# the merge (once "Require status checks" is enabled for `guards` in
+# Settings → Branches → main); nobody's local green has to be trusted again,
+# including the lanes' and the owner's own.
+#
+# The suite is the SAME `npm run prebuild` every lane already runs — no new
+# rules, just nowhere left to skip them.
+name: guards
+on:
+  pull_request:
+  push:
+    branches: [main]
+concurrency:
+  group: guards-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  guards:
+    name: guards
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Guard suite (all of scripts/guards.txt)
+        run: node scripts/run-guards.mjs
+      - name: Production build
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+        run: npx next build

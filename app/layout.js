@@ -5,6 +5,7 @@ import { GUIDES } from "../lib/guides";
 import { CULTURE } from "../lib/culture";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
+import VersionWatch from "./components/VersionWatch";
 import GoogleTags from "./components/GoogleTags";
 import FooterVeil from "./components/FooterVeil";
 import NativeShellInit from "./components/NativeShellInit";
@@ -75,6 +76,10 @@ export default function RootLayout({ children }) {
     // while letting long ones scroll normally.
     <html lang="en">
       <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+        {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
+            forever, so shipped fixes never reach it (see the component's
+            header for the 2026-08-07 incident). Renders nothing. */}
+        <VersionWatch />
         {/* Google Ads (AW-18342267447) + GA4, loaded once from one gtag.js.
             This was an inline snippet that only ever called gtag('config'), so
             the Ads account could report page loads and nothing else — the

@@ -100,6 +100,11 @@ const nextConfig = {
   env: {
     WF_CC_BUILD_TIME: new Date().toISOString(),
     WF_CC_BUILD_INFO: ccBuildInfo,
+    // Baked into the CLIENT bundle at build time; /api/version answers with
+    // the SERVER'S value at request time. A mismatch means this tab is
+    // running an older deploy — see app/components/VersionWatch.js (the
+    // stale-tab fix, 2026-08-07). "dev" on either side disables the check.
+    NEXT_PUBLIC_WF_BUILD: process.env.VERCEL_GIT_COMMIT_SHA || "",
   },
   // v6.08 (PR-C): opt into Next's scroll-position restoration across real route
   // changes. NOTE: the home app opens places in client-side sheets, not route
