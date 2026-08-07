@@ -78,8 +78,25 @@ const orl = render(createElement(Blocks.CouponStrip, { intentId: "nightout", ...
 const sar = render(createElement(Blocks.CouponStrip, { intentId: "nightout", ...SARASOTA }));
 ok(!/Bradenton|Sarasota|Lakewood Ranch/.test(orl),
   "GEO: an Orlando coupon strip must not name a Sarasota-Manatee business — this is the 'Sarasota deal in Orlando' class");
-ok(/Bradenton|Sarasota|Gecko/.test(sar),
-  "GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control)");
+// The positive control derives the expected names FROM THE LIVE REGISTRY
+// rather than freezing three token strings. The frozen form went red on
+// 2026-08-07 when the Clipp per-merchant harvest added Bradenton/Palmetto
+// nightout inventory that expires sooner than Gecko's — the strip correctly
+// showed the NEW regional deals, and the hardcoded /Bradenton|Sarasota|Gecko/
+// list simply didn't know their names. The invariant was always "a Sarasota
+// viewer sees sarasota-metro inventory", so assert exactly that: at least one
+// business whose dealScope resolves to the sarasota metro is in the render.
+{
+  const { couponsForIntent } = await import(path.join(ROOT, "lib/coupons.js"));
+  const { dealScope } = await import(path.join(ROOT, "lib/dealSheet.js"));
+  const sarNames = couponsForIntent("nightout")
+    .filter((c) => dealScope(c).metro === "sarasota")
+    .map((c) => String(c.business));
+  ok(sarNames.length > 0,
+    "GEO positive control has sarasota-metro nightout inventory to look for — an empty list would make the next assertion vacuous");
+  ok(sarNames.some((n) => n && sar.includes(n)),
+    "GEO: the Sarasota strip MUST still show its own regional deals — the gate must not be a mute (positive control)");
+}
 // NO LOCATION: main's rule is that an unknown viewer does NOT filter — every
 // live deal for the intent shows. This test locks THAT, not a preference.
 //

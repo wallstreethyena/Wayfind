@@ -248,8 +248,20 @@ ok(!/CouponThumb|<Image\b|<img\b|dealArtwork\(/.test(code), "the coupon wallet r
       ok(all.every((c) => D.dealScope(c).kind === "everywhere"),
         `no viewer location: NATIONWIDE ONLY (${t.featured.length}/${t.ledger.length}) — never another metro's inventory`);
     } else {
-      ok(t.featured.length + t.ledger.length <= featured.length + ledger.length,
-        `${name}: viewer location can only remove city-scoped mismatches, never add`);
+      // RE-AIMED 2026-08-07. This compared against the SARASOTA baseline sheet,
+      // which was a fine stand-in for "the maximum" while Sarasota-Manatee
+      // carried the most inventory. The Clipp per-merchant harvest gave the
+      // Tampa metro more cards than Sarasota's, so a Tampa viewer's sheet is
+      // now legitimately LARGER than the baseline — a data change, not a gate
+      // change. The invariant this always meant is that location FILTERS the
+      // live registry and never mints: every visible card must exist in the
+      // live set, and the visible count can never exceed it.
+      const liveAll = COUPONS.filter((c) => !c.expires || c.expires >= TODAY);
+      const liveIds = new Set(liveAll.map((c) => c.id));
+      ok(t.featured.length + t.ledger.length <= liveAll.length,
+        `${name}: viewer location can only remove from the live registry, never add (${t.featured.length + t.ledger.length} <= ${liveAll.length})`);
+      ok([...ids].every((id) => liveIds.has(id)),
+        `${name}: every visible deal exists in the live registry — the gate filters, it cannot MINT a card`);
     }
     for (const tier of [t.featured, t.ledger]) {
       for (let i = 1; i < tier.length; i++) {
