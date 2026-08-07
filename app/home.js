@@ -3982,8 +3982,13 @@ function PageInner({ initialEvents = null }) {
   const [locApprox, setLocApprox] = useState(false);
   const [feedRetry, setFeedRetry] = useState(0);
   const pendingQRef = useRef(null);
-  useEffect(() => { try { const qq = new URLSearchParams(window.location.search).get("q"); if (qq && qq.trim()) pendingQRef.current = qq.trim(); } catch (e) {} }, []);
-  useEffect(() => { if (!pendingQRef.current || !center) return; const qq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(qq); // eslint-disable-next-line react-hooks/exhaustive-deps
+  // ?q= arrivals carry two optional companions from guide pages (see
+  // app/guides/[slug]/page.js appUrl): intent=place ("this query names a
+  // specific POI — open its detail, do not treat it as a city") and near=
+  // ("resolve it against the guide's region, not the visitor's location").
+  // Captured together so the effect below hands submitSearch the whole intent.
+  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: sp.get("intent") === "place", near: (sp.get("near") || "").trim() || null }; } catch (e) {} }, []);
+  useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center]);
   // The landing URL's query string, captured during the FIRST RENDER — before
   // any effect can rewrite it.
@@ -4150,6 +4155,28 @@ function PageInner({ initialEvents = null }) {
     setAuthOpen(true);
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
+  }
+
+  // THE SAVE MOMENT IS THE SIGNUP MOMENT (2026-08-07). Measured: 30 days,
+  // 929 external visitors, zero signups — the passive header "Sign in" button
+  // converts nobody, and the low-friction anonymous save paths (card heart,
+  // detail thumb) never mention an account at all. This offers the account
+  // ONCE per device, AFTER the first anonymous save/like has already
+  // succeeded — the save is never blocked (that low friction is intentional
+  // and stays), the offer just rides the one moment the visitor has expressed
+  // durable intent. Benefit-first copy per the owner rule of 2026-07-17.
+  function offerAccountAfterSave(src) {
+    try {
+      if (user || !authReady) return;
+      if (localStorage.getItem("wf_signup_offered")) return;
+      localStorage.setItem("wf_signup_offered", String(Date.now()));
+      // Let the save's own confirmation toast land first; then the offer.
+      setTimeout(() => {
+        try { logEvent("signup_offer_shown", null, { src }); } catch (e) {}
+        setAuthOpen(true);
+        showToast("Saved on this device — sign up free and it follows you to every device.");
+      }, 1200);
+    } catch (e) {}
   }
 
   // Save a monetized non-place card (Viator experience / UT deal) to
@@ -5115,7 +5142,7 @@ function PageInner({ initialEvents = null }) {
         svFolderDelete("Disliked", p.id);
       }
     }
-    if (!wasLiked) showToast("Added to your taste");
+    if (!wasLiked) { showToast("Added to your taste"); offerAccountAfterSave("like"); }
   }
   function toggleDislike(e, p) {
     e.stopPropagation();
@@ -7270,6 +7297,38 @@ function PageInner({ initialEvents = null }) {
       setQuery("");
     };
     try {
+      // GUIDE PLACE-INTENT (fix for "guides → app converts 0%", 2026-08-07).
+      // A guide's "Open in Wayfind" declares intent=place: the query names one
+      // specific place, so the area-first rule below must NOT apply — that rule
+      // is what geocoded "Airboat the Everglades headwaters" to Everglades
+      // City and dumped the reader on a generic recentered feed. Resolution
+      // order here is deliberately inverted: POI search near the guide's own
+      // region first, area handling only as the fallback. A query our own
+      // guide data marks as an area (", FL" suffix) skips this and recenters
+      // like any city search — that IS its intent.
+      if (opts && opts.placeIntent && !/,\s*(fl|florida)\s*$/i.test(q)) {
+        const nearGeo = opts.near ? await geoTry(opts.near) : null;
+        const pinned = nearGeo ? { lat: nearGeo.lat, lng: nearGeo.lng } : searchCenter;
+        if (pinned) {
+          const hits = await searchNearbyPlaces(q, pinned, (opts && opts.miles) || 45);
+          if (hits && hits.length > 0) {
+            const sorted = hits.slice().sort((a, b) => (a.distMi ?? 1e12) - (b.distMi ?? 1e12));
+            setQuery("");
+            // Recenter to the guide's region so the feed BEHIND the sheet
+            // matches what the reader was just reading about — not their GPS.
+            if (nearGeo && nearGeo.isArea) goTo(nearGeo);
+            setSearchMode(true);
+            setLoading(false);
+            openDetail(sorted[0]);
+            // Arrival-side proof the bridge works — click-side events on the
+            // static guide page die with the unload; this one cannot.
+            try { logEvent("guide_place_open", sorted[0], { q: q.slice(0, 80), matched: (sorted[0].name || "").slice(0, 80), near: (opts.near || "").slice(0, 40) }); } catch (e) {}
+            return;
+          }
+        }
+        // No POI matched — fall through to the standard ladder rather than
+        // dead-ending the deep link.
+      }
       const bo = q.match(/^\s*(?:the\s+)?best\s+of\s+(.{2,40})$/i);
       if (bo) {
         const g = await geoTry(bo[1].trim());
@@ -7352,7 +7411,7 @@ function PageInner({ initialEvents = null }) {
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
-    if (!has) logEvent("save", p);
+    if (!has) { logEvent("save", p); offerAccountAfterSave("favorite"); }
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
