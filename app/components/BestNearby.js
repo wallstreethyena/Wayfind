@@ -33,18 +33,46 @@ const MEDAL = [CHAMPAGNE.base, "#C7CCD6", "#B8804A"]; // gold, silver, bronze
 
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
-// The ranked row wants ONE punchy hook line — what the place is known for — not
-// a paragraph (owner, 2026-08-07). Editorial composes hook + local_tip and the
-// blurb writes two sentences; the tip / second sentence belong on the detail
-// sheet, so keep only the FIRST sentence and drop the trailing period for a
-// tagline feel. The row then renders it on a single line (CSS ellipsis). Returns
-// "" so a place with no real hook falls back to its engine reason line.
-function toHookLine(raw) {
-  const s = String(raw || "").replace(/\s+/g, " ").trim();
-  if (!s) return "";
-  const m = s.match(/^(.*?[.!?])(?:\s|$)/);
-  const first = m && m[1].length >= 24 ? m[1] : s;
-  return first.replace(/\s*[.!?]+$/, "").trim();
+// The ranked row wants ONE short, COMPLETE hook — what the place is known for —
+// that fits a phone column without being cut off mid-word (owner, 2026-08-07:
+// "not making me curious to click on it specially being cut off"). The editorial
+// hook / blurb is a full sentence, so this compresses it: strip the redundant
+// "<Name> is a ..." / "Known for ..." lead-in (the card already shows the name),
+// take the first REAL sentence (not tricked by "St."/"Ave." abbreviations),
+// then, if still too long, cut at the nearest clause boundary within CAP and
+// trim any trailing filler word so the line ends on something solid — never a
+// dangling "of/and/off" and never a chopped word. Returns "" so a place with no
+// real hook falls back to its engine reason line.
+const HOOK_ABBR = /(?:^|\s)(?:st|ave|blvd|rd|dr|mt|ft|mr|mrs|ms|jr|sr|no|vs|etc|co|inc|dept|hwy|pt|ln)\.$/i;
+const HOOK_STOP = /\s+(?:a|an|the|and|or|of|with|to|for|in|on|at|by|from|off|into|its|their|this|that|not|but|where|which|while|as|is|was)$/i;
+const HOOK_PLACEHOLDER = /\b(independent verification|none confirmed|this research pass|not (?:yet )?(?:been )?(?:confirmed|completed|verified)|unverified|pending verification)\b/i;
+const HOOK_CAP = 42;
+function toHookLine(raw, name) {
+  let s = String(raw || "").replace(/\s+/g, " ").trim();
+  if (!s || HOOK_PLACEHOLDER.test(s)) return ""; // never surface a pending-research note
+  if (name) {
+    const nm = String(name).split(/\s+[-–—|]\s+/)[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    s = s.replace(new RegExp("^" + nm + "(?:['’]s)?\\s+(?:is|was|are)\\s+(?:a|an|the)\\s+", "i"), "");
+  }
+  s = s.replace(/^(?:it|this|the (?:place|spot|shop|cafe|café|bar))\s+(?:is|was)\s+(?:a|an|the)\s+/i, "");
+  s = s.replace(/^known for\s+(?:its|their|the|a|an)?\s*/i, "");
+  const re = /[.!?]+(?=\s|$)/g; let mm, endIdx = -1;
+  while ((mm = re.exec(s))) {
+    const upto = s.slice(0, mm.index + 1);
+    if (HOOK_ABBR.test(upto)) continue;
+    if (upto.length >= 20) { endIdx = mm.index + mm[0].length; break; }
+  }
+  let first = (endIdx > 0 ? s.slice(0, endIdx) : s).replace(/\s*[.!?]+$/, "").trim();
+  if (first.length > HOOK_CAP) {
+    const win = first.slice(0, HOOK_CAP + 1);
+    let cut = -1;
+    for (const b of [" — ", " – ", ", ", "; ", " and ", " or "]) { const i = win.lastIndexOf(b); if (i > cut && i >= 20) cut = i; }
+    if (cut < 20) { const i = win.lastIndexOf(" "); cut = i >= 20 ? i : HOOK_CAP; }
+    first = first.slice(0, cut);
+  }
+  first = first.replace(/[\s,;:—–-]+$/, "");
+  let prev; do { prev = first; first = first.replace(HOOK_STOP, "").replace(/[\s,;:—–-]+$/, ""); } while (first !== prev);
+  return first ? first.charAt(0).toUpperCase() + first.slice(1) : "";
 }
 
 // Rank medal: top three only — a trophy in gold, silver, bronze.
@@ -120,7 +148,7 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOn
           // nobody. Two lines max so a long reason cannot push the row height
           // around; the list must not reflow when it refreshes on the hour.
           <div style={whyOneLine
-            ? { fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+            ? { fontSize: 11.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
             : { fontSize: 12, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
         ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: why ? 4 : 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
@@ -489,7 +517,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                   <>
                     {sdef.id === "eat"
                       ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
-                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id])} why={toHookLine(hooks[p.place_id]) || reasonLine(p.reasons)}
+                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id], p.name)} why={toHookLine(hooks[p.place_id], p.name) || reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
