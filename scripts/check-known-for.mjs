@@ -41,6 +41,18 @@ ok(knownForLine(failed) === null, "a FAILED VERIFICATION row produced a card lin
 ok(!Object.keys(knownForMap([failed, real])).includes("x3"), "knownForMap included a failed row");
 ok(Object.keys(knownForMap([failed, real])).includes("x1"), "knownForMap dropped a good row — both sides must be non-empty for this test to mean anything");
 
+// A verification-status placeholder is pending research, not a fact. It must be
+// treated exactly like FAILED VERIFICATION: never rendered (owner 2026-08-07,
+// "Louie Beans" showed "Independent verification ... None confirmed yet").
+const pending = { place_id: "x6", hook: "Independent verification of this listing's specifics was not completed in this research pass. None confirmed yet.", issues: null };
+ok(editorialUsable(pending) === false, "a verification-status placeholder row is treated as usable");
+ok(knownForLine(pending) === null, "a verification-status placeholder produced a card line — pending research must not ship as a hook");
+ok(!Object.keys(knownForMap([pending, real])).includes("x6"), "knownForMap included a pending-verification row");
+// A real hook that merely contains the word "confirmed" must still ship — the
+// reject is placeholder-specific, not a blanket ban on a common word.
+const realConfirmed = { place_id: "x7", hook: "Reservations are confirmed by text, and the chef's counter seats eight.", issues: null };
+ok(knownForLine(realConfirmed) !== null, "a real hook containing 'confirmed' was wrongly rejected as a placeholder");
+
 // A line that cannot be trimmed at a sentence boundary is dropped, not ellipsed.
 const runOn = { place_id: "x4", hook: "a".repeat(400), issues: null };
 ok(knownForLine(runOn) === null || !/…|\.\.\./.test(knownForLine(runOn)), "a too-long hook was shipped truncated with an ellipsis instead of dropped");
