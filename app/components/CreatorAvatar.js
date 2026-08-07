@@ -67,6 +67,10 @@ const INSTAGRAM_AVATARS = {
   influencetampa: "/creators/influencetampa.jpg",
   tampaterrencee: "/creators/tampaterrencee.jpg",
   lifeinparrish: "/creators/lifeinparrish.jpg",
+  // 2026-08-07 batch, captured the same way as every entry above.
+  tampaiman: "/creators/tampaiman.jpg",
+  _adatewithkait: "/creators/_adatewithkait.jpg",
+  magicalmaddieb: "/creators/magicalmaddieb.jpg",
 };
 
 // Real Facebook avatars — same capture method as INSTAGRAM_AVATARS above,

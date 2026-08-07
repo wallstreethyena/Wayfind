@@ -61,8 +61,22 @@ ok(!/rankByConditions\(todoPool/.test(home) || /rankByConditions\(todoPool, cond
 
 const kit = readFileSync(new URL("../app/components/kit.js", import.meta.url), "utf8");
 ok(/import \{ wayfindScore \} from "\.\.\/\.\.\/lib\/google"/.test(kit), "kit.js imports the ONE score formula (wayfindScore)");
-ok(/let s = toDisplayScore\(p && p\.wfScore\);\s*\n\s*if \(s == null && p && Number\(p\.rating\) > 0\) s = toDisplayScore\(wayfindScore\(/.test(kit),
+// v7.00 — RE-POINTED, not relaxed. This used to pin the literal two lines
+//   let s = toDisplayScore(p && p.wfScore);
+//   if (s == null && p && Number(p.rating) > 0) s = toDisplayScore(wayfindScore(
+// which went red the moment the chip started routing through displayedWfScore()
+// so creator evidence became visible on the card (owner, 2026-08-07). The
+// INVARIANT this guard exists for is unchanged and is asserted in three parts:
+// the chip reads the place's own score, it self-heals from raw rating signals
+// rather than printing "Score pending", and the healed value still comes from
+// the ONE formula. What it no longer does is pin the exact expression, which is
+// what made a legitimate refactor look like a regression.
+ok(/let s = toDisplayScore\(/.test(kit),
+  "PlaceScoreChip no longer derives its number through toDisplayScore — the badge and the chip would stop agreeing");
+ok(/if \(s == null && p && Number\(p\.rating\) > 0\) s = toDisplayScore\(/.test(kit),
   "PlaceScoreChip self-heals: rating signals present -> a real Score renders, never 'Score pending'");
+ok(/wayfindScore\(Number\(p\.rating\), Number\(p\.reviews != null \? p\.reviews : p\.userRatingCount\) \|\| 0\)/.test(kit),
+  "…and the self-healed value still comes from wayfindScore(), the one formula — not a locally restated one");
 
 const inv = readFileSync(new URL("../lib/inventoryServe.js", import.meta.url), "utf8");
 ok(/if \(!\(typeof _sr\.rating === "number" && _sr\.rating > 0\)\) continue;/.test(inv),

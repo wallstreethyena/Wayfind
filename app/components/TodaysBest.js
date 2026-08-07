@@ -24,7 +24,11 @@ function PickRow({ p, onGo }) {
         <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, ...TYPE.meta, fontSize: 12.5, color: C.muted }}>
           {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
-          <PlaceScoreChip p={{ rating: p.rating, reviews: p.reviews }} size={12} />
+          {/* v7.00 — was p={{rating, reviews}}. A synthetic object has no id and no
+              name, so creatorVideosFor() could never match it and this row showed
+              the UNBOOSTED number under a card the ranked list had just moved up.
+              Pass the real place. */}
+          <PlaceScoreChip p={p} size={12} />
         </div>
       </div>
       <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>

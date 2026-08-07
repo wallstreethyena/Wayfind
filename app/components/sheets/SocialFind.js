@@ -21,6 +21,7 @@ import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators } from "../../../lib/creatorVideos";
 import CreatorAvatar from "../CreatorAvatar";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
+import { summaryFor } from "../../../lib/creatorArchetypes";
 
 const closeBtnOverlay = { position: "absolute", top: "max(10px, env(safe-area-inset-top))", right: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: "1px solid rgba(255,255,255,.28)", background: "rgba(13,17,23,.55)", backdropFilter: "blur(6px)", color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer" };
 const closeBtnPlain = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 34, height: 34, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 15, fontWeight: 700, cursor: "pointer" };
@@ -295,6 +296,16 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
                       <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{c.count} spot{c.count === 1 ? "" : "s"} we link to from their posts</div>
                     </div>
                   </div>
+                  {/* THE VIBE (owner, 2026-08-07). Sits UNDER the header rather
+                      than beside the handle: it is a sentence, and a sentence in
+                      a 1-flex column next to a 60px avatar wraps to four lines on
+                      a 390px phone. Renders only when lib/creatorVibes.js has a
+                      real line for this handle — vibeFor() returns null rather
+                      than a filler string, and a generic "local finds" under every
+                      face would make the whole shelf read as machine-written. */}
+                  {summaryFor(c.handle) ? (
+                    <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.5, marginBottom: 14 }}>{summaryFor(c.handle)}</div>
+                  ) : null}
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: profileUrl ? 14 : 0 }}>
                     {c.spots.map((s) => {
                       const sp = PLATFORM[s.platform] || PLATFORM.tiktok;

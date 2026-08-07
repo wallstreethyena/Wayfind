@@ -23,6 +23,9 @@ const S = {
   p: { fontSize: 15, color: "#C9D1D9", margin: "0 0 12px" },
   a: { color: "#CBD5E1", fontWeight: 700, textDecoration: "none" },
   lede: { fontSize: 16.5, color: "#E6EDF3", margin: "0 0 14px", lineHeight: 1.6 },
+  // v7.00 — section 5 (local creator evidence) is the first list on this page.
+  ul: { fontSize: 15, color: "#C9D1D9", margin: "0 0 12px", paddingLeft: 20 },
+  li: { margin: "0 0 7px" },
 };
 
 export default function Page() {
@@ -36,7 +39,7 @@ export default function Page() {
       <p style={S.p}>The Wayfind Score is a single 0–100 number that reflects our considered judgment of a place&apos;s proven quality. It is an <b>opinion</b> — our editorial assessment, expressed through a fixed model we publish — not a claim of objective fact about any business, and not a statement that one place is &quot;better&quot; than another for you. It means the same thing wherever you see it — the app, city pages, and guides. A business cannot buy it, argue it upward, or pay to change it, because there is nothing to buy — no ad slot, no premium tier, no paid ranking. For most places the Score is computed from the model below; for a small, hand-vetted set (such as the hotels in Stay Tonight) it reflects our team&apos;s direct editorial rating instead. Either way it is merit, and merit only.</p>
 
       <h2 style={S.h2}>1. Proven quality beats a perfect small sample</h2>
-      <p style={S.p}>The Score starts from a place&apos;s star rating and weights it by how many people actually rated it, pulling small samples toward a category baseline. A 5.0 from eight reviews can never outrank a 4.7 from thousands — hype can&apos;t fake a track record. That review-weighted rating <b>is</b> the Score; distance, open-now status, price, and weather are separate signals that can shape the <i>order</i> of a list or filter it, but they are never baked into the Score itself.</p>
+      <p style={S.p}>The Score starts from a place&apos;s star rating and weights it by how many people actually rated it, pulling small samples toward a category baseline. A 5.0 from eight reviews can never outrank a 4.7 from thousands — hype can&apos;t fake a track record. That review-weighted rating is the base of the Score. Distance, open-now status, price, and weather are separate signals that can shape the <i>order</i> of a list or filter it, but they are never baked into the Score itself. There is exactly one thing that is: <b>local creator evidence</b> — see below.</p>
 
       <h2 style={S.h2}>2. Junk is filtered before ranking</h2>
       <p style={S.p}>Service businesses, parking lots, offices, and stale or unverifiable listings are removed before anything is ranked. A place must be operational and carry real review evidence — or be a genuine outdoor landmark like a park or pier — to appear at all.</p>
@@ -46,6 +49,16 @@ export default function Page() {
 
       <h2 style={S.h2}>4. Real member signals, privately</h2>
       <p style={S.p}>When Wayfind members like a place, it earns a modest ranking lift for everyone once there&apos;s enough signal. We never display private counts, and no member action can be bought.</p>
+
+      <h2 style={S.h2}>5. Local creator evidence — the one signal inside the Score</h2>
+      <p style={S.p}>When a local creator we credit by name has published a real post about a place, that counts as evidence of quality, and it is the one signal that raises the Score itself rather than only the order of a list. It is deliberately bounded, and the bounds matter more than the boost:</p>
+      <ul style={S.ul}>
+        <li style={S.li}><b>A place must already be good.</b> Below 4.2 stars or 30 reviews, a creator post moves the Score by nothing at all. Evidence can confirm quality; it cannot substitute for it.</li>
+        <li style={S.li}><b>The lift is a share of the place&apos;s own quality</b> — at most 15% of the Score it already earned, never a flat number of points. A better place both starts higher and has more room to gain, so evidence can re-order places that are already good without ever lifting a weaker one above a stronger one.</li>
+        <li style={S.li}><b>Nobody pays for it.</b> Creators are not paid, sponsored, or commissioned by us, and a business cannot buy a post into our library. If that ever changes, this page changes with it.</li>
+        <li style={S.li}><b>Reach is likes, and it is capped.</b> A post with more genuine reach counts for more, on a log scale, so a large following cannot buy the top of a list.</li>
+      </ul>
+      <p style={S.p}>A creator&apos;s post is also shown on the place itself, credited and linked, so you can watch it and judge for yourself rather than take the number on trust.</p>
 
       <h2 style={S.h2}>Money lives in a separate, labeled layer</h2>
       <p style={S.p}>There are no ads and no paid placement on Wayfind. Anything we can earn a commission on — the &quot;Book it&quot;, tickets, and tours &amp; experiences links — lives in a distinct layer that is <b>clearly labeled and disclosed</b>, and it appears only <i>after</i> a place has already been ranked on merit. Affiliate potential never changes what ranks or where. We will never quietly raise a Score for money or dress a paid placement up as a merit pick; if a sponsored slot ever appears, it is labeled as one. Our <a style={S.a} href="/editorial-policy">editorial policy</a> covers this in full.</p>

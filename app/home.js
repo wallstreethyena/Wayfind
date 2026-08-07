@@ -175,7 +175,7 @@ import ThingsToDoList from "./components/ThingsToDoList";
 import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
-import { creatorBoostFor } from "../lib/creatorBoost";
+import { creatorBoostFor, displayedWfScore } from "../lib/creatorBoost";
 // THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
 // six times in six subtly different expressions; the terms are still computed
 // here — faveTier/featuredBoost/curatedFor stay put because
@@ -9610,7 +9610,11 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // cardComplete above already refused rows with no rating signals at all, so
   // past this line a Score is always computable and always shown.
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
-  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(p.wfScore);
+  // v7.00 — creator evidence is now VISIBLE on the card, not just in the sort.
+  // displayedWfScore() inherits the 4.2*/30-review floor and the 15% cap and
+  // clamps at 100; see the comment at its declaration for why the clamp is the
+  // whole fix rather than a nicety.
+  const dispScore = SCORE_BADGE_OFF ? null : toDisplayScore(displayedWfScore(p));
   const cardInitials = String(p.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
   const cardCuisine = Dining.cuisineLabel(p);
   const cardShowsCuisine = (pcat === "Food" || pcat === "Nightlife") && cardCuisine;
