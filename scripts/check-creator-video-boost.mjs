@@ -20,10 +20,12 @@
 // class of bug: it looks shipped and does nothing.
 import { creatorVideosFor, videosByKey, allCreators, spotsByCity, libraryStats, PLATFORM } from "../lib/creatorVideos.js";
 import * as creatorBoost from "../lib/creatorBoost.js";
-import { creatorBoostFor, evidenceBoost, EVIDENCE_CAP_FRAC } from "../lib/creatorBoost.js";
-// The real ordering key the home list sorts on, so the invariant below is
-// asserted end to end rather than against a formula retyped into this file.
-import { driveDeduction } from "../lib/todaysBest.js";
+import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
+// THE GOVERNING LAW (owner, 2026-08-07): flat +7 for a video, flat −2 past 17
+// miles, shown == sorted. The reach curve and per-mile decay this file used
+// to lock are retired; the law's constants are asserted instead.
+import { governedWayfindScore, CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore.js";
+import { byVisibleScore } from "../lib/todaysBest.js";
 import { archetypeFor, summaryFor, ASSIGNMENTS } from "../lib/creatorArchetypes.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -76,75 +78,55 @@ ok(!/const VIDEO_BOOST\s*=/.test(HOME),
 // so the ranking sites call creatorBoostFor() directly. The INVARIANT is
 // unchanged and is what is asserted — the ranking sites still add a creator
 // term, and there are still at least five of them.
-const callSites = (HOME.match(/creatorBoostFor\(/g) || []).length;
-ok(callSites >= 5, `a creator term is applied at ${callSites} ranking sites (expected >= 5) — the home feed, holidays, merit sort and the two fit sorts`);
+// THE GOVERNING LAW replaced creatorBoostFor() at every home.js ranking site
+// (owner, 2026-08-07): the evidence term is the flat CREATOR_VIDEO_BONUS when
+// a video exists, visible in the chip, identical in the sort.
+const lawSites = (HOME.match(/hasCreatorVideoAt\(p\) \? CREATOR_VIDEO_BONUS : 0/g) || []).length;
+ok(lawSites >= 5, `the flat law term is applied at ${lawSites} ranking sites (expected >= 5) — the home feed, holidays, merit sort and the two fit sorts`);
+ok(!/creatorBoostFor\(/.test(HOME), "no home.js ranking site still uses the retired reach-curve boost — the law is flat +0.7, everywhere");
 ok(!/hasCreatorVideo\([^)]*\)\s*\?\s*VIDEO_BOOST/.test(HOME),
-   "no ranking site still applies the OLD flat, unfloored boost — a leftover one would rank a 3.7-star place off a creator video");
-ok(/function hasCreatorVideo\(p\)[\s\S]{0,600}creatorVideosFor\(p\)/.test(HOME), "hasCreatorVideo() (now the BADGE predicate) still resolves through creatorVideosFor()");
+   "no ranking site still applies the OLD flat, unfloored +45 — that number dwarfed the whole score spread");
+ok(/function hasCreatorVideo\(p\)[\s\S]{0,600}creatorVideosFor\(p\)/.test(HOME), "hasCreatorVideo() (the BADGE predicate) still resolves through creatorVideosFor()");
 ok(/\bhasCreatorVideo\(p\) \? \[\{ key: "creatorvideo"/.test(HOME), "…and it is what drives the visible badge, so a boosted place is never silently boosted");
 
-// ── 1b. THE FLOOR AND THE REACH SCALE ────────────────────────────────────────
-ok(creatorBoost.CREATOR_MIN_RATING >= 4 && creatorBoost.CREATOR_MIN_REVIEWS >= 20,
-   `the quality floor is real (${creatorBoost.CREATOR_MIN_RATING}★ / ${creatorBoost.CREATOR_MIN_REVIEWS} reviews) — a floor below 4 would not exclude anything the owner asked to exclude`);
-ok(creatorBoostFor({ id: "x", name: "n", rating: 3.7, reviews: 56 }) === 0, "a 3.7-star place is never moved by a creator video, even a curated one");
-ok(creatorBoostFor({ id: "x", name: "n", rating: 4.9, reviews: 15 }) === 0, "a 4.9-star place with 15 reviews is never moved — too few reviews to stand behind");
-ok(creatorBoostFor({ id: "x", name: "n", reviews: 5000 }) === 0, "an UNRATED place is never moved — the floor fails closed, it does not assume the best");
+// ── 1b. THE LAW'S ARITHMETIC, END TO END ────────────────────────────────────
+// Owner, verbatim (2026-08-07): "if there is an influencer video, I want that
+// to add a zero point seven… if the place is greater than seventeen miles
+// away, I want a zero point two deduction… it needs to be the governing rule
+// for the Wayfind score… everywhere that we're presenting options, it needs
+// to be ranked by the Wayfind score." On the 0–100 scale: +7 / −2 / shown ==
+// sorted. The 2026-08-06 reach curve and 4.2★ floor governed a ±45-class
+// boost; at a flat +7 the inversion they prevented cannot occur (7 < the
+// spread between a good place and a great one), and the owner's rule has no
+// carve-out — so the curve survives only as card metadata, never as rank.
+ok(CREATOR_VIDEO_BONUS === 7 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers: +0.7 video, −0.2 past 17 miles");
+ok(governedWayfindScore(90, { hasCreatorVideo: true }) === 97, "the owner's own example: a 9.0 with a video shows 9.7");
+ok(governedWayfindScore(92, { distanceMi: 20 }) === 90, "the owner's own example: a 9.2 past 17 miles shows 9.0");
+ok(governedWayfindScore(92, { distanceMi: 17 }) === 92, "17.0 exactly is not past 17 — strictly greater only");
+ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "an unrated place stays null — a video cannot invent a score");
+ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100 — toDisplayScore() nulls above it and the badge would vanish");
+ok(governedWayfindScore(96, { hasCreatorVideo: true, distanceMi: 40 }) === 100 && governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 40 }) === 95,
+   "both terms stack before the clamp: +7 then −2");
+// A video lifts a place above its own unboosted self, and the lift is visible:
+ok(governedWayfindScore(91, { hasCreatorVideo: true }) - governedWayfindScore(91, {}) === 7,
+   "a creator video lifts a place exactly +7 over its unboosted self — in the number the reader compares, not a hidden key");
+// An excellent unbacked place still cannot be inverted by a video on a much
+// weaker one — the flat +7 is smaller than the good-to-great spread:
+ok(governedWayfindScore(98, {}) > governedWayfindScore(80, { hasCreatorVideo: true }),
+   "a 9.8 with no video still beats an 8.0 with one — +0.7 re-orders near-peers, it never inverts classes");
+// End to end on the REAL list: byVisibleScore sorts by the governed number
+// and carries it on the row, so order can never disagree with the chip.
 {
-  const palmette = entries.find((e) => e.key === "palmette-tampa");
-  const riverwalk = entries.find((e) => e.key === "riverwalk-terrace-tampa");
-  ok(!!palmette && !!riverwalk, "the two sub-floor curated places are still CURATED — the floor governs rank, it does not delete the creator's work");
-  ok(creatorVideosFor({ id: palmette.pid, name: "x" }).length === 1, "…and Palmette still resolves its video for the place card");
-  ok(creatorBoostFor({ id: palmette.pid, name: "x", rating: 3.7, reviews: 56 }) === 0, "…while earning no rank boost at all");
+  const rows = [
+    { id: "far", rating: 4.9, reviews: 5000, distance_mi: 30, kind: "place" },
+    { id: "near", rating: 4.6, reviews: 3000, distance_mi: 5, kind: "place" },
+  ];
+  const sorted = byVisibleScore(rows);
+  const strictlyByGoverned = sorted.every((r, i) => i === 0 || (sorted[i - 1].governed_score ?? -Infinity) >= (r.governed_score ?? -Infinity));
+  ok(strictlyByGoverned, "byVisibleScore renders in governed-score order — the 2026-08-07 screenshot (a shown 9.2 below two shown 9.0s) is now a build failure");
 }
-{
-  // ── THE CURVE — asserted on RETURNED VALUES, not on constants ────────────
-  // Q = 91 is 4.6★ / 500 reviews through wayfindScore(), a real shape from the
-  // curated corpus rather than a number invented for the test.
-  const Q = 91;
-  const at = (r) => evidenceBoost(Q, r);
-  ok(at(11900) > at(2800) && at(2800) > at(650),
-     `more reach earns a bigger boost (650→+${at(650)}, 2800→+${at(2800)}, 11900→+${at(11900)}) — the owner's ask, and the thing a hard clamp at the cap would have destroyed`);
-  ok(at(0) > 0, "a video with no recorded reach still earns something, never nothing");
-  ok(at(10 ** 9) <= Math.ceil(EVIDENCE_CAP_FRAC * Q),
-     `the boost is capped at ${EVIDENCE_CAP_FRAC * 100}% of the place's OWN quality (+${at(10 ** 9)} against ${Q}) — a viral post cannot buy unbounded rank`);
-  ok(at(11900) - at(650) >= 4,
-     `the reach band still SPREADS (+${at(650)} → +${at(11900)}) — a bound that lands 650 likes and 11,900 likes on the same number is not a scale, it is a clamp`);
-
-  // ── BOUNDED RELATIVE TO QUALITY ──────────────────────────────────────────
-  ok(evidenceBoost(98, 10 ** 9) > evidenceBoost(80, 10 ** 9),
-     "a better place has more headroom than a floor-quality one — the ceiling is a share of quality, never a flat number");
-  ok(evidenceBoost(null, 10 ** 9) === 0 && evidenceBoost(0, 10 ** 9) === 0,
-     "an unrated place earns no evidence boost — 15% of nothing is nothing, and the floor already failed it closed");
-
-  // ── THE §0.1 INVARIANT, END TO END ON THE REAL ORDERING KEY ──────────────
-  // key = wayfindScore/10 − driveDeduction(mi) + boost/10   (lib/todaysBest.js)
-  const key = (q, mi, reach) => q / 10 - driveDeduction(mi) + (reach == null ? 0 : evidenceBoost(q, reach)) / 10;
-  ok(key(98, 1, null) > key(80, 1, 10 ** 9),
-     `an excellent place with no video outranks a floor-quality place with a viral one (${key(98, 1, null).toFixed(2)} vs ${key(80, 1, 10 ** 9).toFixed(2)}) — evidence re-orders the qualified set, it never inverts it`);
-  ok(key(98, 1, null) > key(80, 25, 10 ** 9),
-     `…and beats its 25-mile version comfortably (${key(98, 1, null).toFixed(2)} vs ${key(80, 25, 10 ** 9).toFixed(2)}) — distance now outweighs the evidence term, which it did not before v6.97`);
-  ok(key(91, 3, 650) > key(91, 3, null),
-     "a creator video still visibly lifts a place above its own unboosted self — this is bounded, not neutered");
-  ok(key(91, 3, 11900) > key(98, 3, null),
-     "…and a well-backed good place can still beat an unbacked better one — evidence has to be able to change the answer or it is decoration");
-}
-{
-  // THE HEAD CAP, at the exact numbers the owner chose.
-  const mk = (n, boosted) => Array.from({ length: n }, (_, i) => ({ i, boosted }));
-  const rows = [...mk(6, true), ...mk(6, false)].map((r, i) => ({ ...r, i }));
-  const capped = creatorBoost.capCreatorHead(rows, (r) => r.boosted);
-  const headBoosted = capped.slice(0, creatorBoost.CREATOR_HEAD).filter((r) => r.boosted).length;
-  ok(headBoosted === creatorBoost.CREATOR_HEAD_MAX,
-     `at most ${creatorBoost.CREATOR_HEAD_MAX} of the top ${creatorBoost.CREATOR_HEAD} are creator picks (got ${headBoosted}) — otherwise one creator owns the whole list`);
-  ok(capped.length === rows.length, "the cap DEMOTES, it never drops a place");
-  ok(capped.slice(0, 3).every((r) => r.boosted), "…and the creator picks that do make the head are the strongest ones, still at the very top");
-  const demotedAt = capped.findIndex((r, i) => i >= creatorBoost.CREATOR_HEAD && r.boosted);
-  ok(demotedAt === creatorBoost.CREATOR_HEAD, `a demoted pick lands immediately after the head (slot ${demotedAt + 1}), not at the bottom of the list`);
-}
-ok(/capCreatorHead\(/.test(readFileSync(path.join(REPO, "lib/todaysBest.js"), "utf8")),
-   "the ANSWER-FIRST list applies the head cap — that list leads the home page, so a cap only on the grid below it would be cosmetic");
-ok(/creatorBoostFor\(/.test(readFileSync(path.join(REPO, "lib/todaysBest.js"), "utf8")),
-   "…and applies the boost at all, which it did not before v6.96");
+ok(!/capCreatorHead\(/.test(readFileSync(path.join(REPO, "lib/todaysBest.js"), "utf8")),
+   "the answer-first list no longer reorders its head against the governed score — at a flat +7 the colonization the cap prevented cannot occur, and any head shuffle would break 'ranked by the Wayfind Score, everywhere'");
 
 // ── 2. ATTRIBUTION IS EXACT, AND ORDER-INDEPENDENT ───────────────────────────
 // Every entry with a placeId must resolve to ITS OWN videos even when the place
@@ -302,8 +284,14 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
   // Floor and cap are INHERITED from creatorBoostFor rather than restated.
   // Asserting them THROUGH the display path is what proves the inheritance is
   // real, instead of a comment claiming it.
-  ok(displayedWfScore(P(83, { rating: 4.0, reviews: 500 })) === 83, "a place below the 4.2-star floor is not lifted by the display path either");
-  ok(displayedWfScore(P(83, { rating: 4.9, reviews: 12 })) === 83, "…nor is a place below the 30-review floor");
+  // Under the 2026-08-07 law the flat +7 applies to ANY place with a video —
+  // the 4.2★ floor governed a ±45-class boost and has no role at +7. These
+  // synthetic places have no curated video, so they stay unchanged:
+  ok(displayedWfScore(P(83, { rating: 4.0, reviews: 500 })) === 83, "no curated video → no boost, whatever the rating");
+  ok(displayedWfScore(P(83, { rating: 4.9, reviews: 12 })) === 83, "…and review count alone never changes a displayed score");
+  // The law's distance term rides the same display path:
+  ok(displayedWfScore(P(90, { distMi: 20 })) === 88, "past 17 miles the DISPLAYED score carries the −2 — the deduction is in the chip, not hidden in a sort key");
+  ok(displayedWfScore(P(90, { distMi: 17 })) === 90, "17.0 exactly is not past 17");
 }
 
 console.log(`check-creator-video-boost: PASS (${pass} assertions)`);

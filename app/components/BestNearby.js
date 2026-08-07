@@ -367,7 +367,14 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // one that says "30" when the engine returned 12 is worse than both.
     const factors = "scored on reviews, distance and time of day";
     return {
-      lead: open === "todo" ? "Things to do near you," : "Open now near you,",
+      // HONESTY FIX (owner-reported 2026-08-07: Rocco's Tacos & Tequila Bar
+      // under "Open now" at 7am). Nothing in the engine checks opening hours —
+      // wf_best_picks filters permanently-closed status only — so the header
+      // must not claim "Open now" until an hours engine exists (scoped: hours
+      // column + open-now filter + freshness cron). "The best near you" is
+      // what the list actually is; the hour framing stays because the daypart
+      // fit is real.
+      lead: open === "todo" ? "Things to do near you," : "The best near you,",
       tail: "ranked for " + hourLabel(ctx.hour) + " " + ctx.dayName + ".",
       sub: (n ? n + " places " + factors : "Ranked " + factors) + " · no paid placement",
     };

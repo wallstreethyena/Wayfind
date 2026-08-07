@@ -273,7 +273,10 @@ ok(/personalize, setConsent, setTasteOpen, tasteVecState/.test(home) && /persona
 
 // The Score honesty lock STILL holds after activation.
 ok(!/toDisplayScore\([^)]*affinit|wayfindScore\([^)]*affinit/.test(home), "affinity STILL never feeds the Wayfind Score — re-rank uses the internal _ps only");
-ok(home.includes("displayed wfScore never changes"), "the ranking comment still asserts the visible Score is untouched");
+// 2026-08-07: the governing law REVERSED the old claim — the distance and
+// creator terms are now IN the displayed score (that is the whole law:
+// shown == sorted). The assertion flips accordingly.
+ok(home.includes("THE GOVERNING LAW") && !home.includes("displayed wfScore never changes"), "the ranking comment carries the governing law, not the retired 'display never changes' claim");
 
 console.log(`test-taste: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);

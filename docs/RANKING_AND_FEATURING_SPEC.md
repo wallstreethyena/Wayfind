@@ -97,6 +97,36 @@ it does not reimplement them.
 
 ---
 
+## 3-PRE. THE GOVERNING LAW — owner directive 2026-08-07, supersedes §3's proximityDecay and §4's evidence curve
+
+Verbatim: "If there is an influencer video, I want that to add a zero point
+seven to the score… if the place is greater than seventeen miles away, I want
+a zero point two deduction… It needs to be the governing rule for the Wayfind
+score… everywhere that we're presenting options, it needs to be ranked by the
+Wayfind score."
+
+Implementation (lib/wayfindScore.js `governedWayfindScore`, 0–100 scale):
+
+    governed = clamp(0..100, base + (creatorVideo ? +7 : 0) + (distanceMi > 17 ? −2 : 0))
+
+Rules of the law:
+1. **Shown == sorted.** The governed score is the chip AND the sort key on
+   every ranked surface. No hidden term may reorder against the visible
+   number (the 2026-08-07 Bradenton screenshot — a shown 9.2 below two shown
+   9.0s — is the defect class this ends; scripts/check-score-law.mjs and the
+   rewritten check-ranking-integrity make it a build failure).
+2. **Flat terms.** +0.7 for any curated creator video (the 2026-08-06 reach
+   curve survives only as card metadata); −0.2 strictly past 17 miles (the
+   per-mile decay is retired).
+3. **Null stays null.** An unrated place shows "Score pending", never a number.
+4. **Clamp at 10.0.** 9.9 + video renders 10.0, not a vanished badge.
+5. **Ties may diversify.** Variety/type-diversity may only reorder rows whose
+   governed scores are EQUAL.
+6. Featured/curated/taste terms on the personalised feeds remain additive
+   context per their own directives, but their evidence term is the flat +7
+   and their distance term is the flat −2 — no surface keeps a private
+   distance or evidence model.
+
 ## 3. Question B — the scoring function
 
 `lib/rankPlaces.js`. **One** exported entry point. Every surface calls it —

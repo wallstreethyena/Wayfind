@@ -41,9 +41,9 @@ const norm = (s) => s.replace(/\s+/g, "");
 // assertion becomes: neither may go back to declaring its own, and both must
 // honour the null contract, or the parity metric is once again ranking with a
 // formula the site does not use.
-ok(/import \{ wayfindScore \} from "\.\/wayfindScore\.js"/.test(landing),
+ok(/import \{ wayfindScore, governedWayfindScore \} from "\.\/wayfindScore\.js"/.test(landing),
   "lib/landing.js imports the shared Wayfind Score");
-ok(/import \{ wayfindScore \} from "\.\.\/lib\/wayfindScore\.js"/.test(parity),
+ok(/import \{ wayfindScore, governedWayfindScore \} from "\.\.\/lib\/wayfindScore\.js"/.test(parity),
   "scripts/census-parity.mjs imports the SAME shared Wayfind Score — a copy here is how the parity metric silently stops measuring the shipped ranker");
 ok(!/const wfScore = \(r, n\) =>/.test(landing) && !/const wfScore = \(r, n\) =>/.test(parity),
   "neither file declares its own copy of the formula any more");
@@ -51,10 +51,14 @@ ok(/q == null/.test(landing) && /q == null/.test(parity),
   "both branch on a null score — the parity ranker must drop unrated places the same way the site does");
 
 // ── 2. the distance penalty inside the _s expression ──────────────────────
-const penLanding = landing.match(/mi <= 4 \? 0 : Math\.min\(30, \(mi - 4\) \* 1\.3\)/);
-ok(!!penLanding, "lib/landing.js still applies the `mi <= 4 ? 0 : Math.min(30, (mi-4)*1.3)` distance penalty in the _s expression");
-const penParity = parity.match(/mi <= 4 \? 0 : Math\.min\(30, \(mi - 4\) \* 1\.3\)/);
-ok(!!penParity, "scripts/census-parity.mjs mirrors the same distance penalty");
+// THE GOVERNING LAW (2026-08-07): both sides rank through
+// governedWayfindScore — the flat law terms replaced the 1.3/mi model.
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p\)/.test(landing),
+  "lib/landing.js ranks through governedWayfindScore (the law: +7 video, −2 past 17mi)");
+ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p\)/.test(parity),
+  "scripts/census-parity.mjs mirrors the same governed call");
+ok(!/\(mi - 4\) \* 1\.3/.test(landing) && !/\(p\.distMi \|\| 0\) - 4\) \* 1\.3/.test(parity),
+  "neither side still carries the retired 1.3/mi model");
 
 // ── 3. the terms the _s expression is built from ──────────────────────────
 // If landing.js grows a NEW term, parity silently stops matching the shipped
@@ -66,7 +70,7 @@ ok(!!sExpr, "lib/landing.js still builds p._s inside rankedFor's pool.forEach");
 if (sExpr) {
   // Dotted call sites are captured whole ("CURATED_NAMES.has", not
   // "CURATED_NAMES"), so the allowlist must carry the exact captured form.
-  const known = ["wayfindScore", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
+  const known = ["wayfindScore", "governedWayfindScore", "hasCreatorVideoAt", "isFinite", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
   const calls = [...sExpr[1].matchAll(/([A-Za-z_$][A-Za-z0-9_$.]*)\s*\(/g)].map((m) => m[1]);
   const unknown = calls.filter((c) => !known.includes(c));
   ok(unknown.length === 0,

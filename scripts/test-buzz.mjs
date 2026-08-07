@@ -1,25 +1,34 @@
 // scripts/test-buzz.mjs — the Buzz hero + drive rule + hero-image monitor locks.
 import { readFileSync } from "fs";
 import { pickBestPhoto } from "../lib/heroImage.js";
-import { driveDeduction, byVisibleScore } from "../lib/todaysBest.js";
+import { byVisibleScore } from "../lib/todaysBest.js";
+import { governedWayfindScore, wayfindScore, CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore.js";
 let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
-// The owner's drive rule, exact numbers (17 free, -0.2 per started 5mi block)
-// RETUNED 2026-08-06 (docs/RANKING_AND_FEATURING_SPEC §3). The old rule —
-// -0.2 past 17mi, another -0.2 per 5-mile block — was measured against the
-// live engine and changed NO order: a 0.2 deduction against a 0.75 spread of
-// scores is noise, so "Best places to eat NEARBY" led with a 21.9-mile drive.
-// Now: free inside 5mi, then 0.12 per mile, capped at 3.0.
-ok(driveDeduction(5) === 0 && driveDeduction(3) === 0 && driveDeduction(NaN) === 0, "5mi or less / unknown: no deduction");
-ok(Math.abs(driveDeduction(10) - 0.6) < 1e-9 && Math.abs(driveDeduction(17) - 1.44) < 1e-9 && Math.abs(driveDeduction(22.1) - 2.052) < 1e-9, "0.12 per mile past the first 5");
-ok(driveDeduction(30) === 3.0 && driveDeduction(120) === 3.0, "capped at 3.0 — past ~30mi further distance stops mattering, it is already out of the running");
-ok(driveDeduction(21.9) > driveDeduction(10.4) + 1, "a 21.9mi drive is penalised more than a point beyond a 10.4mi one — the old rule separated them by 0.2 and led with the far one");
+// THE GOVERNING LAW (owner, 2026-08-07 — lib/wayfindScore.js). The per-mile
+// driveDeduction curve this file used to lock is retired: it was rank-only
+// and invisible, which is how a shown 9.2 rendered below two shown 9.0s
+// (owner's screenshot, Bradenton, 2026-08-07). The law: a creator video is a
+// flat +7 (0.7 shown), strictly-past-17-miles is a flat −2 (0.2 shown), the
+// number shown IS the number sorted, unrated stays null.
+ok(CREATOR_VIDEO_BONUS === 7 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers");
+ok(governedWayfindScore(90, {}) === 90, "no video, near: base untouched");
+ok(governedWayfindScore(90, { hasCreatorVideo: true }) === 97, "a 9.0 with a creator video shows 9.7 — the owner's own example");
+ok(governedWayfindScore(92, { distanceMi: 20 }) === 90, "a 9.2 past 17 miles shows 9.0 — the owner's own example");
+ok(governedWayfindScore(92, { distanceMi: 17 }) === 92, "17.0 miles exactly is NOT past 17 — strictly greater only");
+ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 30 }) === 95, "both terms stack: +7 then −2");
+ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100 so toDisplayScore never nulls a boosted great place");
+ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "unrated stays null — a video cannot invent a score");
+ok(governedWayfindScore(90, { distanceMi: null }) === 90 && governedWayfindScore(90, { distanceMi: NaN }) === 90, "unknown distance: no deduction (tours have no coords)");
+// Sort parity: byVisibleScore orders by the same governed number the chip
+// shows, and carries it on the row as governed_score.
 const near = { id: "a", rating: 4.6, reviews: 3000, distance_mi: 5, kind: "place" };
-const far = { id: "b", rating: 4.8, reviews: 5000, distance_mi: 30, kind: "place" };
-const sorted = byVisibleScore([far, near]);
-ok(sorted[0].id === "a", "a 4.8 thirty miles out ranks below a 4.6 nearby (drive rule)");
-ok(sorted.find((r) => r.id === "b").drive_deduction >= 0.4, "the deduction is carried for the card's honest why-note");
+const far = { id: "b", rating: 4.9, reviews: 5000, distance_mi: 30, kind: "place" };
+const sorted = byVisibleScore([near, far]);
+ok(sorted[0].id === "b", "past-17 costs exactly 2 points shown — a 9.6 thirty miles out still beats a 9.1 nearby, and the chip says so");
+ok(sorted.every((r) => r.governed_score === governedWayfindScore(wayfindScore(r.rating, r.reviews), { hasCreatorVideo: !!r.creator_video, distanceMi: isFinite(r.distance_mi) ? r.distance_mi : null })), "the sort key IS the governed displayed score, carried on the row");
+ok(sorted.find((r) => r.id === "b").drive_deduction === 0.2, "the flat deduction is carried for the card's honest why-note");
 const tour = { id: "t", rating: 5, reviews: 900, kind: "experience" }; // no coords
 ok(byVisibleScore([tour, near])[0].id === "t", "tours (no coords) take no deduction");
 
