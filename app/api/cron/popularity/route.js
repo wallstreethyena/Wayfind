@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // ≈ 400 places/day; TripAdvisor hard-capped (free tier is 5k calls/month,
 // 2 calls per place). CRON_SECRET-gated like /api/cron/cwv.
 import { createClient } from "@supabase/supabase-js";
-import { FETCHERS, sourcesFor, SOURCE_CAPS, CONFIDENCE_FLOOR } from "../../../../lib/popularity";
+import { FETCHERS, sourcesFor, SOURCE_CAPS, CONFIDENCE_FLOOR, POP_DIAG, resetPopDiag } from "../../../../lib/popularity";
 
 const BATCH = 100;
 const PARALLEL = 5;
@@ -28,6 +28,7 @@ export async function GET(req) {
   if (error || !Array.isArray(places)) return Response.json({ error: "batch failed" }, { status: 200 });
 
   const spent = {}; // per-source call budget used this run
+  resetPopDiag(); // per-run outcome tally — see lib/popularity POP_DIAG
   const stats = { places: places.length, upserts: 0, skipped_low_confidence: 0, skipped_no_data: 0, by_source: {} };
   const rows = [];
 
@@ -65,6 +66,6 @@ export async function GET(req) {
     if (!upErr) stats.upserts += Math.min(200, rows.length - k);
   }
 
-  try { console.log(JSON.stringify({ tag: "popularity_cron", ...stats })); } catch (e) {}
+  try { console.log(JSON.stringify({ tag: "popularity_cron", ...stats, outcomes: POP_DIAG })); } catch (e) {}
   return Response.json(stats, { status: 200 });
 }
