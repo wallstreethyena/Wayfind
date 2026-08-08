@@ -386,6 +386,189 @@ export const WF_PLACE_CARD_CSS = `
   .wf-place-card-layout>img{width:108px!important}
   .wf-place-card-name{font-size:17px!important}
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   THE RAIL (v7.02). Owner, 2026-08-08, with a screenshot of the /best-of
+   card: "this image is where the money is at... apply everything else
+   towards that style... the finds from local creators should also match
+   that style."
+
+   So a rail card is not a different card. It is THE place card above, at a
+   fixed width, snapping sideways. Everything in this block is width and
+   density — nothing here restyles the card's language, because the whole
+   point is that there is only one language. Two rails use it today (events,
+   creator finds); the hero swipe cards above "Happening near you" are
+   deliberately untouched (owner: "the hero cards, leave them").
+
+   WIDTH. 318px, not full width: the peek at the right edge is the only thing
+   that tells a reader the rail moves. Capped at 88vw so a 320px phone still
+   shows that peek instead of one card wider than the screen.
+   ───────────────────────────────────────────────────────────────────────── */
+.wf-rail{
+  display:flex;
+  align-items:stretch;
+  gap:10px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:4px;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.wf-rail::-webkit-scrollbar{display:none}
+.wf-rail>.wf-rail-card{
+  --wf-rail-card-w:318px;
+  flex:0 0 min(var(--wf-rail-card-w),88vw);
+  width:min(var(--wf-rail-card-w),88vw);
+  margin-bottom:0!important;
+  scroll-snap-align:start;
+}
+.wf-rail-card{display:flex;flex-direction:column;cursor:pointer}
+/* The EVENTS rail pins a floor equal to its tallest measured card (236px in
+   headless Chromium at 320–1440) so the skeleton and the live rail are the
+   SAME height at every width, not merely close. A floor, not a fixed height:
+   if content ever exceeds it the card grows instead of clipping its own
+   action row. EV_RAIL_MIN_H in app/home.js is this number — the two are
+   asserted together by scripts/test-event-rail-images.mjs. */
+.wf-rail-events>.wf-rail-card{min-height:236px}
+.wf-rail-card>.wf-place-card-layout{flex:1}
+.wf-rail-card .wf-place-card-content{padding:12px 12px 10px!important}
+/* Two reserved title lines. A rail of cards whose baselines stagger by one
+   line is the exact misalignment the owner reported on the creator row. */
+.wf-rail-card .wf-place-card-name{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  min-height:2.3em;
+  font-size:15px!important;
+  line-height:1.15!important;
+}
+/* One line each, clipped — a 318px column cannot afford a wrapped meta row or
+   a second row of chips without every card in the rail growing to match. */
+.wf-rail-card .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;gap:4px 10px!important;margin:7px 0 6px!important}
+.wf-rail-card .wf-place-card-highlights{flex-wrap:nowrap!important;overflow:hidden}
+.wf-rail-card .wf-place-card-award{margin-bottom:6px}
+/* The money action. Full width above the action row rather than a fifth
+   column in it: at this width five controls in one row leaves every one of
+   them too small to read, and this is the tap that earns the commission. */
+.wf-rail-card-cta{
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  margin-top:auto;
+  padding:0 12px;
+  border:1px solid rgba(249,115,22,.5);
+  border-radius:11px;
+  background:linear-gradient(180deg,rgba(249,115,22,.22),rgba(249,115,22,.07));
+  color:#FFB27A!important;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.2px;
+  text-decoration:none;
+  transition:border-color .18s ease,background .18s ease;
+}
+.wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
+.wf-rail-card .wf-place-card-actions{margin-top:auto!important;padding-top:8px}
+.wf-rail-card .wf-rail-card-cta~.wf-place-card-actions{margin-top:0!important;padding-top:6px}
+.wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(50px,1fr) 38px 38px minmax(56px,1fr);gap:5px!important}
+.wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:38px!important;min-width:38px!important;height:36px!important;min-height:36px!important;flex:0 0 38px}
+.wf-rail-card .wf-place-card-like svg,.wf-rail-card .wf-place-card-dislike svg{width:17px;height:17px}
+.wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{min-height:36px;padding:0 7px!important;font-size:10px!important}
+
+/* THE WHEN BADGE — the events counterpart to the Wayfind Score badge, and the
+   reason an event can wear this card honestly. The score box is the first
+   thing the eye lands on; an event has no score and must never be handed a
+   fabricated one, so the same 98x46 box carries the fact an event really has
+   and a reader really acts on. Geometry mirrors .wf-place-card-score's rules
+   above deliberately — the two are interchangeable in the layout. Tone is
+   derived from the event's own date (today / tomorrow / later), never picked
+   for effect. */
+.wf-rail-when{
+  --wf-when-color:#7FA6C8;
+  --wf-when-tint:rgba(127,166,200,.10);
+  --wf-when-border:rgba(127,166,200,.58);
+  --wf-when-glow:rgba(127,166,200,.16);
+  display:inline-flex;
+  align-items:stretch;
+  box-sizing:border-box;
+  width:98px;
+  min-width:98px;
+  height:46px;
+  overflow:hidden;
+  border:1.5px solid var(--wf-when-border);
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--wf-when-tint),transparent 68%),rgba(5,13,17,.92);
+  box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 11px var(--wf-when-glow);
+  line-height:1;
+}
+.wf-rail-when[data-when-tone="now"]{--wf-when-color:#FF6B18;--wf-when-tint:rgba(255,107,24,.13);--wf-when-border:rgba(255,107,24,.72);--wf-when-glow:rgba(255,107,24,.24)}
+.wf-rail-when[data-when-tone="soon"]{--wf-when-color:#F2C94C;--wf-when-tint:rgba(242,201,76,.12);--wf-when-border:rgba(242,201,76,.68);--wf-when-glow:rgba(242,201,76,.2)}
+.wf-rail-when-rail{
+  display:flex;
+  box-sizing:border-box;
+  width:24px;
+  flex-shrink:0;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(180deg,var(--wf-when-color),color-mix(in srgb,var(--wf-when-color) 72%,#071018));
+  color:#071018;
+  box-shadow:inset -1px 0 rgba(255,255,255,.12);
+}
+.wf-rail-when-rail svg{width:13px;height:13px}
+.wf-rail-when-body{display:flex;box-sizing:border-box;flex:1;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 5px;text-align:center}
+.wf-rail-when-label{width:100%;overflow:hidden;color:#B8C2D0;font-size:6.5px;font-weight:800;letter-spacing:.7px;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}
+.wf-rail-when-value{width:100%;color:#F8FAFC;font-size:13.5px;font-weight:800;line-height:.98;white-space:nowrap}
+
+/* The creator credential wears the award band, in the platform's own register
+   rather than the champagne reserved for a Wayfind curator's pick (that
+   meaning is protected by check-curator-boost.mjs and must not be diluted). */
+.wf-place-card-award.is-creator{border-color:rgba(244,114,182,.42);background:linear-gradient(110deg,rgba(244,114,182,.16),rgba(244,114,182,.03));color:#F9A8D4}
+.wf-place-card-award.is-creator .wf-place-card-award-icon{background:linear-gradient(145deg,#FDA4C8,#B83280);color:#2A0A18}
+
+/* SMALL PHONES. Measured in headless Chromium across 320–1440: at 320px the
+   four-control action grid overflowed its column by 27px and clipped Share.
+   The controls get tighter here rather than wrapping to a second row, because
+   a rail whose cards are one row taller on one device is a rail whose skeleton
+   height is wrong on that device. */
+@media(max-width:360px){
+  .wf-rail-card .wf-place-card-content{padding-inline:9px!important}
+  .wf-rail-card .wf-sheet-card-actions{grid-template-columns:minmax(42px,1fr) 34px 34px minmax(46px,1fr);gap:4px!important}
+  .wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:34px!important;min-width:34px!important;flex:0 0 34px}
+  .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{padding:0 5px!important;font-size:9.5px!important}
+}
+
+/* The "worth the drive" card at the end of the creator rail. Same footprint
+   and same border language as the cards beside it — an arrow tile half their
+   height reads as a broken last card rather than as an invitation. */
+.wf-rail-bridge{
+  display:flex;
+  flex:0 0 min(210px,62vw);
+  width:min(210px,62vw);
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:5px;
+  padding:16px 15px;
+  border:1px dashed rgba(159,177,203,.3);
+  border-radius:17px;
+  background:linear-gradient(145deg,rgba(255,255,255,.03),transparent 46%),#101724;
+  color:#F1F5F9;
+  cursor:pointer;
+  scroll-snap-align:start;
+  text-align:left;
+}
+.wf-rail-bridge:hover{border-color:rgba(249,115,22,.5)}
+.wf-rail-bridge-glyph{color:#F97316;font-size:22px;line-height:1}
+.wf-rail-bridge-title{font-size:13px;font-weight:750;line-height:1.2}
+.wf-rail-bridge-sub{color:#94A3B8;font-size:11px}
+
+@media(min-width:${WF_DESKTOP_BP}px){
+  .wf-rail{gap:12px}
+  .wf-rail>.wf-rail-card{--wf-rail-card-w:352px}
+  .wf-rail-card .wf-place-card-name{font-size:16px!important}
+}
 .wf-bottom-nav{
   padding:3px 4px 2px!important;
   gap:2px!important;

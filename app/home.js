@@ -51,7 +51,7 @@ import { commerceHref } from "../lib/commerce";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
-import { saveItem as saveMonetized } from "../lib/savedItems";
+import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
@@ -169,6 +169,9 @@ import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS } from ".
 // so the content guardrails still grep every curated name and note.
 import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND_FEATURED, CURATED_NOTES } from "./components/curatedData";
 import BestNearby from "./components/BestNearby";
+// v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
+// /best-of place card at rail width, not a second card shape. See RailCard.js.
+import RailCard from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import ThingsToDoList from "./components/ThingsToDoList";
@@ -2612,47 +2615,102 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
   );
 }
 
-function CompactEventShareCard({ event, relativeLabel, onCopied }) {
+// v7.02 — THE EVENT CARD IS NOW THE PLACE CARD (owner, 2026-08-08, with a
+// screenshot of the /best-of card: "this image is where the money is at...
+// apply everything else towards that style... I want that image leveraged as
+// the style for every card that we offer"). It renders through
+// components/RailCard.js, which IS the .wf-place-card contract — rank chip,
+// eyebrow, badge box, award band, chips, action row — so there is no second
+// card language on this page to drift.
+//
+// WHAT AN EVENT HONESTLY CARRIES, AND WHAT IT DOES NOT.
+//  • No Wayfind Score. Events are not rated places and one must never be
+//    invented for them, so the badge box holds the WHEN badge instead — the
+//    fact a reader actually acts on, in the same geometry.
+//  • The award band is the URGENCY band, and only when it is TRUE: gold for
+//    something starting today, silver tomorrow, bronze this weekend, nothing
+//    at all after that. It is derived from eventWhenLabel (the one clock),
+//    never from a claim about how good the event is — the app has no evidence
+//    for that and does not pretend to.
+//  • The chips are the event's real segment/genre plus a free-admission chip
+//    only when the source says ticketed === false. Tapping one opens the
+//    Events tab already filtered to that category, so a chip is a route, not
+//    decoration.
+//  • Save writes a real row (wf_saved_items, item_type "event") that shows up
+//    on the Saved tab; Share is the existing share sheet; the thumbs feed
+//    lib-local event preferences and a dislike genuinely removes the card.
+//    Nothing here is a button that does nothing.
+function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory }) {
   if (!event || !event.dest) return null;
   const f = formatEventDate(event.date, event.time);
   const seg = eventSegmentMeta(event.segment, event.genre, event.name);
+  const bucket = eventBucket(event);
   const internal = event.destKind === "internal";
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
-  const categoryImage = eventCategoryArt(eventBucket(event), event);
+  const categoryImage = eventCategoryArt(bucket, event);
   const railImage = (eventUseImage(event) ? event.image : "") || categoryImage;
-  const when = relativeLabel ? relativeLabel.toUpperCase() : (f.mo + " " + f.day);
-  const shareEvent = (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    try { logEvent("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
-    shareLink(
-      event.name + " — Wayfind",
-      href,
-      onCopied,
-      event.name + " at " + venue + ". Found on Wayfind."
-    );
+  const cta = eventCTA(event);
+  const tix = internal && event.url ? ticketUrl(event.url) : null;
+  // The badge: relative when the event is close enough that "Tonight" is more
+  // useful than a date, otherwise the real date. Tone is read off the same
+  // label — no separate clock, no second definition of "soon".
+  const rel = relativeLabel || "";
+  const relLower = rel.toLowerCase();
+  const tone = /tonight|today|this morning|this afternoon/.test(relLower) ? "now" : relLower === "tomorrow" ? "soon" : "later";
+  const when = {
+    tone,
+    label: rel ? rel.toUpperCase() : (f.wd || f.mo),
+    value: f.time || (rel ? "" : f.mo + " " + f.day),
   };
-  // v7.01 (owner, 2026-08-07): matched to the creator-finds cards — a photo on
-  // top, then the name and date BELOW it on the card background, same rounded
-  // thumbnail treatment, so the events rail and the creators rail read as one
-  // system. Was a photo-top-half + dark-info-panel-inside card. The share
-  // button, the internal/external href, the category-art fallback, and every
-  // logEvent are all preserved.
+  const awardTone = tone === "now" ? 1 : tone === "soon" ? 2 : relLower === "this weekend" ? 3 : null;
+  const award = awardTone ? { tone: awardTone, icon: "🎟️", label: "Happening " + relLower } : null;
+  const repeats = recurrenceLabel(event);
+  const isFree = event.ticketed === false || /^free$/i.test(String(event.price || "").trim());
+  const facts = [venue, isFree ? "Free" : event.price || null, repeats].filter(Boolean);
+  const chips = [
+    { key: "segment", icon: seg.icon, label: seg.short, onClick: onCategory ? () => onCategory(bucket) : null },
+    isFree ? { key: "free", icon: "🆓", label: "Free admission" } : null,
+  ].filter(Boolean).slice(0, 2);
+  const shareEvent = () => {
+    try { logEvent("share", null, { id: event.id, kind: "event_card" }); } catch (e) {}
+    shareLink(event.name + " — Wayfind", href, onCopied, event.name + " at " + venue + ". Found on Wayfind.");
+  };
   return (
-    <div className="wf-event-share-card" style={{ position: "relative", width: 156, flexShrink: 0, scrollSnapAlign: "start", textAlign: "left", background: "transparent" }}>
-      <a href={href} {...(internal ? {} : { target: "_blank", rel: "noreferrer" })} onClick={() => { try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {} }} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-        <span style={{ display: "block", width: "100%", height: 108, borderRadius: 12, overflow: "hidden", background: `linear-gradient(135deg,${seg.color}20 0%,#151C27 60%,#0B1018 100%)`, border: "1px solid rgba(148,163,184,.22)", position: "relative" }}>
-          {railImage ? <img src={railImage} data-fallback={eventUseImage(event) ? categoryImage : ""} alt="" loading="lazy" decoding="async" onError={(ev) => { const fallback = ev.currentTarget.dataset.fallback; if (fallback) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fallback; } else { ev.currentTarget.style.display = "none"; } }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "saturate(1.02) contrast(1.03) brightness(.86)" }} /> : null}
-          {!railImage ? <Icon name={seg.iconName || "ticket"} size={40} color={seg.color} strokeWidth={1.35} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", opacity: 0.5 }} /> : null}
-        </span>
-        <div style={{ marginTop: 6, color: "#F8FAFC", fontSize: 12.5, fontWeight: 800, lineHeight: 1.22, letterSpacing: "-.12px", minHeight: 31, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{event.name}</div>
-        <div style={{ marginTop: 3, color: relativeLabel ? C.accent : seg.color, fontSize: 10, lineHeight: 1, fontWeight: 850, letterSpacing: ".35px", textTransform: "uppercase", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {when}{f.time ? " · " + f.time : ""}
-        </div>
-      </a>
-      <button type="button" onClick={shareEvent} aria-label={"Share " + event.name} title="Share event" style={{ position: "absolute", zIndex: 3, top: 8, right: 8, width: 27, height: 27, borderRadius: 999, display: "grid", placeItems: "center", padding: 0, cursor: "pointer", color: "#E5EAF2", background: "rgba(7,11,17,.72)", border: "1px solid rgba(226,232,240,.25)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.08),0 5px 14px rgba(0,0,0,.28)" }}><Icon name="share" size={13} color="#E5EAF2" strokeWidth={1.8} /></button>
-    </div>
+    <RailCard
+      photo={railImage}
+      photoFallback={eventUseImage(event) ? categoryImage : ""}
+      title={event.name}
+      eyebrow={seg.short}
+      onEyebrow={onCategory ? () => onCategory(bucket) : null}
+      rank={rank}
+      when={when}
+      facts={facts}
+      award={award}
+      chips={chips}
+      ariaLabel={event.name + " — " + when.label}
+      href={href}
+      external={!internal}
+      onOpen={() => {
+        try { logEvent("event_open", null, { id: event.id, kind: event.destKind, src: "foryou_rail" }); } catch (e) {}
+        if (typeof window === "undefined") return;
+        if (internal) window.location.assign(href);
+        else window.open(href, "_blank", "noopener");
+      }}
+      cta={{
+        label: cta.show ? cta.label : "See event ↗",
+        href: tix || href,
+        external: !internal || !!tix,
+        onClick: () => { try { logEvent("ticket", null, { src: "rail_card", id: event.id }); } catch (e) {} },
+      }}
+      saved={saved}
+      liked={liked}
+      disliked={disliked}
+      onSave={onSave}
+      onLike={onLike}
+      onDislike={onDislike}
+      onShare={shareEvent}
+    />
   );
 }
 
@@ -2750,9 +2808,13 @@ function EventsRailSkeleton() {
         <DiscoveryHeroCard />
         <div className="wf-sk" aria-hidden="true" style={{ flexShrink: 0, width: "93%", height: EV_HERO_H, borderRadius: 18, scrollSnapAlign: "start" }} />
       </HeroRail>
-      <div aria-hidden="true" style={{ display: "flex", gap: 8, minHeight: EV_RAIL_MIN_H, paddingBottom: 4, overflow: "hidden" }}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} className="wf-sk" style={{ width: 156, height: EV_RAIL_MIN_H, borderRadius: 12, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+      {/* v7.02: the blocks match the live rail's own card width and radius
+          (.wf-rail / .wf-rail-card in css.js), so the skeleton -> live swap
+          moves nothing horizontally either — a same-height, wrong-width
+          skeleton still shifts every card beside it. */}
+      <div className="wf-rail wf-rail-events" aria-hidden="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
+        {[0, 1].map((i) => (
+          <div key={i} className="wf-sk" style={{ width: "min(318px,88vw)", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
         ))}
       </div>
     </div>
@@ -4024,6 +4086,57 @@ function PageInner({ initialEvents = null }) {
     const done = () => showToast("Code copied — show it at checkout");
     try { navigator.clipboard.writeText(code).then(done, () => { try { const ta = document.createElement("textarea"); ta.value = code; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); } catch (e) {} }); } catch (e) {}
   }
+  // ── v7.02: EVENT CARD ACTIONS ───────────────────────────────────────────
+  // The events rail now renders the place card, which carries Save / thumbs /
+  // Share. Those controls have to DO something on an event or they are worse
+  // than absent, and an event is not a place — routing it into `liked` /
+  // saved_places would push a non-place id into the member-like aggregate that
+  // feeds Ranking.memberDelta and quietly corrupt place ranking.
+  //
+  // So: Save writes the existing wf_saved_items row (item_type "event" — the
+  // same table the Saved tab already reads for experiences and deals, no
+  // migration needed, and signed-out taps go through requireAuth, which is the
+  // conversion this surface is best placed to earn). The thumbs are on-device
+  // preferences under their own key, and a dislike REMOVES the card from the
+  // rail — the visible consequence that makes the control honest.
+  const [savedEvents, setSavedEvents] = useState({});
+  const [eventSignals, setEventSignals] = useState({ liked: {}, disliked: {} });
+  function toggleEventSignal(ev, kind) {
+    if (!ev || !ev.id) return;
+    const other = kind === "liked" ? "disliked" : "liked";
+    setEventSignals((prev) => {
+      const on = prev[kind][ev.id] === true;
+      const next = {
+        liked: { ...prev.liked },
+        disliked: { ...prev.disliked },
+      };
+      if (on) delete next[kind][ev.id];
+      else { next[kind][ev.id] = true; delete next[other][ev.id]; }
+      try { localStorage.setItem("wf_event_signals", JSON.stringify(next)); } catch (e) {}
+      if (!on) { try { logEvent(kind === "liked" ? "event_like" : "event_dislike", null, { id: ev.id, bucket: eventBucket(ev) }); } catch (e) {} }
+      return next;
+    });
+    if (kind === "disliked" && eventSignals.disliked[ev.id] !== true) showToast("Got it — fewer events like this");
+  }
+  async function saveEventItem(ev) {
+    if (!ev || !ev.id) return;
+    if (savedEvents[ev.id]) return; // one-way from the card; the Saved tab owns removal
+    if (!requireAuth("Sign in to save this event and find it later on any device.")) return;
+    const internal = ev.destKind === "internal";
+    const okv = await saveMonetized(user.id, {
+      item_type: "event",
+      item_id: ev.id,
+      item_title: ev.name || "",
+      item_image: (eventUseImage(ev) ? ev.image : "") || eventCategoryArt(eventBucket(ev), ev) || null,
+      item_url: internal ? originUrl(ev.dest) : ticketUrl(ev.dest),
+      provider: ev.source || null,
+    });
+    if (okv) {
+      setSavedEvents((prev) => ({ ...prev, [ev.id]: true }));
+      try { logEvent("event_save", null, { id: ev.id, bucket: eventBucket(ev) }); } catch (e) {}
+    }
+    showToast(okv ? "Saved — it's on your Saved tab" : "Could not save — try again");
+  }
   const [dislikedItems, setDislikedItems] = useState({});
   const [sharedItems, setSharedItems] = useState({});
   const [sysFolder, setSysFolder] = useState(null);
@@ -4556,11 +4669,30 @@ function PageInner({ initialEvents = null }) {
     try { setLikedItems(JSON.parse(localStorage.getItem("wf_liked_items") || "{}")); } catch {}
     try { setSavedCoupons(JSON.parse(localStorage.getItem("wf_coupons") || "{}")); } catch {}
     couponWalletHydrated.current = true;
+    // v7.02: on-device event thumbs (see toggleEventSignal). Shape-checked on
+    // read so a hand-edited or half-written key cannot crash the first paint.
+    try { const es = JSON.parse(localStorage.getItem("wf_event_signals") || "{}"); setEventSignals({ liked: (es && es.liked) || {}, disliked: (es && es.disliked) || {} }); } catch {}
     try { setDislikedItems(JSON.parse(localStorage.getItem("wf_disliked_items") || "{}")); } catch {}
     try { setSharedItems(JSON.parse(localStorage.getItem("wf_shared_items") || "{}")); } catch {}
     try { setSignupDone(!!localStorage.getItem("wf_signed_up")); } catch {}
     try { setMyVotes(JSON.parse(localStorage.getItem("wf_drive_votes") || "{}")); } catch {}
   }, []);
+  // v7.02: the events rail's Save state is the SERVER's, not a local guess —
+  // a heart that resets on reload teaches the reader the save did not take.
+  // Declared here (not beside the state) because it reads `user`, which is
+  // declared further down; a dependency array referencing it earlier is a TDZ
+  // crash at render, not a lint nit.
+  useEffect(() => {
+    let dead = false;
+    if (!user) { setSavedEvents({}); return; }
+    fetchSavedItems(user.id).then((rows) => {
+      if (dead) return;
+      const next = {};
+      (rows || []).forEach((r) => { if (r && r.item_type === "event" && r.item_id) next[r.item_id] = true; });
+      setSavedEvents(next);
+    }, () => {});
+    return () => { dead = true; };
+  }, [user]);
 
   // A public intent route can clip a coupon before this app shell mounts.
   // Once an account session is available, mirror the local wallet into the
@@ -8527,7 +8659,7 @@ function PageInner({ initialEvents = null }) {
                   trends section — which is switched off. Computed, then discarded,
                   every render. Now it is lifted to `videoPlaces` above and BOTH
                   surfaces read the same array, so they can never disagree. */}
-              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
+              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
                   stranger has to solve"). SUPERSEDED in v6.62 — the owner asked for the
@@ -8635,11 +8767,15 @@ function PageInner({ initialEvents = null }) {
                 const relLabel = (e) => eventWhenLabel(e); // v6.13: time-aware — a 9:30 AM event is "This morning", never "Tonight"
                 const usable = evs.filter((e) => e && e.dest);
                 // v6.42 (owner, PERMANENT): hero = the soonest CONCERT; the rail
-                // runs sports -> comedy -> theater -> concerts; community NEVER
-                // appears here (lib/frontEvents, locked by test-front-events).
+                // runs the owner's chain (lib/frontEvents, locked by
+                // test-front-events). v7.02 added the leftover CONCERTS to that
+                // chain — see RAIL_CHAIN's comment for why they were the one
+                // category the home surface silently dropped.
                 const fp = frontPageEvents(usable, eventBucket);
                 const featured = fp.featured;
-                const rest = fp.rest.slice(0, 24);
+                // "Not for me" removes the card for real. A thumbs-down that
+                // leaves the row exactly where it was is a button that lies.
+                const rest = fp.rest.filter((e) => e && eventSignals.disliked[e.id] !== true).slice(0, 24);
                 return (
                   <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -8778,9 +8914,22 @@ function PageInner({ initialEvents = null }) {
                       );
                     })()}
                       {rest.length > 0 && (
-                      <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", minHeight: EV_RAIL_MIN_H, paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
-                        {rest.filter((e) => e && e.dest).map((e) => (
-                          <CompactEventShareCard key={e.id} event={e} relativeLabel={relLabel(e)} onCopied={() => showToast("Event link copied")} />
+                      <div className="wf-rail wf-rail-events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
+                        {rest.filter((e) => e && e.dest).map((e, i) => (
+                          <EventRailCard
+                            key={e.id}
+                            event={e}
+                            rank={i + 1}
+                            relativeLabel={relLabel(e)}
+                            saved={!!savedEvents[e.id]}
+                            liked={eventSignals.liked[e.id] === true}
+                            disliked={eventSignals.disliked[e.id] === true}
+                            onSave={() => saveEventItem(e)}
+                            onLike={() => toggleEventSignal(e, "liked")}
+                            onDislike={() => toggleEventSignal(e, "disliked")}
+                            onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
+                            onCopied={() => showToast("Event link copied")}
+                          />
                         ))}
                       </div>
                     )}
@@ -10171,7 +10320,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 158; // exact compact-event height (photo 108 + name/date below); skeleton/live swap stays shift-free
+const EV_RAIL_MIN_H = 236; // v7.02: the place card at rail width — the tallest card measured across 320–1440px, and the same number .wf-rail-events pins in css.js, so the skeleton/live swap is height-identical rather than merely close
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed

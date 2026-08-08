@@ -1,138 +1,227 @@
-// app/components/RailCard.js — the one card the homepage rails share (v6.67).
+"use client";
+// app/components/RailCard.js — the ONE card every homepage rail renders.
 //
 // WHY THIS EXISTS. The homepage grew three horizontal rails that each invented
 // their own card: CompactEventShareCard (156px wide, 108px photo band), the
-// CreatorFinds tile (132x96), and the full-width ranked row in BestNearby (a
-// 46px thumbnail beside text). Three shapes, three type treatments, three photo
-// sizes, stacked one above the other down a single screen. That is most of why
-// the page reads as assembled rather than designed.
+// CreatorFinds tile (132x96), and the full-width ranked row in BestNearby. Three
+// shapes, three type treatments, three photo sizes, stacked one above the other
+// down a single screen. That is most of why the page reads as assembled rather
+// than designed.
 //
-// THE OWNER'S BRIEF (2026-08-08, with screenshots) was precise about the fix:
-// take the INFORMATION from the /best-of ranked card — rank medallion, Wayfind
-// score, price, review count, a Book action — and put it in the SHAPE of the
-// event card — photo on top, text below, compact. The shape is not a downgrade,
-// it is the constraint: a full-width row cannot scroll sideways, and every rail
-// on this page scrolls sideways. So the vertical card is the only geometry that
-// serves all three, and the richer content is what raises it.
+// v6.67 answered that with a NEW vertical card (photo on top, text below) on the
+// reasoning that "a full-width row cannot scroll sideways". That component
+// shipped and was never mounted anywhere.
 //
-// GEOMETRY. 156px wide with a 108px photo band, adopted from
-// CompactEventShareCard rather than the 132x96 creator tile, because
-// scripts/test-event-rail-images.mjs pins those numbers ("height: 108,
-// borderRadius: 12") along with photo-above-name ordering, the 2-line title
-// clamp at minHeight 31, and a list of layouts that may never return (the
-// 94%-opaque scrim, the desaturation filter, the info-panel-inside-photo). Any
-// component that replaces that card inherits those assertions. Matching the
-// larger of the two sizes also means the creator row grows toward the events
-// row rather than the events row shrinking — photography is the asset here.
+// v7.02 REVERSES THAT CALL, on the owner's direction (2026-08-08, with a
+// screenshot of the /best-of card): "this image is where the money is at... find
+// where the design for these place cards is and apply everything else towards
+// that style. That is the money style and that is what Wayfind should be known
+// for. I want that image leveraged as the style for every card we offer — the
+// finds from local creators should also match that style."
 //
-// WHAT IS DELIBERATELY OPTIONAL. Every enrichment below is null-guarded, because
-// the three rails carry genuinely different data: an event has a date and no
-// score, a tour has a price and a duration, a place has a score and a distance.
-// The card renders what it is given and reserves no space for what it is not, so
-// one component can serve all three without any rail rendering an empty slot.
-import { C, RADII, WayfindScoreBadge } from "./kit";
+// So the rail card is no longer a second shape that merely borrows information
+// from the place card. It IS the place card: this component renders the exact
+// .wf-place-card DOM contract that app/home.js's PlaceCard and
+// components/IconicPlaceCard.js render, so every rule in WF_PLACE_CARD_CSS —
+// the orange hairline, the rank chip over the photo, the eyebrow with its
+// orange tick, the 98x46 badge box, the award band, the orange chip pills, the
+// action grid — applies to it with no second stylesheet to drift.
+//
+// The one thing a rail changes is WIDTH: the card is fixed-width and snaps, and
+// .wf-rail in css.js owns that. The sideways objection from v6.67 was real but
+// it was a width problem, not a shape problem.
+//
+// WHAT IS OPTIONAL, AND WHY THAT MATTERS. The rails carry genuinely different
+// data: a place has a Wayfind Score and a review count, an event has a start
+// time and no score at all. Every enrichment below is null-guarded and NOTHING
+// is invented to fill a slot — an event does not get a fabricated score, it gets
+// the `when` badge in the same box, which is a fact it really carries. That is
+// the same never-fabricate rule the rest of this codebase runs on.
+import { KB_CLICK, WayfindScoreBadge } from "./kit";
 
-// The rank medallion. Gold for 1, then a descending champagne wash. Kept small
-// (22px) because at 156px wide the photo is the hero and the rank is an accent —
-// the /best-of card can afford a 34px medal, a rail card cannot.
+// Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
+// this app rather than two that almost match.
+const ThumbIcon = ({ down = false }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {down
+      ? <><path d="M8 4v10H4V4h4Z" /><path d="M8 6h8.5a2 2 0 0 1 1.9 1.4l1.3 4a2 2 0 0 1-1.9 2.6H14l.6 3.1a2.4 2.4 0 0 1-2.4 2.9L8 14V6Z" /></>
+      : <><path d="M8 10v10H4V10h4Z" /><path d="M8 18h8.5a2 2 0 0 0 1.9-1.4l1.3-4a2 2 0 0 0-1.9-2.6H14l.6-3.1A2.4 2.4 0 0 0 12.2 4L8 10v8Z" /></>}
+  </svg>
+);
+
+// The WHEN badge — the events counterpart to WayfindScoreBadge, and the reason
+// an event card can wear the money card's layout honestly.
 //
-// NOTE: this is NOT the PICK medallion from home.js / ThingsToDoList.js. That one
-// is a champagne seal with a 6.5px engraved wordmark, locked by
-// scripts/check-pick-medallion.mjs against exactly this kind of well-meaning
-// duplication. Do not merge the two.
-function RankDot({ rank }) {
-  if (!rank || rank > 5) return null;
-  const gold = rank === 1;
+// The score box is the strongest element on the place card and the eye goes to
+// it first. An event has no score and must never be given one, so the same box
+// carries the one number an event really has and the one a reader actually acts
+// on: when it starts. Geometry (98x46, 24px colour rail, 6.5px kicker over a
+// large value) is copied from .wf-place-card-score's own rules in css.js rather
+// than re-invented, so the two badges are interchangeable in the layout.
+//
+// `tone` is derived from the event's real date, never chosen for effect:
+//   now   — starts today       soon — tomorrow        later — further out
+export function RailWhenBadge({ label, value, tone = "later" }) {
+  if (!label && !value) return null;
   return (
-    <span
-      aria-hidden="true"
-      style={{
-        position: "absolute", top: 7, left: 7, zIndex: 2,
-        width: 22, height: 22, borderRadius: "50%",
-        display: "grid", placeItems: "center",
-        background: gold ? "#E8C97A" : "rgba(8,11,17,.82)",
-        color: gold ? "#0D1117" : "#E8C97A",
-        border: gold ? "none" : "1px solid rgba(232,201,122,.5)",
-        fontSize: 11, fontWeight: 800, lineHeight: 1,
-        boxShadow: "0 4px 12px rgba(0,0,0,.45)",
-      }}
-    >{rank}</span>
+    <span className="wf-rail-when" data-when-tone={tone} aria-label={`Starts ${label}${value ? " at " + value : ""}`}>
+      <span className="wf-rail-when-rail" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 11h18" />
+        </svg>
+      </span>
+      <span className="wf-rail-when-body">
+        <span className="wf-rail-when-label">{label}</span>
+        {value ? <span className="wf-rail-when-value">{value}</span> : null}
+      </span>
+    </span>
   );
 }
 
+const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+
 /**
  * @param {object}   p
- * @param {string}   p.photo      image URL; a flat card colour shows through when absent
- * @param {string}   p.title      place / event / tour name (clamped to 2 lines)
- * @param {number}   p.rank       1-5, renders the medallion; omit for unranked rails
- * @param {number}   p.score      Wayfind score 0-10; omit for events (they have no score)
- * @param {string}   p.meta       the line under the title — "TONIGHT · 6:30 PM", "2,724 reviews"
- * @param {string}   p.metaColor  accent for that line; events use warm for tonight, blue for later
- * @param {number}   p.priceFrom  renders "from $59" in green
- * @param {string}   p.duration   "2h"
- * @param {string}   p.cta        "Book ↗" — omit and the card is a plain tap target
- * @param {string}   p.badge      small overlay label, e.g. the creator's platform
- * @param {func}     p.onClick
+ * @param {string}   p.photo       image URL; a monogram tile stands in when absent
+ * @param {string}   p.photoFallback second src tried once if `photo` fails to load
+ * @param {string}   p.title       place / event name (clamped to 2 lines by CSS)
+ * @param {string}   p.eyebrow     the small category line ("Sports", "Fine dining")
+ * @param {func}     p.onEyebrow   makes the eyebrow a real control; omit for a plain label
+ * @param {number}   p.rank        renders the rank chip over the photo
+ * @param {number}   p.score       Wayfind Score 0-10 — places only, never events
+ * @param {object}   p.when        { label, value, tone } — events only, never places
+ * @param {string[]} p.facts       meta row, middot-separated by CSS
+ * @param {object}   p.award       { icon, label, tone } tone: 1|2|3|creator
+ * @param {object[]} p.chips       [{ key, icon, label, onClick }] — onClick makes it a pill button
+ * @param {object}   p.cta         { label, href, external, onClick } the money action
+ * @param {func}     p.onOpen      card body activation (opens the sheet / the event)
+ * @param {string}   p.href        when the card body is a link rather than a handler
  */
-export default function RailCard({ photo, title, rank, score, meta, metaColor, priceFrom, duration, cta, badge, onClick, href }) {
-  const Tag = href ? "a" : "button";
+export default function RailCard({
+  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, cta,
+  onOpen, href, external, ariaLabel, className,
+  saved, liked, disliked, onSave, onLike, onDislike, onShare,
+}) {
+  if (!title) return null;
+  const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
+  const pills = Array.isArray(chips) ? chips.filter(Boolean) : [];
+  // The card body is the tap target; every control inside it stops propagation
+  // (same nested-interactive contract check-collection-look.mjs pins on
+  // IconicPlaceCard). role/tabIndex/KB_CLICK give it the keyboard path
+  // test-card-a11y.mjs requires of anything that opens a place.
   return (
-    <Tag
-      href={href || undefined}
-      onClick={onClick}
-      className="wf-rail-card"
-      style={{
-        position: "relative", width: 156, flexShrink: 0, scrollSnapAlign: "start",
-        textAlign: "left", background: "transparent", border: "none", padding: 0,
-        cursor: "pointer", textDecoration: "none", WebkitTapHighlightColor: "transparent",
+    <article
+      className={`wf-place-card wf-rail-card${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      role="button"
+      tabIndex={0}
+      onKeyDown={KB_CLICK}
+      onClick={(e) => {
+        const t = e && e.target;
+        // Same nested-interactive contract as IconicPlaceCard: a tap that
+        // landed on one of this card's own controls must not ALSO open the
+        // card. Deliberately not "[role='button']" — the card root carries
+        // that role itself, so closest() would match here and swallow every
+        // tap on the body.
+        if (t && typeof t.closest === "function" && t.closest("a,button,input,select,textarea")) return;
+        if (onOpen) onOpen(e);
+        else if (href && typeof window !== "undefined") { if (external) window.open(href, "_blank", "noopener"); else window.location.assign(href); }
       }}
+      aria-label={ariaLabel || title}
     >
-      {/* The photo band. width/height ATTRIBUTES as well as CSS: every image on
-          the homepage shipped without intrinsic dimensions, so each one popped
-          the layout as it decoded. */}
-      <span style={{ display: "block", position: "relative", width: 156, height: 108, borderRadius: 12, overflow: "hidden", background: C.card }}>
-        <RankDot rank={rank} />
-        {badge ? (
-          <span style={{ position: "absolute", top: 7, right: 7, zIndex: 2, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 10, fontWeight: 800, color: "#E7EDF5" }}>{badge}</span>
-        ) : null}
-        {photo ? (
-          <img
-            src={photo} alt="" loading="lazy" decoding="async" width={156} height={108}
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(1.02) contrast(1.03) brightness(.86)" }}
-          />
-        ) : null}
-        {/* The score sits ON the photo, bottom-left, rather than in the text
-            block. It is the one number that differentiates Wayfind from a
-            listings site, and below the fold of a 108px band it would compete
-            with the title. size:.8 keeps the badge's own proportions. */}
-        {score != null ? (
-          <span style={{ position: "absolute", left: 6, bottom: 6, zIndex: 2, filter: "drop-shadow(0 4px 10px rgba(0,0,0,.55))" }}>
-            <WayfindScoreBadge score={score} size={0.8} />
-          </span>
-        ) : null}
-      </span>
+      <div className="wf-place-card-layout">
+        {photo
+          ? <img
+              src={photo}
+              data-fallback={photoFallback || ""}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              onError={(ev) => {
+                const fb = ev.currentTarget.dataset.fallback;
+                if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
+                else { ev.currentTarget.style.visibility = "hidden"; }
+              }}
+              style={{ objectFit: "cover" }}
+            />
+          : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
+        <div className="wf-place-card-content" style={{ position: "relative" }}>
+          <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
+            {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
+            <div className="wf-place-card-heading">
+              {eyebrow ? (onEyebrow
+                ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{eyebrow} ›</button>
+                : <span className="wf-place-card-category">{eyebrow}</span>) : null}
+              <div className="wf-place-card-name">{title}</div>
+            </div>
+            {score != null
+              ? <div className="wf-place-card-score"><WayfindScoreBadge score={score} /></div>
+              : when ? <div className="wf-place-card-score"><RailWhenBadge {...when} /></div> : null}
+          </div>
 
-      {/* Title BELOW the photo, never over it — test-event-rail-images asserts
-          the ordering, and a title laid over photography is the single most
-          common way a card stops looking premium. minHeight reserves both lines
-          so a 1-line and a 2-line card do not stagger the rail's baseline. */}
-      <span style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", minHeight: 31, marginTop: 8, fontSize: 13, fontWeight: 700, lineHeight: 1.2, color: C.text }}>{title}</span>
+          {list.length ? (
+            <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+              {list.map((f) => <span key={f}>{f}</span>)}
+            </div>
+          ) : null}
 
-      {meta ? (
-        <span style={{ display: "block", marginTop: 3, fontSize: 11.5, fontWeight: 700, letterSpacing: ".2px", color: metaColor || C.muted }}>{meta}</span>
-      ) : null}
+          {award ? (
+            <div className={`wf-place-card-award is-${award.tone === "creator" ? "creator" : "rank-" + (award.tone || 1)}`}>
+              <span className="wf-place-card-award-icon" aria-hidden="true">{award.icon}</span>
+              <span>{award.label}</span>
+            </div>
+          ) : null}
 
-      {priceFrom != null || duration ? (
-        <span style={{ display: "block", marginTop: 3, fontSize: 11.5, color: C.muted }}>
-          {priceFrom != null ? <b style={{ color: C.green, fontWeight: 700 }}>from ${priceFrom}</b> : null}
-          {priceFrom != null && duration ? " · " : ""}
-          {duration || ""}
-        </span>
-      ) : null}
+          {pills.length ? (
+            <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
+              {pills.map((chip) => (chip.onClick
+                ? <button key={chip.key} type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); chip.onClick(e); }}>{chip.icon} {chip.label} ›</button>
+                : <span key={chip.key}>{chip.icon} {chip.label}</span>
+              ))}
+            </div>
+          ) : null}
 
-      {cta ? (
-        <span style={{ display: "inline-flex", marginTop: 7, background: C.accent, color: "#0D1117", borderRadius: RADII.chip, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{cta}</span>
-      ) : null}
-    </Tag>
+          {cta ? (
+            <a
+              className="wf-place-card-book wf-rail-card-cta"
+              href={cta.href || "#"}
+              {...(cta.external ? { target: "_blank", rel: "noreferrer" } : {})}
+              onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}
+            >{cta.label}</a>
+          ) : null}
+
+          <div className="wf-place-card-actions wf-sheet-card-actions">
+            <button
+              type="button"
+              className={"wf-place-card-save" + (saved ? " is-active" : "")}
+              aria-label={saved ? "Remove from saved: " + title : "Save " + title}
+              aria-pressed={!!saved}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onSave) onSave(e); }}
+            >{saved ? "♥ Saved" : "♡ Save"}</button>
+            <button
+              type="button"
+              className={"wf-place-card-like" + (liked ? " is-active" : "")}
+              aria-label={liked ? "Remove like: " + title : "Like " + title}
+              aria-pressed={!!liked}
+              title={liked ? "Remove like" : "Like this"}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onLike) onLike(e); }}
+            ><ThumbIcon /></button>
+            <button
+              type="button"
+              className={"wf-place-card-dislike" + (disliked ? " is-active" : "")}
+              aria-label={disliked ? "Remove dislike: " + title : "Not for me: " + title}
+              aria-pressed={!!disliked}
+              title={disliked ? "Remove dislike" : "Not for me"}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onDislike) onDislike(e); }}
+            ><ThumbIcon down /></button>
+            <button
+              type="button"
+              className="wf-place-card-share"
+              aria-label={"Share " + title}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (onShare) onShare(e); }}
+            >↗ Share</button>
+          </div>
+        </div>
+      </div>
+    </article>
   );
 }

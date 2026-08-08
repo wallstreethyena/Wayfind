@@ -34,6 +34,54 @@ import { useEffect, useState } from "react";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
+// v7.02: the row renders the canonical place card (see RailCard.js). The chip
+// source is IconicPlaceCard's experienceTags — the portable, evidence-bound
+// adaptation of home.js's experienceBadges that check-collection-look.mjs
+// already pins — rather than a fourth copy of the same badge logic.
+import RailCard from "./RailCard";
+import { experienceTags } from "./IconicPlaceCard";
+import { coarseCat } from "../../lib/ranking";
+import { toDisplayScore } from "../../lib/score";
+import { wayfindScore } from "../../lib/google";
+import { priceLabel } from "../../lib/price";
+import { businessStatus } from "../../lib/businessStatus";
+
+const compactCount = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
+
+// Same law as IconicPlaceCard: prefer the governed score the row was actually
+// ranked by, so the badge can never disagree with the card's position.
+function cardScore(p) {
+  if (!p) return null;
+  return toDisplayScore(Number.isFinite(p.governed_score) ? p.governed_score : p.wfScore != null ? p.wfScore : wayfindScore(p.rating, p.reviews));
+}
+
+// NO DISTANCE HERE, deliberately — the /best-of card's facts row prints one and
+// this row must not. Two different kinds of card share this row: pool rows carry
+// a measured distance, registry-hydrated rows carry a CITY CENTROID that
+// lib/creatorVideos.js promises is used for sorting and "never shown to a user."
+// One facts row cannot tell them apart at render time, so neither gets one
+// rather than one of them claiming a precision the data cannot back up.
+// check-home-answer-first.mjs asserts this file assembles no distance string.
+function cardFacts(p) {
+  if (!p) return [];
+  const status = businessStatus({ ...p, oh: p.oh || p.regularOpeningHours || null, utcOffset: p.utcOffset != null ? p.utcOffset : p.utcOffsetMinutes });
+  const state = status.open === true ? "Open" : status.open === false ? "Closed" : null;
+  return [
+    p.reviews ? compactCount(p.reviews) + " reviews" : null,
+    priceLabel(p.priceLevel != null ? p.priceLevel : p.price_level != null ? p.price_level : p.priceNum),
+    state,
+  ].filter(Boolean);
+}
+
+// Two chips, because a 318px card fits two. The creator video leads (it is why
+// this row exists), then the strongest evidence-bound experience tag.
+function creatorChips(p, onExperience) {
+  const tags = experienceTags(p, 1);
+  return [
+    { key: "creatorvideo", icon: "🎬", label: "Creator video", onClick: onExperience ? () => onExperience("creatorvideo", p) : null },
+    ...tags.map((t) => ({ key: t.key, icon: t.icon, label: t.label, onClick: onExperience ? () => onExperience(t.key, p) : null })),
+  ].slice(0, 2);
+}
 
 // Cross-render cache so a scouted spot's resolved photo survives re-renders and
 // tab returns without re-hitting the search endpoint. Keyed by name|city.
@@ -66,7 +114,7 @@ async function resolveScoutedPhoto(name, city, center) {
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots };
 
-export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog }) {
+export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience }) {
   const rows = orderFinds(items).slice(0, CREATOR_FINDS_MAX);
   const bridge = bridgeCity(byCity, rows.length);
   // 2026-08-07 (owner: "I don't see creators on Sarasota"). When the loaded
@@ -109,57 +157,73 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   return (
     <section aria-label="Finds from local creators" style={{ marginBottom: 12 }}>
       <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 10, overflowX: "auto", paddingBottom: 4, WebkitOverflowScrolling: "touch" }}>
+      {/* v7.02 (owner, 2026-08-08): "in reality the finds from local creators
+          should also match that style" — the 132x96 tile is gone and these are
+          the /best-of place card at rail width, rendered through the SAME
+          RailCard every other rail uses. What each card is allowed to say is
+          unchanged: the place's OWN photo (never the creator's video
+          thumbnail — CREATOR_VIDEO_SPEC.md's never-re-host rule), the real
+          handle, the real platform, and the real Wayfind Score. The rank is
+          orderFinds()'s own ordering, which is a genuine ranking (nearest
+          band, then the places the creator boost actually moved, then score),
+          so a number on this card means something. */}
+      <div className="wf-rail" tabIndex={0} role="region" aria-label="Finds from local creators">
         {rows.map(({ p, videos }, i) => {
           const v = (videos || [])[0];
           const plat = v && PLATFORM[v.platform];
+          const open = () => { try { onLog && onLog("creator_find_open", { id: p.id, name: p.name }, { pos: i, creator: (v && v.creator) || null }); } catch (e) {} if (onOpenPlace) onOpenPlace(p); };
           return (
-            <button key={p.id} onClick={() => { try { onLog && onLog("creator_find_open", { id: p.id, name: p.name }, { pos: i, creator: (v && v.creator) || null }); } catch (e) {} if (onOpenPlace) onOpenPlace(p); }}
-              style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-              <span style={{ display: "block", width: 132, height: 96, borderRadius: 11, overflow: "hidden", background: C.card, position: "relative" }}>
-                {p.photo ? <img src={p.photo} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                {plat ? (
-                  <span style={{ position: "absolute", top: 6, left: 6, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 9.5, fontWeight: 800, color: plat.color }}>
-                    <span style={{ width: 5, height: 5, borderRadius: 3, background: plat.color, display: "inline-block" }} />{plat.label}
-                  </span>
-                ) : null}
-              </span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28, minHeight: 32, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.name}</span>
-              {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}
-            </button>
+            <RailCard
+              key={p.id}
+              photo={p.photo || null}
+              title={p.name}
+              eyebrow={coarseCat(p) || p.primaryType || "Local find"}
+              rank={i + 1}
+              score={cardScore(p)}
+              facts={cardFacts(p)}
+              award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
+              chips={creatorChips(p, onExperience)}
+              ariaLabel={"Open " + p.name}
+              onOpen={open}
+              saved={isSaved ? !!isSaved(p.id) : false}
+              liked={liked ? !!liked[p.id] : false}
+              disliked={disliked ? !!disliked[p.id] : false}
+              onSave={(e) => { if (onSave) onSave(e, p); }}
+              onLike={(e) => { if (onLike) onLike(e, p); }}
+              onDislike={(e) => { if (onDislike) onDislike(e, p); }}
+              onShare={() => { if (onShare) onShare(p); }}
+            />
           );
         })}
         {/* Registry-hydrated cards when the pool surfaced nothing: the city's
-            actual scouted spots, name + creator + platform, photoless for now.
-            Tapping opens the browse sheet where the reel plays. */}
+            actual scouted spots, name + creator + platform. These rows come
+            from the registry, not the ranked pool, so they carry NO score and
+            NO review count — and the card simply omits both rather than
+            inventing them. Tapping opens the browse sheet where the reel
+            plays. */}
         {scouted.map((s, i) => {
           const v = s && s.video;
           const plat = v && PLATFORM[v.platform];
           return (
-            <button key={s.key || i} onClick={() => { try { onLog && onLog("creator_find_open", { id: s.key, name: s.name }, { pos: i, creator: (v && v.creator) || null, hydrated: "registry" }); } catch (e) {} if (onBrowse) onBrowse(); }}
-              style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-              <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}`, position: "relative", overflow: "hidden" }}>
-                {scoutedPhotos[s.key] ? <img src={scoutedPhotos[s.key]} alt="" loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
-                {plat ? (
-                  <span style={{ position: "absolute", top: 6, left: 6, zIndex: 1, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 6px", borderRadius: 6, background: "rgba(0,0,0,.62)", fontSize: 9.5, fontWeight: 800, color: plat.color }}>
-                    <span style={{ width: 5, height: 5, borderRadius: 3, background: plat.color, display: "inline-block" }} />{plat.label}
-                  </span>
-                ) : null}
-                {!scoutedPhotos[s.key] ? <span aria-hidden="true" style={{ fontSize: 26, lineHeight: 1, opacity: 0.5 }}>📍</span> : null}
-              </span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28, minHeight: 32, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{s.name}</span>
-              {v && v.creator ? <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>@{v.creator}</span> : null}
-            </button>
+            <RailCard
+              key={s.key || i}
+              photo={scoutedPhotos[s.key] || null}
+              title={s.name}
+              eyebrow={s.city ? "Scouted in " + s.city : "Scouted"}
+              facts={[s.city || null].filter(Boolean)}
+              award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
+              chips={[{ key: "video", icon: "🎬", label: "Creator video", onClick: () => { if (onBrowse) onBrowse(); } }]}
+              ariaLabel={"Open " + s.name}
+              onOpen={() => { try { onLog && onLog("creator_find_open", { id: s.key, name: s.name }, { pos: i, creator: (v && v.creator) || null, hydrated: "registry" }); } catch (e) {} if (onBrowse) onBrowse(); }}
+              onShare={() => { if (onBrowse) onBrowse(); }}
+            />
           );
         })}
         {bridge && !scouted.length ? (
-          <button onClick={() => { try { onLog && onLog("creator_find_bridge_open", null, { city: bridge.city, spots: bridge.count, local: rows.length }); } catch (e) {} if (onBrowse) onBrowse(); }}
-            style={{ flexShrink: 0, width: 132, textAlign: "left", background: "transparent", border: "none", padding: 0, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-            <span style={{ display: "flex", width: 132, height: 96, borderRadius: 11, alignItems: "center", justifyContent: "center", background: C.card, border: `1px solid ${C.border}` }}>
-              <span aria-hidden="true" style={{ fontSize: 22, color: C.accent, lineHeight: 1 }}>→</span>
-            </span>
-            <span style={{ display: "block", fontSize: 12.5, fontWeight: 700, color: C.text, marginTop: 6, lineHeight: 1.28 }}>More finds in {bridge.city}</span>
-            <span style={{ display: "block", fontSize: 11, color: C.muted, marginTop: 2 }}>{bridge.count} spots scouted</span>
+          <button className="wf-rail-bridge" onClick={() => { try { onLog && onLog("creator_find_bridge_open", null, { city: bridge.city, spots: bridge.count, local: rows.length }); } catch (e) {} if (onBrowse) onBrowse(); }}>
+            <span aria-hidden="true" className="wf-rail-bridge-glyph">→</span>
+            <span className="wf-rail-bridge-title">More finds in {bridge.city}</span>
+            <span className="wf-rail-bridge-sub">{bridge.count} spots scouted</span>
           </button>
         ) : null}
       </div>
