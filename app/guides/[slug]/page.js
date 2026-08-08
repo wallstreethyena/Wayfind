@@ -44,7 +44,15 @@ async function inventorySocial(placeName) {
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
   const anon = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
   const name = String(placeName || "").trim();
-  if (!url || !anon || !name) return false;
+  // 2026-08-08 root cause of the "[guide] social proof" log spam the owner
+  // screenshotted: the land-script worktrees run `next build` WITHOUT
+  // .env.local, so every guide prerender took this path and the caller
+  // logged it as a FAILURE. A missing key is a configuration state (envAudit
+  // doctrine: absent = feature off), not a degraded lookup — return a
+  // distinct sentinel so the caller can log it quietly, once, and keep the
+  // loud console.error for lookups that fail WITH keys present.
+  if (!url || !anon) return "unconfigured";
+  if (!name) return false;
   // The CTA's `place` can be a merchant string with qualifiers ("Gecko's Grill &
   // Pub — all locations"); match on the leading segment before punctuation.
   const stem = name.split(/[—,(]/)[0].trim().slice(0, 40);
@@ -270,7 +278,11 @@ export default async function GuidePage({ params }) {
   // "unavailable" rather than folded into "no-match".
   if (primaryCta && primaryCta.place) {
     const hit = await inventorySocial(primaryCta.place);
-    if (hit === false) {
+    if (hit === "unconfigured") {
+      socialStatus = "unavailable";
+      // Expected in env-less builds (land-script worktrees); not an error.
+      console.log(`[guide] social proof: inventory source unconfigured (no Supabase env) — expected outside prod builds (${params.slug})`);
+    } else if (hit === false) {
       socialStatus = "unavailable";
       console.error(`[guide] social proof: inventory lookup failed for "${primaryCta.place}" (${params.slug})`);
     } else if (hit) {
@@ -283,6 +295,12 @@ export default async function GuidePage({ params }) {
     if (!LANDING_CITIES[cityKey]) {
       socialStatus = "unavailable";
       console.error(`[guide] social proof: no LANDING_CITIES entry for "${cityKey}" (${params.slug})`);
+    } else if (!(process.env.GOOGLE_MAPS_SERVER_KEY || "").trim()) {
+      // Same doctrine as above: rankedFor reaches Google Places; without the
+      // server key (env-less builds) a null is BY DESIGN, not degradation —
+      // don't page anyone about it.
+      socialStatus = "unavailable";
+      console.log(`[guide] social proof: Places server key unconfigured — rankedFor skipped, expected outside prod builds (${params.slug})`);
     } else {
       try {
         const rows = await rankedFor("things-to-do", cityKey, LANDING_CITIES[cityKey]);
