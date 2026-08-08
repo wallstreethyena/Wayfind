@@ -23,7 +23,7 @@
     },
     {
       "path": "/api/cron/popularity",
-      "schedule": "23 */6 * * *"
+      "schedule": "23 */2 * * *"
     },
     {
       "path": "/api/cron/beach-water",
