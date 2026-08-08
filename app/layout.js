@@ -1,5 +1,6 @@
 import Script from "next/script";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { fontVariables } from "./fonts";
 import { SITE_URL } from "../lib/site";
 import { GUIDES } from "../lib/guides";
 import { CULTURE } from "../lib/culture";
@@ -74,8 +75,13 @@ export default function RootLayout({ children }) {
     // the entire app up under Safari's translucent chrome. min-height:100dvh
     // keeps short document routes (/terms, a thin guide) filling the screen
     // while letting long ones scroll normally.
-    <html lang="en">
-      <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw" }}>
+    // v6.67: fontVariables puts --wf-display and --wf-sans in scope at the root, so
+    // every route inherits them — including the ones rendered outside the home shell
+    // (/guides, /events, /best-of). The body then names --wf-sans ONCE here; because
+    // font-family inherits and almost nothing in this tree sets it, that single
+    // declaration is what carries the brand face across the entire app. See app/fonts.js.
+    <html lang="en" className={fontVariables}>
+      <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
             forever, so shipped fixes never reach it (see the component's
             header for the 2026-08-07 incident). Renders nothing. */}
@@ -214,7 +220,7 @@ export default function RootLayout({ children }) {
             treatment ProofVeil already gives the SSR proof block above.
             Article routes are unaffected and render it normally. */}
         <FooterVeil>
-        <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+        <footer style={{ background: "#040810", borderTop: "1px solid #1F2937", padding: "28px 20px 40px", fontFamily: "var(--wf-sans)" }}>
           <div style={{ maxWidth: 880, margin: "0 auto" }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: "#94A3B8", margin: "0 0 6px" }}>Wayfind — find great things to do near you, right now</div>
             <p style={{ fontSize: 12.5, color: "#94A3B8", lineHeight: 1.6, margin: "0 0 18px" }}>Wayfind decides what's actually worth your time — restaurants, beaches, attractions, events and hidden gems ranked by who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement. Built in Florida, works anywhere.</p>

@@ -33,7 +33,7 @@ export function generateMetadata({ params }) {
 }
 
 const S = {
-  page: { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#050B14", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
+  page: { maxWidth: 1080, margin: "0 auto", padding: "0 18px 72px", background: "#050B14", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#2EC9A6" },
   h1: { fontSize: 30, lineHeight: 1.2, margin: "10px 0 8px", fontWeight: 800, color: "#FFFFFF" },
   sub: { fontSize: 16, color: "#8B949E", marginBottom: 22 },
@@ -103,7 +103,7 @@ export default async function CulturePage({ params }) {
       />
       <article id="local-edit" style={{ maxWidth: 860, margin: "0 auto" }}>
       <div style={{ ...S.kicker, marginBottom: 8 }}>The local edit</div>
-      <h2 style={{ ...S.h1, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 42, lineHeight: 1.05 }}>Arrive knowing what matters.</h2>
+      <h2 style={{ ...S.h1, fontFamily: "var(--wf-display)", fontSize: 42, lineHeight: 1.05 }}>Arrive knowing what matters.</h2>
       <p style={{ ...S.sub, maxWidth: 680 }}>Wayfind gives you the context a search result cannot: what deserves your time, what locals actually order, and the small details that make the day better.</p>
       <ExploreBridge city={bridgeCity} picks={bridgePicks} entryPage={"/culture/" + params.metro} pageType="culture" />
       <h2 style={S.h2}>Eat like a local</h2>

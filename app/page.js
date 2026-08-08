@@ -60,7 +60,7 @@ async function initialEventsForFirstPaint() {
 }
 
 const S = {
-  wrap: { maxWidth: 760, margin: "0 auto", padding: "26px 18px 6px", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.6 },
+  wrap: { maxWidth: 760, margin: "0 auto", padding: "26px 18px 6px", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.6 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#CBD5E1" },
   h2: { fontSize: 22, fontWeight: 800, color: "#FFFFFF", margin: "8px 0 4px" },
   sub: { fontSize: 13.5, color: "#8B949E", margin: "0 0 14px" },

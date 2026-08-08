@@ -25,7 +25,7 @@ export const metadata = {
 
 const ACCENT = "#F97316";
 const S = {
-  page: { maxWidth: 760, margin: "0 auto", padding: "28px 20px 70px", background: "#0D1117", color: "#E6EDF3", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif", lineHeight: 1.65 },
+  page: { maxWidth: 760, margin: "0 auto", padding: "28px 20px 70px", background: "#0D1117", color: "#E6EDF3", fontFamily: "var(--wf-sans)", lineHeight: 1.65 },
   back: { display: "inline-block", fontSize: 13, fontWeight: 700, color: "#8b93a1", textDecoration: "none", marginBottom: 18 },
   kicker: { fontSize: 12, fontWeight: 800, letterSpacing: 1.6, textTransform: "uppercase", color: ACCENT },
   h1: { fontSize: 36, lineHeight: 1.14, margin: "12px 0 16px", fontWeight: 850, letterSpacing: "-0.6px", color: "#FFFFFF" },

@@ -160,7 +160,7 @@ export default async function BeachesPage({ params }) {
   }
 
   return (
-    <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <style dangerouslySetInnerHTML={{ __html: BEACH_PREMIUM_CSS }} />
       <EditorialLandingHero

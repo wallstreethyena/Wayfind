@@ -59,7 +59,7 @@ export default function PlaceSharePage({ params, searchParams }) {
   const action = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : "";
   const target = "/?place=" + encodeURIComponent(id) + (action ? "&action=" + action : "");
   return (
-    <div style={{ minHeight: "100dvh", background: "#0D1117", color: "#F1F5F9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "system-ui, sans-serif", textAlign: "center", padding: "24px" }}>
+    <div style={{ minHeight: "100dvh", background: "#0D1117", color: "#F1F5F9", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "var(--wf-sans)", textAlign: "center", padding: "24px" }}>
       <ShareRedirect to={target} />
       <div style={{ fontSize: 28, fontWeight: 800, color: "#CBD5E1", letterSpacing: "1px", marginBottom: 14 }}>📍 WAYFIND</div>
       <div style={{ fontSize: 16, color: "#CBD5E1", marginBottom: 22 }}>Opening {t}…</div>

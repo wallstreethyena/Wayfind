@@ -272,7 +272,7 @@ export default async function CuisineListPage({ params }) {
   ];
 
   return (
-    <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" }}>
+    <main style={{ background: "#141a24", minHeight: "100vh", color: "#1e2430", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
 

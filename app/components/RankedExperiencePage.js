@@ -92,7 +92,7 @@ export default function RankedExperiencePage({
 }) {
   const title = titleBottom ? <>{titleTop}<br />{titleBottom}</> : titleTop;
   return (
-    <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <main style={{ background: C.bg, minHeight: "100vh", color: C.text, fontFamily: "var(--wf-sans)" }}>
       <style dangerouslySetInnerHTML={{ __html: editorialHeroCss("wf-intent-editorial") + WF_PLACE_CARD_CSS }} />
       <EditorialLandingHero
         prefix="wf-intent-editorial"
