@@ -321,3 +321,4 @@ node scripts/check-brand-pin.mjs
 node scripts/check-score-law.mjs
 node scripts/check-trend-signal.mjs
 node scripts/check-version-watch.mjs
+node scripts/check-partner-hook-collisions.mjs
