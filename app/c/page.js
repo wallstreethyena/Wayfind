@@ -57,7 +57,7 @@ export default function CouponSharePage({ searchParams }) {
   return (
     <>
       <ShareRedirect to={to} />
-      <div style={{ minHeight: "100vh", background: INK, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif", padding: "24px" }}>
+      <div style={{ minHeight: "100vh", background: INK, color: WHITE, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--wf-sans)", padding: "24px" }}>
         <div style={{ maxWidth: 440, width: "100%", textAlign: "center" }}>
           <div style={{ fontSize: 22, fontWeight: 800 }}>wayfind<span style={{ color: ORANGE }}>.</span></div>
           <div style={{ display: "inline-flex", marginTop: 20, background: ORANGE, color: INK, fontWeight: 800, fontSize: 14, padding: "8px 16px", borderRadius: 999 }}>🎟️ Coupon inside</div>

@@ -7,7 +7,7 @@ export const metadata = { alternates: { canonical: "https://www.gowayfind.com/te
   description: "The terms for using Wayfind.",
 };
 
-const wrap = { maxWidth: 760, margin: "0 auto", padding: "40px 22px 80px", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", lineHeight: 1.65, fontSize: 15 };
+const wrap = { maxWidth: 760, margin: "0 auto", padding: "40px 22px 80px", color: "#CBD5E1", fontFamily: "var(--wf-sans)", lineHeight: 1.65, fontSize: 15 };
 const h1 = { color: "#F1F5F9", fontSize: 28, fontWeight: 800, margin: "0 0 6px", letterSpacing: "-0.4px" };
 const h2 = { color: "#F1F5F9", fontSize: 18, fontWeight: 800, margin: "28px 0 8px" };
 const muted = { color: "#94A3B8", fontSize: 13 };

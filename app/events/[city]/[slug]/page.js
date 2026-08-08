@@ -127,7 +127,7 @@ async function EventListPage({ params }) {
     })),
   };
   return (
-    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
@@ -195,7 +195,7 @@ export default async function EventPage({ params }) {
   };
   const A = "#2EC9A6";
   return (
-    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ background: "#0D1117", minHeight: "100dvh", color: "#CBD5E1", fontFamily: "var(--wf-sans)" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "20px 20px 48px" }}>
         <a href="/events" style={{ color: A, fontWeight: 800, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>

@@ -207,7 +207,7 @@ export default function OrderInClient() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "var(--wf-sans)" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "18px 16px 60px" }}>
         <a href="/" style={{ color: C.muted, textDecoration: "none", fontSize: 13, fontWeight: 700 }}>← Wayfind</a>
 

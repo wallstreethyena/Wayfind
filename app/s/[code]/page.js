@@ -81,7 +81,7 @@ export default async function SharePage({ params, searchParams }) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "system-ui, sans-serif",
+        fontFamily: "var(--wf-sans)",
         textAlign: "center",
         padding: "24px",
       }}

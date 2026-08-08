@@ -82,7 +82,7 @@ export default async function Page({ params }) {
     <>
       <PaidLanding city={city} places={picks} />
       {/* Link walls and long-form SEO stay BELOW the interactive experience. */}
-      <div style={{ background: "#040810", color: "#94A3B8", padding: "0 16px 48px", fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" }}>
+      <div style={{ background: "#040810", color: "#94A3B8", padding: "0 16px 48px", fontFamily: "var(--wf-sans)" }}>
         <div style={{ maxWidth: 760, margin: "0 auto", fontSize: 13.5, lineHeight: 1.7 }}>
           <p style={{ margin: "0 0 8px" }}>
             <a href={`/things-to-do/${citySlug}`} style={{ color: "#F97316", fontWeight: 700, textDecoration: "none" }}>

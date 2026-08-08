@@ -43,7 +43,7 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 
 const S = {
   wrap: { margin: "17px 0 24px", padding: "16px 19px", background: "#F6EFE5", borderTop: "3px solid #D66320", borderRadius: 4, boxShadow: "0 16px 42px rgba(0,0,0,.15)" },
-  q: { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 22, fontWeight: 500, color: "#111B29", margin: 0, letterSpacing: "-0.35px" },
+  q: { fontFamily: "var(--wf-display)", fontSize: 22, fontWeight: 500, color: "#111B29", margin: 0, letterSpacing: "-0.35px" },
   chips: { display: "flex", gap: 7, overflowX: "auto", padding: "0 0 3px", WebkitOverflowScrolling: "touch" },
   chip: { flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", borderBottom: "1px solid #CFC4B6", padding: "7px 5px", color: "#263448", textDecoration: "none", fontSize: 12.5, fontWeight: 800, minHeight: 36 },
   pickHead: { fontSize: 10.5, fontWeight: 900, letterSpacing: "1.3px", textTransform: "uppercase", color: "#C85E1D", margin: "14px 0 7px" },

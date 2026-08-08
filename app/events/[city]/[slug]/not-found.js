@@ -3,7 +3,7 @@
 // with a real 404 status via notFound() — never a silent redirect to /.
 export default function EventNotFound() {
   return (
-    <div style={{ background: "#0D1117", minHeight: "60vh", color: "#CBD5E1", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", padding: "64px 24px", textAlign: "center" }}>
+    <div style={{ background: "#0D1117", minHeight: "60vh", color: "#CBD5E1", fontFamily: "var(--wf-sans)", padding: "64px 24px", textAlign: "center" }}>
       <div style={{ fontSize: 44, marginBottom: 14 }}>🎟️</div>
       <h1 style={{ fontSize: 22, fontWeight: 800, color: "#F1F5F9", margin: 0 }}>This event isn't listed anymore</h1>
       <p style={{ fontSize: 14, color: "#94A3B8", maxWidth: 420, margin: "10px auto 22px", lineHeight: 1.6 }}>
