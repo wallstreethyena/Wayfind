@@ -174,6 +174,18 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   ok(!plain.includes("🔥"), "whyLine on a plain row carries no flame");
 }
 
+// ── 2g. MAP + EXPERIENCE POOLS (2026-08-08, patch 5) ────────────────────────
+{
+  const mapSrc = readFileSync(path.resolve("app/components/screens/Map.js"), "utf8");
+  ok(/\+ \(q\.trending \? TRENDING_BONUS : 0\)/.test(mapSrc),
+    "the map's pin-selection score carries the disclosed trend term");
+  ok(/mp\.trending && mp\.trend_reason \?/.test(mapSrc), "the map preview card discloses the 🔥 reason");
+  ok(/p && p\.trending && p\.trend_reason/.test(mapSrc), "the map card chips render the unified flame (beach-only flame folded in)");
+  const HOME_SRC2 = readFileSync(path.resolve("app/home.js"), "utf8");
+  ok((HOME_SRC2.match(/await attachTrendSignals\(/g) || []).length >= 3,
+    "home decorates ALL its pools: the main pool + both experience fetch effects (count, not grep)");
+}
+
 // ── 3. Shown == sorted, end to end on the real list ─────────────────────────
 {
   const rows = [

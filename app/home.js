@@ -6022,6 +6022,12 @@ function PageInner({ initialEvents = null }) {
             }
           }
         } catch (e) {}
+        // 2026-08-08: decorate this vibe's pool with the unified trend signal
+        // BEFORE the final ranking, so sortFit's trend term and the card's 🔥
+        // disclosure read the same flag. The progressive _paint above ran
+        // without flags — consistently unflagged — and this final ranking
+        // replaces it. Fails soft.
+        try { await attachTrendSignals(raw, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] }); } catch (e) {}
         let results;
         if (exp.filter) {
           const passed = raw.filter(_vibePass);
@@ -6427,6 +6433,9 @@ function PageInner({ initialEvents = null }) {
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
         const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
+        // 2026-08-08: same decoration as the vibe screen above — the signal
+        // attaches before sortFit runs so rank and disclosure agree.
+        try { await attachTrendSignals(raw, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] }); } catch (e) {}
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
