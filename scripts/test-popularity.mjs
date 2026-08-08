@@ -28,7 +28,10 @@ ok(SOURCE_CAPS.tripadvisor <= 25, "tripadvisor per-run cap respects the 5k/month
 const lib = readFileSync(new URL("../lib/popularity.js", import.meta.url), "utf8");
 ok(/besttime[\s\S]{0,200}address/i.test(lib), "besttime absence is documented (needs addresses we do not store), not silent");
 ok(/ticketmaster\/predicthq — event demand/.test(lib), "event-demand sources documented as follow-ups, not faked");
-ok(lib.includes('typeof m.cand.popularity !== "number") return null'), "foursquare popularity is used only when the API returns it");
+ok(/typeof m\.cand\.popularity !== "number"\)\s*\{[^}]*return null/.test(lib), "foursquare popularity is used only when the API returns it (tier-gate intact through the 2026 dual-endpoint migration)");
+ok(lib.includes("places-api.foursquare.com/places/search") && lib.includes('"X-Places-Api-Version": "2025-06-17"'), "foursquare fetcher reaches the post-sunset Places API (legacy v3 died 2026-05-15 — the silent zero-rows root cause)");
+ok(lib.includes("r.fsq_place_id || r.fsq_id"), "both response generations parse (fsq_place_id new, fsq_id legacy)");
+ok(/export const POP_DIAG/.test(lib) && /notePop\(/.test(lib), "per-source outcome diagnostics exist — a dead source must name itself in the cron log");
 const route = readFileSync(new URL("../app/api/cron/popularity/route.js", import.meta.url), "utf8");
 ok(route.includes('auth !== "Bearer " + secret'), "cron is CRON_SECRET-gated");
 ok(route.includes("SUPABASE_SERVICE_ROLE_KEY"), "writes go through the service role");
