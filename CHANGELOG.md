@@ -1,3 +1,26 @@
+## v6.57 - Landing pages: every city, every card, the same four stock photos
+- THE BUG (owner-reported on /things-to-do/sarasota; source-read confirmed
+  site-wide): the SSR city landing pages (/things-to-do, /restaurants,
+  /beaches, /nightlife x [city] — all ~20 towns in LANDING_CITIES) never
+  fetch a Google Places photo (withPhotos is deliberately paid-route-only,
+  a cost decision — see lib/landing.js). With photoRef always null on these
+  routes, landingPhoto() fell back to ONE static image PER CATEGORY (4 files
+  total), rendered for the hero AND every place card. A visitor on any city's
+  page saw the same photo repeated 10-15 times down the list — and it's the
+  identical file every other city's page for that category also shows.
+- THE FIX: lib/stockPhoto.js — a free Pexels-backed photo pool, queried per
+  city + state + category ("Sarasota, FL beach coastline"), cached 21 days in
+  the shared server cache. lib/landing.js now cycles that pool by card index
+  for both the hero and every place card, so a page's cards differ from each
+  other AND from every other city's page. No PEXELS_API_KEY set, or a fetch
+  failure -> unchanged fail-soft fallback to the original single static image
+  (never a broken <img>, never a build failure).
+- SETUP: set PEXELS_API_KEY in Vercel (free, no cost ceiling, from
+  pexels.com/api) to turn this on in production. See .env.local.example.
+- LOCKED: scripts/check-landing-photos.mjs (in guards.txt) fails the build if
+  the dynamic photo pool is ever removed and the pages regress to one shared
+  static image.
+
 ## v6.41 - The map bill: paid Google loads now track intent, not page views
 - THE COST INCIDENT (owner-flagged; Google attributed charges to the Maps
   JavaScript API): the desktop sidebar mounted the REAL Google Map on every
