@@ -1,3 +1,23 @@
+## v6.66 - The perfect-score flame reaches the surfaces that print a bare number
+- Owner, on seeing the 10.0 chip on a tour card: "i like this, can you find more
+  places to put this in the website?"
+- WHY MOST SURFACES ALREADY HAD IT. v6.63 put the flame inside the two shared
+  score components — PlaceScoreChip and WayfindScoreBadge — so the home feed,
+  every ranked list, the intent pages, ThingsToDoList, the detail sheet and the
+  place cards all inherited it the moment it shipped. That is the whole return
+  on those components existing.
+- WHAT DID NOT INHERIT IT, and now does: two surfaces that print the score as a
+  bare number rather than through either component — the /best-beaches/[metro]
+  beach cards and the TourStrip tour cards.
+- AUDITED AND DELIBERATELY LEFT ALONE: lib/beaches.js's beachWhy() renders the
+  score inside a SENTENCE ("10.0/10 — the strongest rating-to-depth ratio…"),
+  where a flame reads as decoration rather than as a mark on a number. The OG
+  share-card route (app/api/og) prints "10.0 / 10" in a pill and is the highest-
+  leverage place of all for this — a perfect score on a shared link — but it
+  renders through Satori, which needs an emoji font registered or the glyph
+  comes out as tofu on every share image. Worth doing, needs the font work
+  first, and is not worth risking a broken share card to rush.
+
 ## v6.65 - The discovery rail moves to the top and takes the mood row's styling
 - POSITION (owner: "the menu did not go to the top like i asked you to"). v6.62
   moved the six-category icon row to the top, which answered an earlier

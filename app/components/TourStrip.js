@@ -28,6 +28,7 @@
 import { useEffect, useState } from "react";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
+import { isPerfectScore } from "../../lib/lawfulOrder";
 import { rankExperiences } from "../../lib/experiencesData";
 import { commerceHref } from "../../lib/commerce";
 
@@ -92,7 +93,7 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly }) {
             <div style={{ padding: "9px 11px 11px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: "#F1F5F9", lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginTop: 4 }}>
-                {t.rating > 0 && t.reviews > 0 ? <span style={{ fontSize: 13, fontWeight: 800, color: "#3ee08a" }}>{toDisplayScore(wayfindScore(t.rating, t.reviews))}</span> : <span style={{ fontSize: 10.5, fontWeight: 700, color: "#8B93A1" }}>New</span>}
+                {t.rating > 0 && t.reviews > 0 ? (() => { const s = toDisplayScore(wayfindScore(t.rating, t.reviews)); return <span style={{ fontSize: 13, fontWeight: 800, color: "#3ee08a" }}>{s}{isPerfectScore(s) ? " \u{1F525}" : ""}</span>; })() : <span style={{ fontSize: 10.5, fontWeight: 700, color: "#8B93A1" }}>New</span>}
                 <span style={{ fontSize: 11, color: "#8B93A1" }}>{t.fromPrice != null ? "from $" + t.fromPrice : ""}</span>
               </div>
               <div style={{ marginTop: 8, display: "inline-block", background: "#F97316", color: "#0D1117", borderRadius: 999, padding: "5px 12px", fontSize: 11, fontWeight: 800 }}>Book ↗</div>

@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { toDisplayScore } from "../../../lib/score";
+import { isPerfectScore } from "../../../lib/lawfulOrder";
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import { SITE_URL } from "../../../lib/site";
 import BeachPageClient, { BackControl } from "./parts";
@@ -201,7 +202,12 @@ export default async function BeachesPage({ params }) {
                   <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "14px 15px 13px" }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
                       <span style={{ fontSize: 21, fontWeight: 800, color: "#fff", textShadow: "0 1px 8px rgba(0,0,0,.75)", letterSpacing: "-0.4px" }}>{b.name}</span>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: C.green, textShadow: "0 1px 5px rgba(0,0,0,.7)" }}>{toDisplayScore(b.wf)}</span>
+                      {/* v6.66 — the perfect-score flame reaches the beach cards too (owner:
+                          "i like this, can you find more places to put this in the
+                          website"). This surface prints the score as a bare number
+                          rather than through PlaceScoreChip/WayfindScoreBadge, so it
+                          did not inherit the v6.63 treatment automatically. */}
+                      <span style={{ fontSize: 15, fontWeight: 800, color: C.green, textShadow: "0 1px 5px rgba(0,0,0,.7)" }}>{toDisplayScore(b.wf)}{isPerfectScore(b.wf) ? " \u{1F525}" : ""}</span>
                     </div>
                     {(() => { const bf = (BEST_FOR[params.metro] || {})[b.id] || null; return bf ? <div style={{ fontSize: 12.5, color: "rgba(255,255,255,.92)", marginTop: 3, textShadow: "0 1px 5px rgba(0,0,0,.75)" }}><span style={{ fontWeight: 800, color: C.gold }}>Best for: </span>{bf}</div> : null; })()}
                   </div>
