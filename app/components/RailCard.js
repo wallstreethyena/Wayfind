@@ -131,7 +131,7 @@ export default function RailCard({ photo, title, rank, score, meta, metaColor, p
       ) : null}
 
       {cta ? (
-        <span style={{ display: "inline-flex", marginTop: 7, background: C.accent, color: "#0D1117", borderRadius: RADII?.pill || 999, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{cta}</span>
+        <span style={{ display: "inline-flex", marginTop: 7, background: C.accent, color: "#0D1117", borderRadius: RADII.chip, padding: "6px 12px", fontSize: 11.5, fontWeight: 800 }}>{cta}</span>
       ) : null}
     </Tag>
   );
