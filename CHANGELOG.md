@@ -1,3 +1,143 @@
+## v6.64 - 12 new creator spots from @manateelittlelocals and @parrishfloridahomes
+- THE PROVENANCE, because it is unusual and load-bearing. The owner supplied
+  ~106 TikTok and Instagram links. Both platforms refuse automated fetching
+  (robots.txt ROBOTS_DISALLOWED), so the captions behind these entries were
+  read through the owner's OWN logged-in browser, and every placeId below was
+  then resolved by CALLING this app's own /api/places/search against the venue
+  the caption names. Nothing is inferred from a URL: a shortcode like
+  `DbtqB6zJ0RG` carries no venue, and a video pinned to the wrong business
+  would hand that business an unearned +0.7 on its Wayfind Score.
+- ADDED (12, all placeId-resolved, all PASS 1 exact-match): Gamble Creek Farms
+  (Parrish), Mote Science Education Aquarium (Sarasota), The Bishop Museum of
+  Science and Nature (Bradenton), Eleanors Coffee & Cakes (Palmetto), Heritage
+  Harbour Park (Bradenton), Northeast Venice Park (Nokomis), Lakewood Ranch
+  Library (Bradenton), ALEUR-Event Collective (Sarasota), JJ Fox's Treehouse
+  (Bradenton), Capybara Cafe (St. Petersburg), Hogan's Place (Gibsonton),
+  PopStroke (Sarasota). Three new CITY_COORDS centroids (Palmetto, Nokomis,
+  Gibsonton) — sorting only, never displayed, per that table's own contract.
+- DELIBERATELY NOT ADDED, and why, so the gaps are legible rather than silent:
+  a product/restock post with no venue; Pass-a-Grille Beach (resolves to a
+  NEIGHBORHOOD with no rating, so there is no Wayfind Score for the boost to
+  attach to); "Frankie's, an Italian deli in Southwest Florida" (resolves to
+  Riverview, which is Tampa — plausible is not verified); and Wildcore Club,
+  Whitney's and SkyBeach Resort (no unambiguous Google match). Each needs one
+  line from the owner naming the venue, then it lands.
+- RIGHTS: both creators added to CREATOR_CONSENT on the owner's attestation
+  ("i have agreement on all of them", 2026-08-08). The standing to-do in
+  lib/creatorRights.js is now three sessions old and is restated at the new
+  row: none of these attestations has an artefact behind it, and
+  @manateelittlelocals alone carries eleven places on one sentence, which is
+  the largest single-creator exposure in the file.
+- ARCHETYPES: @manateelittlelocals assigned family_creator, non-provisional —
+  every one of its spots is chosen through the same lens (does this work with
+  young kids, and what does it cost), including the two day-trip entries.
+  @parrishfloridahomes left provisional at one spot, with the note that a
+  realtor's incentive to feature a place is not a guide's.
+- The ~88 Instagram links are NOT in this release. They resolve to a different
+  set of creators than expected — @mayitakeabite (Miami), @estefani.ruizruiz
+  (Tampa/Orlando, Spanish-language) and @thefloridatribe — most of them
+  outside the Manatee/Sarasota footprint, and many are multi-venue round-ups
+  where one post names five restaurants. Both facts are product decisions
+  rather than data-entry ones, so they are the owner's to make.
+
+## v6.63 - THE GOVERNING LAW, enforced everywhere: shown == sorted
+- THE BUG (owner screenshot, 2026-08-08): on a Parrish café list, American
+  Honey Creamery rendered at rank 1 showing a chip of 9.3, and Ryan's Coffee
+  House rendered at rank 2 showing 10.0. Both numbers were correct. The order
+  was not. "i need that to be fixed globally on the entire website so that
+  when a place is ranked higher it will always be displayed on the top not
+  below."
+- ROOT CAUSE: the app carried TWO numbers per place. A DISPLAY score (the
+  governed Wayfind Score: base +0.7 creator video, −0.2 past 17 miles, +0.6
+  trending) and a separate, richer RANK score (weather fit, daypart, open-now,
+  per-mile drive decay, curated bonuses, personal affinity, commercial tier).
+  lib/rankPlaces.js stated the split in its own header — "ORDER-ONLY. The
+  Wayfind Score a reader SEES is never this number." That contract IS the bug:
+  a reader compares the two numbers printed on two cards, so a list ordered by
+  anything else is wrong on its face no matter how good the hidden model is.
+  An audit found the same defect on roughly forty surfaces.
+- THE FIX: a new lib/lawfulOrder.js establishes one rule — the governed score
+  is the PRIMARY key everywhere, and every contextual term (weather, daypart,
+  open-now, proximity, tier, affinity) survives ONLY as a tie-breaker between
+  rows showing the SAME number. Filters are untouched: the outdoor weather
+  gate still SUPPRESSES rows outright on a storm day, because removing a row
+  is not reordering it. Ties are the common case rather than the edge case on
+  a one-decimal scale, so context still decides a great deal of the order — it
+  just can never contradict the number on screen. The sort key is literally
+  the chip's own function (displayedWfScore / governed_score), so shown ==
+  sorted is true by construction rather than by two implementations agreeing.
+- SURFACES BROUGHT UNDER THE LAW: rankRows (every intent page — /best-of,
+  /hidden-gems, /tonight, /worth-the-drive, /budget, /nearby, /seasonal,
+  /family, /date-night — this is the page in the screenshot) and its client
+  re-sort in IntentPageClient, which was independently re-breaking the order
+  on every render; byTopRated (every "Top rated" sort in the app);
+  rankByConditions and rankForNow (the shared weather/daypart rankers behind
+  the hooks, curated tiles, cuisine and rainy-day sheets, the hero, and
+  ThingsToDoList); byPlaceScore (the personalised home feed and the holiday,
+  vibe and experience sheets); and the retrieval-layer pools in lib/google.js
+  and lib/sources.js, which are the DEFAULT order of the browse feed and the
+  home feed.
+- RETIRED, BY NAME: the 1.3-points-per-mile drive decay (capped at 30 on a
+  0–100 scale — more than four times the entire creator-video bonus, against a
+  chip that admits 0.2) in both lib/google.js and lib/sources.js; the v4.24
+  "near-first" reshuffle that pushed anything past 20 miles below everything
+  closer regardless of score; and the banded per-mile decay in rankRows.
+  Distance is now priced exactly once, visibly, at −0.2 past 17 miles.
+- PERFECT SCORE FLAME (owner: "when something is a 10 make sure to add the
+  fire emoji on it"): a governed 10.0 now renders 🔥 inside the score chip on
+  both chip components. It sits welded to the number so it stays distinct from
+  the trending 🔥, which renders as its own separate reason line beside the
+  chip; the accessible name says which is which.
+- GUARDS: check-score-law grew from 79 to 102 assertions. The gap that let
+  this ship was that it EXECUTED rankRows but only ever tested the trending
+  term — never creator-video, never distance, never monotonicity — so a guard
+  checking one of three terms blessed the other two. It now runs the owner's
+  own screenshot as a fixture, asserts rankRows stamps governed_score and
+  emits a non-increasing list, and executes all four shared comparators
+  against inversions that would previously have passed. Two older guards were
+  updated rather than defeated, and both are stated in full at the site:
+  test-top-rated's fixtures were on the /10 scale (harmless under a bare
+  subtraction, wrong once the 0–100 governed terms apply) and its
+  "distance never matters" premise predates the law that put a visible −0.2
+  inside the number; test-intent-pages asserted that the banded family decay
+  REORDERS, which on its own fixture is the exact inversion the owner
+  photographed — a guard pinning a 9.2 above a 9.4.
+
+## v6.62 - Category row moved to the top, button-fill reverted, ranked-list row jump fixed
+- CATEGORY ROW BACK TO THE TOP (owner: "add this to the top of the page"):
+  reverses v6.97's "categories move below the answer" call. The category row
+  (Food/Night out/Activities/Family/Stays/Shopping) is now the first thing on
+  the page again, same as before 2026-08-06. The ranked list (BestNearby)
+  is UNCHANGED and still leads over the events rail, hero card and discovery
+  grid — that ordering has real PostHog bounce-rate data behind it and the
+  owner explicitly chose to keep it when asked. Only the category row's
+  position relative to BestNearby/CreatorFinds changed. Updated
+  scripts/check-home-answer-first.mjs's ordering assertion to match
+  (iCats < iBestNearby < iFinds) rather than defeating or deleting it.
+- CATEGORY TILE BUTTON-FILL REVERTED (owner: "remove the button feel because
+  it does not look good"): the v6.60 resting-state background fill on each
+  category tile is gone — back to the original transparent/flat tiles. The
+  v6.90 halo + underline remain the only idle/active affordance.
+- RANKED-LIST ROW JUMP FIXED (owner: "this area jumps... like there is
+  something underneath and it has the old description"): BestNearby's Row
+  "why" line starts as the generic engine reasonLine() (up to 2 lines) before
+  /api/known-for resolves, then swaps to the shorter editorial hook (1 line,
+  nowrap). Both states show real text, but the swap SHRANK the block's actual
+  height, visibly resettling the row (and everything below it) once the
+  fetch landed. Fixed with a fixed minHeight reserving 2 lines' worth of
+  space in either state, so the swap is now a text change, not a layout
+  change. Also bumped the why-line's font size 12.5px -> 13.5px per the same
+  review ("the text bigger").
+- DISCOVERY RAIL ICON CHIPS (owner: "incorporate [the discovery rail] with
+  [the mood-pill rail], make it the best style for engagement"): each
+  discovery-rail tile's icon now sits in a small rounded chip with a subtle
+  warm gradient tint borrowed from BestNearby's "Right now" mood pill
+  (linear-gradient(160deg,#FDA60A,#FB3502)), at low opacity as a tint rather
+  than a solid fill — a full-strength fill on all 8 tiles would read as "all
+  8 are selected," which is what that gradient means everywhere else it
+  appears. Keeps the bordered-card rail identity while giving the icons some
+  of that same color warmth.
+
 ## v6.61 - Desktop footer disclosure was hidden behind the floating bottom nav
 - THE BUG: at desktop widths the "Wayfind may earn a commission..." footer
   disclosure sat partly behind the floating bottom nav. The 96px bottom
