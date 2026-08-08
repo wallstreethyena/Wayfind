@@ -33,6 +33,7 @@ import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { wayfindScore } from "../../lib/google";
+import { attachTrendSignals } from "../../lib/trendSignal";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
 
@@ -226,7 +227,12 @@ export default function IntentPageClient({ intent }) {
       // it applies the outdoor suppression gate, the per-bucket reweight, and
       // the open-now / minutes-to-close multiplier. `timeless` pages (/best-of)
       // pass null and keep the pure-quality order their copy promises.
-      const ranked = rankRows(results.flat(), def.floor, {
+      // 2026-08-07: the unified trend signal decorates rows BEFORE ranking so
+      // rankRows' trending term (+0.6, disclosed on the card) can apply. Fails
+      // soft — no popularity rows, no term.
+      const flatRows = results.flat();
+      try { await attachTrendSignals(flatRows, {}); } catch (e) {}
+      const ranked = rankRows(flatRows, def.floor, {
         origin: { lat: loc.lat, lng: loc.lng },
         penalty: def.distancePenalty || null,
         ctx: def.timeless ? null : now,
@@ -395,10 +401,14 @@ export default function IntentPageClient({ intent }) {
 
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
+  // "Top rated" includes the disclosed trending component (same +6 internal
+  // the rank key applied), so the client re-sort can never undo a bump the
+  // card is already explaining with its 🔥 reason.
+  const ratedKey = (r) => (wayfindScore(r.rating, r.reviews) ?? -Infinity) + (r.trending ? 6 : 0);
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
-    if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
-    return wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
+    if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || ratedKey(b) - ratedKey(a);
+    return ratedKey(b) - ratedKey(a);
   });
   const share = async () => {
     // THE SHARE-CARD STANDARD: the link we hand out carries the hero's real

@@ -92,6 +92,35 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
     "BOTH fetchers (fetchTodaysBest + fetchThingsToDo) attach the unified signal BEFORE the sort — count, don't grep (one dropped call site must go red)");
 }
 
+// ── 2d. THE ROLLOUT SURFACES (2026-08-07, owner: "every sheet and page") ────
+// /trending, intent pages and their shared card apply the SAME signal, the
+// SAME bump, and the SAME disclosure.
+{
+  const ipc = readFileSync(path.resolve("app/components/IconicPlaceCard.js"), "utf8");
+  ok(/Number\.isFinite\(place\.governed_score\) \? place\.governed_score/.test(ipc),
+    "IconicPlaceCard badge prefers governed_score — the number that ranked the row");
+  ok(/place\.trending && place\.trend_reason \?/.test(ipc),
+    "IconicPlaceCard renders the 🔥 trend reason in its facts row (the disclosure)");
+  const tnc = readFileSync(path.resolve("app/components/TrendingNowClient.js"), "utf8");
+  ok(/await attachTrendSignals\(withWhy/.test(tnc) && /byVisibleScore\(withWhy\)/.test(tnc),
+    "/trending attaches the unified signal and stamps governed_score before render");
+  ok(/Number\.isFinite\(r\.governed_score\) \? r\.governed_score/.test(tnc),
+    "/trending's Top-rated sort reads the governed score — shown == sorted");
+  const ipcl = readFileSync(path.resolve("app/components/IntentPageClient.js"), "utf8");
+  ok(/await attachTrendSignals\(flatRows/.test(ipcl), "intent pages attach the signal BEFORE rankRows");
+  ok(/r\.trending \? 6 : 0/.test(ipcl), "intent pages' client re-sort carries the same +6 the rank key applied");
+  const ip = readFileSync(path.resolve("lib/intentPages.js"), "utf8");
+  ok(/r\.trending \? TRENDING_BONUS \/ 10 : 0/.test(ip), "rankRows applies the trending term on its /10 scale");
+}
+// rankRows, EXECUTED: identical twins, one trending — the trending one leads.
+{
+  const { rankRows } = await import(path.resolve("lib/intentPages.js").startsWith("/") ? "../lib/intentPages.js" : "../lib/intentPages.js");
+  const twin = (id, extra) => ({ id, name: id, rating: 4.6, reviews: 2000, lat: 27.4, lng: -82.6, ...extra });
+  const out = rankRows([twin("plain"), twin("hot", { trending: true, trend_reason: "Trending with locals" })], { rating: 4, reviews: 10 });
+  ok(out.length === 2 && out[0].id === "hot",
+    "rankRows: a trending row outranks its identical twin (and only by the disclosed +0.6)");
+}
+
 // ── 3. Shown == sorted, end to end on the real list ─────────────────────────
 {
   const rows = [
