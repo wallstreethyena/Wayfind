@@ -37,8 +37,10 @@ ok(route.includes('auth !== "Bearer " + secret'), "cron is CRON_SECRET-gated");
 ok(route.includes("SUPABASE_SERVICE_ROLE_KEY"), "writes go through the service role");
 ok(route.includes('onConflict: "place_id,source"'), "one row per place per source (upsert)");
 ok(route.includes("wf_popularity_stale_batch"), "batch = the stalest places, not a random scan");
+ok(route.includes('recordPulse("popularity:" + src'), "every source records its OWN jobPulse — a dead source flatlines its pulse and job-watch emails it by name (the 3-month silent Foursquare death can never recur)");
+ok(/onlyNoKey \? 0 : spent\[src\]/.test(route), "a missing key pulses idle (not configured != failing) — deliberate key removal never pages");
 const vj = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf8"));
-ok((vj.crons || []).some((c) => c.path === "/api/cron/popularity" && /\*\/6/.test(c.schedule)), "cron runs every 6 hours");
+ok((vj.crons || []).some((c) => c.path === "/api/cron/popularity" && /\*\/[12]\b/.test(c.schedule)), "cron runs at least every 2 hours (accelerated 2026-08-08 for the post-sunset coverage rebuild)");
 
 // v6.57: Wikimedia calls must carry the descriptive User-Agent (their API
 // policy — datacenter IPs without it are rejected; the 0/50 first harvest).
