@@ -33,6 +33,8 @@ import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
 import { wayfindScore } from "../../lib/google";
+import { governedScoreOf } from "../../lib/lawfulOrder";
+import { FAR_MILES } from "../../lib/wayfindScore";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { TRENDING_POPULARITY_THRESHOLD } from "./kit";
 import { canonicalShareUrl } from "../../lib/site";
@@ -401,10 +403,18 @@ export default function IntentPageClient({ intent }) {
 
   if (!def) return null;
   const header = editorialIntentHeader(intent, loc.city, areaCtx);
-  // "Top rated" includes the disclosed trending component (same +6 internal
-  // the rank key applied), so the client re-sort can never undo a bump the
-  // card is already explaining with its 🔥 reason.
-  const ratedKey = (r) => (wayfindScore(r.rating, r.reviews) ?? -Infinity) + (r.trending ? 6 : 0);
+  // v6.63 — the client re-sort reads the GOVERNED score, the same number
+  // IconicPlaceCard prints on the chip.
+  //
+  // It used to be `wayfindScore(rating, reviews) + (trending ? 6 : 0)`: the raw
+  // base plus trending, with no creator-video term and no distance term. So
+  // even after rankRows was fixed, THIS would have re-broken the order on every
+  // render — a row showing 10.0 (base 93 + 7 for its creator video) sorted here
+  // as a 93 and fell under a row showing 9.4. Both halves had to move together.
+  //
+  // governedScoreOf prefers the governed_score rankRows already stamped, so
+  // this is a read of the sort key rather than a second derivation of it.
+  const ratedKey = (r) => governedScoreOf(r) ?? -Infinity;
   const visibleRows = (rows || []).filter((r) => r.distMi == null || r.distMi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distMi ?? 1e12) - (b.distMi ?? 1e12);
     if (sortBy === "price") return (a.priceLevel ?? 9) - (b.priceLevel ?? 9) || ratedKey(b) - ratedKey(a);
@@ -504,7 +514,7 @@ export default function IntentPageClient({ intent }) {
               <IconicPlaceCard key={r.id} place={r} rank={i + 1} href={"/p/" + encodeURIComponent(r.id)}
                 editorial={r.editorial_hook || null}
                 aiSummary={r.editorial_hook ? null : r.ai_line || null}
-                rankingNote={r.deduction ? "ranked lower for the drive (−" + r.deduction.toFixed(1) + ")" : null}
+                rankingNote={Number.isFinite(r.distMi) && r.distMi > FAR_MILES ? "ranked lower for the drive (−0.2)" : null}
                 badge={badge}
                 saved={!!saved[r.id]} liked={!!liked[r.id]} disliked={!!disliked[r.id]}
                 onSave={toggleSave}

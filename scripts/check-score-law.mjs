@@ -108,17 +108,162 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
     "/trending's Top-rated sort reads the governed score — shown == sorted");
   const ipcl = readFileSync(path.resolve("app/components/IntentPageClient.js"), "utf8");
   ok(/await attachTrendSignals\(flatRows/.test(ipcl), "intent pages attach the signal BEFORE rankRows");
-  ok(/r\.trending \? 6 : 0/.test(ipcl), "intent pages' client re-sort carries the same +6 the rank key applied");
-  const ip = readFileSync(path.resolve("lib/intentPages.js"), "utf8");
-  ok(/r\.trending \? TRENDING_BONUS \/ 10 : 0/.test(ip), "rankRows applies the trending term on its /10 scale");
+  // v6.63: the client re-sort now reads the governed score directly instead of
+  // reassembling it. It used to be `wayfindScore(rating,reviews) + (trending?6:0)`
+  // — the base plus ONE of the three governed terms — so it silently dropped the
+  // creator-video bonus on every render and re-broke the order rankRows had just
+  // got right. Asserting the read, not the reassembly, is the point: there is
+  // now no second derivation that can drift.
+  ok(/governedScoreOf\(r\) \?\? -Infinity/.test(ipcl),
+    "intent pages' client re-sort READS the governed score — it no longer rebuilds it from parts, which is how the creator-video term went missing");
+  ok(!/wayfindScore\(r\.rating, r\.reviews\) \?\? -Infinity/.test(ipcl),
+    "…and the old base-score re-sort is gone, not merely shadowed");
 }
-// rankRows, EXECUTED: identical twins, one trending — the trending one leads.
+
+// ── 2d-bis. rankRows, EXECUTED, AGAINST THE OWNER'S OWN SCREENSHOT ──────────
+// THE GAP THAT LET v6.62 SHIP. The block that used to live here executed
+// rankRows with identical twins differing only by `trending`, and asserted the
+// trending one led. It passed — and the list was still broken, because it never
+// tested the creator-video term (rankRows had none), never tested the distance
+// term, and never asserted the output was monotonic in the number the card
+// prints. A guard that checks one of three terms blesses the other two.
+//
+// The fixture is the owner's 2026-08-08 café screenshot: American Honey
+// Creamery (4.7★/739, no video) rendered rank 1 showing 9.3, above Ryan's
+// Coffee House (4.9★/191, creator video) showing 10.0.
 {
-  const { rankRows } = await import(path.resolve("lib/intentPages.js").startsWith("/") ? "../lib/intentPages.js" : "../lib/intentPages.js");
+  const { rankRows } = await import("../lib/intentPages.js");
+  const floor = { rating: 4, reviews: 10 };
   const twin = (id, extra) => ({ id, name: id, rating: 4.6, reviews: 2000, lat: 27.4, lng: -82.6, ...extra });
-  const out = rankRows([twin("plain"), twin("hot", { trending: true, trend_reason: "Trending with locals" })], { rating: 4, reviews: 10 });
-  ok(out.length === 2 && out[0].id === "hot",
+
+  const hot = rankRows([twin("plain"), twin("hot", { trending: true, trend_reason: "Trending with locals" })], floor);
+  ok(hot.length === 2 && hot[0].id === "hot",
     "rankRows: a trending row outranks its identical twin (and only by the disclosed +0.6)");
+
+  // THE REPORTED INVERSION, as a fixture. creator_video is set explicitly so the
+  // guard does not depend on the live registry: the term, not the data.
+  const shot = rankRows([
+    { id: "honey", name: "American Honey Creamery", rating: 4.7, reviews: 739, lat: 27.4, lng: -82.6 },
+    { id: "ryans", name: "Ryan's Coffee House", rating: 4.9, reviews: 191, lat: 27.4, lng: -82.6, creator_video: true },
+  ], floor);
+  ok(shot[0].id === "ryans",
+    "THE 2026-08-08 SCREENSHOT: the row with the creator video (chip 10.0) leads the row without it (chip 9.3) — a 10.0 may never render beneath a 9.3");
+
+  // Monotonicity in the stamped number, over a set that exercises all three
+  // terms at once. This is the assertion that generalises past the fixture.
+  const mixed = rankRows([
+    { id: "far-great", name: "far-great", rating: 4.9, reviews: 5000, lat: 27.0, lng: -82.6 },
+    { id: "near-good", name: "near-good", rating: 4.6, reviews: 3000, lat: 27.4, lng: -82.6 },
+    { id: "video", name: "video", rating: 4.5, reviews: 800, lat: 27.4, lng: -82.6, creator_video: true },
+    { id: "hot2", name: "hot2", rating: 4.4, reviews: 600, lat: 27.4, lng: -82.6, trending: true, trend_reason: "Busy right now" },
+  ], floor, { origin: { lat: 27.4, lng: -82.6 }, penalty: { freeMi: 17, per: 5, deduct: 0.2 } });
+  ok(mixed.length === 4, "the mixed fixture survives ranking intact");
+  ok(mixed.every((r) => Number.isFinite(r.governed_score)),
+    "rankRows STAMPS governed_score on every row it returns — the card reads this back to draw the chip, so an unstamped row is a card drawing a different number than the one that sorted it");
+  for (let i = 1; i < mixed.length; i++) {
+    ok(mixed[i - 1].governed_score >= mixed[i].governed_score,
+      `rankRows output is non-increasing in the displayed score: ${mixed[i - 1].id} (${mixed[i - 1].governed_score}) may not sit above ${mixed[i].id} (${mixed[i].governed_score})`);
+  }
+  // The conditions composite may only break ties. Two rows with the SAME
+  // governed score and opposite weather fit are allowed to swap; a row with a
+  // LOWER governed score may not be lifted past a higher one by any of it.
+  const ctx = { hour: 13, isWeekend: false, timeBucket: "afternoon", outdoorOK: true, weather: { known: true, tempF: 95, rainPct: 80, isWet: true } };
+  const weathered = rankRows([
+    { id: "best-outdoor", name: "best-outdoor", rating: 4.9, reviews: 5000, lat: 27.4, lng: -82.6, types: ["park"] },
+    { id: "worse-indoor", name: "worse-indoor", rating: 4.4, reviews: 900, lat: 27.4, lng: -82.6, types: ["museum"] },
+  ], floor, { ctx });
+  const bo = weathered.find((r) => r.id === "best-outdoor");
+  const wi = weathered.find((r) => r.id === "worse-indoor");
+  if (bo && wi) {
+    ok(weathered.indexOf(bo) < weathered.indexOf(wi),
+      "a storm cannot lift a worse indoor pick above a better outdoor one — weather SUPPRESSES via the gate (a filter) and otherwise only breaks ties; it never reorders against the chip");
+  }
+}
+
+// ── 2d-ter. THE SHARED COMPARATORS (v6.63) ─────────────────────────────────
+// byTopRated / rankByConditions / rankForNow / byPlaceScore are used by roughly
+// twenty call sites between them, every one of which renders a score chip. Each
+// keyed on the BASE wfScore (or base + weather + daypart + curation), never the
+// governed number. Executed here, because a grep cannot tell a fixed comparator
+// from a renamed one.
+{
+  const { byTopRated, rankByConditions, rankForNow } = await import("../lib/ranking.js");
+  const { byPlaceScore } = await import("../lib/rankPlaces.js");
+
+  const video = { id: "v", name: "v", wfScore: 93, reviews: 191, creator_video: true, governed_score: 100 };
+  const plain = { id: "p", name: "p", wfScore: 93, reviews: 739 };
+  ok([plain, video].slice().sort(byTopRated)[0].id === "v",
+    "byTopRated keys on the governed score — the base-score key is what made every 'Top rated' list in the app blind to the creator-video bonus");
+
+  // rankByConditions: a big weather delta may not outrank a higher chip.
+  const wet = { weather: { temp: 60, rain: 90, wet: true }, hour: 13, isWeekend: false };
+  const rc = rankByConditions([
+    { id: "hi", name: "hi", wfScore: 96, reviews: 100, types: ["park"] },
+    { id: "lo", name: "lo", wfScore: 88, reviews: 100, types: ["museum"] },
+  ], wet);
+  ok(rc[0].id === "hi",
+    "rankByConditions: ±18 of weather fit cannot lift an 8.8 over a 9.6 — conditions break ties only");
+
+  // rankForNow: same, with the daypart bucket in play (nightlife at 9am).
+  const morning = { hour: 9, timeBucket: "morning", isWeekend: false, outdoorOK: true, weather: null };
+  const rf = rankForNow([
+    { id: "bar", name: "bar", wfScore: 97, reviews: 100, types: ["bar", "night_club"] },
+    { id: "cafe", name: "cafe", wfScore: 90, reviews: 100, types: ["cafe"] },
+  ], morning);
+  ok(rf[0].id === "bar",
+    "rankForNow: a −15 daypart penalty cannot push a 9.7 under a 9.0 — the bucket breaks ties only");
+
+  // byPlaceScore: the +15 curated bonus is more than twice the whole creator
+  // term, and was the largest single hidden reorderer on the home feed.
+  const cmp = byPlaceScore((p) => ({ quality: p.wfScore, curated: !!p.curated }));
+  const curatedLow = { id: "cur", name: "cur", wfScore: 85, reviews: 100, curated: true };
+  const plainHigh = { id: "hi", name: "hi", wfScore: 95, reviews: 100 };
+  ok([curatedLow, plainHigh].slice().sort(cmp)[0].id === "hi",
+    "byPlaceScore: curation (+15), affinity and faveTier are TIE-BREAKERS — an 8.5 curated pick may not outrank a 9.5");
+}
+
+// ── 2d-quater. THE RETIRED PER-MILE DECAY IS GONE FROM THE POOLS ────────────
+// lib/google.js and lib/sources.js each carried `Math.min(30, (d-4)*1.3)` — up
+// to 30 points of invisible rank on a 0–100 scale, against a chip that admits
+// 0.2. These two lists are the DEFAULT order of the browse feed and the home
+// feed respectively, so this was the widest-reach instance in the app.
+{
+  const g = readFileSync(path.resolve("lib/google.js"), "utf8");
+  const s = readFileSync(path.resolve("lib/sources.js"), "utf8");
+  ok(!/Math\.min\(30, \(_d - 4\) \* 1\.3\)/.test(g), "lib/google.js: the 1.3/mi pool decay is gone");
+  ok(!/p\._sortScore = \(p\.wfScore \|\| 0\) - distPenalty/.test(g), "lib/google.js: the _sortScore split between rank and chip is gone");
+  ok(/lawfulSort\(list,/.test(g), "lib/google.js orders its pool through the lawful sort");
+  ok(!/const _distPenalty = \(mi\) =>/.test(s), "lib/sources.js: the merged pool's copy of the decay is gone");
+  ok(/lawfulSort\(out,/.test(s), "lib/sources.js orders the merged Google+Foursquare pool through the lawful sort");
+  // The near-first reshuffle (anything past 20mi pushed below everything
+  // closer, regardless of score) was a second, larger, invisible distance term.
+  ok(!/const nearCount = list\.filter/.test(g), "lib/google.js: the v4.24 near-first reshuffle is gone");
+  ok(!/if \(near >= 5\) return \[\.\.\.out\.filter/.test(s), "lib/sources.js: its near-first reshuffle is gone");
+}
+
+// ── 2d-quinquies. THE LAW MODULE ITSELF, EXECUTED ──────────────────────────
+{
+  const { lawfulSort, governedScoreOf, isPerfectScore } = await import("../lib/lawfulOrder.js");
+  // Context can reorder equals…
+  const eq = lawfulSort([
+    { id: "a", wfScore: 90, reviews: 10, _ctx: 1 },
+    { id: "b", wfScore: 90, reviews: 10, _ctx: 9 },
+  ], (p) => p._ctx);
+  ok(eq[0].id === "b", "lawfulSort: context decides between two rows showing the same number");
+  // …and never reorders unequals, no matter how large it is.
+  const uneq = lawfulSort([
+    { id: "hi", wfScore: 91, reviews: 10, _ctx: -1e9 },
+    { id: "lo", wfScore: 90, reviews: 10, _ctx: 1e9 },
+  ], (p) => p._ctx);
+  ok(uneq[0].id === "hi", "lawfulSort: a context term of ±1e9 cannot move a 9.1 below a 9.0 — the law is not a weighting, it is a precedence");
+  // Unrated rows are last, and two of them do not produce a NaN comparator.
+  const withNull = lawfulSort([{ id: "u", reviews: 1 }, { id: "u2", reviews: 2 }, { id: "r", wfScore: 70, reviews: 1 }]);
+  ok(withNull[0].id === "r" && withNull.length === 3,
+    "lawfulSort: unrated rows sort last and never throw — wayfindScore returns null by contract, so this is a live shape");
+  ok(governedScoreOf({ governed_score: 88, wfScore: 10 }) === 88,
+    "governedScoreOf prefers an already-stamped score over recomputing — one derivation, never two");
+  ok(isPerfectScore(100) && isPerfectScore(10) && !isPerfectScore(99) && !isPerfectScore(9.9) && !isPerfectScore(null),
+    "isPerfectScore accepts either scale and only a true 10.0 qualifies");
 }
 
 // ── 2e. THE HOME FEED (2026-08-08, owner: "every sheet and page") ───────────

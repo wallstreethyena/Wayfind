@@ -17,15 +17,38 @@ ok(Math.abs(distanceDeduction(22.1, cfg) - 0.4) < 1e-9, "22.1 mi: second block (
 ok(Math.abs(distanceDeduction(47, cfg) - 1.2) < 1e-9, "47 mi: -1.2 — far places sink hard");
 ok(distanceDeduction(5, cfg) === 0 && distanceDeduction(NaN, cfg) === 0, "close or unknown distance: untouched");
 
-// decay reorders: a stronger-but-far place drops below a close solid one
+// ── DISTANCE, AFTER THE GOVERNING LAW (v6.63) ───────────────────────────────
+//
+// SUPERSEDED, DELIBERATELY. This block used to assert the opposite: that the
+// banded decay above (−0.2 per started 5-mile block past 17) REORDERS the list,
+// so a 4.8 at thirty miles ranked below a 4.6 at one mile.
+//
+// lib/wayfindScore.js's governing law (owner, 2026-08-07) replaced every
+// per-mile model in the app with ONE flat, VISIBLE −0.2 past 17 miles, and made
+// the displayed number the sort key: "no hidden term may ever reorder against
+// the visible number again." The banded decay is a hidden term — it costs a
+// 30-mile place 0.6 while its chip only ever admits 0.2 — and on this exact
+// fixture it is the defect the owner photographed on 2026-08-08: the far place
+// renders a chip reading 9.4, the near one 9.2, and the old rule put the 9.2
+// on top. A guard asserting that a 9.2 outranks a 9.4 is a guard pinning the
+// bug in place.
+//
+// distanceDeduction() itself is UNCHANGED and still fully locked by the
+// arithmetic assertions above — it stays exported, and rankRows still stamps
+// `deduction` on each row — but it no longer feeds the rank key. What is
+// asserted here now is the law: distance moves a row only by moving the number
+// the reader can see.
 const origin = { lat: 27.5, lng: -82.5 };
 const near = { id: "a", name: "Near", rating: 4.6, reviews: 3000, lat: 27.5, lng: -82.52 };  // ~1mi
 const far = { id: "b", name: "Far", rating: 4.8, reviews: 5000, lat: 27.5, lng: -83.05 };    // ~30mi
 const ranked = rankRows([near, far], { rating: 4.5, reviews: 500 }, { origin, penalty: cfg });
-ok(ranked[0].id === "a", "a 4.8 thirty miles out ranks below a 4.6 nearby (family rule)");
+ok(ranked[0].id === "b",
+  "a 4.8 at thirty miles (base 96, −2 for the drive → chip 9.4) outranks a 4.6 at one mile (chip 9.2) — the ONLY distance term is the one printed on the card");
+ok(ranked.every((r, i) => i === 0 || (ranked[i - 1].governed_score ?? -Infinity) >= (r.governed_score ?? -Infinity)),
+  "rankRows output is non-increasing in the governed score it stamps — shown == sorted on the intent pages");
 const unranked = rankRows([near, far], { rating: 4.5, reviews: 500 }, { origin, penalty: null });
 ok(unranked[0].id === "b", "with no penalty config, pure quality order holds (the rule is opt-in per list)");
-ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is carried on the row for the why-line");
+ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still carried on the row for the why-line");
 
 // Dedicated landing pages use the same owned artwork as their homepage cards.
 ok(INTENT_PAGES["date-night"].art === "/cards/date-night-adobestock-190984224.jpeg", "date-night landing page matches its homepage hero card");
