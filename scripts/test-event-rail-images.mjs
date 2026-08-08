@@ -1,62 +1,84 @@
 #!/usr/bin/env node
-// The home event rail sells the event with VISIBLE art, never an opaque text
-// scrim over the photograph. v7.01 (owner, 2026-08-07): the card was matched to
-// the creator-finds cards — a photo on TOP, then the name and date BELOW it on
-// the card background. This guard pins that contract: a clean photo band, the
-// copy beneath it (not over it), the old opaque-scrim regressions locked out,
-// and the skeleton reserving the live height so the swap is shift-free.
+// The home event rail sells the event with VISIBLE art and, since v7.02, with
+// the SAME card the /best-of list uses.
+//
+// v7.02 (owner, 2026-08-08, with a screenshot of the /best-of card): "this
+// image is where the money is at... apply everything else towards that style...
+// I want that image leveraged as the style for every card that we offer." The
+// bespoke 156px event tile is gone; the rail renders components/RailCard.js,
+// which IS the .wf-place-card contract.
+//
+// This guard follows the code rather than deleting the protection it carried.
+// Three things it still has to prove, because each one is a bug that shipped:
+//   1. the art is SHOWN, not veiled (the 94%-opaque scrim, the desaturation);
+//   2. an event never wears a fabricated Wayfind Score;
+//   3. the skeleton reserves the live height, so the swap does not shift.
+// And one new one: the rail must not fork a second card component again.
 import { readFileSync } from "node:fs";
 
 const src = readFileSync("app/home.js", "utf8");
-const start = src.indexOf("function CompactEventShareCard");
-const end = src.indexOf("function DiscoveryMenu", start);
+const rail = readFileSync("app/components/RailCard.js", "utf8");
+const css = readFileSync("app/components/css.js", "utf8");
+const start = src.indexOf("function EventRailCard");
+const end = src.indexOf("// v6.72 — converted from kit's app-chrome palette", start);
 const card = start >= 0 && end > start ? src.slice(start, end) : "";
 const failures = [];
 const ok = (condition, message) => { if (!condition) failures.push(message); };
 
-ok(card.length > 0, "CompactEventShareCard exists");
+ok(card.length > 0, "EventRailCard exists in app/home.js");
 
-// PHOTO ON TOP: a dedicated image band that the event art fills (objectFit
-// cover), matching the creator cards. No text panel sits on top of it.
-ok(/height: 108, borderRadius: 12, overflow: "hidden"[\s\S]*position: "relative"/.test(card),
-  "the event art gets a dedicated rounded photo band on top (108px), same treatment as the creator cards");
-ok(/objectFit: "cover"/.test(card), "the provider/category art fills the band");
-ok(/saturate\(1\.02\) contrast\(1\.03\) brightness\(\.86\)/.test(card),
-  "provider art is lightly graded, not blown out or desaturated");
+// ── 1. ONE CARD. The rail renders the shared component, not a private tile ──
+ok(/<RailCard\b/.test(card), "the event card renders through the shared <RailCard>, not a bespoke tile");
+ok(!/className="wf-event-share-card"/.test(src), "the old bespoke event tile class is gone — a second card shape is how the page drifted apart the first time");
+ok(/className=\{`wf-place-card wf-rail-card/.test(rail), "RailCard renders the canonical .wf-place-card contract, so WF_PLACE_CARD_CSS styles it with no second stylesheet");
+for (const cls of ["wf-place-card-layout", "wf-place-card-rank", "wf-place-card-category", "wf-place-card-name", "wf-place-card-meta", "wf-place-card-award", "wf-place-card-highlights", "wf-place-card-actions"]) {
+  ok(rail.includes(cls), `RailCard renders .${cls} — the money card's own structure, not a lookalike`);
+}
+ok(/aria-label="Events near you"[^\n]*minHeight: EV_RAIL_MIN_H/.test(src), "the live rail still reserves the shared height constant");
+ok(/className="wf-rail wf-rail-events"[^\n]*aria-label="Events near you"/.test(src), "the events rail uses the shared .wf-rail scroller (snap + hidden scrollbar in one place)");
 
-// TEXT BELOW THE PHOTO: name then date, on the card background — the <a> renders
-// the photo span, then the name div, then the date div, in that order.
-const nameIdx = card.indexOf("{event.name}");
-const whenIdx = card.indexOf("{when}");
-const photoIdx = card.indexOf("height: 108, borderRadius: 12");
-ok(photoIdx > -1 && nameIdx > photoIdx, "the event name renders BELOW the photo band, not over it");
-ok(whenIdx > nameIdx, "the date/time renders beneath the title");
-ok(/\{when\}\{f\.time \? " · " \+ f\.time : ""\}/.test(card), "the date row shows the day and the time");
-
-// The name is a 2-line clamp with reserved height so 1-line and 2-line event
-// names produce equal-height cards (the alignment the owner asked for).
-ok(/\{event\.name\}[\s\S]{0,40}/.test(card) && /minHeight: 31, display: "-webkit-box", WebkitLineClamp: 2/.test(card),
-  "the title reserves two lines so cards stay the same height and align");
-
-// REGRESSIONS LOCKED OUT: the old opaque full-image scrim and desaturation, and
-// any layout that puts the copy panel or the date OVER the artwork.
-ok(!/rgba\(5,9,15,\.94\)/.test(card), "the old 94%-opaque full-image scrim cannot return");
-ok(!/filter:\s*"saturate\(\.78\)/.test(card), "the old desaturation cannot return");
+// ── 2. THE ART IS SHOWN ──────────────────────────────────────────────────────
+ok(/photo=\{railImage\}/.test(card), "the card is given the event's art");
+ok(/photoFallback=\{eventUseImage\(event\) \? categoryImage : ""\}/.test(card), "branded category art is the fallback when provider art fails to load");
+ok(/objectFit: "cover"/.test(rail), "the art fills its column");
+ok(!/rgba\(5,9,15,\.94\)/.test(card) && !/rgba\(5,9,15,\.94\)/.test(rail), "the old 94%-opaque full-image scrim cannot return");
+ok(!/filter:\s*"saturate\(\.78\)/.test(card) && !/filter:\s*"saturate\(\.78\)/.test(rail), "the old desaturation cannot return");
 ok(!/data-event-art-scrim/.test(card), "no dark scrim panel is layered over the photo — the art is shown, not veiled");
-ok(!/top: 72[\s\S]*background: "linear-gradient\(180deg,#111925/.test(card), "the old photo-top-half + info-panel-inside layout is gone");
-ok(!/📍 \{venue\}/.test(card), "the compact card does not spend its limited space repeating the venue");
 
-// The share button and the functional href/logging survive the restyle.
-ok(/aria-label=\{"Share " \+ event\.name\}/.test(card), "the share button is preserved");
+// ── 3. AN EVENT NEVER WEARS A SCORE ─────────────────────────────────────────
+// This is the assertion that keeps the restyle honest. The badge box is the
+// loudest element on the card; an event is not a rated place, so it gets the
+// WHEN badge (a fact it carries) and never a number invented to fill the slot.
+ok(!/\bscore=\{/.test(card), "the event card passes NO score — events are not rated places and one must never be fabricated for them");
+ok(/when=\{when\}/.test(card), "the badge box carries the WHEN badge instead");
+ok(/const tone = /.test(card) && /eventWhenLabel/.test(src), "the badge's urgency tone is derived from the one clock (lib/eventTime), not a second definition of 'soon'");
+ok(/score != null\s*\n?\s*\?\s*<div className="wf-place-card-score"><WayfindScoreBadge/.test(rail) || /score != null[\s\S]{0,120}WayfindScoreBadge/.test(rail),
+  "RailCard renders the real Wayfind Score badge when — and only when — a score is supplied");
+ok(/\.wf-rail-when\{/.test(css) && /data-when-tone="now"/.test(css), "the WHEN badge has its own styling with a date-derived tone");
+
+// ── 4. THE ACTIONS ARE REAL ─────────────────────────────────────────────────
+// A card that grows a Save and two thumbs has to make them do something, or
+// the restyle traded a working small card for a prettier dead one.
+ok(/onSave=\{onSave\}/.test(card) && /saveEventItem\(/.test(src), "Save writes a real row (wf_saved_items, item_type event)");
+ok(/item_type: "event"/.test(src), "the saved row is typed as an event so the Saved tab can label it correctly");
+ok(/onDislike=\{onDislike\}/.test(card) && /eventSignals\.disliked\[e\.id\] !== true/.test(src), "a dislike genuinely removes the event from the rail — the visible consequence that makes the control honest");
+ok(/onShare=\{shareEvent\}/.test(card) && /logEvent\("share", null, \{ id: event\.id, kind: "event_card" \}\)/.test(card), "the share action and its logging survive the restyle");
 ok(/logEvent\("event_open"/.test(card), "the open-event log is preserved");
+ok(/cta=\{\{/.test(card) && /eventCTA\(event\)/.test(card), "the ticket/details CTA is matched to the event, never a blanket 'Get tickets' on a free community event");
 
-// The loading skeleton reserves the NEW live card height so the skeleton->live
-// swap does not shift the page.
-ok(/const EV_RAIL_MIN_H = 158/.test(src), "the loading skeleton reserves the new (taller) card height — no layout shift on swap");
+// ── 5. NO LAYOUT SHIFT ──────────────────────────────────────────────────────
+ok(/const EV_RAIL_MIN_H = 236/.test(src), "the loading skeleton reserves the live card height — measured, not guessed");
+ok(/\.wf-rail-events>\.wf-rail-card\{min-height:236px\}/.test(css), "…and the live rail pins that SAME number as its card floor, so the two cannot drift apart silently");
+{
+  const skel = src.slice(src.indexOf("function EventsRailSkeleton()"), src.indexOf("function HooksBanner"));
+  ok(/width: "min\(318px,88vw\)"/.test(skel), "the skeleton blocks match the live card's width, so the swap moves nothing sideways either");
+  ok(/borderRadius: 17/.test(skel), "…and its corner radius");
+  ok(/className="wf-rail wf-rail-events"/.test(skel), "…and the skeleton uses the same rail class as the live row, so gutter, padding and box model are one definition, not two");
+}
 
 if (failures.length) {
   console.error("test-event-rail-images: FAIL");
   failures.forEach((failure) => console.error("  - " + failure));
   process.exit(1);
 }
-console.log("test-event-rail-images: OK — photo on top, name+date below (matches creator cards), old opaque-scrim layout locked out, skeleton height synced");
+console.log("test-event-rail-images: OK — the events rail renders the canonical place card, the art is shown not veiled, no event wears a fabricated score, every action does something, and the skeleton matches the live geometry");

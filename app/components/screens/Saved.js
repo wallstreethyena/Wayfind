@@ -411,7 +411,7 @@ export default function SavedScreen({ ctx }) {
             {user && savedItems.length > 0 && (
               <section className="wf-saved-section">
                 <div className="wf-saved-section-head">
-                  <div><div className="wf-saved-section-kicker">Saved experiences &amp; deals</div><h2>Ready to book</h2></div>
+                  <div><div className="wf-saved-section-kicker">Saved events, experiences &amp; deals</div><h2>Ready to book</h2></div>
                 </div>
                 <div className="wf-saved-items-grid">
                   {savedItems.map((it) => (
@@ -420,7 +420,7 @@ export default function SavedScreen({ ctx }) {
                         <div className="wf-saved-item-image" style={it.item_image ? { backgroundImage: `url("${it.item_image}")` } : undefined} />
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div className="wf-saved-item-title">{it.item_title}</div>
-                          <div className="wf-saved-item-meta">{it.item_type === "deal" ? "Deal" : "Experience"}{it.provider ? " · via " + (it.provider === "undercover_tourist" ? "Undercover Tourist" : it.provider === "viator" ? "Viator" : it.provider) : ""}</div>
+                          <div className="wf-saved-item-meta">{it.item_type === "deal" ? "Deal" : it.item_type === "event" ? "Event" : "Experience"}{it.provider ? " · via " + (it.provider === "undercover_tourist" ? "Undercover Tourist" : it.provider === "viator" ? "Viator" : it.provider) : ""}</div>
                         </div>
                       </a>
                       <button className="wf-saved-item-remove" onClick={() => removeItem(it)} aria-label={"Remove " + it.item_title}>✕</button>

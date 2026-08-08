@@ -358,8 +358,16 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
       "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
     ok(/resolveScoutedPhoto\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
       "CreatorFinds resolves each scouted spot's photo through the cached search endpoint");
-    ok(/scoutedPhotos\[s\.key\] \? <img/.test(CF),
-      "…and renders that photo in the card (the pin shows only while loading or on a genuine miss)");
+    // v7.02: the row renders the shared RailCard, so the <img> moved out of
+    // this file. FOLLOW THE CODE — assert both halves of the invariant across
+    // the two files rather than deleting the protection: CreatorFinds hands
+    // the resolved photo to the card, and the card renders a real <img> when
+    // it has one and a placeholder tile only when it does not.
+    const RC = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8");
+    ok(/photo=\{scoutedPhotos\[s\.key\] \|\| null\}/.test(CF),
+      "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
+    ok(/photo\s*\n?\s*\?\s*<img/.test(RC) && /wf-place-card-monogram/.test(RC),
+      "…and RailCard renders a real <img> when given a photo, falling back to the monogram tile only when there is none");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
       "the photo goes through the guarded /api/photo proxy with a shape-checked ref — never a bare Google URL");
     ok(/center=\{center\}/.test(HOME) || /center: center/.test(HOME),
@@ -464,6 +472,13 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // claim a precision the data cannot back up.
   ok(!/distMi/.test(CF),
      "the row never renders a distance — city centroids sort, they do not measure, and lib/creatorVideos.js promises they are never shown");
+  // v7.02 corollary: the cards now share the /best-of card's facts row, and
+  // that row DOES print a distance elsewhere. The ban above still holds here
+  // because the two card kinds in this row are not the same: pool rows carry a
+  // measured distMi, registry rows carry a city centroid, and one facts row
+  // cannot tell them apart at render time. So neither prints one.
+  ok(/function cardFacts\(/.test(CF) && !/ mi"/.test(CF),
+     "cardFacts() builds this row's meta from reviews / price / open-closed only — no distance string is assembled anywhere in it");
   ok(/Creators in \$\{bridge\.city\}/.test(CF) && /rows\.length \? "Finds from local creators"/.test(CF),
      "with no local find the heading names the city the finds are ACTUALLY in — 'local' is a claim, and another city's spots are not the reader's");
   ok(/byCity=\{socialFindByCity\}/.test(HOME),
