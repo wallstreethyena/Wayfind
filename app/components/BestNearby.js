@@ -166,9 +166,22 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOn
           // surface has ever rendered it. The engine was explaining itself to
           // nobody. Two lines max so a long reason cannot push the row height
           // around; the list must not reflow when it refreshes on the hour.
+          //
+          // v6.62 (owner, live screenshot: "this area jumps... like there is
+          // something underneath and it has the old description"). ROOT CAUSE:
+          // `why` starts as the generic engine reasonLine() (whyOneLine=false,
+          // up to 2 lines) before the /api/known-for fetch above resolves, then
+          // swaps to the shorter editorial hook (whyOneLine=true, 1 line). Both
+          // states rendered real text, so nothing looked "broken" in isolation
+          // — but a 2-line reasonLine collapsing to a 1-line hook shrank this
+          // block's actual height, which is the jump: the row (and everything
+          // below it) visibly resettles once the fetch lands. minHeight below
+          // reserves 2 lines' worth of space in EITHER state so the swap is a
+          // text change, not a layout change. fontSize bumped 12.5->13.5 per
+          // the same screenshot review ("the text bigger").
           <div style={whyOneLine
-            ? { fontSize: 12.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-            : { fontSize: 12.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
+            ? { fontSize: 13.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, minHeight: 37, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
+            : { fontSize: 13.5, lineHeight: 1.35, color: "#B6C2CE", marginTop: 3, minHeight: 37, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{why}</div>
         ) : null}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: why ? 4 : 2, fontSize: 12.5, color: C.muted, flexWrap: "wrap" }}>{meta}</div>
       </div>
