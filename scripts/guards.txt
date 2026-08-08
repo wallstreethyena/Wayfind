@@ -34,6 +34,7 @@ node scripts/check-libs.mjs
 npm run check:gate
 npm run check:categories
 npm run check:photos
+node scripts/check-landing-photos.mjs
 node scripts/test-score-band.mjs
 node scripts/test-business-status.mjs
 node scripts/test-closed-policy.mjs
