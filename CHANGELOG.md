@@ -1,3 +1,38 @@
+## v6.62 - Category row moved to the top, button-fill reverted, ranked-list row jump fixed
+- CATEGORY ROW BACK TO THE TOP (owner: "add this to the top of the page"):
+  reverses v6.97's "categories move below the answer" call. The category row
+  (Food/Night out/Activities/Family/Stays/Shopping) is now the first thing on
+  the page again, same as before 2026-08-06. The ranked list (BestNearby)
+  is UNCHANGED and still leads over the events rail, hero card and discovery
+  grid — that ordering has real PostHog bounce-rate data behind it and the
+  owner explicitly chose to keep it when asked. Only the category row's
+  position relative to BestNearby/CreatorFinds changed. Updated
+  scripts/check-home-answer-first.mjs's ordering assertion to match
+  (iCats < iBestNearby < iFinds) rather than defeating or deleting it.
+- CATEGORY TILE BUTTON-FILL REVERTED (owner: "remove the button feel because
+  it does not look good"): the v6.60 resting-state background fill on each
+  category tile is gone — back to the original transparent/flat tiles. The
+  v6.90 halo + underline remain the only idle/active affordance.
+- RANKED-LIST ROW JUMP FIXED (owner: "this area jumps... like there is
+  something underneath and it has the old description"): BestNearby's Row
+  "why" line starts as the generic engine reasonLine() (up to 2 lines) before
+  /api/known-for resolves, then swaps to the shorter editorial hook (1 line,
+  nowrap). Both states show real text, but the swap SHRANK the block's actual
+  height, visibly resettling the row (and everything below it) once the
+  fetch landed. Fixed with a fixed minHeight reserving 2 lines' worth of
+  space in either state, so the swap is now a text change, not a layout
+  change. Also bumped the why-line's font size 12.5px -> 13.5px per the same
+  review ("the text bigger").
+- DISCOVERY RAIL ICON CHIPS (owner: "incorporate [the discovery rail] with
+  [the mood-pill rail], make it the best style for engagement"): each
+  discovery-rail tile's icon now sits in a small rounded chip with a subtle
+  warm gradient tint borrowed from BestNearby's "Right now" mood pill
+  (linear-gradient(160deg,#FDA60A,#FB3502)), at low opacity as a tint rather
+  than a solid fill — a full-strength fill on all 8 tiles would read as "all
+  8 are selected," which is what that gradient means everywhere else it
+  appears. Keeps the bordered-card rail identity while giving the icons some
+  of that same color warmth.
+
 ## v6.61 - Desktop footer disclosure was hidden behind the floating bottom nav
 - THE BUG: at desktop widths the "Wayfind may earn a commission..." footer
   disclosure sat partly behind the floating bottom nav. The 96px bottom

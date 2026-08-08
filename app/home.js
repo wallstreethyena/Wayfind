@@ -210,7 +210,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.61";
+const BUILD_ID = "v6.62";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -384,16 +384,12 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           affordance a pointer expects. Deliberately NOT a bordered chip —
           check-ux.mjs bans that shape for category strips and it is banned for
           good reason. */}
-      {/* v6.60 (owner, live desktop screenshot review: "the menu needs to look
-          more like buttons"): each tile gets a subtle resting-state fill and
-          rounded corners so it reads as a discrete tappable button instead of
-          a bare icon+label floating on the page background. This is NOT the
-          old chip-bubble strip check-ux.mjs bans (`borderRadius: 22, border:
-          \`1.5px solid...\``) — there is still no border here, only a soft
-          fill, and the radius (14) matches the card language used everywhere
-          else on the page (COLLECTION.card tiles, DiscoveryMenu) rather than
-          the retired chip's 22. */}
-      <div className="wf-catrow" style={{ display: "flex", gap: 6, paddingBottom: 2 }}>
+      {/* v6.60 tried a subtle resting-state fill + rounded corners here (owner
+          ask: "the menu needs to look more like buttons"), reverted in v6.62
+          (owner, live screenshot: "remove the button feel because it does
+          not look good"). Back to the original transparent/flat tiles — the
+          v6.90 halo + underline below remain the only idle/active affordance. */}
+      <div className="wf-catrow" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -406,7 +402,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 14, background: on ? "rgba(249,115,22,.07)" : "rgba(255,255,255,.035)", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}, background ${MOTION.base} ${MOTION.ease}` }}>
+          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
             <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
               {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
               <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
@@ -2718,7 +2714,19 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         ["dice", "Surprise me", onSurprise],
       ].map(([ic, lbl, go]) => (
         <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${COLLECTION.border}`, background: COLLECTION.card, color: COLLECTION.text, cursor: "pointer", minHeight: 42, flexShrink: 0, width: 176, scrollSnapAlign: "start" }}>
-          <Icon name={ic} size={19} color={COLLECTION.accent} style={{ flexShrink: 0 }} />
+          {/* v6.62 (owner: "incorporate [this rail] with the [mood-pill] rail,
+              make it the best style for engagement") — borrows the mood row's
+              warm orange-gradient energy (BestNearby's "Right now" pill:
+              linear-gradient(160deg,#FDA60A,#FB3502)) for the icon chip only,
+              at low opacity as a tint rather than a solid fill. A full gradient
+              fill on all 8 tiles would read as "all 8 are selected," which is
+              what that gradient means everywhere else it appears (the active
+              mood). This keeps the card-rail identity (bordered destination
+              tiles, not a single-select toggle) while giving each icon some of
+              that same color warmth instead of a flat monochrome glyph. */}
+          <span aria-hidden="true" style={{ flexShrink: 0, display: "grid", placeItems: "center", width: 34, height: 34, borderRadius: 10, background: "linear-gradient(160deg, rgba(253,166,10,.22), rgba(251,53,2,.15))" }}>
+            <Icon name={ic} size={18} color="#FDB157" />
+          </span>
           <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.15 }}>{lbl}</span>
         </button>
       ))}
@@ -8439,6 +8447,21 @@ function PageInner({ initialEvents = null }) {
             <div className="wf-cols">
               {/* LEFT column on desktop: intent chips + hooks + feed */}
               <div className="wf-col-main">
+              {/* v6.62 (2026-08-08, owner: "add this to the top of the page"),
+                  REVERSES v6.97's "MOVED BELOW THE ANSWER" call below. The six
+                  categories are back to being the first thing on the page,
+                  same as before 2026-08-06. Flagged the tradeoff to the owner
+                  before moving it — the ranked list (BestNearby) below is
+                  UNCHANGED and still leads over the events rail, hero card and
+                  discovery grid (that ordering has real PostHog bounce-rate
+                  data behind it and the owner chose to keep it); only the
+                  categories' position relative to BestNearby/CreatorFinds
+                  changed, on a direct, explicit instruction. See the v6.97
+                  comment a few lines down for the superseded reasoning.
+                  Position asserted by scripts/check-home-answer-first.mjs
+                  (iCats < iBestNearby < iFinds). */}
+              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
                   geometry so the swap below is shift-free. Deliberately NOT
@@ -8475,10 +8498,10 @@ function PageInner({ initialEvents = null }) {
               {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
-                  stranger has to solve"). Same component, same six categories, same
-                  behaviour — position only. It used to be the first thing on the page,
-                  which made a visitor solve a taxonomy before seeing a single result. */}
-              <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
+                  stranger has to solve"). SUPERSEDED in v6.62 — the owner asked for the
+                  category row back at the top of the page (see the comment at the top
+                  of wf-col-main, where <CategoryMenu> now renders). Left this comment in
+                  place as the historical record of why it was here for ~2 days. */}
 
               {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
               {!browseCat && foryouEvents === null && discoveryMenu}
