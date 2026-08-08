@@ -121,6 +121,33 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
     "rankRows: a trending row outranks its identical twin (and only by the disclosed +0.6)");
 }
 
+// ── 2e. THE HOME FEED (2026-08-08, owner: "every sheet and page") ───────────
+// The main pool is decorated by attachTrendSignals; the SAME flag must reach
+// (a) every placeScore ranking site, (b) the displayed number, (c) the card's
+// 🔥 disclosure. Executed where executable, position-asserted where not.
+{
+  // (b) EXECUTED: the display path carries the trending term…
+  ok(displayedWfScore({ id: "t", name: "t", wfScore: 90, trending: true }) === 96,
+    "displayedWfScore applies +0.6 to a flagged place — the chip shows what the rank used");
+  ok(displayedWfScore({ id: "t", name: "t", wfScore: 90 }) === 90, "no flag → no bump (undecorated objects unchanged)");
+  ok(displayedWfScore({ id: "t", name: "t", wfScore: 95, trending: true }) === 99, "…with the 9.9 cap intact on the display path");
+  // (a) EXECUTED: placeScore carries the same term…
+  const { placeScore } = await import("../lib/rankPlaces.js");
+  const HOME_SRC = readFileSync(path.resolve("app/home.js"), "utf8");
+  ok(placeScore({ quality: 90, trend: 6 }) - placeScore({ quality: 90 }) === 6,
+    "placeScore's trend part is worth exactly the disclosed +6");
+  // …and every home ranking site passes it (count, don't grep — one dropped
+  // site must go red; mirrors the >=5 creator-video assertion above).
+  ok((HOME_SRC.match(/trend: p\.trending \? TRENDING_BONUS : 0/g) || []).length >= 6,
+    "all six home.js placeScore sites carry the trend term beside the creator term");
+  ok(/await attachTrendSignals\(pool/.test(HOME_SRC), "the home pool is decorated by the ONE unified signal");
+  // (c) the card renders the reason, and the hero why-line discloses it
+  ok(/p\.trending && p\.trend_reason && \(/.test(HOME_SRC), "the PlaceCard renders the 🔥 reason off the row's own flag");
+  ok(/heroPick\.trending && heroPick\.trend_reason/.test(HOME_SRC), "the hero why-line discloses a trending hero");
+  const hook = readFileSync(path.resolve("app/components/sheets/HookDetail.js"), "utf8");
+  ok(/p\.trending && p\.trend_reason \?/.test(hook), "HookDetail rows (holiday/curated sheets) disclose beside the chip");
+}
+
 // ── 3. Shown == sorted, end to end on the real list ─────────────────────────
 {
   const rows = [

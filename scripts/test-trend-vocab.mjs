@@ -34,7 +34,15 @@ for (const [label, src] of [["home.js", home], ["kit.js", kit]]) {
 // The beach popularity chip is a LEVEL (tier2_popularity >= threshold) → labeled
 // "Popular", never "Trending".
 ok(!/🔥 Trending/.test(home), "the beach popularity chip says 'Popular', not 'Trending' (it's a level, not a period-over-period delta)");
-ok(/🔥 Popular/.test(home), "the beach popularity chip is present as '🔥 Popular'");
+// 2026-08-08: the beach-only popularity chip is FOLDED INTO the unified trend
+// chip (lib/trendSignal.js). Same doctrine, enforced at the SOURCE: the chip
+// renders the signal's own reason, and the popularity reason must stay a
+// LEVEL claim — asserted by executing the module, not by grepping a literal.
+ok(/p\.trending && p\.trend_reason && \(/.test(home), "the unified trend chip renders off the row's flag + reason");
+const { TREND_REASONS } = await import("../lib/trendSignal.js");
+ok(/^Popular\b/.test(TREND_REASONS.popularity), "the popularity-source reason is level-honest ('Popular...', never a velocity claim)");
+for (const re of BANNED) ok(!re.test(Object.values(TREND_REASONS).join(" ")), `no trend reason may claim ${re}`);
+ok(!/^Trending/.test(TREND_REASONS.popularity), "level-only data may not be captioned 'Trending'");
 
 // The buzz fallback lines are honest (level-based), not fabricated velocity.
 ok(home.includes("On readers' radar near you"), "single-source buzz fallback is level-honest ('on the radar')");
