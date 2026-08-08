@@ -12,7 +12,7 @@
 // from-$, duration, "Selling fast" ONLY on the engine's flag, tap books.
 // scripts/test-todays-best.mjs locks the contract.
 import { useEffect, useState } from "react";
-import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge, TRENDING_POPULARITY_THRESHOLD } from "./kit";
+import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge } from "./kit";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
@@ -100,7 +100,13 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
   // rank ring (medal colors), title row carrying the WayfindScoreBadge in-flow,
   // meta line with the green review dot. Tours differ ONLY by their meta
   // (from-$ + duration) and the Book pill where places show the chevron.
-  const ds = Number(r.rating) > 0 ? toDisplayScore(wayfindScore(Number(r.rating), Number(r.reviews) || 0)) : null;
+  // THE GOVERNING LAW, shown == sorted (2026-08-07): rows ranked by
+  // byVisibleScore carry governed_score — base +0.7 video −0.2 past 17mi
+  // +0.6 trending (disclosed below) — and the badge must show THAT number,
+  // never a re-derived base that can disagree with the row's position.
+  const ds = Number.isFinite(r.governed_score)
+    ? toDisplayScore(r.governed_score)
+    : Number(r.rating) > 0 ? toDisplayScore(wayfindScore(Number(r.rating), Number(r.reviews) || 0)) : null;
   const mc = medalColor(rank);
   const body = (
     <div style={{ display: "flex" }}>
@@ -146,12 +152,12 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
           {r.reviews >= 1000 && r.rating >= 4.5
             ? <Chip linkable={!isTour} expKey="localfav" label="⭐ Crowd favorite" onLog={onLog} />
             : null}
-          {/* v6.71 (Wave 2): same flame + water-quality read as every other
-              beach surface (PlaceCard, Detail sheet, Best Beaches, Best
-              Nearby) — batched once for the whole list in ThingsToDoList
-              below, not per card. */}
-          {r.category === "beach" && beachSignal && beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD ? (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 10px" }}>🔥 Popular</span>
+          {/* 2026-08-07: the 🔥 is the UNIFIED trend signal (lib/trendSignal.js
+              — real foot traffic + major-event proximity, attached before the
+              sort) and doubles as the mandatory disclosure for the +0.6
+              trending bump inside governed_score. All categories, one meaning. */}
+          {r.trending && r.trend_reason ? (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11.5, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 10px" }} title={"Trending — " + r.trend_reason}>🔥 {r.trend_reason}</span>
           ) : null}
           {r.category === "beach" && beachSignal && beachSignal.water ? (() => {
             const w = beachSignal.water;

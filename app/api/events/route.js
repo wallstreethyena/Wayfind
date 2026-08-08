@@ -211,6 +211,17 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
         venue, city: "", lat: loc ? loc[1] : null, lng: loc ? loc[0] : null,
         segment: phqSegment(e.category), genre: "", image: null, price: null, url: "", ticketed: false, source: "PredictHQ",
         status: (e.state || "") === "deleted" ? "cancelled" : "",
+        // 2026-08-07: the demand fields this tier is PAID for — previously
+        // discarded. rank/local_rank are PredictHQ's 0–100 scales,
+        // phq_attendance the predicted headcount. They feed the unified
+        // trend signal (lib/trendSignal.js nearbyEventScore: a place near a
+        // major event inherits a disclosed trending boost) and, later, the
+        // "Big near you" rail. Demand data only — no URL is fabricated here
+        // (the Phase-1 rule above is unchanged).
+        rank: isFinite(e.rank) ? e.rank : null,
+        local_rank: isFinite(e.local_rank) ? e.local_rank : null,
+        phq_attendance: isFinite(e.phq_attendance) ? e.phq_attendance : null,
+        labels: Array.isArray(e.labels) ? e.labels.slice(0, 8) : [],
       };
     });
     return { configured: true, events };

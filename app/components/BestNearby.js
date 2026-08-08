@@ -18,7 +18,7 @@
 // scripts/test-todays-best.mjs locks the contract.
 import { useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
-import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip, TRENDING_POPULARITY_THRESHOLD } from "./kit";
+import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
@@ -166,11 +166,21 @@ const SellingFast = () => (
   <span style={{ flexShrink: 0, background: "#B33A2B", color: "#fff", fontSize: 9, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase", borderRadius: 999, padding: "2px 7px" }}>Selling fast</span>
 );
 
-// v6.71 (Wave 2): same flame + threshold as the PlaceCard/Detail-sheet/Best
-// Beaches signal — one meaning wherever a beach shows up. Compact form (no
-// label) since Row's badge slot sits beside a title that's already ellipsized.
-const Flame = () => (
-  <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 800, color: "#FB923C" }} aria-label="Trending">🔥</span>
+// 2026-08-07 (owner): the 🔥 now means ONE thing everywhere — the unified
+// trend signal (lib/trendSignal.js: real foot-traffic + major-event proximity,
+// never a paid input). It is also the DISCLOSURE for the +0.6 trending bump
+// in the governed score (lib/wayfindScore.js TRENDING_BONUS): a bumped row
+// must say why, so the flame carries the signal's own reason.
+const Flame = ({ reason }) => (
+  <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", fontSize: 11, fontWeight: 800, color: "#FB923C" }} aria-label={"Trending — " + (reason || "trending now")} title={reason || "Trending now"}>🔥</span>
+);
+
+// The visible reason, rendered in the meta line right beside the Score chip —
+// the bump is only allowed where this renders (check-score-law.mjs).
+const TrendReason = ({ r }) => (
+  r && r.trending && r.trend_reason
+    ? <span style={{ color: "#FB923C", fontWeight: 700 }}>🔥 {r.trend_reason}</span>
+    : null
 );
 
 const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach day · high UV", poor: "Not a beach day", unsafe: "Beach advisories active", too_far: null };
@@ -203,11 +213,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   const [showAll, setShowAll] = useState(false); // "eat" | "todo" | "trends" | null
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
-  // v6.71 (Wave 2): "Top things to do" mixes beach rows in with tours and
-  // attractions (wf_things_to_do); this batches the same popularity read the
-  // rest of the app uses (wf_place_popularity_scored, keyed by place_id) for
-  // whichever beach rows land in THIS list — one query per open, not per row.
-  const [beachPop, setBeachPop] = useState({});
+  // 2026-08-07: the per-component beach popularity read (beachPop) is gone —
+  // lib/trendSignal.js now attaches the SAME popularity signal (plus event
+  // proximity) to every place row inside the fetchers, before the sort, so
+  // the flame and the +0.6 bump can never disagree with the ranking.
   // 2026-08-07 (owner: "a one-liner that says what the place is known for and why
   // to go"). This is the identity hook the main PlaceCard feed already renders,
   // brought onto the ranked list. TWO SOURCES, SAME PRECEDENCE AS THE MAIN FEED:
@@ -219,21 +228,6 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // When neither has anything real, the row keeps its existing engine reason line
   // (reasonLine) — a row never LOSES text, and nothing generic is invented.
   const [hooks, setHooks] = useState({});
-  useEffect(() => {
-    const todo = rows.todo;
-    if (!Array.isArray(todo) || !todo.length || !supabase) return;
-    const ids = todo.filter((r) => r.kind !== "experience" && r.category === "beach").map((r) => r.id);
-    if (!ids.length) return;
-    let dead = false;
-    (async () => {
-      try {
-        const { data } = await supabase.from("wf_place_popularity_scored").select("place_id,tier2_popularity").in("place_id", ids);
-        if (dead || !data) return;
-        setBeachPop((prev) => { const next = { ...prev }; for (const r of data) next[r.place_id] = r.tier2_popularity; return next; });
-      } catch (e) {}
-    })();
-    return () => { dead = true; };
-  }, [rows.todo]);
 
   // Resolve the "known for / why go" hook for the eat rows once they load.
   // Keyed on the row place_ids, so a new location re-resolves and a warm one
@@ -321,8 +315,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   };
 
   const load = (id) =>
-    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10 })
-    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10 })
+    // `events` rides along so the trend signal can score major-event
+    // proximity (PredictHQ demand fields) — fails soft to no events.
+    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events })
+    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10, events })
     : loadTrends();
 
   // Fetching a section, independent of what caused it to open. Pulled out of
@@ -541,9 +537,11 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                       ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
                           <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id], p.name)} why={toHookLine(hooks[p.place_id], p.name) || reasonLine(p.reasons)}
                             onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
+                            badge={p.trending ? <Flame reason={p.trend_reason} /> : null}
                             meta={<>
                               {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
                               <PlaceScoreChip p={p} size={12} />
+                              <TrendReason r={p} />
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))
@@ -559,10 +557,11 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                         ) : (
                           <Row key={r.id} i={i} thumb={tbPhotoUrl(r.photo_ref, 240)} title={r.title} why={reasonLine([r.subtitle])}
                             onClick={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
-                            badge={r.category === "beach" && beachPop[r.id] != null && beachPop[r.id] >= TRENDING_POPULARITY_THRESHOLD ? <Flame /> : null}
+                            badge={r.trending ? <Flame reason={r.trend_reason} /> : null}
                             meta={<>
                               {isFinite(r.distance_mi) ? <span>{r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}
                               <PlaceScoreChip p={r} size={12} />
+                              <TrendReason r={r} />
                             </>}
                             trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
                         ))}

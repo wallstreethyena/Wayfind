@@ -11,7 +11,7 @@
 // two chips reading 9.0, because a hidden per-mile decay reordered the list
 // against the number it printed. Every assertion here fails the build on the
 // pattern, not the instance.
-import { governedWayfindScore, wayfindScore, CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore.js";
+import { governedWayfindScore, wayfindScore, CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS, TRENDING_CAP } from "../lib/wayfindScore.js";
 import { displayedWfScore } from "../lib/creatorBoost.js";
 import { byVisibleScore } from "../lib/todaysBest.js";
 import { readFileSync } from "node:fs";
@@ -35,6 +35,62 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 25 }) === 95, "
 ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100");
 ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "unrated stays null");
 ok(governedWayfindScore(90, { distanceMi: null }) === 90, "unknown distance takes no deduction");
+
+// ── 2b. THE TRENDING COMPONENT (owner-approved 2026-08-07) ──────────────────
+// +0.6 shown, from REAL demand data only (lib/trendSignal.js — its own guard,
+// check-trend-signal.mjs, bans monetized inputs), bounded, and disclosed.
+ok(TRENDING_BONUS === 6, "+0.6 shown: TRENDING_BONUS is 6 on the 0–100 scale");
+ok(TRENDING_CAP === 99, "the trending term alone may not mint a 10.0 — capped at 99 internal / 9.9 shown");
+ok(governedWayfindScore(90, { trending: true }) === 96, "the owner's example: a 9.0 trending shows 9.6");
+ok(governedWayfindScore(95, { trending: true }) === 99, "bounded: 9.5 trending caps at 9.9, never 10.1");
+ok(governedWayfindScore(96, { trending: false }) === 96, "not trending → no bump");
+ok(governedWayfindScore(96, {}) === 96, "absent signal is identical to not trending (fail-soft)");
+ok(governedWayfindScore(null, { trending: true }) === null, "unrated stays null — trending cannot invent a score");
+ok(governedWayfindScore(98, { hasCreatorVideo: true, trending: true }) === 100,
+  "the cap never SUBTRACTS: a 98+video already at 100 keeps 100 when it also trends");
+ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi: 25 }) === 99,
+  "terms stack: 90 +7 video −2 far = 95, then trending +6 caps at 99 — trending can never be the term that mints a 10.0");
+
+// Shown == sorted WITH the trending term: byVisibleScore reads r.trending
+// (attached by lib/trendSignal.js before the sort) into the same governed
+// number the chip renders — a trending 9.0 (→9.6) must outrank a plain 9.4.
+{
+  const rows = [
+    { id: "plain", name: "plain", rating: 4.8, reviews: 4000, distance_mi: 3 },
+    { id: "hot", name: "hot", rating: 4.6, reviews: 3000, distance_mi: 3, trending: true, trend_reason: "Trending with locals" },
+  ];
+  const out = byVisibleScore(rows.map((r) => ({ ...r })));
+  const hot = out.find((r) => r.id === "hot");
+  ok(hot.governed_score === governedWayfindScore(wayfindScore(4.6, 3000), { trending: true }),
+    "the carried governed_score includes the trending bump — the sort key IS the shown number");
+  for (let i = 1; i < out.length; i++) {
+    ok((out[i - 1].governed_score ?? -Infinity) >= (out[i].governed_score ?? -Infinity),
+      "with trending in play the list stays monotonic in the displayed score");
+  }
+}
+
+// ── 2c. THE DISCLOSURE (the condition the bump exists under) ────────────────
+// Every surface that ranks through byVisibleScore renders the 🔥 reason when
+// a row carries the bump. Assert the RENDER POSITION (role, not substring):
+// a conditional on the row's trending flag emitting the reason.
+{
+  const bn = readFileSync(path.resolve("app/components/BestNearby.js"), "utf8");
+  ok(/\{p\.trending \? <Flame reason=\{p\.trend_reason\} \/> : null\}/.test(bn) &&
+     /\{r\.trending \? <Flame reason=\{r\.trend_reason\} \/> : null\}/.test(bn),
+    "BestNearby: BOTH ranked row types (eat + todo) render the 🔥 flame off the row's own trending flag");
+  ok((bn.match(/<TrendReason r=\{[pr]\} \/>/g) || []).length >= 2,
+    "BestNearby: the visible reason renders beside the score chip on both row types");
+  const ttd = readFileSync(path.resolve("app/components/ThingsToDoList.js"), "utf8");
+  ok(/r\.trending && r\.trend_reason \?/.test(ttd), "ThingsToDoList: the reason chip renders off the row's trending flag");
+  ok(/Number\.isFinite\(r\.governed_score\)\s*\n?\s*\? toDisplayScore\(r\.governed_score\)/.test(ttd),
+    "ThingsToDoList: the badge shows governed_score — the number that sorted the row — not a re-derived base");
+  const tb = readFileSync(path.resolve("app/components/TodaysBest.js"), "utf8");
+  ok(/p\.trending && p\.trend_reason \?/.test(tb), "TodaysBest: the reason renders beside the chip");
+  const tbl = readFileSync(path.resolve("lib/todaysBest.js"), "utf8");
+  ok(/trending: !!r\.trending/.test(tbl), "byVisibleScore passes the row's trending flag into the governed score");
+  ok((tbl.match(/await attachTrendSignals\(/g) || []).length >= 2,
+    "BOTH fetchers (fetchTodaysBest + fetchThingsToDo) attach the unified signal BEFORE the sort — count, don't grep (one dropped call site must go red)");
+}
 
 // ── 3. Shown == sorted, end to end on the real list ─────────────────────────
 {
