@@ -200,7 +200,7 @@ export function PerfectRightNow({ picks, places, durablePlaces, context, nowMs, 
         <div key={x.id} onClick={() => onOpenPlace && onOpenPlace(x.p)} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderTop: i ? `1px solid ${C.border}` : "none", cursor: onOpenPlace ? "pointer" : "default" }}>
           <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}<span style={{ marginLeft: 6, display: "inline-flex", verticalAlign: "middle" }}><PlaceScoreChip p={x.p} size={12} /></span></div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}<span style={{ marginLeft: 6, display: "inline-flex", verticalAlign: "middle" }}><PlaceScoreChip p={x.p} size={12} /></span>{x.p.trending && x.p.trend_reason ? <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 800, color: "#FB923C" }}>🔥 {x.p.trend_reason}</span> : null}</div>
             {x.why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div> : null}
           </div>
         </div>

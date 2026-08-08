@@ -176,7 +176,8 @@ import CityGate from "./components/CityGate";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 import { creatorVideosFor, PLATFORM, regionsWithFinds, spotsByCity, libraryStats } from "../lib/creatorVideos";
 import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
-import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore";
+import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
+import { attachTrendSignals } from "../lib/trendSignal";
 // THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
 // six times in six subtly different expressions; the terms are still computed
 // here — faveTier/featuredBoost/curatedFor stay put because
@@ -629,7 +630,7 @@ function applyAffinity(places, affinities) {
     // chip, which is the exact defect the law exists to end.
     const _d = p.distMi || 0;
     const distPenalty = _d > FAR_MILES ? FAR_PENALTY : 0;
-    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }) };
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -3642,7 +3643,7 @@ function PageInner({ initialEvents = null }) {
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 });
+      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 });
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -3720,7 +3721,7 @@ function PageInner({ initialEvents = null }) {
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p));
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -5984,7 +5985,7 @@ function PageInner({ initialEvents = null }) {
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -6425,7 +6426,7 @@ function PageInner({ initialEvents = null }) {
         // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
         let results;
         if (exp.filter) {
           const passed = raw.filter(exp.filter);
@@ -7770,7 +7771,7 @@ function PageInner({ initialEvents = null }) {
   } else if (sortBy === "price") {
     viewBase = _distFiltered.sort((a, b) => (((a.price_level ?? a.priceLevel ?? 9)) - ((b.price_level ?? b.priceLevel ?? 9))) || ((b.rating || 0) - (a.rating || 0)));
   } else {
-    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0 }));
+    viewBase = Ranking.rankByConditions(_distFiltered, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -7790,6 +7791,30 @@ function PageInner({ initialEvents = null }) {
   const exHero = (!loading && consolidatedView.length > 0) ? (consolidatedView.find((p) => liveOpen(p) === true) || consolidatedView[0]) : null;
   const exHeroSl = exHero ? scoreLabel(exHero.wfScore) : null;
   const restView = exHero ? consolidatedView.filter((p) => p && p.id !== exHero.id) : consolidatedView;
+
+  // 2026-08-08: THE UNIFIED TREND SIGNAL on the home pool (lib/trendSignal.js
+  // — real foot traffic + major-event proximity, never a paid input).
+  // attachTrendSignals MUTATES the place objects in `places`, so every list
+  // derived from them on the next render (applyAffinity's copies, viewBase,
+  // the sheets' pools) reads the same flag: the placeScore `trend` term ranks
+  // it, displayedWfScore shows it (shown == sorted), and the card renders the
+  // 🔥 reason. The tick only forces that re-render once decoration lands;
+  // everything fails soft to "nothing trends".
+  const [, setTrendTick] = useState(0);
+  const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
+  useEffect(() => {
+    const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
+    if (!pool.length) return;
+    let dead = false;
+    (async () => {
+      try {
+        await attachTrendSignals(pool, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] });
+        if (!dead) setTrendTick((t) => t + 1);
+      } catch (e) {}
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_trendIdsKey]);
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -8331,6 +8356,9 @@ function PageInner({ initialEvents = null }) {
             else if (heroSl && heroSl.word) heroWhy.push(heroSl.word.toLowerCase() + " rated");
             if (weather && weather.temp != null && weather.temp >= 58 && weather.temp <= 92 && !(weather.label && /rain|storm|snow|sleet/i.test(weather.label))) heroWhy.push("great weather match");
             heroWhy.push("strong " + whyPick + " pick");
+            // 2026-08-08: disclosure for the trending component — if the hero's
+            // number carries the bump, the why-line says so, first.
+            if (heroPick.trending && heroPick.trend_reason) heroWhy.unshift("🔥 " + heroPick.trend_reason);
           }
           const feedList0 = heroPick ? displayList.filter((p) => p && p.id !== heroPick.id) : displayList;
           // v4.24 near-first rule: with 5+ options inside 12 miles, nothing past
@@ -9934,12 +9962,16 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               (wf_place_popularity_scored) and a water-quality read
               (wf_beach_water), both batched once per screen (see the
               `beachSignals` effect near `restView`) rather than per card. */}
-          {isBeach(p) && beachSignal && (beachSignal.popularityPct != null || beachSignal.water) && (
+          {((p.trending && p.trend_reason) || (isBeach(p) && beachSignal && beachSignal.water)) && (
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 7 }}>
-              {beachSignal.popularityPct != null && beachSignal.popularityPct >= TRENDING_POPULARITY_THRESHOLD && (
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }}>🔥 Popular</span>
+              {/* 2026-08-08: the 🔥 is the UNIFIED trend signal (lib/trendSignal.js)
+                  and the mandatory disclosure for the +0.6 trending component the
+                  chip's displayedWfScore now carries. All categories, one meaning
+                  (the old beach-only popularity flame folded into it). */}
+              {p.trending && p.trend_reason && (
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 999, padding: "3px 9px" }} title={"Trending — " + p.trend_reason}>🔥 {p.trend_reason}</span>
               )}
-              {beachSignal.water && (() => {
+              {isBeach(p) && beachSignal && beachSignal.water && (() => {
                 const w = beachSignal.water;
                 const wq = w.advisory ? { t: "Advisory", c: C.red } : w.result === "Good" ? { t: "Water: Good", c: C.green } : w.result === "Moderate" ? { t: "Water: Moderate", c: "#E8B84B" } : w.result ? { t: "Water: Poor", c: C.red } : null;
                 return wq ? <span style={{ fontSize: 11, fontWeight: 700, color: wq.c }}>🏖️ {wq.t}</span> : null;

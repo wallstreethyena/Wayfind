@@ -162,6 +162,7 @@ export default function HookDetailSheet({ ctx }) {
                         {!isFeatured && <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text, lineHeight: 1.3, marginBottom: 5, paddingRight: 74 }}>{p.name}</div>}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 5, paddingRight: isFeatured ? 74 : 0 }}>
                           <PlaceScoreChip p={p} size={13} />
+                          {p.trending && p.trend_reason ? <span style={{ fontSize: 11, fontWeight: 800, color: "#FB923C" }}>🔥 {p.trend_reason}</span> : null}
                           {p.reviews > 0 && <span style={{ fontSize: 12, color: C.muted }}>{p.reviews.toLocaleString()} reviews</span>}
                           {liveOpen(p) === true && <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Open now</span>}
                           {liveOpen(p) === false && <span style={{ fontSize: 11, fontWeight: 700, color: C.red }}>Closed</span>}
