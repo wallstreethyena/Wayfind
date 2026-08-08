@@ -210,7 +210,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.64";
+const BUILD_ID = "v6.65";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2712,22 +2712,27 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         ["car", "Worth the drive", onDrive],
         ["wallet", "Big fun, small budget", onBudget],
         ["dice", "Surprise me", onSurprise],
+  // v6.65 (owner, 2026-08-08: "i asked for image one menu to be
+  // combined with image 2 — i want it to be the same style as image 2").
+  // Image 2 is BestNearby's mood row ("Right now / Date night / Family /
+  // Hidden gems"), so these tiles now use that row's EXACT pill
+  // treatment: same #121A23 fill, same hairline border, same radius,
+  // same 700 weight, sized to their own label instead of a fixed 176px
+  // card.
+  //
+  // THE ICON CHIP IS GONE, deliberately. v6.62 read "incorporate this
+  // rail with the mood rail" as "borrow its colour", and put a warm
+  // gradient chip behind each glyph. That was the wrong read — the mood
+  // pills carry no icon at all, and a chip is exactly the "button feel"
+  // the owner rejected on the category row the same day. Matching the
+  // style means matching it, not quoting it.
+  //
+  // The gradient stays reserved for SELECTED state on the mood row,
+  // which is the one thing that must not become ambient: eight tiles
+  // wearing the active treatment would read as eight things switched on.
       ].map(([ic, lbl, go]) => (
-        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${COLLECTION.border}`, background: COLLECTION.card, color: COLLECTION.text, cursor: "pointer", minHeight: 42, flexShrink: 0, width: 176, scrollSnapAlign: "start" }}>
-          {/* v6.62 (owner: "incorporate [this rail] with the [mood-pill] rail,
-              make it the best style for engagement") — borrows the mood row's
-              warm orange-gradient energy (BestNearby's "Right now" pill:
-              linear-gradient(160deg,#FDA60A,#FB3502)) for the icon chip only,
-              at low opacity as a tint rather than a solid fill. A full gradient
-              fill on all 8 tiles would read as "all 8 are selected," which is
-              what that gradient means everywhere else it appears (the active
-              mood). This keeps the card-rail identity (bordered destination
-              tiles, not a single-select toggle) while giving each icon some of
-              that same color warmth instead of a flat monochrome glyph. */}
-          <span aria-hidden="true" style={{ flexShrink: 0, display: "grid", placeItems: "center", width: 34, height: 34, borderRadius: 10, background: "linear-gradient(160deg, rgba(253,166,10,.22), rgba(251,53,2,.15))" }}>
-            <Icon name={ic} size={18} color="#FDB157" />
-          </span>
-          <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.15 }}>{lbl}</span>
+        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 40, padding: "0 16px", borderRadius: 11, background: "#121A23", border: "1px solid rgba(203,213,225,.14)", color: "#C9D4DF", fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", cursor: "pointer", scrollSnapAlign: "start" }}>
+          {lbl}
         </button>
       ))}
     </div>
@@ -8462,6 +8467,33 @@ function PageInner({ initialEvents = null }) {
                   (iCats < iBestNearby < iFinds). */}
               <CategoryMenu tight activeCat={browseCat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "home" }); } catch (e) {} pickBrowse(id); }} onSub={(v) => setSub(v)} />
 
+              {/* v6.65 (owner, 2026-08-08: "the menu did not go to the top like
+                  i asked you to"). THE DISCOVERY RAIL NOW LEADS TOO.
+
+                  This is the menu the owner meant. v6.62 moved the six-category
+                  icon row to the top, which was the answer to an earlier
+                  clarifying question; the eight-tile discovery rail (Best of
+                  your area, Hidden gems, Pick your mood, Perfect for tonight,
+                  Worth the drive, Big fun small budget, Surprise me) stayed at
+                  the BOTTOM of the feed — it was rendering at character offset
+                  ~1736 of the page text while the category row sat at ~104. Asked
+                  twice for "the menu at the top", the honest reading is both.
+
+                  ONE RENDER SITE NOW, not three. It used to render inside three
+                  mutually exclusive branches (events-loading, events-empty, and
+                  the events-present block), which is why it could only ever
+                  appear below the events rail. Hoisting it here and deleting the
+                  three conditional copies means it renders exactly once, in the
+                  same place, whatever the events state — no duplicate, and no
+                  "it moved because there were no events today".
+
+                  THE RANKED LIST IS UNCHANGED and still leads over events, the
+                  hero rail and everything else (v6.58's measured decision). What
+                  moved above it is navigation — two rows of controls a reader
+                  can skip past in one flick — not another surface competing for
+                  the answer. Position asserted by check-home-answer-first.mjs. */}
+              {!browseCat && discoveryMenu}
+
               {/* Home feed reorder (owner 2026-07-17): events above the fold, then Explore near you, then everything else. Pure layout move — no ranking/data change. */}
               {/* LOADING: events not back yet. Reserves the rail's exact
                   geometry so the swap below is shift-free. Deliberately NOT
@@ -8504,7 +8536,6 @@ function PageInner({ initialEvents = null }) {
                   place as the historical record of why it was here for ~2 days. */}
 
               {!browseCat && foryouEvents === null && <EventsRailSkeleton />}
-              {!browseCat && foryouEvents === null && discoveryMenu}
               {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
                 <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -8589,7 +8620,6 @@ function PageInner({ initialEvents = null }) {
                         we engage with them technically twice" — the same
                         Seasonal Picks slide repeats as the closing card. */}
                   </HeroRail>
-                  {discoveryMenu}
                   <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 16, padding: "12px 15px" }}>
                     <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Nothing strong tonight nearby. Try one of these instead.</div>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -8747,8 +8777,7 @@ function PageInner({ initialEvents = null }) {
                         </HeroRail>
                       );
                     })()}
-                    {discoveryMenu}
-                    {rest.length > 0 && (
+                      {rest.length > 0 && (
                       <div tabIndex={0} role="region" aria-label="Events near you" style={{ display: "flex", gap: 8, overflowX: "auto", minHeight: EV_RAIL_MIN_H, paddingBottom: 4, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
                         {rest.filter((e) => e && e.dest).map((e) => (
                           <CompactEventShareCard key={e.id} event={e} relativeLabel={relLabel(e)} onCopied={() => showToast("Event link copied")} />

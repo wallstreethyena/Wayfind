@@ -1,3 +1,34 @@
+## v6.65 - The discovery rail moves to the top and takes the mood row's styling
+- POSITION (owner: "the menu did not go to the top like i asked you to"). v6.62
+  moved the six-category icon row to the top, which answered an earlier
+  clarifying question; the EIGHT-TILE discovery rail stayed at the bottom of the
+  feed — rendering at character offset ~1736 of the page text while the category
+  row sat at ~104. Asked twice for "the menu at the top", the honest reading is
+  both, so the discovery rail now renders above the ranked list too.
+- ONE RENDER SITE, not three. The rail used to render inside three mutually
+  exclusive branches (events-loading, events-empty, events-present), which is
+  precisely why it could only ever appear BELOW the events rail in every state.
+  It is hoisted to a single unconditional site, so it renders exactly once, in
+  the same place, whatever the events state.
+- THE RANKED LIST IS UNCHANGED and still leads every CONTENT surface (events,
+  hero rail, guides). What moved above it is navigation — two skimmable rows of
+  controls — not another surface competing to be the answer. The v6.58
+  measurement was about leading with taxonomy INSTEAD of results; results are
+  still there, one flick down. check-home-answer-first.mjs's ordering assertion
+  was inverted and extended rather than deleted, and now also pins the
+  single-render-site rule.
+- STYLE (owner: "i asked for image one menu to be combined with image 2 — i want
+  it to be the same style as image 2"). Image 2 is BestNearby's mood row, so the
+  discovery tiles now use that row's exact pill treatment: same #121A23 fill,
+  same hairline border, same radius and weight, sized to their own label instead
+  of a fixed 176px card. The icon chip added in v6.62 is GONE — that pass read
+  "incorporate this rail with the mood rail" as "borrow its colour" and added a
+  gradient chip behind each glyph, which was the wrong read: the mood pills carry
+  no icon at all, and a chip is the same "button feel" the owner rejected on the
+  category row the same day. The gradient stays reserved for SELECTED state,
+  which is the one thing that must not become ambient — eight tiles wearing the
+  active treatment would read as eight things switched on.
+
 ## v6.64 - 12 new creator spots from @manateelittlelocals and @parrishfloridahomes
 - THE PROVENANCE, because it is unusual and load-bearing. The owner supplied
   ~106 TikTok and Instagram links. Both platforms refuse automated fetching
