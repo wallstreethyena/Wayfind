@@ -32,11 +32,22 @@ if (!/stockPhotoPool\(landingPhotoQuery\(city,\s*catSlug\)\)/.test(landing)) {
 }
 // The hero and the per-card <img> must each read from the pool (fromPool(...))
 // before falling back to the static LANDING_HERO map, not the static map alone.
-if (!/image=\{\(fromPool\(stockPool, 0\) \|\| \{\}\)\.url \|\| LANDING_HERO\[catSlug\]\}/.test(landing)) {
-  fail("landing hero no longer prefers the stock pool over the static per-category image");
+// Hero reads index -1 (the pool's LAST entry), deliberately not 0 — card i=0
+// below reads index 0, and a shared index there put the hero and the first
+// ranked card side by side wearing the identical photo (v1.01, 2026-08-08).
+if (!/image=\{\(fromPool\(stockPool, -1\) \|\| \{\}\)\.url \|\| LANDING_HERO\[catSlug\]\}/.test(landing)) {
+  fail("landing hero no longer prefers the stock pool over the static per-category image (or reverted to the index-0 hero/card-0 collision)");
 }
 if (!/landingPhoto\(p, catSlug, stockPool, i\)/.test(landing)) {
   fail("place-card image no longer passes the per-card index into landingPhoto() — cards would repeat one image again");
+}
+// POOL_SIZE must stay >= 16: rankedFor() renders up to 15 cards
+// (pool.slice(0, 15)) PLUS the hero = 16 slots that ideally want distinct
+// photos. A regression back to 10 silently reintroduces intra-page repeats
+// past card ~10 (confirmed live on /things-to-do/sarasota and /kihei).
+const poolSizeMatch = stock.match(/POOL_SIZE\s*=\s*(\d+)/);
+if (!poolSizeMatch || Number(poolSizeMatch[1]) < 16) {
+  fail("lib/stockPhoto.js POOL_SIZE is below 16 — landing pages need up to 15 cards + 1 hero = 16 distinct photos per page");
 }
 // landingPhoto() itself must still fall back to the static map when the pool
 // is empty (no key / fetch failure) — the fail-soft contract, never a broken <img>.
