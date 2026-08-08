@@ -13,6 +13,8 @@ import CollectionFilter from "./CollectionFilter";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { supabase } from "../../lib/supabase";
 import { wayfindScore } from "../../lib/google";
+import { attachTrendSignals } from "../../lib/trendSignal";
+import { byVisibleScore } from "../../lib/todaysBest";
 import { rankByHour, timeFit } from "../../lib/trendingTime";
 import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
@@ -117,6 +119,12 @@ export default function TrendingNowClient() {
         } catch (e) {}
         return { ...p, why: line, timeFit: timeFit(p.category, hour) };
       }));
+      // 2026-08-07: the UNIFIED trend signal (lib/trendSignal.js) decorates
+      // these rows, and byVisibleScore stamps governed_score (base +0.7 video
+      // −0.2 far +0.6 trending) onto the same objects — so the "Top rated"
+      // sort below, the card badge, and the 🔥 disclosure all read ONE number.
+      // rankByHour's hour-fit order is preserved (decoration mutates in place).
+      try { await attachTrendSignals(withWhy, {}); byVisibleScore(withWhy); } catch (e) {}
       if (!dead) setRows(withWhy);
     })();
     return () => { dead = true; };
@@ -142,9 +150,13 @@ export default function TrendingNowClient() {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch (e) {}
   };
 
+  // "Top rated" sorts on the GOVERNED score — the same number the badge
+  // shows (incl. the disclosed trending bump) — falling back to the base for
+  // any row byVisibleScore could not score. Shown == sorted, on this page too.
+  const govKey = (r) => (Number.isFinite(r.governed_score) ? r.governed_score : wayfindScore(r.rating, r.reviews) ?? -Infinity);
   const visibleRows = (rows || []).filter((r) => r.distance_mi == null || r.distance_mi <= radius).slice().sort((a, b) => {
     if (sortBy === "near") return (a.distance_mi ?? 1e12) - (b.distance_mi ?? 1e12);
-    return wayfindScore(b.rating, b.reviews) - wayfindScore(a.rating, a.reviews);
+    return govKey(b) - govKey(a);
   });
 
   return (

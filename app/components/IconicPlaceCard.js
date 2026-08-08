@@ -149,7 +149,11 @@ const ThumbIcon = ({ down = false }) => (
 export default function IconicPlaceCard({ place, rank, href, editorial, aiSummary, badge, rankingNote, onShare, saved, liked, disliked, onSave, onLike, onDislike, onBadge }) {
   if (!place) return null;
   const expTags = experienceTags(place, 3);
-  const score = toDisplayScore(place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
+  // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
+  // byVisibleScore carries governed_score (base +0.7 video −0.2 far +0.6
+  // trending, disclosed below) — prefer it so the badge can never disagree
+  // with the row's position. Un-ranked callers keep the canonical base.
+  const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
   const category = coarseCat(place) || place.primaryType || place.type || "Local pick";
   const status = businessStatus({
     ...place,
@@ -166,6 +170,9 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
     priceLabel(place.priceLevel ?? place.price_level ?? place.priceNum),
     state,
     distance,
+    // 2026-08-07: mandatory disclosure for the trending rank component
+    // (lib/trendSignal.js — real demand data; lib/wayfindScore TRENDING_BONUS).
+    place.trending && place.trend_reason ? "🔥 " + place.trend_reason : null,
   ].filter(Boolean);
   const award = isCuratorPick ? "Wayfind curator's pick" : rank <= 3 ? (rank === 1 ? "Best " : "Top ") + String(category).toLowerCase() + " pick" : null;
   // v6.87 (owner): the rank-summary fallback ("Our #1 pick — 4.9★ with 921
@@ -210,7 +217,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
           </div>
 
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            {facts.map((fact) => <span key={fact} style={{ color: fact === "Open" ? "#22C55E" : fact === "Closed" ? "#EF4444" : undefined }}>{fact}</span>)}
+            {facts.map((fact) => <span key={fact} style={{ color: fact === "Open" ? "#22C55E" : fact === "Closed" ? "#EF4444" : fact.startsWith("🔥") ? "#FB923C" : undefined, fontWeight: fact.startsWith("🔥") ? 700 : undefined }}>{fact}</span>)}
           </div>
 
           {award ? (
