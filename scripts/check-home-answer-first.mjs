@@ -118,7 +118,10 @@ const iEvents = HOME.indexOf("<EventsRailSkeleton />");
 // two things rendered in the same tree.
 const iHero = HOME.indexOf("<DiscoveryHeroCard onOpen=");
 const iMenu = HOME.indexOf("const discoveryMenu");
-const iMenuUse = HOME.indexOf("{discoveryMenu}");
+// v6.65: the discovery rail is hoisted above the ranked list and renders from
+// ONE site (`{!browseCat && discoveryMenu}`) instead of the three mutually
+// exclusive events-state branches it used to live in, so this probe follows it.
+const iMenuUse = HOME.indexOf("{!browseCat && discoveryMenu}");
 
 ok(iBest > -1, "app/home.js renders <BestNearby>");
 ok(iEvents > -1, "PROBE: the events rail is still in the feed (if this is -1 the comparisons below prove nothing)");
@@ -127,7 +130,16 @@ ok(iMenuUse > -1, "PROBE: the discovery grid is still in the feed");
 
 ok(iBest < iEvents, `<BestNearby> renders BEFORE the events rail (${iBest} vs ${iEvents}) — the ranked list leads the feed`);
 ok(iBest < iHero, `<BestNearby> renders BEFORE the promo hero card (${iBest} vs ${iHero}) — a stranger meets an answer, not an advert for us`);
-ok(iBest < iMenuUse, `<BestNearby> renders BEFORE the discovery grid (${iBest} vs ${iMenuUse}) — results before controls`);
+// v6.65 (owner, twice, the second time bluntly): the discovery rail sits ABOVE
+// the ranked list, alongside the category row that moved in v6.62. Both are
+// NAVIGATION — two skimmable rows of controls — not competing answers, and the
+// ranked list still leads over events, the hero rail and every content surface
+// below, which is what the v6.58 measurement was actually about. The assertion
+// is kept and inverted rather than deleted, so the position stays pinned.
+ok(iMenuUse > 0 && iMenuUse < iBest, `the discovery rail renders ABOVE <BestNearby> (${iMenuUse} vs ${iBest}) — owner directive 2026-08-08`);
+ok(iBest < iEvents && iBest < iHero, "…and the ranked list still leads every CONTENT surface (events, hero) — the v6.58 measurement stands");
+ok((HOME.match(/discoveryMenu\}/g) || []).length === 1,
+  "the discovery rail renders from exactly ONE site — it used to sit in three mutually exclusive events-state branches, which is how it ended up below the fold in every one of them");
 
 /* It must also sit OUTSIDE the events-present branch. Nested there, a visitor
    with no events nearby saw no ranked list at all — the case where they most
