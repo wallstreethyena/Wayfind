@@ -270,11 +270,18 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
 // assertions written BELOW the report; nothing caught assertions removed
 // outright. The TDZ rule at the bottom is the one that took the home page
 // down once already, and it has been unprotected since 2026-08-06.
+//
+// SUPERSEDED in part by v6.62 (2026-08-08, owner: "add this to the top of
+// the page", re: the category row). The categories-below-the-answer ORDER
+// assertion below is now categories-ABOVE-the-answer — a direct, explicit
+// reversal, not a regression. Everything else in this block (BestNearby
+// before CreatorFinds, the shared videoPlaces array, the TDZ rule, the
+// bridge) is untouched; only the categories' position moved.
 // ═══════════════════════════════════════════════════════════════════════════
 {
   const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 
-  // ── order on the page: answer, then creators, then categories ──
+  // ── order on the page: categories, then the answer, then creators ──
   // Anchor on the TAG, not on whichever prop happened to come first: #634
   // added `category=` to <BestNearby> and this restored assertion went red on
   // the very first run, which is the same pin-the-literal-source fragility
@@ -284,7 +291,7 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   const iCats = HOME.indexOf("<CategoryMenu tight activeCat=");
   ok(iBestNearby > 0 && iFinds > 0 && iCats > 0, "all three home sections render (answer, creator finds, categories)");
   ok(iBestNearby < iFinds, "the ANSWER comes before the creator row");
-  ok(iFinds < iCats, "the six categories sit BELOW the answer and the creator row — they stop being the first thing a stranger has to solve");
+  ok(iCats > 0 && iCats < iBestNearby, "the six categories sit ABOVE the answer and the creator row (v6.62, owner: \"add this to the top of the page\") — the ranked list below is still unmoved relative to events/hero/discovery, see the v6.58 block above");
 
   // ── one list, two surfaces ──
   ok(/<CreatorFinds items=\{videoPlaces\}/.test(HOME) && /<BestNearby[^>]*videoPlaces=\{videoPlaces\}/.test(HOME),
