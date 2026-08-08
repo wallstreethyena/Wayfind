@@ -1,3 +1,20 @@
+## v6.58 - Landing-page photo pool: fix the wrap-around repeat past card 10
+- FOLLOW-UP to v6.57. Post-ship audit (live DOM check on /things-to-do/sarasota
+  and /things-to-do/kihei) found the stock photo pool wrapping and repeating
+  once a page went past its 10th card: lib/landing.js's rankedFor() renders up
+  to 15 ranked cards plus a hero (16 image slots), but lib/stockPhoto.js's
+  POOL_SIZE was 10 — cards #11-15 reused an earlier card's photo on the same
+  page. A milder rerun of the exact bug v6.57 fixed.
+- lib/stockPhoto.js: POOL_SIZE 10 -> 24 (covers the 16-slot max with headroom);
+  cache-key prefix bumped wfstock1| -> wfstock2| so already-cached 10-item
+  pools are treated as a miss and re-fetched immediately, instead of serving
+  the undersized pool for up to the existing 21-day TTL.
+- lib/landing.js: separately, the hero and card #1 both read pool index 0, so
+  they showed the identical photo back-to-back at the top of every page. Hero
+  now reads index -1 (the pool's last entry) instead.
+- scripts/check-landing-photos.mjs: guard now also asserts POOL_SIZE >= 16 and
+  the hero's -1 index, so both regress loudly instead of silently.
+
 ## v6.57 - Landing pages: every city, every card, the same four stock photos
 - THE BUG (owner-reported on /things-to-do/sarasota; source-read confirmed
   site-wide): the SSR city landing pages (/things-to-do, /restaurants,
