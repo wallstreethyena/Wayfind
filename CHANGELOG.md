@@ -1,3 +1,30 @@
+## v6.59 - Coupons: a real photo for market-level cards (Clipp city, CityPASS)
+- THE GAP: lib/coupons.js's market-level rows (CLIPP_COUPONS — city-market
+  Clipp cards, ~36 merchants behind one card — and CITYPASS_COUPONS) have no
+  single venue to photograph, so they carry neither venuePhotoRef nor icon.
+  app/components/screens/Coupons.js's CouponCard rendered NO identity tile at
+  all for them — the 52px picture-or-icon slot every other card has was
+  empty.
+- THE FIX: a same-origin proxy chain reusing lib/stockPhoto.js (the same
+  Pexels-backed pool the v6.57 landing-page fix uses) — app/api/market-photo
+  (server-only, calls stockPhotoPool with a city+category query) ->
+  app/api/stock-photo (SSRF-guarded byte proxy, images.pexels.com only). The
+  browser never sees a raw Pexels URL or key. CouponCard fetches this only
+  when a row has neither a venue photo nor an icon, caches per-query
+  client-side, and fails soft to no tile on any error — exactly today's
+  behavior when nothing is available.
+- EXPLICITLY UNCHANGED: lib/coupons.js's `image` field and lib/dealSheet.js's
+  dealArtwork() — a separate, already-guarded (check-clipp-deals.mjs),
+  local-asset-only contract for the "poster band" system, which the live
+  v6.90 Coupons redesign deliberately does not render (see that file's own
+  comment: "the coupon wallet renders no images at all... the strongest
+  possible paid/free parity"). This fix targets only the small identity tile
+  that IS on screen today, not that system.
+- Per-merchant cards (CLIPP_MERCHANT_COUPONS) are untouched and unaffected —
+  they stay on the venue's own Google photo_ref or nothing, never a generic
+  photo; scripts/check-market-photo.mjs asserts marketPhotoQuery never leaks
+  onto a merchant row.
+
 ## v6.58 - Landing-page photo pool: fix the wrap-around repeat past card 10
 - FOLLOW-UP to v6.57. Post-ship audit (live DOM check on /things-to-do/sarasota
   and /things-to-do/kihei) found the stock photo pool wrapping and repeating

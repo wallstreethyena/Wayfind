@@ -21,7 +21,7 @@
 // clear visual anchor per card, the palette pulled back toward kit.js's real
 // brand accent (#F97316) instead of a near-duplicate orange, and more
 // consistent vertical rhythm so the eye has fewer places to stop.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { COUPONS, couponIsLive } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
@@ -47,6 +47,38 @@ const ShareGlyph = () => (
     <path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" />
   </svg>
 );
+
+// v1.00 (2026-08-08): market-level (non-merchant) cards — CLIPP_COUPONS,
+// CITYPASS_COUPONS — carry neither a venuePhotoRef (no single venue) nor an
+// icon, so their identity tile renders nothing today. This fetches a real
+// city+category-matched Pexels photo for them via the same-origin
+// /api/market-photo route (server-side cget/cset-cached ~21 days already —
+// see lib/stockPhoto.js — so most calls here resolve from that cache, not a
+// live Pexels hit). Fails soft to null on any error, matching the tile's
+// existing "no photo, no icon -> no tile" behavior exactly.
+//
+// Module-scope Map, not localStorage/sessionStorage: an in-memory cache is
+// enough to de-dupe the handful of distinct queries (one per market) across
+// however many cards render in a tab's lifetime, and clearing on reload is
+// fine since the server-side cache is the durable layer.
+const _marketPhotoCache = new Map();
+function useMarketPhoto(query) {
+  const [url, setUrl] = useState(() => (query && _marketPhotoCache.has(query) ? _marketPhotoCache.get(query) : null));
+  useEffect(() => {
+    if (!query || _marketPhotoCache.has(query)) return;
+    let cancelled = false;
+    fetch("/api/market-photo?q=" + encodeURIComponent(query))
+      .then((r) => (r.ok ? r.json() : { url: null }))
+      .then((data) => {
+        const u = (data && data.url) || null;
+        _marketPhotoCache.set(query, u);
+        if (!cancelled) setUrl(u);
+      })
+      .catch(() => { _marketPhotoCache.set(query, null); if (!cancelled) setUrl(null); });
+    return () => { cancelled = true; };
+  }, [query]);
+  return url;
+}
 
 function TierHead({ title, count, hint, tone }) {
   const dot = tone === "green" ? T.green : T.gold;
@@ -78,8 +110,12 @@ function CouponCard({ c, position, ctx }) {
   const thumbPhoto = typeof c.venuePhotoRef === "string" && /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/.test(c.venuePhotoRef)
     ? "/api/photo?ref=" + encodeURIComponent(c.venuePhotoRef) + "&w=160" : null;
   const thumbIcon = !thumbPhoto && typeof c.icon === "string" && c.icon ? c.icon : null;
-  const hasArt = !!thumbPhoto;
-  const variant = thumbPhoto ? "clip_venue_art" : "clip_no_art";
+  // Market-level fallback (v1.00, 2026-08-08): only asked for when this row
+  // has neither a venue photo nor an icon — see useMarketPhoto above.
+  const marketPhoto = useMarketPhoto(!thumbPhoto && !thumbIcon && typeof c.marketPhotoQuery === "string" ? c.marketPhotoQuery : null);
+  const effectiveThumb = thumbPhoto || marketPhoto;
+  const hasArt = !!effectiveThumb;
+  const variant = thumbPhoto ? "clip_venue_art" : marketPhoto ? "clip_market_art" : "clip_no_art";
   const category = disc.affiliate ? "deal_money" : "deal_free";
   const cityId = scope.kind === "metro" ? scope.metro : null;
   const cctx = disc.affiliate ? {
@@ -111,12 +147,14 @@ function CouponCard({ c, position, ctx }) {
       <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
           {/* Venue identity tile — spans header + title height so the eye reads
-              picture-then-price. Photo only from the row's own verified
-              photoRef via /api/photo; explicit category emoji otherwise. */}
-          {(thumbPhoto || thumbIcon) ? (
+              picture-then-price. Photo from the row's own verified photoRef
+              via /api/photo when there is one; otherwise a Pexels market
+              photo via /api/market-photo (marketPhoto, city+category-matched,
+              market-level rows only); otherwise the explicit category emoji. */}
+          {(effectiveThumb || thumbIcon) ? (
             <div aria-hidden="true" style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, background: "rgba(232,201,122,.08)", display: "grid", placeItems: "center" }}>
-              {thumbPhoto
-                ? <img src={thumbPhoto} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              {effectiveThumb
+                ? <img src={effectiveThumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 : <span style={{ fontSize: 26, lineHeight: 1 }}>{thumbIcon}</span>}
             </div>
           ) : null}
