@@ -29,6 +29,9 @@ function PickRow({ p, onGo }) {
               the UNBOOSTED number under a card the ranked list had just moved up.
               Pass the real place. */}
           <PlaceScoreChip p={p} size={12} />
+          {/* 2026-08-07: mandatory disclosure for the +0.6 trending bump the
+              governed score (and therefore this chip) can now carry. */}
+          {p.trending && p.trend_reason ? <span style={{ color: "#FB923C", fontWeight: 700 }}>🔥 {p.trend_reason}</span> : null}
         </div>
       </div>
       <span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>
