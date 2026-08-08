@@ -1,3 +1,39 @@
+## v6.60 - Ranked-list text truncation fix, Ryan's Coffee video fix, discovery rail + button polish
+- THE BUG (text): ranked-list "known for" lines were silently truncating mid-
+  sentence for any place whose Google Places `name` uses a typographic
+  apostrophe (U+2019, e.g. "Mio's Grill & Cafe") while its wf_editorial hook
+  text was written with a plain ASCII apostrophe (U+0027) or vice versa.
+  BestNearby.js's toHookLine() name-prefix strip only matched one glyph, so a
+  mismatch meant the strip silently failed, the redundant "<Name> is a"
+  prefix survived into the card text, and the 40-char cap then cut the line
+  mid-word instead of at a clean boundary — reads as a broken card, not a
+  business decision. Root-caused via live Supabase + /api/known-for + DOM
+  codepoint inspection (not simulated locally with hand-typed straight
+  apostrophes, which never reproduced it). Affects up to ~33% of hooks
+  site-wide (224 of 668 sampled contain an apostrophe). Fixed: the
+  name-prefix regex now matches either glyph.
+- THE BUG (missing creator video): Ryan's Coffee House (Parrish, FL) has a
+  real creator video in lib/creatorVideos.js but was relying on PASS 2's
+  fragile name+city substring match, which only fires when the place happens
+  to already be in the visitor's loaded Google Places pool. Verified the
+  business via a live Google Places search (real, open, correctly typed) and
+  added its real placeId, moving it onto the robust PASS 1 exact-match path
+  — the same path its working sibling entry ("P J's Sandwich Shop") already
+  uses.
+- DISCOVERY GRID -> RAIL: the 8-tile discovery grid (Best of your area,
+  Hidden gems, etc.) is now a horizontal scrollable rail instead of a
+  2-column grid, matching HeroRail/CreatorFinds conventions. Position is
+  UNCHANGED (still below the ranked list + creators row — see the v6.58
+  measured-bounce-rate comment in app/home.js); only the shape moved. The
+  old wide-desktop rule that stripped tile borders and drew list dividers is
+  gone — tiles now keep their card look at every width.
+- CATEGORY ROW BUTTON POLISH: the 6-category row gets a subtle resting-state
+  fill (rgba(255,255,255,.035), 14px radius) so each tile reads as a
+  tappable button instead of a bare icon floating on the page background.
+  Still no border, so it does not reproduce the retired chip-bubble shape
+  check-ux.mjs bans (`borderRadius: 22, border: \`1.5px solid...\``) — see
+  the code comment at the CategoryMenu call site for the exact reasoning.
+
 ## v6.59 - Coupons: a real photo for market-level cards (Clipp city, CityPASS)
 - THE GAP: lib/coupons.js's market-level rows (CLIPP_COUPONS — city-market
   Clipp cards, ~36 merchants behind one card — and CITYPASS_COUPONS) have no

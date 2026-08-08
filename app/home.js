@@ -210,7 +210,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.59";
+const BUILD_ID = "v6.60";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -384,7 +384,16 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           affordance a pointer expects. Deliberately NOT a bordered chip —
           check-ux.mjs bans that shape for category strips and it is banned for
           good reason. */}
-      <div className="wf-catrow" style={{ display: "flex", gap: 4, paddingBottom: 2 }}>
+      {/* v6.60 (owner, live desktop screenshot review: "the menu needs to look
+          more like buttons"): each tile gets a subtle resting-state fill and
+          rounded corners so it reads as a discrete tappable button instead of
+          a bare icon+label floating on the page background. This is NOT the
+          old chip-bubble strip check-ux.mjs bans (`borderRadius: 22, border:
+          \`1.5px solid...\``) — there is still no border here, only a soft
+          fill, and the radius (14) matches the card language used everywhere
+          else on the page (COLLECTION.card tiles, DiscoveryMenu) rather than
+          the retired chip's 22. */}
+      <div className="wf-catrow" style={{ display: "flex", gap: 6, paddingBottom: 2 }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -397,7 +406,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
             literal "#FFFFFF" check-design.mjs asserts (owner call
             2026-07-21) — untouched. */}
         {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 0, background: "transparent", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}` }}>
+          <button key={m.id} className="wf-cattile" onClick={() => onCat(m.id, m.label)} aria-current={on ? "page" : undefined} style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, padding: "9px 3px 7px", borderRadius: 14, background: on ? "rgba(249,115,22,.07)" : "rgba(255,255,255,.035)", border: "none", cursor: "pointer", flex: 1, minWidth: 0, WebkitTapHighlightColor: "transparent", transition: `opacity ${MOTION.base} ${MOTION.ease}, background ${MOTION.base} ${MOTION.ease}` }}>
             <span style={{ position: "relative", display: "grid", placeItems: "center" }}>
               {on && <span aria-hidden="true" style={{ position: "absolute", inset: -7, borderRadius: "50%", background: "radial-gradient(circle, rgba(249,115,22,.18) 0%, rgba(249,115,22,0) 72%)" }} />}
               <NavIcon name={m.id} color={on ? C.accent : "#FFFFFF"} size={31.2} strokeWidth={1.4} />
@@ -2670,9 +2679,23 @@ function CompactEventShareCard({ event, relativeLabel, onCopied }) {
 // moved. All eight handlers, the eatMetro fallback branch, the
 // wf-discovery-grid / wf-discovery-link class hooks, and the 42px min height
 // are unchanged.
+//
+// v6.60 (owner, live desktop screenshot review): converted the 2-column grid
+// to a horizontal rail — same 8 tiles, same handlers, same card look (border,
+// radius, background all unchanged), just laid out like HeroRail /
+// CreatorFinds instead of wrapping into rows. Position is UNCHANGED — this
+// stays below BestNearby/CreatorFinds, per the v6.58 measured-bounce-rate
+// decision a few hundred lines down (259 sessions, 84% bounce when taxonomy
+// led the page); only the shape of this one component moved, not its place
+// in the feed. The old wide-desktop rule in css.js that stripped the border
+// and drew alternating list dividers (`.wf-discovery-grid{gap:0!important;
+// border-top:...}` / `.wf-discovery-link{border:0!important;...nth-child...}`)
+// existed only to make a 2-column grid readable at 800px+; a horizontal rail
+// doesn't need it, so that rule is gone and every tile keeps its card border
+// at every width, phone through wide desktop.
 function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, onDrive, onBudget, onSurprise, eatMetro, onEat }) {
   return (
-    <div className="wf-discovery-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 9, marginBottom: 12 }}>
+    <div className="wf-discovery-grid" style={{ display: "flex", gap: 9, overflowX: "auto", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", paddingBottom: 4, marginBottom: 12 }}>
       {[
         ["sparkles", "Best of " + (locName ? locName.split(",")[0] : "your area"), onBest],
         ["gem", "Hidden gems", onGems],
@@ -2694,7 +2717,7 @@ function DiscoveryMenu({ locName, onBest, onGems, onFamily, onMood, onTonight, o
         ["wallet", "Big fun, small budget", onBudget],
         ["dice", "Surprise me", onSurprise],
       ].map(([ic, lbl, go]) => (
-        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${COLLECTION.border}`, background: COLLECTION.card, color: COLLECTION.text, cursor: "pointer", minHeight: 42 }}>
+        <button className="wf-discovery-link" key={lbl} onClick={go} style={{ display: "flex", alignItems: "center", gap: 10, textAlign: "left", padding: "8px 10px", borderRadius: 14, border: `1px solid ${COLLECTION.border}`, background: COLLECTION.card, color: COLLECTION.text, cursor: "pointer", minHeight: 42, flexShrink: 0, width: 176, scrollSnapAlign: "start" }}>
           <Icon name={ic} size={19} color={COLLECTION.accent} style={{ flexShrink: 0 }} />
           <span style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.15 }}>{lbl}</span>
         </button>
