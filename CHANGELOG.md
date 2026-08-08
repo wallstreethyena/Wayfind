@@ -1,3 +1,45 @@
+## v6.64 - 12 new creator spots from @manateelittlelocals and @parrishfloridahomes
+- THE PROVENANCE, because it is unusual and load-bearing. The owner supplied
+  ~106 TikTok and Instagram links. Both platforms refuse automated fetching
+  (robots.txt ROBOTS_DISALLOWED), so the captions behind these entries were
+  read through the owner's OWN logged-in browser, and every placeId below was
+  then resolved by CALLING this app's own /api/places/search against the venue
+  the caption names. Nothing is inferred from a URL: a shortcode like
+  `DbtqB6zJ0RG` carries no venue, and a video pinned to the wrong business
+  would hand that business an unearned +0.7 on its Wayfind Score.
+- ADDED (12, all placeId-resolved, all PASS 1 exact-match): Gamble Creek Farms
+  (Parrish), Mote Science Education Aquarium (Sarasota), The Bishop Museum of
+  Science and Nature (Bradenton), Eleanors Coffee & Cakes (Palmetto), Heritage
+  Harbour Park (Bradenton), Northeast Venice Park (Nokomis), Lakewood Ranch
+  Library (Bradenton), ALEUR-Event Collective (Sarasota), JJ Fox's Treehouse
+  (Bradenton), Capybara Cafe (St. Petersburg), Hogan's Place (Gibsonton),
+  PopStroke (Sarasota). Three new CITY_COORDS centroids (Palmetto, Nokomis,
+  Gibsonton) — sorting only, never displayed, per that table's own contract.
+- DELIBERATELY NOT ADDED, and why, so the gaps are legible rather than silent:
+  a product/restock post with no venue; Pass-a-Grille Beach (resolves to a
+  NEIGHBORHOOD with no rating, so there is no Wayfind Score for the boost to
+  attach to); "Frankie's, an Italian deli in Southwest Florida" (resolves to
+  Riverview, which is Tampa — plausible is not verified); and Wildcore Club,
+  Whitney's and SkyBeach Resort (no unambiguous Google match). Each needs one
+  line from the owner naming the venue, then it lands.
+- RIGHTS: both creators added to CREATOR_CONSENT on the owner's attestation
+  ("i have agreement on all of them", 2026-08-08). The standing to-do in
+  lib/creatorRights.js is now three sessions old and is restated at the new
+  row: none of these attestations has an artefact behind it, and
+  @manateelittlelocals alone carries eleven places on one sentence, which is
+  the largest single-creator exposure in the file.
+- ARCHETYPES: @manateelittlelocals assigned family_creator, non-provisional —
+  every one of its spots is chosen through the same lens (does this work with
+  young kids, and what does it cost), including the two day-trip entries.
+  @parrishfloridahomes left provisional at one spot, with the note that a
+  realtor's incentive to feature a place is not a guide's.
+- The ~88 Instagram links are NOT in this release. They resolve to a different
+  set of creators than expected — @mayitakeabite (Miami), @estefani.ruizruiz
+  (Tampa/Orlando, Spanish-language) and @thefloridatribe — most of them
+  outside the Manatee/Sarasota footprint, and many are multi-venue round-ups
+  where one post names five restaurants. Both facts are product decisions
+  rather than data-entry ones, so they are the owner's to make.
+
 ## v6.63 - THE GOVERNING LAW, enforced everywhere: shown == sorted
 - THE BUG (owner screenshot, 2026-08-08): on a Parrish café list, American
   Honey Creamery rendered at rank 1 showing a chip of 9.3, and Ryan's Coffee
