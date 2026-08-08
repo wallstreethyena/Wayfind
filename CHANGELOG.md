@@ -1,3 +1,17 @@
+## v6.61 - Desktop footer disclosure was hidden behind the floating bottom nav
+- THE BUG: at desktop widths the "Wayfind may earn a commission..." footer
+  disclosure sat partly behind the floating bottom nav. The 96px bottom
+  padding reserved for it (app/home.js's scrollRef container) was sized for
+  the mobile nav (flush to the screen edge, ~66px tall); the desktop nav is
+  a floating pill offset 18px off the bottom AND taller (72px min-height
+  items + 9px top/bottom padding on the bar itself, ~90px total), so 96px of
+  clearance ran ~12-20px short. Found by scrolling the live site to the
+  bottom at a 1440px viewport during the v6.60 desktop review.
+- THE FIX: gave the scroll container a `wf-scrollarea` class and a
+  desktop-only `padding-bottom` bump (126px) in css.js, rather than raising
+  the flat mobile value — phones don't need the extra clearance and
+  shouldn't get extra dead space at the bottom of the feed.
+
 ## v6.60 - Ranked-list text truncation fix, Ryan's Coffee video fix, discovery rail + button polish
 - THE BUG (text): ranked-list "known for" lines were silently truncating mid-
   sentence for any place whose Google Places `name` uses a typographic

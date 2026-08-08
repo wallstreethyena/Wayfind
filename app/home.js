@@ -210,7 +210,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.60";
+const BUILD_ID = "v6.61";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8245,7 +8245,17 @@ function PageInner({ initialEvents = null }) {
       )}
 
       {/* Body */}
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(96px + env(safe-area-inset-bottom))" }}>
+      {/* v6.61 (owner, live desktop screenshot review): the footer disclosure
+          ("Wayfind may earn a commission...") was sitting partly BEHIND the
+          floating bottom nav on desktop. The 96px bottom padding here was
+          sized for the mobile nav (flush to the screen edge, ~66px tall); the
+          desktop nav is a floating pill offset 18px off the bottom AND taller
+          (72px min-height items + 9px top/bottom padding on the bar itself,
+          ~90px), so 96px of clearance ran out ~12-20px short. wf-scrollarea
+          gets a desktop-only padding-bottom bump in css.js rather than
+          raising the flat mobile value, which would add dead space on phones
+          that don't need it. */}
+      <div ref={scrollRef} className="wf-scrollarea" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflowY: screen === "map" ? "hidden" : "auto", padding: screen === "map" ? 0 : "7px 12px calc(96px + env(safe-area-inset-bottom))" }}>
         <>
             {screen === "explore" && <div className="wf-explore">{exploreList}</div>}
             {screen === "map" && <MapScreen ctx={ctx} />}
