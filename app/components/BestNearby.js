@@ -47,11 +47,30 @@ const HOOK_ABBR = /(?:^|\s)(?:st|ave|blvd|rd|dr|mt|ft|mr|mrs|ms|jr|sr|no|vs|etc|
 const HOOK_STOP = /\s+(?:a|an|the|and|or|of|with|to|for|in|on|at|by|from|off|into|its|their|this|that|not|but|where|which|while|as|is|was)$/i;
 const HOOK_PLACEHOLDER = /\b(independent verification|none confirmed|this research pass|not (?:yet )?(?:been )?(?:confirmed|completed|verified)|unverified|pending verification)\b/i;
 const HOOK_CAP = 40;
+// v6.60 (2026-08-08, owner: "there's a space on the text and it looks weird"):
+// apostrophes. Google Places' `name` field comes back with a typographic
+// RIGHT SINGLE QUOTATION MARK (U+2019, "Mio’s Grill & Cafe") while
+// wf_editorial's hand/AI-written `hook` text uses a plain APOSTROPHE
+// (U+0027, "Mio's Grill & Cafe is a Mediterranean..."). The name-prefix
+// strip below built its regex from the literal name, so the two apostrophe
+// glyphs never matched each other — the strip silently no-opped, the
+// redundant "Mio's Grill & Cafe is a " prefix survived into `s`, and the
+// HOOK_CAP truncation below then cut it into the exact broken fragment the
+// owner saw: "Mio's Grill & Cafe is a Mediterranean". Confirmed via the
+// live /api/known-for response and DOM text (codepoint-inspected: title
+// U+2019, hook U+0027) — not a one-off: 224 of 668 wf_editorial hooks
+// contain an apostrophe, so this silently broke roughly a third of cards
+// with an editorial hook whenever the name/hook glyphs disagreed.
+const APOS_RX = /['’‘‛‚]/g;
 function toHookLine(raw, name) {
   let s = String(raw || "").replace(/\s+/g, " ").trim();
   if (!s || HOOK_PLACEHOLDER.test(s)) return ""; // never surface a pending-research note
   if (name) {
-    const nm = String(name).split(/\s+[-–—|]\s+/)[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Every apostrophe in the name becomes a class matching EITHER glyph, so
+    // the strip fires regardless of which form the name or the hook used.
+    const nm = String(name).split(/\s+[-–—|]\s+/)[0]
+      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      .replace(APOS_RX, "['’]");
     s = s.replace(new RegExp("^" + nm + "(?:['’]s)?\\s+(?:is|was|are)\\s+(?:a|an|the)\\s+", "i"), "");
   }
   s = s.replace(/^(?:it|this|the (?:place|spot|shop|cafe|café|bar))\s+(?:is|was)\s+(?:a|an|the)\s+/i, "");
