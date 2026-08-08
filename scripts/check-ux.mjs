@@ -74,7 +74,14 @@ if (!page.includes("function addReservation(")) fail("reservation capture missin
 }
 if (!page.includes('localStorage.getItem("wf_reservations")')) fail("reservation persistence missing");
 if (!page.includes("🧾 Reservations")) fail("Reservations folder UI missing from Itinerary");
-if (!page.includes("Wayfind beta \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
+if (!page.includes("Wayfind \u00b7 {BUILD_ID}</div>")) fail("visible version label missing (required until bug-hunt ends)");
+// v6.67: the label keeps its job — a visible, quotable build id so a bug report can
+// be pinned to a build, plus the 5-tap diagnostic trigger that hangs off it. What
+// changed is the word "beta": it shipped on every page of a site that asks people to
+// book paid experiences, where it reads as "this may not work" at the exact moment we
+// want to be trusted with a booking. The assertion above still requires the label to
+// EXIST — it just no longer mandates that particular word. This line stops it returning.
+if (/Wayfind beta/.test(page)) fail("beta is back in the customer-facing version label — see v6.67");
 if (!page.includes('setAttribute("data-wf-build"')) fail("machine-readable build marker missing");
 if (!page.includes('aria-label="Approximate location"') || !page.includes("Using {locName ? locName.split")) fail("compact approximate-location control missing");
 if (!page.includes("setFeedRetry")) fail("feed error retry missing");
