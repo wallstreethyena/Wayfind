@@ -322,8 +322,13 @@ export const WF_PLACE_CARD_CSS = `
   color:#CDD5E1!important;
   font-size:10.5px!important;
   line-height:1.35!important;
+  /* v7.05: two lines, not one clipped line. A one-line ellipsis on a 100-char
+     editorial budget would just move the truncation from the source string to
+     the CSS — the reader still never reaches the payoff. */
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
   text-overflow:ellipsis;
-  white-space:nowrap;
 }
 .wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
 .wf-place-card-actions>a,.wf-place-card-actions>button{

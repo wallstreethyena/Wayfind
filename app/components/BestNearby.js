@@ -55,7 +55,19 @@ const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60)
 const HOOK_ABBR = /(?:^|\s)(?:st|ave|blvd|rd|dr|mt|ft|mr|mrs|ms|jr|sr|no|vs|etc|co|inc|dept|hwy|pt|ln)\.$/i;
 const HOOK_STOP = /\s+(?:a|an|the|and|or|of|with|to|for|in|on|at|by|from|off|into|its|their|this|that|not|but|where|which|while|as|is|was)$/i;
 const HOOK_PLACEHOLDER = /\b(independent verification|none confirmed|this research pass|not (?:yet )?(?:been )?(?:confirmed|completed|verified)|unverified|pending verification)\b/i;
-const HOOK_CAP = 40;
+// v7.05 (owner, 2026-08-09, measured on the live rail): 40 chopped the last
+// word off half the lines that rendered — "Two brothers run a 70-minute
+// illusion[ show]", "Pay $19.99 once, and every game on two[ floors]", "A
+// Romanian family's wine bar that themes[…]". That is the same fragment bug
+// this file's own comment above records ("Mio's Grill & Cafe is a
+// Mediterranean"), and it defeats the editorial law outright: a sentence that
+// stops before the payoff cannot answer "what am I going to get out of it".
+//
+// 40 was sized for the 46px-thumbnail row this file used to be. The card is now
+// full-width with a two-line take slot, so the budget is 100 and the line may
+// wrap. The word-boundary logic below is unchanged — it still cuts at a clause
+// or a space, never mid-word.
+const HOOK_CAP = 100;
 // v6.60 (2026-08-08, owner: "there's a space on the text and it looks weird"):
 // apostrophes. Google Places' `name` field comes back with a typographic
 // RIGHT SINGLE QUOTATION MARK (U+2019, "Mio’s Grill & Cafe") while
