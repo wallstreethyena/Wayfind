@@ -27,9 +27,11 @@
 // orange tick, the 98x46 badge box, the award band, the orange chip pills, the
 // action grid — applies to it with no second stylesheet to drift.
 //
-// The one thing a rail changes is WIDTH: the card is fixed-width and snaps, and
-// .wf-rail in css.js owns that. The sideways objection from v6.67 was real but
-// it was a width problem, not a shape problem.
+// The one thing a rail changes is that the card SNAPS, and .wf-rail in css.js
+// owns that. The sideways objection from v6.67 was real but it was a width
+// problem, not a shape problem. (v7.03: the card is full-width, not the
+// fixed 318px this comment used to describe — the peek was traded for the
+// explicit .wf-rail-nav row above the rail. See RailNav below.)
 //
 // WHAT IS OPTIONAL, AND WHY THAT MATTERS. The rails carry genuinely different
 // data: a place has a Wayfind Score and a review count, an event has a start

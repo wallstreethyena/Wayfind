@@ -78,8 +78,13 @@ ok(/cta=\{\{/.test(card) && /eventCTA\(event\)/.test(card), "the ticket/details 
 // first pass shipped seg.short in both, so every card read "— THEATER ›" above
 // "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88 deleted
 // from the place card.
-ok(!/label: seg\.short/.test(card), "no chip merely repeats the eyebrow's own segment label");
-ok(/const genre = eventGenreLabel\(event, seg\)/.test(card), "the chip carries the provider's specific genre instead");
+ok(/label: genre \|\| seg\.short/.test(card), "the chip PREFERS the provider's specific genre and only falls back to the segment when there is nothing more specific");
+ok(/const genre = eventGenreLabel\(event, seg\)/.test(card), "…and that genre comes from eventGenreLabel, not from the segment");
+// The inverse of the de-duplication fix, and the reason it is a fallback
+// rather than a removal: an empty chip row leaves a visible hole in the card.
+// Caught on production — Kevin Nealon has genre "" from Ticketmaster, so the
+// row rendered with nothing in it between the award band and the ticket CTA.
+ok(/\{ key: genre \? "genre" : "segment"/.test(card), "every event card gets at least one chip — a chip-less card renders a hole where the mood row should be");
 ok(/GENRE_JUNK/.test(src) && /raw\.length > 22/.test(src), "…and junk genres (Miscellaneous/Other) and over-long comma-packed ones are dropped rather than printed or truncated");
 
 // ── 5. NO LAYOUT SHIFT ──────────────────────────────────────────────────────
