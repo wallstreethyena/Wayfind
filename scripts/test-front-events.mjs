@@ -5,7 +5,7 @@
 // the same no-image chip style. Civic-flagged and business rows stay off the
 // home surface entirely. Pure logic tests + static checks that home.js
 // delegates to lib/frontEvents.
-import { frontPageEvents, TICKETED_KEYS, RAIL_CHAIN } from "../lib/frontEvents.js";
+import { frontPageEvents, TICKETED_KEYS, RAIL_CHAIN, bestFirst, eventStature } from "../lib/frontEvents.js";
 import { readFileSync } from "fs";
 
 let pass = 0;
@@ -69,5 +69,37 @@ ok(TICKETED_KEYS.length === 4 && RAIL_CHAIN.join(",") === "comedy,theater,sports
 const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 ok((home.match(/frontPageEvents\(/g) || []).length >= 2, "home.js calls frontPageEvents for BOTH the fetch filter and the hero/rail pick");
 ok(!/const withImg = usable\.filter/.test(home), "the old date-mixed hero picker (withImg) is gone from home.js");
+
+// ── BEST FIRST: the home MENU's rail order (owner, 2026-08-09) ──────────────
+// "I want to display the best events." RAIL_CHAIN is a CATEGORY order and it
+// stays — the events tab runs it. The menu rail ranks by stature then time,
+// because category order put a noon minor-league game above a Rays game at
+// Tropicana. Proven by CALLING it, not by reading it.
+{
+  const B = (e) => e.b;
+  const rows = [
+    { id: "mkt",     b: "community", date: "2026-08-09", time: "09:00", dest: "/e/mkt" },
+    { id: "smallcom",b: "comedy",    date: "2026-08-09", time: "10:00", dest: "/e/sc" },
+    { id: "rays",    b: "sports",    date: "2026-08-14", time: "19:10", dest: "https://tm/rays", destKind: "external", image: "/rays.jpg" },
+    { id: "gig",     b: "concerts",  date: "2026-08-20", time: "20:00", dest: "https://tm/gig", destKind: "external", image: "/gig.jpg" },
+    { id: "hero",    b: "concerts",  date: "2026-08-10", time: "20:00", dest: "https://tm/hero", destKind: "external", image: "/h.jpg" },
+  ];
+  const fp = frontPageEvents(rows, B);
+  const order = bestFirst(fp.usable, B, fp.featured).map((e) => e.id);
+  ok(fp.featured && fp.featured.id === "hero", "the hero is still the soonest concert — bestFirst does not touch that rule");
+  ok(!order.includes("hero"), "the hero is excluded from the rail, so no event appears twice");
+  ok(order[0] === "gig", `a ticketed concert with artwork leads, even though two community/comedy rows are SOONER (got ${order.join(" > ")})`);
+  ok(order[1] === "rays", "a ticketed sports headliner comes next");
+  ok(order[order.length - 1] === "mkt", "the community listing sorts last — it is the one row nobody sells a seat to");
+  ok(eventStature(rows[3], B) > eventStature(rows[1], B), "stature is category weight + ticketed + artwork + a real ticket page, so a concert outweighs a small comedy night");
+  ok(eventStature(null, B) === -1 && bestFirst(null, B, null).length === 0, "junk in, no throw — this runs inside a render");
+  // Same-stature rows fall back to time, never to chance.
+  const tie = bestFirst([
+    { id: "late", b: "sports", date: "2026-08-20", time: "19:00", dest: "/a", destKind: "external", image: "/a.jpg" },
+    { id: "soon", b: "sports", date: "2026-08-11", time: "19:00", dest: "/b", destKind: "external", image: "/b.jpg" },
+  ], B, null).map((e) => e.id);
+  ok(tie[0] === "soon", "inside one stature band the sooner event wins — the tiebreak is time, not input order");
+  ok(RAIL_CHAIN.join(",") === "comedy,theater,sports,concerts,community", "the category chain is UNCHANGED — the events tab still runs it");
+}
 
 console.log(`test-front-events: OK — ${pass} assertions (concert hero, owner chain comedy→theater→sports→concerts→local, civic/business locked out, delegation locked)`);

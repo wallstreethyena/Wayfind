@@ -153,7 +153,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
 import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
-import { frontPageEvents } from "../lib/frontEvents";
+import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -161,7 +161,7 @@ import { pickHomeExp } from "../lib/homeExpPick";
 // the same single inline <style dangerouslySetInnerHTML> tag below, and
 // app/components/css.js is registered in scripts/lib/shellSrc.mjs so every
 // content guardrail still greps them.
-import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_SECTION_CSS } from "./components/css";
+import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_SECTION_CSS, WF_RAIL_COLLAPSED_CSS } from "./components/css";
 // v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
 // curation DATA (best-of / local-fave name lists, the hand-written place notes,
 // the featured-boost table, the founder "note from Wayfind" blocks). Data only.
@@ -216,7 +216,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.68";
+const BUILD_ID = "v6.69";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -8219,7 +8219,7 @@ function PageInner({ initialEvents = null }) {
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}` }} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -8623,7 +8623,10 @@ function PageInner({ initialEvents = null }) {
             const evs = dedupeEvents(foryouEvents || [], true);
             const usable = evs.filter((e) => e && e.dest);
             const fp = frontPageEvents(usable, eventBucket);
-            const shown = fp.rest.filter((e) => e && e.dest && eventSignals.disliked[e.id] !== true).slice(0, 24);
+            // v6.69 (owner: "I want to display the best events"). bestFirst
+            // ranks by stature then imminence; RAIL_CHAIN's category order is
+            // still what the events TAB runs. See lib/frontEvents.js.
+            const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
             if (!shown.length) return null;
             return (
               <>

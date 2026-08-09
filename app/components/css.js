@@ -1,3 +1,4 @@
+import { RAIL_IDS } from "../../lib/railCollapse";
 // app/components/css.js — the homepage's server-rendered CSS, lifted verbatim
 // out of app/home.js (July 2026 decomposition, wave 1).
 //
@@ -825,6 +826,15 @@ export const WF_TASTE_CSS = `
 // that has to be global is this one: the link that closes each intent rail sits
 // inside a horizontally-scrolling flex container, and an inline <a> in there
 // collapses to nothing without an explicit display and a tap target.
+// THE PRE-PAINT COLLAPSE. `html[data-wf-rails~="<id>"]` is set by the blocking
+// script in app/layout.js from the reader's stored preference, before anything
+// paints. !important because the open/closed geometry is an inline style on the
+// section body (BestNearby's SectionShell) and an inline style otherwise wins —
+// once React hydrates it writes the same values, so nothing fights.
+export const WF_RAIL_COLLAPSED_CSS = RAIL_IDS.map((id) =>
+  `html[data-wf-rails~="${id}"] #wf-sec-${id}{max-height:0!important;opacity:0!important;visibility:hidden!important}`
+).join("\n") + "\n";
+
 export const WF_RAIL_SECTION_CSS = `
 .wf-railsec-more{display:inline-flex;align-items:center;min-height:36px;margin-top:8px;padding:0;background:none;border:0;font:inherit;font-size:12.5px;font-weight:750;color:#FB923C;text-decoration:none;cursor:pointer}
 .wf-railsec-more:hover,.wf-railsec-more:focus-visible{text-decoration:underline}
