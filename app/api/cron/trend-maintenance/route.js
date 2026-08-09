@@ -72,7 +72,31 @@ export async function GET(req) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // ── Configuration. Missing config is a non-200, NOT an empty success.
+  // ── DORMANT vs MISCONFIGURED. These are different facts and they get opposite
+  //    treatment — this is AGENTS.md §5's own corollary ("a zero has two causes"),
+  //    applied to a whole feature rather than to one value.
+  //
+  // EXPLODING_TOPICS_RIGHTS_MODE entirely absent means nobody has ever turned
+  // this feature on. That is not a misconfiguration; it is the off position, and
+  // it is the CORRECT state until Semrush answers. Returning 503 for it would
+  // page a human every day at 09:50 UTC about a feature that is deliberately
+  // dormant — and an alert that fires daily for a non-problem is an alert
+  // everybody learns to ignore, which costs us the real one later.
+  //
+  // The §5 danger is a misconfiguration wearing the costume of a product state.
+  // There is no costume here: the job does nothing, and says it did nothing and
+  // why. What IS loud is the half-configured case below — a mode set with the
+  // cadence or the search budget missing means somebody started enabling this
+  // and stopped, and that genuinely cannot be told from working by its output.
+  if (!(process.env.EXPLODING_TOPICS_RIGHTS_MODE || "").trim()) {
+    await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "dormant: EXPLODING_TOPICS_RIGHTS_MODE not set — feature never enabled" });
+    return Response.json({
+      ok: true, done: true, dormant: true, job: JOB,
+      note: "Exploding Topics is not enabled: EXPLODING_TOPICS_RIGHTS_MODE is unset. This is the correct state until the licence questions in docs/exploding-topics-rights.md are answered. Nothing was read, spent, or written.",
+    }, { headers: { "Cache-Control": "no-store" } });
+  }
+
+  // ── Half-configured IS a non-200. Somebody began enabling this and stopped.
   let mode, cadence, maxSearches;
   try {
     mode = rightsMode();
