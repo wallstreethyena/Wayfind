@@ -25,6 +25,9 @@ import RailCard, { RailNav } from "./RailCard";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
+import { experienceTags } from "./IconicPlaceCard";
+import { priceLabel } from "../../lib/price.js";
+import { businessStatus } from "../../lib/businessStatus.js";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce.js";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
@@ -254,12 +257,76 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // inventory and merges the results. 'beach' and 'hotels' are left out on
 // purpose: they are trip decisions rather than "near me right now" picks, and
 // beaches are never bookable (lib/affiliates.js's standing exclusion).
-const TOP40_CATEGORIES = ["food", "attractions", "nightlife", "shopping"];
-const TOP40_PER_CATEGORY = 14; // 4 x 14 = 56 raw, before dedupe/vetting, to land 40
+// SHOPPING IS OUT (owner, 2026-08-09, from the live rail). It put a BEAUTY
+// SALON — The Mint Retreat, 9.8, 17 miles away — at #1 "Top pick near you" on a
+// Saturday at 9pm, above a concert hall and a performing-arts theatre.
+//
+// The score was not wrong: a 4.9-star salon with 586 reviews really does
+// outscore a concert hall, and re-ranking to hide that would break shown ==
+// sorted. The POOL was wrong. `shopping` in wf_best_picks includes services —
+// salons, spas — which are not answers to "what should I do near me right now".
+// Fixing the input is the honest fix; fixing the sort would have been a lie
+// about the score.
+const TOP40_CATEGORIES = ["food", "attractions", "nightlife"];
+const TOP40_PER_CATEGORY = 18; // 3 x 18 = 54 raw, before dedupe/vetting, to land 40
 const TOP40_MAX = 40;
+// ERRANDS ARE NOT THINGS TO DO (owner, 2026-08-09, from the live rail:
+// "Detwiler's showing up in the top 40 is a joke"). Detwiler's Farm Market is a
+// GROCERY STORE and it ranked #5 at 9.6 — correctly, by score: 4.7 stars and
+// 4.4k reviews is a genuinely beloved shop. It is still not an answer to "what
+// should I do near me".
+//
+// wf_best_picks' `food` category is "places that sell food", which includes
+// supermarkets and markets; the same leak put a beauty salon at #1 through
+// `shopping` (now removed above). This is a POOL filter on the row's own Google
+// primary_type — the same shape of fix lib/placeFilter.js's CAT_EXCLUDE applies
+// elsewhere, and the reason its header warns that "category leaks are usually a
+// broad allow token substring-matching a service type".
+//
+// Deliberately narrow: it excludes retail and personal-services types only. It
+// does NOT touch restaurants, bars, bakeries or cafes, and it never looks at
+// the score — a place is dropped for being an errand, never for ranking badly.
+// ONE status read, shared by the open-now filter and the card's facts row — two
+// separate calls could show "Open" on a card the filter had judged closed.
+const top40Status = (r) => businessStatus({ ...r, oh: r.oh || r.regularOpeningHours || null, utcOffset: r.utcOffset != null ? r.utcOffset : r.utcOffsetMinutes });
+const TOP40_TYPE_EXCLUDE = /^(grocery_store|supermarket|convenience_store|liquor_store|drugstore|pharmacy|department_store|shopping_mall|clothing_store|furniture_store|home_goods_store|hardware_store|electronics_store|beauty_salon|hair_salon|hair_care|nail_salon|barber_shop|spa|gym|fitness_center|bank|atm|gas_station|car_.*|storage|laundry|dry_cleaner|veterinary_care|doctor|dentist|hospital|real_estate_agency|insurance_agency)$/i;
+function top40Allowed(r) {
+  const t = String((r && r.primary_type) || "").trim();
+  if (!t) return true; // no type is not evidence of an errand — keep it
+  return !TOP40_TYPE_EXCLUDE.test(t);
+}
+
+// OPEN-NESS (owner, 2026-08-09: "top 40 must only show things that are open and
+// that make sense for the time of the day").
+//
+// The rule is DROP KNOWN-CLOSED, not KEEP KNOWN-OPEN, and the difference is not
+// pedantry — it is the whole design:
+//
+//   Google returns no opening hours for a large share of these rows. Both places
+//   the owner opened from the live rail read "Hours unavailable" on their detail
+//   sheet. `wf_best_picks` filters permanently-closed BUSINESS STATUS, which is
+//   a different thing from "closed right now", and CLAUDE.md already records why
+//   the section header may not claim "Open now": nothing in the engine checked
+//   hours. So a keep-only-known-open filter would not show a cleaner 40, it
+//   would empty the rail in most markets and call that correctness.
+//
+//   Dropping known-closed is the half we can prove. A place whose hours say it
+//   is shut right now is never a good answer, whatever it scores. A place with
+//   no hours data is shown WITHOUT any open/closed claim — the facts row simply
+//   omits it, so the card never asserts something the data cannot support.
+//
+// TIME OF DAY is already handled upstream and deliberately not re-implemented
+// here: `wf_best_picks` takes p_local_hour and ranks for the daypart, and
+// gateOutdoor() (applied to the result below) drops outdoor answers when the
+// hour and the weather make them wrong. Adding a third daypart rule on this
+// surface would be a second, competing definition of "right now".
+function top40OpenNow(r, statusOf) {
+  const st = statusOf(r);
+  return st.open !== false;
+}
 // Matches the events rail's floor so the two read as one system; measured the
 // same way (a real render at 390 and 1024 with the shipped webfonts).
-const TOP40_CARD_H = 245;
+const TOP40_CARD_H = 224;
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
 // wf_best_picks returns Google's raw primary_type ("mexican_restaurant").
 // Title-cased with the underscores gone, it is the card's eyebrow — the same
@@ -422,7 +489,8 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
       const pool = [];
       batches.forEach((rows) => (Array.isArray(rows) ? rows : []).forEach((r) => {
         const id = r && (r.place_id || r.id);
-        if (!id || seen.has(id)) return;
+        if (!id || seen.has(id) || !top40Allowed(r)) return;
+        if (!top40OpenNow(r, top40Status)) return;
         seen.add(id);
         pool.push(r);
       }));
@@ -644,19 +712,47 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                 // ticket link for a venue we have not confirmed sells one.
                 const partner = placePartnerPick(p);
                 const coupon = couponForPlaceName(p.name);
+                // The SAME facts row the food cards carry (owner, 2026-08-09:
+                // "we don't have much information like the ones from the
+                // food"). Reviews, price, open/closed and distance — the four
+                // things that decide whether a place is worth the trip — read
+                // through the same single sources the rest of the app uses
+                // (lib/price's priceLabel, lib/businessStatus), never
+                // re-derived here.
+                const st = top40Status(p);
                 const facts = [
                   p.reviews ? compactReviews(p.reviews) + " reviews" : null,
+                  priceLabel(p.price_level != null ? p.price_level : p.priceLevel),
+                  st.open === true ? "Open" : st.open === false ? "Closed" : null,
                   isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
                   // The trend bump is DISCLOSED wherever it is applied — the
                   // same rule the rows below follow with <TrendReason>.
                   p.trending && p.trend_reason ? "🔥 " + p.trend_reason : null,
                 ].filter(Boolean);
+                // THE CHIPS (owner, 2026-08-09, with the /best-of card as the
+                // reference: "Creator video · Waterfront · Great value · Crowd
+                // favorite"). The first pass shipped only the creator-video and
+                // coupon chips, which are both rare — measured live, 3 of the
+                // first 4 cards had ZERO chips, leaving a visible hole between
+                // the award band and the action row.
+                //
+                // experienceTags is IconicPlaceCard's portable, evidence-bound
+                // tag engine — the same one the reference card uses, already
+                // pinned by check-collection-look. Nothing here is invented: it
+                // derives only from rating, review volume, price and the place's
+                // real Google type, and it drops any tag incompatible with the
+                // resolved identity. wf_best_picks returns a single
+                // `primary_type` rather than the `types` array it expects, so
+                // the row is adapted, never fabricated — a row with no type
+                // simply yields fewer tags.
+                const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
                 const chips = [
                   // byVisibleScore stamps creator_video when it applied the
                   // +0.7, so this label and the score can never disagree.
                   p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
                   coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
-                ].filter(Boolean);
+                  ...experienceTags(tagged, 4).map((t) => ({ key: t.key, icon: t.icon, label: t.label })),
+                ].filter(Boolean).slice(0, 4);
                 return (
                   <RailCard
                     key={p.place_id || p.id || i}
