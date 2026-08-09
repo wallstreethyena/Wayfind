@@ -38,7 +38,7 @@ import { C, TYPE } from "./kit";
 // source is IconicPlaceCard's experienceTags — the portable, evidence-bound
 // adaptation of home.js's experienceBadges that check-collection-look.mjs
 // already pins — rather than a fourth copy of the same badge logic.
-import RailCard from "./RailCard";
+import RailCard, { RailNav } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
@@ -167,7 +167,8 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
           orderFinds()'s own ordering, which is a genuine ranking (nearest
           band, then the places the creator boost actually moved, then score),
           so a number on this card means something. */}
-      <div className="wf-rail" tabIndex={0} role="region" aria-label="Finds from local creators">
+      <RailNav railId="creator-finds" count={rows.length + scouted.length + (bridge && !scouted.length ? 1 : 0)} unit="creator finds" />
+      <div className="wf-rail" data-rail="creator-finds" tabIndex={0} role="region" aria-label="Finds from local creators">
         {rows.map(({ p, videos }, i) => {
           const v = (videos || [])[0];
           const plat = v && PLATFORM[v.platform];

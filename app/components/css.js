@@ -416,10 +416,18 @@ export const WF_PLACE_CARD_CSS = `
   scrollbar-width:none;
 }
 .wf-rail::-webkit-scrollbar{display:none}
+/* FULL WIDTH (owner, 2026-08-08: "you compressed it, i dont want that... i
+   want the card size to be full"). The first pass sized the card at 318px so a
+   sliver of the next one peeked past the right edge — that peek is the usual
+   way to say "this scrolls", but it costs ~50px of the card's own width, and
+   on a 390px phone that is the difference between the creator handle reading
+   "@secretsoftampabay on Instagram" and reading "@SECRETSOFTAMPABAY ON INS…".
+   The card takes the full column and .wf-rail-nav above it carries the "there
+   is more" signal instead. Measured on production at 390 and 1024: the handle
+   stops clipping and no action row overflows. */
 .wf-rail>.wf-rail-card{
-  --wf-rail-card-w:318px;
-  flex:0 0 min(var(--wf-rail-card-w),88vw);
-  width:min(var(--wf-rail-card-w),88vw);
+  flex:0 0 100%;
+  width:100%;
   margin-bottom:0!important;
   scroll-snap-align:start;
 }
@@ -430,7 +438,7 @@ export const WF_PLACE_CARD_CSS = `
    if content ever exceeds it the card grows instead of clipping its own
    action row. EV_RAIL_MIN_H in app/home.js is this number — the two are
    asserted together by scripts/test-event-rail-images.mjs. */
-.wf-rail-events>.wf-rail-card{min-height:236px}
+.wf-rail-events>.wf-rail-card{min-height:245px}
 .wf-rail-card>.wf-place-card-layout{flex:1}
 .wf-rail-card .wf-place-card-content{padding:12px 12px 10px!important}
 /* Two reserved title lines. A rail of cards whose baselines stagger by one
@@ -476,6 +484,34 @@ export const WF_PLACE_CARD_CSS = `
 .wf-rail-card .wf-place-card-like,.wf-rail-card .wf-place-card-dislike{width:38px!important;min-width:38px!important;height:36px!important;min-height:36px!important;flex:0 0 38px}
 .wf-rail-card .wf-place-card-like svg,.wf-rail-card .wf-place-card-dislike svg{width:17px;height:17px}
 .wf-rail-card .wf-place-card-actions>a,.wf-rail-card .wf-place-card-actions>button{min-height:36px;padding:0 7px!important;font-size:10px!important}
+
+/* THE "THERE IS MORE" ROW. With full-width cards nothing peeks past the edge,
+   so the rail has to say out loud that it moves. This is that sign: a live
+   count on the left and two real controls on the right, sitting directly above
+   the first card. The arrows page by exactly one viewport width, which with a
+   full-width card is exactly one card. */
+.wf-rail-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 7px}
+.wf-rail-nav-hint{color:#8B97A8;font-size:11px;font-weight:700;letter-spacing:.2px}
+.wf-rail-nav-hint b{color:#CBD5E1;font-weight:800}
+.wf-rail-nav-btns{display:flex;gap:6px}
+.wf-rail-nav-btn{
+  display:grid;
+  width:32px;
+  height:32px;
+  align-items:center;
+  place-items:center;
+  border:1px solid rgba(159,177,203,.28);
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012)),#0B111A;
+  color:#DFE5EE;
+  cursor:pointer;
+  font-size:17px;
+  font-weight:800;
+  line-height:1;
+  transition:border-color .18s ease,background .18s ease,transform .18s ease;
+}
+.wf-rail-nav-btn:hover{border-color:rgba(249,115,22,.6);color:#FFB27A;transform:translateY(-1px)}
+.wf-rail-nav-btn:focus-visible{outline:2px solid rgba(249,115,22,.72);outline-offset:2px}
 
 /* THE WHEN BADGE — the events counterpart to the Wayfind Score badge, and the
    reason an event can wear this card honestly. The score box is the first
@@ -544,8 +580,8 @@ export const WF_PLACE_CARD_CSS = `
    height reads as a broken last card rather than as an invitation. */
 .wf-rail-bridge{
   display:flex;
-  flex:0 0 min(210px,62vw);
-  width:min(210px,62vw);
+  flex:0 0 100%;
+  width:100%;
   flex-direction:column;
   align-items:flex-start;
   justify-content:center;
@@ -566,7 +602,6 @@ export const WF_PLACE_CARD_CSS = `
 
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-rail{gap:12px}
-  .wf-rail>.wf-rail-card{--wf-rail-card-w:352px}
   .wf-rail-card .wf-place-card-name{font-size:16px!important}
 }
 .wf-bottom-nav{

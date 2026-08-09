@@ -80,6 +80,41 @@ export function RailWhenBadge({ label, value, tone = "later" }) {
 
 const initialsOf = (name) => String(name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
+// THE "THERE IS MORE" ROW (owner, 2026-08-08: "use a sign above the card to let
+// the user know there is more, i want the card size to be full").
+//
+// The first pass leaned on a peek — a sliver of the next card past the right
+// edge — to say the rail scrolls. That is the conventional signal and it costs
+// ~50px of every card's width, which on a phone is the difference between the
+// creator handle fitting and being clipped mid-word. The card now takes the
+// full column and this row carries the signal explicitly instead: a real count
+// of what is in the rail, and two controls that page it.
+//
+// It resolves its rail from the DOM by data-rail rather than taking a ref,
+// because both call sites render the rail inside JSX that cannot hold a hook
+// (app/home.js's rail lives in an IIFE inside the render tree). The query is
+// scoped to a data attribute this component owns, so it cannot collide with
+// anything else on the page.
+export function RailNav({ railId, count, unit }) {
+  if (!count || count < 2) return null;
+  const move = (dir) => {
+    if (typeof document === "undefined") return;
+    const rail = document.querySelector(`[data-rail="${railId}"]`);
+    if (!rail) return;
+    // One viewport width — which, with a full-width card, is exactly one card.
+    rail.scrollBy({ left: dir * rail.clientWidth, behavior: "smooth" });
+  };
+  return (
+    <div className="wf-rail-nav">
+      <span className="wf-rail-nav-hint"><b>{count}</b> {unit} · swipe or tap ›</span>
+      <span className="wf-rail-nav-btns">
+        <button type="button" className="wf-rail-nav-btn" aria-label={"Previous " + unit} onClick={() => move(-1)}>‹</button>
+        <button type="button" className="wf-rail-nav-btn" aria-label={"Next " + unit} onClick={() => move(1)}>›</button>
+      </span>
+    </div>
+  );
+}
+
 /**
  * @param {object}   p
  * @param {string}   p.photo       image URL; a monogram tile stands in when absent
