@@ -456,6 +456,11 @@ export const WF_PLACE_CARD_CSS = `
    a second row of chips without every card in the rail growing to match. */
 .wf-rail-card .wf-place-card-meta{flex-wrap:nowrap!important;overflow:hidden;gap:4px 10px!important;margin:7px 0 6px!important}
 .wf-rail-card .wf-place-card-highlights{flex-wrap:nowrap!important;overflow:hidden}
+/* …EXCEPT in the Top 40 rail, where the card carries the reference card's full
+   tag set (Creator video · Waterfront · Great value · Crowd favorite) and those
+   are the content, not decoration. One clipped row is what left a hole in the
+   card; two wrapped rows is what the approved design actually shows. */
+.wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible}
 .wf-rail-card .wf-place-card-award{margin-bottom:6px}
 /* The money action. Full width above the action row rather than a fifth
    column in it: at this width five controls in one row leaves every one of

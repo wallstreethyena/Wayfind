@@ -48,9 +48,40 @@ ok(/score=\{toDisplayScore\(p\.governed_score\)\}/.test(code),
   ok(!!m, "TOP40_CATEGORIES is a named constant");
   const n = m ? m[1].split(",").filter((x) => x.trim()).length : 0;
   ok(n >= 3, `the rail spans at least 3 categories (got ${n}) — one category returns 40 restaurants, which is not "the best of each category"`);
+  // Shopping put a beauty salon at #1 "Top pick near you" on the live rail
+  // (2026-08-09). wf_best_picks' shopping category includes services, which are
+  // not answers to "what should I do near me right now". Removed from the pool
+  // rather than sorted around — the score was right, the input was not.
+  ok(!/"shopping"/.test(m ? m[1] : ""), "the rail does not pull the shopping category — it returns salons and spas, which are services rather than things to do");
 }
 ok(/Promise\.all\(/.test(code) && /TOP40_CATEGORIES\.map\(/.test(code), "the categories are fetched in parallel, not in series");
 ok(/\.catch\(\(\) => \[\]\)/.test(code), "a failed category degrades to fewer cards, never to a thrown render");
+// Errands are filtered OUT of the pool, never sorted around. Detwiler's Farm
+// Market (a grocery store) ranked #5 at 9.6 on the live rail — correctly by
+// score, and still not an answer to "what should I do near me".
+ok(/const TOP40_TYPE_EXCLUDE = \//.test(code) && /grocery_store/.test(code) && /beauty_salon/.test(code),
+  "retail and personal-services types are excluded from the pool by their own Google primary_type");
+ok(/!top40Allowed\(r\)/.test(code), "…and the filter is applied while the pool is built, before any ranking");
+ok(/if \(!t\) return true/.test(code), "…failing OPEN on a missing type — an absent primary_type is not evidence of an errand");
+ok(!/governed_score[\s\S]{0,80}top40Allowed/.test(code), "the filter never consults the score — a place is dropped for being an errand, never for ranking badly");
+// The card carries the same facts the food cards do.
+ok(/priceLabel\(p\.price_level/.test(code) && /const top40Status = /.test(code),
+  "the card shows price and open/closed through the app's single sources, like the food cards");
+// OPEN-NESS. Drop known-closed, never keep-only-known-open: Google returns no
+// hours for a large share of these rows, so requiring known-open would empty
+// the rail in most markets and call that correctness.
+ok(/return st\.open !== false/.test(code),
+  "the rail drops places KNOWN to be closed, and keeps ones with no hours data rather than emptying itself");
+ok(!/st\.open === true\)? return/.test(code) && !/if \(!st\.open\) return/.test(code),
+  "…and never filters on keep-only-known-open, which would hide every place Google has no hours for");
+ok(/!top40OpenNow\(r, top40Status\)/.test(code), "the open-now filter runs while the pool is built");
+ok((code.match(/const top40Status = /g) || []).length === 1 && /const st = top40Status\(p\)/.test(code),
+  "the filter and the card's facts row read ONE status helper — two calls could show 'Open' on a card the filter judged closed");
+// Time of day is upstream, deliberately not re-implemented on this surface.
+ok(/p_local_hour|localHour/.test(readFileSync("lib/todaysBest.js", "utf8")),
+  "daypart fit stays in wf_best_picks' own p_local_hour ranking");
+ok(/gateOutdoor\(ranked, nowCtx\(\)\)/.test(code),
+  "…and gateOutdoor still drops outdoor answers the hour and weather make wrong");
 ok(/seen\.has\(id\)/.test(code) && /seen\.add\(id\)/.test(code),
   "the pool is deduped by place id — wf_best_picks can return one venue under two categories and a repeated card reads as broken");
 
@@ -61,6 +92,15 @@ ok(/affiliate links; Wayfind may earn a commission/.test(bn),
   "the rail carries the affiliate disclosure, proximate to the ticket CTA it can render");
 ok(/p\.creator_video \?/.test(code),
   "the creator-video badge is driven by the flag byVisibleScore stamps when it applied the bonus, so label and score cannot disagree");
+// The card must carry REAL tags, not just the two rare ones. Measured live on
+// 2026-08-09: with only the creator-video and coupon chips, 3 of the first 4
+// cards rendered zero chips and the card had a visible hole in it.
+ok(/experienceTags\(tagged, 4\)/.test(code),
+  "the card's tags come from experienceTags — the same evidence-bound engine the reference /best-of card uses");
+ok(/types: Array\.isArray\(p\.types\)/.test(code),
+  "…adapted from wf_best_picks' single primary_type rather than fabricating a types array");
+ok(/\.wf-rail-top40 \.wf-place-card-highlights\{flex-wrap:wrap/.test(readFileSync("app/components/css.js", "utf8")),
+  "…and the tag row is allowed to wrap, so a full tag set is shown rather than clipped to one line");
 
 // ── 4. VERIFIED OFFERS ONLY ─────────────────────────────────────────────────
 ok(/const partner = placePartnerPick\(p\)/.test(code), "the ticket CTA is gated on a resolved partner pick");
