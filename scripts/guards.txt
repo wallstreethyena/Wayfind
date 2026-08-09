@@ -325,3 +325,12 @@ node scripts/check-partner-hook-collisions.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 node scripts/check-editorial-everywhere.mjs
+
+# ── Exploding Topics trend intelligence ────────────────────────────────────
+# The licence gate first: every other guard below assumes it holds. See
+# docs/exploding-topics-rights.md. All five are hermetic (no network, no DB).
+node scripts/test-trend-rights.mjs
+node scripts/test-trend-ingest.mjs
+node scripts/test-trend-classify.mjs
+node scripts/test-trend-order.mjs
+node scripts/check-trend-integrity.mjs

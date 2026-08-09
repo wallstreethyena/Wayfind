@@ -1,0 +1,16 @@
+Topic ID,Topic,Category,Status,Volume,3 Month Growth,6 Month Growth,12 Month Growth,Forecast,Volatility,Stability,Seasonal,Date,Export Date
+syn-0001,Korean coffee,Food & Drink,Exploding,12100,+41%,+96%,+190%,+240%,0.22,0.78,false,2026-08-04,2026-08-06
+syn-0002,Kakigori,Food & Drink,Exploding,4400,+55%,+120%,+210%,+300%,0.31,0.69,true,2026-08-04,2026-08-06
+syn-0003,Pickleball,Sports,Rising,74000,+12%,+38%,+82%,+95%,0.18,0.82,false,2026-08-04,2026-08-06
+syn-0004,Natural wine bar,Food & Drink,Rising,9900,+22%,+51%,+88%,+110%,0.27,0.73,false,2026-08-04,2026-08-06
+syn-0005,Bioluminescent kayaking,Travel,Exploding,2900,+80%,+140%,+260%,+350%,0.44,0.56,true,2026-08-04,2026-08-06
+syn-0006,Sound bath,Wellness,Rising,8100,+19%,+44%,+77%,+90%,0.29,0.71,false,2026-08-04,2026-08-06
+syn-0007,Hands-free dog leash,Pets,Exploding,18100,+66%,+130%,+240%,+310%,0.25,0.75,false,2026-08-04,2026-08-06
+syn-0008,Viator,Travel,Rising,301000,+9%,+24%,+51%,+60%,0.12,0.88,false,2026-08-04,2026-08-06
+syn-0009,AI travel planner,Technology,Exploding,33100,+120%,+280%,+540%,+700%,0.38,0.62,false,2026-08-04,2026-08-06
+syn-0010,Immersive art,Arts,Peaked,27100,-8%,-14%,+31%,-20%,0.35,0.65,false,2026-08-04,2026-08-06
+syn-0011,Creatine gummies,Supplements,Exploding,49500,+90%,+180%,+330%,+400%,0.21,0.79,false,2026-08-04,2026-08-06
+syn-0012,Omakase,Food & Drink,Rising,22200,+15%,+35%,+69%,+80%,0.20,0.80,false,2026-08-04,2026-08-06
+syn-0013,Listening bar,Nightlife,Exploding,3600,+70%,+150%,+280%,+360%,0.88,0.12,false,2026-08-04,2026-08-06
+syn-0014,Sunset cruise,Travel,Rising,60500,+7%,+16%,+29%,+35%,0.15,0.85,true,2026-08-04,2026-08-06
+syn-0015,Food hall,Food & Drink,Rising,40500,+4%,+8%,+6%,+10%,0.14,0.86,false,2026-08-04,2026-08-06
