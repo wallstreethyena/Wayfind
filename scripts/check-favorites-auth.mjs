@@ -32,12 +32,24 @@ if (!/function requireAuth\(/.test(shell)) fail("requireAuth() gate is missing f
 
 // 2a. These actions are deliberately local-first. They must never regress to
 //     an auth wall, and each must preserve its first-party device write.
+// v7.08 — the WRITER changed, the requirement did not. These values now go
+// through setLocal() (lib/localStore.js) rather than a bare
+// localStorage.setItem. That is not a weakening of "first-party device
+// persistence"; it is the only version of it that actually held. Measured on
+// production: the store was five characters under its 5MB quota, so every bare
+// setItem in this file was throwing QuotaExceededError into a silent catch —
+// a saved favorite, a thumb and a clipped coupon were all being written,
+// refused, and lost on the next navigation, with the guard still green because
+// the CALL was there. setLocal evicts cache and retries, and reports whether
+// the value is really in the store. So the assertion accepts either writer and
+// still fails if a path stops persisting at all.
+const PERSIST = (key) => new RegExp('(?:localStorage\\.setItem|setLocal)\\("' + key + '"');
 const LOCAL_FIRST = [
-  ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {", "function saveHookList", /localStorage\.setItem\("wayfind_lists"|setLists\(/],
-  ["toggleLike(e, p)", "function toggleLike(e, p) {", "function toggleDislike", /localStorage\.setItem\("wf_liked"/],
-  ["toggleDislike(e, p)", "function toggleDislike(e, p) {", "function toggleHookLike", /localStorage\.setItem\("wf_disliked"/],
-  ["addShared(p)", "function addShared(p) {", "async function refreshOwnerPick", /localStorage\.setItem\("wf_shared_items"/],
-  ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {", "function copyCouponCode", /localStorage\.setItem\("wf_coupons"/],
+  ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {", "function saveHookList", new RegExp(PERSIST("wayfind_lists").source + '|setLists\\(')],
+  ["toggleLike(e, p)", "function toggleLike(e, p) {", "function toggleDislike", PERSIST("wf_liked")],
+  ["toggleDislike(e, p)", "function toggleDislike(e, p) {", "function toggleHookLike", PERSIST("wf_disliked")],
+  ["addShared(p)", "function addShared(p) {", "async function refreshOwnerPick", PERSIST("wf_shared_items")],
+  ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {", "function copyCouponCode", PERSIST("wf_coupons")],
 ];
 for (const [label, sig, endSig, deviceWrite] of LOCAL_FIRST) {
   const at = shell.indexOf(sig), end = shell.indexOf(endSig, at + sig.length);

@@ -62,7 +62,14 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const w = (c, m) => { if (!c) fail(m); pass++; };
 w(/import \{ reconcileIds \} from "\.\.\/lib\/syncReconcile"/.test(home), "home.js imports reconcileIds");
 w(/reconcileIds\(favBase,/.test(home), "favorites sync reconciles against a base snapshot");
-w(/localStorage\.setItem\("wf_fav_base"/.test(home), "favorites sync persists the base snapshot (wf_fav_base)");
+// v7.08 — persisted through setLocal() now (lib/localStore.js), not a bare
+// setItem. Same requirement, and for the first time actually met: on the
+// production store measured at five characters under its 5MB quota, the bare
+// write was throwing QuotaExceededError into a silent catch, so the base
+// snapshot this reconciler depends on was never landing — which is a sync
+// that resurrects deleted favorites, not merely a lost preference. The
+// assertion is about PERSISTENCE, so it accepts either writer.
+w(/(?:localStorage\.setItem|setLocal)\("wf_fav_base"/.test(home), "favorites sync persists the base snapshot (wf_fav_base)");
 w(/saved_places"\)\.delete\(\)[\s\S]{0,120}rec\.deleteRemote/.test(home), "favorites sync propagates local deletions to the cloud");
 // The old unconditional favorites push-up (upsert ALL local before pulling) is gone.
 w(!/const favPlaces = \(lists\.favorites && lists\.favorites\.places\) \|\| \[\];\s*\n\s*if \(favPlaces\.length\) \{\s*\n\s*await supabase\.from\("saved_places"\)\.upsert\(/.test(home),
@@ -70,7 +77,7 @@ w(!/const favPlaces = \(lists\.favorites && lists\.favorites\.places\) \|\| \[\]
 
 // F1 extended — likes / disliked / shared reconcile the same way (shared helper + base each).
 w(/const reconcileColl = async/.test(home), "a shared reconcileColl helper reconciles the item-store collections");
-w(/localStorage\.setItem\("wf_liked_items"[\s\S]{0,4}|baseKey: "wf_liked_base"/.test(home) && /"wf_liked_base"/.test(home), "likes reconcile against wf_liked_base");
+w(/(?:localStorage\.setItem|setLocal)\("wf_liked_items"[\s\S]{0,4}|baseKey: "wf_liked_base"/.test(home) && /"wf_liked_base"/.test(home), "likes reconcile against wf_liked_base");
 w(/"wf_disliked_base"/.test(home), "disliked reconcile against wf_disliked_base");
 w(/"wf_shared_base"/.test(home), "shared reconcile against wf_shared_base");
 w(/reconcileColl\(\{ table: "likes"/.test(home) && /reconcileColl\(\{ table: "saved_places", listName: "Disliked"/.test(home) && /reconcileColl\(\{ table: "saved_places", listName: "Shared"/.test(home),

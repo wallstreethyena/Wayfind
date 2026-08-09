@@ -11,8 +11,14 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const oi = readFileSync(new URL("../app/order-in/OrderInClient.js", import.meta.url), "utf8");
 
 // home.js persists the RESOLVED location (gated on a real locName, not the default).
-ok(/localStorage\.setItem\("wf_center"/.test(home), "home.js persists the resolved location to wf_center");
-ok(/isFinite\(center\.lat\)[\s\S]{0,60}locName\)[\s\S]{0,40}setItem\("wf_center"/.test(home),
+// v7.08 — setLocal() (lib/localStore.js) replaced the bare setItem here.
+// Same requirement, finally met: the production store was measured five
+// characters under its 5MB quota, so the bare write was throwing
+// QuotaExceededError into a silent catch while this guard stayed green,
+// because the CALL was present and only the WRITE was failing. The
+// assertion is about persistence, not about which function performs it.
+ok(/(?:localStorage\.setItem|setLocal)\("wf_center"/.test(home), "home.js persists the resolved location to wf_center");
+ok(/isFinite\(center\.lat\)[\s\S]{0,60}locName\)[\s\S]{0,40}(?:setItem|setLocal)\("wf_center"/.test(home),
   "home.js gates the persist on a finite center AND a real locName (never the initial default)");
 
 // OrderInClient reads it, in the right precedence: URL params -> wf_center -> geolocation.

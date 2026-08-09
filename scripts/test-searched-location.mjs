@@ -7,7 +7,7 @@ let n = 0, failn = 0;
 const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 
 // persist carries the manual flag + timestamp
-ok(/setItem\("wf_center", JSON\.stringify\(\{ lat: center\.lat, lng: center\.lng, loc: locName, manual: !!manualRef\.current, ts: Date\.now\(\) \}\)\)/.test(h), "wf_center persists whether the location was a MANUAL search + when");
+ok(/(?:setItem|setLocal)\("wf_center", JSON\.stringify\(\{ lat: center\.lat, lng: center\.lng, loc: locName, manual: !!manualRef\.current, ts: Date\.now\(\) \}\)\)/.test(h), "wf_center persists whether the location was a MANUAL search + when");
 
 // mount restore: only a fresh MANUAL search, and it marks manualRef so GPS stands down
 ok(/const raw = localStorage\.getItem\("wf_center"\);/.test(h), "on mount it reads back the last location");

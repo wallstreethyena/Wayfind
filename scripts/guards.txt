@@ -324,6 +324,9 @@ node scripts/check-version-watch.mjs
 node scripts/check-partner-hook-collisions.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
+# The reader's storage budget. A cache may never cost them a preference —
+# executed against the real census of the store that was measured full.
+node scripts/test-local-store.mjs
 node scripts/check-editorial-everywhere.mjs
 
 # ── Exploding Topics trend intelligence ────────────────────────────────────
