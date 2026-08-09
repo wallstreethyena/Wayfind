@@ -316,7 +316,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const TOP40_SECTION = { id: "best", label: "The best near you", sub: "Forty places within reach, ranked for this hour", icon: "award" };
+const TOP40_SECTION = { id: "best", label: "The best near you", sub: "Forty places worth your time, ranked for this hour", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
 // the menu resolves its own rail.
@@ -693,17 +693,17 @@ export default function BestNearby({
   // it exists), so the rail and the page it opens cannot describe themselves
   // differently.
   const SECTIONS = [
-    { id: "eat", label: "Where to eat nearby", sub: "Ranked for this exact hour, not a generic top ten", icon: "food" },
-    { id: "todo", label: "Things to do today", sub: "Tours, beaches, museums and attractions in one ranked list", icon: "attractions" },
+    { id: "eat", label: "Where to eat nearby", sub: "Ranked for this exact hour — not a generic top ten", icon: "food" },
+    { id: "todo", label: "Things to do today", sub: "Tours, beaches, museums and attractions — one ranked list", icon: "attractions" },
     { id: "gems", label: "Hidden gems", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
-    { id: "creators", label: "Finds from local creators", sub: "Filmed by someone who actually lives here", icon: "film", line: true, slot: "creators" },
+    { id: "creators", label: "Finds from local creators", sub: "Filmed by people who actually live here", icon: "film", line: true, slot: "creators" },
     { id: "tonight", label: "Perfect for tonight", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
     { id: "drive", label: "Worth the drive", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
     { id: "budget", label: "Big fun, small budget", icon: "wallet", line: true, intent: "budget", href: "/budget", unit: "low-cost picks" },
     // Ninth, and only when there is something on. An accordion row that opens
     // onto "no events near you" is a row that costs a tap to learn nothing;
     // home.js hands `eventsSlot` a null when the chain comes back empty.
-    ...(eventsSlot ? [{ id: "events", label: "Events near you", sub: "Concerts, games and shows — dates, times and tickets", icon: "events", slot: "events" }] : []),
+    ...(eventsSlot ? [{ id: "events", label: "Events near you", sub: "Concerts, games and shows — with dates, times and tickets", icon: "events", slot: "events" }] : []),
     ...(SHOW_TRENDS ? [{ id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" }] : []),
   ];
 

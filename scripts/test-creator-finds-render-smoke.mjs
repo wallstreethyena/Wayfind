@@ -83,9 +83,34 @@ for (const [label] of SHAPES) {
 // ── registry spots really are first-class now ──────────────────────────────
 const both = rendered["pool + registry"];
 ok(both.includes("Pier 22"), "the pool row renders");
-ok(both.includes("Spinning Coffee"),
-  "a registry spot renders ALONGSIDE a non-empty pool — this is the v7.07 promotion, and it is the assertion that fails if registry spots go back to being an empty-pool fallback");
-ok(both.includes("Sweet Krunch"), "…and more than one of them");
+// v7.09 — SUPERSEDED IN FORM, NOT IN SUBSTANCE. These two asserted the v7.07
+// promotion by looking for a registry NAME in the markup. A registry spot now
+// waits for its Google lookup before it can be a card, because the owner's rule
+// is that every card shows a Wayfind Score and a spot has no score until it
+// resolves — and this smoke test mounts in plain node, where no lookup can
+// happen. So the markup legitimately has no registry card in it.
+//
+// The promotion itself is unchanged and is still asserted, one layer down where
+// it actually lives: mergeCreatorInventory is PURE, so the claim "registry spots
+// stand alongside a non-empty pool rather than replacing an empty one" can be
+// EXECUTED rather than read out of a string. That is a stronger check than the
+// substring was — it fails on the branch coming back, not just on the name
+// vanishing for any reason at all.
+{
+  const inv = mod.mergeCreatorInventory({ pool, byCity, radiusMi: 25, max: 20 });
+  const kinds = inv.map((r) => r.kind);
+  ok(kinds.indexOf("pool") > -1 && kinds.indexOf("registry") > -1,
+    "a registry spot stands ALONGSIDE a non-empty pool — the v7.07 promotion, executed rather than grepped");
+  ok(kinds.filter((k) => k === "registry").length > 1, "…and more than one of them");
+  // …and the display order is the score law, also executed.
+  const scored = { a: 9.4, b: 8.1, c: 9.9 };
+  const fake = [{ kind: "pool", key: "a" }, { kind: "registry", key: "b" }, { kind: "registry", key: "c" }, { kind: "registry", key: "d" }];
+  const out = mod.orderCreatorCards(fake, (e) => scored[e.key] ?? null, () => 0);
+  ok(out.map((e) => e.key).join(",") === "c,a,b",
+    "cards render highest Score first REGARDLESS of pool/registry — got " + out.map((e) => e.key).join(","));
+  ok(!out.some((e) => e.key === "d"),
+    "…and an entry with no Score is held back rather than rendered scoreless or given an invented number");
+}
 ok(rendered["nothing at all"] === "", "with no inventory and no bridge the row renders NOTHING rather than an empty shelf");
 
 if (fails.length) {

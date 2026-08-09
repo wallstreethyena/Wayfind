@@ -410,8 +410,17 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // The invariant is unchanged and is what is asserted; it is strictly STRONGER
   // now, because `inventory` covers pool and registry rows together where the
   // old condition needed two separate terms to say the same thing.
-  ok(/if \(!inventory\.length && !bridge\) return null;/.test(CF),
-     "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
+  // v7.09 — the test moved from the CANDIDATE list to the RENDERED one. Owner:
+  // "make sure the Wayfind Score is always displayed in every one of those
+  // cards" — so a registry spot whose Google lookup has not landed is held back
+  // rather than shown scoreless, and `inventory` can now be non-empty while the
+  // rail has nothing in it. Asking about `inventory` would have let exactly the
+  // empty shelf this assertion exists to prevent render anyway. Same invariant,
+  // pointed at the thing the reader actually sees.
+  ok(/if \(!ordered\.length && !bridge\) return null;/.test(CF),
+     "the creator row renders nothing ONLY when nothing will RENDER (no scored pool or registry card) AND there is no bridge — an empty 'your differentiator' shelf advertises the absence");
+  ok(/orderCreatorCards\(inventory, scoreOf, depthOf\)/.test(CF),
+     "…and what renders is score-ordered: highest Wayfind Score first, whatever half of the inventory it came from");
   ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
      "the row builds ONE inventory from the pool and the registry together, rather than treating the registry as an empty-pool fallback");
   // 2026-08-07 (owner: pin placeholders "not what I wanted"): the scouted cards

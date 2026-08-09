@@ -32,7 +32,7 @@
 // This is that rule, applied to the one surface that never got it.
 import { useEffect, useState } from "react";
 import { PLATFORM } from "../../lib/creatorVideos";
-import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory } from "../../lib/creatorFinds";
+import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory, orderCreatorCards } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
 // v7.02: the row renders the canonical place card (see RailCard.js). The chip
 // source is IconicPlaceCard's experienceTags — the portable, evidence-bound
@@ -128,7 +128,7 @@ async function resolveScoutedPlace(name, city, center) {
 
 // Re-exported so existing importers keep working; the logic itself lives in
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
-export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory };
+export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory, orderCreatorCards };
 
 export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
   // v7.07 — ONE INVENTORY. Registry spots used to be a FALLBACK: scoutedSpots()
@@ -173,7 +173,49 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   // Nothing local, no registry spots, AND nowhere to point them. Render NOTHING
   // rather than an empty shelf — an empty "your differentiator" row advertises
   // the absence.
-  if (!inventory.length && !bridge) return null;
+  // ─── SHOWN == SORTED, AND NOTHING SHOWS WITHOUT A SCORE ───────────────────
+  // Owner, 2026-08-09: "make sure the Wayfind Score is always displayed in every
+  // one of those cards, and that they are always displayed from highest to
+  // lowest score."
+  //
+  // This row was the one place in the app that broke both halves of the score
+  // law at once. mergeCreatorInventory returns pool rows first and then registry
+  // spots by CITY nearness — a reasonable candidate order and a meaningless
+  // display order, because the two halves are ranked by different things. And a
+  // registry spot whose Google lookup had not returned yet (or had returned
+  // nothing) rendered with no badge at all: the owner photographed P J's
+  // Sandwich Shop sitting in the rail with no Score.
+  //
+  // Both are fixed by the same rule, and it is the rule the rest of the app
+  // already runs on: a card carries a real Score or it is not a card.
+  //
+  //   · every entry resolves to ONE number, from the same cardScore() the badge
+  //     draws, so the badge can never disagree with the position;
+  //   · an entry with no number is HELD BACK, not shown scoreless and not given
+  //     an invented score. A registry spot mid-hydration appears the moment its
+  //     lookup lands; one Google cannot match never appears at all. That keeps
+  //     the honesty rule ("no match, no score") and the owner's rule in the same
+  //     list instead of trading one for the other.
+  //   · then a plain descending sort. Ties fall back to review depth, the same
+  //     tiebreak rankRows uses, so two 9.2s are not in arbitrary order.
+  const scoreOf = (entry) => {
+    if (!entry) return null;
+    if (entry.kind === "pool") return cardScore(entry.row && entry.row.p);
+    const h = hydrated[entry.key];
+    return h && h.rating ? cardScore({ rating: h.rating, reviews: h.reviews }) : null;
+  };
+  const depthOf = (entry) => {
+    if (!entry) return 0;
+    if (entry.kind === "pool") return Number((entry.row && entry.row.p && entry.row.p.reviews) || 0);
+    const h = hydrated[entry.key];
+    return Number((h && h.reviews) || 0);
+  };
+  const ordered = orderCreatorCards(inventory, scoreOf, depthOf);
+
+  // Follows what RENDERS, not what was a candidate: a rail whose every spot
+  // failed to resolve is an empty shelf, and an empty 'your differentiator'
+  // row advertises the absence.
+  if (!ordered.length && !bridge) return null;
   // "Local" is a claim. With no local find at all, the heading names the place
   // the finds are actually in, rather than calling another city's spots yours.
   const heading = poolCount || registryRows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
@@ -198,9 +240,9 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
           orderFinds()'s own ordering, which is a genuine ranking (nearest
           band, then the places the creator boost actually moved, then score),
           so a number on this card means something. */}
-      <RailNav railId="creator-finds" count={inventory.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
+      <RailNav railId="creator-finds" count={ordered.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
       <div className="wf-rail" data-rail="creator-finds" tabIndex={0} role="region" aria-label="Finds from local creators">
-        {inventory.map((entry, i) => {
+        {ordered.map((entry, i) => {
           // POOL ROW — a place Google already loaded near the reader. It has a
           // measured distance and a governed score, so the card carries a rank
           // and a score badge that both mean something.
