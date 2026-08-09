@@ -153,8 +153,16 @@ ok(!placeAllowed("shopping", "giftshops", { name: "Sweety Cafe", types: ["cafe",
 // shape must not report the other as covered.
 {
   const intent = read("app/components/IntentPageClient.js");
-  ok(intent.includes('editorial={r.editorial_hook || null}') && intent.includes('aiSummary={r.editorial_hook ? null : r.ai_line || null}'),
-    "IntentPageClient: hook wins outright; only when absent does a validated CARD_SUMMARY (ai_line) get a chance, and the tail is NULL — an honest absence, never a type string");
+  // v7.06 — the hook now goes through toHookLine (lib/editorialHook.js), the one
+  // shared compressor: it strips the redundant "<Name> is a ..." lead-in, caps
+  // at 100 chars on a word boundary, and rejects pending-research placeholders.
+  // The PRECEDENCE is unchanged and is what this asserts — hook wins outright,
+  // a validated CARD_SUMMARY only gets a chance when the hook is absent, and the
+  // tail is NULL. Note both sides must test the COMPRESSED value: gating
+  // aiSummary on the raw hook while rendering the compressed one would show two
+  // lines at once whenever the compressor rejected a placeholder.
+  ok(intent.includes('editorial={toHookLine(r.editorial_hook, r.name) || null}') && intent.includes('aiSummary={toHookLine(r.editorial_hook, r.name) ? null : r.ai_line || null}'),
+    "IntentPageClient: hook wins outright, compressed through the shared toHookLine; only when absent does a validated CARD_SUMMARY (ai_line) get a chance, and the tail is NULL — an honest absence, never a type string");
   ok(!/editorial=\{[^}]*r\.type[^}]*\}/.test(intent),
     "IntentPageClient never falls back to r.type as editorial copy");
   ok(!/editorial=\{[^}]*primaryType[^}]*\}/.test(intent),
@@ -165,7 +173,7 @@ ok(!placeAllowed("shopping", "giftshops", { name: "Sweety Cafe", types: ["cafe",
   ok(iconic.includes("validAiSummary.card_line_1") && iconic.includes("validAiSummary.card_line_2"), "IconicPlaceCard renders the validated two-line CARD_SUMMARY when there's no verified hook");
 
   const ttd = read("app/components/ThingsToDoList.js");
-  ok(/r\.editorial_hook \?/.test(ttd), "ThingsToDoList leads with the verified hook");
+  ok(/toHookLine\(r\.editorial_hook, r\.title\) \?/.test(ttd), "ThingsToDoList leads with the verified hook, compressed through the shared toHookLine");
   ok(!/rankReason/.test(ttd), "ThingsToDoList's rankReason fallback must stay dead — hide the block instead of showing generic filler");
   ok(ttd.includes("blurb.card_line_1") && ttd.includes("blurb.card_line_2"),
     "ThingsToDoList's fallback is the validated two-line CARD_SUMMARY — DIFFERENT wiring from IntentPageClient, and coverage must count it as such");

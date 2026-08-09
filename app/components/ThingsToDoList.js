@@ -14,6 +14,8 @@
 import { useEffect, useState } from "react";
 import { C, CHAMPAGNE, MEDALLION_SHADOW, TYPE, RADII, SHADOW, FOCUS, WayfindScoreBadge } from "./kit";
 import { toDisplayScore } from "../../lib/score";
+// v7.06 — the ONE editorial-line compressor, shared by every place surface.
+import { toHookLine } from "../../lib/editorialHook";
 import { wayfindScore } from "../../lib/google";
 import { fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
 // v6.80: 823ebf7 added the viatorDirectUrl() call below (closing the `|| raw`
@@ -173,8 +175,8 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
             gone — rating/reviews/rank/distance already render above, and if
             neither a verified hook nor a validated AI summary exists this
             block renders nothing rather than generic filler. */}
-        {r.editorial_hook ? (
-          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{r.editorial_hook}</div>
+        {toHookLine(r.editorial_hook, r.title) ? (
+          <div style={{ fontSize: 12.5, fontWeight: 700, color: "#E8C97A", lineHeight: 1.45, marginTop: 7 }}>{toHookLine(r.editorial_hook, r.title)}</div>
         ) : blurb && typeof blurb === "object" && blurb.card_line_1 && blurb.card_line_2 ? (
           <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45, marginTop: 7 }}>
             <div>{blurb.card_line_1}</div>
