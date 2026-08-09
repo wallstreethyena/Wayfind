@@ -155,7 +155,13 @@ ok(/never changes a place's Wayfind Score/.test(saved), "…and says, where a pe
 ok(/Turn on personalization/.test(saved) && /setConsent\("on"\)/.test(saved), "the consent ask is a real choice — opt-IN, and off is the default until tapped");
 ok(/className="wf-taste-btn is-quiet">Turn off</.test(home) && /setConsent\("off"\); setTasteOpen\(false\)/.test(home), "'turn it off' is a real control that STOPS re-ranking without erasing — separate from Reset, which wipes");
 ok(/_vec\.category\) for .* affinities\.catW\[k\] = \(affinities\.catW\[k\] \|\| 0\) \+ v \* 0\.4/.test(home), "the DURABLE per-user vector folds into ranking — taste persists across sessions");
-ok(home.includes('localStorage.setItem("wf_personalize"') , "consent choice is remembered");
+// v7.08 — setLocal() (lib/localStore.js) replaced the bare setItem here.
+// Same requirement, finally met: the production store was measured five
+// characters under its 5MB quota, so the bare write was throwing
+// QuotaExceededError into a silent catch while this guard stayed green,
+// because the CALL was present and only the WRITE was failing. The
+// assertion is about persistence, not about which function performs it.
+ok(home.includes('setLocal("wf_personalize"') || home.includes('localStorage.setItem("wf_personalize"'), "consent choice is remembered");
 ok(home.includes('supabase.from("wf_taste").select') , "signed-in users' durable vector loads from their OWN rows");
 // Phase 3 control
 ok(home.includes("function resetTaste") && home.includes('supabase.rpc("wf_taste_wipe")'), "Reset wipes the server vector");

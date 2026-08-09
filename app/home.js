@@ -55,6 +55,9 @@ import { commerceHref } from "../lib/commerce";
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
 import { searchPlaces } from "../lib/sources";
 import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
+// v7.08 — the one writer that knows a cache from a preference, and the sweep
+// that reclaims the budget the caches had already taken. See lib/localStore.js.
+import { setLocal, sweepLocal } from "../lib/localStore";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
@@ -216,7 +219,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.69";
+const BUILD_ID = "v6.70";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -583,7 +586,7 @@ function loadSignals() {
   try { return JSON.parse(localStorage.getItem("wf_signals") || "[]"); } catch { return []; }
 }
 function saveSignals(sigs) {
-  try { localStorage.setItem("wf_signals", JSON.stringify(sigs.slice(0, 1000))); } catch {}
+  try { setLocal("wf_signals", JSON.stringify(sigs.slice(0, 1000))); } catch {}
 }
 // Per-category and per-badge affinity weights. Half-life = 5 days.
 function computeAffinities(sigs) {
@@ -1134,7 +1137,7 @@ function featuredBoost(p) {
 // type; the map Top 10 reweights toward what this user actually engages with.
 // Local-only (per user, per device); capped so taste tailors, never hijacks.
 function tasteBump(place) {
-  try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); localStorage.setItem("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
+  try { const k = String((place && place.type) || "").slice(0, 30); if (!k) return; const t = JSON.parse(localStorage.getItem("wf_taste_v1") || "{}"); t[k] = Math.min(99, (t[k] || 0) + 1); setLocal("wf_taste_v1", JSON.stringify(t)); } catch (e) {}
 }
 
 // v6.44: hard category gate for intent-specific meal searches. Radius changes
@@ -3468,8 +3471,23 @@ function PageInner({ initialEvents = null }) {
   const giveawaySoon = () => { const n = Date.now(); return n < GIVEAWAY.start.getTime() && n >= GIVEAWAY.start.getTime() - 21 * 864e5; };
   const [gwCount, setGwCount] = useState(0);
   const [gwOpen, setGwOpen] = useState(false);
+  // v7.08 — RECLAIM THE STORAGE BUDGET, FIRST THING. Measured on the owner's
+  // phone on production: 5,242,875 characters against a 5,242,880 quota, so
+  // every localStorage.setItem in this app — 54 of them, all wrapped in a
+  // silent catch — was throwing QuotaExceededError. Favorites, likes, the
+  // chosen location, the collapsed rails: written, refused, gone on the next
+  // navigation, with nothing on screen to say so.
+  //
+  // Bounding the caches at their write sites fixes the phones of tomorrow. It
+  // does nothing for the ones already full, because on a full store there are
+  // no successful writes to bound. So the sweep runs on arrival, drops dead
+  // schema epochs and over-cap per-location caches, and shrinks the query
+  // cache to its budget instead of deleting it — the searches Google has
+  // already been paid for are worth keeping. Cache only; nothing the reader
+  // owns is ever a candidate. lib/localStore.js holds the declared list.
+  useEffect(() => { try { sweepLocal(); } catch (e) {} }, []);
   useEffect(() => { try { const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (Array.isArray(g)) setGwCount(g.length); } catch (e) {} }, []);
-  const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); localStorage.setItem("wf_gw26", JSON.stringify(g)); setGwCount(g.length); if (g.length >= 3) { try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); st.entered = true; localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (er) {} } } } catch (e) {} };
+  const giveawayMark = (itemId) => { try { if (!giveawayLive() || !itemId) return; const g = JSON.parse(localStorage.getItem("wf_gw26") || "[]"); if (g.indexOf(itemId) === -1 && g.length < 10) { g.push(itemId); setLocal("wf_gw26", JSON.stringify(g)); setGwCount(g.length); if (g.length >= 3) { try { const st = JSON.parse(localStorage.getItem("wf_gw_pop") || "{}"); st.entered = true; localStorage.setItem("wf_gw_pop", JSON.stringify(st)); } catch (er) {} } } } catch (e) {} };
   const [mapFocus, setMapFocus] = useState(null); // drawer row -> fly the map to this pin
   const [mapSearchOpen, setMapSearchOpen] = useState(false); // map keeps a magnifier; tap slides the field down
   const [a2hs, setA2hs] = useState(false); // add-to-home-screen nudge (2nd visit, dismissible, never in standalone)
@@ -3530,7 +3548,7 @@ function PageInner({ initialEvents = null }) {
   // A1: persist the app's resolved location, including whether it came from
   // a manual search, so remounts do not snap back to device GPS.
   useEffect(() => {
-    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) localStorage.setItem("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
+    try { if (center && isFinite(center.lat) && isFinite(center.lng) && locName) setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() })); } catch (e) {}
   }, [center, locName]);
   // PROTECTED (check-cards.mjs): every card label follows the user's location.
   const cityNow = locName ? locName.split(",")[0] : "you";
@@ -4098,7 +4116,7 @@ function PageInner({ initialEvents = null }) {
     const entry = { c, ts: Date.now() };
     setSavedCoupons((prev) => {
       const next = { ...(prev || {}), [c.id]: entry };
-      try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+      try { setLocal("wf_coupons", JSON.stringify(next)); } catch (e) {}
       return next;
     });
     svFolderUpsert("Coupons", { id: "coupon:" + c.id, name: (c.business ? c.business + " — " : "") + c.title, address: c.details || "", types: ["coupon"], rating: null, reviews: 0, lat: null, lng: null, _coupon: c });
@@ -4111,7 +4129,7 @@ function PageInner({ initialEvents = null }) {
     setSavedCoupons((prev) => {
       const next = { ...(prev || {}) };
       delete next[c.id];
-      try { localStorage.setItem("wf_coupons", JSON.stringify(next)); } catch (e) {}
+      try { setLocal("wf_coupons", JSON.stringify(next)); } catch (e) {}
       return next;
     });
     svFolderDelete("Coupons", "coupon:" + c.id);
@@ -4147,7 +4165,7 @@ function PageInner({ initialEvents = null }) {
       };
       if (on) delete next[kind][ev.id];
       else { next[kind][ev.id] = true; delete next[other][ev.id]; }
-      try { localStorage.setItem("wf_event_signals", JSON.stringify(next)); } catch (e) {}
+      try { setLocal("wf_event_signals", JSON.stringify(next)); } catch (e) {}
       if (!on) { try { logEvent(kind === "liked" ? "event_like" : "event_dislike", null, { id: ev.id, bucket: eventBucket(ev) }); } catch (e) {} }
       return next;
     });
@@ -4242,7 +4260,7 @@ function PageInner({ initialEvents = null }) {
   const reservationsHydrated = useRef(false);
   useEffect(() => {
     if (!reservationsHydrated.current) { reservationsHydrated.current = true; return; }
-    try { localStorage.setItem("wf_reservations", JSON.stringify(reservations)); } catch (e) {}
+    try { setLocal("wf_reservations", JSON.stringify(reservations)); } catch (e) {}
   }, [reservations]);
   function persistRes(fn) { setReservations((prev) => fn(prev)); }
   function addReservation(kind, place, partner, url) {
@@ -4299,7 +4317,7 @@ function PageInner({ initialEvents = null }) {
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tasteVer]);
-  function setConsent(v) { setPersonalize(v); try { localStorage.setItem("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
+  function setConsent(v) { setPersonalize(v); try { setLocal("wf_personalize", v); } catch (e) {} if (v === "on") setTasteVer((n) => n + 1); }
   // v6.55: `val` may now be a single raw value OR an array of raw values —
   // the taste panel merges multiple raw Google tags onto one clean chip (see
   // the chip-merge loop below), so "forget" on a merged chip must erase every
@@ -4308,7 +4326,7 @@ function PageInner({ initialEvents = null }) {
     const vals = Array.isArray(val) ? val : [val];
     try {
       if (supabase && user) { await supabase.from("wf_taste").delete().eq("dimension", dim).in("value", vals); }
-      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; for (const v of vals) delete l[dim + "|" + v]; localStorage.setItem("wf_taste_local", JSON.stringify(l)); }
+      else { const l = JSON.parse(localStorage.getItem("wf_taste_local") || "null") || {}; for (const v of vals) delete l[dim + "|" + v]; setLocal("wf_taste_local", JSON.stringify(l)); }
     } catch (e) {}
     setTasteVer((n) => n + 1);
   }
@@ -4638,7 +4656,7 @@ function PageInner({ initialEvents = null }) {
           if (toPush.length) { try { await supabase.from("saved_places").upsert(toPush.map((p) => ({ user_id: user.id, place_id: p.id, place: p, list_name: "Favorites" })), { onConflict: "user_id,place_id,list_name", ignoreDuplicates: true }); } catch {} }
           const pool = {}; [...remotePlaces, ...favPlaces].forEach((p) => { if (p && p.id) pool[p.id] = p; });
           const keptPlaces = rec.keep.map((id) => pool[id]).filter(Boolean);
-          try { localStorage.setItem("wf_fav_base", JSON.stringify(rec.keep)); } catch {}
+          try { setLocal("wf_fav_base", JSON.stringify(rec.keep)); } catch {}
           setLists((prev) => {
             const fav = prev.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
             return { ...prev, favorites: { ...fav, places: keptPlaces } };
@@ -4664,7 +4682,7 @@ function PageInner({ initialEvents = null }) {
           }
           const next = {};
           rec.keep.forEach((id, i) => { const entry = local[id] || (remote[id] ? { place: remote[id], ts: Date.now() - i } : null); if (entry) next[id] = entry; });
-          try { localStorage.setItem(storeKey, JSON.stringify(next)); localStorage.setItem(baseKey, JSON.stringify(rec.keep)); } catch {}
+          try { localStorage.setItem(storeKey, JSON.stringify(next)); setLocal(baseKey, JSON.stringify(rec.keep)); } catch {}
           if (!cancelled) {
             if (setItems) setItems(next);
             if (setBool) setBool(Object.fromEntries(rec.keep.map((id) => [id, true])));
@@ -5265,7 +5283,7 @@ function PageInner({ initialEvents = null }) {
         try {
           const cur = JSON.parse(localStorage.getItem("wf_taste_local") || "null");
           const nextLocal = applyLocalTaste(cur, sig, now);
-          localStorage.setItem("wf_taste_local", JSON.stringify(nextLocal));
+          setLocal("wf_taste_local", JSON.stringify(nextLocal));
           const localVec = tasteLocalToVector(nextLocal, now);
           const merged = { ...(tasteVecRef.current || {}) };
           for (const [dim, values] of Object.entries(localVec || {})) merged[dim] = { ...(merged[dim] || {}), ...values };
@@ -5381,7 +5399,7 @@ function PageInner({ initialEvents = null }) {
     try { recordSignal(p, "share"); } catch (e) {}
     const next = { ...sharedItems, [p.id]: { place: p, ts: Date.now() } };
     setSharedItems(next);
-    try { localStorage.setItem("wf_shared_items", JSON.stringify(next)); } catch {}
+    try { setLocal("wf_shared_items", JSON.stringify(next)); } catch {}
     svFolderUpsert("Shared", p);
   }
   // Curator Boost real-time chip: after a like/unlike write LANDS, refetch the
@@ -5416,7 +5434,7 @@ function PageInner({ initialEvents = null }) {
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (supabase && user) {
       if (wasLiked) {
         supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id).then(() => refreshOwnerPick(p.id), () => {});
@@ -5442,7 +5460,7 @@ function PageInner({ initialEvents = null }) {
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
-    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); localStorage.setItem("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    try { localStorage.setItem("wf_liked", JSON.stringify(nextLiked)); localStorage.setItem("wf_disliked", JSON.stringify(nextDis)); localStorage.setItem("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     if (!wasDis) showToast("Got it — fewer places like this");
   }
   function toggleHookLike(hookId) {
@@ -5451,7 +5469,7 @@ function PageInner({ initialEvents = null }) {
     if (next.has(hookId)) next.delete(hookId);
     else next.add(hookId);
     setHookLikes(next);
-    try { localStorage.setItem("wf_hook_likes", JSON.stringify([...next])); } catch {}
+    try { setLocal("wf_hook_likes", JSON.stringify([...next])); } catch {}
   }
   function openHook(h) {
     // If no place ID or we have a themed body, open the detail sheet.
@@ -5562,7 +5580,7 @@ function PageInner({ initialEvents = null }) {
     if (!place || !place.id || myVotes[place.id]) return;
     const next = { ...myVotes, [place.id]: vote };
     setMyVotes(next);
-    try { localStorage.setItem("wf_drive_votes", JSON.stringify(next)); } catch {}
+    try { setLocal("wf_drive_votes", JSON.stringify(next)); } catch {}
     try {
       const res = await fetch("/api/vote", {
         method: "POST",
@@ -5579,7 +5597,7 @@ function PageInner({ initialEvents = null }) {
     if (!email || signupDone) return;
     try { await fetch("/api/signup", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, likes: Object.keys(liked).length, signals: signals.length }) }); } catch {}
     setSignupDone(true);
-    try { localStorage.setItem("wf_signed_up", "1"); } catch {}
+    try { setLocal("wf_signed_up", "1"); } catch {}
   }
 
   // Open a place: pull deep data (cached), then run the AI grounded in it.
@@ -5945,7 +5963,7 @@ function PageInner({ initialEvents = null }) {
     // Skip the first run so default empty lists never overwrite real saved data
     // before the load effect above has hydrated from localStorage.
     if (!listsHydrated.current) { listsHydrated.current = true; return; }
-    try { localStorage.setItem("wayfind_lists", JSON.stringify(lists)); } catch {}
+    try { setLocal("wayfind_lists", JSON.stringify(lists)); } catch {}
   }, [lists]);
 
   // Trip planner store: load once on mount, then persist on every change.
@@ -5955,7 +5973,7 @@ function PageInner({ initialEvents = null }) {
   const tripsHydrated = useRef(false);
   useEffect(() => {
     if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
-    try { localStorage.setItem("wayfind_trips", JSON.stringify(trips)); } catch {}
+    try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
 
   useEffect(() => {
@@ -8871,10 +8889,19 @@ function PageInner({ initialEvents = null }) {
                 const rest = fp.rest.filter((e) => e && eventSignals.disliked[e.id] !== true).slice(0, 24);
                 return (
                   <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
-                      <span onClick={() => setScreen("events")} style={{ fontSize: 12.5, fontWeight: 700, color: C.accent, cursor: "pointer" }}>See all ↗</span>
-                    </div>
+                    {/* v7.08 — NO HEADING HERE. v7.06 moved the events rail into
+                        the menu as section nine and correctly left the promo
+                        carousel behind, but it left the SECTION FURNITURE too:
+                        an events heading and an events "See all" sitting above
+                        a deck of discovery hero cards, with the real events
+                        heading a few hundred pixels below it. Measured on
+                        production: two "Happening near you" labels on one page,
+                        only one of them over any events. The heading and the
+                        see-all belong to whichever block owns the rail, and
+                        that is section nine — which carries both, including its
+                        own "See every event →". What is left here is the hero
+                        deck, which was never the events section and should
+                        never have claimed its title. */}
                     {featured && featured.dest && (() => {
                       const f = formatEventDate(featured.date, featured.time);
                       const seg = eventSegmentMeta(featured.segment, featured.genre, featured.name);
