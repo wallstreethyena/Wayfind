@@ -135,7 +135,7 @@ export function RailNav({ railId, count, unit }) {
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, cta,
+  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, cta, take,
   onOpen, href, external, ariaLabel, className,
   saved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
@@ -216,6 +216,12 @@ export default function RailCard({
               ))}
             </div>
           ) : null}
+
+          {/* THE EDITORIAL LINE. One sentence answering "why should I choose
+              this place" — the app-wide law (2026-08-09). Rendered only when a
+              VERIFIED line exists: no fallback, no template, no generated
+              filler. An empty slot is honest; a generic line is not. */}
+          {take ? <div className="wf-place-card-take">{take}</div> : null}
 
           {cta ? (
             <a

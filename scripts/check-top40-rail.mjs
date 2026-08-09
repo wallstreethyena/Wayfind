@@ -110,6 +110,23 @@ ok(/emitCommerce\("commerce_cta_clicked"/.test(code), "the CTA is instrumented, 
 ok(/mintClickId\(\)/.test(code), "…with a click id minted per tap for attribution");
 
 // ── 5. ONE CARD SHAPE, AND THE ANSWER BELOW IT SURVIVES ─────────────────────
+// ── THE EDITORIAL LAW (owner, 2026-08-09, app-wide) ─────────────────────────
+// "the editorial needs to answer one question: why should I choose this place...
+// this is the rule for every editorial." The Top 40 shipped with no line at all
+// while the eat rows beside it had one.
+ok(/take=\{toHookLine\(hooks\[p\.place_id\], p\.name\)\}/.test(code),
+  "every Top 40 card carries the editorial line, resolved through the same toHookLine the eat rows use");
+ok(/"\/api\/known-for"/.test(code) && /cacheOnly: true/.test(code),
+  "…from the researched wf_editorial hook first, then a VALIDATED cached blurb — never generated on the render path");
+{
+  // No fallback, no template. A place with no verified hook renders no line.
+  const takeIdx = code.indexOf("take={toHookLine(");
+  const line = code.slice(takeIdx, code.indexOf("\n", takeIdx));
+  ok(!/\|\|/.test(line), "the editorial line has NO fallback — an empty slot is honest, a generic line is filler, a generated one is fabrication");
+  const rail = readFileSync("app/components/RailCard.js", "utf8");
+  ok(/take \? <div className="wf-place-card-take">\{take\}<\/div> : null/.test(rail),
+    "RailCard renders the line only when one exists, in the place card's own take slot");
+}
 ok(/<RailCard\b/.test(code), "the rail renders the shared RailCard, not a fourth bespoke card");
 ok(/data-rail="top40"/.test(code) && /<RailNav railId="top40"/.test(code),
   "the rail carries the explicit 'there is more' affordance, like the events rail");

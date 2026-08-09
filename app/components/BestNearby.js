@@ -506,6 +506,46 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center && center.lat, center && center.lng]);
 
+  // THE EDITORIAL LAW, applied to the Top 40 (owner, 2026-08-09: "the editorial
+  // needs to answer one question — why should I choose this place... this is the
+  // rule for every editorial"; "it is the global rule for the entire app").
+  //
+  // The Top 40 shipped with NO editorial line while the eat rows beside it had
+  // one — the same reader saw "A hidden door upstairs leads to Maya" on one card
+  // and nothing on the next. This resolves the same researched hook for the rail,
+  // through the same two endpoints, in the same precedence: the verified
+  // wf_editorial line wins, a validated cached blurb fills the gap.
+  //
+  // NOTHING IS INVENTED. A place with no verified hook renders no line at all —
+  // the slot simply stays empty, exactly as it does on the eat rows. An empty
+  // slot is honest; a generic line would be filler; a generated one would be the
+  // fabrication this codebase exists to prevent. cacheOnly on the blurbs call
+  // keeps generation off the render path (check-no-llm-in-render-path).
+  useEffect(() => {
+    const list = Array.isArray(top40) ? top40 : [];
+    const items = list.filter((p) => p && p.place_id).map((p) => ({ id: p.place_id, name: p.name, type: p.primary_type || "", rating: p.rating, reviews: p.reviews }));
+    const ids = items.map((p) => p.id);
+    if (!ids.length) return;
+    let dead = false;
+    (async () => {
+      const next = {};
+      try {
+        const r = await fetch("/api/known-for", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ids }) });
+        const d = await r.json();
+        if (d && d.lines && typeof d.lines === "object") for (const id of ids) if (d.lines[id]) next[id] = d.lines[id];
+      } catch (e) {}
+      try {
+        const r2 = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cacheOnly: true, city: "", places: items }) });
+        const d = await r2.json();
+        if (d && d.blurbs && typeof d.blurbs === "object") for (const id of ids) if (!next[id] && d.blurbs[id]) { const b = d.blurbs[id]; next[id] = typeof b === "string" ? b : (b.card_line_1 || ""); }
+      } catch (e) {}
+      if (dead || !Object.keys(next).length) return;
+      setHooks((prev) => ({ ...prev, ...next }));
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Array.isArray(top40) ? top40.map((p) => p && p.place_id).join(",") : ""]);
+
   const load = (id) =>
     // `events` rides along so the trend signal can score major-event
     // proximity (PredictHQ demand fields) — fails soft to no events.
@@ -775,6 +815,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                         try { emitCommerce("commerce_cta_clicked", { surface: "top40_rail", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: p.place_id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch (err) {}
                       },
                     } : null}
+                    take={toHookLine(hooks[p.place_id], p.name)}
                     ariaLabel={"Open " + p.name}
                     onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
                     onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} }}
