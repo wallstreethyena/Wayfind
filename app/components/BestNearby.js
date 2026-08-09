@@ -19,7 +19,13 @@
 import { useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
-import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl } from "../../lib/todaysBest.js";
+import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore } from "../../lib/todaysBest.js";
+// v7.04 — the Top 40 rail renders the SAME card every other rail renders.
+import RailCard, { RailNav } from "./RailCard";
+import { toDisplayScore } from "../../lib/score.js";
+import { placePartnerPick } from "../../lib/placePartnerPicks.js";
+import { couponForPlaceName } from "../../lib/coupons.js";
+import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce.js";
 import { PLATFORM } from "../../lib/creatorVideos";
 import { supabase } from "../../lib/supabase.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
@@ -222,6 +228,49 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // empty-ish at 11pm, and an empty first impression is worse than a collapsed
 // one. Set to null to restore the pre-2026-08-06 all-collapsed behaviour;
 // scripts/check-home-answer-first.mjs asserts it is a real section id.
+// ─── THE TOP 40 (owner, 2026-08-08) ─────────────────────────────────────────
+// "i want the best cards from each category, place 40 cards there and give the
+// best options, allow the user scroll right and left... i want the things that
+// are most trending, preferably the instagram videos."
+//
+// HOW THE ORDER IS PRODUCED, and why there is no new algorithm here. The bias
+// the owner is asking for ALREADY EXISTS in the governed score that ranks every
+// surface on this site: lib/wayfindScore.js adds +0.6 for a trending place and
+// +0.7 for one with a creator video (the Instagram/TikTok library), on the /10
+// scale. So "most trending, preferably the creator videos" is what
+// byVisibleScore() already returns — this rail just widens the POOL it sees and
+// then sorts the union by exactly that same number.
+//
+// Deliberately NOT done: a fourth ranking term, or a head re-shuffle that
+// floats creator places above a higher-scoring one. check-creator-video-boost
+// and check-score-law both forbid it by name, for the reason stated in their
+// own text — "ranked by the Wayfind Score, everywhere". Making the rail lean
+// harder is a change to those two constants, which re-ranks every page, and
+// that is an owner decision rather than a local sort tweak.
+//
+// FOUR CATEGORIES, not one. `wf_best_picks` takes a category, so a single call
+// returns 40 restaurants. The owner asked for "the best of each category", so
+// the rail fans out across the four that the engine actually serves with real
+// inventory and merges the results. 'beach' and 'hotels' are left out on
+// purpose: they are trip decisions rather than "near me right now" picks, and
+// beaches are never bookable (lib/affiliates.js's standing exclusion).
+const TOP40_CATEGORIES = ["food", "attractions", "nightlife", "shopping"];
+const TOP40_PER_CATEGORY = 14; // 4 x 14 = 56 raw, before dedupe/vetting, to land 40
+const TOP40_MAX = 40;
+// Matches the events rail's floor so the two read as one system; measured the
+// same way (a real render at 390 and 1024 with the shipped webfonts).
+const TOP40_CARD_H = 245;
+const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
+// wf_best_picks returns Google's raw primary_type ("mexican_restaurant").
+// Title-cased with the underscores gone, it is the card's eyebrow — the same
+// slot the place card fills with "Fine dining". Never invented: a row with no
+// primary_type gets no eyebrow rather than a guessed one.
+function prettyType(t) {
+  const raw = String(t || "").replace(/_/g, " ").trim();
+  if (!raw) return "";
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
 export const DEFAULT_SECTION = "eat";
 
 export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
@@ -346,7 +395,50 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     return { kindOf: "trends", beach, todays, report };
   };
 
-  const load = (id) =>
+  // The Top 40's own load. Independent of the accordion's `rows` so a slow
+  // category cannot hold up the answer below it, and so a failed category
+  // degrades to fewer cards rather than to none.
+  const [top40, setTop40] = useState("loading");
+  const top40For = useRef("");
+  useEffect(() => {
+    if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
+    const key = center.lat.toFixed(3) + "," + center.lng.toFixed(3);
+    if (top40For.current === key) return;
+    top40For.current = key;
+    setTop40("loading");
+    let dead = false;
+    (async () => {
+      const args = baseArgs();
+      const batches = await Promise.all(
+        TOP40_CATEGORIES.map((category) =>
+          fetchTodaysBest({ ...args, category, limit: TOP40_PER_CATEGORY, events }).catch(() => [])
+        )
+      );
+      if (dead) return;
+      // One row per place. wf_best_picks can return the same venue under two
+      // categories (a brewery is nightlife AND food), and a rail that shows it
+      // twice reads as a broken list rather than a rich one.
+      const seen = new Set();
+      const pool = [];
+      batches.forEach((rows) => (Array.isArray(rows) ? rows : []).forEach((r) => {
+        const id = r && (r.place_id || r.id);
+        if (!id || seen.has(id)) return;
+        seen.add(id);
+        pool.push(r);
+      }));
+      // THE SAME SORT the rest of the site uses. byVisibleScore stamps
+      // governed_score (base +0.7 creator video, -0.2 past 17mi, +0.6
+      // trending) and orders by it, so the rail is "shown == sorted" like
+      // every other ranked surface — the badge on each card is the number
+      // that put it in that position.
+      const ranked = byVisibleScore(pool).slice(0, TOP40_MAX);
+      setTop40(gateOutdoor(ranked, nowCtx()));
+    })();
+    return () => { dead = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [center && center.lat, center && center.lng]);
+
+  const load = (id) =
     // `events` rides along so the trend signal can score major-event
     // proximity (PredictHQ demand fields) — fails soft to no events.
     id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events })
@@ -515,6 +607,90 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
         </h2>
         <div style={{ marginTop: 6, fontSize: 11.5, color: "#7F8DA0", lineHeight: 1.4 }}>{headline.sub}</div>
       </div>
+      {/* ── THE TOP 40 (owner, 2026-08-08) ────────────────────────────────
+          "i want the same cards inside this... place 40 cards there... allow
+          the user scroll right and left", and "make sure it is housed under
+          this structure" — so it sits INSIDE this panel, directly under the
+          gradient headline it belongs to, and renders the same RailCard the
+          events and creator rails render. The ranked accordion below is
+          untouched: it is the ANSWER, it still leads, and every measured
+          decision behind it (the head of three, the see-all, the why line)
+          still holds. This is a browse surface added above it, not a
+          replacement for it. */}
+      {(() => {
+        if (top40 === "loading") {
+          return (
+            <div style={{ padding: "0 1px 12px" }} role="status" aria-busy="true" aria-label="Ranking the best near you">
+              <div className="wf-sk" style={{ height: 16, width: 180, borderRadius: 6, marginBottom: 8 }} />
+              <div className="wf-rail" aria-hidden="true" style={{ minHeight: TOP40_CARD_H }}>
+                <div className="wf-sk" style={{ width: "100%", height: TOP40_CARD_H, borderRadius: 17, flexShrink: 0 }} />
+              </div>
+            </div>
+          );
+        }
+        const list = Array.isArray(top40) ? top40 : [];
+        // Fewer than three is not a shortlist, it is a thin shelf — the same
+        // coverage rule the creator row already applies. The accordion below
+        // still answers the question, so rendering nothing here costs nothing.
+        if (list.length < 3) return null;
+        return (
+          <div style={{ padding: "0 1px 12px" }}>
+            <RailNav railId="top40" count={list.length} unit="top picks near you" />
+            <div className="wf-rail wf-rail-top40" data-rail="top40" tabIndex={0} role="region" aria-label="Top picks near you" style={{ minHeight: TOP40_CARD_H }}>
+              {list.map((p, i) => {
+                // Only a VERIFIED partner pick becomes a CTA. placePartnerPick
+                // is an exact normalized-name match against nine curated rows,
+                // so this is null on almost every card and never a guessed
+                // ticket link for a venue we have not confirmed sells one.
+                const partner = placePartnerPick(p);
+                const coupon = couponForPlaceName(p.name);
+                const facts = [
+                  p.reviews ? compactReviews(p.reviews) + " reviews" : null,
+                  isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
+                  // The trend bump is DISCLOSED wherever it is applied — the
+                  // same rule the rows below follow with <TrendReason>.
+                  p.trending && p.trend_reason ? "🔥 " + p.trend_reason : null,
+                ].filter(Boolean);
+                const chips = [
+                  // byVisibleScore stamps creator_video when it applied the
+                  // +0.7, so this label and the score can never disagree.
+                  p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
+                  coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
+                ].filter(Boolean);
+                return (
+                  <RailCard
+                    key={p.place_id || p.id || i}
+                    photo={tbPhotoUrl(p.photo_ref, 480)}
+                    title={p.name}
+                    eyebrow={prettyType(p.primary_type)}
+                    rank={i + 1}
+                    score={toDisplayScore(p.governed_score)}
+                    facts={facts}
+                    award={i < 3 ? { tone: i + 1, icon: i === 0 ? "🏆" : String(i + 1), label: i === 0 ? "Top pick near you" : "Top " + (i + 1) + " near you" } : null}
+                    chips={chips}
+                    cta={partner ? {
+                      label: "🎟️ Tickets via " + partner.merchant + " ↗",
+                      href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "top40_rail", contentId: p.place_id }),
+                      external: true,
+                      onClick: (e) => {
+                        const clickId = mintClickId();
+                        const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "top40_rail", contentId: p.place_id, clickId });
+                        if (live && e && e.currentTarget) e.currentTarget.href = live;
+                        try { emitCommerce("commerce_cta_clicked", { surface: "top40_rail", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: p.place_id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch (err) {}
+                      },
+                    } : null}
+                    ariaLabel={"Open " + p.name}
+                    onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
+                    onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} }}
+                  />
+                );
+              })}
+            </div>
+            {/* Proximate disclosure, because a ticket CTA can appear above. */}
+            <div style={{ marginTop: 7, fontSize: 10, color: "#6F7C8D" }}>Ticket links are affiliate links; Wayfind may earn a commission. Ranking never changes.</div>
+          </div>
+        );
+      })()}
       {SECTIONS.map((sdef, si) => {
         const isOpen = open === sdef.id;
         const data = rows[sdef.id];
