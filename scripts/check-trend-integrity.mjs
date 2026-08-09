@@ -116,6 +116,28 @@ const routeCode = identOf(routeSrc);
 ok(/CRON_SECRET/.test(routeCode), "the route is CRON_SECRET-gated");
 ok(/status:\s*401/.test(routeCode), "…and returns 401 to an unauthenticated caller");
 ok(/status:\s*503/.test(routeCode), "…and a non-200 on missing configuration, so job-watch can see it");
+// DORMANT ≠ MISCONFIGURED. The route must distinguish "never enabled" (quiet
+// 200) from "half-enabled" (loud 503). Without the first branch this cron 503s
+// every day at 09:50 UTC for a feature that is deliberately off, and a daily
+// alert for a non-problem is how the real alert gets ignored later.
+ok(/dormant/.test(routeCode), "the route has a DORMANT branch for a feature that was never enabled");
+// Assert the LIVE CONDITION, not its position. Two earlier versions of this
+// assertion were decoration:
+//   · `error: "configuration"` is a string literal — identOf() strips it, so
+//     comparing its index against -1 failed on correct code;
+//   · comparing the index of the word "dormant" against rightsMode() passed
+//     even with the branch rewritten to `if (false)`, because the body still
+//     contained the word at the same place. The sabotage did not go red.
+// What actually has to be true is that the route reads the RAW env var itself
+// and returns before rightsMode() — the accessor that throws — can be called.
+// `if (false)` deletes that read, so this version goes red for it.
+const envReadIdx = routeCode.search(/process\.env\.EXPLODING_TOPICS_RIGHTS_MODE/);
+const throwsIdx = routeCode.search(/\brightsMode\s*\(\s*\)/);
+ok(envReadIdx > -1,
+  "the route must read EXPLODING_TOPICS_RIGHTS_MODE directly to detect the dormant case — rightsMode() throws on it and cannot be used to test for it");
+ok(throwsIdx > -1 && envReadIdx < throwsIdx,
+  `the raw env check must precede rightsMode() (env@${envReadIdx}, rightsMode()@${throwsIdx}) — ` +
+  `otherwise the throw fires first and a deliberately-off feature is reported as broken, daily`);
 ok(/recordPulse/.test(routeCode), "…and records a job pulse");
 // It must never fetch from the trend provider.
 for (const host of ["explodingtopics", "semrush"]) {
