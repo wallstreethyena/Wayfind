@@ -96,8 +96,16 @@ ok(bb.includes('const heroImg = "/cards/beach-adobestock-216195684.jpeg"'), "bea
   // as a { card_line_1, card_line_2 } CARD_SUMMARY instead of a bare string —
   // same provenance guarantee (verified hook wins outright; ai_line only gets
   // a chance when the hook is absent; the tail is null, never a fabricated line).
-  ok(icSrc.includes("editorial={r.editorial_hook || null}"), "rows render verified Wayfind editorial when present");
-  ok(icSrc.includes("aiSummary={r.editorial_hook ? null : r.ai_line || null}"), "else rows fall to the Wayfind-grounded ai_line, else null — never both at once");
+  // v7.06 — both props now read the hook through toHookLine (lib/editorialHook.js),
+  // the one compressor every place surface shares. The PROVENANCE guarantee this
+  // pair exists to protect is untouched: a verified hook wins outright, ai_line
+  // only gets a chance when the hook is absent, and the tail is null rather than
+  // a fabricated line. Both sides must test the COMPRESSED value — gating
+  // aiSummary on the raw hook while rendering the compressed one would render
+  // both at once whenever the compressor rejected a pending-research placeholder,
+  // which is the exact "never both at once" failure named below.
+  ok(icSrc.includes("editorial={toHookLine(r.editorial_hook, r.name) || null}"), "rows render verified Wayfind editorial when present, compressed through the shared toHookLine");
+  ok(icSrc.includes("aiSummary={toHookLine(r.editorial_hook, r.name) ? null : r.ai_line || null}"), "else rows fall to the Wayfind-grounded ai_line, else null — never both at once");
   const lay = readFileSync(new URL("../app/layout.js", import.meta.url), "utf8");
   ok(/Impact-Site-Verification[\s\S]{0,40}/.test(lay) ? lay.includes('style={{ display: "none" }}>Impact-Site-Verification') : true, "the Impact text span must be display:none — it was leaking as visible page text");
 }

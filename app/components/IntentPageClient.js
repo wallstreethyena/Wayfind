@@ -5,6 +5,8 @@
 // intent + daypart from lib/intentPages; results floored on real depth,
 // ranked by the ONE score, rendered on the /best-beaches standard shell.
 import { useEffect, useMemo, useState } from "react";
+// v7.06 — the ONE editorial-line compressor, shared by every place surface.
+import { toHookLine } from "../../lib/editorialHook";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import IconicPlaceCard from "./IconicPlaceCard";
@@ -512,8 +514,8 @@ export default function IntentPageClient({ intent }) {
             ) : null;
             return (
               <IconicPlaceCard key={r.id} place={r} rank={i + 1} href={"/p/" + encodeURIComponent(r.id)}
-                editorial={r.editorial_hook || null}
-                aiSummary={r.editorial_hook ? null : r.ai_line || null}
+                editorial={toHookLine(r.editorial_hook, r.name) || null}
+                aiSummary={toHookLine(r.editorial_hook, r.name) ? null : r.ai_line || null}
                 rankingNote={Number.isFinite(r.distMi) && r.distMi > FAR_MILES ? "ranked lower for the drive (−0.2)" : null}
                 badge={badge}
                 saved={!!saved[r.id]} liked={!!liked[r.id]} disliked={!!disliked[r.id]}

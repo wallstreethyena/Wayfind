@@ -9,6 +9,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import IconicPlaceCard from "./IconicPlaceCard";
+// v7.06 — the ONE editorial-line compressor, shared by every place surface.
+import { toHookLine } from "../../lib/editorialHook.js";
 import CollectionFilter from "./CollectionFilter";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { supabase } from "../../lib/supabase";
@@ -188,11 +190,22 @@ export default function TrendingNowClient() {
           <CollectionFilter sortBy={sortBy} onSort={setSortBy} radius={radius} onRadius={setRadius} city={loc.city} showPrice={false} />
           {visibleRows.length ? <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
             {visibleRows.map((r, i) => (
+              // v7.06 — THE EDITORIAL LAW, applied here by deletion. The
+              // `editorial` slot below used to read:
+              //   r.why || (r.sources_count > 1
+              //     ? "Drawing attention across N signals this week."
+              //     : "More people are looking this up than usual.")
+              // Both fallbacks are precisely what the law forbids. "More people
+              // are looking this up than usual" is true of fifty other places,
+              // says nothing about what you get out of going, and is sourced to
+              // nothing — and it rendered on EVERY trending card with no `why`,
+              // which is most of them. A verified line, compressed through the
+              // one shared compressor, or nothing at all.
               <IconicPlaceCard key={r.place_id}
                 place={{ ...r, id: r.place_id, photoRef: r.photo_ref, distMi: r.distance_mi, type: r.category, primaryType: r.category, types: r.category ? [r.category] : [] }}
                 rank={i + 1}
                 href={"/p/" + encodeURIComponent(r.place_id)}
-                editorial={r.why || (r.sources_count > 1 ? "Drawing attention across " + r.sources_count + " signals this week." : "More people are looking this up than usual.")}
+                editorial={toHookLine(r.why, r.name) || null}
                 rankingNote={r.timeFit || null}
                 saved={!!saved[r.place_id]} liked={!!liked[r.place_id]} disliked={!!disliked[r.place_id]}
                 onSave={toggleSave}

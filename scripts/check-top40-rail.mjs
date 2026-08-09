@@ -116,8 +116,23 @@ ok(/mintClickId\(\)/.test(code), "…with a click id minted per tap for attribut
 // while the eat rows beside it had one.
 ok(/take=\{toHookLine\(hooks\[p\.place_id\], p\.name\)\}/.test(code),
   "every Top 40 card carries the editorial line, resolved through the same toHookLine the eat rows use");
-ok(/"\/api\/known-for"/.test(code) && /cacheOnly: true/.test(code),
+// v7.06 — the resolver MOVED to app/components/useEditorialHooks.js so nine
+// place surfaces could share one implementation instead of copying it. Asserting
+// the endpoints against BestNearby.js alone would now go GREEN the moment they
+// left the file — which is the dangerous half of a path-bound assertion, not the
+// noisy half. So this follows the code and asserts the UNION: the rail is wired
+// to the shared resolver, and the shared resolver still holds the precedence.
+const uh = readFileSync("app/components/useEditorialHooks.js", "utf8");
+ok(/useEditorialHooks\(/.test(code),
+  "the rail resolves its line through the shared useEditorialHooks, not a local copy");
+ok(/"\/api\/known-for"/.test(uh) && /cacheOnly: true/.test(uh),
   "…from the researched wf_editorial hook first, then a VALIDATED cached blurb — never generated on the render path");
+// Precedence is the whole contract, so assert the ORDER and the fill rule, not
+// merely that both endpoint strings are present somewhere in the file.
+ok(uh.indexOf('"/api/known-for"') < uh.indexOf('"/api/blurbs"'),
+  "the researched hook is consulted BEFORE the cached blurb — position, not just presence");
+ok(/if \(!next\[id\] && d\.blurbs\[id\]\)/.test(uh),
+  "the cached blurb only fills ids the researched hook did not already answer — it can never overwrite verified copy");
 {
   // No fallback, no template. A place with no verified hook renders no line.
   const takeIdx = code.indexOf("take={toHookLine(");
