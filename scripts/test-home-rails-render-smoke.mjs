@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+/**
+ * test-home-rails-render-smoke — actually RENDER the home rails, don't grep them.
+ *
+ * THE INCIDENT THIS EXISTS FOR (2026-08-09, deploy-blocking class). The Top 40
+ * rail landed in #684 with one character missing:
+ *
+ *     const load = (id) =        // the '>' of the arrow was gone
+ *       id === "eat" ? ... : ...
+ *
+ * That parses. `(id) = <ternary>` is an assignment expression, so the ternary is
+ * evaluated the moment the component body runs — against an `id` that was never
+ * declared. Every render of BestNearby threw
+ *     ReferenceError: id is not defined
+ * and Vercel's prerender of "/" failed, which left `main` UNDEPLOYABLE: the merge
+ * succeeded, so every subsequent PR would have failed to deploy too.
+ *
+ * WHY EVERYTHING ELSE WAS GREEN, and why this is a RENDER and not another grep:
+ *   295 guards     all read source as TEXT. check-top40-rail asserted the sort,
+ *                  the dedupe, the disclosure and the CTA — every one of those
+ *                  strings was present and correct. None of them called anything.
+ *   next build     compiled it. Webpack has no opinion about an unbound
+ *                  identifier; it is legal JavaScript right up until it runs.
+ *   LOCAL next build  passed, because "/" is not prerendered without the real
+ *                  env keys — the failure only appears where the page is
+ *                  statically generated. A green local build was not evidence.
+ *
+ * Same lesson as test-detail-render-smoke, on a different surface: the only
+ * thing that separates "the source looks right" from "the component works" is
+ * calling it. So this calls it.
+ */
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+import { loadComponent } from "./lib/jsxLoad.mjs";
+
+const REPO = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
+const load = (rel) => loadComponent(fileURLToPath(new URL("../" + rel, import.meta.url)), REPO);
+
+let pass = 0;
+const fail = [];
+const ok = (c, m) => { if (c) pass++; else fail.push(m); };
+
+const CENTER = { lat: 27.5864, lng: -82.4257 };
+const WEATHER = { temp: 88, label: "Clear", sunset: null };
+
+// Every prop shape the home page really passes, including the empty and the
+// absent ones — a rail that only survives the happy path is a rail that breaks
+// on the first reader whose location has no coverage.
+const CASES = [
+  ["full props", { center: CENTER, weather: WEATHER, events: [], videoPlaces: [], onOpenPlace: () => {}, onLog: () => {} }],
+  ["no center yet (first paint, before geolocation resolves)", { center: null, weather: null, events: [], videoPlaces: [], onOpenPlace: () => {}, onLog: () => {} }],
+  ["no callbacks wired", { center: CENTER, weather: WEATHER, events: [], videoPlaces: [] }],
+  ["null events + null videoPlaces", { center: CENTER, weather: WEATHER, events: null, videoPlaces: null, onOpenPlace: () => {}, onLog: () => {} }],
+];
+
+const BestNearby = (await load("app/components/BestNearby.js")).default;
+for (const [label, props] of CASES) {
+  let html = null;
+  let err = null;
+  try { html = renderToStaticMarkup(createElement(BestNearby, props)); } catch (e) { err = e; }
+  ok(!err, `BestNearby renders with ${label} — threw: ${err && err.message}`);
+  // A component that renders to nothing would pass a mere "did not throw", so
+  // assert it produced the panel the home page depends on.
+  if (!err) ok(typeof html === "string" && html.length > 0, `BestNearby produced markup with ${label}, not an empty string`);
+}
+
+// The shared rail card, rendered in both the shapes the three rails use: a
+// place (a real Wayfind Score) and an event (no score, a when badge instead).
+const RailCard = (await load("app/components/RailCard.js")).default;
+const RAIL_CASES = [
+  ["a place card (score, facts, chips, actions)", {
+    photo: "/x.jpg", title: "Smoke Test Place", eyebrow: "Fine dining", rank: 1, score: 9.4,
+    facts: ["8.7k reviews", "Open"], award: { tone: 1, icon: "🏆", label: "Top pick near you" },
+    chips: [{ key: "c", icon: "🎬", label: "Creator video" }], onOpen: () => {}, onShare: () => {},
+  }],
+  ["an event card (NO score, a when badge)", {
+    photo: "/x.jpg", title: "Smoke Test Event", eyebrow: "Comedy", rank: 2,
+    when: { label: "TONIGHT", value: "8:50 PM", tone: "now" }, facts: ["A Venue"],
+    cta: { label: "Get tickets ↗", href: "/x", external: true }, onOpen: () => {},
+  }],
+  ["the bare minimum — title only, every enrichment absent", { title: "Just A Title" }],
+  ["no title at all (must render nothing, not throw)", {}],
+];
+for (const [label, props] of RAIL_CASES) {
+  let err = null;
+  try { renderToStaticMarkup(createElement(RailCard, props)); } catch (e) { err = e; }
+  ok(!err, `RailCard renders with ${label} — threw: ${err && err.message}`);
+}
+
+if (fail.length) {
+  console.error("test-home-rails-render-smoke: FAIL");
+  fail.forEach((f) => console.error("  - " + f));
+  process.exit(1);
+}
+console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby and RailCard were CALLED across ${CASES.length + RAIL_CASES.length} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);

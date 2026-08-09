@@ -438,7 +438,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center && center.lat, center && center.lng]);
 
-  const load = (id) =
+  const load = (id) =>
     // `events` rides along so the trend signal can score major-event
     // proximity (PredictHQ demand fields) — fails soft to no events.
     id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events })

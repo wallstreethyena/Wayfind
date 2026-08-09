@@ -323,3 +323,4 @@ node scripts/check-trend-signal.mjs
 node scripts/check-version-watch.mjs
 node scripts/check-partner-hook-collisions.mjs
 node scripts/check-top40-rail.mjs
+node scripts/test-home-rails-render-smoke.mjs
