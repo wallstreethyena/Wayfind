@@ -32,7 +32,7 @@
 // This is that rule, applied to the one surface that never got it.
 import { useEffect, useState } from "react";
 import { PLATFORM } from "../../lib/creatorVideos";
-import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots } from "../../lib/creatorFinds";
+import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
 // v7.02: the row renders the canonical place card (see RailCard.js). The chip
 // source is IconicPlaceCard's experienceTags — the portable, evidence-bound
@@ -92,94 +92,99 @@ const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 // SAME cached /api/places/search the pool uses (which now returns photo_ref),
 // then the guarded /api/photo proxy. Returns "" (not null) on any miss so the
 // cache records "looked, found none" and never retries in a loop.
-// v7.07 (owner, 2026-08-09: "when i change to orlando the wayfind score is not
-// showing"). A scouted card is a registry row — a name, a city and a creator —
-// and it carried no score because the registry has no rating to give it. But
-// this function was ALREADY asking Google for the place in order to resolve a
-// photo, and that same response carries the rating and the review count. The
-// score was one field away the whole time.
-//
-// Nothing is invented: a place Google cannot match, or matches with no rating,
-// still renders scoreless. That is why the pair is returned as null rather than
-// as zeros — kit's badge draws "Score pending" for a null and a red 0.1/10 for
-// a coerced one, and the second is a lie about a place nobody has rated.
 async function resolveScoutedPlace(name, city, center) {
   const key = `${name}|${city}`;
   if (_scoutedPhotoCache.has(key)) return _scoutedPhotoCache.get(key);
-  if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return { photo: "", rating: null, reviews: null };
+  if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return null;
   try {
     const q = encodeURIComponent(`${name} ${city}`);
     const r = await fetch(`/api/places/search?q=${q}&lat=${center.lat}&lng=${center.lng}&limit=1`);
     const j = await r.json();
     const first = j && Array.isArray(j.places) ? j.places[0] : null;
-    const ref = first && (first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name)) || null;
-    const url = ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "";
-    const rating = first && Number(first.rating) > 0 ? Number(first.rating) : null;
-    const reviews = first ? Number(first.userRatingCount != null ? first.userRatingCount : first.reviews) || 0 : 0;
-    const out = { photo: url, rating, reviews };
+    if (!first) { _scoutedPhotoCache.set(key, null); return null; }
+    const ref = first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name) || null;
+    // THE HYDRATED SHAPE. Everything here was LOOKED UP against the real Google
+    // place, so a rating or a type on this row is measured, not invented — the
+    // distinction the whole registry/pool split turns on. A spot that does not
+    // resolve stays null and renders with no score and no facts.
+    const out = {
+      id: first.id || null,
+      name: first.name || name,
+      photo: ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "",
+      types: Array.isArray(first.types) ? first.types : [],
+      rating: (first.signals && first.signals.rating) || null,
+      reviews: (first.signals && first.signals.reviews) || 0,
+      priceLevel: first.price_level != null ? first.price_level : null,
+      oh: first.oh || null,
+      utcOffset: first.utcOffset != null ? first.utcOffset : null,
+      lat: first.lat, lng: first.lng,
+    };
     _scoutedPhotoCache.set(key, out);
     return out;
   } catch (e) {
-    return { photo: "", rating: null, reviews: null };
+    return null;
   }
 }
 
 // Re-exported so existing importers keep working; the logic itself lives in
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
-export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots };
+export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory };
 
 export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
-  const rows = orderFinds(items).slice(0, CREATOR_FINDS_MAX);
-  const bridge = bridgeCity(byCity, rows.length);
-  // 2026-08-07 (owner: "I don't see creators on Sarasota"). When the loaded
-  // Google pool surfaced NO creator-video place — so `rows` is empty — the row
-  // used to show only a single "More finds in {city}" arrow, which reads as
-  // absence. But the registry DOES hold that city's scouted spots
-  // (spotsByCity → byCity); they were simply not in the pool Google loaded
-  // nearby. Render them directly as cards (name + creator + platform) so the
-  // differentiator is visible. Photos need a placeId backfill that is blocked
-  // on the service key, so these cards are photoless for now — the same honest
-  // shape the browse sheet already uses. Tapping opens the browse sheet.
-  const scouted = scoutedSpots(byCity, bridge, rows.length, CREATOR_FINDS_MAX);
+  // v7.07 — ONE INVENTORY. Registry spots used to be a FALLBACK: scoutedSpots()
+  // returned [] unless the pool was completely empty, so a reader with three
+  // pool finds saw three cards while the registry held twenty more within the
+  // same 25 miles. The shelf was thin because of a branch, not because of
+  // coverage — "the limiter is the place pool, not the library" (owner).
+  // mergeCreatorInventory promotes the registry to first-class inventory: pool
+  // rows first (measured distance, real score), then registry spots by city
+  // nearness, deduped by name, capped at CREATOR_FINDS_MAX (20) inside
+  // CREATOR_FINDS_RADIUS_MI (25). Pure, and executed by the guards.
+  const inventory = mergeCreatorInventory({ pool: items, byCity, radiusMi: CREATOR_FINDS_RADIUS_MI, max: CREATOR_FINDS_MAX });
+  const poolCount = inventory.filter((r) => r.kind === "pool").length;
+  const registryRows = inventory.filter((r) => r.kind === "registry");
+  const bridge = bridgeCity(byCity, poolCount);
 
-  // Real venue photos for the scouted cards (owner, 2026-08-07: pin placeholders
-  // "not what I wanted"). These places were not in the loaded pool, so we resolve
-  // each one's Google photo by name — once, cached — and render it in place of
-  // the pin. The pin shows only while a photo is loading or genuinely absent.
-  const [scoutedPhotos, setScoutedPhotos] = useState({});
-  // Kept as a SECOND map rather than folded into scoutedPhotos so the photo
-  // path stays byte-identical to what shipped — the score is additive.
-  const [scoutedScores, setScoutedScores] = useState({});
+  // HYDRATION (owner-approved, 2026-08-09). A registry spot is only
+  // { key, name, city, video } — no types, no rating, no coordinates. Resolving
+  // it by name+city through the same cached /api/places/search the photo lookup
+  // already used turns it into a real place: real types (which is what
+  // lib/dining.js needs to name a cuisine), real rating, real photo. That is a
+  // LOOKUP of Google's own data, not an invention — the honesty rule bans
+  // fabricating a number, not discovering one.
+  //
+  // A spot that does not resolve stays null and renders with NO score and NO
+  // facts, exactly as before. That is the case the "omit, never invent" rule is
+  // actually about.
+  const [hydrated, setHydrated] = useState({});
   useEffect(() => {
     let alive = true;
-    const need = scouted.filter((s) => s && s.name && !(s.key in scoutedPhotos));
+    const need = registryRows.filter((r) => r.spot && r.spot.name && !(r.key in hydrated));
     if (!need.length) return;
-    Promise.all(need.map(async (s) => {
-      const found = await resolveScoutedPlace(s.name, s.city, center);
-      return [s.key, found];
-    })).then((pairs) => {
-      if (!alive) return;
-      setScoutedPhotos((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = (u && u.photo) || ""; return next; });
-      setScoutedScores((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = u && u.rating != null ? { rating: u.rating, reviews: u.reviews } : null; return next; });
-    });
+    Promise.all(need.map(async (r) => [r.key, await resolveScoutedPlace(r.spot.name, r.spot.city, center)]))
+      .then((pairs) => {
+        if (!alive) return;
+        setHydrated((prev) => { const next = { ...prev }; for (const [k, v] of pairs) next[k] = v; return next; });
+      });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scouted.map((s) => s && s.key).join(","), center && center.lat, center && center.lng]);
+  }, [registryRows.map((r) => r.key).join(","), center && center.lat, center && center.lng]);
+
   // Nothing local, no registry spots, AND nowhere to point them. Render NOTHING
   // rather than an empty shelf — an empty "your differentiator" row advertises
   // the absence.
-  if (!rows.length && !scouted.length && !bridge) return null;
+  if (!inventory.length && !bridge) return null;
   // "Local" is a claim. With no local find at all, the heading names the place
   // the finds are actually in, rather than calling another city's spots yours.
-  const heading = rows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
+  const heading = poolCount || registryRows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
   return (
     <section aria-label="Finds from local creators" style={{ marginBottom: bare ? 0 : 12 }}>
-      {/* v7.05: inside the menu (`bare`) the accordion row above already reads
-          "Finds from local creators", so repeating it here would be a second
-          heading for one row. The heading still renders in that mode when it
-          is NOT that sentence — a bridged row is showing another city's
-          creators, and letting the accordion's label stand alone would call
-          them local, which they are not. */}
+      {/* v7.05, kept through the v7.07 merge: inside the menu (`bare`) the
+          accordion row above already reads "Finds from local creators", so
+          repeating it here would be a second heading for one row. The heading
+          still renders in that mode when it is NOT that sentence — a bridged
+          row is showing another city's creators, and letting the accordion's
+          label stand alone would call them local, which they are not. */}
       {bare && heading === "Finds from local creators"
         ? null
         : <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>}
@@ -193,65 +198,75 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
           orderFinds()'s own ordering, which is a genuine ranking (nearest
           band, then the places the creator boost actually moved, then score),
           so a number on this card means something. */}
-      <RailNav railId="creator-finds" count={rows.length + scouted.length + (bridge && !scouted.length ? 1 : 0)} unit="creator finds" />
+      <RailNav railId="creator-finds" count={inventory.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
       <div className="wf-rail" data-rail="creator-finds" tabIndex={0} role="region" aria-label="Finds from local creators">
-        {rows.map(({ p, videos }, i) => {
-          const v = (videos || [])[0];
+        {inventory.map((entry, i) => {
+          // POOL ROW — a place Google already loaded near the reader. It has a
+          // measured distance and a governed score, so the card carries a rank
+          // and a score badge that both mean something.
+          if (entry.kind === "pool") {
+            const { p, videos } = entry.row;
+            const v = (videos || [])[0];
+            const plat = v && PLATFORM[v.platform];
+            const open = () => { try { onLog && onLog("creator_find_open", { id: p.id, name: p.name }, { pos: i, creator: (v && v.creator) || null }); } catch (e) {} if (onOpenPlace) onOpenPlace(p); };
+            return (
+              <RailCard
+                key={p.id}
+                photo={p.photo || null}
+                title={p.name}
+                eyebrow={coarseCat(p) || p.primaryType || "Local find"}
+                rank={i + 1}
+                score={cardScore(p)}
+                facts={cardFacts(p)}
+                award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
+                chips={creatorChips(p, onExperience)}
+                ariaLabel={"Open " + p.name}
+                onOpen={open}
+                saved={isSaved ? !!isSaved(p.id) : false}
+                liked={liked ? !!liked[p.id] : false}
+                disliked={disliked ? !!disliked[p.id] : false}
+                onSave={(e) => { if (onSave) onSave(e, p); }}
+                onLike={(e) => { if (onLike) onLike(e, p); }}
+                onDislike={(e) => { if (onDislike) onDislike(e, p); }}
+                onShare={() => { if (onShare) onShare(p); }}
+              />
+            );
+          }
+          // REGISTRY ROW — a scouted spot the pool did not contain.
+          //
+          // `h` is the hydrated Google place, or null if it did not resolve.
+          // WHAT THE CARD MAY SAY IS DECIDED BY `h`, AND ONLY BY `h`:
+          //   resolved   -> a real photo, a real score computed from the real
+          //                 rating/review count, and real facts. Looked up, not
+          //                 invented.
+          //   unresolved -> NO score, NO facts beyond the city name. The card
+          //                 omits what we do not have rather than filling it.
+          // Neither branch ever prints a distance: a registry spot's position is
+          // a CITY CENTROID, which lib/creatorVideos.js promises is used only for
+          // sorting and is "never shown to a user".
+          const s0 = entry.spot;
+          const h = hydrated[entry.key] || null;
+          const v = s0 && s0.video;
           const plat = v && PLATFORM[v.platform];
-          const open = () => { try { onLog && onLog("creator_find_open", { id: p.id, name: p.name }, { pos: i, creator: (v && v.creator) || null }); } catch (e) {} if (onOpenPlace) onOpenPlace(p); };
+          const openRegistry = () => { try { onLog && onLog("creator_find_open", { id: h && h.id ? h.id : entry.key, name: s0.name }, { pos: i, creator: (v && v.creator) || null, hydrated: h ? "resolved" : "registry" }); } catch (e) {} if (h && h.id && onOpenPlace) onOpenPlace({ ...h, primaryType: (h.types || [])[0] || null }); else if (onBrowse) onBrowse(); };
           return (
             <RailCard
-              key={p.id}
-              photo={p.photo || null}
-              title={p.name}
-              eyebrow={coarseCat(p) || p.primaryType || "Local find"}
-              rank={i + 1}
-              score={cardScore(p)}
-              facts={cardFacts(p)}
-              award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
-              chips={creatorChips(p, onExperience)}
-              ariaLabel={"Open " + p.name}
-              onOpen={open}
-              saved={isSaved ? !!isSaved(p.id) : false}
-              liked={liked ? !!liked[p.id] : false}
-              disliked={disliked ? !!disliked[p.id] : false}
-              onSave={(e) => { if (onSave) onSave(e, p); }}
-              onLike={(e) => { if (onLike) onLike(e, p); }}
-              onDislike={(e) => { if (onDislike) onDislike(e, p); }}
-              onShare={() => { if (onShare) onShare(p); }}
-            />
-          );
-        })}
-        {/* Registry-hydrated cards when the pool surfaced nothing: the city's
-            actual scouted spots, name + creator + platform. These rows come
-            from the registry, not the ranked pool, so they carry NO score and
-            NO review count — and the card simply omits both rather than
-            inventing them. Tapping opens the browse sheet where the reel
-            plays. */}
-        {scouted.map((s, i) => {
-          const v = s && s.video;
-          const plat = v && PLATFORM[v.platform];
-          return (
-            <RailCard
-              key={s.key || i}
-              photo={scoutedPhotos[s.key] || null}
-              title={s.name}
-              eyebrow={s.city ? "Scouted in " + s.city : "Scouted"}
-              score={cardScore(scoutedScores[s.key])}
-              facts={[
-                scoutedScores[s.key] && scoutedScores[s.key].reviews ? compactCount(scoutedScores[s.key].reviews) + " reviews" : null,
-                s.city || null,
-              ].filter(Boolean)}
+              key={entry.key || i}
+              photo={(h && h.photo) || null}
+              title={s0.name}
+              eyebrow={s0.city ? "Scouted in " + s0.city : "Scouted"}
+              score={h && h.rating ? cardScore({ rating: h.rating, reviews: h.reviews }) : null}
+              facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator video", onClick: () => { if (onBrowse) onBrowse(); } }]}
-              ariaLabel={"Open " + s.name}
-              onOpen={() => { try { onLog && onLog("creator_find_open", { id: s.key, name: s.name }, { pos: i, creator: (v && v.creator) || null, hydrated: "registry" }); } catch (e) {} if (onBrowse) onBrowse(); }}
+              ariaLabel={"Open " + s0.name}
+              onOpen={openRegistry}
               onShare={() => { if (onBrowse) onBrowse(); }}
             />
           );
         })}
-        {bridge && !scouted.length ? (
-          <button className="wf-rail-bridge" onClick={() => { try { onLog && onLog("creator_find_bridge_open", null, { city: bridge.city, spots: bridge.count, local: rows.length }); } catch (e) {} if (onBrowse) onBrowse(); }}>
+        {bridge && !registryRows.length ? (
+          <button className="wf-rail-bridge" onClick={() => { try { onLog && onLog("creator_find_bridge_open", null, { city: bridge.city, spots: bridge.count, local: poolCount }); } catch (e) {} if (onBrowse) onBrowse(); }}>
             <span aria-hidden="true" className="wf-rail-bridge-glyph">→</span>
             <span className="wf-rail-bridge-title">More finds in {bridge.city}</span>
             <span className="wf-rail-bridge-sub">{bridge.count} spots scouted</span>

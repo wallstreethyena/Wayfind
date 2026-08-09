@@ -325,6 +325,7 @@ node scripts/check-partner-hook-collisions.mjs
 node scripts/check-top40-rail.mjs
 node scripts/test-home-rails-render-smoke.mjs
 node scripts/check-editorial-everywhere.mjs
+node scripts/test-creator-finds-render-smoke.mjs
 
 # ── Exploding Topics trend intelligence ────────────────────────────────────
 # The licence gate first: every other guard below assumes it holds. See

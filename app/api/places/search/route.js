@@ -81,6 +81,30 @@ function skeletons(googlePlaces) {
       lng: typeof loc.longitude === "number" ? loc.longitude : null,
       category: catFromTypes(p.types),
       photo_ref: photoRef,
+      // v7.07 — RAW TYPES, at zero additional cost. FIELD_MASK above already
+      // pays for places.types / priceLevel / regularOpeningHours /
+      // businessStatus on every one of these calls; skeletons() was collapsing
+      // types into the coarse `category` and dropping the other three entirely.
+      // lib/dining.js's cuisineLabel() is driven ENTIRELY by raw Google types,
+      // so without this a hydrated creator spot can never carry a cuisine and a
+      // cuisine filter over it has no data behind it. Exactly the precedent the
+      // photo_ref comment above set: the mask is already bought, so surfacing
+      // the field costs one line, not one round-trip.
+      //
+      // NO CACHE-KEY BUMP, deliberately. Bumping "v1" would invalidate every
+      // cached text search and force a paid refetch of all of them. It is not
+      // needed here: the creator-hydration queries are NEW keys (name + city)
+      // that have never been cached, so they miss and are written with these
+      // fields present from their first call. Pre-existing keys simply lack the
+      // new fields until they refresh, and the route's own refresh-ahead
+      // (jittered 20-27 days) heals them without a redeploy. Every consumer
+      // treats them as optional, so an old entry degrades to "no cuisine
+      // label", never to a wrong one.
+      types: Array.isArray(p.types) ? p.types : [],
+      price_level: p.priceLevel != null ? p.priceLevel : null,
+      oh: p.regularOpeningHours || null,
+      utcOffset: typeof p.utcOffsetMinutes === "number" ? p.utcOffsetMinutes : null,
+      business_status: p.businessStatus || null,
       signals: { rating: p.rating || null, reviews: p.userRatingCount || 0 },
     };
   }).filter(Boolean);
