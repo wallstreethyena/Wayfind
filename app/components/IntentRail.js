@@ -52,11 +52,20 @@ import { couponForPlaceName } from "../../lib/coupons";
 // rail reserve the same box and the swap cannot shift the page.
 export const INTENT_RAIL_CARD_H = 224;
 const RAIL_MAX = 12;
-// TWO queries, not three. Measured on a cold Orlando: four rails x three
-// queries x a possible second sweep is twenty-four paid Places searches for one
-// scroll, and the rails sat on their skeletons long enough to read as broken.
-// The third query in each bank is the tail of the intent, and a twelve-card
-// rail does not need it — the destination page still runs the full bank.
+// TWO queries on the first pass, not three. Measured on a cold Orlando: four
+// rails x three queries x a second sweep is twenty-four paid Places searches
+// for one scroll, and the rails sat on their skeletons long enough to read as
+// broken.
+//
+// BUT NOT TWO FOREVER — that cut shipped an EMPTY "Big fun, small budget"
+// (owner-reported live, "some of those categories not showing anything in it").
+// Budget's bank is [free things to do, free admission park, cheap dinner], and
+// its floor is maxPrice 2, which excludes anything with no price on record.
+// Parks and trails carry no Google price, so the FOOD query — the third one —
+// is the only one in that bank whose rows can survive the intent's own floor.
+// Taking the first two silently removed the only query that could answer.
+//
+// So the bank ladders like the radius does: cheap first, wider only on nothing.
 const RAIL_QUERIES = 2;
 const MIN_ROWS = 3;
 const SEARCH_N = 20;
@@ -103,6 +112,32 @@ export default function IntentRailBody({
   const inFlight = useRef(null);
   const rootRef = useRef(null);
 
+  // THE STALE-TOWN BUG (owner-reported, 2026-08-09, and the worst defect this
+  // rail has had): "I am in Parrish and it is showing me Tacos My Guey for
+  // perfect tonight" — a restaurant on N Orange Ave in ORLANDO, ninety miles
+  // away, under a heading that says near you.
+  //
+  // The distance cap was working. The rows were fetched while the reader was in
+  // Orlando, measured against Orlando, and passed the cap honestly. Then the
+  // reader moved to Parrish and this rail never asked again: the approach gate
+  // bails on `rows !== null`, so once a rail has ANY answer it keeps it for the
+  // life of the mount, whatever town the reader is standing in now.
+  //
+  // A ranked list that survives the question it was ranked for is not stale
+  // data, it is a wrong answer with a confident label. So the centre is part of
+  // this component's identity: when it changes, the previous town's answer is
+  // dropped and the gate re-arms.
+  const centerKey = center && isFinite(center.lat) && isFinite(center.lng)
+    ? Number(center.lat).toFixed(2) + "," + Number(center.lng).toFixed(2)
+    : "";
+  const seenCenter = useRef(centerKey);
+  useEffect(() => {
+    if (seenCenter.current === centerKey) return;
+    seenCenter.current = centerKey;
+    inFlight.current = null;
+    setRows(null);
+  }, [centerKey]);
+
   const load = useCallback(() => {
     if (!def) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
@@ -121,10 +156,10 @@ export default function IntentRailBody({
     setRows("loading");
     (async () => {
       try {
-        const bank = typeof def.queries === "function" ? def.queries(ctx) : def.queries;
-        const qs = (Array.isArray(bank) ? bank : []).slice(0, RAIL_QUERIES);
-        const sweep = async (radiusM) => {
-          const results = await Promise.all(qs.map(async ({ cat, q }) => {
+        const bankRaw = typeof def.queries === "function" ? def.queries(ctx) : def.queries;
+        const bank = Array.isArray(bankRaw) ? bankRaw : [];
+        const sweep = async (radiusM, queries) => {
+          const results = await Promise.all(queries.map(async ({ cat, q }) => {
             try {
               const u = "/api/places/search?q=" + encodeURIComponent(q)
                 + "&lat=" + lat.toFixed(2) + "&lng=" + lng.toFixed(2)
@@ -164,16 +199,20 @@ export default function IntentRailBody({
             ctx: def.timeless ? null : ctx,
           }).filter((r) => Number.isFinite(r.distMi) && r.distMi <= capMi).slice(0, RAIL_MAX);
         };
-        // 17 miles first. The widen is a SECOND search, and only when the first
-        // came back too thin to render — an intent with its own radiusM
-        // (worth-the-drive's 30mi) states its reach in its own copy and is
-        // never quietly stretched past it.
-        let ranked = await sweep(def.radiusM || NEAR_M);
-        // Widen only on NOTHING (owner's words: "unless there is no result").
-        // A thin-but-real 17-mile list is still the honest answer to "near you";
-        // paying for a second sweep to pad it would be buying distance.
-        if (!def.radiusM && ranked.length === 0) {
-          const wider = await sweep(WIDEN_M);
+        // THE LADDER. Cheapest thing that can answer, first; each rung only
+        // runs when the one before it returned NOTHING (the owner's rule:
+        // "unless there is no result"). A thin-but-real list is still the
+        // honest answer to "near you" — only an empty one is worth paying more
+        // for. An intent with its own radiusM (worth-the-drive's 30mi) states
+        // its reach in its own copy and is never quietly stretched past it.
+        const near = def.radiusM || NEAR_M;
+        let ranked = await sweep(near, bank.slice(0, RAIL_QUERIES));
+        if (ranked.length === 0 && bank.length > RAIL_QUERIES) {
+          const full = await sweep(near, bank);            // rung 2: the whole bank, same radius
+          if (full.length > ranked.length) ranked = full;
+        }
+        if (ranked.length === 0 && !def.radiusM) {
+          const wider = await sweep(WIDEN_M, bank);        // rung 3: the whole bank, 25 miles
           if (wider.length > ranked.length) ranked = wider;
         }
         POOL.set(key, ranked);

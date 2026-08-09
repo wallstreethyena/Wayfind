@@ -28,7 +28,7 @@ import RailCard, { RailNav } from "./RailCard";
 // not a cheap filter over the pool already in memory.
 import IntentRailBody from "./IntentRail";
 import { INTENT_PAGES } from "../../lib/intentPages";
-import { isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
+import { applyCollapsedAttr, isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
@@ -78,17 +78,6 @@ function Medal({ i }) {
 const ROW_MAX_H = 100;
 
 
-// The mood row. Every one of these is a REAL route that already exists and
-// already ranks — no chip here is a placeholder, and none of them is a filter
-// that silently returns the same list. `/` is "right now", which is where the
-// reader already is, so it renders as the selected state rather than a link to
-// the page they are on.
-const MOODS = [
-  { label: "Right now", href: null },
-  { label: "Date night", href: "/date-night" },
-  { label: "Family", href: "/family" },
-  { label: "Hidden gems", href: "/hidden-gems" },
-];
 
 // 22.4 -> "10pm". Whole hours only: "10:24pm" claims a precision the ranking
 // does not have (wf_best_picks buckets the day into four dayparts), and a
@@ -395,6 +384,10 @@ export default function BestNearby({
     try { list = readCollapsed(); } catch (e) { list = []; }
     closedRef.current = list;
     setClosed(list);
+    // The pre-paint script in app/layout.js already set this from the same
+    // storage; re-applying keeps <html> honest if another tab changed it
+    // between that script and this effect.
+    applyCollapsedAttr(list);
   }, []);
   const sectionOpen = (id) => !isCollapsed(closed, id);
   // v7.06 (owner, 2026-08-09): "no longer place the 10 restriction on these
@@ -973,28 +966,16 @@ export default function BestNearby({
                   trendsBody(data)
                 ) : list.length ? (
                   <>
-                    {/* Mood chips at the TOP of the eat section (owner 2026-08-07:
-                        "place the mood on top not the bottom") — switch the mood
-                        before scanning the list. Still real ranked routes only. */}
-                    {sdef.id === "eat" ? (
-                      <div style={{ marginTop: 2, marginBottom: 12 }}>
-                        <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 7 }}>Or change the mood</div>
-                        <div style={{ display: "flex", gap: 7, overflowX: "auto", paddingBottom: 2, WebkitOverflowScrolling: "touch" }}>
-                          {MOODS.map((m) => m.href ? (
-                            <a key={m.label} href={m.href} className="wf-bn-focus"
-                              onClick={() => { try { onLog && onLog("best_nearby_mood", null, { mood: m.label }); } catch (e) {} }}
-                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "#121A23", border: "1px solid " + C.line, color: "#C9D4DF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
-                              {m.label}
-                            </a>
-                          ) : (
-                            <span key={m.label} aria-current="true"
-                              style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", minHeight: 34, padding: "0 12px", borderRadius: 9, background: "linear-gradient(160deg,#FDA60A,#FB3502)", color: "#fff", fontSize: 12, fontWeight: 750, whiteSpace: "nowrap" }}>
-                              {m.label}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
+                    {/* THE MOOD ROW IS GONE (owner, 2026-08-09: "this shows what we
+                        need to remove now that the menu has been updated"). It was
+                        four chips inside the food section pointing at Date night,
+                        Family and Hidden gems. Every one of those is now a SECTION
+                        OF THIS MENU a few rows further down, so the chips had
+                        become a second, worse navigation to destinations the
+                        reader can already see — nested inside one of the very
+                        sections they competed with. The routes themselves are
+                        untouched and still reachable from the discovery rail at
+                        the top of the feed. */}
                     {/* v7.05 (owner, 2026-08-09: "best places to eat is still
                         vertical instead of the horizontal, it is the only thing
                         that has not been changed"). The two ranked lists now

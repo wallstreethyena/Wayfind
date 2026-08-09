@@ -300,18 +300,27 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
     }
   }
 
-  // ── the mood row points at REAL pages ──
-  const moodBlock = BN.slice(BN.indexOf("const MOODS = ["), BN.indexOf("];", BN.indexOf("const MOODS = [")));
-  const hrefs = [...moodBlock.matchAll(/href: "([^"]+)"/g)].map((m) => m[1]);
-  ok(hrefs.length >= 3, `the mood row has real destinations (got ${hrefs.length})`);
-  for (const h of hrefs) {
-    const dir = path.join(REPO, "app", h.replace(/^\//, ""));
-    ok(existsSync(path.join(dir, "page.js")),
-       `mood chip "${h}" resolves to a real page (app${h}/page.js) — a chip that 404s is a dead end at the exact moment someone is deciding to trust this`);
+  // ── SUPERSEDED: the mood row is gone (owner, 2026-08-09) ──
+  // "This shows what we need to remove now that the menu has been updated."
+  // The four chips (Right now / Date night / Family / Hidden gems) lived inside
+  // the FOOD section and pointed at routes that are now SECTIONS OF THIS MENU a
+  // few rows below — so they had become a second, worse navigation to
+  // destinations already on screen, nested inside one of the sections they
+  // competed with.
+  //
+  // The assertion that mattered is kept and re-pointed rather than deleted: the
+  // menu's own section list must still name only intents that resolve to a real
+  // page, because a dead end here is a dead end at the exact moment someone has
+  // decided to trust the ranking. This is the stronger version of the old check
+  // — it now covers all four intent rails, not the four chips.
+  const intents = [...BN.matchAll(/intent: "([a-z-]+)", href: "([^"]+)"/g)];
+  ok(intents.length >= 4, `the menu's intent sections declare their destinations (found ${intents.length}, expected 4)`);
+  for (const [, intent, href] of intents) {
+    ok(existsSync(path.join(REPO, "app", href.replace(/^\//, ""), "page.js")),
+       `section "${intent}" points at a real page (app${href}/page.js)`);
   }
-  ok(/href: null/.test(moodBlock),
-     "the current view renders as SELECTED STATE, not a link to the page the reader is already on");
-  ok(/Or change the mood/.test(BN), "the row is labelled, so the chips read as alternatives rather than filters already applied");
+  ok(!/Or change the mood/.test(BN),
+     "the in-section mood chips are gone — the menu IS the mood switcher now");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
