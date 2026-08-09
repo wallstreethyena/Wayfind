@@ -35,7 +35,16 @@ for (const cls of ["wf-place-card-layout", "wf-place-card-rank", "wf-place-card-
   ok(rail.includes(cls), `RailCard renders .${cls} — the money card's own structure, not a lookalike`);
 }
 ok(/aria-label="Events near you"[^\n]*minHeight: EV_RAIL_MIN_H/.test(src), "the live rail still reserves the shared height constant");
-ok(/className="wf-rail wf-rail-events"[^\n]*aria-label="Events near you"/.test(src), "the events rail uses the shared .wf-rail scroller (snap + hidden scrollbar in one place)");
+ok(/className="wf-rail wf-rail-events" data-rail="events"[^\n]*aria-label="Events near you"/.test(src), "the events rail uses the shared .wf-rail scroller (snap + hidden scrollbar in one place)");
+// v7.03 (owner: "use a sign above the card to let the user know there is more,
+// i want the card size to be full"). With full-width cards nothing peeks past
+// the edge, so the affordance is no longer implicit and the rail MUST carry an
+// explicit one — a card that fills the column with no visible signal that it
+// scrolls is a rail nobody scrolls.
+ok(/<RailNav railId="events"/.test(src), "the events rail carries the explicit 'there is more' row above it");
+ok(/flex:0 0 100%;\n  width:100%;/.test(css), "rail cards take the full column — the compressed 318px peek is gone");
+ok(!/--wf-rail-card-w/.test(css), "…and the old fixed card-width variable is gone with it, so nothing can re-compress the card by setting it");
+ok(/\.wf-rail-nav-btn\{/.test(css) && /scrollBy\(\{ left: dir \* rail\.clientWidth/.test(rail), "the arrows are real controls that page the rail by exactly one card width");
 
 // ── 2. THE ART IS SHOWN ──────────────────────────────────────────────────────
 ok(/photo=\{railImage\}/.test(card), "the card is given the event's art");
@@ -65,13 +74,20 @@ ok(/onDislike=\{onDislike\}/.test(card) && /eventSignals\.disliked\[e\.id\] !== 
 ok(/onShare=\{shareEvent\}/.test(card) && /logEvent\("share", null, \{ id: event\.id, kind: "event_card" \}\)/.test(card), "the share action and its logging survive the restyle");
 ok(/logEvent\("event_open"/.test(card), "the open-event log is preserved");
 ok(/cta=\{\{/.test(card) && /eventCTA\(event\)/.test(card), "the ticket/details CTA is matched to the event, never a blanket 'Get tickets' on a free community event");
+// v7.03: the chips are ATTRIBUTES, never a second printing of the eyebrow. The
+// first pass shipped seg.short in both, so every card read "— THEATER ›" above
+// "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88 deleted
+// from the place card.
+ok(!/label: seg\.short/.test(card), "no chip merely repeats the eyebrow's own segment label");
+ok(/const genre = eventGenreLabel\(event, seg\)/.test(card), "the chip carries the provider's specific genre instead");
+ok(/GENRE_JUNK/.test(src) && /raw\.length > 22/.test(src), "…and junk genres (Miscellaneous/Other) and over-long comma-packed ones are dropped rather than printed or truncated");
 
 // ── 5. NO LAYOUT SHIFT ──────────────────────────────────────────────────────
-ok(/const EV_RAIL_MIN_H = 236/.test(src), "the loading skeleton reserves the live card height — measured, not guessed");
-ok(/\.wf-rail-events>\.wf-rail-card\{min-height:236px\}/.test(css), "…and the live rail pins that SAME number as its card floor, so the two cannot drift apart silently");
+ok(/const EV_RAIL_MIN_H = 245/.test(src), "the loading skeleton reserves the live card height — measured on PRODUCTION with the real webfonts, not in a system-font harness");
+ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the live rail pins that SAME number as its card floor, so the two cannot drift apart silently");
 {
   const skel = src.slice(src.indexOf("function EventsRailSkeleton()"), src.indexOf("function HooksBanner"));
-  ok(/width: "min\(318px,88vw\)"/.test(skel), "the skeleton blocks match the live card's width, so the swap moves nothing sideways either");
+  ok(/width: "100%"/.test(skel), "the skeleton blocks are full-width like the live card, so the swap moves nothing sideways either");
   ok(/borderRadius: 17/.test(skel), "…and its corner radius");
   ok(/className="wf-rail wf-rail-events"/.test(skel), "…and the skeleton uses the same rail class as the live row, so gutter, padding and box model are one definition, not two");
 }

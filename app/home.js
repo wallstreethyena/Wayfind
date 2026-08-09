@@ -171,7 +171,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 import BestNearby from "./components/BestNearby";
 // v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
-import RailCard from "./components/RailCard";
+import RailCard, { RailNav } from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import ThingsToDoList from "./components/ThingsToDoList";
@@ -2640,6 +2640,24 @@ function SocialFindHeroCard({ videoHeroPlaces, socialFindRegions, socialFindStat
 //    on the Saved tab; Share is the existing share sheet; the thumbs feed
 //    lib-local event preferences and a dislike genuinely removes the card.
 //    Nothing here is a button that does nothing.
+// Ticketmaster's `genre` is the specific read under the broad `segment` —
+// "Baseball" under Sports, "Hip-Hop/Rap" under Music. It is the closest thing
+// an event has to the place card's experience tags, and it is real provider
+// data rather than something derived here. What it is NOT allowed to do is
+// print noise: the feed carries "Miscellaneous" on 6 of 40 rows and the
+// community sources pack several comma-separated programme names into one
+// field. So: first clause only, junk values dropped, anything that just
+// restates the segment dropped, and nothing truncated — a genre cut mid-word
+// reads as a bug, so an over-long one is omitted instead.
+const GENRE_JUNK = /^(miscellaneous|other|undefined|unknown|various|general)$/i;
+function eventGenreLabel(e, seg) {
+  const raw = String((e && e.genre) || "").split(",")[0].trim();
+  if (!raw || raw.length > 22) return "";
+  if (GENRE_JUNK.test(raw)) return "";
+  if (seg && raw.toLowerCase() === String(seg.short || "").toLowerCase()) return "";
+  return raw;
+}
+
 function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onSave, onLike, onDislike, onCopied, onCategory }) {
   if (!event || !event.dest) return null;
   const f = formatEventDate(event.date, event.time);
@@ -2668,8 +2686,18 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const repeats = recurrenceLabel(event);
   const isFree = event.ticketed === false || /^free$/i.test(String(event.price || "").trim());
   const facts = [venue, isFree ? "Free" : event.price || null, repeats].filter(Boolean);
+  // The chips are ATTRIBUTES, never a second copy of the eyebrow. The first
+  // pass shipped the segment in both places, so every card read "— THEATER ›"
+  // above "🎭 Theater ›" — the same repeat-the-list's-own-name filler v6.88
+  // deleted from the place card, reintroduced by hand. The eyebrow keeps the
+  // segment; the chip carries the genre, which is the more specific thing the
+  // provider actually told us (measured live on the Parrish feed: Baseball,
+  // Hip-Hop/Rap, Alternative, Metal, Motorsports/Racing, Farmers market,
+  // Heritage railroad). eventGenreChip() drops the junk values rather than
+  // printing them.
+  const genre = eventGenreLabel(event, seg);
   const chips = [
-    { key: "segment", icon: seg.icon, label: seg.short, onClick: onCategory ? () => onCategory(bucket) : null },
+    genre ? { key: "genre", icon: seg.icon, label: genre, onClick: onCategory ? () => onCategory(bucket) : null } : null,
     isFree ? { key: "free", icon: "🆓", label: "Free admission" } : null,
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
@@ -2814,7 +2842,7 @@ function EventsRailSkeleton() {
           skeleton still shifts every card beside it. */}
       <div className="wf-rail wf-rail-events" aria-hidden="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
         {[0, 1].map((i) => (
-          <div key={i} className="wf-sk" style={{ width: "min(318px,88vw)", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+          <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
         ))}
       </div>
     </div>
@@ -8914,7 +8942,9 @@ function PageInner({ initialEvents = null }) {
                       );
                     })()}
                       {rest.length > 0 && (
-                      <div className="wf-rail wf-rail-events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
+                      <>
+                      <RailNav railId="events" count={rest.filter((e) => e && e.dest).length} unit="events near you" />
+                      <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
                         {rest.filter((e) => e && e.dest).map((e, i) => (
                           <EventRailCard
                             key={e.id}
@@ -8932,6 +8962,7 @@ function PageInner({ initialEvents = null }) {
                           />
                         ))}
                       </div>
+                      </>
                     )}
                   </div>
                 );
@@ -10320,7 +10351,7 @@ const wstat = { flexShrink: 0, whiteSpace: "nowrap", fontSize: 12, fontWeight: 7
 // anything. Both the skeleton and the live rail read these same constants —
 // that is the whole point; do not hardcode either number twice.
 const EV_HERO_H = 248; // Owner visual refinement: restore a taller, more cinematic hero while preserving the shared loading/live geometry.   // the featured hero <a> height
-const EV_RAIL_MIN_H = 236; // v7.02: the place card at rail width — the tallest card measured across 320–1440px, and the same number .wf-rail-events pins in css.js, so the skeleton/live swap is height-identical rather than merely close
+const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with the real webfonts loaded (243 / 245) — the first pass measured 236 in a harness with system fonts, which under-reserved by 7px. Same number .wf-rail-events pins in css.js.
 // ALL THREE rail states (loading / empty / populated) reserve this same floor.
 // Measured 2026-07-21: without it, a sparse market where events resolve to []
 // collapsed the ~312px skeleton into a ~130px empty state and yanked the feed
