@@ -110,6 +110,38 @@ ok(/emitCommerce\("commerce_cta_clicked"/.test(code), "the CTA is instrumented, 
 ok(/mintClickId\(\)/.test(code), "…with a click id minted per tap for attribution");
 
 // ── 5. ONE CARD SHAPE, AND THE ANSWER BELOW IT SURVIVES ─────────────────────
+// ── THE EDITORIAL LAW (owner, 2026-08-09, app-wide) ─────────────────────────
+// "the editorial needs to answer one question: why should I choose this place...
+// this is the rule for every editorial." The Top 40 shipped with no line at all
+// while the eat rows beside it had one.
+ok(/take=\{toHookLine\(hooks\[p\.place_id\], p\.name\)\}/.test(code),
+  "every Top 40 card carries the editorial line, resolved through the same toHookLine the eat rows use");
+// v7.06 — the resolver MOVED to app/components/useEditorialHooks.js so nine
+// place surfaces could share one implementation instead of copying it. Asserting
+// the endpoints against BestNearby.js alone would now go GREEN the moment they
+// left the file — which is the dangerous half of a path-bound assertion, not the
+// noisy half. So this follows the code and asserts the UNION: the rail is wired
+// to the shared resolver, and the shared resolver still holds the precedence.
+const uh = readFileSync("app/components/useEditorialHooks.js", "utf8");
+ok(/useEditorialHooks\(/.test(code),
+  "the rail resolves its line through the shared useEditorialHooks, not a local copy");
+ok(/"\/api\/known-for"/.test(uh) && /cacheOnly: true/.test(uh),
+  "…from the researched wf_editorial hook first, then a VALIDATED cached blurb — never generated on the render path");
+// Precedence is the whole contract, so assert the ORDER and the fill rule, not
+// merely that both endpoint strings are present somewhere in the file.
+ok(uh.indexOf('"/api/known-for"') < uh.indexOf('"/api/blurbs"'),
+  "the researched hook is consulted BEFORE the cached blurb — position, not just presence");
+ok(/if \(!next\[id\] && d\.blurbs\[id\]\)/.test(uh),
+  "the cached blurb only fills ids the researched hook did not already answer — it can never overwrite verified copy");
+{
+  // No fallback, no template. A place with no verified hook renders no line.
+  const takeIdx = code.indexOf("take={toHookLine(");
+  const line = code.slice(takeIdx, code.indexOf("\n", takeIdx));
+  ok(!/\|\|/.test(line), "the editorial line has NO fallback — an empty slot is honest, a generic line is filler, a generated one is fabrication");
+  const rail = readFileSync("app/components/RailCard.js", "utf8");
+  ok(/take \? <div className="wf-place-card-take">\{take\}<\/div> : null/.test(rail),
+    "RailCard renders the line only when one exists, in the place card's own take slot");
+}
 ok(/<RailCard\b/.test(code), "the rail renders the shared RailCard, not a fourth bespoke card");
 ok(/data-rail="top40"/.test(code) && /<RailNav railId="top40"/.test(code),
   "the rail carries the explicit 'there is more' affordance, like the events rail");

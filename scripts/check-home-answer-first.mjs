@@ -190,14 +190,33 @@ if (bn && typeof bn.reasonLine === "function") {
 /* §B — it must actually be PASSED to the row, on every list that has one. A
    perfect formatter nothing calls is decoration. */
 const BN = readFileSync(SRC_PATH, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
-// The eat row may PREFER an editorial/known-for hook and fall back to
-// reasonLine (why={hooks[id] || reasonLine(...)}); tours and things-to-do pass
-// it directly. The invariant is unchanged: every row list still routes `why`
-// through reasonLine as its source or its fallback — a row must never be left
-// with no engine reason line. Matching reasonLine INSIDE the why prop keeps
-// this red if anyone drops the fallback, while allowing the hook to win.
-const whyProps = [...BN.matchAll(/why=\{[^}]*reasonLine\(/g)].length;
-ok(whyProps >= 3, `every row list routes why through reasonLine as source or fallback (found ${whyProps}, expected 3: eat, tours, things-to-do)`);
+// v7.06 — THE RULE INVERTED, by owner directive (2026-08-09): "no verified hook
+// means render nothing". Until now the eat row read
+// why={toHookLine(...) || reasonLine(...)} and the things-to-do row read
+// why={reasonLine([r.subtitle])}, on the older principle that a row must never
+// LOSE text. That principle is exactly what put a generic engine reason — one
+// true of fifty other places — under a card whose whole job is to say why THIS
+// one. The place rows now render the verified editorial line or nothing at all.
+//
+// The invariant this section protects is unchanged in substance: every row list
+// still routes `why` through a GOVERNED source and nothing generic is invented.
+// What changed is WHICH source governs WHICH list. All three halves are
+// asserted, because dropping any one of them is a real regression:
+// v6.68: the ranked lists moved onto RailCard, whose editorial slot is named
+// `take` (RailCard.js) rather than `why`. The prop is the only thing that
+// changed — the law below is #689's, unweakened: a PLACE row renders the
+// verified hook or nothing, and a TOUR keeps its supplier subtitle.
+const hookWhy = [...BN.matchAll(/take=\{toHookLine\(/g)].length;
+ok(hookWhy >= 2, `both PLACE row lists render the verified editorial line (found ${hookWhy}, expected 2: eat, things-to-do)`);
+// The fallback that the law forbids. This is the assertion that would have gone
+// red on the old code, and it is what keeps the filler from creeping back.
+const fallbackWhy = [...BN.matchAll(/take=\{[^}]*toHookLine\([^}]*\|\|/g)].length;
+ok(fallbackWhy === 0, `no place row falls back from the editorial line to generic filler (found ${fallbackWhy}) — "no verified hook means render nothing"`);
+// ...but a TOUR is not a place. A Viator product has no wf_editorial row, so a
+// hook it can never have must not blank the supplier subtitle it legitimately
+// does have. reasonLine still governs that one list.
+const tourWhy = [...BN.matchAll(/take=\{reasonLine\(/g)].length;
+ok(tourWhy >= 1, `the tours row still renders its supplier subtitle through reasonLine (found ${tourWhy}) — a product with no editorial row must not be blanked`);
 ok(/function Row\(\{[^}]*\bwhy\b/.test(BN), "Row accepts a `why` prop");
 ok(/\{why \? \(/.test(BN), "Row renders the why line conditionally — a place with no reason must not get an empty div");
 

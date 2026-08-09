@@ -18,6 +18,9 @@ import { wcRotation } from "../lib/shareCards";
 // from here so one venue can never show two statuses at the same instant.
 import { businessStatus, isOpenNow, statusLabel } from "../lib/businessStatus";
 import { eventWhenLabel } from "../lib/eventTime";
+// v7.06 — the editorial line, resolved through the ONE compressor every place
+// surface shares. See lib/editorialHook.js for the law it enforces.
+import { editorialLine } from "../lib/editorialHook";
 import { eventCategoryArt } from "../lib/eventCategoryArt";
 import { markSessionStart, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
@@ -10142,7 +10145,27 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // templateBlurb. Good evidence shows sharp copy; weak evidence shows
   // nothing, rather than another line every place of this type could wear.
   const curatedHook = ((curatedFor(p) || {}).hook) || "";
-  const aiSummary = !curatedHook && line && typeof line === "object" && line.card_line_1 && line.card_line_2 ? line : null;
+  // v7.06 — THE DEFECT THIS FIXES. /api/known-for returns a plain STRING per
+  // place (lib/knownFor.knownForMap). loadBlurbs merges those strings into
+  // `blurbs`, and every PlaceCard call site passes `line={blurbs[p.id]}`. But
+  // the ONLY branch that read `line` required `typeof line === "object"`, so
+  // every researched wf_editorial hook — 668 rows, the same table the Top 40
+  // rail has rendered from since #687 — was fetched, cached, and then silently
+  // dropped at render. Only curatedHook (~75 hand-written places in
+  // lib/curated.js) ever reached the slot. PlaceCard is also the map place card
+  // and the share card (both receive it through ctx), so one dropped branch
+  // cost the editorial line on three surfaces at once.
+  //
+  // Scoped to the STRING shape on purpose: an OBJECT `line` is a validated
+  // two-line CARD_SUMMARY and keeps its existing two-line render below.
+  // Compressing it to one line here would be a regression, not a fix.
+  //
+  // Precedence: hand-written Wayfind hook > researched wf_editorial hook >
+  // validated CARD_SUMMARY. Same order the ranked rows use — researched copy
+  // beats generated copy, and both lose to a human. When none exists the slot
+  // renders NOTHING, which is the law.
+  const knownForHook = !curatedHook && typeof line === "string" ? editorialLine(line, p.name) : "";
+  const aiSummary = !curatedHook && !knownForHook && line && typeof line === "object" && line.card_line_1 && line.card_line_2 ? line : null;
   const offer = OFFERS[p.id];
   const cardProduct = usePlaceProduct(p && p.id);
   // v6.27 GLOBAL RULE: the Wayfind Score (Bayesian, 0–10) is THE headline number
@@ -10314,6 +10337,8 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           </div>
           {curatedHook ? (
             <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{curatedHook}</div>
+          ) : knownForHook ? (
+            <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>{knownForHook}</div>
           ) : aiSummary ? (
             <div className="wf-place-card-take" style={{ fontSize: 12.5, color: C.light, lineHeight: 1.45 }}>
               <div>{aiSummary.card_line_1}</div>

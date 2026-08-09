@@ -42,6 +42,9 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 // v6.72: one source for the hour, the bucket and the outdoor gate.
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor } from "../../lib/ranking.js";
+// v7.06 — ONE editorial-line implementation, shared by every place surface.
+import { toHookLine } from "../../lib/editorialHook.js";
+import useEditorialHooks from "./useEditorialHooks";
 
 // Owner: "a little lighter, almost black" — one step off the page's #040810.
 const CARD_BG = "#0B0E15";
@@ -49,66 +52,12 @@ const MEDAL = [CHAMPAGNE.base, "#C7CCD6", "#B8804A"]; // gold, silver, bronze
 
 const fmtDur = (m) => (m == null ? null : m >= 60 ? (m % 60 ? Math.floor(m / 60) + "h " + (m % 60) + "m" : m / 60 + "h") : m + "m");
 
-// The ranked row wants ONE short, COMPLETE hook — what the place is known for —
-// that fits a phone column without being cut off mid-word (owner, 2026-08-07:
-// "not making me curious to click on it specially being cut off"). The editorial
-// hook / blurb is a full sentence, so this compresses it: strip the redundant
-// "<Name> is a ..." / "Known for ..." lead-in (the card already shows the name),
-// take the first REAL sentence (not tricked by "St."/"Ave." abbreviations),
-// then, if still too long, cut at the nearest clause boundary within CAP and
-// trim any trailing filler word so the line ends on something solid — never a
-// dangling "of/and/off" and never a chopped word. Returns "" so a place with no
-// real hook falls back to its engine reason line.
-const HOOK_ABBR = /(?:^|\s)(?:st|ave|blvd|rd|dr|mt|ft|mr|mrs|ms|jr|sr|no|vs|etc|co|inc|dept|hwy|pt|ln)\.$/i;
-const HOOK_STOP = /\s+(?:a|an|the|and|or|of|with|to|for|in|on|at|by|from|off|into|its|their|this|that|not|but|where|which|while|as|is|was)$/i;
-const HOOK_PLACEHOLDER = /\b(independent verification|none confirmed|this research pass|not (?:yet )?(?:been )?(?:confirmed|completed|verified)|unverified|pending verification)\b/i;
-const HOOK_CAP = 40;
-// v6.60 (2026-08-08, owner: "there's a space on the text and it looks weird"):
-// apostrophes. Google Places' `name` field comes back with a typographic
-// RIGHT SINGLE QUOTATION MARK (U+2019, "Mio’s Grill & Cafe") while
-// wf_editorial's hand/AI-written `hook` text uses a plain APOSTROPHE
-// (U+0027, "Mio's Grill & Cafe is a Mediterranean..."). The name-prefix
-// strip below built its regex from the literal name, so the two apostrophe
-// glyphs never matched each other — the strip silently no-opped, the
-// redundant "Mio's Grill & Cafe is a " prefix survived into `s`, and the
-// HOOK_CAP truncation below then cut it into the exact broken fragment the
-// owner saw: "Mio's Grill & Cafe is a Mediterranean". Confirmed via the
-// live /api/known-for response and DOM text (codepoint-inspected: title
-// U+2019, hook U+0027) — not a one-off: 224 of 668 wf_editorial hooks
-// contain an apostrophe, so this silently broke roughly a third of cards
-// with an editorial hook whenever the name/hook glyphs disagreed.
-const APOS_RX = /['’‘‛‚]/g;
-function toHookLine(raw, name) {
-  let s = String(raw || "").replace(/\s+/g, " ").trim();
-  if (!s || HOOK_PLACEHOLDER.test(s)) return ""; // never surface a pending-research note
-  if (name) {
-    // Every apostrophe in the name becomes a class matching EITHER glyph, so
-    // the strip fires regardless of which form the name or the hook used.
-    const nm = String(name).split(/\s+[-–—|]\s+/)[0]
-      .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-      .replace(APOS_RX, "['’]");
-    s = s.replace(new RegExp("^" + nm + "(?:['’]s)?\\s+(?:is|was|are)\\s+(?:a|an|the)\\s+", "i"), "");
-  }
-  s = s.replace(/^(?:it|this|the (?:place|spot|shop|cafe|café|bar))\s+(?:is|was)\s+(?:a|an|the)\s+/i, "");
-  s = s.replace(/^known for\s+(?:its|their|the|a|an)?\s*/i, "");
-  const re = /[.!?]+(?=\s|$)/g; let mm, endIdx = -1;
-  while ((mm = re.exec(s))) {
-    const upto = s.slice(0, mm.index + 1);
-    if (HOOK_ABBR.test(upto)) continue;
-    if (upto.length >= 20) { endIdx = mm.index + mm[0].length; break; }
-  }
-  let first = (endIdx > 0 ? s.slice(0, endIdx) : s).replace(/\s*[.!?]+$/, "").trim();
-  if (first.length > HOOK_CAP) {
-    const win = first.slice(0, HOOK_CAP + 1);
-    let cut = -1;
-    for (const b of [" — ", " – ", ", ", "; ", " and ", " or "]) { const i = win.lastIndexOf(b); if (i > cut && i >= 20) cut = i; }
-    if (cut < 20) { const i = win.lastIndexOf(" "); cut = i >= 20 ? i : HOOK_CAP; }
-    first = first.slice(0, cut);
-  }
-  first = first.replace(/[\s,;:—–-]+$/, "");
-  let prev; do { prev = first; first = first.replace(HOOK_STOP, "").replace(/[\s,;:—–-]+$/, ""); } while (first !== prev);
-  return first ? first.charAt(0).toUpperCase() + first.slice(1) : "";
-}
+// The editorial line — the compressor, the 100-char cap, the apostrophe fix
+// and the placeholder rejection now live in lib/editorialHook.js, imported
+// above. It moved because the Top 40 rail carried the line and nine other
+// place surfaces did not, and nine copies of a 60-line compressor drift.
+// Behaviour is unchanged: proven by CALLING both implementations across the
+// apostrophe, abbreviation, placeholder and cap cases before the move.
 
 // Rank medal: top three only — a trophy in gold, silver, bronze.
 function Medal({ i }) {
@@ -464,51 +413,6 @@ export default function BestNearby({
   // lib/trendSignal.js now attaches the SAME popularity signal (plus event
   // proximity) to every place row inside the fetchers, before the sort, so
   // the flame and the +0.6 bump can never disagree with the ranking.
-  // 2026-08-07 (owner: "a one-liner that says what the place is known for and why
-  // to go"). This is the identity hook the main PlaceCard feed already renders,
-  // brought onto the ranked list. TWO SOURCES, SAME PRECEDENCE AS THE MAIN FEED:
-  //   1. /api/known-for — researched wf_editorial copy about THIS place (what it
-  //      is known for). No model. WINS whenever it exists.
-  //   2. /api/blurbs cacheOnly:true — the validated "Known for" line from the
-  //      shared 30-day pool. RENDER-SAFE: reads only what the pool already holds,
-  //      never generates while the reader waits (check-no-llm-in-render-path).
-  // When neither has anything real, the row keeps its existing engine reason line
-  // (reasonLine) — a row never LOSES text, and nothing generic is invented.
-  const [hooks, setHooks] = useState({});
-
-  // Resolve the "known for / why go" hook for the eat rows once they load.
-  // Keyed on the row place_ids, so a new location re-resolves and a warm one
-  // does not refetch. Both calls fail soft: on any error the row simply keeps
-  // its reason line. The blurbs call is cacheOnly (render-path contract).
-  useEffect(() => {
-    const eat = rows.eat;
-    if (!Array.isArray(eat) || !eat.length) return;
-    const items = eat.filter((p) => p && p.place_id).map((p) => ({ id: p.place_id, name: p.name, type: p.primary_type || "", rating: p.rating, reviews: p.reviews }));
-    const ids = items.map((p) => p.id);
-    if (!ids.length) return;
-    let dead = false;
-    (async () => {
-      const next = {};
-      // 1) Researched editorial hook — wins where it exists.
-      try {
-        const r = await fetch("/api/known-for", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ids }) });
-        const d = await r.json();
-        if (d && d.lines && typeof d.lines === "object") for (const id of ids) if (d.lines[id]) next[id] = d.lines[id];
-      } catch (e) {}
-      // 2) Validated generated "Known for" line from the shared pool. cacheOnly:
-      //    true keeps this off the generation path — a page view never waits on
-      //    a model. Only fills ids the editorial hook did not already answer.
-      try {
-        const r = await fetch("/api/blurbs", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ cacheOnly: true, city: "", places: items }) });
-        const d = await r.json();
-        if (d && d.blurbs && typeof d.blurbs === "object") for (const id of ids) if (!next[id] && d.blurbs[id]) { const b = d.blurbs[id]; next[id] = typeof b === "string" ? b : (b.card_line_1 || ""); }
-      } catch (e) {}
-      if (dead || !Object.keys(next).length) return;
-      setHooks((prev) => ({ ...prev, ...next }));
-    })();
-    return () => { dead = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [Array.isArray(rows.eat) ? rows.eat.map((p) => p && p.place_id).join(",") : ""]);
 
   // v6.72: nowContext is the single source of the hour AND the outdoor gate.
   // `now()` is a function, not a memo, so a rail opened at 17:29 and again at
@@ -613,6 +517,41 @@ export default function BestNearby({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center && center.lat, center && center.lng]);
 
+  // THE EDITORIAL LAW, applied to EVERY place on this card (owner, 2026-08-09:
+  // "the editorial needs to answer one question — why should I choose this
+  // place... this is the rule for every editorial"; "it is the global rule for
+  // the entire app").
+  //
+  // ONE resolver for all three lists. This file used to run TWO near-identical
+  // effects — one for the eat rows, one for the Top 40 — and the things-to-do
+  // rows had none at all, so the same reader saw "A hidden door upstairs leads
+  // to Maya" on one row and nothing on the next. useEditorialHooks holds the
+  // #687 precedence (researched wf_editorial wins; a validated cached blurb
+  // fills the gap; cacheOnly keeps generation off the render path) and batches
+  // in 40s, which matters here because these three lists total ~60 places and
+  // /api/known-for silently drops everything past its 40-id cap.
+  //
+  // NOTHING IS INVENTED. A place with no verified hook renders no line at all.
+  // An empty slot is honest; a generic line would be filler; a generated one
+  // would be the fabrication this codebase exists to prevent.
+  //
+  // EVENTS ARE EXCLUDED, PERMANENTLY — an event is not a place. So are bookable
+  // experiences: a Viator tour is a supplier product with no wf_editorial row,
+  // and it keeps its supplier subtitle.
+  const hooks = useEditorialHooks(
+    [
+      ...(Array.isArray(rows.eat) ? rows.eat : []),
+      ...(Array.isArray(rows.todo) ? rows.todo.filter((r) => r && r.kind !== "experience") : []),
+      ...(Array.isArray(top40) ? top40 : []),
+    ].map((p) => ({
+      id: p.place_id || p.id,
+      name: p.name || p.title || "",
+      type: p.primary_type || p.category || "",
+      rating: p.rating,
+      reviews: p.reviews,
+    }))
+  );
+
   // THE BUG THIS SHAPE FIXES (owner-reported crash, 2026-08-09, v6.68:
   // "(places || []).filter is not a function"). This used to end in a bare
   // `: loadTrends()` — "anything that is not eat or todo is trends" — which was
@@ -641,7 +580,6 @@ export default function BestNearby({
     const wider = await fetchAt(id, WIDEN_RADIUS_MI);
     return Array.isArray(wider) && wider.length > (Array.isArray(near) ? near.length : 0) ? wider : near;
   };
-
   // Fetching a section, independent of what caused it to open. Pulled out of
   // toggle() so the default-open section on mount and a user's tap go through
   // exactly ONE loading path — two copies would drift, and the mount path is
@@ -978,6 +916,7 @@ export default function BestNearby({
                         try { emitCommerce("commerce_cta_clicked", { surface: "top40_rail", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: p.place_id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch (err) {}
                       },
                     } : null}
+                    take={toHookLine(hooks[p.place_id], p.name)}
                     ariaLabel={"Open " + p.name}
                     onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
                     onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} }}
@@ -1078,7 +1017,7 @@ export default function BestNearby({
                           <RailCard key={p.place_id} rank={i + 1}
                             photo={tbPhotoUrl(p.photo_ref, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
                             score={toDisplayScore(p.governed_score)}
-                            why={toHookLine(hooks[p.place_id], p.name) || reasonLine(p.reasons)}
+                            take={toHookLine(hooks[p.place_id], p.name)}
                             badge={<>{p.trending ? <Flame reason={p.trend_reason} /> : null}<TrendReason r={p} /></>}
                             facts={[
                               p.reviews ? compactReviews(p.reviews) + " reviews" : null,
@@ -1105,7 +1044,7 @@ export default function BestNearby({
                           <RailCard key={r.id} rank={i + 1}
                             photo={r.image_url || null} title={r.title} eyebrow="Tour"
                             score={toDisplayScore(r.governed_score)}
-                            why={reasonLine([r.subtitle])}
+                            take={reasonLine([r.subtitle])}
                             badge={r.selling_out ? <SellingFast /> : null}
                             facts={[
                               r.price_from != null ? "from $" + r.price_from : null,
@@ -1120,7 +1059,7 @@ export default function BestNearby({
                           <RailCard key={r.id} rank={i + 1}
                             photo={tbPhotoUrl(r.photo_ref, 480)} title={r.title} eyebrow={prettyType(r.category)}
                             score={toDisplayScore(r.governed_score)}
-                            why={reasonLine([r.subtitle])}
+                            take={toHookLine(hooks[r.id], r.title)}
                             badge={<>{r.trending ? <Flame reason={r.trend_reason} /> : null}<TrendReason r={r} /></>}
                             facts={[
                               r.reviews ? compactReviews(r.reviews) + " reviews" : null,
@@ -1135,8 +1074,7 @@ export default function BestNearby({
                             onLike={(e) => { if (onLike) onLike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
                             onDislike={(e) => { if (onDislike) onDislike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
                             onShare={() => { if (onShare) onShare({ id: r.id, name: r.title }); }}
-                          />
-                        ))}
+                          />                        ))}
                     </div>
                     {/* THE WAY TO MORE (owner, 2026-08-09: "offer the ability
                         for the user to search for more if there is more"). The

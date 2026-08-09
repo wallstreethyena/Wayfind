@@ -322,8 +322,13 @@ export const WF_PLACE_CARD_CSS = `
   color:#CDD5E1!important;
   font-size:10.5px!important;
   line-height:1.35!important;
+  /* v7.05: two lines, not one clipped line. A one-line ellipsis on a 100-char
+     editorial budget would just move the truncation from the source string to
+     the CSS — the reader still never reaches the payoff. */
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
   text-overflow:ellipsis;
-  white-space:nowrap;
 }
 .wf-place-card-actions{align-items:center;gap:5px!important;margin-top:auto!important;padding-top:9px;flex-wrap:wrap!important}
 .wf-place-card-actions>a,.wf-place-card-actions>button{
@@ -462,11 +467,11 @@ export const WF_PLACE_CARD_CSS = `
    card; two wrapped rows is what the approved design actually shows. */
 .wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible}
 .wf-rail-card .wf-place-card-award{margin-bottom:6px}
-/* The WHY line. .wf-place-card-take is single-line-ellipsised on the /best-of
-   list, where the row is full page width; a rail card is one column and the
-   reason is the reason — two lines, clamped, so a long one cannot make one card
-   in the rail taller than its neighbours. */
-.wf-rail-card .wf-rail-card-why{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
+/* The EDITORIAL line on a rail card. .wf-place-card-take is single-line-
+   ellipsised on the /best-of list, where the row is full page width; a rail card
+   is one column and the line is the point of the card — two lines, clamped, so
+   a long one cannot make one card in the rail taller than its neighbours. */
+.wf-rail-card .wf-place-card-take{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
 /* The money action. Full width above the action row rather than a fifth
    column in it: at this width five controls in one row leaves every one of
    them too small to read, and this is the tap that earns the commission. */
