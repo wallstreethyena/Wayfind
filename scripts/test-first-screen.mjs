@@ -84,7 +84,11 @@ ok(floors >= 3, `all three rail states must reserve minHeight: EV_SECTION_MIN_H 
 //    shimmering grey box otherwise).
 ok(/role="status"/.test(skel) && /aria-busy="true"/.test(skel), "skeleton must expose role=status + aria-busy so assistive tech knows content is loading");
 ok(/aria-hidden="true"/.test(skel), "the decorative shimmer blocks must be aria-hidden");
-ok(/Happening near you/.test(skel), "skeleton must show the real section heading — a section of grey boxes with no label reads as broken, not loading");
+// v7.09 — RENAMED (owner, 2026-08-09): "on the last menu the Happening near
+// you should be named Events near you". The section shows concerts, games
+// and shows with dates and ticket links; "happening" described a vibe, the
+// new name describes the contents.
+ok(/Events near you/.test(skel), "skeleton must show the real section heading — a section of grey boxes with no label reads as broken, not loading");
 
 // 6. Motion respects the reduced-motion preference (repo-wide rule).
 // WF_LAYOUT_CSS moved to app/components/css.js (decomposition wave 1) — still

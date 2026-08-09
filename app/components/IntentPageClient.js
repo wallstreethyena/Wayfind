@@ -240,6 +240,12 @@ export default function IntentPageClient({ intent }) {
         origin: { lat: loc.lat, lng: loc.lng },
         penalty: def.distancePenalty || null,
         ctx: def.timeless ? null : now,
+        // v7.09 — THE SAME COMPOSITION THE HOME RAIL USES. If the rail held
+        // "day trips and landmarks" to Activities and this page did not, the
+        // card you tapped and the card you landed on would be different cards
+        // under the same heading. One rule, both surfaces.
+        compose: def.compose || null,
+        planAhead: !!def.planAhead,
       });
       // v6.56 (owner): the line under each row is WAYFIND editorial (verified
       // wf_editorial hooks, one anon in() call) — never Google's summary text.

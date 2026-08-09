@@ -219,7 +219,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.70";
+const BUILD_ID = "v6.71";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2845,7 +2845,7 @@ function EventsRailSkeleton() {
   return (
     <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H }} role="status" aria-live="polite" aria-busy="true" aria-label="Loading more things near you">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+        <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
         <span style={{ fontSize: 12.5, fontWeight: 700, color: C.muted }}>Finding events…</span>
       </div>
       <HeroRail>
@@ -8782,7 +8782,7 @@ function PageInner({ initialEvents = null }) {
               {!browseCat && Array.isArray(foryouEvents) && foryouEvents.length === 0 && (
                 <div style={{ marginBottom: 10, minHeight: EV_SECTION_MIN_H, boxSizing: "border-box" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Happening near you</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: C.text, display: "inline-flex", alignItems: "center", gap: 8 }}><Icon name="ticket" size={17} color={C.accent} />Events near you</div>
                   </div>
                   <HeroRail>
                     {/* v6.59 (owner): explainer FIRST, deterministically, and it

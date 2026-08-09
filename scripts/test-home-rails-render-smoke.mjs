@@ -143,11 +143,15 @@ for (const [label, props] of INTENT_CASES) {
     center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
     eventsSlot: null, onOpenPlace: () => {}, onLog: () => {},
   }));
-  ok(withEvents.includes("Happening near you"),
+// v7.09 — RENAMED (owner, 2026-08-09): "on the last menu the Happening near
+// you should be named Events near you". The section shows concerts, games
+// and shows with dates and ticket links; "happening" described a vibe, the
+// new name describes the contents.
+  ok(withEvents.includes("Events near you"),
     "an eventsSlot adds the ninth section to the menu");
   ok(withEvents.includes('data-smoke-events="1"'),
     "…and the section actually renders the rail it was handed, rather than an empty body");
-  ok(!without.includes("Happening near you"),
+  ok(!without.includes("Events near you"),
     "no events near the reader means NO ninth row — an accordion row that opens onto nothing costs a tap to learn nothing");
 }
 

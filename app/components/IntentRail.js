@@ -35,7 +35,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
-import { INTENT_PAGES, toRow, rankRows } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
 import { nowContext } from "../../lib/nowContext";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { toDisplayScore } from "../../lib/score";
@@ -68,6 +68,10 @@ const RAIL_MAX = 12;
 // So the bank ladders like the radius does: cheap first, wider only on nothing.
 const RAIL_QUERIES = 2;
 const MIN_ROWS = 3;
+// The review depth rung 4 falls back to. Deliberately not zero: below this a
+// rating is one enthusiastic afternoon, and "the strictest list we run" would
+// stop being true in a different way.
+const SOFT_FLOOR_REVIEWS = 60;
 const SEARCH_N = 20;
 // How long the rail waits on the trend signal before shipping without it.
 const TREND_MS = 2500;
@@ -158,7 +162,7 @@ export default function IntentRailBody({
       try {
         const bankRaw = typeof def.queries === "function" ? def.queries(ctx) : def.queries;
         const bank = Array.isArray(bankRaw) ? bankRaw : [];
-        const sweep = async (radiusM, queries) => {
+        const sweep = async (radiusM, queries, floor) => {
           const results = await Promise.all(queries.map(async ({ cat, q }) => {
             try {
               const u = "/api/places/search?q=" + encodeURIComponent(q)
@@ -193,10 +197,15 @@ export default function IntentRailBody({
           // A row with no distance is DROPPED rather than kept: we cannot say a
           // place is within seventeen miles when we do not know where it is.
           const capMi = radiusM / M_PER_MI + 0.5;
-          return rankRows(flat, def.floor, {
+          return rankRows(flat, floor, {
             origin: { lat, lng },
             penalty: def.distancePenalty || null,
             ctx: def.timeless ? null : ctx,
+            // THE COMPOSITION LAW. See lib/intentPages.js — a heading that names
+            // a kind of place admits only that kind, and one that names a mood
+            // may mix but may not be one category in disguise.
+            compose: def.compose || null,
+            planAhead: !!def.planAhead,
           }).filter((r) => Number.isFinite(r.distMi) && r.distMi <= capMi).slice(0, RAIL_MAX);
         };
         // THE LADDER. Cheapest thing that can answer, first; each rung only
@@ -206,14 +215,33 @@ export default function IntentRailBody({
         // for. An intent with its own radiusM (worth-the-drive's 30mi) states
         // its reach in its own copy and is never quietly stretched past it.
         const near = def.radiusM || NEAR_M;
-        let ranked = await sweep(near, bank.slice(0, RAIL_QUERIES));
-        if (ranked.length === 0 && bank.length > RAIL_QUERIES) {
-          const full = await sweep(near, bank);            // rung 2: the whole bank, same radius
+        // v7.09 — SPEND THE CALLS ON QUERIES THIS LIST IS ALLOWED TO SHOW.
+        // Taking the first two of the bank meant worth-the-drive spent one of
+        // its two nightly calls on "destination restaurant dinner" — rows the
+        // composition then threw away — while "iconic landmark" and "state park
+        // springs" further down the bank never ran at all.
+        const first = composeQueries(bank, def.compose, RAIL_QUERIES);
+        const whole = composeQueries(bank, def.compose, bank.length);
+        let ranked = await sweep(near, first, def.floor);
+        if (ranked.length === 0 && whole.length > first.length) {
+          const full = await sweep(near, whole, def.floor);          // rung 2: the whole eligible bank
           if (full.length > ranked.length) ranked = full;
         }
         if (ranked.length === 0 && !def.radiusM) {
-          const wider = await sweep(WIDEN_M, bank);        // rung 3: the whole bank, 25 miles
+          const wider = await sweep(WIDEN_M, whole, def.floor);      // rung 3: 25 miles
           if (wider.length > ranked.length) ranked = wider;
+        }
+        // RUNG 4 — RELAX THE FLOOR, NEVER THE KIND. A composed list can come
+        // back short simply because a market has three landmarks worth the
+        // drive and not twelve. When that happens the honest lever is the
+        // REVIEW DEPTH we demanded, not the promise we made: a landmark with
+        // 120 reviews is still a landmark, and a steakhouse with 5,000 is still
+        // not one. rating is untouched — that is the quality bar, not a
+        // volume bar — and the rail never widens `sections`.
+        if (ranked.length < MIN_ROWS && def.floor && def.floor.reviews > SOFT_FLOOR_REVIEWS) {
+          const soft = { ...def.floor, reviews: SOFT_FLOOR_REVIEWS };
+          const relaxed = await sweep(def.radiusM || WIDEN_M, whole, soft);
+          if (relaxed.length > ranked.length) ranked = relaxed;
         }
         POOL.set(key, ranked);
         setRows(ranked);
