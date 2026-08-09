@@ -240,21 +240,46 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
      "the count clause is DROPPED when the list is empty or loading — '0 places scored' is worse than no count");
   ok(!/\b30 places\b/.test(BN) && !/See all 30\b/.test(BN),
      "no hard-coded result count survives from the mockup — the mockup said 30, the engine says what it says");
-  ok(/See all \{list\.length\} ranked near you/.test(BN),
-     "the see-all label counts the real list, so it can never over-promise");
+  // SUPERSEDED with the head-of-three (owner, 2026-08-09). The label used to
+  // read "See all 10 ranked near you" because the list showed three of ten; the
+  // rail shows all ten, so the link now offers what is genuinely BEYOND them.
+  // The invariant is the one that mattered: the number in the label is computed
+  // from the rendered list, never typed.
+  ok(/"Search past these " \+ list\.length/.test(BN),
+     "the more-link counts the real list, so it can never over-promise");
   ok(/hourLabel\(ctx\.hour\)[\s\S]{0,40}ctx\.dayName/.test(BN),
      "the hour and day come from the same nowContext() the RANKING uses — a headline on a different clock than the sort is a lie about what was ranked");
   ok(/Math\.floor/.test(BN.slice(BN.indexOf("function hourLabel"), BN.indexOf("function hourLabel") + 400)),
      "the hour label is whole-hour — minute precision on a daypart-bucketed ranking claims accuracy the sort does not have");
   ok(/no paid placement/.test(BN), "the integrity line ships with the answer, not buried in a footer");
 
-  // ── the head slice ──
-  const head = BN.match(/const HEAD_COUNT = (\d+)/);
-  ok(!!head && Number(head[1]) === 3, `HEAD_COUNT is 3 (got ${head && head[1]}) — the approved design shows three above the fold`);
-  ok((BN.match(/showAll \? list : list\.slice\(0, HEAD_COUNT\)/g) || []).length === 2,
-     "BOTH lists (eat and things-to-do) slice to the head — one that ignored it would push the other's see-all off screen");
-  ok(/setShowAll\(false\);/.test(BN.slice(BN.indexOf("const toggle ="), BN.indexOf("const toggle =") + 400)),
-     "switching section resets see-all — it is a statement about the list in front of you, not a sticky preference");
+  // ── THE LIST IS NOT CUT ANY MORE (owner, 2026-08-09) ──
+  // SUPERSEDES the head-of-three. "No longer place the 10 restriction on these
+  // lists… the top 10 should be sufficient." The three assertions that used to
+  // live here pinned HEAD_COUNT = 3, both lists slicing to it, and the see-all
+  // that expanded them. All three described a VERTICAL list, where three rows
+  // was what fit above the fold. The lists are rails now: one card is visible
+  // at a time whatever the length, so the slice bought no vertical space and
+  // cost seven ranked picks. What is worth pinning is the replacement promise —
+  // the reader sees every row the engine returned, and there is a real route to
+  // more.
+  ok(!/HEAD_COUNT/.test(BN),
+     "the head-of-three is gone, constant and all — a leftover HEAD_COUNT is how a slice quietly comes back");
+  ok((BN.match(/<RailNav railId=\{sdef\.id\} count=\{list\.length\}/g) || []).length === 1,
+     "the rail's count is list.length — the number stated is the number rendered, so it can never over-promise");
+  ok(/list\.map\(\(p, i\) =>/.test(BN) && /list\.map\(\(r, i\) =>/.test(BN) && !/list\.slice\(/.test(BN),
+     "BOTH ranked lists (eat and things-to-do) render the WHOLE list — and no list.slice( survives anywhere in the file");
+  {
+    // The way to more must be a page that exists. A "search past these 10" that
+    // 404s is worse than no link at all: it breaks trust at the exact moment
+    // someone has decided the ranking is worth following.
+    const mores = [...BN.matchAll(/href=\{sdef\.id === "eat" \? "([^"]+)" : "([^"]+)"\}/g)];
+    ok(mores.length === 1, `the two ranked sections share ONE more-link expression (found ${mores.length})`);
+    for (const h of (mores[0] || []).slice(1)) {
+      ok(existsSync(path.join(REPO, "app", h.replace(/^\//, ""), "page.js")),
+         `the more-link "${h}" resolves to a real page (app${h}/page.js)`);
+    }
+  }
 
   // ── the mood row points at REAL pages ──
   const moodBlock = BN.slice(BN.indexOf("const MOODS = ["), BN.indexOf("];", BN.indexOf("const MOODS = [")));
@@ -356,7 +381,10 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
     const searchRoute = readFileSync(path.join(REPO, "app/api/places/search/route.js"), "utf8");
     ok(/photo_ref: photoRef/.test(searchRoute) && /p\.photos\[0\]\.name/.test(searchRoute),
       "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
-    ok(/resolveScoutedPhoto\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
+    // v7.07: renamed resolveScoutedPhoto -> resolveScoutedPlace when it started
+    // also returning the rating/review pair behind the card's Wayfind Score —
+    // same call, same endpoint, one more field read off the same response.
+    ok(/resolveScoutedPlace\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
       "CreatorFinds resolves each scouted spot's photo through the cached search endpoint");
     // v7.02: the row renders the shared RailCard, so the <img> moved out of
     // this file. FOLLOW THE CODE — assert both halves of the invariant across

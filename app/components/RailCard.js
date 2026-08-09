@@ -130,12 +130,14 @@ export function RailNav({ railId, count, unit }) {
  * @param {string[]} p.facts       meta row, middot-separated by CSS
  * @param {object}   p.award       { icon, label, tone } tone: 1|2|3|creator
  * @param {object[]} p.chips       [{ key, icon, label, onClick }] — onClick makes it a pill button
+ * @param {node}     p.badge       caller-owned node in the chip row (a flame, a "Selling fast")
+ * @param {string}   p.why         the one-line WHY — the engine's reason, or the editorial hook
  * @param {object}   p.cta         { label, href, external, onClick } the money action
  * @param {func}     p.onOpen      card body activation (opens the sheet / the event)
  * @param {string}   p.href        when the card body is a link rather than a handler
  */
 export default function RailCard({
-  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, cta,
+  photo, photoFallback, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, why, cta,
   onOpen, href, external, ariaLabel, className,
   saved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
@@ -208,13 +210,29 @@ export default function RailCard({
             </div>
           ) : null}
 
-          {pills.length ? (
+          {pills.length || badge ? (
             <div className="wf-place-card-highlights" style={{ display: "flex", flexWrap: "wrap" }}>
               {pills.map((chip) => (chip.onClick
                 ? <button key={chip.key} type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); chip.onClick(e); }}>{chip.icon} {chip.label} ›</button>
                 : <span key={chip.key}>{chip.icon} {chip.label}</span>
               ))}
+              {/* Caller-owned node, exactly like IconicPlaceCard's `badge`: the
+                  trending flame and the "Selling fast" scarcity tag are built by
+                  the surface that has the evidence for them, never here. */}
+              {badge || null}
             </div>
+          ) : null}
+
+          {/* THE WHY (owner, 2026-08-09, moving the ranked lists onto this card:
+              "the best places to eat is still vertical"). The engine has always
+              returned a reason — "Breakfast — right for the hour", "Local
+              favorite — 4.8★ from 1782 reviews" — and the vertical row was the
+              only surface that rendered it. It comes with the row onto the card
+              rather than being dropped in the move. Same .wf-place-card-take
+              slot the /best-of card gives its editorial line, so this is the
+              money card's own text style, not a new one. */}
+          {why ? (
+            <div className="wf-place-card-take wf-rail-card-why">{why}</div>
           ) : null}
 
           {cta ? (

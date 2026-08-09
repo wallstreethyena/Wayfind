@@ -92,10 +92,21 @@ const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 // SAME cached /api/places/search the pool uses (which now returns photo_ref),
 // then the guarded /api/photo proxy. Returns "" (not null) on any miss so the
 // cache records "looked, found none" and never retries in a loop.
-async function resolveScoutedPhoto(name, city, center) {
+// v7.07 (owner, 2026-08-09: "when i change to orlando the wayfind score is not
+// showing"). A scouted card is a registry row — a name, a city and a creator —
+// and it carried no score because the registry has no rating to give it. But
+// this function was ALREADY asking Google for the place in order to resolve a
+// photo, and that same response carries the rating and the review count. The
+// score was one field away the whole time.
+//
+// Nothing is invented: a place Google cannot match, or matches with no rating,
+// still renders scoreless. That is why the pair is returned as null rather than
+// as zeros — kit's badge draws "Score pending" for a null and a red 0.1/10 for
+// a coerced one, and the second is a lie about a place nobody has rated.
+async function resolveScoutedPlace(name, city, center) {
   const key = `${name}|${city}`;
   if (_scoutedPhotoCache.has(key)) return _scoutedPhotoCache.get(key);
-  if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return "";
+  if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return { photo: "", rating: null, reviews: null };
   try {
     const q = encodeURIComponent(`${name} ${city}`);
     const r = await fetch(`/api/places/search?q=${q}&lat=${center.lat}&lng=${center.lng}&limit=1`);
@@ -103,10 +114,13 @@ async function resolveScoutedPhoto(name, city, center) {
     const first = j && Array.isArray(j.places) ? j.places[0] : null;
     const ref = first && (first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name)) || null;
     const url = ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "";
-    _scoutedPhotoCache.set(key, url);
-    return url;
+    const rating = first && Number(first.rating) > 0 ? Number(first.rating) : null;
+    const reviews = first ? Number(first.userRatingCount != null ? first.userRatingCount : first.reviews) || 0 : 0;
+    const out = { photo: url, rating, reviews };
+    _scoutedPhotoCache.set(key, out);
+    return out;
   } catch (e) {
-    return "";
+    return { photo: "", rating: null, reviews: null };
   }
 }
 
@@ -114,7 +128,7 @@ async function resolveScoutedPhoto(name, city, center) {
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, orderFinds, bridgeCity, scoutedSpots };
 
-export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience }) {
+export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
   const rows = orderFinds(items).slice(0, CREATOR_FINDS_MAX);
   const bridge = bridgeCity(byCity, rows.length);
   // 2026-08-07 (owner: "I don't see creators on Sarasota"). When the loaded
@@ -133,16 +147,20 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   // each one's Google photo by name — once, cached — and render it in place of
   // the pin. The pin shows only while a photo is loading or genuinely absent.
   const [scoutedPhotos, setScoutedPhotos] = useState({});
+  // Kept as a SECOND map rather than folded into scoutedPhotos so the photo
+  // path stays byte-identical to what shipped — the score is additive.
+  const [scoutedScores, setScoutedScores] = useState({});
   useEffect(() => {
     let alive = true;
     const need = scouted.filter((s) => s && s.name && !(s.key in scoutedPhotos));
     if (!need.length) return;
     Promise.all(need.map(async (s) => {
-      const url = await resolveScoutedPhoto(s.name, s.city, center);
-      return [s.key, url];
+      const found = await resolveScoutedPlace(s.name, s.city, center);
+      return [s.key, found];
     })).then((pairs) => {
       if (!alive) return;
-      setScoutedPhotos((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = u; return next; });
+      setScoutedPhotos((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = (u && u.photo) || ""; return next; });
+      setScoutedScores((prev) => { const next = { ...prev }; for (const [k, u] of pairs) next[k] = u && u.rating != null ? { rating: u.rating, reviews: u.reviews } : null; return next; });
     });
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,8 +173,16 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   // the finds are actually in, rather than calling another city's spots yours.
   const heading = rows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
   return (
-    <section aria-label="Finds from local creators" style={{ marginBottom: 12 }}>
-      <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>
+    <section aria-label="Finds from local creators" style={{ marginBottom: bare ? 0 : 12 }}>
+      {/* v7.05: inside the menu (`bare`) the accordion row above already reads
+          "Finds from local creators", so repeating it here would be a second
+          heading for one row. The heading still renders in that mode when it
+          is NOT that sentence — a bridged row is showing another city's
+          creators, and letting the accordion's label stand alone would call
+          them local, which they are not. */}
+      {bare && heading === "Finds from local creators"
+        ? null
+        : <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>}
       {/* v7.02 (owner, 2026-08-08): "in reality the finds from local creators
           should also match that style" — the 132x96 tile is gone and these are
           the /best-of place card at rail width, rendered through the SAME
@@ -211,7 +237,11 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
               photo={scoutedPhotos[s.key] || null}
               title={s.name}
               eyebrow={s.city ? "Scouted in " + s.city : "Scouted"}
-              facts={[s.city || null].filter(Boolean)}
+              score={cardScore(scoutedScores[s.key])}
+              facts={[
+                scoutedScores[s.key] && scoutedScores[s.key].reviews ? compactCount(scoutedScores[s.key].reviews) + " reviews" : null,
+                s.city || null,
+              ].filter(Boolean)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator video", onClick: () => { if (onBrowse) onBrowse(); } }]}
               ariaLabel={"Open " + s.name}
