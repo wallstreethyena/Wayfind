@@ -91,7 +91,15 @@ ok(/GENRE_JUNK/.test(src) && /raw\.length > 22/.test(src), "…and junk genres (
 ok(/const EV_RAIL_MIN_H = 245/.test(src), "the loading skeleton reserves the live card height — measured on PRODUCTION with the real webfonts, not in a system-font harness");
 ok(/\.wf-rail-events>\.wf-rail-card\{min-height:245px\}/.test(css), "…and the live rail pins that SAME number as its card floor, so the two cannot drift apart silently");
 {
-  const skel = src.slice(src.indexOf("function EventsRailSkeleton()"), src.indexOf("function HooksBanner"));
+  // v7.06 — THE SKELETON MOVED WITH THE RAIL. The events rail is now section
+  // nine of the home menu (owner, 2026-08-09: "i also want to add events into
+  // this list"), so its loading box lives beside it in `eventsRailSlot` rather
+  // than in EventsRailSkeleton, which now reserves the promo deck only. The
+  // claim is unchanged and is still asserted on the box that actually swaps:
+  // same width, same radius, same rail class as the live card.
+  const slotStart = src.indexOf("const eventsRailSlot = (() => {");
+  ok(slotStart > -1, "PROBE: the events rail is built as eventsRailSlot (if this is -1 the checks below prove nothing)");
+  const skel = src.slice(slotStart, src.indexOf("const discoveryMenu = (", slotStart));
   ok(/width: "100%"/.test(skel), "the skeleton blocks are full-width like the live card, so the swap moves nothing sideways either");
   ok(/borderRadius: 17/.test(skel), "…and its corner radius");
   ok(/className="wf-rail wf-rail-events"/.test(skel), "…and the skeleton uses the same rail class as the live row, so gutter, padding and box model are one definition, not two");

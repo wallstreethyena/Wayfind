@@ -19,9 +19,16 @@
 import { useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
-import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore } from "../../lib/todaysBest.js";
+import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav } from "./RailCard";
+// v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
+// big fun small budget) render the SAME card from the SAME engine their
+// destination pages use. See IntentRail.js for why this is the real list and
+// not a cheap filter over the pool already in memory.
+import IntentRailBody from "./IntentRail";
+import { INTENT_PAGES } from "../../lib/intentPages";
+import { isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
@@ -70,17 +77,6 @@ function Medal({ i }) {
 // Pinned by scripts/check-home-answer-first.mjs.
 const ROW_MAX_H = 100;
 
-// v6.97 — the answer-first head. The mockup the owner approved shows THREE
-// results and then a way to see the rest, not ten. Three is what fits above the
-// fold on a phone, and the fold is the entire problem this surface was built to
-// fix (259 single-page sessions on `/`, median 10 seconds).
-//
-// "See all" expands IN PLACE rather than navigating. A separate list page would
-// re-rank with its own code path, and two lists that disagree about the same
-// places is the exact bug class this session has spent its time removing —
-// wayfindScore had five implementations, the answer-first list ignored the
-// creator boost the grid below it applied. One list, one ranking.
-const HEAD_COUNT = 3;
 
 // The mood row. Every one of these is a REAL route that already exists and
 // already ranks — no chip here is a placeholder, and none of them is a filter
@@ -287,9 +283,82 @@ function prettyType(t) {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
+// ONE ACCORDION ROW. The header, the icon tile, the orange left rail, the wash
+// and the collapse are defined once, here — the Top 40 row and the seven mapped
+// sections under it are the same object, so the menu cannot grow a second
+// header treatment the way the feed grew four.
+//
+// The header is a native <button> with aria-expanded/aria-controls: it is a
+// disclosure control, and a div with a click handler would need the whole
+// role/tabIndex/onKeyDown triple to be reachable at all (test-card-a11y.mjs).
+function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
+  return (
+    <div
+      ref={nodeRef}
+      data-wf-section={sdef.id}
+      style={{ borderTop: first ? "none" : "1px solid rgba(255,255,255,.07)", borderLeft: isOpen ? `2px solid ${C.accent}` : "2px solid transparent", background: isOpen ? "linear-gradient(90deg, rgba(249,115,22,.075), transparent 70%)" : "transparent", transition: "border-color .22s ease, background .22s ease" }}
+    >
+      <button onClick={() => onToggle(sdef.id)} aria-expanded={isOpen} aria-controls={"wf-sec-" + sdef.id} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 2px 13px 10px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
+        <span style={{ width: 29, height: 29, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: 9, background: isOpen ? "rgba(249,115,22,.1)" : "rgba(255,255,255,.028)" }}>
+          {sdef.line
+            ? <Icon name={sdef.icon} size={19} strokeWidth={1.9} color={isOpen ? C.light : "#E7EDF5"} />
+            : <NavIcon name={sdef.icon} size={21} strokeWidth={1.7} color={isOpen ? C.light : "#E7EDF5"} />}
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontSize: 15.2, fontWeight: 740, letterSpacing: "-.08px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
+          <span style={{ display: "block", fontSize: 11.5, color: "#8D9AAB", marginTop: 2 }}>{sdef.sub}</span>
+        </span>
+        <span aria-hidden="true" style={{ width: 24, height: 24, flexShrink: 0, color: isOpen ? C.light : "rgba(255,255,255,.42)", display: "grid", placeItems: "center", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+        </span>
+      </button>
+      {/* visibility, not just height: a collapsed section must be out of the
+          tab order and out of the accessibility tree, or a keyboard reader
+          walks four hidden rails of Save/Like/Share buttons. It flips with a
+          delay on the way down so the collapse can finish animating, and
+          instantly on the way up so the content is reachable straight away. */}
+      <div id={"wf-sec-" + sdef.id} style={{ overflow: "hidden", maxHeight: isOpen ? 10 * ROW_MAX_H + 220 : 0, opacity: isOpen ? 1 : 0, visibility: isOpen ? "visible" : "hidden", transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease, visibility 0s linear " + (isOpen ? "0s" : ".3s") }}>
+        <div style={{ padding: "0 2px 12px 12px" }}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
+// stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
+// order, and the rail is what the whole panel is named after).
+const TOP40_SECTION = { id: "best", label: "The best near you", sub: "Top 40 within reach, ranked for this hour", icon: "award" };
+
+// The sections whose data `load()` below knows how to fetch. Everything else in
+// the menu resolves its own rail.
+const LOADABLE = { eat: 1, todo: 1, trends: 1 };
+
+// Under three is not a shortlist, it is a shelf — the same threshold the
+// creator row and the intent rails use to decide a list is too thin to stand.
+const MIN_RAIL_ROWS = 3;
+
 export const DEFAULT_SECTION = "eat";
 
-export default function BestNearby({ center, weather, events, videoPlaces, onOpenPlace, onLog }) {
+// v7.05 (owner, 2026-08-09): "we would pretty much be adding to the existing
+// menu we have and just reorganizing and adding the horizontal rails to them."
+//
+// So this panel stops being "the ranked list plus a Top 40 rail" and becomes
+// THE MENU: eight sections, one accordion, each one a rail of the same place
+// card. The alternative — eight separate panels down the feed — was built
+// first and thrown away: it re-created the problem this component exists to
+// solve, which is that a reader was meeting eight different headings for eight
+// different lists and had to decide which one was the answer.
+//
+// EVERY SECTION IS OPEN ON ARRIVAL and closes on tap, and the closed set
+// persists (lib/railCollapse.js). This inverts the previous behaviour in one
+// visible way: the accordion used to be one-open-at-a-time, so closing a
+// section opened another. It no longer does. The measured reason the FIRST
+// section opens by default (259 single-page sessions, median 10 seconds) is
+// unchanged and now applies to all of them.
+export default function BestNearby({
+  center, weather, events, videoPlaces, city, creatorSlot, eventsSlot, onOpenPlace, onLog,
+  isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience,
+}) {
   // v6.57 (2026-08-06, owner): the FIRST section is open on arrival.
   //
   // MEASURED, not a preference. 259 single-page sessions landed on "/" in the
@@ -305,11 +374,41 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // them. `toggle` still closes it, so the accordion is not being deleted —
   // its default is being inverted.
   const [open, setOpen] = useState(DEFAULT_SECTION);
-  // Reset when the section changes: "see all" is a statement about the list in
-  // front of you, not a preference that should follow you into a different one.
-  const [showAll, setShowAll] = useState(false); // "eat" | "todo" | "trends" | null
+  // v7.05: `open` no longer means "the only section that is open" — the
+  // collapsed set below decides that. It is now the section the reader last
+  // acted on, which is what the headline describes and what the mount fetch
+  // loads first, and it is still seeded from DEFAULT_SECTION so the answer-
+  // first read is unchanged.
+  //
+  // THE CLOSED SET, not the open set. `null` means "the reader's choice has not
+  // been read yet", which renders as all-open — the same thing the server
+  // rendered, so hydration cannot disagree. See lib/railCollapse.js.
+  const [closed, setClosed] = useState(null);
+  // The ref is what the NEXT toggle reads. React batches state updates across a
+  // task, so two toggles in one tick both see the pre-batch `closed` and the
+  // second one writes a list that has forgotten the first — measured live, not
+  // theorised: collapsing two sections in the same tick persisted only one.
+  // The ref is updated synchronously, so it cannot go stale between taps.
+  const closedRef = useRef(null);
+  useEffect(() => {
+    let list = [];
+    try { list = readCollapsed(); } catch (e) { list = []; }
+    closedRef.current = list;
+    setClosed(list);
+  }, []);
+  const sectionOpen = (id) => !isCollapsed(closed, id);
+  // v7.06 (owner, 2026-08-09): "no longer place the 10 restriction on these
+  // lists… the top 10 should be sufficient." The head-of-three and its
+  // see-all button are GONE. They existed because a vertical row of three was
+  // what fit above the fold; a rail shows one card at a time whatever its
+  // length, so slicing to three bought no vertical space and cost seven picks
+  // the reader had already been ranked. The rail renders the whole list, and
+  // the link under it goes to the page that widens the search.
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
+  // One node per section, so the observer below can load a section's data the
+  // moment it is both OPEN and near the viewport — see the effect further down.
+  const secRefs = useRef({});
   // 2026-08-07: the per-component beach popularity read (beachPop) is gone —
   // lib/trendSignal.js now attaches the SAME popularity signal (plus event
   // proximity) to every place row inside the fetchers, before the sort, so
@@ -380,11 +479,19 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     let dead = false;
     (async () => {
       const args = baseArgs();
-      const batches = await Promise.all(
+      const sweep = (radiusMi) => Promise.all(
         TOP40_CATEGORIES.map((category) =>
-          fetchTodaysBest({ ...args, category, limit: TOP40_PER_CATEGORY, events }).catch(() => [])
+          fetchTodaysBest({ ...args, category, limit: TOP40_PER_CATEGORY, events, radiusMi }).catch(() => [])
         )
       );
+      let batches = await sweep(NEAR_RADIUS_MI);
+      // Same ladder as the ranked sections: 17 first, 25 only if 17 cannot fill
+      // a rail. The rail refuses to render under three anyway, so widening
+      // below that is the difference between a section and no section at all.
+      if (!dead && batches.reduce((n, b) => n + (Array.isArray(b) ? b.length : 0), 0) < MIN_RAIL_ROWS) {
+        const wider = await sweep(WIDEN_RADIUS_MI);
+        if (wider.reduce((n, b) => n + (Array.isArray(b) ? b.length : 0), 0) > batches.reduce((n, b) => n + (Array.isArray(b) ? b.length : 0), 0)) batches = wider;
+      }
       if (dead) return;
       // One row per place. wf_best_picks can return the same venue under two
       // categories (a brewery is nightlife AND food), and a rail that shows it
@@ -445,13 +552,34 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     }))
   );
 
-  const load = (id) =>
-    // `events` rides along so the trend signal can score major-event
-    // proximity (PredictHQ demand fields) — fails soft to no events.
-    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events })
-    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10, events })
-    : loadTrends();
-
+  // THE BUG THIS SHAPE FIXES (owner-reported crash, 2026-08-09, v6.68:
+  // "(places || []).filter is not a function"). This used to end in a bare
+  // `: loadTrends()` — "anything that is not eat or todo is trends" — which was
+  // safe while the accordion had exactly three sections and became a crash the
+  // moment it had eight: re-opening a collapsed intent section called
+  // ensureLoaded("gems"), got the trends OBJECT back, and handed it to
+  // gateOutdoor, which filters an array. Named branches only, and an unknown id
+  // resolves to an empty list rather than to whichever fetch happened to be
+  // last in the chain.
+  // `events` rides along so the trend signal can score major-event proximity
+  // (PredictHQ demand fields) — fails soft to no events.
+  const fetchAt = (id, radiusMi) =>
+    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events, radiusMi })
+    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10, events, radiusMi })
+    : Promise.resolve([]);
+  // THE WIDEN (owner, 2026-08-09). 17 miles first, always. Only when that comes
+  // back with too little to render does it ask again at 25 — one extra read, on
+  // the sparse areas that need it, and never on the ones that do not. A list
+  // that quietly searched 25 every time would put a half-hour drive under a
+  // heading that says "near you".
+  const load = async (id) => {
+    if (id === "trends") return loadTrends();
+    if (!LOADABLE[id]) return [];
+    const near = await fetchAt(id, NEAR_RADIUS_MI);
+    if (Array.isArray(near) && near.length >= MIN_RAIL_ROWS) return near;
+    const wider = await fetchAt(id, WIDEN_RADIUS_MI);
+    return Array.isArray(wider) && wider.length > (Array.isArray(near) ? near.length : 0) ? wider : near;
+  };
   // Fetching a section, independent of what caused it to open. Pulled out of
   // toggle() so the default-open section on mount and a user's tap go through
   // exactly ONE loading path — two copies would drift, and the mount path is
@@ -465,7 +593,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
       // THE GATE, applied to whichever rail loaded. The "eat" rail is
       // unaffected in practice (restaurants read indoor), so this is one
       // call site rather than two branches that can drift apart.
-      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: gateOutdoor(data, nowCtx()) })); })();
+      // The weather gate is a FILTER over rows. The trends section's payload is
+      // an object, not a list, so it is stored as-is — the second half of the
+      // same crash above, and the reason this is a branch and not a cast.
+      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: Array.isArray(data) ? gateOutdoor(data, nowCtx()) : data })); })();
       return { ...r, [id]: "loading" };
     });
   };
@@ -482,17 +613,62 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, center && center.lat, center && center.lng]);
 
+  // EVERY OTHER OPEN SECTION LOADS ON APPROACH, not on mount. Eight sections
+  // open by default must not become eight requests fired at once on the first
+  // paint — that would spend the whole request budget above the fold to fill
+  // rails the reader has not reached yet, and slow down the one they have.
+  // `ensureLoaded` is idempotent, so a section that is already loading or
+  // loaded is a no-op here.
+  useEffect(() => {
+    if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
+    if (typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        const id = e.target.getAttribute("data-wf-section");
+        // Only the sections whose data `load()` knows how to fetch. An intent
+        // rail loads itself (it owns its own query bank), and the Top 40 and
+        // the creator slot are already resolved — routing either through
+        // ensureLoaded would fall through to loadTrends() and fire the wrong
+        // request entirely.
+        if (!id || !LOADABLE[id] || isCollapsed(closed, id)) continue;
+        ensureLoaded(id);
+      }
+    }, { rootMargin: "300px 0px" });
+    for (const key of Object.keys(secRefs.current)) {
+      const el = secRefs.current[key];
+      if (el) io.observe(el);
+    }
+    // BACKSTOP. Same reason as IntentRail's: an open section that never loads
+    // reads as broken, and the observer is not guaranteed to deliver for an
+    // element that was already on screen when it was created. ensureLoaded is
+    // idempotent, so this is a no-op for every section the observer already got.
+    const backstop = setTimeout(() => {
+      for (const id of Object.keys(LOADABLE)) if (!isCollapsed(closed, id)) ensureLoaded(id);
+    }, 2500);
+    return () => { clearTimeout(backstop); io.disconnect(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [closed, center && center.lat, center && center.lng]);
+
   const toggle = (id) => {
-    const next = open === id ? null : id;
+    const base = closedRef.current || readCollapsed();
+    const closing = !isCollapsed(base, id);
+    const list = nextCollapsed(base, id, closing);
+    closedRef.current = list;
+    setClosed(list);
+    try { writeCollapsed(list); } catch (e) {}
+    if (closing) return;
+    const next = id;
     setOpen(next);
-    setShowAll(false);
-    if (!next) return;
     // `trigger` separates a deliberate tap from the section that was already
     // open on arrival. Without it the default-open fire would silently inflate
     // best_nearby_open and make the before/after read on this change
     // uninterpretable — which is the only reason the change is being made.
     try { onLog && onLog("best_nearby_open", null, { section: id, trigger: "tap" }); } catch (e) {}
-    ensureLoaded(id);
+    // Only the sections whose data this component fetches. An intent rail and
+    // the creator slot resolve their own content and must never be routed
+    // through ensureLoaded — see the comment on `load` for what that cost.
+    if (LOADABLE[id]) ensureLoaded(id);
   };
 
   // Owner call: rows open OUR detail sheet (the same card the main menu
@@ -507,9 +683,34 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
   // Owner (2026-07-21, late): Local trends is OFF for now — vertical budget
   // goes to the taller hero. All trends machinery stays; flip to bring back.
   const SHOW_TRENDS = false;
+  // THE MENU (owner, 2026-08-09). Order is the owner's own numbering. Three
+  // kinds of section, one shell:
+  //   · rail   — the Top 40, rendered from wf_best_picks (id "best")
+  //   · rows   — the two ranked lists that were already here (eat, todo)
+  //   · intent — a rail that runs its destination page's real query bank
+  //   · slot   — a rail owned by another component and passed in (creators)
+  //
+  // `line: true` picks the stroke-icon set for the header tile; the original
+  // two sections keep the NavIcon category glyphs they have always had, so
+  // nothing about the existing rows moved.
+  //
+  // The intent sections take their one-line sub from INTENT_PAGES' own
+  // `card.promise` rather than from new copy written here — that string is
+  // already the vetted promise for the same list (check-intent-cards enforces
+  // it exists), so the rail and the page it opens cannot describe themselves
+  // differently.
   const SECTIONS = [
     { id: "eat", label: "Best places to eat nearby", sub: "Ranked for this exact hour", icon: "food" },
     { id: "todo", label: "Top things to do", sub: "Tours, beaches and attractions, one list", icon: "attractions" },
+    { id: "gems", label: "Hidden gems", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
+    { id: "creators", label: "Finds from local creators", sub: "Filmed by someone who lives here", icon: "film", line: true, slot: "creators" },
+    { id: "tonight", label: "Perfect for tonight", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
+    { id: "drive", label: "Worth the drive", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
+    { id: "budget", label: "Big fun, small budget", icon: "wallet", line: true, intent: "budget", href: "/budget", unit: "low-cost picks" },
+    // Ninth, and only when there is something on. An accordion row that opens
+    // onto "no events near you" is a row that costs a tap to learn nothing;
+    // home.js hands `eventsSlot` a null when the chain comes back empty.
+    ...(eventsSlot ? [{ id: "events", label: "Happening near you", sub: "Dates, times and tickets near you", icon: "events", slot: "events" }] : []),
     ...(SHOW_TRENDS ? [{ id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" }] : []),
   ];
 
@@ -625,9 +826,10 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
           still holds. This is a browse surface added above it, not a
           replacement for it. */}
       {(() => {
+        const railBody = (() => {
         if (top40 === "loading") {
           return (
-            <div style={{ padding: "0 1px 12px" }} role="status" aria-busy="true" aria-label="Ranking the best near you">
+            <div style={{ paddingTop: 2 }} role="status" aria-busy="true" aria-label="Ranking the best near you">
               <div className="wf-sk" style={{ height: 16, width: 180, borderRadius: 6, marginBottom: 8 }} />
               <div className="wf-rail" aria-hidden="true" style={{ minHeight: TOP40_CARD_H }}>
                 <div className="wf-sk" style={{ width: "100%", height: TOP40_CARD_H, borderRadius: 17, flexShrink: 0 }} />
@@ -641,7 +843,7 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
         // still answers the question, so rendering nothing here costs nothing.
         if (list.length < 3) return null;
         return (
-          <div style={{ padding: "0 1px 12px" }}>
+          <div style={{ paddingTop: 2 }}>
             <RailNav railId="top40" count={list.length} unit="top picks near you" />
             <div className="wf-rail wf-rail-top40" data-rail="top40" tabIndex={0} role="region" aria-label="Top picks near you" style={{ minHeight: TOP40_CARD_H }}>
               {list.map((p, i) => {
@@ -726,31 +928,47 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
             <div style={{ marginTop: 7, fontSize: 10, color: "#6F7C8D" }}>Ticket links are affiliate links; Wayfind may earn a commission. Ranking never changes.</div>
           </div>
         );
+        })();
+        // A thin area returns no rail at all, and an empty accordion row that
+        // opens onto nothing is worse than no row — so the header goes with it.
+        if (!railBody) return null;
+        return (
+          <SectionShell sdef={TOP40_SECTION} isOpen={sectionOpen(TOP40_SECTION.id)} first onToggle={toggle} nodeRef={(el) => { secRefs.current.best = el; }}>
+            {railBody}
+          </SectionShell>
+        );
       })()}
-      {SECTIONS.map((sdef, si) => {
-        const isOpen = open === sdef.id;
+      {SECTIONS.map((sdef) => {
+        const isOpen = sectionOpen(sdef.id);
         const data = rows[sdef.id];
         const list = Array.isArray(data) ? data : [];
+        // The intent rails describe themselves with their destination page's
+        // OWN vetted promise line, so a rail and the page it opens can never
+        // read differently. A slot section (creator finds) keeps the sub it was
+        // given, because the component that owns it owns that claim too.
+        const def = sdef.intent ? INTENT_PAGES[sdef.intent] : null;
+        const head = def && def.card && def.card.promise ? { ...sdef, sub: def.card.promise } : sdef;
         return (
-          <div key={sdef.id} style={{ borderTop: si ? "1px solid rgba(255,255,255,.07)" : "none", borderLeft: isOpen ? `2px solid ${C.accent}` : "2px solid transparent", background: isOpen ? "linear-gradient(90deg, rgba(249,115,22,.075), transparent 70%)" : "transparent", transition: "border-color .22s ease, background .22s ease" }}>
-            <button onClick={() => toggle(sdef.id)} aria-expanded={isOpen} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 2px 13px 10px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
-              <span style={{ width: 29, height: 29, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: 9, background: isOpen ? "rgba(249,115,22,.1)" : "rgba(255,255,255,.028)" }}><NavIcon name={sdef.icon} size={21} strokeWidth={1.7} color={isOpen ? C.light : "#E7EDF5"} /></span>
-              <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: "block", fontSize: 15.2, fontWeight: 740, letterSpacing: "-.08px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
-                <span style={{ display: "block", fontSize: 11.5, color: "#8D9AAB", marginTop: 2 }}>{sdef.sub}</span>
-              </span>
-              <span aria-hidden="true" style={{ width: 24, height: 24, flexShrink: 0, color: isOpen ? C.light : "rgba(255,255,255,.42)", display: "grid", placeItems: "center", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-              </span>
-            </button>
-            <div style={{ overflow: "hidden", maxHeight: isOpen ? 10 * ROW_MAX_H + 220 : 0, opacity: isOpen ? 1 : 0, transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease" }}>
-              <div style={{ padding: "0 2px 12px 12px" }}>
-                {data === "loading" ? (
-                  <>
-                    <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
-                    <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
-                    <div className="wf-sk" style={{ height: 46, borderRadius: 9, margin: "8px 0" }} />
-                  </>
+          <SectionShell key={sdef.id} sdef={head} isOpen={isOpen} onToggle={toggle} nodeRef={(el) => { secRefs.current[sdef.id] = el; }}>
+              <>
+                {sdef.intent ? (
+                  <IntentRailBody
+                    intent={sdef.intent} href={sdef.href} unit={sdef.unit} label={sdef.label}
+                    active={isOpen} center={center} weather={weather} city={city}
+                    onOpenPlace={onOpenPlace} onLog={onLog} onExperience={onExperience}
+                    isSaved={isSaved} liked={liked} disliked={disliked}
+                    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare}
+                  />
+                ) : sdef.slot === "events" ? (
+                  eventsSlot || null
+                ) : sdef.slot ? (
+                  creatorSlot || null
+                ) : data === "loading" ? (
+                  // Rail-shaped, and the SAME height the live rail reserves, so
+                  // the swap cannot shift the eight sections below it.
+                  <div className="wf-rail" aria-hidden="true" style={{ minHeight: TOP40_CARD_H }}>
+                    <div className="wf-sk" style={{ width: "100%", height: TOP40_CARD_H, borderRadius: 17, flexShrink: 0 }} />
+                  </div>
                 ) : sdef.id === "trends" && data && data.kindOf === "trends" ? (
                   trendsBody(data)
                 ) : list.length ? (
@@ -777,59 +995,97 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                         </div>
                       </div>
                     ) : null}
+                    {/* v7.05 (owner, 2026-08-09: "best places to eat is still
+                        vertical instead of the horizontal, it is the only thing
+                        that has not been changed"). The two ranked lists now
+                        render the SAME RailCard as every other rail in the menu.
+
+                        NOTHING ABOUT THE RANKING MOVED. Same wf_best_picks and
+                        wf_things_to_do calls, same governed_score order, same
+                        head of three with the measured see-all behind it, same
+                        editorial hook with the engine's reason line as its
+                        fallback — the reason simply rides on the card now
+                        (RailCard's `why`) instead of in a row that no other
+                        surface looked like. */}
+                    <RailNav railId={sdef.id} count={list.length} unit={sdef.id === "eat" ? "ranked near you" : "things to do"} />
+                    <div className={"wf-rail wf-rail-" + sdef.id} data-rail={sdef.id} tabIndex={0} role="region" aria-label={sdef.label} style={{ minHeight: TOP40_CARD_H }}>
                     {sdef.id === "eat"
-                      ? (showAll ? list : list.slice(0, HEAD_COUNT)).map((p, i) => (
-                          <Row key={p.place_id} i={i} thumb={tbPhotoUrl(p.photo_ref, 240)} title={p.name} whyOneLine={!!toHookLine(hooks[p.place_id], p.name)} why={toHookLine(hooks[p.place_id], p.name)}
-                            onClick={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
-                            badge={p.trending ? <Flame reason={p.trend_reason} /> : null}
-                            meta={<>
-                              {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
-                              <PlaceScoreChip p={p} size={12} />
-                              <TrendReason r={p} />
-                            </>}
-                            trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
-                        ))
-                      : (showAll ? list : list.slice(0, HEAD_COUNT)).map((r, i) => r.kind === "experience" ? (
-                          <Row key={r.id} i={i} href={r.booking_url} thumb={r.image_url || null} title={r.title} why={reasonLine([r.subtitle])}
+                      ? list.map((p, i) => {
+                          const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
+                          const coupon = couponForPlaceName(p.name);
+                          return (
+                          <RailCard key={p.place_id} rank={i + 1}
+                            photo={tbPhotoUrl(p.photo_ref, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
+                            score={toDisplayScore(p.governed_score)}
+                            take={toHookLine(hooks[p.place_id], p.name)}
+                            badge={<>{p.trending ? <Flame reason={p.trend_reason} /> : null}<TrendReason r={p} /></>}
+                            facts={[
+                              p.reviews ? compactReviews(p.reviews) + " reviews" : null,
+                              priceLabel(p.price_level != null ? p.price_level : p.priceLevel),
+                              isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
+                            ].filter(Boolean)}
+                            chips={[
+                              coupon ? { key: "deal", icon: "\u{1F3F7}\u{FE0F}", label: "Deal" } : null,
+                              ...experienceTags(tagged, 3).map((t) => ({ key: t.key, icon: t.icon, label: t.label, onClick: onExperience ? () => onExperience(t.key, tagged) : undefined })),
+                            ].filter(Boolean).slice(0, 3)}
+                            ariaLabel={"Open " + p.name}
+                            saved={!!(isSaved && isSaved({ id: p.place_id }))}
+                            liked={!!(liked && liked[p.place_id])}
+                            disliked={!!(disliked && disliked[p.place_id])}
+                            onOpen={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
+                            onSave={(e) => { if (onSave) onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) }); }}
+                            onLike={(e) => { if (onLike) onLike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
+                            onDislike={(e) => { if (onDislike) onDislike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
+                            onShare={() => { if (onShare) onShare({ id: p.place_id, name: p.name }); }}
+                          />
+                          );
+                        })
+                      : list.map((r, i) => r.kind === "experience" ? (
+                          <RailCard key={r.id} rank={i + 1}
+                            photo={r.image_url || null} title={r.title} eyebrow="Tour"
+                            score={toDisplayScore(r.governed_score)}
+                            take={reasonLine([r.subtitle])}
                             badge={r.selling_out ? <SellingFast /> : null}
-                            meta={<>
-                              <PlaceScoreChip p={{ rating: r.rating, reviews: r.reviews }} size={12} />
-                              {r.price_from != null ? <span style={{ color: C.green, fontWeight: 700 }}>from ${r.price_from}</span> : null}
-                              {fmtDur(r.duration_min) ? <span>{fmtDur(r.duration_min)}</span> : null}
-                            </>}
-                            trailing={<span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "5px 11px", fontSize: 11, fontWeight: 800 }}>Book ↗</span>} />
+                            facts={[
+                              r.price_from != null ? "from $" + r.price_from : null,
+                              fmtDur(r.duration_min),
+                              r.reviews ? compactReviews(r.reviews) + " reviews" : null,
+                            ].filter(Boolean)}
+                            cta={r.booking_url ? { label: "Book \u2197", href: r.booking_url, external: true } : null}
+                            ariaLabel={"Book " + r.title}
+                            href={r.booking_url} external
+                          />
                         ) : (
-                          <Row key={r.id} i={i} thumb={tbPhotoUrl(r.photo_ref, 240)} title={r.title} whyOneLine={!!toHookLine(hooks[r.id], r.title)} why={toHookLine(hooks[r.id], r.title)}
-                            onClick={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
-                            badge={r.trending ? <Flame reason={r.trend_reason} /> : null}
-                            meta={<>
-                              {isFinite(r.distance_mi) ? <span>{r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)} mi</span> : null}
-                              <PlaceScoreChip p={r} size={12} />
-                              <TrendReason r={r} />
-                            </>}
-                            trailing={<span aria-hidden="true" style={{ flexShrink: 0, color: "rgba(255,255,255,.3)" }}>›</span>} />
-                        ))}
-                    {/* v6.97 — the rest of the list, in place. The count is
-                        list.length, so it can never over-promise: if the engine
-                        returned 12 near you, this says 12. */}
-                    {!showAll && list.length > HEAD_COUNT ? (
-                      <button
-                        onClick={() => { setShowAll(true); try { onLog && onLog("best_nearby_see_all", null, { section: sdef.id, total: list.length }); } catch (e) {} }}
-                        className="wf-bn-focus"
-                        style={{ display: "block", width: "100%", marginTop: 10, padding: "11px 0", minHeight: TARGET, background: "transparent", border: "1px solid rgba(249,115,22,.35)", borderRadius: 10, color: C.accent, fontSize: 12.5, fontWeight: 750, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
-                      >
-                        See all {list.length} ranked near you →
-                      </button>
-                    ) : null}
-                    {showAll && list.length > HEAD_COUNT ? (
-                      <button
-                        onClick={() => setShowAll(false)}
-                        className="wf-bn-focus"
-                        style={{ display: "block", width: "100%", marginTop: 10, padding: "10px 0", minHeight: TARGET, background: "transparent", border: "1px solid rgba(255,255,255,.12)", borderRadius: 10, color: C.muted, fontSize: 12.5, fontWeight: 700, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
-                      >
-                        Show fewer
-                      </button>
-                    ) : null}
+                          <RailCard key={r.id} rank={i + 1}
+                            photo={tbPhotoUrl(r.photo_ref, 480)} title={r.title} eyebrow={prettyType(r.category)}
+                            score={toDisplayScore(r.governed_score)}
+                            take={toHookLine(hooks[r.id], r.title)}
+                            badge={<>{r.trending ? <Flame reason={r.trend_reason} /> : null}<TrendReason r={r} /></>}
+                            facts={[
+                              r.reviews ? compactReviews(r.reviews) + " reviews" : null,
+                              isFinite(r.distance_mi) ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : null,
+                            ].filter(Boolean)}
+                            ariaLabel={"Open " + r.title}
+                            saved={!!(isSaved && isSaved({ id: r.id }))}
+                            liked={!!(liked && liked[r.id])}
+                            disliked={!!(disliked && disliked[r.id])}
+                            onOpen={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
+                            onSave={(e) => { if (onSave) onSave(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) }); }}
+                            onLike={(e) => { if (onLike) onLike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
+                            onDislike={(e) => { if (onDislike) onDislike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
+                            onShare={() => { if (onShare) onShare({ id: r.id, name: r.title }); }}
+                          />                        ))}
+                    </div>
+                    {/* THE WAY TO MORE (owner, 2026-08-09: "offer the ability
+                        for the user to search for more if there is more"). The
+                        engine returns ten; these two pages are where the same
+                        ranking runs without that ceiling. Real routes, both of
+                        them — a dead end here is a dead end at the exact moment
+                        someone decided to trust the list. */}
+                    <a href={sdef.id === "eat" ? "/best-of" : "/nearby"} className="wf-railsec-more"
+                      onClick={() => { try { onLog && onLog("best_nearby_more", null, { section: sdef.id, shown: list.length }); } catch (e) {} }}>
+                      {"Search past these " + list.length + " \u2192"}
+                    </a>
                     {sdef.id === "todo" && list.some((r) => r.kind === "experience") ? (
                       <div style={{ fontSize: 11, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>Tours &amp; activities are affiliate links; Wayfind may earn a commission at no cost to you. It never changes what we recommend.</div>
                     ) : null}
@@ -837,9 +1093,8 @@ export default function BestNearby({ center, weather, events, videoPlaces, onOpe
                 ) : Array.isArray(data) ? (
                   <div style={{ padding: "8px 2px 10px", fontSize: 12.5, color: C.muted }}>Nothing strong here right now.</div>
                 ) : null}
-              </div>
-            </div>
-          </div>
+              </>
+          </SectionShell>
         );
       })}
     </section>

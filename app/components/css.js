@@ -467,6 +467,11 @@ export const WF_PLACE_CARD_CSS = `
    card; two wrapped rows is what the approved design actually shows. */
 .wf-rail-top40 .wf-place-card-highlights{flex-wrap:wrap!important;overflow:visible}
 .wf-rail-card .wf-place-card-award{margin-bottom:6px}
+/* The EDITORIAL line on a rail card. .wf-place-card-take is single-line-
+   ellipsised on the /best-of list, where the row is full page width; a rail card
+   is one column and the line is the point of the card — two lines, clamped, so
+   a long one cannot make one card in the rail taller than its neighbours. */
+.wf-rail-card .wf-place-card-take{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:6px}
 /* The money action. Full width above the action row rather than a fifth
    column in it: at this width five controls in one row leaves every one of
    them too small to read, and this is the tap that earns the commission. */
@@ -812,4 +817,16 @@ export const WF_TASTE_CSS = `
   .wf-taste-chip,.wf-taste-btn,.wf-taste-x{transition:none!important}
   .wf-taste-chip:hover,.wf-taste-btn:hover,.wf-taste-btn:active{transform:none!important}
 }
+`;
+
+// ── THE MENU'S "SEE EVERY ONE" LINK (owner, 2026-08-09) ────────────────────
+// The home menu's eight sections live in app/components/BestNearby.js and carry
+// their chrome inline, next to the rows they have always styled. The only rule
+// that has to be global is this one: the link that closes each intent rail sits
+// inside a horizontally-scrolling flex container, and an inline <a> in there
+// collapses to nothing without an explicit display and a tap target.
+export const WF_RAIL_SECTION_CSS = `
+.wf-railsec-more{display:inline-flex;align-items:center;min-height:36px;margin-top:8px;padding:0;background:none;border:0;font:inherit;font-size:12.5px;font-weight:750;color:#FB923C;text-decoration:none;cursor:pointer}
+.wf-railsec-more:hover,.wf-railsec-more:focus-visible{text-decoration:underline}
+.wf-railsec-more:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
 `;

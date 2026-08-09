@@ -50,7 +50,17 @@ ok(/const EV_HERO_H = \d+/.test(code), "EV_HERO_H constant missing");
 ok(/const EV_RAIL_MIN_H = \d+/.test(code), "EV_RAIL_MIN_H constant missing");
 const skel = code.slice(code.indexOf("function EventsRailSkeleton()"), code.indexOf("function HooksBanner"));
 ok(skel.includes("height: EV_HERO_H"), "skeleton must reserve the hero height from EV_HERO_H");
-ok(skel.includes("EV_RAIL_MIN_H"), "skeleton must reserve the card-row height from EV_RAIL_MIN_H");
+// v7.06: the events RAIL moved into the home menu (BestNearby's ninth section),
+// so the card-row reserve moved with it. EventsRailSkeleton reserves the promo
+// deck it still renders; the rail's own loading box is built in eventsRailSlot
+// and is asserted there. Two reserves, each on the thing it is reserving for.
+{
+  const slotStart = code.indexOf("const eventsRailSlot = (() => {");
+  ok(slotStart > -1, "the events rail is built once, as eventsRailSlot, and handed to the menu");
+  const slot = code.slice(slotStart, code.indexOf("const discoveryMenu = (", slotStart));
+  ok(slot.includes("EV_RAIL_MIN_H"), "the events rail's loading box reserves the card-row height from EV_RAIL_MIN_H");
+  ok(/foryouEvents === null/.test(slot), "…and it renders that box while the events chain is still in flight, not an empty section");
+}
 // the LIVE rail must read the same constants, never a re-hardcoded number
 ok(/position: "relative", height: EV_HERO_H, borderRadius: 18/.test(code),
   "the live hero must use EV_HERO_H — a hardcoded height here silently desyncs it from the skeleton and re-introduces a shift");
@@ -62,8 +72,11 @@ ok(/aria-label="Events near you"[^\n]*minHeight: EV_RAIL_MIN_H/.test(code),
 //     2026-07-21, a sparse market where events resolved to [] collapsed the
 //     ~312px skeleton into a ~130px empty state and moved the feed up 200px —
 //     one 0.1281 shift. With the shared floor the same run measures 0.0054.
-ok(/const EV_SECTION_MIN_H = EV_HERO_H \+ EV_RAIL_MIN_H \+ \d+/.test(code),
-  "EV_SECTION_MIN_H must be derived from the hero + rail constants, not hardcoded separately");
+// v7.06: hero-only, because the rail it used to also cover now lives in the
+// menu. Still DERIVED from EV_HERO_H rather than hardcoded — that is the part
+// that stops the live block and the skeleton from drifting apart.
+ok(/const EV_SECTION_MIN_H = EV_HERO_H \+ \d+/.test(code),
+  "EV_SECTION_MIN_H must be derived from the hero constant, not hardcoded separately");
 const floors = (code.match(/minHeight: EV_SECTION_MIN_H/g) || []).length;
 ok(floors >= 3, `all three rail states must reserve minHeight: EV_SECTION_MIN_H — found ${floors} of 3. Whichever state omits it becomes the shift.`);
 
