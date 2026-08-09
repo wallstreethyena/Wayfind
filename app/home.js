@@ -2695,9 +2695,19 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   // Hip-Hop/Rap, Alternative, Metal, Motorsports/Racing, Farmers market,
   // Heritage railroad). eventGenreChip() drops the junk values rather than
   // printing them.
+  // …but a card with NO chip is worse than one that echoes its eyebrow. Seen
+  // live on production right after the de-duplication shipped: Kevin Nealon
+  // carries segment "Arts & Theatre" and genre "" from Ticketmaster, so the
+  // chip row rendered empty and the card had a visible hole between the gold
+  // band and the ticket CTA. About one event in five is in that state (2 of 40
+  // with a blank genre, 6 more with "Miscellaneous"). So the segment is the
+  // FALLBACK, not the default: the chip prefers the specific genre, and only
+  // when the provider gave us nothing more specific does it fall back to the
+  // category — which is then the most precise true thing we can say about the
+  // event, not filler.
   const genre = eventGenreLabel(event, seg);
   const chips = [
-    genre ? { key: "genre", icon: seg.icon, label: genre, onClick: onCategory ? () => onCategory(bucket) : null } : null,
+    { key: genre ? "genre" : "segment", icon: seg.icon, label: genre || seg.short, onClick: onCategory ? () => onCategory(bucket) : null },
     isFree ? { key: "free", icon: "🆓", label: "Free admission" } : null,
   ].filter(Boolean).slice(0, 2);
   const shareEvent = () => {
