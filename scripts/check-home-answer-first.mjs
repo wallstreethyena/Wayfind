@@ -360,10 +360,20 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // gained `!scouted.length`. The invariant is unchanged: render NOTHING only
   // when there is genuinely nothing — no local find, no registry spots, and no
   // bridge.
-  ok(/if \(!rows\.length && !scouted\.length && !bridge\) return null;/.test(CF),
-     "the creator row renders nothing ONLY when there is no local find, no scouted registry spot, AND no bridge — an empty 'your differentiator' shelf advertises the absence");
-  ok(/scouted\.map\(/.test(CF) && /scoutedSpots\(byCity, bridge, rows\.length/.test(CF),
-     "when the pool is empty, the row hydrates the bridge city's scouted spots via scoutedSpots() and renders them as cards");
+  // v7.07 — REGISTRY SPOTS ARE NO LONGER A FALLBACK. scoutedSpots() returned []
+  // unless the pool was completely empty, so a reader with three pool finds saw
+  // three cards while the registry held twenty more inside the same 25 miles.
+  // The owner's ruling: "the limiter is the place pool, not the library."
+  // mergeCreatorInventory() now merges both into ONE inventory.
+  //
+  // The invariant is unchanged and is what is asserted: render NOTHING only when
+  // there is genuinely nothing — no inventory at all, and no bridge. It is
+  // strictly STRONGER now, because `inventory` covers pool and registry rows
+  // together, where the old condition needed two separate terms to say it.
+  ok(/if \(!inventory\.length && !bridge\) return null;/.test(CF),
+     "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
+  ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
+     "the row builds ONE inventory from the pool and the registry together, rather than treating the registry as an empty-pool fallback");
   // 2026-08-07 (owner: pin placeholders "not what I wanted"): the scouted cards
   // resolve REAL venue photos. Locked by structure — the search route now
   // returns photo_ref, and the component hydrates + renders it.
@@ -371,16 +381,29 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
     const searchRoute = readFileSync(path.join(REPO, "app/api/places/search/route.js"), "utf8");
     ok(/photo_ref: photoRef/.test(searchRoute) && /p\.photos\[0\]\.name/.test(searchRoute),
       "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
-    ok(/resolveScoutedPhoto\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
-      "CreatorFinds resolves each scouted spot's photo through the cached search endpoint");
+    // v7.07 — the resolver was generalised from a photo lookup into a full
+    // hydrator (resolveScoutedPlace): the SAME cached call now also returns the
+    // real types, rating and price the FIELD_MASK was already paying for. Types
+    // are what lib/dining.js needs to name a cuisine, and without them a cuisine
+    // filter over scouted spots would have no data behind it.
+    ok(/resolveScoutedPlace\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
+      "CreatorFinds resolves each scouted spot through the cached search endpoint");
+    ok(/types: Array\.isArray\(first\.types\)/.test(CF),
+      "…and keeps the REAL Google types off that response — a hydrated rating or cuisine is looked up, never invented");
     // v7.02: the row renders the shared RailCard, so the <img> moved out of
     // this file. FOLLOW THE CODE — assert both halves of the invariant across
     // the two files rather than deleting the protection: CreatorFinds hands
     // the resolved photo to the card, and the card renders a real <img> when
     // it has one and a placeholder tile only when it does not.
     const RC = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8");
-    ok(/photo=\{scoutedPhotos\[s\.key\] \|\| null\}/.test(CF),
+    // v7.07 — the hydrated place, not a photo-only map. `h` is the resolved
+    // Google place or null, and the SAME null decides every optional field on
+    // the card: photo, score and facts. That is the honesty rule in one
+    // variable — a card shows what was resolved and omits what was not.
+    ok(/photo=\{\(h && h\.photo\) \|\| null\}/.test(CF),
       "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
+    ok(/score=\{h && h\.rating \? cardScore\(/.test(CF),
+      "…a registry card scores ONLY when the lookup returned a real rating — an unresolved spot carries no score, never a zero or a guess");
     ok(/photo\s*\n?\s*\?\s*<img/.test(RC) && /wf-place-card-monogram/.test(RC),
       "…and RailCard renders a real <img> when given a photo, falling back to the monogram tile only when there is none");
     ok(/\/api\/photo\?ref=/.test(CF) && /REF_RX\.test\(ref\)/.test(CF),
@@ -494,7 +517,7 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // cannot tell them apart at render time. So neither prints one.
   ok(/function cardFacts\(/.test(CF) && !/ mi"/.test(CF),
      "cardFacts() builds this row's meta from reviews / price / open-closed only — no distance string is assembled anywhere in it");
-  ok(/Creators in \$\{bridge\.city\}/.test(CF) && /rows\.length \? "Finds from local creators"/.test(CF),
+  ok(/Creators in \$\{bridge\.city\}/.test(CF) && /poolCount \|\| registryRows\.length \? "Finds from local creators"/.test(CF),
      "with no local find the heading names the city the finds are ACTUALLY in — 'local' is a claim, and another city's spots are not the reader's");
   ok(/byCity=\{socialFindByCity\}/.test(HOME),
      "the row reads the SAME spotsByCity memo the bookshelf hero already uses — a second derivation is how two surfaces start disagreeing about where the finds are");
