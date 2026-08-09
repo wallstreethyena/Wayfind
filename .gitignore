@@ -35,3 +35,13 @@ tmp/
 
 # Transient JSX compile output from scripts/lib/jsxLoad.mjs (guard-only, self-cleaning)
 .wf-jsx-*/
+
+# Exploding Topics — licensed CSV exports must never be committed.
+# The synthetic fixtures in scripts/fixtures/trends/ ARE committed on purpose
+# (they are invented data this repo wrote); the negation below keeps them.
+/private/trends/
+/data/trends/
+*exploding-topics*.csv
+*exploding_topics*.csv
+trend-export*.csv
+!scripts/fixtures/trends/*.csv
