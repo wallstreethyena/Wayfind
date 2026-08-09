@@ -153,7 +153,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 import { C, CAT_COLOR, CAT_LABEL_COLOR, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, directionsUrl, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, SPACE, RADII, MOTION, FOCUS, TARGET, CHAMPAGNE, MEDALLION_SHADOW, TRENDING_POPULARITY_THRESHOLD, SHADOW } from "./components/kit";
 import { COLLECTION } from "./components/collectionTheme";
 import { toDisplayScore, pickEligibleByScore, cardComplete } from "../lib/score";
-import { frontPageEvents } from "../lib/frontEvents";
+import { frontPageEvents, bestFirst } from "../lib/frontEvents";
 import { rankBeaches, beachesWithin, BEACH_NEAR_MI } from "../lib/beaches";
 import { pickHomeExp } from "../lib/homeExpPick";
 // July 2026 decomposition (wave 1): the homepage's ~520 lines of server-
@@ -161,7 +161,7 @@ import { pickHomeExp } from "../lib/homeExpPick";
 // the same single inline <style dangerouslySetInnerHTML> tag below, and
 // app/components/css.js is registered in scripts/lib/shellSrc.mjs so every
 // content guardrail still greps them.
-import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS } from "./components/css";
+import { WF_LAYOUT_CSS, WF_SEARCH_CSS, WF_PLACE_CARD_CSS, WF_TASTE_CSS, WF_RAIL_SECTION_CSS, WF_RAIL_COLLAPSED_CSS } from "./components/css";
 // v6.46 — wave 2 of the same decomposition: ~200 lines of pure owner-written
 // curation DATA (best-of / local-fave name lists, the hand-written place notes,
 // the featured-boost table, the founder "note from Wayfind" blocks). Data only.
@@ -216,7 +216,7 @@ function _viatorCityParams(cityQ, center) {
   try { const mk = center ? marketForLocation(center.lat, center.lng) : null; const v = mk && MARKETS[mk] && MARKETS[mk].viator; if (v && v.id) dest = v.id; } catch (e) {}
   return "&mode=city&region=" + encodeURIComponent(cityQ || "") + (dest ? "&destId=" + encodeURIComponent(dest) : "");
 }
-const BUILD_ID = "v6.67";
+const BUILD_ID = "v6.69";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2849,15 +2849,9 @@ function EventsRailSkeleton() {
         <DiscoveryHeroCard />
         <div className="wf-sk" aria-hidden="true" style={{ flexShrink: 0, width: "93%", height: EV_HERO_H, borderRadius: 18, scrollSnapAlign: "start" }} />
       </HeroRail>
-      {/* v7.02: the blocks match the live rail's own card width and radius
-          (.wf-rail / .wf-rail-card in css.js), so the skeleton -> live swap
-          moves nothing horizontally either — a same-height, wrong-width
-          skeleton still shifts every card beside it. */}
-      <div className="wf-rail wf-rail-events" aria-hidden="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
-        {[0, 1].map((i) => (
-          <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
-        ))}
-      </div>
+      {/* v7.06 — the RAIL's reserve moved with the rail, into the menu's
+          events section (EventsRailReserve below). This block now reserves the
+          hero deck only, which is all it renders. */}
     </div>
   );
 }
@@ -8225,7 +8219,7 @@ function PageInner({ initialEvents = null }) {
   return (
     <div style={shell}>
     <div className="wf-shell" style={{ ...wrap, maxWidth: undefined }}>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes wfpulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.08);opacity:1}}@keyframes wfdot{0%,80%,100%{opacity:.25}40%{opacity:1}}@keyframes wfbob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.06)}}${WF_LAYOUT_CSS}${WF_SEARCH_CSS}${WF_PLACE_CARD_CSS}${WF_TASTE_CSS}${WF_RAIL_SECTION_CSS}${WF_RAIL_COLLAPSED_CSS}` }} />
       {/* Header */}
       <div className="wf-topbar" style={{ background: "#040810", borderBottom: `1px solid ${C.border}`, padding: screen === "map" ? "8px 12px" : "12px 14px", paddingTop: screen === "map" ? "max(8px, env(safe-area-inset-top))" : "max(12px, env(safe-area-inset-top))", flexShrink: 0, position: "relative", zIndex: 20 }}>
         {screen !== "map" && (
@@ -8606,6 +8600,61 @@ function PageInner({ initialEvents = null }) {
           // Which cuisine sheet serves this location, if any. Null outside ~75mi
           // of Orlando / Tampa / Sarasota, and null is the right answer there.
           const eatMetro = center ? cuisineMetroFor(center.lat, center.lng) : null;
+          // v7.06 — THE EVENTS RAIL, built ONCE and handed to the menu (owner,
+          // 2026-08-09: "i also want to add events into this list"). Same
+          // pipeline it has always run — dedupeEvents, the owner's
+          // frontPageEvents chain, the disliked filter — and the same
+          // EventRailCard. It renders as section nine of BestNearby instead of
+          // as a separate heading below the promo deck.
+          //
+          // The RESERVE travels with it: EV_RAIL_MIN_H is the floor here now,
+          // and the loading state renders the same box, so the skeleton -> live
+          // swap inside the menu moves nothing.
+          const eventsRailSlot = (() => {
+            if (foryouEvents === null) {
+              return (
+                <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
+                  {[0, 1].map((i) => (
+                    <div key={i} className="wf-sk" style={{ width: "100%", height: EV_RAIL_MIN_H, borderRadius: 17, flexShrink: 0, opacity: 1 - i * 0.22 }} />
+                  ))}
+                </div>
+              );
+            }
+            const evs = dedupeEvents(foryouEvents || [], true);
+            const usable = evs.filter((e) => e && e.dest);
+            const fp = frontPageEvents(usable, eventBucket);
+            // v6.69 (owner: "I want to display the best events"). bestFirst
+            // ranks by stature then imminence; RAIL_CHAIN's category order is
+            // still what the events TAB runs. See lib/frontEvents.js.
+            const shown = bestFirst(fp.usable, eventBucket, fp.featured).filter((e) => eventSignals.disliked[e.id] !== true).slice(0, 24);
+            if (!shown.length) return null;
+            return (
+              <>
+                <RailNav railId="events" count={shown.length} unit="events near you" />
+                <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
+                  {shown.map((e, i) => (
+                    <EventRailCard
+                      key={e.id}
+                      event={e}
+                      rank={i + 1}
+                      relativeLabel={eventWhenLabel(e)}
+                      saved={!!savedEvents[e.id]}
+                      liked={eventSignals.liked[e.id] === true}
+                      disliked={eventSignals.disliked[e.id] === true}
+                      onSave={() => saveEventItem(e)}
+                      onLike={() => toggleEventSignal(e, "liked")}
+                      onDislike={() => toggleEventSignal(e, "disliked")}
+                      onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
+                      onCopied={() => showToast("Event link copied")}
+                    />
+                  ))}
+                </div>
+                <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length }); } catch (er) {} setScreen("events"); }}>
+                  {"See every event \u2192"}
+                </button>
+              </>
+            );
+          })();
           const discoveryMenu = (
             <DiscoveryMenu
               locName={locName}
@@ -8692,15 +8741,18 @@ function PageInner({ initialEvents = null }) {
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
-              {/* v6.97 — "Finds from local creators" gets its own row (owner, on the
-                  approved mockup: "your differentiator... it keeps its own row"). The
-                  list was already being computed on every render and handed to
-                  BestNearby as `videoPlaces`, where the only reader is the Local
-                  trends section — which is switched off. Computed, then discarded,
-                  every render. Now it is lifted to `videoPlaces` above and BOTH
-                  surfaces read the same array, so they can never disagree. */}
-              {!browseCat && <CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />}
+              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
+                  "we would pretty much be adding to the existing menu we have and just
+                  reorganizing"). It is section 5 of eight, so it is now passed to
+                  <BestNearby> as `creatorSlot` rather than rendered as a ninth
+                  standalone heading below it. Nothing about the row itself changed —
+                  same component, same videoPlaces array, same handlers; `bare` only
+                  tells it the accordion above already carries its heading.
+
+                  v6.97 (kept, still true): the list is computed ONCE, into
+                  `videoPlaces`, and BOTH readers take that same array, so they can
+                  never disagree about what a creator has filmed near you. */}
               {/* v6.97 — MOVED BELOW THE ANSWER (approved mockup: "the six
                   categories still exist, untouched. They stop being the first thing a
                   stranger has to solve"). SUPERSEDED in v6.62 — the owner asked for the
@@ -8954,29 +9006,13 @@ function PageInner({ initialEvents = null }) {
                         </HeroRail>
                       );
                     })()}
-                      {rest.length > 0 && (
-                      <>
-                      <RailNav railId="events" count={rest.filter((e) => e && e.dest).length} unit="events near you" />
-                      <div className="wf-rail wf-rail-events" data-rail="events" tabIndex={0} role="region" aria-label="Events near you" style={{ minHeight: EV_RAIL_MIN_H }}>
-                        {rest.filter((e) => e && e.dest).map((e, i) => (
-                          <EventRailCard
-                            key={e.id}
-                            event={e}
-                            rank={i + 1}
-                            relativeLabel={relLabel(e)}
-                            saved={!!savedEvents[e.id]}
-                            liked={eventSignals.liked[e.id] === true}
-                            disliked={eventSignals.disliked[e.id] === true}
-                            onSave={() => saveEventItem(e)}
-                            onLike={() => toggleEventSignal(e, "liked")}
-                            onDislike={() => toggleEventSignal(e, "disliked")}
-                            onCategory={(bucket) => { try { logEvent("event_category_open", null, { bucket, src: "rail_chip" }); } catch (er) {} setEventCat(bucket === "community" ? "local" : bucket); setScreen("events"); }}
-                            onCopied={() => showToast("Event link copied")}
-                          />
-                        ))}
-                      </div>
-                      </>
-                    )}
+                      {/* v7.06 — THE EVENTS RAIL MOVED INTO THE MENU (owner,
+                          2026-08-09: "i also want to add events into this
+                          list"). It is section nine of BestNearby now, built
+                          once as `eventsRailSlot` below and handed in, so there
+                          is exactly one events rail on this page. What stays
+                          here is the promo carousel above, which was never the
+                          events rail — it is the hero deck. */}
                   </div>
                 );
               })()}
@@ -10393,7 +10429,7 @@ const EV_RAIL_MIN_H = 245; // v7.03: measured on PRODUCTION at 390 and 1024 with
 // 200px upward — one 0.1281 shift, worse than the entire desktop CLS budget.
 // Reserving on the LOADING state alone is not enough; the state it swaps INTO
 // has to agree, or the reservation just relocates the shift.
-const EV_SECTION_MIN_H = EV_HERO_H + EV_RAIL_MIN_H + 36; // + heading row & margins
+const EV_SECTION_MIN_H = EV_HERO_H + 36;
 // v6.43 THE IDLE JUMP, part 3 — the "Make a day of it" bookable card.
 // Its title is clamped to two lines, so a one-line pick rendered a card one
 // line SHORTER than a two-line pick. The hourly refresh swaps that title

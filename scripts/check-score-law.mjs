@@ -423,9 +423,17 @@ ok(/governedWayfindScore\(/.test(LANDING), "…and the landing rank runs through
   ok(/Number\.isFinite\(p\.governed_score\)\s*\?\s*p\.governed_score/.test(kit),
     "PlaceScoreChip prefers p.governed_score — the exact number the sort used — over a recompute that can drift from it");
   const bn = readFileSync(path.resolve("app/components/BestNearby.js"), "utf8");
-  // The two RANKED place-row chips (eat + todo) must receive the whole row.
-  ok((bn.match(/<PlaceScoreChip p=\{p\}/g) || []).length >= 1 && (bn.match(/<PlaceScoreChip p=\{r\}/g) || []).length >= 1,
-    "BestNearby's ranked rows pass the full row object to the chip (carrying governed_score + distance), not a stripped pair");
+  // v7.05 — THE CARRIER CHANGED, THE LAW DID NOT. The two ranked lists (eat +
+  // todo) moved from vertical rows onto the shared RailCard, so the number is
+  // printed by RailCard's WayfindScoreBadge instead of by PlaceScoreChip. The
+  // rule this assertion exists to protect is unchanged and is asserted in its
+  // stronger form: the printed number must be governed_score itself — the exact
+  // value byVisibleScore sorted on — passed straight through toDisplayScore,
+  // never a recompute from rating/reviews that can drift from the sort.
+  // PlaceScoreChip is still checked below for the rows that still use it.
+  ok((bn.match(/score=\{toDisplayScore\(p\.governed_score\)\}/g) || []).length >= 1
+     && (bn.match(/score=\{toDisplayScore\(r\.governed_score\)\}/g) || []).length >= 1,
+    "BestNearby's ranked rows (eat + todo) print governed_score itself, not a recompute — the number on the card is the number that put it in that position");
   // The specific regression: a ranked place row must NOT feed the chip a bare
   // { rating: X.rating, reviews: X.reviews } — that strips distance and defeats
   // the governing law. (The Viator EXPERIENCE row legitimately has no wayfind

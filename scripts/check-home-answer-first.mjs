@@ -202,16 +202,20 @@ const BN = readFileSync(SRC_PATH, "utf8").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
 // still routes `why` through a GOVERNED source and nothing generic is invented.
 // What changed is WHICH source governs WHICH list. All three halves are
 // asserted, because dropping any one of them is a real regression:
-const hookWhy = [...BN.matchAll(/why=\{toHookLine\(/g)].length;
+// v6.68: the ranked lists moved onto RailCard, whose editorial slot is named
+// `take` (RailCard.js) rather than `why`. The prop is the only thing that
+// changed — the law below is #689's, unweakened: a PLACE row renders the
+// verified hook or nothing, and a TOUR keeps its supplier subtitle.
+const hookWhy = [...BN.matchAll(/take=\{toHookLine\(/g)].length;
 ok(hookWhy >= 2, `both PLACE row lists render the verified editorial line (found ${hookWhy}, expected 2: eat, things-to-do)`);
 // The fallback that the law forbids. This is the assertion that would have gone
 // red on the old code, and it is what keeps the filler from creeping back.
-const fallbackWhy = [...BN.matchAll(/why=\{[^}]*toHookLine\([^}]*\|\|/g)].length;
+const fallbackWhy = [...BN.matchAll(/take=\{[^}]*toHookLine\([^}]*\|\|/g)].length;
 ok(fallbackWhy === 0, `no place row falls back from the editorial line to generic filler (found ${fallbackWhy}) — "no verified hook means render nothing"`);
 // ...but a TOUR is not a place. A Viator product has no wf_editorial row, so a
 // hook it can never have must not blank the supplier subtitle it legitimately
 // does have. reasonLine still governs that one list.
-const tourWhy = [...BN.matchAll(/why=\{reasonLine\(/g)].length;
+const tourWhy = [...BN.matchAll(/take=\{reasonLine\(/g)].length;
 ok(tourWhy >= 1, `the tours row still renders its supplier subtitle through reasonLine (found ${tourWhy}) — a product with no editorial row must not be blanked`);
 ok(/function Row\(\{[^}]*\bwhy\b/.test(BN), "Row accepts a `why` prop");
 ok(/\{why \? \(/.test(BN), "Row renders the why line conditionally — a place with no reason must not get an empty div");
@@ -255,34 +259,68 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
      "the count clause is DROPPED when the list is empty or loading — '0 places scored' is worse than no count");
   ok(!/\b30 places\b/.test(BN) && !/See all 30\b/.test(BN),
      "no hard-coded result count survives from the mockup — the mockup said 30, the engine says what it says");
-  ok(/See all \{list\.length\} ranked near you/.test(BN),
-     "the see-all label counts the real list, so it can never over-promise");
+  // SUPERSEDED with the head-of-three (owner, 2026-08-09). The label used to
+  // read "See all 10 ranked near you" because the list showed three of ten; the
+  // rail shows all ten, so the link now offers what is genuinely BEYOND them.
+  // The invariant is the one that mattered: the number in the label is computed
+  // from the rendered list, never typed.
+  ok(/"Search past these " \+ list\.length/.test(BN),
+     "the more-link counts the real list, so it can never over-promise");
   ok(/hourLabel\(ctx\.hour\)[\s\S]{0,40}ctx\.dayName/.test(BN),
      "the hour and day come from the same nowContext() the RANKING uses — a headline on a different clock than the sort is a lie about what was ranked");
   ok(/Math\.floor/.test(BN.slice(BN.indexOf("function hourLabel"), BN.indexOf("function hourLabel") + 400)),
      "the hour label is whole-hour — minute precision on a daypart-bucketed ranking claims accuracy the sort does not have");
   ok(/no paid placement/.test(BN), "the integrity line ships with the answer, not buried in a footer");
 
-  // ── the head slice ──
-  const head = BN.match(/const HEAD_COUNT = (\d+)/);
-  ok(!!head && Number(head[1]) === 3, `HEAD_COUNT is 3 (got ${head && head[1]}) — the approved design shows three above the fold`);
-  ok((BN.match(/showAll \? list : list\.slice\(0, HEAD_COUNT\)/g) || []).length === 2,
-     "BOTH lists (eat and things-to-do) slice to the head — one that ignored it would push the other's see-all off screen");
-  ok(/setShowAll\(false\);/.test(BN.slice(BN.indexOf("const toggle ="), BN.indexOf("const toggle =") + 400)),
-     "switching section resets see-all — it is a statement about the list in front of you, not a sticky preference");
-
-  // ── the mood row points at REAL pages ──
-  const moodBlock = BN.slice(BN.indexOf("const MOODS = ["), BN.indexOf("];", BN.indexOf("const MOODS = [")));
-  const hrefs = [...moodBlock.matchAll(/href: "([^"]+)"/g)].map((m) => m[1]);
-  ok(hrefs.length >= 3, `the mood row has real destinations (got ${hrefs.length})`);
-  for (const h of hrefs) {
-    const dir = path.join(REPO, "app", h.replace(/^\//, ""));
-    ok(existsSync(path.join(dir, "page.js")),
-       `mood chip "${h}" resolves to a real page (app${h}/page.js) — a chip that 404s is a dead end at the exact moment someone is deciding to trust this`);
+  // ── THE LIST IS NOT CUT ANY MORE (owner, 2026-08-09) ──
+  // SUPERSEDES the head-of-three. "No longer place the 10 restriction on these
+  // lists… the top 10 should be sufficient." The three assertions that used to
+  // live here pinned HEAD_COUNT = 3, both lists slicing to it, and the see-all
+  // that expanded them. All three described a VERTICAL list, where three rows
+  // was what fit above the fold. The lists are rails now: one card is visible
+  // at a time whatever the length, so the slice bought no vertical space and
+  // cost seven ranked picks. What is worth pinning is the replacement promise —
+  // the reader sees every row the engine returned, and there is a real route to
+  // more.
+  ok(!/HEAD_COUNT/.test(BN),
+     "the head-of-three is gone, constant and all — a leftover HEAD_COUNT is how a slice quietly comes back");
+  ok((BN.match(/<RailNav railId=\{sdef\.id\} count=\{list\.length\}/g) || []).length === 1,
+     "the rail's count is list.length — the number stated is the number rendered, so it can never over-promise");
+  ok(/list\.map\(\(p, i\) =>/.test(BN) && /list\.map\(\(r, i\) =>/.test(BN) && !/list\.slice\(/.test(BN),
+     "BOTH ranked lists (eat and things-to-do) render the WHOLE list — and no list.slice( survives anywhere in the file");
+  {
+    // The way to more must be a page that exists. A "search past these 10" that
+    // 404s is worse than no link at all: it breaks trust at the exact moment
+    // someone has decided the ranking is worth following.
+    const mores = [...BN.matchAll(/href=\{sdef\.id === "eat" \? "([^"]+)" : "([^"]+)"\}/g)];
+    ok(mores.length === 1, `the two ranked sections share ONE more-link expression (found ${mores.length})`);
+    for (const h of (mores[0] || []).slice(1)) {
+      ok(existsSync(path.join(REPO, "app", h.replace(/^\//, ""), "page.js")),
+         `the more-link "${h}" resolves to a real page (app${h}/page.js)`);
+    }
   }
-  ok(/href: null/.test(moodBlock),
-     "the current view renders as SELECTED STATE, not a link to the page the reader is already on");
-  ok(/Or change the mood/.test(BN), "the row is labelled, so the chips read as alternatives rather than filters already applied");
+
+  // ── SUPERSEDED: the mood row is gone (owner, 2026-08-09) ──
+  // "This shows what we need to remove now that the menu has been updated."
+  // The four chips (Right now / Date night / Family / Hidden gems) lived inside
+  // the FOOD section and pointed at routes that are now SECTIONS OF THIS MENU a
+  // few rows below — so they had become a second, worse navigation to
+  // destinations already on screen, nested inside one of the sections they
+  // competed with.
+  //
+  // The assertion that mattered is kept and re-pointed rather than deleted: the
+  // menu's own section list must still name only intents that resolve to a real
+  // page, because a dead end here is a dead end at the exact moment someone has
+  // decided to trust the ranking. This is the stronger version of the old check
+  // — it now covers all four intent rails, not the four chips.
+  const intents = [...BN.matchAll(/intent: "([a-z-]+)", href: "([^"]+)"/g)];
+  ok(intents.length >= 4, `the menu's intent sections declare their destinations (found ${intents.length}, expected 4)`);
+  for (const [, intent, href] of intents) {
+    ok(existsSync(path.join(REPO, "app", href.replace(/^\//, ""), "page.js")),
+       `section "${intent}" points at a real page (app${href}/page.js)`);
+  }
+  ok(!/Or change the mood/.test(BN),
+     "the in-section mood chips are gone — the menu IS the mood switcher now");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -360,16 +398,18 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // gained `!scouted.length`. The invariant is unchanged: render NOTHING only
   // when there is genuinely nothing — no local find, no registry spots, and no
   // bridge.
-  // v7.07 — REGISTRY SPOTS ARE NO LONGER A FALLBACK. scoutedSpots() returned []
-  // unless the pool was completely empty, so a reader with three pool finds saw
-  // three cards while the registry held twenty more inside the same 25 miles.
-  // The owner's ruling: "the limiter is the place pool, not the library."
-  // mergeCreatorInventory() now merges both into ONE inventory.
+  // v7.07 (#690) — REGISTRY SPOTS ARE NO LONGER A FALLBACK. scoutedSpots()
+  // returned [] unless the pool was completely empty, so a reader with three
+  // pool finds saw three cards while the registry held twenty more inside the
+  // same 25 miles. The owner reported exactly that: "the finds from local
+  // creators still only displaying 2, I asked for 20." The shelf was thin
+  // because of a BRANCH, not because of coverage — "the limiter is the place
+  // pool, not the library." mergeCreatorInventory() merges both into ONE
+  // inventory.
   //
-  // The invariant is unchanged and is what is asserted: render NOTHING only when
-  // there is genuinely nothing — no inventory at all, and no bridge. It is
-  // strictly STRONGER now, because `inventory` covers pool and registry rows
-  // together, where the old condition needed two separate terms to say it.
+  // The invariant is unchanged and is what is asserted; it is strictly STRONGER
+  // now, because `inventory` covers pool and registry rows together where the
+  // old condition needed two separate terms to say the same thing.
   ok(/if \(!inventory\.length && !bridge\) return null;/.test(CF),
      "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
   ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
@@ -381,13 +421,17 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
     const searchRoute = readFileSync(path.join(REPO, "app/api/places/search/route.js"), "utf8");
     ok(/photo_ref: photoRef/.test(searchRoute) && /p\.photos\[0\]\.name/.test(searchRoute),
       "the places/search route surfaces photo_ref (first photo resource name) so a caller can render a venue photo without a second round-trip");
-    // v7.07 — the resolver was generalised from a photo lookup into a full
-    // hydrator (resolveScoutedPlace): the SAME cached call now also returns the
-    // real types, rating and price the FIELD_MASK was already paying for. Types
-    // are what lib/dining.js needs to name a cuisine, and without them a cuisine
-    // filter over scouted spots would have no data behind it.
+    // v7.07: renamed resolveScoutedPhoto -> resolveScoutedPlace when it started
+    // also returning the rating/review pair behind the card's Wayfind Score —
+    // same call, same endpoint, one more field read off the same response.
     ok(/resolveScoutedPlace\(/.test(CF) && /\/api\/places\/search\?q=/.test(CF),
-      "CreatorFinds resolves each scouted spot through the cached search endpoint");
+      "CreatorFinds resolves each scouted spot's photo through the cached search endpoint");
+    // v7.07 (#690) — the resolver went from a photo lookup to a full hydrator:
+    // the SAME cached call now also returns the real types, rating and price
+    // the FIELD_MASK was already being billed for. Types are what lib/dining.js
+    // needs to name a cuisine, and without them a cuisine filter over scouted
+    // spots would have nothing behind it. A looked-up number is not an invented
+    // one — that is the whole distinction the registry/pool split turns on.
     ok(/types: Array\.isArray\(first\.types\)/.test(CF),
       "…and keeps the REAL Google types off that response — a hydrated rating or cuisine is looked up, never invented");
     // v7.02: the row renders the shared RailCard, so the <img> moved out of
@@ -396,10 +440,10 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
     // the resolved photo to the card, and the card renders a real <img> when
     // it has one and a placeholder tile only when it does not.
     const RC = readFileSync(path.join(REPO, "app/components/RailCard.js"), "utf8");
-    // v7.07 — the hydrated place, not a photo-only map. `h` is the resolved
-    // Google place or null, and the SAME null decides every optional field on
-    // the card: photo, score and facts. That is the honesty rule in one
-    // variable — a card shows what was resolved and omits what was not.
+    // v7.07 (#690) — the hydrated PLACE, not a photo-only map. `h` is the
+    // resolved Google place or null, and that SAME null decides every optional
+    // field on the card: photo, score and facts. That is the honesty rule in
+    // one variable — a card shows what was resolved and omits what was not.
     ok(/photo=\{\(h && h\.photo\) \|\| null\}/.test(CF),
       "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
     ok(/score=\{h && h\.rating \? cardScore\(/.test(CF),

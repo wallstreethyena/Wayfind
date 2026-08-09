@@ -106,6 +106,15 @@ export default function RootLayout({ children }) {
             window.__wfEvPrime so home.js can VALUE-match before consuming; a
             mismatch is simply ignored. Fail-soft: any error leaves the app on
             its normal fetch path. radius 25 matches the client call exactly. */}
+        {/* THE COLLAPSED RAILS, APPLIED BEFORE PAINT (owner, 2026-08-09: "when I
+            went back or when I clicked the home page the menu was fully open
+            again"). "/" is ISR-cached, so the HTML every reader gets has all
+            nine sections open; without this the correct state only arrives
+            after hydration, which on a phone is long enough to see and to
+            disbelieve. Blocking on purpose — it must run before the first
+            paint, and it is ~200 bytes of attribute-setting with no network.
+            lib/railCollapse.js keeps the attribute in sync from then on. */}
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var r=localStorage.getItem('wf_rails_collapsed');if(!r)return;var v=JSON.parse(r);if(!Array.isArray(v))return;var out=[];for(var i=0;i<v.length;i++){var s=typeof v[i]==='string'?v[i].trim():'';if(s&&s.length<=40&&out.indexOf(s)===-1)out.push(s)}if(out.length)document.documentElement.setAttribute('data-wf-rails',out.join(' '))}catch(e){}})();" }} />
         <script dangerouslySetInnerHTML={{ __html: "(function(){try{var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
         {/* Sentry early-error buffer (<1KB, first-party inline — CSP script-src
             'self' 'unsafe-inline'). Captures errors that fire BEFORE the lazy

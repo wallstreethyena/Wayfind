@@ -89,9 +89,71 @@ for (const [label, props] of RAIL_CASES) {
   ok(!err, `RailCard renders with ${label} — threw: ${err && err.message}`);
 }
 
+// v7.05 — THE FOUR INTENT RAILS. IntentRailBody is the newest member of the
+// menu and the one with the most ways to throw at render time: it reads an
+// INTENT_PAGES entry, an IntersectionObserver, a module-level pool and six
+// optional callbacks, and it is server-rendered before any of the browser APIs
+// exist. Rendering it in plain node is the only check that proves the SSR path
+// is clean — the exact gap that let the #684 ReferenceError reach production.
+const IntentRailBody = (await load("app/components/IntentRail.js")).default;
+const INTENT_CASES = [
+  ["hidden-gems with a centre and every callback", {
+    intent: "hidden-gems", href: "/hidden-gems", label: "Hidden gems", unit: "hidden gems",
+    active: true, center: CENTER, weather: WEATHER, city: "Parrish, FL",
+    onOpenPlace: () => {}, onLog: () => {}, onExperience: () => {},
+    isSaved: () => false, liked: {}, disliked: {}, onSave: () => {}, onLike: () => {}, onDislike: () => {}, onShare: () => {},
+  }],
+  ["tonight, collapsed and with no centre yet", { intent: "tonight", href: "/tonight", unit: "picks for tonight", active: false, center: null, weather: null }],
+  ["worth-the-drive with no callbacks wired at all", { intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips", active: true, center: CENTER }],
+  ["budget", { intent: "budget", href: "/budget", unit: "low-cost picks", active: true, center: CENTER, weather: WEATHER }],
+  ["an intent that does not exist (must render nothing, not throw)", { intent: "no-such-intent", active: true, center: CENTER }],
+];
+for (const [label, props] of INTENT_CASES) {
+  let err = null;
+  try { renderToStaticMarkup(createElement(IntentRailBody, props)); } catch (e) { err = e; }
+  ok(!err, `IntentRailBody renders with ${label} — threw: ${err && err.message}`);
+}
+
+// And the menu with a creator slot in it: the creator row is no longer a
+// sibling of BestNearby, it is a React element handed to it, so a change that
+// broke that hand-off would take the whole panel down rather than one row.
+{
+  let err = null;
+  try {
+    renderToStaticMarkup(createElement(BestNearby, {
+      center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
+      city: "Parrish, FL", creatorSlot: createElement("div", null, "creator row"),
+      onOpenPlace: () => {}, onLog: () => {},
+    }));
+  } catch (e) { err = e; }
+  ok(!err, `BestNearby renders with a creatorSlot element — threw: ${err && err.message}`);
+}
+
+// v7.06 — the events rail is section nine, handed in from home.js. Two shapes,
+// because the absent one is the one that ships most often: a location with no
+// events must render the menu WITHOUT an empty ninth row, and a location with
+// events must grow one.
+{
+  const withEvents = renderToStaticMarkup(createElement(BestNearby, {
+    center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
+    eventsSlot: createElement("div", { "data-smoke-events": "1" }, "events rail"),
+    onOpenPlace: () => {}, onLog: () => {},
+  }));
+  const without = renderToStaticMarkup(createElement(BestNearby, {
+    center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
+    eventsSlot: null, onOpenPlace: () => {}, onLog: () => {},
+  }));
+  ok(withEvents.includes("Happening near you"),
+    "an eventsSlot adds the ninth section to the menu");
+  ok(withEvents.includes('data-smoke-events="1"'),
+    "…and the section actually renders the rail it was handed, rather than an empty body");
+  ok(!without.includes("Happening near you"),
+    "no events near the reader means NO ninth row — an accordion row that opens onto nothing costs a tap to learn nothing");
+}
+
 if (fail.length) {
   console.error("test-home-rails-render-smoke: FAIL");
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby and RailCard were CALLED across ${CASES.length + RAIL_CASES.length} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);
+console.log(`test-home-rails-render-smoke: OK — ${pass} assertions; BestNearby, RailCard and IntentRailBody were CALLED across ${CASES.length + RAIL_CASES.length + INTENT_CASES.length + 1} prop shapes, which is the only check that separates "the source reads right" from "the component runs"`);

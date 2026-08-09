@@ -1,0 +1,4 @@
+Topic ID,Topic,Category,Status,Volume,12 Month Growth,Date
+syn-0001,"=cmd|'/c calc'!A1",Food & Drink,Exploding,12100,+190%,2026-08-04
+syn-0002,"@SUM(1+9)*cmd",Sports,Rising,74000,+82%,2026-08-04
+syn-0003,Korean coffee,Food & Drink,Exploding,12100,+190%,2026-08-04

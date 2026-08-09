@@ -130,7 +130,7 @@ async function resolveScoutedPlace(name, city, center) {
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory };
 
-export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience }) {
+export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
   // v7.07 — ONE INVENTORY. Registry spots used to be a FALLBACK: scoutedSpots()
   // returned [] unless the pool was completely empty, so a reader with three
   // pool finds saw three cards while the registry held twenty more within the
@@ -178,8 +178,16 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
   // the finds are actually in, rather than calling another city's spots yours.
   const heading = poolCount || registryRows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
   return (
-    <section aria-label="Finds from local creators" style={{ marginBottom: 12 }}>
-      <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>
+    <section aria-label="Finds from local creators" style={{ marginBottom: bare ? 0 : 12 }}>
+      {/* v7.05, kept through the v7.07 merge: inside the menu (`bare`) the
+          accordion row above already reads "Finds from local creators", so
+          repeating it here would be a second heading for one row. The heading
+          still renders in that mode when it is NOT that sentence — a bridged
+          row is showing another city's creators, and letting the accordion's
+          label stand alone would call them local, which they are not. */}
+      {bare && heading === "Finds from local creators"
+        ? null
+        : <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 8 }}>{heading}</div>}
       {/* v7.02 (owner, 2026-08-08): "in reality the finds from local creators
           should also match that style" — the 132x96 tile is gone and these are
           the /best-of place card at rail width, rendered through the SAME
