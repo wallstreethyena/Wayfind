@@ -88,6 +88,31 @@ function creatorChips(p, onExperience) {
 const _scoutedPhotoCache = new Map();
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
 
+// /api/places/search can answer from two lawful caches: the normalized owned
+// inventory shape or Google's raw Places shape. Both carry the same real data,
+// but the old adapter read only the former. That is how a registry card could
+// have a photo yet drop its rating and therefore its Wayfind Score.
+export function creatorSearchPlace(first, fallbackName = "") {
+  if (!first) return null;
+  const name = first.name || (first.displayName && first.displayName.text) || fallbackName;
+  const ref = first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name) || null;
+  const signals = first.signals || {};
+  const loc = first.location || {};
+  return {
+    id: first.id || first.place_id || null,
+    name,
+    photo: ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "",
+    types: Array.isArray(first.types) ? first.types : (Array.isArray(first.google_types) ? first.google_types : []),
+    rating: signals.rating != null && Number.isFinite(Number(signals.rating)) ? Number(signals.rating) : (first.rating != null && Number.isFinite(Number(first.rating)) ? Number(first.rating) : null),
+    reviews: signals.reviews != null && Number.isFinite(Number(signals.reviews)) ? Number(signals.reviews) : (first.userRatingCount != null && Number.isFinite(Number(first.userRatingCount)) ? Number(first.userRatingCount) : Number(first.reviews) || 0),
+    priceLevel: first.price_level != null ? first.price_level : (first.priceLevel != null ? first.priceLevel : null),
+    oh: first.oh || first.regularOpeningHours || null,
+    utcOffset: first.utcOffset != null ? first.utcOffset : (first.utcOffsetMinutes != null ? first.utcOffsetMinutes : null),
+    lat: first.lat != null ? first.lat : loc.latitude,
+    lng: first.lng != null ? first.lng : loc.longitude,
+  };
+}
+
 // Resolve ONE scouted spot's venue photo by name near the viewer, through the
 // SAME cached /api/places/search the pool uses (which now returns photo_ref),
 // then the guarded /api/photo proxy. Returns "" (not null) on any miss so the
@@ -102,23 +127,11 @@ async function resolveScoutedPlace(name, city, center) {
     const j = await r.json();
     const first = j && Array.isArray(j.places) ? j.places[0] : null;
     if (!first) { _scoutedPhotoCache.set(key, null); return null; }
-    const ref = first.photo_ref || (Array.isArray(first.photos) && first.photos[0] && first.photos[0].name) || null;
     // THE HYDRATED SHAPE. Everything here was LOOKED UP against the real Google
     // place, so a rating or a type on this row is measured, not invented — the
     // distinction the whole registry/pool split turns on. A spot that does not
     // resolve stays null and renders with no score and no facts.
-    const out = {
-      id: first.id || null,
-      name: first.name || name,
-      photo: ref && REF_RX.test(ref) ? "/api/photo?ref=" + encodeURIComponent(ref) + "&w=280" : "",
-      types: Array.isArray(first.types) ? first.types : [],
-      rating: (first.signals && first.signals.rating) || null,
-      reviews: (first.signals && first.signals.reviews) || 0,
-      priceLevel: first.price_level != null ? first.price_level : null,
-      oh: first.oh || null,
-      utcOffset: first.utcOffset != null ? first.utcOffset : null,
-      lat: first.lat, lng: first.lng,
-    };
+    const out = creatorSearchPlace(first, name);
     _scoutedPhotoCache.set(key, out);
     return out;
   } catch (e) {
@@ -130,7 +143,7 @@ async function resolveScoutedPlace(name, city, center) {
 // lib/creatorFinds.js so a guard can EXECUTE it instead of grepping for it.
 export { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory };
 
-export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
+export default function CreatorFinds({ items, byCity, center, excludePlaceIds, onVisibleIds, onOpenPlace, onBrowse, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, bare }) {
   // v7.07 — ONE INVENTORY. Registry spots used to be a FALLBACK: scoutedSpots()
   // returned [] unless the pool was completely empty, so a reader with three
   // pool finds saw three cards while the registry held twenty more within the
@@ -170,10 +183,27 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registryRows.map((r) => r.key).join(","), center && center.lat, center && center.lng]);
 
+  const excluded = new Set((excludePlaceIds || []).map(String));
+  const creatorEntryId = (entry) => {
+    if (!entry) return "";
+    if (entry.kind === "pool") return String(entry.row && entry.row.p && entry.row.p.id || "");
+    const h = hydrated[entry.key];
+    return String(h && h.id || ("creator:" + entry.key));
+  };
+  const visibleInventory = inventory.filter((entry) => {
+    const id = creatorEntryId(entry);
+    return id && !excluded.has(id);
+  });
+  const visibleIdKey = visibleInventory.map(creatorEntryId).join("|");
+  useEffect(() => {
+    if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleIdKey]);
+
   // Nothing local, no registry spots, AND nowhere to point them. Render NOTHING
   // rather than an empty shelf — an empty "your differentiator" row advertises
   // the absence.
-  if (!inventory.length && !bridge) return null;
+  if (!visibleInventory.length && !bridge) return null;
   // "Local" is a claim. With no local find at all, the heading names the place
   // the finds are actually in, rather than calling another city's spots yours.
   const heading = poolCount || registryRows.length ? "Finds from local creators" : `Creators in ${bridge.city}`;
@@ -198,9 +228,9 @@ export default function CreatorFinds({ items, byCity, center, onOpenPlace, onBro
           orderFinds()'s own ordering, which is a genuine ranking (nearest
           band, then the places the creator boost actually moved, then score),
           so a number on this card means something. */}
-      <RailNav railId="creator-finds" count={inventory.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
+      <RailNav railId="creator-finds" count={visibleInventory.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
       <div className="wf-rail" data-rail="creator-finds" tabIndex={0} role="region" aria-label="Finds from local creators">
-        {inventory.map((entry, i) => {
+        {visibleInventory.map((entry, i) => {
           // POOL ROW — a place Google already loaded near the reader. It has a
           // measured distance and a governed score, so the card carries a rank
           // and a score badge that both mean something.

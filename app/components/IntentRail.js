@@ -46,12 +46,14 @@ import { businessStatus } from "../../lib/businessStatus";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { couponForPlaceName } from "../../lib/coupons";
+import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
 
 // Measured against the Top 40 rail, which renders the identical card with the
 // identical chip and action rows. One constant so the skeleton and the live
 // rail reserve the same box and the swap cannot shift the page.
 export const INTENT_RAIL_CARD_H = 224;
 const RAIL_MAX = 12;
+const RAIL_CANDIDATE_MAX = 24;
 // TWO queries on the first pass, not three. Measured on a cold Orlando: four
 // rails x three queries x a second sweep is twenty-four paid Places searches
 // for one scroll, and the rails sat on their skeletons long enough to read as
@@ -106,6 +108,7 @@ const rowStatus = (r) => businessStatus({ ...r, oh: r.oh || r.regularOpeningHour
 
 export default function IntentRailBody({
   intent, href, label, unit, active, center, weather, city,
+  excludePlaceIds, onVisibleIds,
   onOpenPlace, onLog, onExperience,
   isSaved, liked, disliked, onSave, onLike, onDislike, onShare,
 }) {
@@ -206,7 +209,7 @@ export default function IntentRailBody({
             // may mix but may not be one category in disguise.
             compose: def.compose || null,
             planAhead: !!def.planAhead,
-          }).filter((r) => Number.isFinite(r.distMi) && r.distMi <= capMi).slice(0, RAIL_MAX);
+          }).filter((r) => Number.isFinite(r.distMi) && r.distMi <= capMi).slice(0, RAIL_CANDIDATE_MAX);
         };
         // THE LADDER. Cheapest thing that can answer, first; each rung only
         // runs when the one before it returned NOTHING (the owner's rule:
@@ -308,9 +311,13 @@ export default function IntentRailBody({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, rows === null, load, center && center.lat, center && center.lng]);
 
+  const list = uniqueRecommendations(Array.isArray(rows) ? rows : [], excludePlaceIds, RAIL_MAX);
+  const visibleIdKey = recommendationIds(list).join("|");
+  useEffect(() => {
+    if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleIdKey]);
   if (!def) return null;
-
-  const list = Array.isArray(rows) ? rows : [];
   const thin = Array.isArray(rows) && list.length < MIN_ROWS;
   const hasPartner = list.some((r) => placePartnerPick(r));
 

@@ -7,6 +7,7 @@ import { EXPLODING_NEARBY_UNIVERSE, EXPLODING_NEARBY_KEYS, CONCEPTS } from "../l
 import { governedTrendPlace, hasSpecificTrendEvidence, matchAvailabilityAllows, selectExplodingNearby } from "../lib/explodingNearby.js";
 import { matchConcept, MATCH_CODES } from "../lib/trendMatch.js";
 import { TREND_EVENTS, SUCCESS_METRICS } from "../lib/trendTelemetry.js";
+import { recommendationIds, uniqueRecommendations } from "../lib/recommendationDedupe.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-exploding-nearby: FAIL — " + m); process.exit(1); };
@@ -81,6 +82,22 @@ ok(JSON.stringify(selected.map((g) => g.conceptKey)) === JSON.stringify(["smash_
 ok(selected[0].matches[0].name === "Better Smash", "inside a trend, the higher governed Wayfind Score leads");
 ok(!Object.prototype.hasOwnProperty.call(selected[0], "trendStrength"), "raw strength is used server-side and never returned to the card");
 
+const sharedMatches = matches.concat({
+  place_id: "smash-a", topic_key: "t-cold", concept_key: "cold_plunge_sauna", semantic_confidence: 0.99,
+  match_evidence: [{ kind: "officialSource" }], public_explanation: "Verified offering", manual_state: "allow",
+});
+const uniqueSelected = selectExplodingNearby({ topics, matches: sharedMatches, inventory, center });
+const shownIds = uniqueSelected.flatMap((g) => g.matches.map((p) => p.id));
+ok(shownIds.length === new Set(shownIds).size,
+  "one venue is claimed by its strongest Exploding trend and never repeats under a second trend");
+
+const firstMenu = uniqueRecommendations([{ id: "a" }, { id: "b" }, { id: "b" }], [], 10);
+const secondMenu = uniqueRecommendations([{ id: "b" }, { id: "c" }, { id: "d" }], recommendationIds(firstMenu), 10);
+ok(JSON.stringify(recommendationIds(firstMenu)) === JSON.stringify(["a", "b"]),
+  "a menu removes its own duplicate venue without changing rank order");
+ok(JSON.stringify(recommendationIds(secondMenu)) === JSON.stringify(["c", "d"]),
+  "a later menu backfills past venues already claimed by an earlier menu");
+
 const scoreAtLowMomentum = governedTrendPlace(inventory[0], center).governedScore;
 const scoreAtHighMomentum = governedTrendPlace({ ...inventory[0], trend_strength: 1, strength: 1 }, center).governedScore;
 ok(scoreAtLowMomentum === scoreAtHighMomentum, "topic momentum cannot change a place's displayed governed score");
@@ -107,7 +124,13 @@ ok(ui.includes("Trend momentum selects experiences. Wayfind Score ranks places. 
 
 const home = read("app/components/BestNearby.js");
 ok(home.indexOf("<ExplodingNearby") < home.indexOf('data-rail="top40"'), "Exploding Near You is the first answer in the existing discovery accordion");
-for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should We Do Today?", "Places You'd Never Find", "Locals Know", "Tonight's Move", "Worth the Drive"]) {
+ok(/icon: "fire", line: true/.test(home) && /fire: <path/.test(read("app/components/kit.js")),
+  "the Exploding header tile renders a real fire glyph instead of an empty square");
+ok(/uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(home) &&
+  /uniqueRecommendations\(rows\.eat, eatClaimedBefore, 10\)/.test(home) &&
+  /excludePlaceIds=\{excludeBySection\[sdef\.id\] \|\| \[\]\}/.test(home),
+  "the homepage wires Exploding → Best → later menus as one ordered venue-claim chain");
+for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should We Do Today?", "Places You'd Never Find", "Locals Know", "Events Near You", "Tonight's Move", "Worth the Drive"]) {
   ok(home.includes(copy), `the renamed hierarchy includes ${copy}`);
 }
 const collapse = read("lib/railCollapse.js");

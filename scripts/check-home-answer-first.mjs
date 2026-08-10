@@ -272,16 +272,17 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["What Should We Do Today?", "Great plans for right now."],
     ["Places You'd Never Find", "Hidden gems worth knowing about."],
     ["Locals Know", "Places recommended by creators who actually know the area."],
+    ["Events Near You", "Concerts, shows and things happening nearby."],
     ["Tonight's Move", "The places and experiences that make sense tonight."],
     ["Worth the Drive", "Good enough to go out of your way for."],
   ];
   const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
   ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
-     `the six optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
+     `the seven optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
   const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
   let collapsedDefaults = [];
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
-  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
      "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
   const layout = readFileSync(path.join(REPO, "app/layout.js"), "utf8");
   const prepaintDecl = layout.match(/var v=r\?JSON\.parse\(r\):(\[[^;]+\]);/);
@@ -354,8 +355,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   }
   ok(/onBudget=\{\(\) =>[\s\S]{0,220}goIntent\("\/budget"\)/.test(HOME),
      "Big fun, small budget remains reachable through the existing discovery menu after leaving the primary accordion");
-  ok(/const eventsRailSlot\s*=/.test(HOME) && /setScreen\("events"\)/.test(HOME),
-     "event discovery remains wired through the existing home architecture after leaving the primary accordion");
+  ok(/const eventsRailSlot\s*=/.test(HOME) && /setScreen\("events"\)/.test(HOME) && /id: "events"[\s\S]{0,180}slot: "events"/.test(BN),
+     "event discovery is restored as a primary accordion row and keeps its existing all-events destination");
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
 }
@@ -447,7 +448,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // The invariant is unchanged and is what is asserted; it is strictly STRONGER
   // now, because `inventory` covers pool and registry rows together where the
   // old condition needed two separate terms to say the same thing.
-  ok(/if \(!inventory\.length && !bridge\) return null;/.test(CF),
+  ok(/if \(!visibleInventory\.length && !bridge\) return null;/.test(CF),
      "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
   ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
      "the row builds ONE inventory from the pool and the registry together, rather than treating the registry as an empty-pool fallback");
@@ -469,8 +470,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // needs to name a cuisine, and without them a cuisine filter over scouted
     // spots would have nothing behind it. A looked-up number is not an invented
     // one — that is the whole distinction the registry/pool split turns on.
-    ok(/types: Array\.isArray\(first\.types\)/.test(CF),
-      "…and keeps the REAL Google types off that response — a hydrated rating or cuisine is looked up, never invented");
+    ok(/types: Array\.isArray\(first\.types\)/.test(CF) && /first\.userRatingCount/.test(CF) && /signals\.rating/.test(CF),
+      "…and normalizes both cached-inventory and raw-Google response shapes, keeping the real types, rating and review count behind the Wayfind Score");
     // v7.02: the row renders the shared RailCard, so the <img> moved out of
     // this file. FOLLOW THE CODE — assert both halves of the invariant across
     // the two files rather than deleting the protection: CreatorFinds hands

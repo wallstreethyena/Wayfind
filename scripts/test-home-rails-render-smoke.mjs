@@ -35,6 +35,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { loadComponent } from "./lib/jsxLoad.mjs";
+import { selectPlacePhotoRef } from "../lib/placePhoto.js";
 
 const REPO = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const load = (rel) => loadComponent(fileURLToPath(new URL("../" + rel, import.meta.url)), REPO);
@@ -45,6 +46,18 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 const CENTER = { lat: 27.5864, lng: -82.4257 };
 const WEATHER = { temp: 88, label: "Clear", sunset: null };
+
+// Missing-card imagery may hydrate only from the same Google place. Exact IDs
+// win; a name-only result from another city is refused even if it has a photo.
+{
+  const target = { place_id: "ChIJ-target", name: "P J's Sandwich Shop", lat: 27.5, lng: -82.5 };
+  const exact = { id: "ChIJ-target", displayName: { text: "PJ Sandwich" }, location: { latitude: 28.1, longitude: -81.3 }, photos: [{ name: "places/ChIJ-target/photos/exact" }] };
+  const wrongCity = { id: "ChIJ-other", displayName: { text: "P J's Sandwich Shop" }, location: { latitude: 40.7, longitude: -74.0 }, photos: [{ name: "places/ChIJ-other/photos/wrong" }] };
+  ok(selectPlacePhotoRef([wrongCity, exact], target) === "places/ChIJ-target/photos/exact",
+    "missing imagery hydrates from the exact Google Place ID");
+  ok(selectPlacePhotoRef([wrongCity], target) === null,
+    "an exact-name venue in the wrong city cannot donate its photo");
+}
 
 // Every prop shape the home page really passes, including the empty and the
 // absent ones — a rail that only survives the happy path is a rail that breaks
@@ -130,10 +143,9 @@ for (const [label, props] of INTENT_CASES) {
   ok(!err, `BestNearby renders with a creatorSlot element — threw: ${err && err.message}`);
 }
 
-// v7.10 — Exploding Near You is the only expanded answer. Events still exist
-// in home.js, but no longer become a duplicate ninth accordion section. Passing
-// the legacy prop must therefore be harmless and must not smuggle the old row
-// back into the new hierarchy.
+// Events are a first-class accordion answer again. The slot is built once in
+// home.js and rendered once by BestNearby, so restoring it cannot duplicate the
+// event rail elsewhere in the menu.
 {
   const withEvents = renderToStaticMarkup(createElement(BestNearby, {
     center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
@@ -144,13 +156,13 @@ for (const [label, props] of INTENT_CASES) {
     center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
     eventsSlot: null, onOpenPlace: () => {}, onLog: () => {},
   }));
-  ok(!withEvents.includes("Events near you") && !without.includes("Events near you"),
-    "Events near you is not duplicated inside the primary discovery accordion");
-  ok(!withEvents.includes('data-smoke-events="1"'),
-    "the legacy eventsSlot prop cannot smuggle a ninth row back into the exact experiment hierarchy");
+  ok(withEvents.includes("Events Near You") && without.includes("Events Near You"),
+    "the Events Near You accordion row is present with or without loaded event data");
+  ok((withEvents.match(/data-smoke-events="1"/g) || []).length === 1,
+    "the provided events rail renders exactly once inside its accordion row");
   const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
   ok(/const eventsRailSlot\s*=/.test(home) && /setScreen\("events"\)/.test(home),
-    "event discovery remains available through home.js even though it is no longer a primary accordion row");
+    "event discovery remains connected through home.js and its full Events screen");
 }
 
 if (fail.length) {

@@ -16,7 +16,7 @@
 // treatment the owner asked for). Lazy per-section fetches, one open at a
 // time, reserved-height loading, honest empty states.
 // scripts/test-todays-best.mjs locks the contract.
-import { useState, useRef, useEffect } from "react";
+import { cloneElement, isValidElement, useCallback, useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
@@ -45,6 +45,8 @@ import { gateOutdoor } from "../../lib/ranking.js";
 // v7.06 — ONE editorial-line implementation, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook.js";
 import useEditorialHooks from "./useEditorialHooks";
+import useMissingPlacePhotos from "./useMissingPlacePhotos";
+import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
 
 // Owner: "a little lighter, almost black" — one step off the page's #040810.
 const CARD_BG = "#0B0E15";
@@ -191,8 +193,8 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // Fixing the input is the honest fix; fixing the sort would have been a lie
 // about the score.
 const TOP40_CATEGORIES = ["food", "attractions", "nightlife"];
-const TOP40_PER_CATEGORY = 18; // 3 x 18 = 54 raw, before dedupe/vetting, to land 40
-const TOP40_MAX = 40;
+const TOP40_PER_CATEGORY = 10; // broad enough to fill ten after category overlap and vetting
+const TOP40_MAX = 10;
 // ERRANDS ARE NOT THINGS TO DO (owner, 2026-08-09, from the live rail:
 // "Detwiler's showing up in the top 40 is a joke"). Detwiler's Farm Market is a
 // GROCERY STORE and it ranked #5 at 9.6 — correctly, by score: 4.7 stars and
@@ -262,7 +264,7 @@ function prettyType(t) {
 }
 
 // ONE ACCORDION ROW. The header, the icon tile, the orange left rail, the wash
-// and the collapse are defined once, here — the Top 40 row and the seven mapped
+// and the collapse are defined once, here — the Best row and the mapped
 // sections under it are the same object, so the menu cannot grow a second
 // header treatment the way the feed grew four.
 //
@@ -307,7 +309,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it.", icon: "map", line: true, heading: true, maxHeight: 6000 };
+const EXPLODING_SECTION = { id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it.", icon: "fire", line: true, heading: true, maxHeight: 6000 };
 const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
@@ -324,7 +326,7 @@ export const DEFAULT_SECTION = "exploding";
 // menu we have and just reorganizing and adding the horizontal rails to them."
 //
 // So this panel stops being "the ranked list plus a Top 40 rail" and becomes
-// THE MENU: eight sections, one accordion, each one a rail of the same place
+// THE MENU: one accordion, each section using the same card language
 // card. The alternative — eight separate panels down the feed — was built
 // first and thrown away: it re-created the problem this component exists to
 // solve, which is that a reader was meeting eight different headings for eight
@@ -387,6 +389,18 @@ export default function BestNearby({
   // the link under it goes to the page that widens the search.
   const [rows, setRows] = useState({});
   const fetchedFor = useRef("");
+  // A venue belongs to the first menu whose ranked answer contains it. Later
+  // menus preserve their own order but skip those ids, so the accordion answers
+  // different questions instead of repeating the same shortlist under new copy.
+  const [visibleIds, setVisibleIds] = useState({});
+  const reportVisibleIds = useCallback((section, ids) => {
+    const clean = [...new Set((ids || []).map(String).filter(Boolean))];
+    setVisibleIds((prev) => {
+      const before = (prev[section] || []).join("|");
+      if (before === clean.join("|")) return prev;
+      return { ...prev, [section]: clean };
+    });
+  }, []);
   // One node per section, so the observer below can load a section's data the
   // moment it is both OPEN and near the viewport — see the effect further down.
   const secRefs = useRef({});
@@ -492,12 +506,36 @@ export default function BestNearby({
       // trending) and orders by it, so the rail is "shown == sorted" like
       // every other ranked surface — the badge on each card is the number
       // that put it in that position.
-      const ranked = byVisibleScore(pool).slice(0, TOP40_MAX);
+      const ranked = byVisibleScore(pool);
       setTop40(gateOutdoor(ranked, nowCtx()));
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [closed, center && center.lat, center && center.lng]);
+
+  const claimed = (...groups) => [...new Set(groups.flat().filter(Boolean))];
+  const explodingClaimed = visibleIds.exploding || [];
+  const top10 = uniqueRecommendations(top40, explodingClaimed, TOP40_MAX);
+  const eatClaimedBefore = claimed(explodingClaimed, recommendationIds(top10));
+  const eatUnique = uniqueRecommendations(rows.eat, eatClaimedBefore, 10);
+  const todoClaimedBefore = claimed(eatClaimedBefore, recommendationIds(eatUnique));
+  const todoUnique = uniqueRecommendations(rows.todo, todoClaimedBefore, 10);
+  const gemsClaimedBefore = claimed(todoClaimedBefore, recommendationIds(todoUnique));
+  const creatorsClaimedBefore = claimed(gemsClaimedBefore, visibleIds.gems || []);
+  const tonightClaimedBefore = claimed(creatorsClaimedBefore, visibleIds.creators || []);
+  const driveClaimedBefore = claimed(tonightClaimedBefore, visibleIds.tonight || []);
+  const excludeBySection = {
+    gems: gemsClaimedBefore,
+    creators: creatorsClaimedBefore,
+    tonight: tonightClaimedBefore,
+    drive: driveClaimedBefore,
+  };
+  const photoRefFor = useMissingPlacePhotos([
+    ...(sectionOpen("best") ? top10 : []),
+    ...(sectionOpen("eat") ? eatUnique : []),
+    ...(sectionOpen("todo") ? todoUnique.filter((r) => r && r.kind !== "experience") : []),
+  ], center, true);
+  const cardPhoto = (place, width) => tbPhotoUrl(photoRefFor(place), width);
 
   // THE EDITORIAL LAW, applied to EVERY place on this card (owner, 2026-08-09:
   // "the editorial needs to answer one question — why should I choose this
@@ -522,9 +560,9 @@ export default function BestNearby({
   // and it keeps its supplier subtitle.
   const hooks = useEditorialHooks(
     [
-      ...(Array.isArray(rows.eat) ? rows.eat : []),
-      ...(Array.isArray(rows.todo) ? rows.todo.filter((r) => r && r.kind !== "experience") : []),
-      ...(Array.isArray(top40) ? top40 : []),
+      ...eatUnique,
+      ...todoUnique.filter((r) => r && r.kind !== "experience"),
+      ...top10,
     ].map((p) => ({
       id: p.place_id || p.id,
       name: p.name || p.title || "",
@@ -669,7 +707,7 @@ export default function BestNearby({
   // evidence for the licensed Exploding Near You experience.
   const SHOW_TRENDS = false;
 
-  // THE MENU (owner, 2026-08-10). Order is the experiment hierarchy. Three
+  // THE MENU (owner, 2026-08-10). Order is the experiment hierarchy. Four
   // kinds of section, one shell:
   //   · rail   — the Top 40, rendered from wf_best_picks (id "best")
   //   · rows   — the two ranked lists that were already here (eat, todo)
@@ -688,6 +726,7 @@ export default function BestNearby({
     { id: "todo", label: "What Should We Do Today?", sub: "Great plans for right now.", icon: "attractions" },
     { id: "gems", label: "Places You'd Never Find", sub: "Hidden gems worth knowing about.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
     { id: "creators", label: "Locals Know", sub: "Places recommended by creators who actually know the area.", icon: "film", line: true, slot: "creators" },
+    { id: "events", label: "Events Near You", sub: "Concerts, shows and things happening nearby.", icon: "ticket", line: true, slot: "events" },
     { id: "tonight", label: "Tonight's Move", sub: "The places and experiences that make sense tonight.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
     { id: "drive", label: "Worth the Drive", sub: "Good enough to go out of your way for.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
   ];
@@ -759,6 +798,7 @@ export default function BestNearby({
         <ExplodingNearby
           center={center}
           active={sectionOpen("exploding")}
+          onVisibleIds={(ids) => reportVisibleIds("exploding", ids)}
           onOpenPlace={onOpenPlace}
           onLog={onLog}
           isSaved={isSaved}
@@ -792,7 +832,7 @@ export default function BestNearby({
             </div>
           );
         }
-        const list = Array.isArray(top40) ? top40 : [];
+        const list = top10;
         // Fewer than three is not a shortlist, it is a thin shelf — the same
         // coverage rule the creator row already applies. The accordion below
         // still answers the question, so rendering nothing here costs nothing.
@@ -852,7 +892,7 @@ export default function BestNearby({
                 return (
                   <RailCard
                     key={p.place_id || p.id || i}
-                    photo={tbPhotoUrl(p.photo_ref, 480)}
+                    photo={cardPhoto(p, 480)}
                     title={p.name}
                     eyebrow={prettyType(p.primary_type)}
                     rank={i + 1}
@@ -896,7 +936,7 @@ export default function BestNearby({
       {SECTIONS.map((sdef) => {
         const isOpen = sectionOpen(sdef.id);
         const data = rows[sdef.id];
-        const list = Array.isArray(data) ? data : [];
+        const list = sdef.id === "eat" ? eatUnique : sdef.id === "todo" ? todoUnique : (Array.isArray(data) ? data : []);
         return (
           <SectionShell key={sdef.id} sdef={sdef} isOpen={isOpen} onToggle={toggle} nodeRef={(el) => { secRefs.current[sdef.id] = el; }}>
               <>
@@ -904,6 +944,8 @@ export default function BestNearby({
                   <IntentRailBody
                     intent={sdef.intent} href={sdef.href} unit={sdef.unit} label={sdef.label}
                     active={isOpen} center={center} weather={weather} city={city}
+                    excludePlaceIds={excludeBySection[sdef.id] || []}
+                    onVisibleIds={(ids) => reportVisibleIds(sdef.id, ids)}
                     onOpenPlace={onOpenPlace} onLog={onLog} onExperience={onExperience}
                     isSaved={isSaved} liked={liked} disliked={disliked}
                     onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare}
@@ -911,7 +953,12 @@ export default function BestNearby({
                 ) : sdef.slot === "events" ? (
                   eventsSlot || null
                 ) : sdef.slot ? (
-                  creatorSlot || null
+                  isValidElement(creatorSlot) && typeof creatorSlot.type !== "string"
+                    ? cloneElement(creatorSlot, {
+                        excludePlaceIds: excludeBySection.creators,
+                        onVisibleIds: (ids) => reportVisibleIds("creators", ids),
+                      })
+                    : creatorSlot || null
                 ) : data === "loading" ? (
                   // Rail-shaped, and the SAME height the live rail reserves, so
                   // the swap cannot shift the eight sections below it.
@@ -952,7 +999,7 @@ export default function BestNearby({
                           const coupon = couponForPlaceName(p.name);
                           return (
                           <RailCard key={p.place_id} rank={i + 1}
-                            photo={tbPhotoUrl(p.photo_ref, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
+                            photo={cardPhoto(p, 480)} title={p.name} eyebrow={prettyType(p.primary_type)}
                             score={toDisplayScore(p.governed_score)}
                             take={toHookLine(hooks[p.place_id], p.name)}
                             badge={<>{p.trending ? <Flame reason={p.trend_reason} /> : null}<TrendReason r={p} /></>}
@@ -969,8 +1016,8 @@ export default function BestNearby({
                             saved={!!(isSaved && isSaved({ id: p.place_id }))}
                             liked={!!(liked && liked[p.place_id])}
                             disliked={!!(disliked && disliked[p.place_id])}
-                            onOpen={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) })}
-                            onSave={(e) => { if (onSave) onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: tbPhotoUrl(p.photo_ref, 640) }); }}
+                            onOpen={() => openPlace({ id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) })}
+                            onSave={(e) => { if (onSave) onSave(e, { id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }); }}
                             onLike={(e) => { if (onLike) onLike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
                             onDislike={(e) => { if (onDislike) onDislike(e, { id: p.place_id, name: p.name, rating: p.rating, reviews: p.reviews }); }}
                             onShare={() => { if (onShare) onShare({ id: p.place_id, name: p.name }); }}
@@ -994,7 +1041,7 @@ export default function BestNearby({
                           />
                         ) : (
                           <RailCard key={r.id} rank={i + 1}
-                            photo={tbPhotoUrl(r.photo_ref, 480)} title={r.title} eyebrow={prettyType(r.category)}
+                            photo={cardPhoto(r, 480)} title={r.title} eyebrow={prettyType(r.category)}
                             score={toDisplayScore(r.governed_score)}
                             take={toHookLine(hooks[r.id], r.title)}
                             badge={<>{r.trending ? <Flame reason={r.trend_reason} /> : null}<TrendReason r={r} /></>}
@@ -1006,8 +1053,8 @@ export default function BestNearby({
                             saved={!!(isSaved && isSaved({ id: r.id }))}
                             liked={!!(liked && liked[r.id])}
                             disliked={!!(disliked && disliked[r.id])}
-                            onOpen={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) })}
-                            onSave={(e) => { if (onSave) onSave(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: tbPhotoUrl(r.photo_ref, 640) }); }}
+                            onOpen={() => openPlace({ id: r.id, name: r.title, category: r.category, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) })}
+                            onSave={(e) => { if (onSave) onSave(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }); }}
                             onLike={(e) => { if (onLike) onLike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
                             onDislike={(e) => { if (onDislike) onDislike(e, { id: r.id, name: r.title, rating: r.rating, reviews: r.reviews }); }}
                             onShare={() => { if (onShare) onShare({ id: r.id, name: r.title }); }}
