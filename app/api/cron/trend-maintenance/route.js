@@ -32,7 +32,7 @@
 
 import { recordPulse } from "../../../../lib/jobPulse";
 import { sbEnv } from "../../../../lib/serverCache";
-import { rightsMode, importCadence, snapshotFreshness, mayRunDiscovery, TrendConfigError } from "../../../../lib/trendRights";
+import { importCadence, snapshotFreshness, TrendConfigError } from "../../../../lib/trendRights";
 import { TREND_EVENTS } from "../../../../lib/trendTelemetry";
 
 export const runtime = "nodejs";
@@ -72,34 +72,9 @@ export async function GET(req) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // ── DORMANT vs MISCONFIGURED. These are different facts and they get opposite
-  //    treatment — this is AGENTS.md §5's own corollary ("a zero has two causes"),
-  //    applied to a whole feature rather than to one value.
-  //
-  // EXPLODING_TOPICS_RIGHTS_MODE entirely absent means nobody has ever turned
-  // this feature on. That is not a misconfiguration; it is the off position, and
-  // it is the CORRECT state until Semrush answers. Returning 503 for it would
-  // page a human every day at 09:50 UTC about a feature that is deliberately
-  // dormant — and an alert that fires daily for a non-problem is an alert
-  // everybody learns to ignore, which costs us the real one later.
-  //
-  // The §5 danger is a misconfiguration wearing the costume of a product state.
-  // There is no costume here: the job does nothing, and says it did nothing and
-  // why. What IS loud is the half-configured case below — a mode set with the
-  // cadence or the search budget missing means somebody started enabling this
-  // and stopped, and that genuinely cannot be told from working by its output.
-  if (!(process.env.EXPLODING_TOPICS_RIGHTS_MODE || "").trim()) {
-    await recordPulse(JOB, { attempted: 0, succeeded: 0, note: "dormant: EXPLODING_TOPICS_RIGHTS_MODE not set — feature never enabled" });
-    return Response.json({
-      ok: true, done: true, dormant: true, job: JOB,
-      note: "Exploding Topics is not enabled: EXPLODING_TOPICS_RIGHTS_MODE is unset. This is the correct state until the licence questions in docs/exploding-topics-rights.md are answered. Nothing was read, spent, or written.",
-    }, { headers: { "Cache-Control": "no-store" } });
-  }
-
-  // ── Half-configured IS a non-200. Somebody began enabling this and stopped.
-  let mode, cadence, maxSearches;
+  // ── Required operational config. Missing cadence or spend budget is loud.
+  let cadence, maxSearches;
   try {
-    mode = rightsMode();
     cadence = importCadence();
     maxSearches = searchesPerRun();
   } catch (e) {
@@ -118,7 +93,7 @@ export async function GET(req) {
   const svcH = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
   const out = {
-    ok: true, job: JOB, mode, cadence: cadence.cadence, maxSearches,
+    ok: true, job: JOB, cadence: cadence.cadence, maxSearches,
     snapshot: null, expired: 0, rematched: 0,
     discovery: { attempted: 0, completed: 0, failed: 0, actualCalls: 0, completion: null, partialReason: null },
     candidates: { accepted: 0, rejected: 0 },
@@ -212,26 +187,21 @@ export async function GET(req) {
   // ── 4. Discovery ──────────────────────────────────────────────────────────
   //
   // NOT IMPLEMENTED AS A LIVE SPENDER, DELIBERATELY. Draining this queue means
-  // calling the Places API, and every precondition for that is currently false:
-  // rights are unconfirmed, no snapshot exists, and no queue row has been
-  // approved by the owner. Shipping a live spender behind three false
+  // calling the Places API, and the implementation preconditions are currently
+  // false: quota reservation is not wired and no queue row has been approved by
+  // the owner. Shipping a live spender behind false
   // preconditions would mean the first time it ever executed would also be the
   // first time it was tested — against a metered API, unattended, on a schedule.
   //
   // So the reservation/settlement contract is stated here and the drain is
-  // reported as blocked with its reason. When rights land, this becomes:
+  // reported as blocked with its reason. When implemented, this becomes:
   //   reserve(lib/quotaLedger) → refuse loudly if short → search → settle ACTUAL
   //   calls on every path including the 429 → persist per-query yield →
   //   completion='partial' with partial_reason on any early stop.
-  if (!mayRunDiscovery(mode)) {
-    out.discovery.completion = null;
-    out.discovery.blockedReason = `rights mode "${mode}" does not permit discovery — no Google call attempted`;
-  } else {
-    out.discovery.completion = null;
-    out.discovery.blockedReason =
-      "discovery drain is not enabled: it spends metered quota and has never run. " +
-      "Enable only after quota reservation via lib/quotaLedger is wired and an owner has approved queue rows.";
-  }
+  out.discovery.completion = null;
+  out.discovery.blockedReason =
+    "discovery drain is not enabled: it spends metered quota and has never run. " +
+    "Enable only after quota reservation via lib/quotaLedger is wired and an owner has approved queue rows.";
 
   // ── 5. Editorial handoff ──────────────────────────────────────────────────
   //

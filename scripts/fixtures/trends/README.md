@@ -1,9 +1,9 @@
 # Synthetic trend fixtures
 
 **Every row in this directory is invented.** None of it came from Semrush, from
-Exploding Topics, or from any licensed export. These files exist so the importer,
-the taxonomy, the matcher and the ranking term can be tested and red-proved while
-`EXPLODING_TOPICS_RIGHTS_MODE` is `unconfirmed` and the real CSV is off-limits.
+Exploding Topics, or from any real export. These files exist so the importer,
+the taxonomy, the matcher and the ranking term can be tested and red-proved
+without depending on private source data.
 
 The numbers are chosen to exercise decision boundaries, not to resemble reality:
 

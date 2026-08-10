@@ -334,10 +334,10 @@ node scripts/check-editorial-everywhere.mjs
 node scripts/test-creator-finds-render-smoke.mjs
 
 # ── Exploding Topics trend intelligence ────────────────────────────────────
-# The licence gate first: every other guard below assumes it holds. See
-# docs/exploding-topics-rights.md. All five are hermetic (no network, no DB).
+# Cadence/freshness policy first. All six are hermetic (no network, no DB).
 node scripts/test-trend-rights.mjs
 node scripts/test-trend-ingest.mjs
 node scripts/test-trend-classify.mjs
+node scripts/test-exploding-nearby.mjs
 node scripts/test-trend-order.mjs
 node scripts/check-trend-integrity.mjs

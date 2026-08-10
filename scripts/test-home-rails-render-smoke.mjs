@@ -31,6 +31,7 @@
  */
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -129,10 +130,10 @@ for (const [label, props] of INTENT_CASES) {
   ok(!err, `BestNearby renders with a creatorSlot element — threw: ${err && err.message}`);
 }
 
-// v7.06 — the events rail is section nine, handed in from home.js. Two shapes,
-// because the absent one is the one that ships most often: a location with no
-// events must render the menu WITHOUT an empty ninth row, and a location with
-// events must grow one.
+// v7.10 — Exploding Near You is the only expanded answer. Events still exist
+// in home.js, but no longer become a duplicate ninth accordion section. Passing
+// the legacy prop must therefore be harmless and must not smuggle the old row
+// back into the new hierarchy.
 {
   const withEvents = renderToStaticMarkup(createElement(BestNearby, {
     center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
@@ -143,16 +144,13 @@ for (const [label, props] of INTENT_CASES) {
     center: CENTER, weather: WEATHER, events: [], videoPlaces: [],
     eventsSlot: null, onOpenPlace: () => {}, onLog: () => {},
   }));
-// v7.09 — RENAMED (owner, 2026-08-09): "on the last menu the Happening near
-// you should be named Events near you". The section shows concerts, games
-// and shows with dates and ticket links; "happening" described a vibe, the
-// new name describes the contents.
-  ok(withEvents.includes("Events near you"),
-    "an eventsSlot adds the ninth section to the menu");
-  ok(withEvents.includes('data-smoke-events="1"'),
-    "…and the section actually renders the rail it was handed, rather than an empty body");
-  ok(!without.includes("Events near you"),
-    "no events near the reader means NO ninth row — an accordion row that opens onto nothing costs a tap to learn nothing");
+  ok(!withEvents.includes("Events near you") && !without.includes("Events near you"),
+    "Events near you is not duplicated inside the primary discovery accordion");
+  ok(!withEvents.includes('data-smoke-events="1"'),
+    "the legacy eventsSlot prop cannot smuggle a ninth row back into the exact experiment hierarchy");
+  const home = readFileSync(path.join(REPO, "app/home.js"), "utf8");
+  ok(/const eventsRailSlot\s*=/.test(home) && /setScreen\("events"\)/.test(home),
+    "event discovery remains available through home.js even though it is no longer a primary accordion row");
 }
 
 if (fail.length) {
