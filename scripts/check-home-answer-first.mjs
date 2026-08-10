@@ -70,7 +70,7 @@ ok(
 );
 
 /* ── 3. opening by default must actually FETCH ──────────────────────────
-   Exploding owns its rights-gated request while the older rows still load
+   Exploding owns its supplied-list/local-inventory request while older rows load
    through ensureLoaded(). Both paths are pinned: an open answer whose request
    never starts is an empty box that merely looks broken. */
 ok(/const ensureLoaded\s*=\s*\(/.test(CODE), "the fetch is factored into ensureLoaded()");
@@ -84,8 +84,8 @@ ok(/<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(COD
   "the first section activates the Exploding Nearby loader when it is open");
 ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
   "the Exploding request waits for both an open section and a real location");
-ok(/fetch\(`\/api\/trends\/nearby\?lat=/.test(EXP),
-  "the default-open answer fetches its rights-gated nearby trend endpoint");
+ok(/loadProvidedTrendList\(\{ center, city, signal: ctrl\.signal \}\)/.test(EXP),
+  "the default-open answer resolves the supplied trend list against current local inventory");
 
 /* ── 4. both loading paths are the same path ────────────────────────────── */
 const toggleFn = CODE.slice(CODE.indexOf("const toggle = ("));
@@ -257,8 +257,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // ── the answer and exact hierarchy ──
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
      "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it\.",[^}]*heading: true,[^}]*maxHeight: 6000 \}/.test(BN),
-     "the first section carries the exact approved title, support line, heading semantics and three-card height budget");
+  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it\.", emoji: "🔥", heading: true, maxHeight: 6000 \}/.test(BN),
+     "the first section carries one fire emoji, the approved support line, heading semantics and three-card height budget");
   const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
   const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");

@@ -280,7 +280,9 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
     >
       <button onClick={() => onToggle(sdef.id)} aria-expanded={isOpen} aria-controls={"wf-sec-" + sdef.id} className="wf-bn-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", background: "transparent", border: "none", padding: "13px 2px 13px 10px", cursor: "pointer", WebkitTapHighlightColor: "transparent" }}>
         <span style={{ width: 29, height: 29, flexShrink: 0, display: "grid", placeItems: "center", borderRadius: 9, background: isOpen ? "rgba(249,115,22,.1)" : "rgba(255,255,255,.028)" }}>
-          {sdef.line
+          {sdef.emoji
+            ? <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>{sdef.emoji}</span>
+            : sdef.line
             ? <Icon name={sdef.icon} size={19} strokeWidth={1.9} color={isOpen ? C.light : "#E7EDF5"} />
             : <NavIcon name={sdef.icon} size={21} strokeWidth={1.7} color={isOpen ? C.light : "#E7EDF5"} />}
         </span>
@@ -309,7 +311,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it.", icon: "fire", line: true, heading: true, maxHeight: 6000 };
+const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it.", emoji: "🔥", heading: true, maxHeight: 6000 };
 const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
@@ -797,6 +799,7 @@ export default function BestNearby({
       <SectionShell sdef={EXPLODING_SECTION} isOpen={sectionOpen("exploding")} first onToggle={toggle} nodeRef={(el) => { secRefs.current.exploding = el; }}>
         <ExplodingNearby
           center={center}
+          city={city}
           active={sectionOpen("exploding")}
           onVisibleIds={(ids) => reportVisibleIds("exploding", ids)}
           onOpenPlace={onOpenPlace}

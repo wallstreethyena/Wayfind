@@ -8,6 +8,7 @@ import { governedTrendPlace, hasSpecificTrendEvidence, matchAvailabilityAllows, 
 import { matchConcept, MATCH_CODES } from "../lib/trendMatch.js";
 import { TREND_EVENTS, SUCCESS_METRICS } from "../lib/trendTelemetry.js";
 import { recommendationIds, uniqueRecommendations } from "../lib/recommendationDedupe.js";
+import { loadProvidedTrendList, placeFromGoogle, SCHEDULE_REQUIRED } from "../lib/explodingLaunchSearch.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-exploding-nearby: FAIL — " + m); process.exit(1); };
@@ -23,6 +24,8 @@ const EXPECTED = [
 ok(EXPLODING_NEARBY_UNIVERSE.length === 20, `the launch universe has exactly 20 trends, got ${EXPLODING_NEARBY_UNIVERSE.length}`);
 ok(JSON.stringify(EXPLODING_NEARBY_UNIVERSE.map((t) => t.label)) === JSON.stringify(EXPECTED), "the 20 labels and their supplied order are exact");
 ok(EXPLODING_NEARBY_KEYS.length === new Set(EXPLODING_NEARBY_KEYS).size, "every launch concept key is unique");
+ok(SCHEDULE_REQUIRED.has("soft_clubbing") && SCHEDULE_REQUIRED.has("puppy_yoga") && SCHEDULE_REQUIRED.has("candlelight_concerts"),
+  "event-shaped trends cannot be inferred from a place search without a dated occurrence");
 for (const key of EXPLODING_NEARBY_KEYS) {
   const c = CONCEPTS[key];
   ok(!!c, `${key} is a controlled concept, not a raw topic string`);
@@ -50,6 +53,33 @@ ok(!matchAvailabilityAllows({ match_evidence: [{ kind: "menu", unavailableUntil:
   "a verified offering that is temporarily unavailable is still excluded until it reopens");
 
 const center = { lat: 27.336, lng: -82.531 };
+const googlePlace = (id, name, types, lat = 27.337) => ({
+  id, displayName: { text: name }, location: { latitude: lat, longitude: -82.531 },
+  rating: 4.8, userRatingCount: 700, businessStatus: "OPERATIONAL", types,
+  photos: [{ name: `places/${id}/photos/one` }],
+});
+ok(placeFromGoogle(googlePlace("plain-cafe", "Main Street Coffee", ["cafe", "coffee_shop"]), "hojicha_lattes", center) == null,
+  "an exact Google query still cannot turn a generic cafe into a hojicha match");
+ok(placeFromGoogle(googlePlace("smash-live", "Smashburger", ["hamburger_restaurant", "restaurant"]), "smash_burgers", center)?.governedScore > 0,
+  "a correctly typed Google result whose own identity proves the offering receives the governed score");
+const searchCalls = [];
+const liveByQuery = [
+  [/smash burger/i, googlePlace("live-smash", "Smashburger", ["hamburger_restaurant", "restaurant"])],
+  [/cold plunge|sauna/i, googlePlace("live-sauna", "Perspire Sauna Studio", ["spa", "wellness_center"])],
+  [/social wellness/i, googlePlace("live-wellness", "Reset Social Wellness Club", ["wellness_center", "social_club"])],
+];
+const fakeFetch = async (url) => {
+  searchCalls.push(String(url));
+  const q = new URL(String(url), "https://wayfind.test").searchParams.get("q") || "";
+  const row = liveByQuery.find(([re]) => re.test(q));
+  return { ok: true, status: 200, json: async () => ({ places: row ? [row[1]] : [] }) };
+};
+const liveList = await loadProvidedTrendList({ center, city: "Sarasota", fetchImpl: fakeFetch });
+ok(liveList.status === "ok" && liveList.source === "provided-20-trend-list", "the launch feed reads the supplied list rather than a Semrush API");
+ok(JSON.stringify(liveList.trends.map((t) => t.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "social_wellness_clubs"]),
+  "the first three locally proven supplied concepts become the launch answers");
+ok(searchCalls.length === 4 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
+  "local inventory resolves through one bounded Google-search batch and never through a trend-provider API");
 const inv = (id, name, category, rating, reviews, lat, primaryType) => ({
   place_id: id, name, category, metro: "manatee-sarasota", lat, lng: -82.531,
   status: "OPERATIONAL", needs_review: false, primary_type: primaryType,
@@ -111,6 +141,8 @@ ok(!/canonical_topic/.test(route), "raw source topic names never leave the servi
 ok(read("middleware.js").includes('"/api/trends/nearby"'), "the service-role trend-data route is same-origin and rate-limit guarded");
 
 const ui = read("app/components/ExplodingNearby.js");
+ok(ui.includes("loadProvidedTrendList") && !ui.includes("/api/trends/nearby"),
+  "the homepage consumes the supplied 20-trend list and does not wait for a provider snapshot");
 for (const event of [
   "exploding_section_impression", "trend_impression", "trend_expand", "primary_trend_card_click",
   "trend_horizontal_scroll", "additional_trend_place_click", "place_detail_view", "trend_card_save",
@@ -124,8 +156,8 @@ ok(ui.includes("Trend momentum selects experiences. Wayfind Score ranks places. 
 
 const home = read("app/components/BestNearby.js");
 ok(home.indexOf("<ExplodingNearby") < home.indexOf('data-rail="top40"'), "Exploding Near You is the first answer in the existing discovery accordion");
-ok(/icon: "fire", line: true/.test(home) && /fire: <path/.test(read("app/components/kit.js")),
-  "the Exploding header tile renders a real fire glyph instead of an empty square");
+ok(/label: "Exploding Near You"[^}]*emoji: "🔥"/.test(home) && !/label: "🔥 Exploding Near You"/.test(home),
+  "the Exploding header tile renders one real fire emoji without duplicating it in the title");
 ok(/uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(home) &&
   /uniqueRecommendations\(rows\.eat, eatClaimedBefore, 10\)/.test(home) &&
   /excludePlaceIds=\{excludeBySection\[sdef\.id\] \|\| \[\]\}/.test(home),

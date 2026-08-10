@@ -7,6 +7,7 @@ import { tbPhotoUrl } from "../../lib/todaysBest.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { markExplodingInteraction, noteExplodingReturn } from "../../lib/explodingExperiment.js";
 import useMissingPlacePhotos from "./useMissingPlacePhotos";
+import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
 
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 const prettyType = (t) => {
@@ -34,6 +35,7 @@ function asPlace(p, photoRef) {
 
 function evidenceChip(p) {
   const kinds = new Set(p.evidenceKinds || []);
+  if (kinds.has("googleTextSearch")) return { key: "google-match", icon: "✓", label: "Matched via Google" };
   if (kinds.has("scheduledEvent")) return { key: "verified-event", icon: "✓", label: "Event verified" };
   if (kinds.has("menu") || kinds.has("product")) return { key: "verified-menu", icon: "✓", label: "Menu verified" };
   if (kinds.has("bookingPage")) return { key: "verified-booking", icon: "✓", label: "Bookable offering" };
@@ -145,7 +147,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
   );
 }
 
-export default function ExplodingNearby({ center, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -157,16 +159,11 @@ export default function ExplodingNearby({ center, active, onVisibleIds, onOpenPl
     if (!active || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
-    fetch(`/api/trends/nearby?lat=${center.lat.toFixed(5)}&lng=${center.lng.toFixed(5)}`, { cache: "no-store", signal: ctrl.signal })
-      .then(async (r) => {
-        const body = await r.json().catch(() => ({}));
-        if (!r.ok && !body.status) body.status = "trend_data_error";
-        return body;
-      })
+    loadProvidedTrendList({ center, city, signal: ctrl.signal })
       .then((body) => { if (!ctrl.signal.aborted) setResult({ status: body.status || "trend_data_error", trends: Array.isArray(body.trends) ? body.trends : [], error: body.error || null }); })
       .catch(() => { if (!ctrl.signal.aborted) setResult({ status: "trend_data_error", trends: [], error: "Trend recommendations are temporarily unavailable." }); });
     return () => ctrl.abort();
-  }, [active, retry, center && center.lat, center && center.lng]);
+  }, [active, retry, city, center && center.lat, center && center.lng]);
 
   const visibleIdKey = result.status === "ok"
     ? result.trends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
