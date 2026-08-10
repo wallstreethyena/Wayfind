@@ -21,6 +21,7 @@
 // Response is inspected — status, headers, parsed body. CLAUDE.md: assert on
 // the call, not the string.
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -98,7 +99,14 @@ ok(!aasaRewrite.permanent && aasaRewrite.statusCode === undefined, "it is a rewr
 // And no REDIRECT may claim the path. A redirect here is the classic silent
 // failure: the file is served, curl looks fine to a human following the 301,
 // and Apple sees a 301 and gives up.
-const redirects = typeof nextConfig.redirects === "function" ? await nextConfig.redirects() : [];
+// Vercel runs PR guards with VERCEL_ENV=preview, where canonical host redirects
+// are deliberately absent so the preview remains reviewable. Universal Links
+// are a PRODUCTION contract, so execute redirects() in an explicit production
+// child rather than inheriting the ambient build environment.
+const redirects = JSON.parse(execFileSync(process.execPath, [
+  "-e",
+  "const c=require('./next.config.js'); Promise.resolve(c.redirects()).then(x=>process.stdout.write(JSON.stringify(x)))",
+], { cwd: REPO, env: { VERCEL_ENV: "production" }, encoding: "utf8" }));
 for (const r of redirects) {
   const unconditional = !r.has && !r.missing;
   ok(!(unconditional && new RegExp("^" + String(r.source).replace(/:[^/]+\*?/g, ".*") + "$").test(AASA_PATH)),
