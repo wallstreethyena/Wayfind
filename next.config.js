@@ -184,6 +184,11 @@ const nextConfig = {
     ];
   },
   async redirects() {
+    // Pull-request previews must remain reachable so product changes can be
+    // reviewed before merge. They still publish canonical metadata pointing at
+    // gowayfind.com; only the navigation bounce is skipped. Production builds
+    // keep the stale *.vercel.app protection below.
+    if (process.env.VERCEL_ENV === "preview") return [];
     return [
       {
         source: "/:path((?!api/cron|api/hooks).*)",

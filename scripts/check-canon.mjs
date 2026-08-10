@@ -4,6 +4,8 @@
 // share metadata on the stale domain for months because only home.js and
 // layout.js were checked.
 import { readFileSync, readdirSync, statSync } from "fs";
+import { execFileSync } from "child_process";
+import { fileURLToPath } from "url";
 import { join } from "path";
 const page = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const cfg = readFileSync(new URL("../next.config.js", import.meta.url), "utf8");
@@ -36,7 +38,21 @@ if (page.includes("wayfind-xi.vercel.app")) fail("stale vercel.app domain litera
     fail("originUrl() is branching on the current host again. An allowlist of hosts to canonicalise is backwards — the recipient is never on the sender's host, so it must canonicalise ALWAYS.");
   }
 }
-if (!cfg.includes("vercel") || !cfg.includes('type: "host"') || !cfg.includes("https://www.gowayfind.com/:path") || !cfg.includes("permanent: true")) fail("host redirect for *.vercel.app missing from next.config.js");
+if (!cfg.includes("vercel") || !cfg.includes('type: "host"') || !cfg.includes("https://www.gowayfind.com/:path") || !cfg.includes("permanent: true")) fail("host redirect for production *.vercel.app URLs missing from next.config.js");
+// PR previews are the review surface. The old unconditional redirect sent the
+// preview URL to production, so reviewers literally could not see the PR. Call
+// the exported config under both explicit Vercel environments and assert the
+// achieved rule set, not just that an if-statement exists in the source.
+const repoRoot = fileURLToPath(new URL("..", import.meta.url));
+const readRedirects = (vercelEnv) => JSON.parse(execFileSync(process.execPath, [
+  "-e",
+  "const c=require('./next.config.js'); Promise.resolve(c.redirects()).then(x=>process.stdout.write(JSON.stringify(x)))",
+], { cwd: repoRoot, env: { VERCEL_ENV: vercelEnv }, encoding: "utf8" }));
+const previewRedirects = readRedirects("preview");
+const productionRedirects = readRedirects("production");
+const isVercelHostRedirect = (r) => Array.isArray(r && r.has) && r.has.some((h) => h && h.type === "host" && /vercel/.test(String(h.value)));
+if (previewRedirects.some(isVercelHostRedirect)) fail("PR previews still redirect away from their own deployment");
+if (!productionRedirects.some((r) => isVercelHostRedirect(r) && r.destination === "https://www.gowayfind.com/:path" && r.permanent === true)) fail("production no longer redirects stale *.vercel.app URLs to the canonical domain");
 // v6.61: cron/webhook paths are deliberately excluded from the canonical-domain
 // bounce -- Vercel's own scheduler hits *.vercel.app directly and never
 // follows redirects, so without this exclusion every cron job silently never
