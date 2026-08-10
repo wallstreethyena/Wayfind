@@ -39,6 +39,7 @@ const ok = (c, m) => { pass++; if (!c) fails.push(m); };
 
 const mod = await load("app/components/CreatorFinds.js");
 const CreatorFinds = mod.default || mod;
+const creatorSearchPlace = mod.creatorSearchPlace;
 
 const byCity = [
   { city: "Bradenton", distMi: 4, spots: [
@@ -60,6 +61,7 @@ const SHAPES = [
   ["nulls", { items: null, byCity: null, center: { lat: 27.5, lng: -82.5 } }],
   ["pool only", { items: pool, byCity: [], center: { lat: 27.5, lng: -82.5 } }],
   ["no center", { items: pool, byCity, center: null }],
+  ["claimed place excluded", { items: pool, byCity: [], center: { lat: 27.5, lng: -82.5 }, excludePlaceIds: ["p1"] }],
 ];
 
 const rendered = {};
@@ -87,6 +89,27 @@ ok(both.includes("Spinning Coffee"),
   "a registry spot renders ALONGSIDE a non-empty pool — this is the v7.07 promotion, and it is the assertion that fails if registry spots go back to being an empty-pool fallback");
 ok(both.includes("Sweet Krunch"), "…and more than one of them");
 ok(rendered["nothing at all"] === "", "with no inventory and no bridge the row renders NOTHING rather than an empty shelf");
+ok(!rendered["claimed place excluded"].includes("Pier 22"),
+  "a venue already claimed by an earlier homepage menu cannot repeat in Locals Know");
+
+// The search endpoint lawfully returns either normalized inventory rows or raw
+// Google Places rows. Both must preserve the real rating/review evidence behind
+// the Wayfind Score.
+{
+  const raw = creatorSearchPlace({
+    id: "g1", displayName: { text: "Ryan's Coffee House" }, rating: 4.8, userRatingCount: 640,
+    photos: [{ name: "places/g1/photos/ref1" }], types: ["coffee_shop"],
+    location: { latitude: 27.5, longitude: -82.5 },
+  });
+  const normalized = creatorSearchPlace({
+    id: "g2", name: "Local Venue", photo_ref: "places/g2/photos/ref2",
+    signals: { rating: 4.7, reviews: 310 }, google_types: ["restaurant"], lat: 27.5, lng: -82.5,
+  });
+  ok(raw && raw.rating === 4.8 && raw.reviews === 640 && /api\/photo/.test(raw.photo),
+    "raw Google search rows retain rating, reviews and photo for the creator card score");
+  ok(normalized && normalized.rating === 4.7 && normalized.reviews === 310 && normalized.types[0] === "restaurant",
+    "normalized inventory search rows retain the same real score evidence");
+}
 
 if (fails.length) {
   console.error("test-creator-finds-render-smoke: FAIL");

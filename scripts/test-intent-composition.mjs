@@ -49,6 +49,8 @@ const POOL = [
   R("Mote Marine Aquarium", ["aquarium", "zoo", "tourist_attraction"], 4.5, 8800, 3),
   R("De Soto National Memorial", ["tourist_attraction", "park"], 4.6, 1100, null),
   R("Bishop Museum of Science", ["museum", "tourist_attraction"], 4.7, 2400, 2),
+  R("Morning Glory Breakfast", ["breakfast_restaurant", "brunch_restaurant", "restaurant", "food"], 4.9, 4200, 2),
+  R("Daily Grind Coffee", ["coffee_shop", "cafe", "food"], 4.9, 3800, 1),
 ];
 
 const ctx = nowContext({ lat: ORIGIN.lat, lng: ORIGIN.lng, city: "Bradenton, FL", weather: { temp: 85, label: "Partly cloudy" } });
@@ -99,6 +101,20 @@ for (const intent of ["hidden-gems", "tonight"]) {
   ok(foodIn(capped) === cap, `…and the cap holds it to ${cap} — got ${foodIn(capped)}`);
   ok(capped.some((r) => sectionOfRow(r) === "Activities"),
     "…leaving room for the other kind, which is the entire point of a share cap");
+}
+
+// ── 2b. TONIGHT IS A FUTURE INTENT, NOT THE CURRENT MEAL ──────────────────
+{
+  const def = INTENT_PAGES.tonight;
+  const morning = nowContext({ lat: ORIGIN.lat, lng: ORIGIN.lng, city: "Bradenton, FL", nowMs: Date.UTC(2026, 7, 10, 13, 0) });
+  const bank = def.queries(morning);
+  ok(bank.every((q) => !/breakfast|brunch|coffee|lunch|morning/i.test(q.q)),
+    "Tonight's Move keeps its evening query bank when the reader plans in the morning");
+  const rows = rankRows(POOL, def.floor, { origin: ORIGIN, ctx: morning, compose: def.compose });
+  ok(!rows.some((r) => /Morning Glory|Daily Grind/.test(r.name)),
+    "Tonight's Move excludes breakfast-only and coffee-only venues even when their scores are strongest");
+  ok(rows.some((r) => /Oscura|Peggy's Corral/.test(r.name)),
+    "…while actual evening venues remain eligible");
 }
 
 // ── 3. GOOGLE DOES NOT PRICE A STATE PARK ───────────────────────────────────

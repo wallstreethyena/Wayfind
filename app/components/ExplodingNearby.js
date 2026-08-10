@@ -6,6 +6,8 @@ import { C, directionsUrl } from "./kit";
 import { tbPhotoUrl } from "../../lib/todaysBest.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { markExplodingInteraction, noteExplodingReturn } from "../../lib/explodingExperiment.js";
+import useMissingPlacePhotos from "./useMissingPlacePhotos";
+import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
 
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 const prettyType = (t) => {
@@ -13,7 +15,7 @@ const prettyType = (t) => {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 };
 
-function asPlace(p) {
+function asPlace(p, photoRef) {
   return {
     id: p.id,
     name: p.name,
@@ -24,8 +26,8 @@ function asPlace(p) {
     type: p.primaryType || p.category,
     category: p.category,
     types: p.types || [],
-    photo: tbPhotoUrl(p.photoRef, 720),
-    photos: p.photoRef ? [tbPhotoUrl(p.photoRef, 720)] : [],
+    photo: tbPhotoUrl(photoRef || p.photoRef, 720),
+    photos: (photoRef || p.photoRef) ? [tbPhotoUrl(photoRef || p.photoRef, 720)] : [],
     wfScore: p.governedScore,
     distMi: p.distanceMi,
   };
@@ -33,20 +35,21 @@ function asPlace(p) {
 
 function evidenceChip(p) {
   const kinds = new Set(p.evidenceKinds || []);
+  if (kinds.has("googleTextSearch")) return { key: "google-match", icon: "✓", label: "Matched via Google" };
   if (kinds.has("scheduledEvent")) return { key: "verified-event", icon: "✓", label: "Event verified" };
   if (kinds.has("menu") || kinds.has("product")) return { key: "verified-menu", icon: "✓", label: "Menu verified" };
   if (kinds.has("bookingPage")) return { key: "verified-booking", icon: "✓", label: "Bookable offering" };
   return { key: "verified-match", icon: "✓", label: "Offering verified" };
 }
 
-function TrendBlock({ trend, index, onLog, onMeaningful, onOpenPlace, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const railSeen = useRef(false);
   const primary = trend.matches[0];
   const more = trend.matches.slice(1);
   if (!primary) return null;
 
   const card = (p, rank, additional) => {
-    const place = asPlace(p);
+    const place = asPlace(p, photoRefFor(p));
     const facts = [
       p.reviews ? compact(p.reviews) + " reviews" : null,
       Number.isFinite(p.distanceMi) ? (p.distanceMi < 10 ? p.distanceMi.toFixed(1) : Math.round(p.distanceMi)) + " mi" : null,
@@ -100,7 +103,7 @@ function TrendBlock({ trend, index, onLog, onMeaningful, onOpenPlace, isSaved, l
   };
 
   const shareTrend = async () => {
-    const place = asPlace(primary);
+    const place = asPlace(primary, photoRefFor(primary));
     onMeaningful("share", place, { surface: "exploding_nearby", share_kind: "trend", concept_key: trend.conceptKey });
     const title = "🔥 " + trend.headline;
     const text = `${title}. ${primary.name} is one of Wayfind's best nearby places to try it.`;
@@ -144,7 +147,7 @@ function TrendBlock({ trend, index, onLog, onMeaningful, onOpenPlace, isSaved, l
   );
 }
 
-export default function ExplodingNearby({ center, active, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -156,16 +159,26 @@ export default function ExplodingNearby({ center, active, onOpenPlace, onLog, is
     if (!active || !center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
-    fetch(`/api/trends/nearby?lat=${center.lat.toFixed(5)}&lng=${center.lng.toFixed(5)}`, { cache: "no-store", signal: ctrl.signal })
-      .then(async (r) => {
-        const body = await r.json().catch(() => ({}));
-        if (!r.ok && !body.status) body.status = "trend_data_error";
-        return body;
-      })
+    loadProvidedTrendList({ center, city, signal: ctrl.signal })
       .then((body) => { if (!ctrl.signal.aborted) setResult({ status: body.status || "trend_data_error", trends: Array.isArray(body.trends) ? body.trends : [], error: body.error || null }); })
       .catch(() => { if (!ctrl.signal.aborted) setResult({ status: "trend_data_error", trends: [], error: "Trend recommendations are temporarily unavailable." }); });
     return () => ctrl.abort();
-  }, [active, retry, center && center.lat, center && center.lng]);
+  }, [active, retry, city, center && center.lat, center && center.lng]);
+
+  const visibleIdKey = result.status === "ok"
+    ? result.trends.flatMap((trend) => trend.matches || []).map((p) => p && p.id).filter(Boolean).join("|")
+    : "";
+  const photoRefFor = useMissingPlacePhotos(
+    result.status === "ok" ? result.trends.flatMap((trend) => trend.matches || []) : [],
+    center,
+    active && result.status === "ok"
+  );
+  useEffect(() => {
+    if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);
+    // The joined identity list is the value. Depending on the callback identity
+    // would report forever because the parent binds the section name inline.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visibleIdKey]);
 
   useEffect(() => {
     if (result.status !== "ok" || !result.trends.length || impressed.current) return;
@@ -237,6 +250,7 @@ export default function ExplodingNearby({ center, active, onOpenPlace, onLog, is
           key={trend.conceptKey}
           trend={trend}
           index={i}
+          photoRefFor={photoRefFor}
           onLog={onLog}
           onMeaningful={meaningful}
           onOpenPlace={onOpenPlace}

@@ -70,7 +70,7 @@ ok(
 );
 
 /* ── 3. opening by default must actually FETCH ──────────────────────────
-   Exploding owns its rights-gated request while the older rows still load
+   Exploding owns its supplied-list/local-inventory request while older rows load
    through ensureLoaded(). Both paths are pinned: an open answer whose request
    never starts is an empty box that merely looks broken. */
 ok(/const ensureLoaded\s*=\s*\(/.test(CODE), "the fetch is factored into ensureLoaded()");
@@ -84,8 +84,8 @@ ok(/<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(COD
   "the first section activates the Exploding Nearby loader when it is open");
 ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
   "the Exploding request waits for both an open section and a real location");
-ok(/fetch\(`\/api\/trends\/nearby\?lat=/.test(EXP),
-  "the default-open answer fetches its rights-gated nearby trend endpoint");
+ok(/loadProvidedTrendList\(\{ center, city, signal: ctrl\.signal \}\)/.test(EXP),
+  "the default-open answer resolves the supplied trend list against current local inventory");
 
 /* ── 4. both loading paths are the same path ────────────────────────────── */
 const toggleFn = CODE.slice(CODE.indexOf("const toggle = ("));
@@ -257,8 +257,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // ── the answer and exact hierarchy ──
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
      "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it\.",[^}]*heading: true,[^}]*maxHeight: 6000 \}/.test(BN),
-     "the first section carries the exact approved title, support line, heading semantics and three-card height budget");
+  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it\.", emoji: "🔥", heading: true, maxHeight: 6000 \}/.test(BN),
+     "the first section carries one fire emoji, the approved support line, heading semantics and three-card height budget");
   const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
   const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");
@@ -272,16 +272,17 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["What Should We Do Today?", "Great plans for right now."],
     ["Places You'd Never Find", "Hidden gems worth knowing about."],
     ["Locals Know", "Places recommended by creators who actually know the area."],
+    ["Events Near You", "Concerts, shows and things happening nearby."],
     ["Tonight's Move", "The places and experiences that make sense tonight."],
     ["Worth the Drive", "Good enough to go out of your way for."],
   ];
   const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
   ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
-     `the six optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
+     `the seven optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
   const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
   let collapsedDefaults = [];
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
-  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
      "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
   const layout = readFileSync(path.join(REPO, "app/layout.js"), "utf8");
   const prepaintDecl = layout.match(/var v=r\?JSON\.parse\(r\):(\[[^;]+\]);/);
@@ -354,8 +355,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   }
   ok(/onBudget=\{\(\) =>[\s\S]{0,220}goIntent\("\/budget"\)/.test(HOME),
      "Big fun, small budget remains reachable through the existing discovery menu after leaving the primary accordion");
-  ok(/const eventsRailSlot\s*=/.test(HOME) && /setScreen\("events"\)/.test(HOME),
-     "event discovery remains wired through the existing home architecture after leaving the primary accordion");
+  ok(/const eventsRailSlot\s*=/.test(HOME) && /setScreen\("events"\)/.test(HOME) && /id: "events"[\s\S]{0,180}slot: "events"/.test(BN),
+     "event discovery is restored as a primary accordion row and keeps its existing all-events destination");
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
 }
@@ -447,7 +448,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // The invariant is unchanged and is what is asserted; it is strictly STRONGER
   // now, because `inventory` covers pool and registry rows together where the
   // old condition needed two separate terms to say the same thing.
-  ok(/if \(!inventory\.length && !bridge\) return null;/.test(CF),
+  ok(/if \(!visibleInventory\.length && !bridge\) return null;/.test(CF),
      "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
   ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
      "the row builds ONE inventory from the pool and the registry together, rather than treating the registry as an empty-pool fallback");
@@ -469,8 +470,8 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // needs to name a cuisine, and without them a cuisine filter over scouted
     // spots would have nothing behind it. A looked-up number is not an invented
     // one — that is the whole distinction the registry/pool split turns on.
-    ok(/types: Array\.isArray\(first\.types\)/.test(CF),
-      "…and keeps the REAL Google types off that response — a hydrated rating or cuisine is looked up, never invented");
+    ok(/types: Array\.isArray\(first\.types\)/.test(CF) && /first\.userRatingCount/.test(CF) && /signals\.rating/.test(CF),
+      "…and normalizes both cached-inventory and raw-Google response shapes, keeping the real types, rating and review count behind the Wayfind Score");
     // v7.02: the row renders the shared RailCard, so the <img> moved out of
     // this file. FOLLOW THE CODE — assert both halves of the invariant across
     // the two files rather than deleting the protection: CreatorFinds hands

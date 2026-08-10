@@ -1,10 +1,8 @@
 #!/usr/bin/env node
-// scripts/check-top40-rail.mjs — the Top 40 rail inside "The best near you".
+// scripts/check-top40-rail.mjs — the ranked rail inside "The Best Around You".
 //
-// Owner, 2026-08-08: "i want the same cards inside this... place 40 cards
-// there and give the best options, allow the user scroll right and left...
-// i want the things that are most trending, preferably the instagram videos",
-// and "make sure it is housed under this structure".
+// Owner, 2026-08-10: the browse shelf is now ten strong decisions, not forty
+// cards. Its original ranking, card, disclosure and verified-CTA laws remain.
 //
 // WHAT THIS GUARD EXISTS TO STOP, in order of how much it would cost:
 //
@@ -26,15 +24,18 @@ import { readFileSync } from "node:fs";
 
 const bn = readFileSync("app/components/BestNearby.js", "utf8");
 const failures = [];
-const ok = (c, m) => { if (!c) failures.push(m); };
+let assertions = 0;
+const ok = (c, m) => { assertions++; if (!c) failures.push(m); };
 // Strip comments before any presence check — this file's own prose explains
 // every rule below, and a guard that matches its own explanation proves
 // nothing (five separate occurrences of exactly that bug on 2026-07-30).
 const code = bn.replace(/\/\*[\s\S]*?\*\//g, "").split("\n").filter((l) => !/^\s*\/\//.test(l)).join("\n");
 
 // ── 1. ONE RANKING, and it is the site's ────────────────────────────────────
-ok(/const ranked = byVisibleScore\(pool\)\.slice\(0, TOP40_MAX\)/.test(code),
+ok(/const ranked = byVisibleScore\(pool\)/.test(code) && /uniqueRecommendations\(top40, explodingClaimed, TOP40_MAX\)/.test(code),
   "the rail sorts through byVisibleScore — the same governed score every other ranked surface uses");
+ok(/const TOP40_MAX = 10/.test(code),
+  "The Best Around You is capped at ten decisions, not an endless forty-card search result");
 ok(/byVisibleScore/.test(code) && !/\bpool\.sort\(/.test(code) && !/ranked\.sort\(/.test(code),
   "no local re-sort of the pool — a second comparator here would break 'shown == sorted' on the card's own badge");
 ok(!/capCreatorHead\(/.test(code),
@@ -161,4 +162,4 @@ if (failures.length) {
   failures.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`check-top40-rail: OK — ${21 - failures.length} assertions (one governed ranking, ${(code.match(/const TOP40_CATEGORIES = \[([^\]]*)\]/) || [0, ""])[1].split(",").filter((x) => x.trim()).length} categories deduped by place id, trend + affiliate disclosure present, ticket CTA gated on a verified partner pick and tracked through commerceHref)`);
+console.log(`check-top40-rail: OK — ${assertions} assertions (ten-card cap, one governed ranking, ${(code.match(/const TOP40_CATEGORIES = \[([^\]]*)\]/) || [0, ""])[1].split(",").filter((x) => x.trim()).length} categories deduped by place id, trend + affiliate disclosure present, ticket CTA gated on a verified partner pick and tracked through commerceHref)`);
