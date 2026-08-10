@@ -101,7 +101,7 @@ for (const t of ["wf_trend_snapshots", "wf_trend_topics", "wf_trend_place_matche
 // only and reads zero. A `create policy` here would be a licensing decision
 // disguised as a convenience.
 const sqlNoComments = mig.replace(/--[^\n]*/g, " ");
-ok(!/create\s+policy/i.test(sqlNoComments), "no RLS policy is declared — anon must read zero rows of licensed source data");
+ok(!/create\s+policy/i.test(sqlNoComments), "no RLS policy is declared — anon must read zero raw source rows");
 ok(!/grant\s+select/i.test(sqlNoComments), "no table-level SELECT grant is issued to anon/authenticated");
 
 // ── 5. THE CRON IS REGISTERED, ON A NON-COLLIDING SCHEDULE ─────────────────
@@ -116,28 +116,12 @@ const routeCode = identOf(routeSrc);
 ok(/CRON_SECRET/.test(routeCode), "the route is CRON_SECRET-gated");
 ok(/status:\s*401/.test(routeCode), "…and returns 401 to an unauthenticated caller");
 ok(/status:\s*503/.test(routeCode), "…and a non-200 on missing configuration, so job-watch can see it");
-// DORMANT ≠ MISCONFIGURED. The route must distinguish "never enabled" (quiet
-// 200) from "half-enabled" (loud 503). Without the first branch this cron 503s
-// every day at 09:50 UTC for a feature that is deliberately off, and a daily
-// alert for a non-problem is how the real alert gets ignored later.
-ok(/dormant/.test(routeCode), "the route has a DORMANT branch for a feature that was never enabled");
-// Assert the LIVE CONDITION, not its position. Two earlier versions of this
-// assertion were decoration:
-//   · `error: "configuration"` is a string literal — identOf() strips it, so
-//     comparing its index against -1 failed on correct code;
-//   · comparing the index of the word "dormant" against rightsMode() passed
-//     even with the branch rewritten to `if (false)`, because the body still
-//     contained the word at the same place. The sabotage did not go red.
-// What actually has to be true is that the route reads the RAW env var itself
-// and returns before rightsMode() — the accessor that throws — can be called.
-// `if (false)` deletes that read, so this version goes red for it.
-const envReadIdx = routeCode.search(/process\.env\.EXPLODING_TOPICS_RIGHTS_MODE/);
-const throwsIdx = routeCode.search(/\brightsMode\s*\(\s*\)/);
-ok(envReadIdx > -1,
-  "the route must read EXPLODING_TOPICS_RIGHTS_MODE directly to detect the dormant case — rightsMode() throws on it and cannot be used to test for it");
-ok(throwsIdx > -1 && envReadIdx < throwsIdx,
-  `the raw env check must precede rightsMode() (env@${envReadIdx}, rightsMode()@${throwsIdx}) — ` +
-  `otherwise the throw fires first and a deliberately-off feature is reported as broken, daily`);
+ok(!/EXPLODING_TOPICS_RIGHTS|rightsMode|rightsReference|requireCapability/.test(routeCode),
+  "the maintenance route contains no retired external-approval gate");
+const cadenceIdx = routeCode.search(/\bimportCadence\s*\(\s*\)/);
+const spendIdx = routeCode.search(/\bsearchesPerRun\s*\(\s*\)/);
+ok(cadenceIdx > -1 && spendIdx > -1,
+  "the route still validates snapshot cadence and the metered-search budget before doing work");
 ok(/recordPulse/.test(routeCode), "…and records a job pulse");
 // It must never fetch from the trend provider.
 for (const host of ["explodingtopics", "semrush"]) {
@@ -203,9 +187,10 @@ ok(swept > 0,
 ok(BANNED_TREND_PHRASES.length >= 6, `the ban list is populated (${BANNED_TREND_PHRASES.length} phrases) — an empty list would sweep clean against anything`);
 console.log(`  (banned-phrase sweep: ${swept} trend-participating file(s) of ${files.length} scanned, ${BANNED_TREND_PHRASES.length} phrases)`);
 
-// ── 8. THE IMPORTER'S LICENCE GATE CANNOT BE BYPASSED ──────────────────────
+// ── 8. THE RETIRED EXTERNAL-APPROVAL GATE STAYS GONE ───────────────────────
 const imp = identOf(read("scripts/trends-import.mjs"));
-ok(/mayReadSourceData/.test(imp), "the importer consults mayReadSourceData before the --file path");
-ok(!/--force|skipRights|ignoreRights|--unsafe/.test(imp), "there is no flag that turns the licence gate off");
+ok(!/EXPLODING_TOPICS_RIGHTS|rightsMode|rightsReference|mayReadSourceData|requireCapability/.test(imp),
+  "the importer has no external-approval mode, reference, or capability gate");
+ok(/importCadence/.test(imp), "the importer still requires explicit freshness cadence");
 
 console.log(`check-trend-integrity: OK — ${pass} assertions (score boundary, no paid term, DB/code bound parity, RLS, cron, editorial isolation, banned language)`);

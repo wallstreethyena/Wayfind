@@ -7,21 +7,17 @@
  *   npm run trends:import -- --file /abs/path/export.csv --shadow   (eval tables only)
  *   npm run trends:import -- --fixture valid.csv                    (synthetic, always allowed)
  *
- * DRY RUN IS THE DEFAULT AND IT IS NOT A COURTESY. This tool's inputs are
- * licensed data and its outputs feed a ranking. A run that writes by default is
+ * DRY RUN IS THE DEFAULT AND IT IS NOT A COURTESY. This tool's inputs feed a
+ * ranking. A run that writes by default is
  * a run that writes when someone typed a wrong path.
  *
  * ── THE --file / --fixture SPLIT ─────────────────────────────────────────────
- * --file  points at the owner's REAL export. Opening it requires the licence to
- *         permit reading source data, so under `unconfirmed` this path refuses
- *         before it stats the file. Not after reading a header — before. A
- *         "quick peek to see the columns" is exactly the thing that is not
- *         cleared.
+ * --file  points at the owner's REAL export.
  * --fixture points inside scripts/fixtures/trends/ and is SYNTHETIC by
- *         construction — invented rows this repo wrote. It needs no licence and
- *         is how the pipeline is developed and guarded while rights are pending.
- *         The path is confined to that directory so `--fixture ../../../real.csv`
- *         cannot smuggle the real export through the unlicensed door.
+ *         construction — invented rows this repo wrote. It is how the pipeline
+ *         is developed and guarded without touching a real export. The path is
+ *         confined to that directory so `--fixture ../../../real.csv` cannot
+ *         escape into arbitrary local files.
  *
  * There is no third path, and no flag that turns the gate off.
  */
@@ -30,7 +26,7 @@ import { resolve, basename, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { readSnapshot, SCHEMA_VERSION } from "../lib/trendCsv.js";
-import { rightsMode, importCadence, mayReadSourceData, snapshotFreshness, TrendConfigError } from "../lib/trendRights.js";
+import { importCadence, snapshotFreshness, TrendConfigError } from "../lib/trendRights.js";
 import { conceptForTopic, CONCEPTS, googleQueryFor, APPROVED_METROS } from "../lib/trendTaxonomy.js";
 import { evaluateTopic, familyVolumeIndex } from "../lib/trendStrength.js";
 import { matchTopicToInventory, classifyGap } from "../lib/trendMatch.js";
@@ -55,33 +51,22 @@ function parseArgs(argv) {
   return a;
 }
 
-/** Resolve the input, enforcing the licence gate and the fixture confinement. */
-function resolveInput(args, mode) {
+/** Resolve the input, enforcing fixture confinement and basic file limits. */
+function resolveInput(args) {
   if (args.file && args.fixture) {
-    throw new Error("pass --file OR --fixture, never both — they have different licence postures and mixing them makes the run unauditable");
+    throw new Error("pass --file OR --fixture, never both — mixing sources makes the run unauditable");
   }
   if (args.fixture) {
     const p = resolve(FIXTURE_DIR, args.fixture);
     // Confinement check. resolve() collapses ..; the prefix test is what makes
     // the collapsed path prove it is still inside the fixture directory.
     if (p !== FIXTURE_DIR && !p.startsWith(FIXTURE_DIR + sep)) {
-      throw new Error(`--fixture must name a file inside ${FIXTURE_DIR} — "${args.fixture}" resolves outside it, and the unlicensed path may not read arbitrary files`);
+      throw new Error(`--fixture must name a file inside ${FIXTURE_DIR} — "${args.fixture}" resolves outside it`);
     }
     if (!existsSync(p)) throw new Error(`fixture not found: ${p}`);
     return { path: p, synthetic: true };
   }
   if (args.file) {
-    if (!mayReadSourceData(mode)) {
-      throw new TrendConfigError(
-        "EXPLODING_TOPICS_RIGHTS_MODE",
-        `is "${mode}". Reading the real Exploding Topics export is NOT permitted in this mode, so this run is refusing ` +
-          `BEFORE opening the file.\n\n` +
-          `  What is blocked: opening/parsing the CSV, importing it, using it for ranking, or passing it to any model.\n` +
-          `  What still works: --fixture runs against the synthetic fixtures, which is how this pipeline is developed and tested.\n` +
-          `  How to unblock: get written confirmation from Semrush covering the uses listed in docs/exploding-topics-rights.md,\n` +
-          `  record the answers there, then set the mode to "internal_research" or "commercial_approved".`
-      );
-    }
     const p = resolve(args.file);
     if (!existsSync(p)) throw new Error(`file not found: ${p}`);
     const st = statSync(p);
@@ -110,14 +95,13 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
 
   // Config first, and it throws. AGENTS.md §5 — no default, no fallback.
-  const mode = rightsMode();
   const cadence = importCadence();
 
-  const input = resolveInput(args, mode);
+  const input = resolveInput(args);
   const text = readFileSync(input.path, "utf8");
 
   const out = {
-    mode, cadence: cadence.cadence, maxAgeDays: cadence.maxAgeDays,
+    cadence: cadence.cadence, maxAgeDays: cadence.maxAgeDays,
     source: input.synthetic ? `fixture:${basename(input.path)}` : "real-export",
     synthetic: input.synthetic,
     write: args.apply ? (args.shadow ? "shadow-tables" : "live-tables") : "NONE (dry run)",
@@ -244,7 +228,7 @@ async function main() {
     for (const hit of m.matches) {
       const b = trendOrderBoost({
         normalizedTrendStrength: t.strength, semanticConfidence: hit.confidence,
-        observedAtMs: observedAt, cadenceCfg: cadence, rightsMode: mode, shadow: true,
+        observedAtMs: observedAt, cadenceCfg: cadence, shadow: true,
       });
       boostIndex.set(hit.place_id, { ...b, topic: t.topic });
     }
@@ -286,7 +270,6 @@ function report(out, args) {
   if (args.json) { console.log(JSON.stringify(out, null, 2)); return; }
   const L = [];
   L.push(`trends:import — ${out.source}${out.synthetic ? " (SYNTHETIC)" : ""}`);
-  L.push(`  rights mode      ${out.mode}`);
   L.push(`  cadence          ${out.cadence} (max age ${out.maxAgeDays}d)`);
   L.push(`  write mode       ${out.write}`);
   L.push(`  schema           ${out.schemaVersion}`);

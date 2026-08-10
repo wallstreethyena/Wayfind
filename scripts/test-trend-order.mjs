@@ -16,7 +16,6 @@ const weekly = CADENCES.weekly, now = Date.now(), DAY = 86400000;
 const full = {
   normalizedTrendStrength: 1, semanticConfidence: 1,
   observedAtMs: now, nowMs: now, cadenceCfg: weekly,
-  rightsMode: "commercial_approved",
 };
 
 // ── The bound ──────────────────────────────────────────────────────────────
@@ -51,17 +50,9 @@ ok(trendOrderBoost({ ...full, observedAtMs: now - 9 * DAY }).boost === 0, "a sta
 const weak = trendOrderBoost({ ...full, normalizedTrendStrength: 0.1, semanticConfidence: 0.61, observedAtMs: now - 7 * DAY });
 ok(weak.boost < 0.1, `two weak factors multiply to near-nothing (${weak.boost.toFixed(4)}), they never add`);
 
-// ── Gates ──────────────────────────────────────────────────────────────────
-for (const mode of ["unconfirmed", "internal_research", undefined, "wat"]) {
-  const b = trendOrderBoost({ ...full, rightsMode: mode });
-  ok(b.boost === 0, `rights mode "${mode}" cannot influence public ranking`);
-  ok(/does not permit influencing public ranking/.test(b.reason), "…with the licence named as the reason");
-}
-// INTERNAL RESEARCH MUST NOT ALTER PUBLIC RANKING — but shadow evaluation still
-// works, which is how the system can be measured before it is licensed.
-ok(trendOrderBoost({ ...full, rightsMode: "internal_research", shadow: true }).boost > 0,
-  "shadow evaluation still computes under internal_research — that is the point of shadow mode");
-ok(trendOrderBoost({ ...full, rightsMode: "internal_research", shadow: true }).shadow === true, "…and is flagged shadow");
+// ── Product gates ──────────────────────────────────────────────────────────
+ok(trendOrderBoost({ ...full, shadow: true }).boost > 0, "shadow evaluation computes the same bounded term");
+ok(trendOrderBoost({ ...full, shadow: true }).shadow === true, "…and is flagged shadow");
 ok(trendOrderBoost({ ...full, semanticConfidence: MIN_CONFIDENCE - 0.01 }).boost === 0, "confidence below the floor ⇒ zero");
 ok(trendOrderBoost({ ...full, semanticConfidence: MIN_CONFIDENCE }).boost > 0, "confidence exactly at the floor is permitted");
 ok(trendOrderBoost({ ...full, manualState: "deny" }).boost === 0, "an owner denial outranks every computed factor");
@@ -108,13 +99,10 @@ ok(staleRes.report.every((r) => r.movement === 0), "a stale snapshot restores th
 
 // ── Public language ────────────────────────────────────────────────────────
 const activeMatch = { active: true, stale: false, topic: "Korean coffee", placeCount: 1 };
-ok(trendLabel(activeMatch, { rightsMode: "commercial_approved" }) === "Rising topic · Korean coffee", "the approved label form renders");
-ok(trendLabel(activeMatch, { rightsMode: "commercial_approved", form: "matches" }) === "Matches rising interest · Korean coffee", "the second approved form renders");
-for (const mode of ["unconfirmed", "internal_research", undefined]) {
-  ok(trendLabel(activeMatch, { rightsMode: mode }) === null, `no label is rendered under "${mode}"`);
-}
-ok(trendLabel({ ...activeMatch, stale: true }, { rightsMode: "commercial_approved" }) === null, "a STALE snapshot removes the label");
-ok(trendLabel({ ...activeMatch, active: false }, { rightsMode: "commercial_approved" }) === null, "an inactive match renders no label");
+ok(trendLabel(activeMatch) === "Rising topic · Korean coffee", "the approved label form renders");
+ok(trendLabel(activeMatch, { form: "matches" }) === "Matches rising interest · Korean coffee", "the second approved form renders");
+ok(trendLabel({ ...activeMatch, stale: true }) === null, "a STALE snapshot removes the label");
+ok(trendLabel({ ...activeMatch, active: false }) === null, "an inactive match renders no label");
 
 // The banned claims — each must be unrenderable, and the ban list must work.
 const BANNED_SAMPLES = [
@@ -130,12 +118,12 @@ for (const f of Object.values(LABEL_FORMS)) {
   ok(!BANNED_TREND_PHRASES.some((re) => re.test(f("Korean coffee"))), "an approved label form does not trip the ban list");
 }
 // A hostile topic name cannot smuggle a banned claim through the label.
-ok(trendLabel({ ...activeMatch, topic: "trending near you" }, { rightsMode: "commercial_approved" }) === null,
+ok(trendLabel({ ...activeMatch, topic: "trending near you" }) === null,
   "a topic string that would produce a banned claim renders NO label");
 
 // ── Metric disclosure is all-or-nothing ────────────────────────────────────
 const detail = { topic: "Korean coffee", growth: 1.9, window: "12 months", volume: 12100, scope: "United States", observedAt: "2026-08-04", conceptKey: "korean_coffee" };
-const disc = trendDisclosure(detail, { rightsMode: "commercial_approved" });
+const disc = trendDisclosure(detail);
 ok(disc && /190%/.test(disc.text), "the disclosure states the growth");
 ok(/12 months/.test(disc.text), "…the exact timeframe");
 ok(/12,100/.test(disc.text), "…the monthly volume");
@@ -144,22 +132,19 @@ ok(/not a measurement of this place/.test(disc.text), "…nor of this place — 
 // A growth percentage without its timeframe or volume is not a disclosure.
 for (const missing of ["window", "volume", "growth", "topic", "scope", "observedAt"]) {
   const partial = { ...detail }; delete partial[missing];
-  ok(trendDisclosure(partial, { rightsMode: "commercial_approved" }) === null,
+  ok(trendDisclosure(partial) === null,
     `a disclosure missing "${missing}" renders NOTHING — there is no partial path that could leak a bare percentage`);
 }
-ok(trendDisclosure(detail, { rightsMode: "internal_research" }) === null, "no disclosure without display rights");
-
 // Forecast is a SEPARATE function with SEPARATE wording.
-const fc = forecastDisclosure({ topic: "Korean coffee", forecastGrowth: 2.4 }, { rightsMode: "commercial_approved" });
+const fc = forecastDisclosure({ topic: "Korean coffee", forecastGrowth: 2.4 });
 ok(fc && fc.isForecast === true && /Forecast \(not observed\)/.test(fc.text), "a forecast is labelled a forecast");
 ok(!/increased/.test(fc.text), "a forecast never uses the observed-growth wording");
 ok(!disc.text.includes("Forecast"), "an observed disclosure never mentions a forecast");
 
 // A topic with no eligible local match must not appear in the list summary.
-ok(listTrendSummary([{ ...activeMatch, placeCount: 0 }], { rightsMode: "commercial_approved" }) === null,
+ok(listTrendSummary([{ ...activeMatch, placeCount: 0 }]) === null,
   "a topic with zero matched places is NOT shown — being in the CSV is not being 'near you'");
-ok(/Korean coffee/.test(listTrendSummary([activeMatch], { rightsMode: "commercial_approved" })), "a topic WITH a match is shown");
-ok(listTrendSummary([activeMatch], { rightsMode: "unconfirmed" }) === null, "no summary without display rights");
+ok(/Korean coffee/.test(listTrendSummary([activeMatch])), "a topic WITH a match is shown");
 
 // ── Candidate lifecycle ────────────────────────────────────────────────────
 ok(STATES[0] === "discovered" && STATES[STATES.length - 1] === "published", "the lifecycle runs discovered → published");
@@ -223,11 +208,11 @@ ok(dropped.includes("lat") && dropped.includes("lng"), "…and the drop is surfa
 for (const f of FORBIDDEN_PROPS) ok(!ALLOWED_PROPS.includes(f), `"${f}" is not on the allowlist`);
 ok(ALLOWED_PROPS.includes("metro"), "coarse metro IS allowed — it answers the question without a location trace");
 ok(!ALLOWED_PROPS.some((p) => /lat|lng|coord|address/i.test(p)), "no allowed property is finer-grained than metro");
-ok(!ALLOWED_PROPS.includes("topic_name"), "the topic STRING is not an allowed property — it is licensed content; topic_id carries the same value");
+ok(!ALLOWED_PROPS.includes("topic_name"), "the topic STRING is not an allowed analytics property; topic_id carries the same value without unnecessary payload data");
 ok(Object.keys(TREND_EVENTS).length >= 25, "the event vocabulary covers the pipeline end to end");
 ok(new Set(Object.values(TREND_EVENTS)).size === Object.keys(TREND_EVENTS).length, "no two events share a name");
 // Badge impressions are a denominator, never a success metric.
 ok(SUCCESS_METRICS.every((m) => m.denominator), "every success metric names its denominator");
 ok(!SUCCESS_METRICS.some((m) => m.metric === "badge_impressions"), "raw badge impressions are NOT a success metric");
 
-console.log(`test-trend-order: OK — ${pass} assertions (bounded order-only term, no paid input, honest language, gated lifecycle)`);
+console.log(`test-trend-order: OK — ${pass} assertions (bounded order-only term, no paid input, honest language, verified lifecycle)`);

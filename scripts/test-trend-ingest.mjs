@@ -6,6 +6,7 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readSnapshot, validateSchema, parseCsv, sanitizeCell, sourceHash, REQUIRED_FIELDS, GROWTH_FIELDS } from "../lib/trendCsv.js";
 
 let pass = 0;
@@ -129,10 +130,10 @@ const ambiguous = validateSchema(["Topic ID", "id", "Topic", "Category", "Status
 ok(!ambiguous.ok && ambiguous.errors.some((e) => /ambiguous/.test(e)), "two headers claiming one field is refused, not silently resolved");
 
 // ── Dry run writes nothing, and --apply is not silently a dry run ──────────
-const env = { ...process.env, EXPLODING_TOPICS_RIGHTS_MODE: "unconfirmed", EXPLODING_TOPICS_IMPORT_CADENCE: "weekly" };
+const env = { ...process.env, EXPLODING_TOPICS_IMPORT_CADENCE: "weekly" };
 const run = (args, opts = {}) => {
   try {
-    return { out: execFileSync(process.execPath, ["scripts/trends-import.mjs", ...args], { env, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }), rc: 0 };
+    return { out: execFileSync(process.execPath, ["scripts/trends-import.mjs", ...args], { env: { ...env, ...(opts.env || {}) }, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }), rc: 0 };
   } catch (e) { return { out: String(e.stdout || "") + String(e.stderr || ""), rc: e.status }; }
 };
 const dry = run(["--fixture", "valid.csv"]);
@@ -140,16 +141,16 @@ ok(dry.rc === 0, "a dry run over the fixture exits 0");
 ok(/DRY RUN — nothing was written/.test(dry.out), "the dry run says so explicitly");
 ok(/write mode\s+NONE/.test(dry.out), "dry run is the DEFAULT — no flag was passed to get it");
 
-// The real-export path must refuse BEFORE it opens anything, under unconfirmed.
-const real = run(["--file", "/tmp/definitely-not-a-real-export.csv"]);
-ok(real.rc === 78, `--file under "unconfirmed" exits EX_CONFIG(78), got ${real.rc}`);
-ok(/CONFIGURATION REFUSED/.test(real.out), "…with a configuration refusal");
-ok(/refusing\s+BEFORE opening the file/i.test(real.out.replace(/\s+/g, " ")), "…and says it refused BEFORE opening the file");
-// The refusal must not be a file-not-found: the path above does not exist, so a
-// gate that ran AFTER the open would report a different error entirely.
-ok(!/not found/i.test(real.out), "the refusal is the LICENCE gate, not a file-not-found — it fires before the filesystem is touched");
+// The ordinary --file path is available without any external-approval mode or
+// ticket reference. Use the synthetic bytes through that path so this guard
+// proves the behavior without reading or committing a real export.
+const filePath = fileURLToPath(new URL("./fixtures/trends/valid.csv", import.meta.url));
+const fileRun = run(["--file", filePath]);
+ok(fileRun.rc === 0, `--file runs with cadence as its only trend config, got ${fileRun.rc}`);
+ok(/trends:import — real-export/.test(fileRun.out), "the --file path identifies itself as a real-export run");
+ok(!/RIGHTS_MODE|RIGHTS_REF|approval/i.test(fileRun.out), "the importer asks for no retired approval configuration");
 
-// Fixture confinement: the unlicensed path may not read arbitrary files.
+// Fixture confinement: --fixture may not read arbitrary files.
 const escape = run(["--fixture", "../../../package.json"]);
 ok(escape.rc !== 0 && /resolves outside/.test(escape.out), "--fixture cannot escape the fixture directory");
 
@@ -184,4 +185,4 @@ const gi = readFileSync(new URL("../.gitignore", import.meta.url), "utf8");
 ok(/exploding-topics\*\.csv/.test(gi), ".gitignore covers exploding-topics CSV filenames");
 ok(/!scripts\/fixtures\/trends\/\*\.csv/.test(gi), "…and re-includes the synthetic fixtures");
 
-console.log(`test-trend-ingest: OK — ${pass} assertions over 7 fixtures (schema, dedup, idempotency, injection, dry-run, licence gate)`);
+console.log(`test-trend-ingest: OK — ${pass} assertions over 7 fixtures (schema, dedup, idempotency, injection, dry-run, direct file import)`);

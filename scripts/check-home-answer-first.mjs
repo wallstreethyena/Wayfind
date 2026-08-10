@@ -29,6 +29,10 @@ import { fileURLToPath } from "node:url";
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const SRC_PATH = path.join(REPO, "app/components/BestNearby.js");
 const SRC = readFileSync(SRC_PATH, "utf8");
+const EXP = readFileSync(path.join(REPO, "app/components/ExplodingNearby.js"), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+const COLLAPSE = readFileSync(path.join(REPO, "lib/railCollapse.js"), "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 // Every assertion below must be satisfied by CODE. A comment explaining the
 // default is not the default.
 const CODE = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -66,16 +70,22 @@ ok(
 );
 
 /* ── 3. opening by default must actually FETCH ──────────────────────────
-   The sections load lazily on toggle. A default-open section whose data never
-   loads renders an open, empty box — strictly worse than a collapsed one,
-   because it looks broken rather than closed. */
+   Exploding owns its rights-gated request while the older rows still load
+   through ensureLoaded(). Both paths are pinned: an open answer whose request
+   never starts is an empty box that merely looks broken. */
 ok(/const ensureLoaded\s*=\s*\(/.test(CODE), "the fetch is factored into ensureLoaded()");
 const mountEffect = CODE.match(/useEffect\(\(\)\s*=>\s*\{([\s\S]*?)\n\s*\}, \[open,/);
-ok(!!mountEffect, "an effect keyed on `open` drives the default-open fetch");
+ok(!!mountEffect, "an effect keyed on `open` drives lazy fetches for the existing sections");
 ok(!!mountEffect && /ensureLoaded\(open\)/.test(mountEffect[1]),
-  "that effect calls ensureLoaded(open) — otherwise the default section opens empty");
+  "that effect calls ensureLoaded(open) — otherwise an opened legacy section can stay empty");
 ok(!!mountEffect && /isFinite\(center\.lat\)/.test(mountEffect[1]),
   "it waits for a real centre before fetching — an unconditional mount fetch would fire one request per visitor with lat=undefined");
+ok(/<ExplodingNearby[\s\S]{0,180}active=\{sectionOpen\("exploding"\)\}/.test(CODE),
+  "the first section activates the Exploding Nearby loader when it is open");
+ok(/if \(!active \|\| !center \|\| !Number\.isFinite\(center\.lat\) \|\| !Number\.isFinite\(center\.lng\)\) return;/.test(EXP),
+  "the Exploding request waits for both an open section and a real location");
+ok(/fetch\(`\/api\/trends\/nearby\?lat=/.test(EXP),
+  "the default-open answer fetches its rights-gated nearby trend endpoint");
 
 /* ── 4. both loading paths are the same path ────────────────────────────── */
 const toggleFn = CODE.slice(CODE.indexOf("const toggle = ("));
@@ -226,14 +236,14 @@ ok(/\{why \? \(/.test(BN), "Row renders the why line conditionally — a place w
 ok(/const ROW_MAX_H = (\d+);/.test(BN), "the row height budget is a named constant");
 const rowMax = Number((BN.match(/const ROW_MAX_H = (\d+);/) || [])[1]);
 ok(rowMax >= 96, `ROW_MAX_H is at least 96 (got ${rowMax}) — 64 was the pre-reason row and a two-line why adds ~32px, so the last rows get clipped`);
-ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is computed from ROW_MAX_H, not from a literal");
+ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(BN), "ordinary panels compute maxHeight from ROW_MAX_H while the three-card answer may declare a larger named budget");
 
 // ═══════════════════════════════════════════════════════════════════════════
-// v6.97 — THE ANSWER HEADLINE, THE HEAD SLICE, AND THE MOOD ROW.
+// v7.10 — ONE IMMEDIATE ANSWER, THEN OPTIONAL PATHS.
 //
-// The surface now states an answer before it asks anything: a headline, a real
-// count, three results, a way to see the rest, and four moods. Each of those is
-// a promise to a reader who has about ten seconds, and each can rot silently.
+// Exploding Near You replaces the old time-of-day/count headline. It opens to
+// three substantial trend answers; every existing discovery path underneath
+// starts closed and retains its real query/card treatment when opened.
 // ═══════════════════════════════════════════════════════════════════════════
 {
   // Reuses the module-level BN, which already strips {/* JSX comments */} with
@@ -244,19 +254,45 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // gone" check first failed: the only remaining occurrence was in a comment
   // describing its removal.
 
-  // ── the headline ──
-  ok(/<h2[^>]*>\s*\{headline\.lead\}/.test(BN.replace(/\n\s*/g, " ")),
-     "the answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/backgroundClip: "text"[\s\S]{0,80}\{headline\.tail\}/.test(BN),
-     "…with the time-of-day half carrying the gradient, as approved");
+  // ── the answer and exact hierarchy ──
+  ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
+     "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
+  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it\.",[^}]*heading: true,[^}]*maxHeight: 6000 \}/.test(BN),
+     "the first section carries the exact approved title, support line, heading semantics and three-card height budget");
+  const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
+  const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
+  const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");
+  ok(iExplodingRender > -1 && iExplodingRender < iBestRender && iBestRender < iMappedRender,
+     "Exploding Near You renders first, The Best Around You second, and the mapped discovery rows follow");
+  ok(/const TOP40_SECTION = \{ id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby\."/.test(BN),
+     "the existing Top 40 behavior is preserved under the approved Best Around You name");
+  const sectionBlock = BN.slice(BN.indexOf("const SECTIONS = ["), BN.indexOf("const trendsBody"));
+  const expectedSections = [
+    ["Actually Worth Eating", "Skip the endless reviews. Start here."],
+    ["What Should We Do Today?", "Great plans for right now."],
+    ["Places You'd Never Find", "Hidden gems worth knowing about."],
+    ["Locals Know", "Places recommended by creators who actually know the area."],
+    ["Tonight's Move", "The places and experiences that make sense tonight."],
+    ["Worth the Drive", "Good enough to go out of your way for."],
+  ];
+  const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
+  ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
+     `the six optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
+  const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
+  let collapsedDefaults = [];
+  try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
+  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+     "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
+  const layout = readFileSync(path.join(REPO, "app/layout.js"), "utf8");
+  const prepaintDecl = layout.match(/var v=r\?JSON\.parse\(r\):(\[[^;]+\]);/);
+  let prepaintDefaults = [];
+  try { prepaintDefaults = prepaintDecl ? JSON.parse(prepaintDecl[1].replace(/'/g, '"')) : []; } catch (e) {}
+  ok(JSON.stringify(prepaintDefaults) === JSON.stringify(collapsedDefaults),
+     "the pre-paint default exactly matches React's collapsed set, so no closed section flashes open before hydration");
   ok(!/Nearby, right now/.test(BN),
      "the old eyebrow is gone — it described the section instead of answering the question");
 
-  // ── every number in it is real ──
-  ok(/const n = openList\.length;/.test(BN),
-     "the headline's count comes from the list actually rendered, never a literal");
-  ok(/n \? n \+ " places "/.test(BN),
-     "the count clause is DROPPED when the list is empty or loading — '0 places scored' is worse than no count");
+  // ── every number and claim in the cards is real ──
   ok(!/\b30 places\b/.test(BN) && !/See all 30\b/.test(BN),
      "no hard-coded result count survives from the mockup — the mockup said 30, the engine says what it says");
   // SUPERSEDED with the head-of-three (owner, 2026-08-09). The label used to
@@ -266,11 +302,8 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // from the rendered list, never typed.
   ok(/"Search past these " \+ list\.length/.test(BN),
      "the more-link counts the real list, so it can never over-promise");
-  ok(/hourLabel\(ctx\.hour\)[\s\S]{0,40}ctx\.dayName/.test(BN),
-     "the hour and day come from the same nowContext() the RANKING uses — a headline on a different clock than the sort is a lie about what was ranked");
-  ok(/Math\.floor/.test(BN.slice(BN.indexOf("function hourLabel"), BN.indexOf("function hourLabel") + 400)),
-     "the hour label is whole-hour — minute precision on a daypart-bucketed ranking claims accuracy the sort does not have");
-  ok(/no paid placement/.test(BN), "the integrity line ships with the answer, not buried in a footer");
+  ok(/Trend momentum selects experiences\. Wayfind Score ranks places\. No paid placement\./.test(EXP),
+     "the trend/score boundary and integrity line ship with the answer, not buried in a footer");
 
   // ── THE LIST IS NOT CUT ANY MORE (owner, 2026-08-09) ──
   // SUPERSEDES the head-of-three. "No longer place the 10 restriction on these
@@ -312,13 +345,17 @@ ok(/maxHeight: isOpen \? 10 \* ROW_MAX_H/.test(BN), "the panel's maxHeight is co
   // menu's own section list must still name only intents that resolve to a real
   // page, because a dead end here is a dead end at the exact moment someone has
   // decided to trust the ranking. This is the stronger version of the old check
-  // — it now covers all four intent rails, not the four chips.
+  // — it covers every intent rail that remains in the experiment hierarchy.
   const intents = [...BN.matchAll(/intent: "([a-z-]+)", href: "([^"]+)"/g)];
-  ok(intents.length >= 4, `the menu's intent sections declare their destinations (found ${intents.length}, expected 4)`);
+  ok(intents.length === 3, `the menu's three intent sections declare their destinations exactly once (found ${intents.length}, expected 3)`);
   for (const [, intent, href] of intents) {
     ok(existsSync(path.join(REPO, "app", href.replace(/^\//, ""), "page.js")),
        `section "${intent}" points at a real page (app${href}/page.js)`);
   }
+  ok(/onBudget=\{\(\) =>[\s\S]{0,220}goIntent\("\/budget"\)/.test(HOME),
+     "Big fun, small budget remains reachable through the existing discovery menu after leaving the primary accordion");
+  ok(/const eventsRailSlot\s*=/.test(HOME) && /setScreen\("events"\)/.test(HOME),
+     "event discovery remains wired through the existing home architecture after leaving the primary accordion");
   ok(!/Or change the mood/.test(BN),
      "the in-section mood chips are gone — the menu IS the mood switcher now");
 }

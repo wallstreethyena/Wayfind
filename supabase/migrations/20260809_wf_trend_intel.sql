@@ -1,16 +1,14 @@
 -- 20260809_wf_trend_intel.sql — Exploding Topics trend-intelligence tables.
 --
--- ⚠ NOT APPLIED. As of this migration's authorship EXPLODING_TOPICS_RIGHTS_MODE
--- is "unconfirmed", no snapshot has been imported, and applying schema to the
--- production database is an owner-gated action (AGENTS.md §11). This file is the
--- reviewed artifact; the owner applies it.
+-- ⚠ NOT APPLIED. No snapshot has been imported, and applying schema to the
+-- production database is an owner-gated action (AGENTS.md §11). This file is
+-- the reviewed artifact; the owner applies it.
 --
 -- POSTURE. Identical to supabase/places-inventory.sql: RLS ON, and NO write
 -- policy is declared for anon/authenticated. The service role bypasses RLS, so
 -- "no policy" is what makes every write server-only. Read access is granted only
--- where a public surface genuinely needs it, and the licensed source rows are
--- NOT among those — an anon client must never be able to read raw topic data,
--- because redistribution to end users is one of the rights we do not hold.
+-- where a public surface genuinely needs it. Raw source rows are not among
+-- those; the serving route returns only the narrow, verified card payload.
 --
 -- ROLLBACK is at the foot of this file.
 
@@ -23,11 +21,6 @@ create table if not exists public.wf_trend_snapshots (
   observed_at       timestamptz not null,             -- the DATA's date, not the import's
   exported_at       timestamptz,                      -- when the human pulled it, when the file says
   expected_cadence  text not null,                    -- 'weekly' | 'daily' (EXPLODING_TOPICS_IMPORT_CADENCE)
-  rights_mode       text not null,                    -- the mode in force AT IMPORT TIME
-  -- Recorded per snapshot, not read from env at query time, because the rights
-  -- under which data was ingested cannot be changed retroactively by editing an
-  -- env var. A snapshot imported under internal_research stays internal.
-  public_use_permitted boolean not null default false,
   status            text not null,                    -- validating|complete|partial|failed|stale
   schema_version    text not null,
   requested_rows    integer not null default 0,
@@ -39,9 +32,7 @@ create table if not exists public.wf_trend_snapshots (
   constraint wf_trend_snapshots_status_ck
     check (status in ('validating','complete','partial','failed','stale')),
   constraint wf_trend_snapshots_cadence_ck
-    check (expected_cadence in ('weekly','daily')),
-  constraint wf_trend_snapshots_rights_ck
-    check (rights_mode in ('unconfirmed','internal_research','commercial_approved'))
+    check (expected_cadence in ('weekly','daily'))
 );
 -- Re-importing the same file is a no-op, not a second snapshot. This unique
 -- index is what makes `--apply` idempotent at the database rather than relying
@@ -77,8 +68,7 @@ create table if not exists public.wf_trend_topics (
   strength          numeric,                          -- normalized 0..1, forecast excluded
   eligible          boolean not null default false,
   eligibility_reason text not null,                   -- ALWAYS set, both directions
-  -- Raw row retained only when the licence permits it. Under 'unconfirmed' this
-  -- column is never written at all.
+  -- Raw row stays service-role only and never enters the public serving payload.
   raw_row           jsonb,
   expires_at        timestamptz not null,
   created_at        timestamptz not null default now()
@@ -218,21 +208,14 @@ alter table public.wf_trend_candidates       enable row level security;
 -- read ZERO rows and write ZERO rows; only the service role (which bypasses RLS)
 -- can touch these tables.
 --
--- This is deliberate for the LICENSED tables specifically: wf_trend_topics holds
--- Semrush-derived content, and redistribution to third parties is one of the
--- rights the Investor plan does not clearly grant. A public read policy here
--- would be a licensing decision disguised as a convenience.
---
--- When public display is approved, the correct move is a narrow SECURITY DEFINER
--- RPC returning ONLY (place_id, wf_list, topic, order_boost) for live matches —
--- never a table grant. That function is intentionally NOT created here, because
--- creating it now would make the public path reachable the moment someone
--- flipped an env var.
+-- This is deliberate: source topics and matching evidence stay server-only.
+-- The same-origin serving route returns only the verified card payload and
+-- remains rate-limited; a broad table grant would route around that boundary.
 
 comment on table public.wf_trend_snapshots is
-  'Exploding Topics CSV snapshots. Service-role only. rights_mode records the licence in force at import; it is not re-read from env.';
+  'Exploding Topics CSV snapshots. Service-role only; cadence and source hash make freshness and re-imports auditable.';
 comment on table public.wf_trend_topics is
-  'Normalized topics. LICENSED SOURCE DATA — never expose to anon. forecast_growth is excluded from all ranking paths by design.';
+  'Normalized topics. Source rows stay server-only; forecast_growth is excluded from all ranking paths by design.';
 comment on table public.wf_trend_place_matches is
   'Topic-to-place matches. order_boost is ORDER-ONLY and DB-bounded to 4.0; it never feeds the displayed Wayfind Score.';
 comment on table public.wf_trend_candidates is

@@ -22,13 +22,13 @@ import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, direct
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav } from "./RailCard";
+import ExplodingNearby from "./ExplodingNearby";
 // v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
 // big fun small budget) render the SAME card from the SAME engine their
 // destination pages use. See IntentRail.js for why this is the real list and
 // not a cheap filter over the pool already in memory.
 import IntentRailBody from "./IntentRail";
-import { INTENT_PAGES } from "../../lib/intentPages";
-import { applyCollapsedAttr, isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
+import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
@@ -78,17 +78,6 @@ function Medal({ i }) {
 const ROW_MAX_H = 100;
 
 
-
-// 22.4 -> "10pm". Whole hours only: "10:24pm" claims a precision the ranking
-// does not have (wf_best_picks buckets the day into four dayparts), and a
-// minute-accurate label on an hour-accurate ranking is a small lie that gets
-// noticed.
-function hourLabel(h) {
-  const n = Math.floor(((Number(h) % 24) + 24) % 24);
-  const ampm = n >= 12 ? "pm" : "am";
-  const h12 = n % 12 === 0 ? 12 : n % 12;
-  return h12 + ampm;
-}
 
 function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOneLine }) {
   const inner = (
@@ -294,7 +283,9 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
             : <NavIcon name={sdef.icon} size={21} strokeWidth={1.7} color={isOpen ? C.light : "#E7EDF5"} />}
         </span>
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span style={{ display: "block", fontSize: 15.2, fontWeight: 740, letterSpacing: "-.08px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.25 }}>{sdef.label}</span>
+          {sdef.heading
+            ? <h2 style={{ display: "block", margin: 0, fontSize: 18.5, fontWeight: 820, letterSpacing: "-.35px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.2 }}>{sdef.label}</h2>
+            : <span style={{ display: "block", fontSize: 15.2, fontWeight: 740, letterSpacing: "-.08px", color: isOpen ? "#FFF3E8" : C.text, lineHeight: 1.25 }}>{sdef.label}</span>}
           <span style={{ display: "block", fontSize: 11.5, color: "#8D9AAB", marginTop: 2 }}>{sdef.sub}</span>
         </span>
         <span aria-hidden="true" style={{ width: 24, height: 24, flexShrink: 0, color: isOpen ? C.light : "rgba(255,255,255,.42)", display: "grid", placeItems: "center", transform: isOpen ? "rotate(180deg)" : "none", transition: "transform .22s ease" }}>
@@ -306,7 +297,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
           walks four hidden rails of Save/Like/Share buttons. It flips with a
           delay on the way down so the collapse can finish animating, and
           instantly on the way up so the content is reachable straight away. */}
-      <div id={"wf-sec-" + sdef.id} style={{ overflow: "hidden", maxHeight: isOpen ? 10 * ROW_MAX_H + 220 : 0, opacity: isOpen ? 1 : 0, visibility: isOpen ? "visible" : "hidden", transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease, visibility 0s linear " + (isOpen ? "0s" : ".3s") }}>
+      <div id={"wf-sec-" + sdef.id} style={{ overflow: "hidden", maxHeight: isOpen ? (sdef.maxHeight || 10 * ROW_MAX_H + 220) : 0, opacity: isOpen ? 1 : 0, visibility: isOpen ? "visible" : "hidden", transition: "max-height .3s cubic-bezier(.4,0,.2,1), opacity .22s ease, visibility 0s linear " + (isOpen ? "0s" : ".3s") }}>
         <div style={{ padding: "0 2px 12px 12px" }}>{children}</div>
       </div>
     </div>
@@ -316,7 +307,8 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const TOP40_SECTION = { id: "best", label: "The best near you", sub: "Forty places within reach, ranked for this hour", icon: "award" };
+const EXPLODING_SECTION = { id: "exploding", label: "🔥 Exploding Near You", sub: "What's taking off — and where to experience it.", icon: "map", line: true, heading: true, maxHeight: 6000 };
+const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
 // the menu resolves its own rail.
@@ -326,7 +318,7 @@ const LOADABLE = { eat: 1, todo: 1, trends: 1 };
 // creator row and the intent rails use to decide a list is too thin to stand.
 const MIN_RAIL_ROWS = 3;
 
-export const DEFAULT_SECTION = "eat";
+export const DEFAULT_SECTION = "exploding";
 
 // v7.05 (owner, 2026-08-09): "we would pretty much be adding to the existing
 // menu we have and just reorganizing and adding the horizontal rails to them."
@@ -338,12 +330,9 @@ export const DEFAULT_SECTION = "eat";
 // solve, which is that a reader was meeting eight different headings for eight
 // different lists and had to decide which one was the answer.
 //
-// EVERY SECTION IS OPEN ON ARRIVAL and closes on tap, and the closed set
-// persists (lib/railCollapse.js). This inverts the previous behaviour in one
-// visible way: the accordion used to be one-open-at-a-time, so closing a
-// section opened another. It no longer does. The measured reason the FIRST
-// section opens by default (259 single-page sessions, median 10 seconds) is
-// unchanged and now applies to all of them.
+// Exploding Near You is open on arrival; every path beneath it is closed until
+// the reader chooses it. The closed set persists in lib/railCollapse.js, so a
+// deliberate reader preference still wins on later visits.
 export default function BestNearby({
   center, weather, events, videoPlaces, city, creatorSlot, eventsSlot, onOpenPlace, onLog,
   isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience,
@@ -369,16 +358,15 @@ export default function BestNearby({
   // loads first, and it is still seeded from DEFAULT_SECTION so the answer-
   // first read is unchanged.
   //
-  // THE CLOSED SET, not the open set. `null` means "the reader's choice has not
-  // been read yet", which renders as all-open — the same thing the server
-  // rendered, so hydration cannot disagree. See lib/railCollapse.js.
-  const [closed, setClosed] = useState(null);
+  // THE CLOSED SET, not the open set. Server render, pre-paint script and React
+  // all begin from the same experiment default, so hydration cannot disagree.
+  const [closed, setClosed] = useState(DEFAULT_COLLAPSED_RAILS);
   // The ref is what the NEXT toggle reads. React batches state updates across a
   // task, so two toggles in one tick both see the pre-batch `closed` and the
   // second one writes a list that has forgotten the first — measured live, not
   // theorised: collapsing two sections in the same tick persisted only one.
   // The ref is updated synchronously, so it cannot go stale between taps.
-  const closedRef = useRef(null);
+  const closedRef = useRef(DEFAULT_COLLAPSED_RAILS);
   useEffect(() => {
     let list = [];
     try { list = readCollapsed(); } catch (e) { list = []; }
@@ -464,6 +452,7 @@ export default function BestNearby({
   const [top40, setTop40] = useState("loading");
   const top40For = useRef("");
   useEffect(() => {
+    if (!sectionOpen("best")) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     const key = center.lat.toFixed(3) + "," + center.lng.toFixed(3);
     if (top40For.current === key) return;
@@ -508,7 +497,7 @@ export default function BestNearby({
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [center && center.lat, center && center.lng]);
+  }, [closed, center && center.lat, center && center.lng]);
 
   // THE EDITORIAL LAW, applied to EVERY place on this card (owner, 2026-08-09:
   // "the editorial needs to answer one question — why should I choose this
@@ -601,6 +590,7 @@ export default function BestNearby({
   // would have done, once per visitor, for nothing.
   useEffect(() => {
     if (!open) return;
+    if (!LOADABLE[open]) return;
     if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return;
     ensureLoaded(open);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -658,6 +648,7 @@ export default function BestNearby({
     // best_nearby_open and make the before/after read on this change
     // uninterpretable — which is the only reason the change is being made.
     try { onLog && onLog("best_nearby_open", null, { section: id, trigger: "tap" }); } catch (e) {}
+    if (id === "exploding") { try { onLog && onLog("trend_expand", null, { surface: "home", trigger: "tap" }); } catch (e) {} }
     // Only the sections whose data this component fetches. An intent rail and
     // the creator slot resolve their own content and must never be routed
     // through ensureLoaded — see the comment on `load` for what that cost.
@@ -673,10 +664,12 @@ export default function BestNearby({
     else { const u = directionsUrl(p); if (u) { try { window.open(u, "_blank", "noopener"); } catch (e) {} } }
   };
 
-  // Owner (2026-07-21, late): Local trends is OFF for now — vertical budget
-  // goes to the taller hero. All trends machinery stays; flip to bring back.
+  // The older Local trends row remains deliberately OFF. Its weather/beach/
+  // creator machinery stays below for a future explicit decision; it is not
+  // evidence for the licensed Exploding Near You experience.
   const SHOW_TRENDS = false;
-  // THE MENU (owner, 2026-08-09). Order is the owner's own numbering. Three
+
+  // THE MENU (owner, 2026-08-10). Order is the experiment hierarchy. Three
   // kinds of section, one shell:
   //   · rail   — the Top 40, rendered from wf_best_picks (id "best")
   //   · rows   — the two ranked lists that were already here (eat, todo)
@@ -687,24 +680,16 @@ export default function BestNearby({
   // two sections keep the NavIcon category glyphs they have always had, so
   // nothing about the existing rows moved.
   //
-  // The intent sections take their one-line sub from INTENT_PAGES' own
-  // `card.promise` rather than from new copy written here — that string is
-  // already the vetted promise for the same list (check-intent-cards enforces
-  // it exists), so the rail and the page it opens cannot describe themselves
-  // differently.
+  // Homepage support lines are experiment copy, while the destination pages
+  // retain their own longer promises. The underlying intent and href stay the
+  // same; only the collapsed-row framing changes here.
   const SECTIONS = [
-    { id: "eat", label: "Where to eat nearby", sub: "Ranked for this exact hour, not a generic top ten", icon: "food" },
-    { id: "todo", label: "Things to do today", sub: "Tours, beaches, museums and attractions in one ranked list", icon: "attractions" },
-    { id: "gems", label: "Hidden gems", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
-    { id: "creators", label: "Finds from local creators", sub: "Filmed by someone who actually lives here", icon: "film", line: true, slot: "creators" },
-    { id: "tonight", label: "Perfect for tonight", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
-    { id: "drive", label: "Worth the drive", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
-    { id: "budget", label: "Big fun, small budget", icon: "wallet", line: true, intent: "budget", href: "/budget", unit: "low-cost picks" },
-    // Ninth, and only when there is something on. An accordion row that opens
-    // onto "no events near you" is a row that costs a tap to learn nothing;
-    // home.js hands `eventsSlot` a null when the chain comes back empty.
-    ...(eventsSlot ? [{ id: "events", label: "Events near you", sub: "Concerts, games and shows — dates, times and tickets", icon: "events", slot: "events" }] : []),
-    ...(SHOW_TRENDS ? [{ id: "trends", label: "Local trends", sub: "What creators are posting, plus your area right now", icon: "map" }] : []),
+    { id: "eat", label: "Actually Worth Eating", sub: "Skip the endless reviews. Start here.", icon: "food" },
+    { id: "todo", label: "What Should We Do Today?", sub: "Great plans for right now.", icon: "attractions" },
+    { id: "gems", label: "Places You'd Never Find", sub: "Hidden gems worth knowing about.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
+    { id: "creators", label: "Locals Know", sub: "Places recommended by creators who actually know the area.", icon: "film", line: true, slot: "creators" },
+    { id: "tonight", label: "Tonight's Move", sub: "The places and experiences that make sense tonight.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
+    { id: "drive", label: "Worth the Drive", sub: "Good enough to go out of your way for.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
   ];
 
   const trendsBody = (d) => (
@@ -767,47 +752,24 @@ export default function BestNearby({
     </>
   );
 
-  // Built here, not in JSX, so the honesty rules are readable in one place.
-  const headline = (() => {
-    const ctx = nowCtx();
-    const openList = Array.isArray(rows[open]) ? rows[open] : [];
-    const n = openList.length;
-    // The COUNT clause is dropped entirely while loading or empty. A headline
-    // that says "0 places scored" is worse than a headline with no count, and
-    // one that says "30" when the engine returned 12 is worse than both.
-    const factors = "scored on reviews, distance and time of day";
-    return {
-      // HONESTY FIX (owner-reported 2026-08-07: Rocco's Tacos & Tequila Bar
-      // under "Open now" at 7am). Nothing in the engine checks opening hours —
-      // wf_best_picks filters permanently-closed status only — so the header
-      // must not claim "Open now" until an hours engine exists (scoped: hours
-      // column + open-now filter + freshness cron). "The best near you" is
-      // what the list actually is; the hour framing stays because the daypart
-      // fit is real.
-      lead: open === "todo" ? "Things to do near you," : "The best near you,",
-      tail: "ranked for " + hourLabel(ctx.hour) + " " + ctx.dayName + ".",
-      sub: (n ? n + " places " + factors : "Ranked " + factors) + " · no paid placement",
-    };
-  })();
-
   return (
     <section aria-label="Best nearby" style={{ position: "relative", overflow: "hidden", background: "linear-gradient(145deg, #101722 0%, #0A0E15 72%)", border: "1px solid #293442", borderRadius: 19, padding: "4px 14px", marginBottom: 12, boxShadow: "inset 0 1px 0 rgba(255,255,255,.045), 0 12px 30px rgba(0,0,0,.2)" }}>
       <style dangerouslySetInnerHTML={{ __html: `.wf-bn-focus:focus-visible{outline:${FOCUS.outline};outline-offset:${FOCUS.outlineOffset}}` }} />
-      {/* v6.97 — THE ANSWER, stated before anything is asked of the reader.
-          This replaced an eyebrow that read "Nearby, right now / Updated for
-          this hour": true, but it described the section instead of answering
-          the question, and a stranger who lands here has about ten seconds.
-          Every number in it is real — the hour and day come from the same
-          nowContext() the ranking uses, and the count is the length of the
-          list actually rendered below, never a round figure. */}
-      <div style={{ padding: "13px 1px 11px" }}>
-        <h2 style={{ margin: 0, fontSize: 21, fontWeight: 820, letterSpacing: "-.7px", lineHeight: 1.16, color: C.text }}>
-          {headline.lead}
-          <br />
-          <span style={{ background: "linear-gradient(120deg, #FDA60A, #FB3502)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>{headline.tail}</span>
-        </h2>
-        <div style={{ marginTop: 6, fontSize: 11.5, color: "#7F8DA0", lineHeight: 1.4 }}>{headline.sub}</div>
-      </div>
+      <SectionShell sdef={EXPLODING_SECTION} isOpen={sectionOpen("exploding")} first onToggle={toggle} nodeRef={(el) => { secRefs.current.exploding = el; }}>
+        <ExplodingNearby
+          center={center}
+          active={sectionOpen("exploding")}
+          onOpenPlace={onOpenPlace}
+          onLog={onLog}
+          isSaved={isSaved}
+          liked={liked}
+          disliked={disliked}
+          onSave={onSave}
+          onLike={onLike}
+          onDislike={onDislike}
+          onShare={onShare}
+        />
+      </SectionShell>
       {/* ── THE TOP 40 (owner, 2026-08-08) ────────────────────────────────
           "i want the same cards inside this... place 40 cards there... allow
           the user scroll right and left", and "make sure it is housed under
@@ -926,7 +888,7 @@ export default function BestNearby({
         // opens onto nothing is worse than no row — so the header goes with it.
         if (!railBody) return null;
         return (
-          <SectionShell sdef={TOP40_SECTION} isOpen={sectionOpen(TOP40_SECTION.id)} first onToggle={toggle} nodeRef={(el) => { secRefs.current.best = el; }}>
+          <SectionShell sdef={TOP40_SECTION} isOpen={sectionOpen(TOP40_SECTION.id)} onToggle={toggle} nodeRef={(el) => { secRefs.current.best = el; }}>
             {railBody}
           </SectionShell>
         );
@@ -935,14 +897,8 @@ export default function BestNearby({
         const isOpen = sectionOpen(sdef.id);
         const data = rows[sdef.id];
         const list = Array.isArray(data) ? data : [];
-        // The intent rails describe themselves with their destination page's
-        // OWN vetted promise line, so a rail and the page it opens can never
-        // read differently. A slot section (creator finds) keeps the sub it was
-        // given, because the component that owns it owns that claim too.
-        const def = sdef.intent ? INTENT_PAGES[sdef.intent] : null;
-        const head = def && def.card && def.card.promise ? { ...sdef, sub: def.card.promise } : sdef;
         return (
-          <SectionShell key={sdef.id} sdef={head} isOpen={isOpen} onToggle={toggle} nodeRef={(el) => { secRefs.current[sdef.id] = el; }}>
+          <SectionShell key={sdef.id} sdef={sdef} isOpen={isOpen} onToggle={toggle} nodeRef={(el) => { secRefs.current[sdef.id] = el; }}>
               <>
                 {sdef.intent ? (
                   <IntentRailBody

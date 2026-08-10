@@ -38,6 +38,7 @@ import { attributionParams } from "../lib/attribution";
 // is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
+import { noteExplodingSignup } from "../lib/explodingExperiment";
 // Experiment slice, so an in-app detail_open can be attributed back to the
 // static entry page that assigned the visitor. Empty when never exposed.
 import { experimentProps } from "../lib/experiment";
@@ -4564,7 +4565,7 @@ function PageInner({ initialEvents = null }) {
           const res = await supabase.auth.signInWithPassword(creds);
           if (res.error) showToast("Account created \u2014 now sign in: " + res.error.message);
           // A real account that is really signed in: the PRIMARY conversion.
-          else { try { logEvent("signup_completed", null, { method: "server_route" }); } catch (e) {} showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+          else { try { logEvent("signup_completed", null, { method: "server_route" }); noteExplodingSignup(logEvent); } catch (e) {} showToast("Account created \u2014 you're signed in."); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
           setAuthSending(false); return;
         }
       }
@@ -4583,7 +4584,7 @@ function PageInner({ initialEvents = null }) {
       // A session here means the credentials really worked. Only the signup
       // branch is a conversion; an existing user signing in is not new business,
       // so it stays analytics-only (login_completed).
-      else if (res.data && res.data.session) { try { logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" }); } catch (e) {} showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
+      else if (res.data && res.data.session) { try { logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" }); if (authMode === "signup") noteExplodingSignup(logEvent); } catch (e) {} showToast("Signed in"); setAuthOpen(false); setAuthEmail(""); setAuthPassword(""); }
       else if (authMode === "signup" && res.data && res.data.user && Array.isArray(res.data.user.identities) && res.data.user.identities.length === 0) { setAuthMode("signin"); showToast("This email already has an account \u2014 sign in below."); }
       else { showToast((isStandalone ? "Account created. Confirm from the email, then come back here and sign in with your password. The email link opens Safari, not this app \u2014 that is normal." : "Account created. Check your email to confirm, then sign in.")); }
     } catch (e) { showToast(e && e.message ? `Sign-in error: ${e.message}` : "Could not sign in"); }

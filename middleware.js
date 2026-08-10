@@ -111,6 +111,11 @@ export const config = {
     // a Supabase read. Full same-origin guard keeps our own demand signal, the
     // one popularity number we actually own, from being harvested off-origin.
     "/api/events/demand",
+    // Exploding Near You reads a commercially licensed, service-role-only
+    // snapshot and returns a narrow controlled view. Browser-only same-origin
+    // access keeps that derived catalogue from becoming a public bulk-export
+    // endpoint while the ordinary homepage request continues unchanged.
+    "/api/trends/nearby",
     // Commerce redirect (#469's missing half): /api/commerce/go is the GET-302
     // every schema-approved money link resolves through. It is matched to get the
     // per-IP rate limit — it mints a click_id and reads wf_experiences via the
