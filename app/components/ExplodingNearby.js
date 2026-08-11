@@ -268,7 +268,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
     );
   }
   if (result.status === "unsupported_location") {
-    return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Exploding Near You is not available in this area yet.</div>;
+    return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>Exploding Trends Near You is not available in this area yet.</div>;
   }
   if (result.status === "no_verified_inventory") {
     return <div style={{ color: C.muted, fontSize: 13, lineHeight: 1.5, padding: "7px 2px 13px" }}>No trend has enough verified local inventory to recommend right now.</div>;
