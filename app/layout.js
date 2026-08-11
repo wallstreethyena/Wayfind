@@ -212,7 +212,10 @@ export default function RootLayout({ children }) {
             as the source of truth.
             ⚠ PRIVACY: third-party tracker — must be covered by the privacy
             policy + cookie consent (see the monetization/legal package). */}
-        <Script id="travelpayouts-drive" strategy="lazyOnload" src="https://tp-em.com/NTUwMTYw.js?t=550160" />
+        {/* v6.99 (P1 speed): verification passed weeks ago, so per the note
+            above this script now waits for FIRST INTERACTION, same gate as
+            Stay22 — a visitor who never interacts never downloads it. */}
+        <Script id="travelpayouts-drive" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `(function(){var l=false;function go(){if(l)return;l=true;var s=document.createElement('script');s.async=1;s.src='https://tp-em.com/NTUwMTYw.js?t=550160';var f=document.getElementsByTagName('script')[0];f.parentNode.insertBefore(s,f);['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.removeEventListener(ev,go,{passive:true})});}['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){window.addEventListener(ev,go,{passive:true,once:true})});})();` }} />
         {/* v5.38 a11y: one main landmark for every route; the skip link targets it.
             v6.44: 100dvh, not 100vh — see the note on <body> above. On "/" this
             wrapper holds the 100dvh app shell, so any extra height here is pure

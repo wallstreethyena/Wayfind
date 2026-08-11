@@ -22,7 +22,10 @@ export default function PostHogProvider({ children }) {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (!key || typeof window === "undefined" || window._phInit) return;
     window._phInit = true;
-    import("posthog-js").then(({ default: ph }) => {
+    // v6.99 (P1 speed): init at IDLE (4s ceiling), off the discovery images'
+    // critical path. PostHog's dated-defaults bundle replays history-change
+    // pageviews from init, so nothing is lost by waiting a beat.
+    const boot = () => import("posthog-js").then(({ default: ph }) => {
       try {
         ph.init(key, {
           api_host: "https://us.i.posthog.com",
@@ -32,6 +35,8 @@ export default function PostHogProvider({ children }) {
         window.posthog = ph;
       } catch (e) {}
     }).catch(() => {});
+    if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(boot, { timeout: 4000 });
+    else setTimeout(boot, 1500);
   }, []);
   return children;
 }

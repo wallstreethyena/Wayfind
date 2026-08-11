@@ -2675,7 +2675,9 @@ function EventRailCard({ event, rank, relativeLabel, saved, liked, disliked, onS
   const href = internal ? event.dest : ticketUrl(event.dest);
   const venue = cleanVenueName(event.venue) || event.city || "Nearby";
   const categoryImage = eventCategoryArt(bucket, event);
-  const railImage = (eventUseImage(event) ? event.image : "") || categoryImage;
+  // v6.99 (P1 speed): rail cards render the right-sized thumb the API now
+  // ships (smallest 16:9 ≥ 320px); the 1024px pick stays hero-only.
+  const railImage = (eventUseImage(event) ? (event.thumb || event.image) : "") || categoryImage;
   const cta = eventCTA(event);
   const tix = internal && event.url ? ticketUrl(event.url) : null;
   // The badge: relative when the event is close enough that "Tonight" is more
@@ -4182,7 +4184,7 @@ function PageInner({ initialEvents = null }) {
       item_type: "event",
       item_id: ev.id,
       item_title: ev.name || "",
-      item_image: (eventUseImage(ev) ? ev.image : "") || eventCategoryArt(eventBucket(ev), ev) || null,
+      item_image: (eventUseImage(ev) ? (ev.thumb || ev.image) : "") || eventCategoryArt(eventBucket(ev), ev) || null,
       item_url: internal ? originUrl(ev.dest) : ticketUrl(ev.dest),
       provider: ev.source || null,
     });

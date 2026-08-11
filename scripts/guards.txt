@@ -111,6 +111,7 @@ node scripts/test-front-events.mjs
 node scripts/test-top-rated.mjs
 node scripts/test-card-gate.mjs
 node scripts/test-map-cost.mjs
+node scripts/check-maps-deferral.mjs
 node scripts/test-map-worker.mjs
 node scripts/test-map-explorer.mjs
 node scripts/test-card-a11y.mjs
