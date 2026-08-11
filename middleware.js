@@ -129,6 +129,10 @@ export const config = {
     // everyone. Loaded via <img>, same shape as /api/photo, so it joins
     // IMAGE_ROUTES below (rate-limit only, never same-origin blocked).
     "/api/creator-avatar",
+    // Server reverse-geocode proxy (v6.99): metered Google Geocoding upstream
+    // behind a shared 30-day cell cache. Same-origin + per-IP rate limit —
+    // it is an XHR from our own pages, never a navigation or an <img>.
+    "/api/geocode",
   ],
 };
 

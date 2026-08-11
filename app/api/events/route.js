@@ -69,7 +69,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
       const dates = e.dates && e.dates.start ? e.dates.start : {};
       const venue = e._embedded && e._embedded.venues && e._embedded.venues[0] ? e._embedded.venues[0] : null;
       const vloc = venue && venue.location ? venue.location : null;
-      let img = null;
+      let img = null, thumb = null;
       if (Array.isArray(e.images) && e.images.length) {
         // v6.43 LCP: this used to sort widest-FIRST and take [0], which shipped
         // Ticketmaster's 2048x1152 / ~503KB JPEG into a hero slot that is 388px
@@ -81,6 +81,13 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         const HERO_MIN_W = 1024;
         const wide = e.images.filter((i) => i.ratio === "16_9").sort((a, b) => (a.width || 0) - (b.width || 0));
         img = (wide.find((i) => (i.width || 0) >= HERO_MIN_W) || wide[wide.length - 1] || e.images[0]).url;
+        // v6.99 (P1 speed): the rail CARDS are ~110-250px wide but reused the
+        // 1024px hero pick — a 4-10x oversized download per card, measured live
+        // by the owner. Ticketmaster ships smaller 16:9 variants in the same
+        // payload; take the smallest ≥ 320 (2x DPR for the card slot) as
+        // `thumb`. Falls back to the hero pick so no card ever loses its image.
+        const THUMB_MIN_W = 320;
+        thumb = (wide.find((i) => (i.width || 0) >= THUMB_MIN_W) || wide[0] || null)?.url || img;
       }
       const cls = Array.isArray(e.classifications) && e.classifications[0] ? e.classifications[0] : null;
       const seg = cls && cls.segment ? cls.segment.name : "";
@@ -102,7 +109,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
         lat: vloc && vloc.latitude != null ? Number(vloc.latitude) : null,
         lng: vloc && vloc.longitude != null ? Number(vloc.longitude) : null,
-        segment: seg, genre, image: img, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
+        segment: seg, genre, image: img, thumb: thumb || img, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
         // Phase 1: cancelled/postponed events used to flow into cards
         // unchecked -- the pipeline now excludes on this field.
         status: e.dates && e.dates.status && e.dates.status.code ? e.dates.status.code : "",
