@@ -47,6 +47,7 @@ import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { couponForPlaceName } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
+import { lawfulSort } from "../../lib/lawfulOrder.js";
 
 // Measured against the Top 40 rail, which renders the identical card with the
 // identical chip and action rows. One constant so the skeleton and the live
@@ -209,7 +210,10 @@ export default function IntentRailBody({
             // may mix but may not be one category in disguise.
             compose: def.compose || null,
             planAhead: !!def.planAhead,
-          }).filter((r) => Number.isFinite(r.distMi) && r.distMi <= capMi).slice(0, RAIL_CANDIDATE_MAX);
+            minDistanceMi: def.minDistanceMi,
+          }).filter((r) => Number.isFinite(r.distMi)
+            && r.distMi <= capMi)
+            .slice(0, RAIL_CANDIDATE_MAX);
         };
         // THE LADDER. Cheapest thing that can answer, first; each rung only
         // runs when the one before it returned NOTHING (the owner's rule:
@@ -311,7 +315,13 @@ export default function IntentRailBody({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, rows === null, load, center && center.lat, center && center.lng]);
 
-  const list = uniqueRecommendations(Array.isArray(rows) ? rows : [], excludePlaceIds, RAIL_MAX);
+  // Dedupe can remove rows but may never change the governing order. Reapply
+  // the one lawful comparator so every sheet reads highest visible score first.
+  const list = lawfulSort(
+    uniqueRecommendations(Array.isArray(rows) ? rows : [], excludePlaceIds, RAIL_MAX),
+    null,
+    city
+  );
   const visibleIdKey = recommendationIds(list).join("|");
   useEffect(() => {
     if (onVisibleIds) onVisibleIds(visibleIdKey ? visibleIdKey.split("|") : []);

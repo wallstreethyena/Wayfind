@@ -103,7 +103,7 @@ function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, onLog, on
   // meta line with the green review dot. Tours differ ONLY by their meta
   // (from-$ + duration) and the Book pill where places show the chevron.
   // THE GOVERNING LAW, shown == sorted (2026-08-07): rows ranked by
-  // byVisibleScore carry governed_score — base +0.7 video −0.2 past 17mi
+  // byVisibleScore carry governed_score — base +0.2 video −0.2 past 17mi
   // +0.6 trending (disclosed below) — and the badge must show THAT number,
   // never a re-derived base that can disagree with the row's position.
   const ds = Number.isFinite(r.governed_score)

@@ -122,7 +122,7 @@ export default function TrendingNowClient() {
         return { ...p, why: line, timeFit: timeFit(p.category, hour) };
       }));
       // 2026-08-07: the UNIFIED trend signal (lib/trendSignal.js) decorates
-      // these rows, and byVisibleScore stamps governed_score (base +0.7 video
+      // these rows, and byVisibleScore stamps governed_score (base +0.2 video
       // −0.2 far +0.6 trending) onto the same objects — so the "Top rated"
       // sort below, the card badge, and the 🔥 disclosure all read ONE number.
       // rankByHour's hour-fit order is preserved (decoration mutates in place).

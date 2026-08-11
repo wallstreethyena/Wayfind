@@ -43,6 +43,7 @@ import { experienceTags } from "./IconicPlaceCard";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
+import { governedWayfindScore } from "../../lib/wayfindScore";
 import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
 
@@ -87,6 +88,7 @@ function creatorChips(p, onExperience) {
 // tab returns without re-hitting the search endpoint. Keyed by name|city.
 const _scoutedPhotoCache = new Map();
 const REF_RX = /^places\/[A-Za-z0-9_-]+\/photos\/[A-Za-z0-9_-]+$/;
+const normalizedName = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 // /api/places/search can answer from two lawful caches: the normalized owned
 // inventory shape or Google's raw Places shape. Both carry the same real data,
@@ -117,15 +119,25 @@ export function creatorSearchPlace(first, fallbackName = "") {
 // SAME cached /api/places/search the pool uses (which now returns photo_ref),
 // then the guarded /api/photo proxy. Returns "" (not null) on any miss so the
 // cache records "looked, found none" and never retries in a loop.
-async function resolveScoutedPlace(name, city, center) {
-  const key = `${name}|${city}`;
+async function resolveScoutedPlace(spot, center) {
+  const name = spot && spot.name;
+  const city = spot && spot.city;
+  const key = `${spot && spot.placeId || ""}|${name}|${city}`;
   if (_scoutedPhotoCache.has(key)) return _scoutedPhotoCache.get(key);
   if (!center || !isFinite(center.lat) || !isFinite(center.lng)) return null;
   try {
     const q = encodeURIComponent(`${name} ${city}`);
-    const r = await fetch(`/api/places/search?q=${q}&lat=${center.lat}&lng=${center.lng}&limit=1`);
+    const r = await fetch(`/api/places/search?q=${q}&lat=${center.lat}&lng=${center.lng}&n=5`);
     const j = await r.json();
-    const first = j && Array.isArray(j.places) ? j.places[0] : null;
+    const candidates = j && Array.isArray(j.places) ? j.places : [];
+    const wantedId = String(spot && spot.placeId || "");
+    const wantedName = normalizedName(name);
+    // Never attach a creator or score to Google's first fuzzy result. Resolve
+    // the declared Place ID when available, otherwise require the exact venue
+    // name. A miss stays an honest score-pending card.
+    const first = candidates.find((p) => wantedId && String(p.id || p.place_id || "") === wantedId)
+      || candidates.find((p) => normalizedName(p.name || (p.displayName && p.displayName.text)) === wantedName)
+      || null;
     if (!first) { _scoutedPhotoCache.set(key, null); return null; }
     // THE HYDRATED SHAPE. Everything here was LOOKED UP against the real Google
     // place, so a rating or a type on this row is measured, not invented — the
@@ -174,7 +186,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
     let alive = true;
     const need = registryRows.filter((r) => r.spot && r.spot.name && !(r.key in hydrated));
     if (!need.length) return;
-    Promise.all(need.map(async (r) => [r.key, await resolveScoutedPlace(r.spot.name, r.spot.city, center)]))
+    Promise.all(need.map(async (r) => [r.key, await resolveScoutedPlace(r.spot, center)]))
       .then((pairs) => {
         if (!alive) return;
         setHydrated((prev) => { const next = { ...prev }; for (const [k, v] of pairs) next[k] = v; return next; });
@@ -190,9 +202,32 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
     const h = hydrated[entry.key];
     return String(h && h.id || ("creator:" + entry.key));
   };
+  const scoreForEntry = (entry) => {
+    if (entry.kind === "pool") {
+      const p = entry.row && entry.row.p;
+      if (!p) return -Infinity;
+      if (Number.isFinite(p.governed_score)) return p.governed_score;
+      const base = p.wfScore != null ? p.wfScore : wayfindScore(p.rating, p.reviews);
+      const governed = governedWayfindScore(base, { hasCreatorVideo: true, distanceMi: p.distMi, trending: !!p.trending });
+      // Stamp the exact sort key onto the rendered place so the badge and rank
+      // cannot disagree on the creator shelf.
+      if (governed != null) p.governed_score = governed;
+      return governed ?? -Infinity;
+    }
+    const h = hydrated[entry.key];
+    return h && h.rating
+      ? governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true }) ?? -Infinity
+      : -Infinity;
+  };
   const visibleInventory = inventory.filter((entry) => {
     const id = creatorEntryId(entry);
     return id && !excluded.has(id);
+  }).sort((a, b) => {
+    const d = scoreForEntry(b) - scoreForEntry(a);
+    if (Number.isFinite(d) && d) return d;
+    const ar = a.kind === "pool" ? Number(a.row && a.row.p && a.row.p.reviews) || 0 : Number(hydrated[a.key] && hydrated[a.key].reviews) || 0;
+    const br = b.kind === "pool" ? Number(b.row && b.row.p && b.row.p.reviews) || 0 : Number(hydrated[b.key] && hydrated[b.key].reviews) || 0;
+    return br - ar;
   });
   const visibleIdKey = visibleInventory.map(creatorEntryId).join("|");
   useEffect(() => {
@@ -225,9 +260,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
           unchanged: the place's OWN photo (never the creator's video
           thumbnail — CREATOR_VIDEO_SPEC.md's never-re-host rule), the real
           handle, the real platform, and the real Wayfind Score. The rank is
-          orderFinds()'s own ordering, which is a genuine ranking (nearest
-          band, then the places the creator boost actually moved, then score),
-          so a number on this card means something. */}
+          governed score ordering, so every rank number agrees with the score. */}
       <RailNav railId="creator-finds" count={visibleInventory.length + (bridge && !registryRows.length ? 1 : 0)} unit="creator finds" />
       <div className="wf-rail" data-rail="creator-finds" tabIndex={0} role="region" aria-label="Finds from local creators">
         {visibleInventory.map((entry, i) => {
@@ -285,7 +318,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               photo={(h && h.photo) || null}
               title={s0.name}
               eyebrow={s0.city ? "Scouted in " + s0.city : "Scouted"}
-              score={h && h.rating ? cardScore({ rating: h.rating, reviews: h.reviews }) : null}
+              score={h && h.rating ? toDisplayScore(governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true })) : null}
               facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator video", onClick: () => { if (onBrowse) onBrowse(); } }]}

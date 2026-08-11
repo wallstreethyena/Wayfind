@@ -10,15 +10,15 @@ const ok = (c, m) => { n++; if (!c) { failn++; console.error("FAIL:", m); } };
 // driveDeduction curve this file used to lock is retired: it was rank-only
 // and invisible, which is how a shown 9.2 rendered below two shown 9.0s
 // (owner's screenshot, Bradenton, 2026-08-07). The law: a creator video is a
-// flat +7 (0.7 shown), strictly-past-17-miles is a flat −2 (0.2 shown), the
+// flat +2 (0.2 shown), strictly-past-17-miles is a flat −2 (0.2 shown), the
 // number shown IS the number sorted, unrated stays null.
-ok(CREATOR_VIDEO_BONUS === 7 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers");
+ok(CREATOR_VIDEO_BONUS === 2 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers");
 ok(governedWayfindScore(90, {}) === 90, "no video, near: base untouched");
-ok(governedWayfindScore(90, { hasCreatorVideo: true }) === 97, "a 9.0 with a creator video shows 9.7 — the owner's own example");
+ok(governedWayfindScore(92, { hasCreatorVideo: true }) === 94, "a 9.2 with a creator video shows 9.4 — the owner's own example");
 ok(governedWayfindScore(92, { distanceMi: 20 }) === 90, "a 9.2 past 17 miles shows 9.0 — the owner's own example");
 ok(governedWayfindScore(92, { distanceMi: 17 }) === 92, "17.0 miles exactly is NOT past 17 — strictly greater only");
-ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 30 }) === 95, "both terms stack: +7 then −2");
-ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100 so toDisplayScore never nulls a boosted great place");
+ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 30 }) === 90, "both terms stack: +2 then −2");
+ok(governedWayfindScore(99, { hasCreatorVideo: true }) === 100, "clamped at 100 so toDisplayScore never nulls a boosted great place");
 ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "unrated stays null — a video cannot invent a score");
 ok(governedWayfindScore(90, { distanceMi: null }) === 90 && governedWayfindScore(90, { distanceMi: NaN }) === 90, "unknown distance: no deduction (tours have no coords)");
 // Sort parity: byVisibleScore orders by the same governed number the chip

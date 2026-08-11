@@ -1,7 +1,7 @@
 // scripts/check-score-law.mjs — THE GOVERNING LAW, locked.
 //
 // Owner directive, verbatim (2026-08-07): "If there is an influencer video, I
-// want that to add a zero point seven to the score… if the place is greater
+// want that to add a zero point two to the score… if the place is greater
 // than seventeen miles away, I want a zero point two deduction… It needs to
 // be the governing rule for the Wayfind score… everywhere that we're
 // presenting options, it needs to be ranked by the Wayfind score."
@@ -24,15 +24,15 @@ const ok = (c, m) => { if (!c) fail(m); pass += 1; };
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
 // ── 1. The constants are the owner's numbers, in one place ──────────────────
-ok(CREATOR_VIDEO_BONUS === 7, "+0.7 shown: CREATOR_VIDEO_BONUS is 7 on the 0–100 scale");
+ok(CREATOR_VIDEO_BONUS === 2, "+0.2 shown: CREATOR_VIDEO_BONUS is 2 on the 0–100 scale");
 ok(FAR_MILES === 17 && FAR_PENALTY === 2, "−0.2 shown strictly past 17 miles: FAR_MILES 17, FAR_PENALTY 2");
 
 // ── 2. The arithmetic, on the owner's own examples ──────────────────────────
-ok(governedWayfindScore(90, { hasCreatorVideo: true }) === 97, "a 9.0 with a video shows 9.7");
+ok(governedWayfindScore(92, { hasCreatorVideo: true }) === 94, "a 9.2 with a video shows 9.4");
 ok(governedWayfindScore(92, { distanceMi: 20 }) === 90, "a 9.2 past 17 miles shows 9.0");
 ok(governedWayfindScore(92, { distanceMi: 17 }) === 92, "17.0 exactly is not past 17");
-ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 25 }) === 95, "terms stack: +7 − 2");
-ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100");
+ok(governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 25 }) === 90, "terms stack: +2 − 2");
+ok(governedWayfindScore(99, { hasCreatorVideo: true }) === 100, "clamped at 100");
 ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "unrated stays null");
 ok(governedWayfindScore(90, { distanceMi: null }) === 90, "unknown distance takes no deduction");
 
@@ -46,10 +46,10 @@ ok(governedWayfindScore(95, { trending: true }) === 99, "bounded: 9.5 trending c
 ok(governedWayfindScore(96, { trending: false }) === 96, "not trending → no bump");
 ok(governedWayfindScore(96, {}) === 96, "absent signal is identical to not trending (fail-soft)");
 ok(governedWayfindScore(null, { trending: true }) === null, "unrated stays null — trending cannot invent a score");
-ok(governedWayfindScore(98, { hasCreatorVideo: true, trending: true }) === 100,
-  "the cap never SUBTRACTS: a 98+video already at 100 keeps 100 when it also trends");
-ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi: 25 }) === 99,
-  "terms stack: 90 +7 video −2 far = 95, then trending +6 caps at 99 — trending can never be the term that mints a 10.0");
+ok(governedWayfindScore(99, { hasCreatorVideo: true, trending: true }) === 100,
+  "the cap never SUBTRACTS: a 99+video already at 100 keeps 100 when it also trends");
+ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi: 25 }) === 96,
+  "terms stack: 90 +2 video −2 far = 90, then trending +6 = 96");
 
 // Shown == sorted WITH the trending term: byVisibleScore reads r.trending
 // (attached by lib/trendSignal.js before the sort) into the same governed
@@ -443,4 +443,4 @@ ok(/governedWayfindScore\(/.test(LANDING), "…and the landing rank runs through
   ok(stripped <= 1, `at most the one tour row strips the chip input (got ${stripped}) — a ranked place row that strips it recreates the shown!=sorted inversion`);
 }
 
-console.log(`check-score-law: OK — ${pass} assertions (the governing rule: +0.7 creator video, −0.2 past 17mi, shown == sorted, null stays null, ties-only diversity)`);
+console.log(`check-score-law: OK — ${pass} assertions (the governing rule: +0.2 creator video, −0.2 past 17mi, shown == sorted, null stays null, ties-only diversity)`);

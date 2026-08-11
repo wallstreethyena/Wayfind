@@ -164,7 +164,7 @@ const STATUS_LABEL = { great: "Great beach day", great_uv_caution: "Great beach 
 // HOW THE ORDER IS PRODUCED, and why there is no new algorithm here. The bias
 // the owner is asking for ALREADY EXISTS in the governed score that ranks every
 // surface on this site: lib/wayfindScore.js adds +0.6 for a trending place and
-// +0.7 for one with a creator video (the Instagram/TikTok library), on the /10
+// +0.2 for one with a creator video (the Instagram/TikTok library), on the /10
 // scale. So "most trending, preferably the creator videos" is what
 // byVisibleScore() already returns — this rail just widens the POOL it sees and
 // then sorts the union by exactly that same number.
@@ -504,7 +504,7 @@ export default function BestNearby({
         pool.push(r);
       }));
       // THE SAME SORT the rest of the site uses. byVisibleScore stamps
-      // governed_score (base +0.7 creator video, -0.2 past 17mi, +0.6
+      // governed_score (base +0.2 creator video, -0.2 past 17mi, +0.6
       // trending) and orders by it, so the rail is "shown == sorted" like
       // every other ranked surface — the badge on each card is the number
       // that put it in that position.
@@ -728,9 +728,9 @@ export default function BestNearby({
     { id: "todo", label: "What Should We Do Today?", sub: "Great plans for right now.", icon: "attractions" },
     { id: "gems", label: "Places You'd Never Find", sub: "Hidden gems worth knowing about.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
     { id: "creators", label: "Locals Know", sub: "Places recommended by creators who actually know the area.", icon: "film", line: true, slot: "creators" },
-    { id: "events", label: "Events Near You", sub: "Concerts, shows and things happening nearby.", icon: "ticket", line: true, slot: "events" },
     { id: "tonight", label: "Tonight's Move", sub: "The places and experiences that make sense tonight.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
     { id: "drive", label: "Worth the Drive", sub: "Good enough to go out of your way for.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
+    { id: "events", label: "Events Near You", sub: "Concerts, shows and things happening nearby.", icon: "ticket", line: true, slot: "events" },
   ];
 
   const trendsBody = (d) => (
@@ -887,7 +887,7 @@ export default function BestNearby({
                 const tagged = { ...p, types: Array.isArray(p.types) ? p.types : (p.primary_type ? [p.primary_type] : []), priceLevel: p.price_level != null ? p.price_level : p.priceLevel };
                 const chips = [
                   // byVisibleScore stamps creator_video when it applied the
-                  // +0.7, so this label and the score can never disagree.
+                  // +0.2, so this label and the score can never disagree.
                   p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
                   coupon ? { key: "deal", icon: "🏷️", label: "Deal" } : null,
                   ...experienceTags(tagged, 4).map((t) => ({ key: t.key, icon: t.icon, label: t.label })),

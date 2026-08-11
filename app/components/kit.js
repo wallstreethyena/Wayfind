@@ -294,7 +294,7 @@ export function PlaceScoreChip({ p, size = 12 }) {
   // that it now feeds a real place object through the same adjuster.
   // THE GOVERNING LAW, shown == sorted (2026-08-07 root cause): when a row was
   // ranked by byVisibleScore it carries `governed_score` — the EXACT number the
-  // sort used (base +0.7 video −0.2 past 17mi). Prefer it, so the chip can never
+  // sort used (base +0.2 video −0.2 past 17mi). Prefer it, so the chip can never
   // disagree with the row's position. The bug this closes: BestNearby's ranked
   // rows were handing this chip a stripped { rating, reviews } with no distance,
   // so displayedWfScore recomputed the BASE (no −0.2) while the list sorted on
