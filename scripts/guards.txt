@@ -345,3 +345,4 @@ node scripts/test-trend-order.mjs
 node scripts/check-trend-integrity.mjs
 
 node scripts/check-trend-score.mjs
+node scripts/check-trend-sources.mjs
