@@ -4223,7 +4223,17 @@ function PageInner({ initialEvents = null }) {
   // specific POI — open its detail, do not treat it as a city") and near=
   // ("resolve it against the guide's region, not the visitor's location").
   // Captured together so the effect below hands submitSearch the whole intent.
-  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: sp.get("intent") === "place", near: (sp.get("near") || "").trim() || null }; } catch (e) {} }, []);
+  useEffect(() => { try { const sp = new URLSearchParams(window.location.search); const qq = sp.get("q"); const it = (sp.get("intent") || "").trim();
+    // v7.13 (owner-reported, 2026-08-12: "our blog's buttons don't work — they
+    // throw you to the main page and do nothing"). Guides, culture pages and
+    // the SEO landings all send "/?intent=<keyword>" from their PRIMARY CTA —
+    // "Personalize these picks" — and this parser only ever read "?q=", so the
+    // app's own front door dropped the promise on the floor. "?intent=place" is
+    // the old MODE flag and keeps its meaning; any OTHER intent value is the
+    // search those pages meant to run.
+    if (qq && qq.trim()) pendingQRef.current = { q: qq.trim(), placeIntent: it === "place", near: (sp.get("near") || "").trim() || null };
+    else if (it && it !== "place") pendingQRef.current = { q: it, placeIntent: false, near: (sp.get("near") || "").trim() || null };
+  } catch (e) {} }, []);
   useEffect(() => { if (!pendingQRef.current || !center) return; const pq = pendingQRef.current; pendingQRef.current = null; try { window.history.replaceState({}, "", window.location.pathname); } catch (e) {} submitSearch(pq.q, { placeIntent: pq.placeIntent, near: pq.near }); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center]);
   // The landing URL's query string, captured during the FIRST RENDER — before
