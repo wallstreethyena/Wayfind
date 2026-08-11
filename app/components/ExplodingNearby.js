@@ -35,11 +35,10 @@ function asPlace(p, photoRef) {
 
 function evidenceChip(p) {
   const kinds = new Set(p.evidenceKinds || []);
-  if (kinds.has("googleTextSearch")) return { key: "google-match", icon: "✓", label: "Matched via Google" };
   if (kinds.has("scheduledEvent")) return { key: "verified-event", icon: "✓", label: "Event verified" };
   if (kinds.has("menu") || kinds.has("product")) return { key: "verified-menu", icon: "✓", label: "Menu verified" };
   if (kinds.has("bookingPage")) return { key: "verified-booking", icon: "✓", label: "Bookable offering" };
-  return { key: "verified-match", icon: "✓", label: "Offering verified" };
+  return null;
 }
 
 function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
@@ -56,6 +55,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
     ].filter(Boolean);
     const chips = [
       evidenceChip(p),
+      { key: "exploding-trend", icon: "🔥", label: "Trending: " + trend.label },
       p.hasCreatorVideo ? { key: "creator-video", icon: "🎬", label: "Creator video" } : null,
     ].filter(Boolean);
     const directionHref = directionsUrl(place);

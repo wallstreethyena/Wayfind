@@ -272,9 +272,9 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["What Should We Do Today?", "Great plans for right now."],
     ["Places You'd Never Find", "Hidden gems worth knowing about."],
     ["Locals Know", "Places recommended by creators who actually know the area."],
-    ["Events Near You", "Concerts, shows and things happening nearby."],
     ["Tonight's Move", "The places and experiences that make sense tonight."],
     ["Worth the Drive", "Good enough to go out of your way for."],
+    ["Events Near You", "Concerts, shows and things happening nearby."],
   ];
   const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
   ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
@@ -484,7 +484,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // one variable — a card shows what was resolved and omits what was not.
     ok(/photo=\{\(h && h\.photo\) \|\| null\}/.test(CF),
       "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
-    ok(/score=\{h && h\.rating \? cardScore\(/.test(CF),
+    ok(/score=\{h && h\.rating \? toDisplayScore\(governedWayfindScore\(wayfindScore\(h\.rating, h\.reviews\), \{ hasCreatorVideo: true \}\)\) : null\}/.test(CF),
       "…a registry card scores ONLY when the lookup returned a real rating — an unresolved spot carries no score, never a zero or a guess");
     ok(/photo\s*\n?\s*\?\s*<img/.test(RC) && /wf-place-card-monogram/.test(RC),
       "…and RailCard renders a real <img> when given a photo, falling back to the monogram tile only when there is none");
@@ -552,23 +552,20 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "the count printed is that city's OWN spot total — never arithmetic against what the reader is already looking at, which is the kind of number that goes subtly wrong");
 
   // ── orderFinds is DISTANCE-FIRST (2026-08-07, owner screenshot from
-  // Parrish: the LOCAL finds row led with a big-reach Bradenton TikTok spot
-  // while his own town's creator spots existed — reach outranked nearness on
-  // a surface whose whole name is "local"). Proven by CALLING it: an
-  // own-band low-reach spot must beat a farther high-reach one; within a
-  // band the old boost-then-score judgement must still hold; unknown
-  // distance sorts last, never guessed closer.
+  // Updated owner rule: every sheet is highest displayed Wayfind Score first.
+  // Distance can break a tie but can never put a lower visible score above a
+  // higher one. Proven by CALLING the real sorter.
   {
     const near = { p: { name: "PJ Sandwich", distMi: 2, wfScore: 80 } };
     const farBig = { p: { name: "Spinning Coffee", distMi: 11, wfScore: 95 } };
     const noDist = { p: { name: "Mystery", wfScore: 99 } };
     const o1 = CFL.orderFinds([farBig, noDist, near]).map((x) => x.p.name);
-    ok(o1[0] === "PJ Sandwich", `a 2-mi spot outranks an 11-mi spot on the LOCAL row regardless of score/reach (got ${o1.join(" > ")})`);
-    ok(o1[o1.length - 1] === "Mystery", "unknown distance sorts LAST — never silently treated as nearby");
+    ok(o1.join("|") === "Mystery|Spinning Coffee|PJ Sandwich", `the LOCAL row is highest displayed score first (got ${o1.join(" > ")})`);
+    ok(o1[0] === "Mystery", "unknown distance does not erase a real higher score — distance is a tie-break only");
     const sameBandA = { p: { name: "A", distMi: 3, wfScore: 90 } };
     const sameBandB = { p: { name: "B", distMi: 5, wfScore: 95 } };
     const o2 = CFL.orderFinds([sameBandA, sameBandB]).map((x) => x.p.name);
-    ok(o2[0] === "B", "within one distance band the score/boost judgement still decides (same-band 95 beats 90)");
+    ok(o2[0] === "B", "within one distance band the higher score still wins (95 beats 90)");
     ok(Number.isFinite(CFL.CREATOR_FINDS_BAND_MI) && CFL.CREATOR_FINDS_BAND_MI >= 5 && CFL.CREATOR_FINDS_BAND_MI <= 15,
       `the band width is a sane constant (${CFL.CREATOR_FINDS_BAND_MI} mi) — raw-mile sorting would let GPS jitter reshuffle the row`);
   }
@@ -590,7 +587,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // own comment that CITY_COORDS is for sorting and is "never shown to a
   // user" — a "35 mi" label built from a city centroid would break that and
   // claim a precision the data cannot back up.
-  ok(!/distMi/.test(CF),
+  ok(!/milesLabel\(|\+ " mi"|`\$\{[^}]*distMi[^}]*\} mi`/.test(CF),
      "the row never renders a distance — city centroids sort, they do not measure, and lib/creatorVideos.js promises they are never shown");
   // v7.02 corollary: the cards now share the /best-of card's facts row, and
   // that row DOES print a distance elsewhere. The ban above still holds here

@@ -246,6 +246,7 @@ export default function IntentPageClient({ intent }) {
         // under the same heading. One rule, both surfaces.
         compose: def.compose || null,
         planAhead: !!def.planAhead,
+        minDistanceMi: def.minDistanceMi,
       });
       // v6.56 (owner): the line under each row is WAYFIND editorial (verified
       // wf_editorial hooks, one anon in() call) — never Google's summary text.

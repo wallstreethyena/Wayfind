@@ -21,7 +21,7 @@
 import { creatorVideosFor, videosByKey, allCreators, spotsByCity, libraryStats, PLATFORM } from "../lib/creatorVideos.js";
 import * as creatorBoost from "../lib/creatorBoost.js";
 import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
-// THE GOVERNING LAW (owner, 2026-08-07): flat +7 for a video, flat −2 past 17
+// THE GOVERNING LAW (owner, updated 2026-08-10): flat +2 for a video, flat −2 past 17
 // miles, shown == sorted. The reach curve and per-mile decay this file used
 // to lock are retired; the law's constants are asserted instead.
 import { governedWayfindScore, CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY } from "../lib/wayfindScore.js";
@@ -83,7 +83,7 @@ ok(!/const VIDEO_BOOST\s*=/.test(HOME),
 // a video exists, visible in the chip, identical in the sort.
 const lawSites = (HOME.match(/hasCreatorVideoAt\(p\) \? CREATOR_VIDEO_BONUS : 0/g) || []).length;
 ok(lawSites >= 5, `the flat law term is applied at ${lawSites} ranking sites (expected >= 5) — the home feed, holidays, merit sort and the two fit sorts`);
-ok(!/creatorBoostFor\(/.test(HOME), "no home.js ranking site still uses the retired reach-curve boost — the law is flat +0.7, everywhere");
+ok(!/creatorBoostFor\(/.test(HOME), "no home.js ranking site still uses the retired reach-curve boost — the law is flat +0.2, everywhere");
 ok(!/hasCreatorVideo\([^)]*\)\s*\?\s*VIDEO_BOOST/.test(HOME),
    "no ranking site still applies the OLD flat, unfloored +45 — that number dwarfed the whole score spread");
 ok(/function hasCreatorVideo\(p\)[\s\S]{0,600}creatorVideosFor\(p\)/.test(HOME), "hasCreatorVideo() (the BADGE predicate) still resolves through creatorVideosFor()");
@@ -99,21 +99,21 @@ ok(/\bhasCreatorVideo\(p\) \? \[\{ key: "creatorvideo"/.test(HOME), "…and it i
 // boost; at a flat +7 the inversion they prevented cannot occur (7 < the
 // spread between a good place and a great one), and the owner's rule has no
 // carve-out — so the curve survives only as card metadata, never as rank.
-ok(CREATOR_VIDEO_BONUS === 7 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers: +0.7 video, −0.2 past 17 miles");
-ok(governedWayfindScore(90, { hasCreatorVideo: true }) === 97, "the owner's own example: a 9.0 with a video shows 9.7");
+ok(CREATOR_VIDEO_BONUS === 2 && FAR_MILES === 17 && FAR_PENALTY === 2, "the law's constants are the owner's numbers: +0.2 video, −0.2 past 17 miles");
+ok(governedWayfindScore(92, { hasCreatorVideo: true }) === 94, "the owner's own example: a 9.2 with a video shows 9.4");
 ok(governedWayfindScore(92, { distanceMi: 20 }) === 90, "the owner's own example: a 9.2 past 17 miles shows 9.0");
 ok(governedWayfindScore(92, { distanceMi: 17 }) === 92, "17.0 exactly is not past 17 — strictly greater only");
 ok(governedWayfindScore(null, { hasCreatorVideo: true }) === null, "an unrated place stays null — a video cannot invent a score");
-ok(governedWayfindScore(98, { hasCreatorVideo: true }) === 100, "clamped at 100 — toDisplayScore() nulls above it and the badge would vanish");
-ok(governedWayfindScore(96, { hasCreatorVideo: true, distanceMi: 40 }) === 100 && governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 40 }) === 95,
-   "both terms stack before the clamp: +7 then −2");
+ok(governedWayfindScore(99, { hasCreatorVideo: true }) === 100, "clamped at 100 — toDisplayScore() nulls above it and the badge would vanish");
+ok(governedWayfindScore(100, { hasCreatorVideo: true, distanceMi: 40 }) === 100 && governedWayfindScore(90, { hasCreatorVideo: true, distanceMi: 40 }) === 90,
+   "both terms stack before the clamp: +2 then −2");
 // A video lifts a place above its own unboosted self, and the lift is visible:
-ok(governedWayfindScore(91, { hasCreatorVideo: true }) - governedWayfindScore(91, {}) === 7,
-   "a creator video lifts a place exactly +7 over its unboosted self — in the number the reader compares, not a hidden key");
+ok(governedWayfindScore(91, { hasCreatorVideo: true }) - governedWayfindScore(91, {}) === 2,
+   "a creator video lifts a place exactly +2 over its unboosted self — in the number the reader compares, not a hidden key");
 // An excellent unbacked place still cannot be inverted by a video on a much
 // weaker one — the flat +7 is smaller than the good-to-great spread:
 ok(governedWayfindScore(98, {}) > governedWayfindScore(80, { hasCreatorVideo: true }),
-   "a 9.8 with no video still beats an 8.0 with one — +0.7 re-orders near-peers, it never inverts classes");
+   "a 9.8 with no video still beats an 8.0 with one — +0.2 re-orders near-peers, it never inverts classes");
 // End to end on the REAL list: byVisibleScore sorts by the governed number
 // and carries it on the row, so order can never disagree with the chip.
 {

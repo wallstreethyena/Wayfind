@@ -60,6 +60,7 @@ const rank = (intent, opts = {}) => {
     origin: ORIGIN, penalty: def.distancePenalty || null,
     ctx: def.timeless ? null : ctx,
     compose: "compose" in opts ? opts.compose : def.compose || null,
+    minDistanceMi: opts.minDistanceMi,
   });
 };
 const secs = (rows) => rows.map((r) => sectionOfRow(r));
@@ -80,7 +81,7 @@ const secs = (rows) => rows.map((r) => sectionOfRow(r));
 }
 
 // ── 2. A MOOD MAY MIX. IT MAY NOT BE ONE CATEGORY IN DISGUISE ───────────────
-for (const intent of ["hidden-gems", "tonight"]) {
+for (const intent of ["hidden-gems"]) {
   const def = INTENT_PAGES[intent];
   const cap = def.compose && def.compose.maxPerSection;
   ok(Number(cap) > 0, `${intent} declares a share cap — its heading names a mood, so it must not become a single-category list`);
@@ -101,6 +102,18 @@ for (const intent of ["hidden-gems", "tonight"]) {
   ok(foodIn(capped) === cap, `…and the cap holds it to ${cap} — got ${foodIn(capped)}`);
   ok(capped.some((r) => sectionOfRow(r) === "Activities"),
     "…leaving room for the other kind, which is the entire point of a share cap");
+}
+
+// Tonight is no longer a mixed dinner list: it admits actual nightlife and
+// after-dark activities only, matching the product promise.
+{
+  const def = INTENT_PAGES.tonight;
+  ok(JSON.stringify(def.compose.sections) === JSON.stringify(["Nightlife", "Activities"]),
+    "tonight explicitly allows nightlife and activities only");
+  const rows = rank("tonight");
+  ok(rows.length > 0 && secs(rows).every((s) => s === "Nightlife" || s === "Activities"),
+    "tonight contains only nightlife or after-dark activities");
+  ok(!rows.some((r) => sectionOfRow(r) === "Food"), "tonight contains no generic restaurant cards");
 }
 
 // ── 2b. TONIGHT IS A FUTURE INTENT, NOT THE CURRENT MEAL ──────────────────
@@ -173,6 +186,13 @@ for (const intent of ["hidden-gems", "tonight"]) {
     "…in fact the SAME bank as daytime: the daypart branch was the wrong instinct for a list you read to plan another day");
   ok(wtd.planAhead === true,
     "…and being closed right now does not demote a landmark on a plan-ahead list");
+  ok(wtd.minDistanceMi === 17, "worth-the-drive excludes everything at or inside 17 miles");
+  const distanceRows = rankRows([
+    R("Near landmark", ["park", "tourist_attraction"], 4.9, 1000, null, 0.10),
+    R("Far landmark", ["park", "tourist_attraction"], 4.8, 1000, null, 0.35),
+  ], wtd.floor, { origin: ORIGIN, compose: wtd.compose, minDistanceMi: wtd.minDistanceMi });
+  ok(distanceRows.length === 1 && distanceRows[0].name === "Far landmark",
+    "worth-the-drive renders only qualifying places strictly beyond 17 miles");
   {
     const rail = read("app/components/IntentRail.js");
     const page = read("app/components/IntentPageClient.js");

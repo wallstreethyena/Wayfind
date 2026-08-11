@@ -150,7 +150,7 @@ export default function IconicPlaceCard({ place, rank, href, editorial, aiSummar
   if (!place) return null;
   const expTags = experienceTags(place, 3);
   // THE GOVERNING LAW, shown == sorted (2026-08-07): a row ranked through
-  // byVisibleScore carries governed_score (base +0.7 video −0.2 far +0.6
+  // byVisibleScore carries governed_score (base +0.2 video −0.2 far +0.6
   // trending, disclosed below) — prefer it so the badge can never disagree
   // with the row's position. Un-ranked callers keep the canonical base.
   const score = toDisplayScore(Number.isFinite(place.governed_score) ? place.governed_score : place.wfScore != null ? place.wfScore : wayfindScore(place.rating, place.reviews));
