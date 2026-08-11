@@ -104,6 +104,7 @@ import { recordPulse } from "../../../../lib/jobPulse";
 //                   invisible to users.
 import { pageText, verifyAtlasEditorial } from "../../../../lib/atlasVerify";
 import { editorialRow } from "../../../../lib/atlasEditorial";
+import { extractModelJson } from "../../../../lib/atlasExtract";
 import { hostOfUrl, isDeniedHost } from "../../../../lib/nightlifeRail";
 import { isInsidePark } from "../../../../lib/parkZones";
 
@@ -268,7 +269,7 @@ function corpusOf(ctx, sources) {
   ].filter(Boolean).join(" ");
 }
 
-async function writeEditorial(place, d, key, sources, timeoutMs = 20000) {
+async function writeEditorial(place, d, key, sources, stats, timeoutMs = 20000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   const ctx = {
@@ -306,12 +307,23 @@ async function writeEditorial(place, d, key, sources, timeoutMs = 20000) {
     }
     const j = await r.json();
     const txt = (j && j.content && j.content[0] && j.content[0].text) || "";
-    const m = txt.match(/\{[\s\S]*\}/);
-    if (!m) {
-      console.error(`ATLAS-DIAG anthropic ok-but-no-json len=${txt.length} head=${txt.slice(0, 120)}`);
+    // Tolerant extraction (lib/atlasExtract): first-balanced-span scan plus
+    // truncation salvage. The old greedy any-span regex + raw JSON.parse threw
+    // SyntaxError on every max_tokens-truncated reply (prod cluster since
+    // 07-29) and the place was stored PENDING SOURCE despite a usable answer.
+    // Salvage keeps only COMPLETE leading elements — never a half-written
+    // string — and lib/atlasVerify downstream still gates every fact, so a
+    // salvaged card clears the same honesty bar as a whole one.
+    const ext = extractModelJson(txt);
+    if (!ext) {
+      console.error(`ATLAS-DIAG anthropic ok-but-no-json stop=${j && j.stop_reason} len=${txt.length} head=${txt.slice(0, 120)}`);
       return null;
     }
-    return JSON.parse(m[0]);
+    if (ext.salvaged) {
+      if (stats) stats.salvaged++;
+      console.warn(`[atlas] salvaged truncated JSON stop=${j && j.stop_reason} len=${txt.length} droppedTail=${ext.dropped}`);
+    }
+    return ext.value;
   } catch (e) {
     console.error(`ATLAS-DIAG anthropic threw name=${e && e.name} msg=${String(e && e.message).slice(0, 160)}`);
     return null;
@@ -415,6 +427,9 @@ export async function GET(req) {
   // untouched — those count verification outcomes, not time, and nothing in
   // v6.49 replaces them.
   let rides = 0, sourced = 0, pending = 0, unverified = 0, withPage = 0, deferred = 0;
+  // Salvage visibility: how many replies needed truncation salvage this run.
+  // Persistently non-zero means max_tokens is too tight for the page corpus.
+  const stats = { salvaged: 0 };
 
   // v6.49 DEADLINE GUARD. The upsert happens once, after every place resolves,
   // so a run that overruns maxDuration loses the WHOLE batch — every Places
@@ -451,7 +466,7 @@ export async function GET(req) {
     const sources = page ? [page] : [];
     if (page) withPage++;
 
-    const parsed = await writeEditorial(place, d, akey, sources);
+    const parsed = await writeEditorial(place, d, akey, sources, stats);
     if (!parsed || parsed.pending === true || !parsed.hook) {
       // A venue whose only official source is a Disney host can NEVER be sourced
       // — §7 forbids the fetch, permanently. Labelling that PENDING SOURCE put it
@@ -572,7 +587,7 @@ export async function GET(req) {
     // the venue's own words to check against at all — a low with_page is why a
     // batch verifies badly, so losing it would hide the cause.
     unverified, with_page: withPage,
-    sourced, pending, rides, opportunities: opps,
+    sourced, pending, rides, salvaged: stats.salvaged, opportunities: opps,
     took_ms: Date.now() - startedAt,
     remaining_after: Array.isArray(left) ? left.length + "+ (paged)" : "?", error: upErr, model: MODEL(),
   }, { headers: { "Cache-Control": "no-store" } });
