@@ -58,6 +58,8 @@ const EXEMPT = {
     "same as check-commerce-redirect — Supabase-backed art availability check, credentials are the connection",
   "test-og-bodies.mjs":
     "OG_BASE is an explicit opt-in for the live-origin variant; unset runs the offline assertions",
+  "check-trend-sources.mjs":
+    "same shape as check-env-value-overrides: PINTEREST_ACCESS_TOKEN is SAVED, set to a fixture value the guard chooses, asserted against a stub transport (token-in-header, never-in-URL), then restored — the ambient shell never reaches a verdict, and the token-hygiene assertion requires setting the env var the adapter reads at call time",
   "check-guards-emit-no-analytics.mjs":
     "same shape as check-env-value-overrides: WF_SUPPRESS_ANALYTICS and NEXT_PUBLIC_POSTHOG_KEY are SAVED, set to fixture values it chooses, asserted against, and restored in a finally — the ambient shell never reaches a verdict. It cannot delegate to a child process because the assertion is that captureServer issues no fetch, which requires stubbing fetch inside this process",
 };
