@@ -257,24 +257,24 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // ── the answer and exact hierarchy ──
   ok(/sdef\.heading[\s\S]{0,100}<h2[^>]*>[\s\S]{0,80}\{sdef\.label\}<\/h2>/.test(BN),
      "the Exploding answer renders as an h2 — it is the page's real heading, not decorative text");
-  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
+  ok(/const EXPLODING_SECTION = \{ id: "exploding", label: "Exploding Near You", sub: "Everyone's searching these\. Wayfind found where to try them near you\.", emoji: "🔥", heading: true, maxHeight: 24000 \}/.test(BN),
      "the first section carries one fire emoji, the approved support line, heading semantics and a height budget sized for the full 20-trend universe (2026-08-11)");
   const iExplodingRender = BN.indexOf("<SectionShell sdef={EXPLODING_SECTION}");
   const iBestRender = BN.indexOf("<SectionShell sdef={TOP40_SECTION}");
   const iMappedRender = BN.indexOf("{SECTIONS.map((sdef)");
   ok(iExplodingRender > -1 && iExplodingRender < iBestRender && iBestRender < iMappedRender,
      "Exploding Near You renders first, The Best Around You second, and the mapped discovery rows follow");
-  ok(/const TOP40_SECTION = \{ id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby\."/.test(BN),
+  ok(/const TOP40_SECTION = \{ id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you\. No paid placement\."/.test(BN),
      "the existing Top 40 behavior is preserved under the approved Best Around You name");
   const sectionBlock = BN.slice(BN.indexOf("const SECTIONS = ["), BN.indexOf("const trendsBody"));
   const expectedSections = [
-    ["Actually Worth Eating", "Skip the endless reviews. Start here."],
-    ["What Should We Do Today?", "Great plans for right now."],
-    ["Places You'd Never Find", "Hidden gems worth knowing about."],
-    ["Locals Know", "Places recommended by creators who actually know the area."],
-    ["Tonight's Move", "The places and experiences that make sense tonight."],
-    ["Worth the Drive", "Good enough to go out of your way for."],
-    ["Events Near You", "Concerts, shows and things happening nearby."],
+    ["Actually Worth Eating", "Endless reviews or one honest answer — ranked for this hour, not for advertisers."],
+    ["What Should We Do Today?", "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now."],
+    ["Places You'd Never Find", "Loved by the few who've found them, missed by the big lists — and near you."],
+    ["Locals Know", "Not a listicle: creators who actually went, matched to places near you."],
+    ["Tonight's Move", "Plans that fit tonight's hours — not somebody's reheated weekend list."],
+    ["Worth the Drive", "An hour in the car has to earn itself. These are the ones that do."],
+    ["Events Near You", "Stop finding out the day after: concerts, shows and one-nighters near you."],
   ];
   const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
   ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
