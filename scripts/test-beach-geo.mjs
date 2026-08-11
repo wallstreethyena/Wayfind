@@ -112,7 +112,9 @@ const FAR = [{ name: "Far Beach", distance_mi: 30 }];
 ok(vetBeachDistance(FAR, null).length === 0, "30 mi is out under the default rule");
 ok(vetBeachDistance(FAR, null, 48).length === 1, "…and in when an explicit beach browse asks for a wider radius");
 ok(beachesWithin(FAR, null, 48).length === 1, "beachesWithin takes the same override, so the two helpers cannot diverge");
-ok(/vetBeachDistance\(\(Array\.isArray\(data\) \? data : \[\]\)\.filter\(isRenderableThing\), \{ lat, lng \}\)/.test(tb), "wf_things_to_do searches 30 mi — its beach rows are vetted to 23");
+// 2026-08-11: the list is assembled into `pool` first (discovery gate + the
+// everywhere fallback); the beach vet still runs on the way into the sort.
+ok(/vetBeachDistance\(pool\.filter\(isRenderableThing\), \{ lat, lng \}\)/.test(tb), "wf_things_to_do searches 30 mi — its beach rows are vetted to 23");
 ok(/category === "beach" \? beachesWithin\(ranked, \{ lat, lng \}\) : vetBeachDistance\(ranked, \{ lat, lng \}\)/.test(tb), "wf_best_picks searches 25 mi — the beach SECTION is held to 23, and every other section still vets beach-named rows");
 
 // ── THE SEARCHED LOCATION, not just the device location ────────────────────

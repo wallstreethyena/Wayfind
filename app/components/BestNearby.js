@@ -19,7 +19,8 @@
 import { cloneElement, isValidElement, useCallback, useState, useRef, useEffect } from "react";
 import { reasonLine } from "../../lib/reasonLine";
 import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, directionsUrl, PlaceScoreChip } from "./kit";
-import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
+import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCompose, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
+import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav } from "./RailCard";
 import ExplodingNearby from "./ExplodingNearby";
@@ -214,8 +215,23 @@ const TOP40_MAX = 10;
 // ONE status read, shared by the open-now filter and the card's facts row — two
 // separate calls could show "Open" on a card the filter had judged closed.
 const top40Status = (r) => businessStatus({ ...r, oh: r.oh || r.regularOpeningHours || null, utcOffset: r.utcOffset != null ? r.utcOffset : r.utcOffsetMinutes });
-const TOP40_TYPE_EXCLUDE = /^(grocery_store|supermarket|convenience_store|liquor_store|drugstore|pharmacy|department_store|shopping_mall|clothing_store|furniture_store|home_goods_store|hardware_store|electronics_store|beauty_salon|hair_salon|hair_care|nail_salon|barber_shop|spa|gym|fitness_center|bank|atm|gas_station|car_.*|storage|laundry|dry_cleaner|veterinary_care|doctor|dentist|hospital|real_estate_agency|insurance_agency)$/i;
+const TOP40_TYPE_EXCLUDE = /^(grocery_store|supermarket|convenience_store|liquor_store|drugstore|pharmacy|department_store|shopping_mall|clothing_store|furniture_store|home_goods_store|hardware_store|electronics_store|cell_phone_store|beauty_salon|hair_salon|hair_care|nail_salon|barber_shop|spa|gym|fitness_center|bank|atm|gas_station|car_.*|boat_(dealer|rental|repair|yard).*|marina|storage|self_storage|laundry|dry_cleaner|veterinary_care|doctor|dentist|optician|optometrist|eyewear_store|eye_care_center|hospital|real_estate_agency|insurance_agency|funeral_home|pawn_shop|.*_repair(_shop|_service)?|telecommunications_.*)$/i;
+// v7.10 (owner, 2026-08-11, from the live rail): Marsh Harbor Marina — category
+// SERVICE, 14 miles — sat at #6 of "The Best Around You", and uBreakiFix (a
+// phone-repair storefront) surfaced as a hidden gem. Two additional gates, both
+// on IDENTITY and never on the score:
+//   · the row's own stored category: Service/Shopping rows are errands and
+//     retail, not answers to "what should I do near me";
+//   · the SERVICE name blocklist lib/placeFilter.js already maintains ("types
+//     are the truth, names lie" — but a service-business NAME is reliable), plus
+//     the repair-shop phrasing that slipped the phrase list ("Phone and
+//     Computer Repair").
+const TOP40_CATEGORY_EXCLUDE = /^(service|services|shopping)$/i;
+const TOP40_NAME_EXCLUDE = /\brepairs?\b|\boptical\b|\boptometr|\beye ?care\b|\bmarina\b/i;
 function top40Allowed(r) {
+  const name = String((r && r.name) || "");
+  if (SERVICE_RX.test(name) || TOP40_NAME_EXCLUDE.test(name)) return false;
+  if (TOP40_CATEGORY_EXCLUDE.test(String((r && r.category) || "").trim())) return false;
   const t = String((r && r.primary_type) || "").trim();
   if (!t) return true; // no type is not evidence of an errand — keep it
   return !TOP40_TYPE_EXCLUDE.test(t);
@@ -311,7 +327,7 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it.", emoji: "🔥", heading: true, maxHeight: 6000 };
+const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it.", emoji: "🔥", heading: true, maxHeight: 24000 };
 const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
@@ -509,7 +525,13 @@ export default function BestNearby({
       // every other ranked surface — the badge on each card is the number
       // that put it in that position.
       const ranked = byVisibleScore(pool);
-      setTop40(gateOutdoor(ranked, nowCtx()));
+      // DAYPART COMPOSITION (owner, 2026-08-11, and the approved queue's item
+      // 3): a CATEGORY-MIX rule per hour over the ALREADY-RANKED list — coffee
+      // and parks lead the morning, live music and bars lead the night. It is a
+      // SELECTION over the sorted rows (like capBySection and gateOutdoor),
+      // never a fourth score term and never a re-sort: what survives is still
+      // in governed-score order, so shown == sorted holds on every card.
+      setTop40(daypartCompose(gateOutdoor(ranked, nowCtx()), nowCtx()));
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -618,7 +640,7 @@ export default function BestNearby({
       // The weather gate is a FILTER over rows. The trends section's payload is
       // an object, not a list, so it is stored as-is — the second half of the
       // same crash above, and the reason this is a branch and not a cast.
-      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: Array.isArray(data) ? gateOutdoor(data, nowCtx()) : data })); })();
+      (async () => { const data = await load(id); setRows((r2) => ({ ...r2, [id]: Array.isArray(data) ? daypartCompose(gateOutdoor(data, nowCtx()), nowCtx()) : data })); })();
       return { ...r, [id]: "loading" };
     });
   };
@@ -800,6 +822,7 @@ export default function BestNearby({
         <ExplodingNearby
           center={center}
           city={city}
+          weather={weather}
           active={sectionOpen("exploding")}
           onVisibleIds={(ids) => reportVisibleIds("exploding", ids)}
           onOpenPlace={onOpenPlace}

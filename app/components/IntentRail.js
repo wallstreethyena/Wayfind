@@ -36,6 +36,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import RailCard, { RailNav } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
 import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
+import { placeAllowed } from "../../lib/placeFilter";
 import { nowContext } from "../../lib/nowContext";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { toDisplayScore } from "../../lib/score";
@@ -175,7 +176,14 @@ export default function IntentRailBody({
                 + "&cat=" + encodeURIComponent(cat);
               const r = await fetch(u);
               const j = r.ok ? await r.json() : null;
-              return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
+              // THE ONE GATE (owner, 2026-08-11: uBreakiFix and Stanton
+              // Optical rendered as "hidden gems"). lib/placeFilter.js is the
+              // single source of truth for what may appear in discovery, and
+              // this path was skipping it — "if a code path skips this module,
+              // THAT is the bug" (its own header). Judged against the QUERY'S
+              // OWN CATEGORY, so a phone-repair storefront returned for an
+              // attractions query is refused on identity, never on score.
+              return (j && Array.isArray(j.places) ? j.places : []).map(toRow).filter((row) => row && placeAllowed(cat, null, row));
             } catch (e) { return []; }
           }));
           const flat = results.flat().filter(Boolean);

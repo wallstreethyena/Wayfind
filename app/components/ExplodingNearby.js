@@ -8,6 +8,9 @@ import { toDisplayScore } from "../../lib/score.js";
 import { markExplodingInteraction, noteExplodingReturn } from "../../lib/explodingExperiment.js";
 import useMissingPlacePhotos from "./useMissingPlacePhotos";
 import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
+import { EXPLODING_STAT_ASOF } from "../../lib/trendTaxonomy.js";
+import { nowContext } from "../../lib/nowContext.js";
+import { gateOutdoor } from "../../lib/ranking.js";
 
 const compact = (n) => Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0);
 const prettyType = (t) => {
@@ -120,6 +123,15 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 17, lineHeight: 1.2, fontWeight: 820, letterSpacing: "-.25px", color: "#FFF3E8" }}>🔥 {trend.headline}</div>
           <div style={{ marginTop: 5, color: "#AEB8C6", fontSize: 12.5, lineHeight: 1.45 }}>{trend.dek}</div>
+          {/* THE EVIDENCE LINE (owner, 2026-08-11: "explain to the user that it
+              is trending recently and share the data with them"). The stat is
+              the owner-supplied measured search delta from the licensed trend
+              list — a concrete, dated claim, never a bare "this is trending". */}
+          {trend.stat ? (
+            <div style={{ marginTop: 5, color: "#8FD3A8", fontSize: 11.5, lineHeight: 1.45, fontWeight: 650 }}>
+              📈 {trend.stat} <span style={{ color: "#6F7C8D", fontWeight: 500 }}>({EXPLODING_STAT_ASOF})</span>
+            </div>
+          ) : null}
         </div>
         <button type="button" onClick={shareTrend} aria-label={"Share " + trend.label} style={{ flexShrink: 0, minWidth: 40, minHeight: 40, borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.04)", color: C.text, cursor: "pointer", fontSize: 15 }}>↗</button>
       </div>
@@ -147,7 +159,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
   );
 }
 
-export default function ExplodingNearby({ center, city, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -160,7 +172,25 @@ export default function ExplodingNearby({ center, city, active, onVisibleIds, on
     const ctrl = new AbortController();
     setResult({ status: "loading", trends: [] });
     loadProvidedTrendList({ center, city, signal: ctrl.signal })
-      .then((body) => { if (!ctrl.signal.aborted) setResult({ status: body.status || "trend_data_error", trends: Array.isArray(body.trends) ? body.trends : [], error: body.error || null }); })
+      .then((body) => {
+        if (ctrl.signal.aborted) return;
+        // THE WEATHER/TIME GATE (owner, 2026-08-11: "the result should be based
+        // on the time of the day and weather also — use common sense"). The
+        // same gateOutdoor every other rail passes through: an outdoor trend
+        // match (a rucking route, a forest-bathing trail) is SUPPRESSED when
+        // the hour and the weather make it wrong, and a trend whose matches
+        // are all gated renders no module rather than a wrong one.
+        let trends = Array.isArray(body.trends) ? body.trends : [];
+        try {
+          const ctx = nowContext({ lat: center.lat, lng: center.lng, city: city || null, weather: weather || null });
+          trends = trends
+            .map((t) => ({ ...t, matches: gateOutdoor(t.matches, ctx) }))
+            .filter((t) => t.matches.length);
+        } catch (e) {}
+        // Every match gated away is an honest empty state, not an error.
+        const status = body.status === "ok" && !trends.length ? "no_verified_inventory" : (body.status || "trend_data_error");
+        setResult({ status, trends, error: body.error || null });
+      })
       .catch(() => { if (!ctrl.signal.aborted) setResult({ status: "trend_data_error", trends: [], error: "Trend recommendations are temporarily unavailable." }); });
     return () => ctrl.abort();
   }, [active, retry, city, center && center.lat, center && center.lng]);
