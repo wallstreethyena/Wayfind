@@ -32,6 +32,7 @@ import IntentRailBody from "./IntentRail";
 import { applyCollapsedAttr, DEFAULT_COLLAPSED_RAILS, isCollapsed, nextCollapsed, readCollapsed, writeCollapsed } from "../../lib/railCollapse";
 import { toDisplayScore } from "../../lib/score.js";
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
+import { nowSubline } from "../../lib/intentPages.js";
 import { couponForPlaceName } from "../../lib/coupons.js";
 import { experienceTags } from "./IconicPlaceCard";
 import { priceLabel } from "../../lib/price.js";
@@ -867,6 +868,14 @@ export default function BestNearby({
         return (
           <div style={{ paddingTop: 2 }}>
             <RailNav railId="top40" count={list.length} unit="top picks near you" />
+            {/* The why-line (owner, 2026-08-12): state that location + hour +
+                weather shaped this shelf, in the intent pages' own voice.
+                nowSubline only REPORTS the context the ranking already
+                consumed — no new score term, and null-safe (renders nothing
+                when the context is unavailable). */}
+            {(() => { const why = nowSubline({}, nowCtx(), city); return why ? (
+              <div style={{ fontSize: 11.5, color: "#8D9AAB", margin: "-2px 0 8px", lineHeight: 1.4 }}>{why}</div>
+            ) : null; })()}
             <div className="wf-rail wf-rail-top40" data-rail="top40" tabIndex={0} role="region" aria-label="Top picks near you" style={{ minHeight: TOP40_CARD_H }}>
               {list.map((p, i) => {
                 // Only a VERIFIED partner pick becomes a CTA. placePartnerPick

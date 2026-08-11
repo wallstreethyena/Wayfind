@@ -157,6 +157,24 @@ ok(code.indexOf('data-rail="top40"') < code.indexOf("{SECTIONS.map("),
 ok(/list\.length < 3\) return null/.test(code),
   "under three picks the rail renders nothing — a thin shelf teaches the reader the ranking is bad (RANKING_AND_FEATURING_SPEC §4)");
 
+// ── 6. THE WHY-LINE. The shelf says WHAT PRODUCED IT ────────────────────────
+// (owner, 2026-08-12): location + hour + weather shaped this list, stated in
+// the same voice the intent pages use. Structural half: the call sits under
+// the rail's RailNav. Executed half: the line is proven to render a real
+// sentence (with the city, and a context reason) by CALLING the pair of
+// modules the component calls — and to be null-safe when context is absent.
+ok(/<RailNav railId="top40"[\s\S]{0,700}?nowSubline\(\{\}, nowCtx\(\), city\)/.test(code),
+  "the why-line renders directly under the Top-40 RailNav via nowSubline({}, nowCtx(), city)");
+{
+  const { nowContext } = await import("../lib/nowContext.js");
+  const { nowSubline } = await import("../lib/intentPages.js");
+  const ctx = nowContext({ lat: 27.95, lng: -82.46, weather: { temp: 88, label: "Clear" } });
+  const line = nowSubline({}, ctx, "Tampa");
+  ok(typeof line === "string" && line.includes("Tampa") && line.includes(ctx.reason),
+    "nowSubline EXECUTED: names the city and carries the context reason (hour/weather) that shaped the list");
+  ok(nowSubline({}, null, "Tampa") === null, "nowSubline EXECUTED: null context renders nothing, never a broken sentence");
+}
+
 if (failures.length) {
   console.error("check-top40-rail: FAIL");
   failures.forEach((f) => console.error("  - " + f));
