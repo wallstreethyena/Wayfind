@@ -219,9 +219,17 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
       ? governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true }) ?? -Infinity
       : -Infinity;
   };
+  // v7.08: the id-level safety net behind sameVenueName() — hydration resolves
+  // a registry spot to its REAL Google place id, so whatever the two sources
+  // called the venue, a second entry with an id the shelf already holds is the
+  // same place and never renders twice.
+  const _seenEntryIds = new Set();
   const visibleInventory = inventory.filter((entry) => {
     const id = creatorEntryId(entry);
-    return id && !excluded.has(id);
+    if (!id || excluded.has(id)) return false;
+    if (!id.startsWith("creator:") && _seenEntryIds.has(id)) return false;
+    _seenEntryIds.add(id);
+    return true;
   }).sort((a, b) => {
     const d = scoreForEntry(b) - scoreForEntry(a);
     if (Number.isFinite(d) && d) return d;
