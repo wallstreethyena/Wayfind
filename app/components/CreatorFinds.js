@@ -336,6 +336,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
           </button>
         ) : null}
       </div>
+      <RailDots railId="creator-finds" count={visibleInventory.length} />
     </section>
   );
 }

@@ -1088,6 +1088,7 @@ export default function BestNearby({
                             onShare={() => { if (onShare) onShare({ id: r.id, name: r.title }); }}
                           />                        ))}
                     </div>
+                    <RailDots railId={sdef.id} count={list.length} />
                     {/* THE WAY TO MORE (owner, 2026-08-09: "offer the ability
                         for the user to search for more if there is more"). The
                         engine returns ten; these two pages are where the same
