@@ -62,6 +62,7 @@ import { setLocal, sweepLocal } from "../lib/localStore";
 import { reconcileIds } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed } from "../lib/placeFilter";
+import { parseCouponValue } from "../lib/couponValue";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META } from "../lib/seasons";
 import { COUPONS, couponForPlaceName, normalizeOfferRow } from "../lib/coupons";
 import { HOOK_BANK, pickHook } from "../lib/hooks";
@@ -7979,14 +7980,42 @@ function PageInner({ initialEvents = null }) {
       return originUrl("/c?d=" + b64);
     } catch { return originUrl("/coupons"); }
   }
-  function shareCoupon(c) {
+  async function shareCoupon(c) {
     if (!c) return;
     const url = couponShareUrl(c);
-    const lines = ["🎟️ " + (c.business ? c.business + ": " : "") + (c.title || "A Wayfind deal")];
+    // v6.99 (owner): the share text SELLS — value first, in one line, same
+    // numbers as the card (shared parser, lib/couponValue.js).
+    const v = parseCouponValue(c.title);
+    const seller = v
+      ? "🎟️ " + (c.business ? c.business + ": " : "") + "get " + v.getLabel + (v.what ? " of " + v.what : "") + " for " + v.payLabel + " — " + v.pct + "% off"
+      : "🎟️ " + (c.business ? c.business + ": " : "") + (c.title || "A Wayfind deal");
+    const lines = [seller];
     if (c.code) lines.push("Code: " + c.code);
     if (c.expires) lines.push("Valid through " + String(c.expires).slice(0, 10));
     lines.push("Grab it on Wayfind:");
-    shareLink((c.business ? c.business + " — " : "") + (c.title || "Wayfind coupon"), url, () => showToast("Link copied"), lines.join("\n"), () => { try { logEvent("coupon_share", null, { id: c.id }); } catch (e) {} });
+    const fallback = () => shareLink((c.business ? c.business + " — " : "") + (c.title || "Wayfind coupon"), url, () => showToast("Link copied"), lines.join("\n"), () => { try { logEvent("coupon_share", null, { id: c.id }); } catch (e) {} });
+    // v6.99 (owner): "I want the actual card to be sent as a text message."
+    // Web Share Level 2: fetch the /api/og coupon card and hand the PNG to the
+    // native sheet, so Messages shows THE CARD, not a bare link. Every failure
+    // (no canShare, fetch miss, file share unsupported) falls to the existing
+    // text/link ladder; a user closing the sheet (AbortError) shares nothing —
+    // never punished with a surprise clipboard write. Native (Capacitor) keeps
+    // its own sheet: nativeShare has no file lane.
+    try {
+      if (!isNative() && v && typeof navigator !== "undefined" && navigator.canShare && navigator.share) {
+        const qs = new URLSearchParams({ kind: "coupon", pay: String(v.pay), get: String(v.get), pct: String(v.pct), biz: c.business || "", what: v.what || "", exp: c.expires ? String(c.expires).slice(0, 10) : "" });
+        const r = await fetch("/api/og?" + qs.toString());
+        if (r.ok) {
+          const file = new File([await r.blob()], "wayfind-deal.png", { type: "image/png" });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], text: lines.join("\n") + "\n" + url });
+            try { logEvent("coupon_share", null, { id: c.id, path: "card_image" }); } catch (e) {}
+            return;
+          }
+        }
+      }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    fallback();
   }
 
   if (keyMissing) {

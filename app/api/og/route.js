@@ -24,6 +24,36 @@ export async function GET(req) {
     const kind = searchParams.get("kind") || "list";
     const O = SHARE_CARD_SYSTEM.accent;
     const BG = "#0B0B0C";
+    // ══ COUPON SHARE CARD (v6.99) ═══════════════════════════════════════════
+    // The share button sends THE CARD into the text message (Web Share files);
+    // this is that image. Value leads, same numbers as the on-screen card —
+    // both derive from lib/couponValue.js. Params are sanitized numbers/short
+    // strings; anything malformed falls through to the standard card below.
+    if (kind === "coupon") {
+      const num = (k) => { const n = Number(searchParams.get(k)); return Number.isFinite(n) && n > 0 && n < 10000 ? n : null; };
+      const pay = num("pay"), get = num("get"), pct = num("pct");
+      const biz = String(searchParams.get("biz") || "").slice(0, 48);
+      const what = String(searchParams.get("what") || "").slice(0, 36);
+      const exp = String(searchParams.get("exp") || "").replace(/[^0-9-]/g, "").slice(0, 10);
+      if (pay && get && get > pay && biz) {
+        const fm = (n) => "$" + (Number.isInteger(n) ? String(n) : n.toFixed(2));
+        const save = Math.round((get - pay) * 100) / 100;
+        return new ImageResponse((
+          <div style={{ width: 1200, height: 630, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 84px", backgroundColor: BG, color: "#FFFFFF" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#FDBA74", fontSize: 20, fontWeight: 800, letterSpacing: 3 }}>
+              <span style={{ display: "flex", width: 26, height: 4, borderRadius: 999, backgroundColor: O }} />VERIFIED LOCAL SAVINGS
+            </div>
+            <div style={{ display: "flex", fontSize: 82, fontWeight: 800, marginTop: 28, letterSpacing: -2 }}>{"Get " + fm(get) + (what ? " of " + what : "")}</div>
+            <div style={{ display: "flex", fontSize: 54, fontWeight: 800, color: O, marginTop: 6 }}>{"Pay just " + fm(pay)}</div>
+            <div style={{ display: "flex", marginTop: 24, fontSize: 34, color: "#E6EDF3", fontWeight: 700 }}>{biz}</div>
+            <div style={{ display: "flex", marginTop: 30 }}>
+              <div style={{ display: "flex", backgroundColor: O, color: "#000000", fontSize: 28, fontWeight: 800, padding: "15px 32px", borderRadius: 999 }}>{"You save " + fm(save) + (pct ? " (" + pct + "% off)" : "")}</div>
+            </div>
+            <div style={{ display: "flex", marginTop: 26, fontSize: 22, color: "#9AA4B2" }}>{(exp ? "Valid through " + exp + " · " : "") + "gowayfind.com"}</div>
+          </div>
+        ), { width: 1200, height: 630 });
+      }
+    }
     const cardKey = (searchParams.get("card") || "").slice(0, 24);
     const card = shareCardFor(cardKey);
     // Use the same image resolver for experience lists, place categories,
