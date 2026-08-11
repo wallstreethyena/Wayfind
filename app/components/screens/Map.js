@@ -77,7 +77,7 @@ export default function MapScreen({ ctx }) {
               return (
                 <div style={{ position: "relative", width: "100%", height: "100%" }}>
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
-                    <div style={{ borderRadius: 14, boxShadow: "0 8px 24px rgba(0,0,0,.45)", background: "rgba(16,20,27,.94)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)" }}>
+                    <div style={{ borderRadius: 19, border: "1px solid rgba(255,255,255,.09)", boxShadow: "0 14px 36px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(23,29,39,.96), rgba(13,17,24,.96))", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)" }}>
                       {/* v5.08 (user direction): the map menu never fully
                           collapses — the primary tile row stays; only the
                           sub-row expands down after a category is chosen. */}
@@ -209,7 +209,7 @@ export default function MapScreen({ ctx }) {
                             <div style={{ fontSize: 16, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mp.name}</div>
                             <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{meta}</div>
                             <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "nowrap", overflow: "hidden" }}>
-                              {sl ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: C.accent, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.4)", borderRadius: 8, padding: "2px 7px" }}>{sl}</span> : null}
+                              {sl ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: C.accent, background: "rgba(249,115,22,.16)", border: "1px solid rgba(249,115,22,.4)", borderRadius: 8, padding: "2px 7px" }}>{sl.s}/10 · {sl.word}</span> : null}
                               {mp.trending && mp.trend_reason ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, color: "#FB923C", background: "rgba(251,146,60,.12)", border: "1px solid rgba(251,146,60,.4)", borderRadius: 8, padding: "2px 7px" }} title={"Trending — " + mp.trend_reason}>🔥 {mp.trend_reason}</span> : null}
                               {mp.price ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: C.light, background: "rgba(255,255,255,.07)", borderRadius: 8, padding: "2px 7px" }}>{mp.price}</span> : null}
                               {openNow === true ? <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 700, color: C.green, background: "rgba(34,197,94,.14)", borderRadius: 8, padding: "2px 7px" }}>Open now</span> : null}
@@ -266,7 +266,7 @@ export default function MapScreen({ ctx }) {
                       line-height makes the row's real height predictable,
                       and 58px gives it headroom instead of an exact fit. */}
                   {mapMode === "places" && !mapPreview && view.length > 0 && (
-                    <div style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "rgba(10,16,27,.94)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", border: `1px solid ${C.border}`, borderRadius: 18, boxShadow: "0 14px 38px rgba(0,0,0,.55)", maxHeight: mapDrawer ? "min(58%, 460px)" : 58, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                    <div style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "linear-gradient(180deg, rgba(21,27,37,.96), rgba(10,15,23,.97))", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: "1px solid rgba(255,255,255,.09)", borderRadius: 20, boxShadow: "0 16px 42px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)", maxHeight: mapDrawer ? "min(58%, 460px)" : 58, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
                       <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
                         <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "8px auto 6px" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "0 16px 10px" }}>
