@@ -246,7 +246,7 @@ for (const intent of ["hidden-gems"]) {
         `${intent}: the list is restricted to Activities, so its promise must say so — "${promise}"`);
     }
   }
-  ok(/30 miles/.test(INTENT_PAGES["worth-the-drive"].card.promise) && INTENT_PAGES["worth-the-drive"].radiusM === 48280,
+  ok(/50 miles/.test(INTENT_PAGES["worth-the-drive"].card.promise) && INTENT_PAGES["worth-the-drive"].radiusM === 80467,
     "worth-the-drive's promise names 30 miles and its radius IS 30 miles (48,280m) — a distance claim has to be the enforced one");
 }
 

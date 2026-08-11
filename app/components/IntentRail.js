@@ -238,11 +238,15 @@ export default function IntentRailBody({
         const first = composeQueries(bank, def.compose, RAIL_QUERIES);
         const whole = composeQueries(bank, def.compose, bank.length);
         let ranked = await sweep(near, first, def.floor);
-        if (ranked.length === 0 && whole.length > first.length) {
+        // v7.11 (owner): "only 2 clear this bar" is a thin shelf, not an answer.
+        // The ladder used to climb only from EMPTY, so a 2-row list never spent
+        // the rest of its own query bank. Thin (<3, the same MIN the rails use
+        // to refuse to render) now climbs too — same rungs, same caps.
+        if (ranked.length < 3 && whole.length > first.length) {
           const full = await sweep(near, whole, def.floor);          // rung 2: the whole eligible bank
           if (full.length > ranked.length) ranked = full;
         }
-        if (ranked.length === 0 && !def.radiusM) {
+        if (ranked.length < 3 && !def.radiusM) {
           const wider = await sweep(WIDEN_M, whole, def.floor);      // rung 3: 25 miles
           if (wider.length > ranked.length) ranked = wider;
         }
