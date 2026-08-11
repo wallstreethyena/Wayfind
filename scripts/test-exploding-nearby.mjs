@@ -77,9 +77,11 @@ const fakeFetch = async (url) => {
 const liveList = await loadProvidedTrendList({ center, city: "Sarasota", fetchImpl: fakeFetch });
 ok(liveList.status === "ok" && liveList.source === "provided-20-trend-list", "the launch feed reads the supplied list rather than a Semrush API");
 ok(JSON.stringify(liveList.trends.map((t) => t.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "social_wellness_clubs"]),
-  "the first three locally proven supplied concepts become the launch answers");
-ok(searchCalls.length === 4 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
-  "local inventory resolves through one bounded Google-search batch and never through a trend-provider API");
+  "every locally proven supplied concept becomes a launch answer, in supplied order");
+ok(searchCalls.length === 17 && searchCalls.every((u) => u.startsWith("/api/places/search?")),
+  "the WHOLE searchable universe (20 minus 3 schedule-required) is swept through the shared Google-search cache, never through a trend-provider API — owner 2026-08-11: every trend category gets its chance at a card");
+ok(typeof liveList.trends[0].stat === "string" && /650%/.test(liveList.trends[0].stat),
+  "each launch trend carries its owner-supplied search-data stat, so the card can share the evidence");
 const inv = (id, name, category, rating, reviews, lat, primaryType) => ({
   place_id: id, name, category, metro: "manatee-sarasota", lat, lng: -82.531,
   status: "OPERATIONAL", needs_review: false, primary_type: primaryType,
@@ -106,9 +108,9 @@ const matches = [
   match_evidence: [{ kind: "officialSource" }], public_explanation: "Verified offering", manual_state: "allow",
 }));
 const selected = selectExplodingNearby({ topics, matches, inventory, center });
-ok(selected.length === 3, `exactly three locally actionable trends surface, got ${selected.length}`);
-ok(JSON.stringify(selected.map((g) => g.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "pilates_reformer"]),
-  "topic momentum plus verified inventory selects the expected three modules");
+ok(selected.length === 4, `every locally actionable trend surfaces (no head-of-3 cap), got ${selected.length}`);
+ok(JSON.stringify(selected.map((g) => g.conceptKey)) === JSON.stringify(["smash_burgers", "cold_plunge_sauna", "pilates_reformer", "hojicha_lattes"]),
+  "topic momentum plus verified inventory orders the modules; every verified concept appears");
 ok(selected[0].matches[0].name === "Better Smash", "inside a trend, the higher governed Wayfind Score leads");
 ok(!Object.prototype.hasOwnProperty.call(selected[0], "trendStrength"), "raw strength is used server-side and never returned to the card");
 

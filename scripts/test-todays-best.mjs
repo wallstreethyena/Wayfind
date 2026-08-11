@@ -73,7 +73,11 @@ import("../lib/todaysBest.js").then((m2) => {
 // visible-Score ordering it wraps is unchanged, and the assertion still requires
 // byVisibleScore to be the outermost call on both menus. See test-beach-geo.mjs
 // for the rule itself.
-ok(lib2.includes("byVisibleScore(dedupeBrands(data))") && lib2.includes("byVisibleScore(vetBeachDistance((Array.isArray(data)"), "both menus sort by the visible Score, best to worst");
+// 2026-08-11: both menus filter their pool first (pickAllowed — the discovery
+// gate — plus the everywhere fallback that merges the shared Google cache when
+// owned inventory is thin). Filters, not sorts: byVisibleScore is still the
+// outermost ranking call on both menus.
+ok(lib2.includes("byVisibleScore(dedupeBrands(pool))") && lib2.includes("byVisibleScore(vetBeachDistance(pool.filter(isRenderableThing)"), "both menus sort by the visible Score, best to worst");
 ok(/kind === "experience"\) return !!r\.booking_url/.test(lib2), "a tour without a booking link never renders");
 
 // ── v6.47 (owner batch 3) ────────────────────────────────────────────────────

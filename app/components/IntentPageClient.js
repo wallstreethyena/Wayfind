@@ -15,6 +15,7 @@ import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
 import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_MOMENT_ID } from "../../lib/intentPages";
+import { placeAllowed } from "../../lib/placeFilter";
 import { editorialIntentHeader } from "../../lib/collectionHeader";
 // v6.72 THE COMPOSITION (owner, 2026-07-31). The five blocks — coupon strip,
 // tour rail, "Perfect right now", the list, and the glass-box disclosure — are
@@ -224,7 +225,12 @@ export default function IntentPageClient({ intent }) {
           const u = "/api/places/search?q=" + encodeURIComponent(q) + "&lat=" + loc.lat.toFixed(2) + "&lng=" + loc.lng.toFixed(2) + "&radius=" + (def.radiusM || 32000) + "&n=20&cat=" + encodeURIComponent(cat);
           const r = await fetch(u);
           const j = r.ok ? await r.json() : null;
-          return (j && Array.isArray(j.places) ? j.places : []).map(toRow);
+          // THE ONE GATE — same call the home rail makes (see IntentRail.js):
+          // lib/placeFilter.placeAllowed judged against the query's own
+          // category, so the page and the rail that links to it cannot admit
+          // different places. Owner, 2026-08-11: a phone-repair storefront and
+          // an optician were rendering as "hidden gems".
+          return (j && Array.isArray(j.places) ? j.places : []).map(toRow).filter((row) => row && placeAllowed(cat, null, row));
         } catch (e) { return []; }
       }));
       // ctx is what makes this ranking time-aware rather than just time-queried:

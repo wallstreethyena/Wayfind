@@ -69,7 +69,7 @@ export const WF_PLACE_CARD_CSS = `
   overflow:hidden;
   border-radius:17px!important;
   border-color:rgba(159,177,203,.25)!important;
-  background:radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824!important;
   box-shadow:0 14px 36px rgba(0,0,0,.27),inset 0 1px rgba(255,255,255,.035);
   transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
 }
@@ -137,8 +137,6 @@ export const WF_PLACE_CARD_CSS = `
 .wf-place-card.is-curator-pick{
   border-color:rgba(238,190,75,.48)!important;
   background:
-    radial-gradient(circle at 0% 100%,rgba(238,190,75,.10),transparent 35%),
-    radial-gradient(circle at 100% 0%,rgba(76,224,179,.035),transparent 42%),
     linear-gradient(145deg,rgba(255,255,255,.04),transparent 36%),
     #111824!important;
   box-shadow:0 20px 52px rgba(0,0,0,.38),0 0 32px rgba(218,164,37,.07),inset 0 1px rgba(255,240,195,.08);
