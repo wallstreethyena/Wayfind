@@ -168,7 +168,7 @@ for (const copy of ["The Best Around You", "Actually Worth Eating", "What Should
   ok(home.includes(copy), `the renamed hierarchy includes ${copy}`);
 }
 const collapse = read("lib/railCollapse.js");
-ok(/DEFAULT_COLLAPSED_RAILS\s*=\s*\["best", "eat", "todo"/.test(collapse), "everything below Exploding Near You is collapsed for a first-time visitor");
+ok(/DEFAULT_COLLAPSED_RAILS\s*=\s*\["best", "eat", "quickbite", "todo"/.test(collapse), "everything below Exploding Near You is collapsed for a first-time visitor");
 ok(!/DEFAULT_COLLAPSED_RAILS[^;]*"exploding"/.test(collapse), "Exploding Near You is expanded by default");
 
 for (const key of ["EXPLODING_SECTION_IMPRESSION", "PRIMARY_TREND_CARD_CLICK", "SIGNUP_AFTER_INTERACTION", "RETURN_VISIT"]) {
