@@ -264,4 +264,33 @@ t("shape: season is month-derived and ET-anchored", () => {
   assert.equal(nowContext({ now: new Date(Date.UTC(2026, 6, 30, 18)) }).season, "summer");
 });
 
+// ── v6.97. THE WET DROP ─────────────────────────────────────────────────────
+// The client ranking shape (app/home.js setWeather) reports `wet` from the
+// LIVE weather code and now also carries `code`. normalizeWeather used to drop
+// both signals for the ranking shape, so an active storm with a sub-50%% daily
+// rain probability left the outdoor gate open and the reason line said
+// "clear" while the weather chip beside it said Rain. These calls pin the
+// passthrough. Red-proven by removing `nw.wet === true` from weatherFlags.
+t("an explicit wet report reads as wet even when daily rain%% is low", () => {
+  const f = weatherFlags(normalizeWeather({ temp: 80, rain: 20, wet: true, label: "Rain" }));
+  assert.equal(f.isWet, true);
+});
+t("the outdoor gate closes on an actively-wet report at every bucket", () => {
+  for (const hour of [8, 13, 20]) {
+    const ctx = nowContext({ hour, weather: { temp: 80, rain: 20, wet: true, label: "Rain" } });
+    assert.equal(ctx.outdoorOK, false, "bucket at hour " + hour + " left the gate open");
+    assert.match(ctx.reason, /indoors/, "reason must state the consequence");
+  }
+});
+t("a ranking-shape report carrying a severe code is a storm warning", () => {
+  const ctx = nowContext({ hour: 13, weather: { temp: 84, rain: 20, wet: true, label: "Storms", code: 95 } });
+  assert.equal(ctx.weather.advisory, "storm warning");
+  assert.equal(ctx.outdoorOK, false);
+});
+t("absence of the wet field is NOT evidence of dry (nulls stay null)", () => {
+  const nw = normalizeWeather({ temp: 80, rain: 20, label: "Sunny" });
+  assert.equal(nw.wet, null);
+  assert.equal(weatherFlags(nw).isWet, false);
+});
+
 console.log(`\nnow-context: OK — ${n} behaviour tests, all by CALLING nowContext (0 source-text assertions)`);

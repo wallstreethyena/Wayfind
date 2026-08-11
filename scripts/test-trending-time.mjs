@@ -52,5 +52,17 @@ ok(/rankByHour\(picks, hour\)/.test(c) && /(?:new Date\(\)\.getHours\(\)|nowCont
   "it ranks the picks by the current local hour");
 ok(/timeFit: timeFit\(p\.category, hour\)/.test(c) && /r\.timeFit/.test(c), "each row carries + renders its time-fit");
 
+// v6.97 — rankByHour's no-arg fallback is the shared venue-local hour
+// (siteHourFloat), never 0/midnight: the old fallback buried every daytime
+// category at noon for any caller that omitted the hour. The default cannot
+// be behaviour-pinned without freezing the clock, so this is a stated-weaker
+// STRUCTURAL check on the fallback expression itself.
+{
+  const lib = read("lib/trendingTime.js");
+  ok(/Number\.isFinite\(hour\) \? hour : siteHourFloat\(\)/.test(lib),
+    "rankByHour fallback must be siteHourFloat(), not 0 — STRUCTURAL check (default path not clock-freezable)");
+  ok(!/Number\.isFinite\(hour\) \? hour : 0/.test(lib), "the midnight fallback must not return");
+}
+
 console.log(`test-trending-time: ${n - failn}/${n} passed`);
 if (failn) process.exit(1);
