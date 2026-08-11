@@ -458,6 +458,29 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
      "the creator row renders nothing ONLY when there is no inventory at all (pool or registry) AND no bridge — an empty 'your differentiator' shelf advertises the absence");
   ok(/mergeCreatorInventory\(\{ pool: items, byCity/.test(CF),
      "the row builds ONE inventory from the pool and the registry together, rather than treating the registry as an empty-pool fallback");
+  // v7.08 (owner screenshot: "Circles Waterfront" AND "Circles Waterfront
+  // Restaurant" as cards 7+8 of one rail). EXECUTED, not grepped: the merge
+  // must treat a registry spot whose name is a token-boundary root of a pool
+  // place (or vice versa) as the SAME venue and keep the pool row only —
+  // while short single-token registry roots ("Ryan") must NOT swallow
+  // unrelated pool names sharing a first word.
+  {
+    const { mergeCreatorInventory: mci, sameVenueName } = await import("../lib/creatorFinds.js");
+    ok(sameVenueName("Circles Waterfront", "Circles Waterfront Restaurant") === true, "suffixed venue name reads as the same venue");
+    ok(sameVenueName("Ryan", "Ryan's Pizza") === false, "a short single-token root never swallows an unrelated business");
+    const merged = mci({
+      pool: [{ p: { id: "g1", name: "Circles Waterfront Restaurant", distMi: 3, rating: 4.6, reviews: 8700 }, creator: "secretsoftampabay" }],
+      byCity: [{ city: "Apollo Beach", distMi: 4, spots: [{ key: "circles-apollo", name: "Circles Waterfront" }, { key: "other-spot", name: "Finn's Dockside Bar & Grill" }] }],
+      radiusMi: 25, max: 20,
+    });
+    const circles = merged.filter((r) => /circles/i.test(r.kind === "pool" ? r.row.p.name : r.spot.name));
+    ok(circles.length === 1 && circles[0].kind === "pool", `one venue renders ONE card and the measured pool row wins (got ${circles.length})`);
+    ok(merged.some((r) => r.kind === "registry" && /finn/i.test(r.spot.name)), "a genuinely different registry spot in the same city still joins the shelf");
+  }
+  // …and the component holds the id-level net for whatever names miss: a
+  // hydrated registry spot resolving to an id already on the shelf never
+  // renders twice.
+  ok(/_seenEntryIds\.has\(id\)\) return false;/.test(CF), "the visible list drops a second entry carrying an id the shelf already holds (post-hydration same-venue net)");
   // 2026-08-07 (owner: pin placeholders "not what I wanted"): the scouted cards
   // resolve REAL venue photos. Locked by structure — the search route now
   // returns photo_ref, and the component hydrates + renders it.
