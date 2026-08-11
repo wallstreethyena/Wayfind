@@ -26,6 +26,7 @@
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { VENUE_OFFERS, venueOfferFor } from "../lib/venueOffers.js";
 import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
+import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 
 let pass = 0;
 const fail = (m) => { console.error("check-partner-hook-collisions: FAIL — " + m); process.exit(1); };
@@ -114,6 +115,16 @@ for (const [key, ids] of multiMarket) {
 // An id that resolves to nothing renders a live money link that dead-ends.
 const HOST_OK = /^https:\/\/(www\.)?(tiqets|klook|gocity|ticketnetwork|viator)\.com\//;
 for (const row of [...PLACE_PARTNER_PICKS, ...VENUE_OFFERS]) {
+  // v6.98: Undercover Tourist hooks are TABLE-backed (wf_deals; the
+  // deals-health cron owns liveness + CJ attribution) — the registry cannot
+  // vouch for them. The hand-verified pin in lib/deals.js does: read live from
+  // wf_deals 2026-08-11, all active + link_ok. The collision checks above
+  // (sections 1-3) still cover these rows in full — only the registry
+  // resolution is provider-specific.
+  if (row.provider === "undercover_tourist") {
+    ok(!!UT_PLACE_DEAL_IDS[row.offerId], `${row.offerId} UT hook is pinned to a hand-verified wf_deals row`);
+    continue;
+  }
   const entry = partnerOfferById(row.offerId, row.provider);
   ok(!!entry, `${row.offerId} resolves through partnerOfferById for provider ${row.provider}`);
   ok(typeof entry.destination === "string" && HOST_OK.test(entry.destination),
