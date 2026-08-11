@@ -252,6 +252,7 @@ node scripts/test-atlas-verify-timefmt.mjs
 node scripts/check-share-art-source.mjs
 node scripts/check-cuisine-never-queried.mjs
 node scripts/test-cuisine-classify.mjs
+node scripts/test-cuisine-write.mjs
 node scripts/check-cuisine-sql-in-sync.mjs
 node scripts/check-editorial-template.mjs
 node scripts/check-cuisine-chip-floor.mjs

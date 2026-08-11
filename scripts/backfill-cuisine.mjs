@@ -14,6 +14,7 @@
 //   node scripts/backfill-cuisine.mjs --dry      # classify, write nothing
 import { readFileSync } from "fs";
 import { classifyCuisine, LOW_CONFIDENCE } from "../lib/cuisine.js";
+import { writeCuisineLabels } from "../lib/cuisineWrite.js";
 
 const args = process.argv.slice(2);
 const dry = args.includes("--dry");
@@ -80,16 +81,11 @@ for (const [k, v] of [...byCuisine].sort((a, b) => b[1] - a[1]).slice(0, 20)) co
 
 if (dry) { console.log("\nDRY RUN — nothing written."); process.exit(0); }
 
-// Upsert in batches. resolution=merge-duplicates so only the cuisine columns move.
-let written = 0;
-for (let i = 0; i < updates.length; i += 200) {
-  const batch = updates.slice(i, i + 200);
-  await rest("wf_inventory?on_conflict=place_id", {
-    method: "POST",
-    headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-    body: JSON.stringify(batch),
-  });
-  written += batch.length;
-  process.stdout.write(`\r  written ${written}/${updates.length}`);
+// Per-row UPDATE via lib/cuisineWrite — the old merge-duplicates upsert 23502s
+// on `name` before conflict arbitration (see lib/cuisineWrite.js header).
+const { written, failures } = await writeCuisineLabels(updates, rest);
+if (failures.length) {
+  console.error(`backfill-cuisine: ${failures.length} row writes FAILED; first: ${failures[0].place_id} ${failures[0].error}`);
+  process.exitCode = 1;
 }
-console.log(`\nbackfill-cuisine: wrote ${written} rows.`);
+console.log(`backfill-cuisine: wrote ${written}/${updates.length} rows.`);
