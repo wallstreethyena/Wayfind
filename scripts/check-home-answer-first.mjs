@@ -269,6 +269,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   const sectionBlock = BN.slice(BN.indexOf("const SECTIONS = ["), BN.indexOf("const trendsBody"));
   const expectedSections = [
     ["Actually Worth Eating", "Endless reviews or one honest answer — ranked for this hour, not for advertisers."],
+    ["The 30-Minute Break", "Half the break dies deciding. The best quick, counter-serve food near you — already ranked."],
     ["What Should We Do Today?", "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now."],
     ["Places You'd Never Find", "Loved by the few who've found them, missed by the big lists — and near you."],
     ["Locals Know", "Not a listicle: creators who actually went, matched to places near you."],
@@ -278,11 +279,11 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   ];
   const actualSections = [...sectionBlock.matchAll(/\{ id: "[a-z]+", label: "([^"]+)", sub: "([^"]+)"/g)].map((m) => [m[1], m[2]]);
   ok(JSON.stringify(actualSections) === JSON.stringify(expectedSections),
-     `the seven optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
+     `the eight optional rows use the exact approved order, names and support lines (got ${JSON.stringify(actualSections)})`);
   const collapsedDecl = COLLAPSE.match(/DEFAULT_COLLAPSED_RAILS\s*=\s*(\[[^;]+\])/);
   let collapsedDefaults = [];
   try { collapsedDefaults = collapsedDecl ? JSON.parse(collapsedDecl[1]) : []; } catch (e) {}
-  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
+  ok(!collapsedDefaults.includes("exploding") && ["best", "eat", "quickbite", "todo", "gems", "creators", "events", "tonight", "drive"].every((id) => collapsedDefaults.includes(id)),
      "Exploding is the only primary discovery section expanded for a new visitor; every section below starts collapsed");
   const layout = readFileSync(path.join(REPO, "app/layout.js"), "utf8");
   const prepaintDecl = layout.match(/var v=r\?JSON\.parse\(r\):(\[[^;]+\]);/);
@@ -348,7 +349,12 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
   // decided to trust the ranking. This is the stronger version of the old check
   // — it covers every intent rail that remains in the experiment hierarchy.
   const intents = [...BN.matchAll(/intent: "([a-z-]+)", href: "([^"]+)"/g)];
-  ok(intents.length === 3, `the menu's three intent sections declare their destinations exactly once (found ${intents.length}, expected 3)`);
+  ok(intents.length === 4, `the menu's four intent sections declare their destinations exactly once (found ${intents.length}, expected 4)`);
+  // Red-prove of 2026-08-11: intent: "quick-bite", href: "/budget" passed the
+  // count check. The heading and the destination are ONE promise — bind them.
+  for (const [, intent, href] of intents) {
+    ok(href === "/" + intent, `menu section for "${intent}" links its own page (got ${href})`);
+  }
   for (const [, intent, href] of intents) {
     ok(existsSync(path.join(REPO, "app", href.replace(/^\//, ""), "page.js")),
        `section "${intent}" points at a real page (app${href}/page.js)`);
