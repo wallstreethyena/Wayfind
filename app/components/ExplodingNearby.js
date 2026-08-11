@@ -9,7 +9,6 @@ import { priceLabel } from "../../lib/price.js";
 import { markExplodingInteraction, noteExplodingReturn } from "../../lib/explodingExperiment.js";
 import useMissingPlacePhotos from "./useMissingPlacePhotos";
 import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
-import { EXPLODING_STAT_ASOF } from "../../lib/trendTaxonomy.js";
 import { nowContext } from "../../lib/nowContext.js";
 import { gateOutdoor } from "../../lib/ranking.js";
 
@@ -133,15 +132,10 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 17, lineHeight: 1.2, fontWeight: 820, letterSpacing: "-.25px", color: "#FFF3E8" }}>🔥 {trend.headline}</div>
           <div style={{ marginTop: 5, color: "#AEB8C6", fontSize: 12.5, lineHeight: 1.45 }}>{trend.dek}</div>
-          {/* THE EVIDENCE LINE (owner, 2026-08-11: "explain to the user that it
-              is trending recently and share the data with them"). The stat is
-              the owner-supplied measured search delta from the licensed trend
-              list — a concrete, dated claim, never a bare "this is trending". */}
-          {trend.stat ? (
-            <div style={{ marginTop: 5, color: "#8FD3A8", fontSize: 11.5, lineHeight: 1.45, fontWeight: 650 }}>
-              📈 {trend.stat} <span style={{ color: "#6F7C8D", fontWeight: 500 }}>({EXPLODING_STAT_ASOF})</span>
-            </div>
-          ) : null}
+          {/* v7.14 (owner, repeated ask): the search-data stat line is GONE from
+              the card. It read as an internal memo, not a recommendation. The
+              numbers stay in lib/trendTaxonomy.js for ranking/audit only —
+              nothing on this surface may render trend.stat. */}
         </div>
         <button type="button" onClick={shareTrend} aria-label={"Share " + trend.label} style={{ flexShrink: 0, minWidth: 40, minHeight: 40, borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.04)", color: C.text, cursor: "pointer", fontSize: 15 }}>↗</button>
       </div>
