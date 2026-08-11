@@ -24,6 +24,7 @@ produced" and it read as missing.
 | File | Purpose | Use |
 | --- | --- | --- |
 | `wayfind-pin.svg` | The pin mark alone, 32x36, orange gradient, transparent centre, no glow halo. | The user's own location on the map. NOT for places -- see below. |
+| `wayfind-pin-neon.svg` | The user-location pin on the map — neon outline remake of the brand pin (owner-supplied look, 2026-08-11). Transparent, glow baked into the SVG filter. OUTLINE PIN = YOU; never used for places. |
 | `wayfind-logo.svg` | Full wordmark, white lettering with the gradient pin. | On dark backgrounds. |
 | `wayfind-logo-ink.svg` | Same wordmark, near-black lettering (`#0E1116`). | On light backgrounds. |
 | `wayfind-logo-bold.svg` | Heavier wordmark cut, white lettering, slightly wider. | Where the wordmark must hold at small sizes or over busy imagery. |

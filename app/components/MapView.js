@@ -43,9 +43,14 @@ const MAP_DEFAULT_ZOOM = 9.15;
 // extruded buildings, offered as an explicit user toggle (see styleMode)
 // rather than the default, since it needs pitch/rotation enabled and this
 // map's default interaction model is deliberately flat/simple.
+// v7.19 — OpenFreeMap REMOVED its "3d" style (the URL 404s now; verified by
+// curl 2026-08-11). Toggling 3D fetched a dead style, setStyle never loaded,
+// and the watchdog dropped users onto the fallback (owner screenshot). 3D is
+// now NATIVE: same bright style that already ships building footprints, plus
+// a fill-extrusion layer + pitch — no second style fetch to die on.
 const MAP_STYLES = {
   bright: "https://tiles.openfreemap.org/styles/bright",
-  "3d": "https://tiles.openfreemap.org/styles/3d",
+  "3d": "https://tiles.openfreemap.org/styles/bright",
 };
 const MAP_STYLE = MAP_STYLES.bright;
 
@@ -139,7 +144,7 @@ function markerNode({ label, color, kind, selected }) {
       el.innerHTML =
         // Ground shadow, so it sits ON the map instead of floating above it.
         '<span aria-hidden="true" style="position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:15px;height:5px;border-radius:50%;background:rgba(15,23,35,.34);filter:blur(1.5px)"></span>' +
-        '<img src="/brand/wayfind-pin.svg" alt="" width="30" height="34" class="wf-origin-pin" style="display:block;width:30px;height:34px;position:relative;filter:drop-shadow(0 0 4.5px rgba(252,95,6,.75)) drop-shadow(0 2px 3px rgba(15,23,35,.35))" />';
+        '<img src="/brand/wayfind-pin-neon.svg" alt="" width="30" height="36" class="wf-origin-pin" style="display:block;width:30px;height:36px;position:relative;filter:drop-shadow(0 0 6px rgba(252,95,6,.8)) drop-shadow(0 2px 3px rgba(15,23,35,.3))" />';
       return el;
     }
     const w = 26, h = 34;
@@ -204,7 +209,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     if (placeSource) placeSource.setData({ type: "FeatureCollection", features: placeFeatures });
     if (map.getLayer("wf-place-clusters")) {
       const clusterColor = { food: "#F97316", nightlife: "#A855F7", attractions: "#0EA5E9", family: "#14B8A6", hotels: "#6366F1", shopping: "#EC4899" }[category] || "#F97316";
-      map.setPaintProperty("wf-place-clusters", "circle-color", clusterColor);
+      map.setPaintProperty("wf-place-clusters", "circle-stroke-color", clusterColor);
     }
     eventList.forEach((event) => {
       const node = markerNode({ label: event.venue || event.name || "Event", color: "#8B5CF6", kind: "event" });
@@ -315,9 +320,23 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       // buildings, roads all distinct out of the box, verified against the
       // live style JSON) — the v6.94/v6.98 water repaints above were working
       // around "dark"'s near-invisible flat palette and do not apply here.
+      // Native 3D: extrude the bright style's own building footprints. Height
+      // attrs where OSM has them, a believable 12m fallback where it doesn't.
+      try {
+        if (!map.getLayer("wf-3d-buildings")) map.addLayer({
+          id: "wf-3d-buildings", type: "fill-extrusion", source: "openmaptiles", "source-layer": "building", minzoom: 13,
+          layout: { visibility: styleMode === "3d" ? "visible" : "none" },
+          paint: {
+            "fill-extrusion-color": "#D8D0C3",
+            "fill-extrusion-height": ["coalesce", ["get", "render_height"], 12],
+            "fill-extrusion-base": ["coalesce", ["get", "render_min_height"], 0],
+            "fill-extrusion-opacity": 0.82,
+          },
+        });
+      } catch (e) {}
       map.addSource("wf-places", { type: "geojson", cluster: true, clusterMaxZoom: 14, clusterRadius: 38, data: { type: "FeatureCollection", features: [] } });
-      map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "#F97316", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "rgba(255,255,255,.94)", "circle-opacity": .94 } });
-      map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 13, "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF" } });
+      map.addLayer({ id: "wf-place-clusters", type: "circle", source: "wf-places", filter: ["has", "point_count"], paint: { "circle-color": "rgba(255,255,255,.97)", "circle-radius": ["step", ["get", "point_count"], 19, 10, 23, 20, 27], "circle-stroke-width": 3, "circle-stroke-color": "#F97316", "circle-opacity": .97 } });
+      map.addLayer({ id: "wf-place-cluster-count", type: "symbol", source: "wf-places", filter: ["has", "point_count"], layout: { "text-field": ["concat", ["get", "point_count_abbreviated"], " spots"], "text-size": 10.5, "text-allow-overlap": true }, paint: { "text-color": "#0B0F14" } });
       // TICKET 4c + 3 — the Wayfind marker vocabulary, and the selected state.
       //
       // Places are a CIRCLE layer, not DOM markers, so every part of this is a
@@ -447,7 +466,9 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     if (!map || prevStyleModeRef.current === styleMode) return;
     prevStyleModeRef.current = styleMode;
     try {
-      map.setStyle(MAP_STYLES[styleMode] || MAP_STYLES.bright);
+      // v7.19: both modes share ONE loaded style, so the swap is instant and
+      // cannot fail a network fetch — flip the extrusion layer and the camera.
+      if (map.getLayer("wf-3d-buildings")) map.setLayoutProperty("wf-3d-buildings", "visibility", styleMode === "3d" ? "visible" : "none");
       map.dragRotate[styleMode === "3d" ? "enable" : "disable"]();
       map.touchPitch[styleMode === "3d" ? "enable" : "disable"]();
       map.easeTo({ pitch: styleMode === "3d" ? 55 : 0, duration: 500 });

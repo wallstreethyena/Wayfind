@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30" height="36" viewBox="0 0 30 36">
+  <!-- v7.19 (owner-supplied reference, 2026-08-11): the user-location pin is a
+       NEON OUTLINE — transparent background, orange glow. Rebuilt as SVG from
+       the supplied raster so it scales crisp and ships transparent. The
+       vocabulary law stands: OUTLINE PIN = YOU; filled circle = a place. -->
+  <defs>
+    <filter id="wfNeonGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.2" result="glow1"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="glow2"/>
+      <feMerge>
+        <feMergeNode in="glow1"/>
+        <feMergeNode in="glow2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="wfNeonStroke" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDBA74"/>
+      <stop offset="1" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#wfNeonGlow)">
+    <path d="M15 2.6 C9 2.6 4.4 7.3 4.4 13.3 C4.4 20.8 15 33 15 33 C15 33 25.6 20.8 25.6 13.3 C25.6 7.3 21 2.6 15 2.6 Z" fill="none" stroke="url(#wfNeonStroke)" stroke-width="2.6" stroke-linejoin="round"/>
+    <circle cx="15" cy="12.6" r="4.1" fill="none" stroke="url(#wfNeonStroke)" stroke-width="2.4"/>
+  </g>
+</svg>
