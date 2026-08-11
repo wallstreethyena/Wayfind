@@ -18,7 +18,7 @@ const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
 const at = (p) => new URL("../" + p, import.meta.url);
 
 // ── assets exist where the code and the README say they do ───────────────
-const ASSETS = ["public/brand/wayfind-pin.svg", "public/brand/wayfind-logo.svg",
+const ASSETS = ["public/brand/wayfind-pin.svg", "public/brand/wayfind-pin-neon.svg", "public/brand/wayfind-logo.svg",
   "public/brand/wayfind-logo-ink.svg", "public/brand/wayfind-logo-bold.svg"];
 for (const a of ASSETS) {
   ok(existsSync(at(a)), `${a} is missing — the map would render a broken image`);
@@ -38,7 +38,7 @@ ok(/never a place|NEVER a place|USER, never/i.test(readme), "the README no longe
 
 // ── the map actually uses it, with the tip on the coordinate ─────────────
 const view = readFileSync(at("app/components/MapView.js"), "utf8");
-ok((view.match(/\/brand\/wayfind-pin\.svg/g) || []).length >= 2, "the map does not render the brand pin for the user's location (both the comment reference and the img src should name it)");
+ok((view.match(/\/brand\/wayfind-pin-neon\.svg/g) || []).length >= 1, "the map does not render the neon brand pin for the user's location (v7.19, owner-supplied look)");
 // anchor:"bottom" is what puts the TIP on the true coordinate.
 ok(/anchor: "bottom" \}\)\.setLngLat\(\[origin\.lng, origin\.lat\]/.test(view),
   "the ORIGIN marker is not bottom-anchored — the pin's centre would sit on the coordinate instead of its tip (events share this anchor, so an unscoped check proves nothing)");
@@ -50,7 +50,7 @@ ok(/@keyframes wfOriginGlow\{[^}]*filter:drop-shadow/.test(view.replace(/\s+/g, 
 // The two vocabularies stay apart: places are still circles with ranks.
 ok(/"wf-place-pins", type: "circle"/.test(view), "places stopped being filled circles — they would collide with the user pin's vocabulary");
 ok(/\["get", "rank"\]/.test(view), "place markers lost their rank labels");
-ok(!/wayfind-pin\.svg[\s\S]{0,400}wf-place/.test(view), "the brand pin leaked into the place-marker path — the user would read as a search result");
+ok(!/wayfind-pin(-neon)?\.svg[\s\S]{0,400}wf-place/.test(view), "the brand pin leaked into the place-marker path — the user would read as a search result");
 ok(view.length > 3000, "MapView did not load — every assertion above would pass vacuously");
 
 if (bad) { console.error(`\ncheck-brand-pin: FAIL — ${bad}/${n} assertions`); process.exit(1); }
