@@ -37,6 +37,7 @@ import RailCard, { RailNav, RailDots } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
 import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
+import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
 import { nowContext } from "../../lib/nowContext";
 import { attachTrendSignals } from "../../lib/trendSignal";
 import { toDisplayScore } from "../../lib/score";
@@ -261,6 +262,24 @@ export default function IntentRailBody({
           const soft = { ...def.floor, reviews: SOFT_FLOOR_REVIEWS };
           const relaxed = await sweep(def.radiusM || WIDEN_M, whole, soft);
           if (relaxed.length > ranked.length) ranked = relaxed;
+        }
+        // THE MARQUEE LANE (owner, 2026-08-11: "give me disney springs give
+        // me them parks give me the best of the best… 2 hour drive max").
+        // The bank above searches near the reader, so a national destination
+        // 80 miles out can never appear in it — the marquee lane resolves the
+        // declared best-of-the-best anchors within the 2-hour band into live
+        // Google cards and LEADS the rail with them. Two lanes, each in its
+        // own ranker's order; scores are never altered (order-only rule, see
+        // lib/marqueeDayTrips.js). Fails soft: no marquee, the local lane
+        // stands alone exactly as before.
+        if (intent === "worth-the-drive") {
+          try {
+            const marquee = await resolveMarqueeDayTrips({ origin: { lat, lng }, minDistanceMi: def.minDistanceMi });
+            if (marquee.length) {
+              const mIds = new Set(marquee.map((r) => r.id));
+              ranked = marquee.concat(ranked.filter((r) => !mIds.has(r.id)));
+            }
+          } catch (e) {}
         }
         POOL.set(key, ranked);
         setRows(ranked);
