@@ -38,7 +38,7 @@ import { C, TYPE } from "./kit";
 // source is IconicPlaceCard's experienceTags — the portable, evidence-bound
 // adaptation of home.js's experienceBadges that check-collection-look.mjs
 // already pins — rather than a fourth copy of the same badge logic.
-import RailCard, { RailNav } from "./RailCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";

@@ -33,7 +33,7 @@
 // wider page rather than dressing two cards as a shortlist — the same rule
 // RANKING_AND_FEATURING_SPEC.md §4 already applies to the creator row.
 import { useCallback, useEffect, useRef, useState } from "react";
-import RailCard, { RailNav } from "./RailCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
 import { experienceTags } from "./IconicPlaceCard";
 import { INTENT_PAGES, toRow, rankRows, composeQueries } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
@@ -429,6 +429,7 @@ export default function IntentRailBody({
               );
             })}
           </div>
+          <RailDots railId={intent} count={list.length} />
           <a href={href} className="wf-railsec-more" onClick={() => { try { if (onLog) onLog("home_rail_see_all", null, { rail: intent, shown: list.length }); } catch (e) {} }}>
             {"See every one →"}
           </a>
