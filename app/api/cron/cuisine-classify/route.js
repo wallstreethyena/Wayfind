@@ -30,6 +30,7 @@ export const maxDuration = 60;
 import { sbEnv } from "../../../../lib/serverCache";
 import { classifyCuisine, LOW_CONFIDENCE } from "../../../../lib/cuisine";
 import { recordPulse } from "../../../../lib/jobPulse";
+import { writeCuisineLabels } from "../../../../lib/cuisineWrite";
 
 const RECHECK_DAYS = 30;
 const MAX_ROWS = 500;
@@ -110,19 +111,16 @@ export async function GET(req) {
     });
   }
 
-  let written = 0, writeErr = null;
-  try {
-    for (let i = 0; i < updates.length; i += 200) {
-      await rest("wf_inventory?on_conflict=place_id", {
-        method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
-        body: JSON.stringify(updates.slice(i, i + 200)),
-      });
-      written += Math.min(200, updates.length - i);
-    }
-  } catch (e) {
-    writeErr = `write failed: ${String(e && e.message).slice(0, 160)}`;
-    console.error(`[cuisine] ${writeErr}`);
+  // Per-row UPDATE via lib/cuisineWrite — see that file's header for why the
+  // old POST+on_conflict upsert could never write ANY batch (23502 on `name`
+  // before conflict arbitration; proven live 2026-08-11). Per-row also means
+  // one failing row no longer sinks the other 199: it is reported loudly below
+  // while the rest complete.
+  const { written, failures } = await writeCuisineLabels(updates, rest);
+  let writeErr = null;
+  if (failures.length) {
+    writeErr = `${failures.length}/${updates.length} row writes failed; first: ${failures[0].place_id} ${failures[0].error}`;
+    console.error(`[cuisine] write failures: ${writeErr}`);
   }
 
   // succeeded = rows that got a LABEL, not rows written. A run that writes 200
@@ -136,5 +134,5 @@ export async function GET(req) {
     note: writeErr || (labelled === 0 ? `0 labelled of ${rows.length} (mode=${mode})` : null),
   });
 
-  return Response.json({ ok: !writeErr, mode, processed: rows.length, written, labelled, outcomes, error: writeErr });
+  return Response.json({ ok: !writeErr, mode, processed: rows.length, written, write_failures: failures.length, labelled, outcomes, error: writeErr });
 }
