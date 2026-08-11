@@ -327,8 +327,8 @@ function SectionShell({ sdef, isOpen, first, onToggle, nodeRef, children }) {
 // The Top 40's own header. Not a member of SECTIONS because its rail JSX has to
 // stay ABOVE the {SECTIONS.map( call (scripts/check-top40-rail.mjs pins that
 // order, and the rail is what the whole panel is named after).
-const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "What's taking off — and where to experience it.", emoji: "🔥", heading: true, maxHeight: 24000 };
-const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Wayfind's highest-rated picks nearby.", icon: "award" };
+const EXPLODING_SECTION = { id: "exploding", label: "Exploding Near You", sub: "Everyone's searching these. Wayfind found where to try them near you.", emoji: "🔥", heading: true, maxHeight: 24000 };
+const TOP40_SECTION = { id: "best", label: "The Best Around You", sub: "Ten answers, zero tabs: the highest Wayfind Scores near you. No paid placement.", icon: "award" };
 
 // The sections whose data `load()` below knows how to fetch. Everything else in
 // the menu resolves its own rail.
@@ -746,13 +746,13 @@ export default function BestNearby({
   // retain their own longer promises. The underlying intent and href stay the
   // same; only the collapsed-row framing changes here.
   const SECTIONS = [
-    { id: "eat", label: "Actually Worth Eating", sub: "Skip the endless reviews. Start here.", icon: "food" },
-    { id: "todo", label: "What Should We Do Today?", sub: "Great plans for right now.", icon: "attractions" },
-    { id: "gems", label: "Places You'd Never Find", sub: "Hidden gems worth knowing about.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
-    { id: "creators", label: "Locals Know", sub: "Places recommended by creators who actually know the area.", icon: "film", line: true, slot: "creators" },
-    { id: "tonight", label: "Tonight's Move", sub: "The places and experiences that make sense tonight.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
-    { id: "drive", label: "Worth the Drive", sub: "Good enough to go out of your way for.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
-    { id: "events", label: "Events Near You", sub: "Concerts, shows and things happening nearby.", icon: "ticket", line: true, slot: "events" },
+    { id: "eat", label: "Actually Worth Eating", sub: "Endless reviews or one honest answer — ranked for this hour, not for advertisers.", icon: "food" },
+    { id: "todo", label: "What Should We Do Today?", sub: "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now.", icon: "attractions" },
+    { id: "gems", label: "Places You'd Never Find", sub: "Loved by the few who've found them, missed by the big lists — and near you.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
+    { id: "creators", label: "Locals Know", sub: "Not a listicle: creators who actually went, matched to places near you.", icon: "film", line: true, slot: "creators" },
+    { id: "tonight", label: "Tonight's Move", sub: "Plans that fit tonight's hours — not somebody's reheated weekend list.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
+    { id: "drive", label: "Worth the Drive", sub: "An hour in the car has to earn itself. These are the ones that do.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
+    { id: "events", label: "Events Near You", sub: "Stop finding out the day after: concerts, shows and one-nighters near you.", icon: "ticket", line: true, slot: "events" },
   ];
 
   const trendsBody = (d) => (
