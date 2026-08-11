@@ -6982,6 +6982,11 @@ function PageInner({ initialEvents = null }) {
             uv: day && day.uv_index_max ? Math.round(day.uv_index_max[0]) : null,
             sunset, sunsetMs, sunriseMs, updated,
             icon: w.icon, img: w.img, label: w.label, warm: w.warm, wet: w.wet,
+            // v6.97: the raw Open-Meteo code rides along so nowContext's
+            // WET_CODES/SEVERE_CODES read the LIVE condition (storm warning,
+            // active rain) instead of only the daily rain%% — the wet/code
+            // drop meant a storm could rank beaches with "clear" copy.
+            code: cur.weather_code != null ? Number(cur.weather_code) : null,
             hourly: (() => {
               try {
                 const h = d.hourly; if (!h || !h.time) return [];

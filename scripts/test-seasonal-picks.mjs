@@ -19,6 +19,7 @@
 // it can't invoke directly without mocking live upstreams.
 import { readFileSync } from "fs";
 import { currentSeason, seasonQueries, seasonalFit, SEASON_META, SEASONS } from "../lib/seasons.js";
+import { siteAnchorDate } from "../lib/siteTime.js";
 
 let pass = 0;
 const fail = (m) => { console.error("test-seasonal-picks: FAIL — " + m); process.exit(1); };
@@ -236,6 +237,20 @@ for (const badge of ["Beach day", "Hidden gems", "Date night", "Family", "Trendi
   ok(bAt >= 0, `existing hero slide "${badge}" is still present`);
   const nearbyImage = home.slice(Math.max(0, bAt - 200), bAt).includes("image=\"/cards/");
   ok(nearbyImage, `existing hero slide "${badge}" still supplies a real photo — the new optional-image fallback did not remove it`);
+}
+
+// v6.97 — the DEFAULT currentSeason() reads the ET-anchored calendar day, so
+// it can never disagree with nowContext's season during the UTC-evening
+// window (Vercel runs in UTC; the local read flipped seasons ~4h early at
+// every boundary). The default cannot be behaviour-tested without freezing
+// the clock, so this is a stated-weaker STRUCTURAL check on the syntactic
+// position of the default read, plus an agreement call for today.
+{
+  const s = readFileSync(new URL("../lib/seasons.js", import.meta.url), "utf8");
+  ok(/const m = \(d instanceof Date \? d : siteAnchorDate\(\)\)\.getMonth\(\)/.test(s),
+    "currentSeason's default month read must anchor to siteAnchorDate() (ET), not the runtime clock — STRUCTURAL check (default path not clock-freezable)");
+  ok(!/currentSeason\(d = new Date\(\)\)/.test(s), "the old local-clock default must not return");
+  ok(currentSeason() === currentSeason(siteAnchorDate()), "default agrees with the ET-anchored day right now");
 }
 
 console.log(`test-seasonal-picks: OK — ${pass} assertions (season logic pure + tested; hero-rail wiring leads AND closes both rails; ranking is rating + a bounded seasonal nudge, never a replacement)`);
