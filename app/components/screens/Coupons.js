@@ -143,26 +143,27 @@ function CouponCard({ c, position, ctx }) {
   }, [cctx]);
 
   return (
-    <article ref={impRef} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", overflow: "hidden", border: `1px solid ${isSaved ? "rgba(249,115,22,.65)" : T.border}`, borderLeft: `4px solid ${isSaved ? T.orange : disc.affiliate ? T.gold : "#3c4b61"}`, borderRadius: 16, padding: "15px 15px 13px", background: "linear-gradient(155deg,#142031,#0f1825)", boxShadow: "0 8px 22px rgba(0,0,0,.24)" }}>
-      <div style={{ minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, minWidth: 0 }}>
-          {/* Venue identity tile — spans header + title height so the eye reads
-              picture-then-price. Photo from the row's own verified photoRef
-              via /api/photo when there is one; otherwise a Pexels market
-              photo via /api/market-photo (marketPhoto, city+category-matched,
-              market-level rows only); otherwise the explicit category emoji. */}
+    <article ref={impRef} style={{ width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box", overflow: "hidden", border: `1px solid ${isSaved ? "rgba(249,115,22,.65)" : T.border}`, borderLeft: `4px solid ${isSaved ? T.orange : disc.affiliate ? T.gold : "#3c4b61"}`, borderRadius: 17, padding: 0, background: "linear-gradient(145deg,rgba(255,255,255,.035),transparent 36%),#111824", boxShadow: "0 14px 36px rgba(0,0,0,.27), inset 0 1px rgba(255,255,255,.035)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: (effectiveThumb || thumbIcon) ? "96px minmax(0,1fr)" : "minmax(0,1fr)", alignItems: "stretch", minWidth: 0 }}>
+          {/* Venue identity BAND — the .wf-place-card-layout language (owner,
+              2026-08-12: coupon cards read like place cards). Same single
+              image slot, same sources, in the same order as the old 52px
+              tile: the row's own verified photoRef via /api/photo, else the
+              Pexels market photo via /api/market-photo (city+category-matched,
+              market-level rows only), else the explicit category emoji on the
+              place-card monogram surface. */}
           {(effectiveThumb || thumbIcon) ? (
-            <div aria-hidden="true" style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 12, overflow: "hidden", border: `1px solid ${T.border}`, background: "rgba(232,201,122,.08)", display: "grid", placeItems: "center" }}>
+            <div aria-hidden="true" style={{ minWidth: 0, height: "100%", overflow: "hidden", display: "grid", placeItems: "center", background: "radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%)", boxShadow: "inset -1px 0 rgba(159,177,203,.1)" }}>
               {effectiveThumb
                 ? <img src={effectiveThumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                : <span style={{ fontSize: 26, lineHeight: 1 }}>{thumbIcon}</span>}
+                : <span style={{ fontSize: 30, lineHeight: 1 }}>{thumbIcon}</span>}
             </div>
           ) : null}
-          <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column" }}>
+          <div style={{ minWidth: 0, display: "flex", flexDirection: "column", padding: "13px 14px 12px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, flex: 1 }}>
                 <span aria-hidden="true" style={{ flexShrink: 0, color: disc.affiliate ? T.gold : T.orange, fontSize: 12.5 }}>🏷</span>
-                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: disc.affiliate ? T.gold : T.muted, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase", color: T.orange, fontWeight: 900 }}>{c.business}{c.area ? ` · ${c.area}` : ""}</span>
                 {disc.affiliate ? <span style={{ flexShrink: 0, padding: "2px 6px", borderRadius: 999, background: "rgba(34,197,94,.14)", color: T.green, fontSize: 8, fontWeight: 900, letterSpacing: ".05em" }}>PARTNER</span> : null}
               </div>
               {/* The seal is the one visual anchor per card — everything else in this
@@ -170,8 +171,6 @@ function CouponCard({ c, position, ctx }) {
               {seal ? <span style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 9, border: "1px solid rgba(232,201,122,.55)", color: T.gold, background: "rgba(232,201,122,.1)", fontSize: 12.5, fontWeight: 950, lineHeight: 1.1, whiteSpace: "nowrap" }}>{seal.big} <small style={{ fontSize: 7.5, letterSpacing: ".05em" }}>{seal.small}</small></span> : null}
             </div>
             <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
-          </div>
-        </div>
         {c.details ? <p style={{ margin: "5px 0 0", color: T.light, fontSize: 12.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</p> : null}
 
         {(c.code || ends || proof) ? (
@@ -209,6 +208,7 @@ function CouponCard({ c, position, ctx }) {
         </div>
         <div style={{ marginTop: 9, minHeight: 13, color: T.hint, fontSize: 10, lineHeight: 1.4 }}>
           {disc.affiliate ? <>{disc.before}<i>{disc.italic}</i>{disc.after}</> : <>Verified at source · no affiliate relationship.</>}
+        </div>
         </div>
       </div>
     </article>
