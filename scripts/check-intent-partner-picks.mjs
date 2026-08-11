@@ -8,6 +8,7 @@ import { allIntentPartnerPicks, intentPartnerPick, intentPartnerPicks, inventory
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
+import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 import { PROVIDERS, resolveOffer } from "../lib/commerceProviders.js";
 import { rankExperiences } from "../lib/experiencesData.js";
 import { cachedExperienceCard, viatorProductCard } from "../lib/viatorProductCard.js";
@@ -92,7 +93,31 @@ ok(placePartnerPick({ name: "Tampa Riverwalk" }) === null, "a landmark with no e
 ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching is exact, not a revenue-seeking substring match");
 ok(/Partner tickets via/.test(placeClientSrc) && /rel="sponsored noopener"/.test(placeClientSrc), "global place cards visibly disclose exact partner ticket links");
 for (const row of PLACE_PARTNER_PICKS) {
-  ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} landmark hook agrees with the server registry`);
+  if (row.provider === "undercover_tourist") {
+    // UT hooks resolve against wf_deals (table-backed provider, cron
+    // health-checked). The registry cannot vouch for them; the hand-verified
+    // pin in lib/deals.js does — read live from wf_deals 2026-08-11, all
+    // active + link_ok. An id absent from the pin is an unverified hook.
+    ok(!!UT_PLACE_DEAL_IDS[row.offerId], `${row.offerId} UT place hook is pinned to a hand-verified wf_deals row`);
+  } else {
+    ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} landmark hook agrees with the server registry`);
+  }
+}
+
+// v6.98 — the 2026-08-11 CJ expansion, asserted ON THE CALL where possible.
+ok(placePartnerPick({ name: "Amalie Arena" })?.offerId === "tampa-venue-amalie-arena", "an FL arena resolves to its title-verified TicketNetwork venue page");
+ok(placePartnerPick({ name: "Magic Kingdom Park" })?.provider === "undercover_tourist", "a Disney park card hooks the UT discounted-tickets row");
+ok(placePartnerPick({ name: "Hard Rock Live" }) === null, "the unqualified Hard Rock Live name matches nothing (Hollywood FL has one too — booking-integrity law)");
+ok(placePartnerPick({ name: "SeaWorld San Antonio" }) === null, "an out-of-market park name matches nothing");
+{
+  // ticketnetwork moved off the dark tp.media wrapper onto the verified CJ dlg
+  // form. Execute the provider: the resolved dest must be a tracked CJ URL
+  // carrying our PID, for both the pre-existing Van Wezel offer (which the
+  // dark wrapper silently broke) and a new venue offer.
+  for (const oid of ["sarasota-date-van-wezel", "tampa-venue-amalie-arena"]) {
+    const r = await resolveOffer("ticketnetwork", oid);
+    ok(!r.error && /anrdoezrs\.net\/links\/101643573\/type\/dlg\//.test(r.dest || ""), `ticketnetwork ${oid} resolves through the verified CJ deep link (got ${r.error || r.dest})`);
+  }
 }
 
 for (const deal of PARTNER_DEAL_COUPONS) {
@@ -142,7 +167,13 @@ for (const p of picks) {
     ok(!!dest && /^https?:$/.test(dest.protocol), `${p.offerId} has an absolute http(s) destination`);
     ok(!!dest && dest.pathname !== "/", `${p.offerId} is a specific product/venue path, not a provider homepage`);
     const resolved = await resolveOffer(p.provider, p.offerId);
-    ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${p.offerId} resolves through the verified Travelpayouts wrapper (got ${resolved.error || resolved.dest})`);
+    if (p.provider === "ticketnetwork") {
+      // 2026-08-11: ticketnetwork moved from the (never-lit) tp.media wrapper
+      // to the verified CJ dlg form — the protection moves with it.
+      ok(!resolved.error && /^https:\/\/www\.anrdoezrs\.net\/links\/101643573\/type\/dlg\//.test(resolved.dest || ""), `${p.offerId} resolves through the verified CJ dlg deep link (got ${resolved.error || resolved.dest})`);
+    } else {
+      ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${p.offerId} resolves through the verified Travelpayouts wrapper (got ${resolved.error || resolved.dest})`);
+    }
   } else if (p.provider === "viator") {
     ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} is a live Viator product_code and must not also carry a shadowing registry row`);
     ok(/^\d+P\d+$/.test(p.offerId), `${p.offerId} looks like a real Viator product_code (####P#), not a synthetic key`);
@@ -183,7 +214,8 @@ ok(crossed.error === "offer-not-found", "an offer id cannot be resolved through 
 for (const row of parrishRail.filter((pick) => pick.provider !== "viator")) {
   ok(PARTNER_OFFER_REGISTRY[row.offerId]?.provider === row.provider, `${row.offerId} has an exact server-side deep-link registry row`);
   const resolved = await resolveOffer(row.provider, row.offerId);
-  ok(!resolved.error && /^https:\/\/tp\.media\/r\?/.test(resolved.dest || ""), `${row.offerId} resolves through the tracked Travelpayouts wrapper`);
+  const wrapRx = row.provider === "ticketnetwork" ? /^https:\/\/www\.anrdoezrs\.net\/links\/101643573\/type\/dlg\// : /^https:\/\/tp\.media\/r\?/;
+  ok(!resolved.error && wrapRx.test(resolved.dest || ""), `${row.offerId} resolves through its tracked wrapper`);
 }
 
 if (fail.length) {
