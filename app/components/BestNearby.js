@@ -609,8 +609,17 @@ export default function BestNearby({
   // `events` rides along so the trend signal can score major-event proximity
   // (PredictHQ demand fields) — fails soft to no events.
   const fetchAt = (id, radiusMi) =>
-    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 10, events, radiusMi })
-    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 10, events, radiusMi })
+    // v7.09 (owner screenshot: "Actually Worth Eating" showed 3 cards while
+    // wf_best_picks held 12 candidates scoring 0.9+ in the same radius). The
+    // rail renders up to 10 UNCLAIMED venues — every id already shown by the
+    // Exploding rail or the Top-10 above is deduped away (one card per venue
+    // per screen, by design). A fetch of exactly 10 therefore arrives ALREADY
+    // spent: with ~7 of its rows claimed upstream, three survivors read as
+    // "nothing better nearby", which the engine probe disproved. Fetch 18 so
+    // the rail still fills AFTER cross-rail claiming; the visible cap stays 10
+    // in uniqueRecommendations, and the RPC is our own DB (no metered cost).
+    id === "eat" ? fetchTodaysBest({ ...baseArgs(), category: "food", limit: 18, events, radiusMi })
+    : id === "todo" ? fetchThingsToDo({ ...baseArgs(), limit: 18, events, radiusMi })
     : Promise.resolve([]);
   // THE WIDEN (owner, 2026-08-09). 17 miles first, always. Only when that comes
   // back with too little to render does it ask again at 25 — one extra read, on
