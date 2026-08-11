@@ -38,6 +38,7 @@ const noOffers = {};
   const p = place({ types: ["tourist_attraction", "museum"] });
   const cta = resolveDetailCta({ detail: p, kind: "attraction", viaTours: noTours, locName: "Tampa, FL", offers: noOffers, openState: closed });
   ok(cta.type === DETAIL_CTA_TYPES.plan, "closed attraction → Add to plan");
+  ok(cta.label === "Add to my trip", "the plan rung sells the trip, not the chore (owner discovery-first CTA) — got " + cta.label);
   ok(!cta.monetized, "closed attraction CTA is not monetized");
 }
 

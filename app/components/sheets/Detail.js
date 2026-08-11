@@ -376,6 +376,9 @@ export default function DetailSheet({ ctx }) {
     }
   }
 
+  // v7.08: wired into the dock below (it had NO caller since the v6.72 dock
+  // rework — the #486 defined-but-uncalled class). One handler for the trip
+  // CTA whether it renders as the primary (closed place) or the dock row.
   function addToPlan() {
     try { logEvent("primary_cta_clicked", detail, { cta_type: "add_to_plan" }); } catch (e) {}
     quickSaveFavorite(detail);
@@ -750,6 +753,7 @@ export default function DetailSheet({ ctx }) {
                     <button onClick={(e) => toggleLike(e, detail)} aria-label="Like" style={{ flexShrink: 0, width: 44, height: 44, background: liked[detail.id] ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${liked[detail.id] ? C.light : C.border}`, borderRadius: 12, color: liked[detail.id] ? C.light : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                     <button onClick={(e) => toggleDislike(e, detail)} aria-label="Not for me" style={{ flexShrink: 0, width: 44, height: 44, background: "rgba(255,255,255,.035)", border: `1px solid ${disliked[detail.id] ? C.red : C.border}`, borderRadius: 12, color: disliked[detail.id] ? C.red : C.text, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: "rotate(180deg)" }}><path d="M7 10v11" /><path d="M7 10l4-7c1.5 0 2.5 1 2.5 2.5V10h4.6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 17 20H7" /></svg></button>
                   </>)}
+                  <button data-add-to-trip onClick={addToPlan} aria-label={isSaved(detail.id) ? "In your trip" : "Add to my trip"} style={{ flex: "1 1 118px", minWidth: 104, height: 44, padding: "0 10px", background: isSaved(detail.id) ? C.adim : "rgba(255,255,255,.035)", border: `1px solid ${isSaved(detail.id) ? C.light : C.border}`, borderRadius: 12, color: isSaved(detail.id) ? C.light : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 800, whiteSpace: "nowrap" }}>{isSaved(detail.id) ? "\u2713 In my trip" : "\u2661 Add to my trip"}</button>
                   <button onClick={() => { shareLink(detail.name, placeShareUrl(detail, locName, blurbLine(blurbs[detail.id])), () => showToast("Link copied"), `Want to go to ${detail.name} together? Found it on Wayfind`, () => { try { logEvent("share", detail, { kind: "place" }); } catch (e) {} giveawayMark(detail.id); addShared(detail); }); }} aria-label="Share" style={{ flex: "1 1 104px", minWidth: 88, height: 44, padding: "0 10px", background: "rgba(255,255,255,.035)", border: `1px solid ${C.border}`, borderRadius: 12, color: C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: 750, whiteSpace: "nowrap" }}><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="M8 7l4-4 4 4" /><path d="M6 12v7a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-7" /></svg><span>Share</span></button>
                 </div>
               </div>
