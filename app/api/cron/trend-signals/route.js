@@ -200,9 +200,16 @@ export async function GET(req) {
 
   const attempted = 2 + out.scoring.topics;
   const succeeded = (out.signals.written ? 1 : 0) + (anySourceOk ? 1 : 0) + out.scoring.scored;
+  // The pulse note is the ONLY observable a dashboard-triggered run leaves
+  // behind (the JSON response goes to the cron runner and vanishes), so it
+  // carries the per-source verdicts — a "0 written" without WHY is exactly the
+  // silent degradation this job's failure shape forbids.
+  const srcNote = (k, v) => !v ? `${k}:absent`
+    : v.calls ? `${k}:${v.calls.map((c) => `${c.trendType}=${c.ok ? c.rows + "rows" : (c.error || c.status)}`).join(",")}`
+    : `${k}:${v.ok ? (v.items != null ? v.items + "items" : "ok") : (v.error || v.status)}`;
   await recordPulse(JOB, {
     attempted, succeeded,
-    note: `signals ${out.signals.written}/${out.signals.matched} written; topics ${out.scoring.scored}/${out.scoring.topics} scored`,
+    note: `signals ${out.signals.written}/${out.signals.matched} written; topics ${out.scoring.scored}/${out.scoring.topics} scored | ${srcNote("P", out.sources.pinterest)} ${srcNote("G", out.sources.google_trends)}${out.signals.writeError ? " | writeError " + out.signals.writeError : ""}${snap ? "" : " | no snapshot"}`.slice(0, 240),
   });
   out.tookMs = Date.now() - started;
   return Response.json(out, { headers: { "Cache-Control": "no-store" } });
