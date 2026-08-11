@@ -22,7 +22,7 @@ import { C, CHAMPAGNE, TYPE, RADII, SHADOW, FOCUS, TARGET, Icon, NavIcon, direct
 import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCompose, NEAR_RADIUS_MI, WIDEN_RADIUS_MI } from "../../lib/todaysBest.js";
 import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
-import RailCard, { RailNav } from "./RailCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
 import ExplodingNearby from "./ExplodingNearby";
 // v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
 // big fun small budget) render the SAME card from the SAME engine their
@@ -355,7 +355,7 @@ export const DEFAULT_SECTION = "exploding";
 // deliberate reader preference still wins on later visits.
 export default function BestNearby({
   center, weather, events, videoPlaces, city, creatorSlot, eventsSlot, onOpenPlace, onLog,
-  isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience,
+  isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, onFindSimilar,
 }) {
   // v6.57 (2026-08-06, owner): the FIRST section is open on arrival.
   //
@@ -834,6 +834,7 @@ export default function BestNearby({
           onLike={onLike}
           onDislike={onDislike}
           onShare={onShare}
+          onFindSimilar={onFindSimilar}
         />
       </SectionShell>
       {/* ── THE TOP 40 (owner, 2026-08-08) ────────────────────────────────
@@ -946,6 +947,7 @@ export default function BestNearby({
               })}
             </div>
             {/* Proximate disclosure, because a ticket CTA can appear above. */}
+            <RailDots railId="top40" count={list.length} />
             <div style={{ marginTop: 7, fontSize: 10, color: "#6F7C8D" }}>Ticket links are affiliate links; Wayfind may earn a commission. Ranking never changes.</div>
           </div>
         );

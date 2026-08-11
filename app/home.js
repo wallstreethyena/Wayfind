@@ -178,7 +178,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 import BestNearby from "./components/BestNearby";
 // v7.02 (owner, 2026-08-08): the ONE card every homepage rail renders — the
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
-import RailCard, { RailNav } from "./components/RailCard";
+import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import CreatorFinds from "./components/CreatorFinds";
 import LocalEdit from "./components/LocalEdit";
 import ThingsToDoList from "./components/ThingsToDoList";
@@ -8668,6 +8668,7 @@ function PageInner({ initialEvents = null }) {
                     />
                   ))}
                 </div>
+                <RailDots railId="events" count={shown.length} />
                 <button type="button" className="wf-railsec-more" onClick={() => { try { logEvent("events_see_all", null, { src: "menu_rail", shown: shown.length }); } catch (er) {} setScreen("events"); }}>
                   {"See every event \u2192"}
                 </button>
@@ -8760,7 +8761,7 @@ function PageInner({ initialEvents = null }) {
                   where a visitor most needs something to look at.
               
                   Position asserted by scripts/check-home-answer-first.mjs. */}
-              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
+              {!browseCat && <BestNearby center={center} weather={weather} events={foryouEvents || []} videoPlaces={videoPlaces} onFindSimilar={(q) => { try { submitSearch(q); } catch (e) {} }} city={locName} onOpenPlace={(p) => openDetail(p, "bestnearby")} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} eventsSlot={eventsRailSlot} creatorSlot={<CreatorFinds items={videoPlaces} byCity={socialFindByCity} center={center} bare onOpenPlace={(p) => openDetail(p, "creatorfinds")} onBrowse={() => setSocialFind({ browse: true })} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} isSaved={isSaved} liked={liked} disliked={disliked} onSave={(e, p) => { try { quickSaveFavorite(p); } catch (er) {} }} onLike={(e, p) => { try { toggleLike(e, p); } catch (er) {} }} onDislike={(e, p) => { try { toggleDislike(e, p); } catch (er) {} }} onShare={(p) => { try { addShared(p); giveawayMark(p.id); shareLink(p.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(p.id)), () => showToast("Link copied")); } catch (er) {} }} onExperience={(key, p) => { try { key === "creatorvideo" ? openDetail(p, "creatorfinds") : openExperience(key); } catch (er) {} }} />} />}
               {/* v7.05 — the creator row MOVED INSIDE the menu (owner, 2026-08-09:
                   "we would pretty much be adding to the existing menu we have and just
                   reorganizing"). It is section 5 of eight, so it is now passed to

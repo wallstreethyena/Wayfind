@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import RailCard, { RailNav } from "./RailCard";
+import RailCard, { RailNav, RailDots } from "./RailCard";
 import { C, directionsUrl } from "./kit";
 import { tbPhotoUrl } from "../../lib/todaysBest.js";
 import { toDisplayScore } from "../../lib/score.js";
+import { priceLabel } from "../../lib/price.js";
 import { markExplodingInteraction, noteExplodingReturn } from "../../lib/explodingExperiment.js";
 import useMissingPlacePhotos from "./useMissingPlacePhotos";
 import { loadProvidedTrendList } from "../../lib/explodingLaunchSearch.js";
@@ -20,6 +21,7 @@ const prettyType = (t) => {
 
 function asPlace(p, photoRef) {
   return {
+    priceLevel: p.priceLevel != null ? p.priceLevel : null,
     id: p.id,
     name: p.name,
     lat: p.lat,
@@ -44,7 +46,7 @@ function evidenceChip(p) {
   return null;
 }
 
-function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlace, onFindSimilar, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const railSeen = useRef(false);
   const primary = trend.matches[0];
   const more = trend.matches.slice(1);
@@ -55,10 +57,18 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
     const facts = [
       p.reviews ? compact(p.reviews) + " reviews" : null,
       Number.isFinite(p.distanceMi) ? (p.distanceMi < 10 ? p.distanceMi.toFixed(1) : Math.round(p.distanceMi)) + " mi" : null,
+      // v7.12 (owner): every place card carries the price when it is verified.
+      priceLabel(p.priceLevel),
     ].filter(Boolean);
     const chips = [
       evidenceChip(p),
-      { key: "exploding-trend", icon: "🔥", label: "Trending: " + trend.label },
+      // v7.12 (owner): chips are CONTROLS, not decoration — the trend chip
+      // runs the app's real search for the trend, which is exactly "identify
+      // other place cards similar".
+      { key: "exploding-trend", icon: "🔥", label: "Trending: " + trend.label + " ›", onClick: onFindSimilar ? () => {
+        onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: trend.label });
+        onFindSimilar(trend.label);
+      } : undefined },
       p.hasCreatorVideo ? { key: "creator-video", icon: "🎬", label: "Creator video" } : null,
     ].filter(Boolean);
     const directionHref = directionsUrl(place);
@@ -135,31 +145,35 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
         </div>
         <button type="button" onClick={shareTrend} aria-label={"Share " + trend.label} style={{ flexShrink: 0, minWidth: 40, minHeight: 40, borderRadius: 999, border: "1px solid rgba(255,255,255,.14)", background: "rgba(255,255,255,.04)", color: C.text, cursor: "pointer", fontSize: 15 }}>↗</button>
       </div>
-      {card(primary, 1, false)}
+      {/* v7.12 (owner, 2026-08-11): "if an exploding category has more
+          options don't place it vertically — place it in a horizontal rail and
+          make sure the user knows it has more." ONE rail holds every verified
+          match, best governed score first; the primary card keeps its award
+          band inside the rail, and RailDots is the there-is-more bubble. */}
       {more.length ? (
-        <div style={{ marginTop: 11 }}>
-          <RailNav railId={"exploding-" + trend.conceptKey} count={more.length} unit={"more " + trend.label.toLowerCase() + " matches"} />
-          <div
-            className="wf-rail wf-rail-exploding"
-            data-rail={"exploding-" + trend.conceptKey}
-            tabIndex={0}
-            role="region"
-            aria-label={"More verified places for " + trend.label}
-            onScroll={(e) => {
-              if (railSeen.current || e.currentTarget.scrollLeft < 16) return;
-              railSeen.current = true;
-              try { onLog && onLog("trend_horizontal_scroll", null, { surface: "exploding_nearby", concept_key: trend.conceptKey, count: more.length }); } catch (er) {}
-            }}
-          >
-            {more.map((p, i) => card(p, i + 2, true))}
-          </div>
-        </div>
+        <RailNav railId={"exploding-" + trend.conceptKey} count={trend.matches.length} unit={trend.label.toLowerCase() + " matches"} />
       ) : null}
+      <div
+        className="wf-rail wf-rail-exploding"
+        data-rail={"exploding-" + trend.conceptKey}
+        tabIndex={0}
+        role="region"
+        aria-label={"Verified places for " + trend.label}
+        onScroll={(e) => {
+          if (railSeen.current || e.currentTarget.scrollLeft < 16) return;
+          railSeen.current = true;
+          try { onLog && onLog("trend_horizontal_scroll", null, { surface: "exploding_nearby", concept_key: trend.conceptKey, count: more.length }); } catch (er) {}
+        }}
+      >
+        {card(primary, 1, false)}
+        {more.map((p, i) => card(p, i + 2, true))}
+      </div>
+      {more.length ? <RailDots railId={"exploding-" + trend.conceptKey} count={trend.matches.length} /> : null}
     </article>
   );
 }
 
-export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
+export default function ExplodingNearby({ center, city, weather, active, onVisibleIds, onOpenPlace, onFindSimilar, onLog, isSaved, liked, disliked, onSave, onLike, onDislike, onShare }) {
   const [result, setResult] = useState({ status: "loading", trends: [] });
   const [retry, setRetry] = useState(0);
   const rootRef = useRef(null);
@@ -284,6 +298,7 @@ export default function ExplodingNearby({ center, city, weather, active, onVisib
           onLog={onLog}
           onMeaningful={meaningful}
           onOpenPlace={onOpenPlace}
+          onFindSimilar={onFindSimilar}
           isSaved={isSaved}
           liked={liked}
           disliked={disliked}

@@ -39,6 +39,7 @@
 // is invented to fill a slot — an event does not get a fabricated score, it gets
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
+import { useEffect, useState } from "react";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
@@ -113,6 +114,38 @@ export function RailNav({ railId, count, unit }) {
         <button type="button" className="wf-rail-nav-btn" aria-label={"Previous " + unit} onClick={() => move(-1)}>‹</button>
         <button type="button" className="wf-rail-nav-btn" aria-label={"Next " + unit} onClick={() => move(1)}>›</button>
       </span>
+    </div>
+  );
+}
+
+// RailDots — the "there is more" bubble under a horizontal rail (owner,
+// 2026-08-11: "a little bubble on the bottom to let them know there is more").
+// Same hook-free, data-attribute-scoped pattern as RailNav above so any rail
+// call site can adopt it. Full-width cards mean one card per page, so the
+// active page is scrollLeft / clientWidth, read on scroll. ≤8 pages renders
+// dots; more renders a compact "n of N" pill — 24 dots is noise, not wayfinding.
+export function RailDots({ railId, count }) {
+  const [page, setPage] = useState(0);
+  useEffect(() => {
+    if (typeof document === "undefined" || !count || count < 2) return;
+    const rail = document.querySelector(`[data-rail="${railId}"]`);
+    if (!rail) return;
+    const read = () => {
+      const w = rail.clientWidth || 1;
+      setPage(Math.max(0, Math.min(count - 1, Math.round(rail.scrollLeft / w))));
+    };
+    rail.addEventListener("scroll", read, { passive: true });
+    read();
+    return () => rail.removeEventListener("scroll", read);
+  }, [railId, count]);
+  if (!count || count < 2) return null;
+  return (
+    <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 5, padding: "7px 0 1px" }}>
+      {count <= 8
+        ? Array.from({ length: count }, (_, i) => (
+            <span key={i} style={{ width: i === page ? 16 : 6, height: 6, borderRadius: 999, background: i === page ? "#F97316" : "rgba(255,255,255,.22)", transition: "width .2s ease, background .2s ease" }} />
+          ))
+        : <span style={{ fontSize: 10.5, fontWeight: 800, color: "#AEB8C6", background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 999, padding: "2px 9px" }}>{page + 1} of {count} · swipe for more</span>}
     </div>
   );
 }
