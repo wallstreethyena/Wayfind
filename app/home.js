@@ -7473,6 +7473,20 @@ function PageInner({ initialEvents = null }) {
     }
   }
 
+  // v7.17 — "Search this area" from the Map tab: re-anchor the discovery
+  // engine at the panned-to coordinates. Same contract as jumpToArea: manual
+  // flag so a GPS fix doesn't silently yank the center back, and the label is
+  // honestly generic — we hold no reverse-geocoded name for arbitrary
+  // coordinates and will not invent one (follow-up: reverse geocode is a
+  // metered-spend decision).
+  function searchMapArea(c) {
+    if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
+    manualRef.current = true;
+    setCenter({ lat: c.lat, lng: c.lng });
+    setLocName("this map area");
+    try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
+  }
+
   function jumpToArea(a) {
     manualRef.current = true;
     setSearchMode(false);
@@ -8238,7 +8252,7 @@ function PageInner({ initialEvents = null }) {
     // for the "not here yet" recommendation mode.
     socialFind, setSocialFind, videoHeroPlaces, socialFindRegions, socialFindByCity, socialFindStats,
     // map screen (G4)
-    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
+    mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, mapDefaultAppliedRef, cat, setCat, setSub, setVibe, sortBy, deviceLoc, searchMapArea, mapFocus, setMapFocus, setMapSearchOpen, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, view, featuredBoost, MapView, Hol, recenterToMe,
     // experience badge screen (G4)
     activeBadge, setActiveBadge, EXPERIENCES, expPlaces, expMi, setExpMi, expSort, setExpSort, expTours, expLoading, momentPicks, setBrowseCat, ViatorRail, intentScopeLabel,
     // intro overlay (G4) — the 3.2s auto-show timer stays in PageInner, flips introOpen

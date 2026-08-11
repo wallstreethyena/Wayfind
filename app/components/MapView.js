@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
-import { distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT } from "../../lib/mapExplorer";
+import { areaMoved, distanceRingData, MAP_RING_MILES, MAP_RING_MILES_ZOOMED_OUT, pinScoreLabel } from "../../lib/mapExplorer";
+import { toDisplayScore } from "../../lib/score";
 
 // Below this zoom level the map is showing enough area that the 15mi ring
 // is basically hugging the edge of the viewport, so the outer ring expands
@@ -157,11 +158,15 @@ function markerNode({ label, color, kind, selected }) {
   return el;
 }
 
-export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null }) {
+export default function MapView({ places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus, fit, rings, compact = false, styleMode = "bright", onRetry, selectedId = null, onAreaChange = null }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef([]);
   const lastOriginRef = useRef("");
+  // v7.17 — "Search this area": the moveend listener is registered once, so
+  // the live origin and callback ride refs rather than stale closures.
+  const searchOriginRef = useRef(null);
+  const onAreaChangeRef = useRef(null);
   const placesByIdRef = useRef(new Map());
   // Owner ask: the map should default to the zoomed-out 5/10/30mi ring set
   // (see MAP_DEFAULT_ZOOM above) rather than starting on 5/10/15mi and
@@ -173,6 +178,9 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     markersRef.current.forEach((marker) => { try { marker.remove(); } catch (e) {} });
     markersRef.current = [];
   };
+
+  searchOriginRef.current = deviceLoc || center || null;
+  onAreaChangeRef.current = onAreaChange;
 
   const redraw = () => {
     const map = mapRef.current;
@@ -189,7 +197,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       const color = place.openNow === false ? "#64748B" : index === 0 ? "#FBBF24" : categoryColor;
       const id = String(place.id || `map-place-${index}`);
       placesByIdRef.current.set(id, place);
-      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
+      placeFeatures.push({ type: "Feature", properties: { id, rank: index + 1, scoreLabel: pinScoreLabel(place.wfScore, index + 1, toDisplayScore), color, name: place.name || "Place", sel: selectedId != null && String(id) === String(selectedId) ? 1 : 0, anySel: selectedId != null ? 1 : 0 }, geometry: { type: "Point", coordinates: [place.lng, place.lat] } });
       bounds.extend([place.lng, place.lat]);
     });
     const placeSource = map.getSource("wf-places");
@@ -341,7 +349,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         "circle-stroke-color": "rgba(255,255,255,.96)",
         "circle-opacity": OPACITY,
       } });
-      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["to-string", ["get", "rank"]], "text-size": ["case", ["==", ["get", "rank"], 1], 13.5, 12], "text-allow-overlap": true }, paint: { "text-color": ["case", ["==", ["get", "sel"], 1], "#0B0F14", "#FFFFFF"], "text-opacity": OPACITY } });
+      map.addLayer({ id: "wf-place-ranks", type: "symbol", source: "wf-places", filter: ["!", ["has", "point_count"]], layout: { "text-field": ["get", "scoreLabel"], "text-size": ["case", ["==", ["get", "rank"], 1], 12.5, 11], "text-allow-overlap": true }, paint: { "text-color": ["case", ["==", ["get", "sel"], 1], "#0B0F14", "#FFFFFF"], "text-opacity": OPACITY } });
       // The downward pointer, drawn as a glyph because a circle layer cannot
       // make a triangle. Filtered to the selection so exactly one can exist.
       map.addLayer({ id: "wf-place-pointer", type: "symbol", source: "wf-places", filter: ["all", ["!", ["has", "point_count"]], ["==", ["get", "sel"], 1]], layout: { "text-field": "\u25BC", "text-size": 14, "text-offset": [0, 1.5], "text-allow-overlap": true }, paint: { "text-color": "#FFFFFF", "text-halo-color": "rgba(0,0,0,.35)", "text-halo-width": 1 } });
@@ -350,6 +358,15 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
       map.addLayer({ id: "wf-rings-line", type: "line", source: "wf-rings", filter: ["==", ["get", "kind"], "ring"], paint: { "line-color": "#FDBA74", "line-width": 1.6, "line-opacity": .82 } });
       map.addLayer({ id: "wf-rings-label", type: "symbol", source: "wf-rings", filter: ["==", ["get", "kind"], "label"], layout: { "text-field": ["get", "label"], "text-size": 12, "text-offset": [0, -.7], "text-allow-overlap": true }, paint: { "text-color": "#FFF7ED", "text-halo-color": "#111827", "text-halo-width": 2 } });
       redraw();
+    });
+    map.on("moveend", () => {
+      const cb = onAreaChangeRef.current;
+      if (!cb) return;
+      try {
+        const c = map.getCenter();
+        const here = { lat: c.lat, lng: c.lng };
+        cb(areaMoved(searchOriginRef.current, here) ? here : null);
+      } catch (e) {}
     });
     map.on("click", "wf-place-clusters", (event) => {
       const feature = event.features && event.features[0];
