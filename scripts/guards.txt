@@ -346,3 +346,4 @@ node scripts/check-trend-integrity.mjs
 
 node scripts/check-trend-score.mjs
 node scripts/check-trend-sources.mjs
+node scripts/check-quick-bite-identity.mjs

@@ -748,7 +748,7 @@ export default function BestNearby({
   // same; only the collapsed-row framing changes here.
   const SECTIONS = [
     { id: "eat", label: "Actually Worth Eating", sub: "Endless reviews or one honest answer — ranked for this hour, not for advertisers.", icon: "food" },
-    { id: "quickbite", label: "The 30-Minute Break", sub: "Half the break dies deciding. The best quick, counter-serve food near you — already ranked.", icon: "food", line: true, intent: "quick-bite", href: "/quick-bite", unit: "quick bites" },
+    { id: "quickbite", label: "The 30-Minute Break", sub: "Half the break dies deciding. The best quick, counter-serve food near you — already ranked.", emoji: "⚡", line: true, intent: "quick-bite", href: "/quick-bite", unit: "quick bites" },
     { id: "todo", label: "What Should We Do Today?", sub: "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now.", icon: "attractions" },
     { id: "gems", label: "Places You'd Never Find", sub: "Loved by the few who've found them, missed by the big lists — and near you.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
     { id: "creators", label: "Locals Know", sub: "Not a listicle: creators who actually went, matched to places near you.", icon: "film", line: true, slot: "creators" },
