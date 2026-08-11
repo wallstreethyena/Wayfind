@@ -263,6 +263,7 @@ node scripts/check-cuisine-sheet.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
+node scripts/test-coupon-value.mjs
 node scripts/check-market-photo.mjs
 node scripts/check-citypass.mjs
 node scripts/check-coupon-link-attribution.mjs

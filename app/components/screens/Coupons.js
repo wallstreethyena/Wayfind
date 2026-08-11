@@ -22,6 +22,7 @@
 // brand accent (#F97316) instead of a near-duplicate orange, and more
 // consistent vertical rhythm so the eye has fewer places to stop.
 import { useEffect, useRef, useState } from "react";
+import { parseCouponValue } from "../../../lib/couponValue";
 import { COUPONS, couponIsLive } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
@@ -170,7 +171,21 @@ function CouponCard({ c, position, ctx }) {
                   header stays small and quiet so this is the thing the eye lands on. */}
               {seal ? <span style={{ flexShrink: 0, padding: "5px 9px", borderRadius: 9, border: "1px solid rgba(232,201,122,.55)", color: T.gold, background: "rgba(232,201,122,.1)", fontSize: 12.5, fontWeight: 950, lineHeight: 1.1, whiteSpace: "nowrap" }}>{seal.big} <small style={{ fontSize: 7.5, letterSpacing: ".05em" }}>{seal.small}</small></span> : null}
             </div>
-            <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>
+            {(() => {
+              // v6.99 (owner): the VALUE leads. "Get $20 of coffee — pay $10,
+              // save 50%" reads in one glance; the old raw title ("$10 for
+              // $20 of coffee & more") made the reader do the math. Derived
+              // from the verified title via the shared parser — the card, the
+              // share text and the share-card image all say the same numbers.
+              const v = parseCouponValue(c.title);
+              if (!v) return <h2 style={{ margin: "8px 0 0", color: T.text, fontSize: 17, lineHeight: 1.22, letterSpacing: "-.2px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.title}</h2>;
+              return (
+                <div style={{ margin: "8px 0 0" }}>
+                  <h2 style={{ margin: 0, color: T.text, fontSize: 19, lineHeight: 1.18, letterSpacing: "-.3px", fontWeight: 800, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{"Get " + v.getLabel + (v.what ? " of " + v.what : "")}</h2>
+                  <div style={{ marginTop: 3, color: "#FFB35C", fontSize: 14, fontWeight: 900, letterSpacing: "-.1px" }}>{"Pay " + v.payLabel + " · save " + v.saveLabel + " (" + v.pct + "% off)"}</div>
+                </div>
+              );
+            })()}
         {c.details ? <p style={{ margin: "5px 0 0", color: T.light, fontSize: 12.5, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{c.details}</p> : null}
 
         {(c.code || ends || proof) ? (
