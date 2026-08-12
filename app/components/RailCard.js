@@ -40,6 +40,7 @@
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
 import { useEffect, useState } from "react";
+import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
@@ -122,8 +123,21 @@ export function RailNav({ railId, count, unit }) {
 // 2026-08-11: "a little bubble on the bottom to let them know there is more").
 // Same hook-free, data-attribute-scoped pattern as RailNav above so any rail
 // call site can adopt it. Full-width cards mean one card per page, so the
-// active page is scrollLeft / clientWidth, read on scroll. ≤8 pages renders
-// dots; more renders a compact "n of N" pill — 24 dots is noise, not wayfinding.
+// active page is scrollLeft / clientWidth, read on scroll.
+//
+// v7.19 (owner, 2026-08-12): "on every rail I want the style from image 1 not
+// image 2 — fix that globally." Image 1 is the DOTS; image 2 was the
+// "9 of 10 · swipe for more" text pill this used to swap to above 8 pages.
+// ONE indicator now, on every rail, at every length.
+//
+// THE PILL EXISTED FOR A REAL REASON and that reason still stands — 40 literal
+// dots is noise, and at 6px + 5px gap they would overflow 390px past ~35 of
+// them and wrap into a second row. So this does not just delete the branch: it
+// renders a WINDOW of at most RAIL_DOTS_WINDOW dots that slides to keep the
+// active one centred, which is the iOS/Instagram page-control behaviour people
+// already know. When there is more beyond an edge, that edge dot shrinks —
+// that taper IS the "there's more this way" signal the text pill used to spell
+// out, carried by the same vocabulary as the rest of the strip.
 export function RailDots({ railId, count }) {
   const [page, setPage] = useState(0);
   useEffect(() => {
@@ -139,13 +153,39 @@ export function RailDots({ railId, count }) {
     return () => rail.removeEventListener("scroll", read);
   }, [railId, count]);
   if (!count || count < 2) return null;
+  // The sliding window. Clamped at both ends so the strip never shows blanks:
+  // near the start it pins to 0, near the end it pins to count - W, and only in
+  // the middle does it actually follow the active page.
+  const { start, end } = railDotWindow(count, page);
+  const dots = [];
+  for (let i = start; i < end; i++) dots.push(i);
   return (
-    <div aria-hidden="true" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 5, padding: "7px 0 1px" }}>
-      {count <= 8
-        ? Array.from({ length: count }, (_, i) => (
-            <span key={i} style={{ width: i === page ? 16 : 6, height: 6, borderRadius: 999, background: i === page ? "#F97316" : "rgba(255,255,255,.22)", transition: "width .2s ease, background .2s ease" }} />
-          ))
-        : <span style={{ fontSize: 10.5, fontWeight: 800, color: "#AEB8C6", background: "rgba(255,255,255,.06)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 999, padding: "2px 9px" }}>{page + 1} of {count} · swipe for more</span>}
+    <div
+      aria-hidden="true"
+      data-rail-dots={railId}
+      data-page={page + 1}
+      data-count={count}
+      style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 5, padding: "7px 0 1px" }}
+    >
+      {dots.map((i) => {
+        const active = i === page;
+        // An edge dot is only "tapered" when content actually continues past
+        // it — at the true first/last card nothing is hidden, so nothing shrinks
+        // and the strip reads as a plain, complete page control.
+        const edge = railDotIsEdge(i, start, end, count);
+        return (
+          <span
+            key={i}
+            style={{
+              width: active ? 16 : (edge ? 4 : 6),
+              height: active ? 6 : (edge ? 4 : 6),
+              borderRadius: 999,
+              background: active ? "#F97316" : (edge ? "rgba(255,255,255,.12)" : "rgba(255,255,255,.22)"),
+              transition: "width .2s ease, height .2s ease, background .2s ease",
+            }}
+          />
+        );
+      })}
     </div>
   );
 }
