@@ -46,7 +46,7 @@ import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
-import { couponForPlaceName } from "../../lib/coupons";
+import { couponForPlace } from "../../lib/coupons";
 import { recommendationIds, uniqueRecommendations } from "../../lib/recommendationDedupe.js";
 import { lawfulSort } from "../../lib/lawfulOrder.js";
 
@@ -478,7 +478,7 @@ export default function IntentRailBody({
             {list.map((r, i) => {
               const st = rowStatus(r);
               const partner = placePartnerPick(r);
-              const coupon = couponForPlaceName(r.name);
+              const coupon = couponForPlace(r);
               const facts = [
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,
                 priceLabel(r.priceLevel),
