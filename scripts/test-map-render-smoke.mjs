@@ -53,9 +53,13 @@ function ctxFor(over = {}) {
 
 // Every state a user can put the screen in. The crash lived in state 1.
 const STATES = [
-  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("9.2/10") && h.includes("See details")],
-  ["preview card, place with NO score (score law: chip absent, no fabrication)", { mapPreview: P({ wfScore: null }) }, (h) => !h.includes("/10") && h.includes("See details")],
-  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("See details")],
+  // v7.16: the bottom slot renders the shared IconicPlaceCard (owner:
+  // "i want the results to be our iconic place card"). A real score renders
+  // the real WayfindScoreBadge; no score renders NO badge (the shared card
+  // derives only from wfScore/rating, and this fixture carries neither).
+  ["pin tapped: preview card with a real score", { mapPreview: P() }, (h) => h.includes("data-iconic-place-card") && h.includes("9.2") && h.includes("wayfind-score-badge")],
+  ["preview card, place with NO score (score law: badge absent, no fabrication)", { mapPreview: P({ wfScore: null }) }, (h) => !h.includes("wayfind-score-badge") && h.includes("data-iconic-place-card")],
+  ["preview card, sparse place (no price/photo/distance)", { mapPreview: P({ price: null, distMi: null, cuisine: null }) }, (h) => h.includes("data-iconic-place-card")],
   ["collapsed list strip", {}, (h) => h.includes("ranked by fit")],
   ["open drawer renders the real PlaceCard seam", { mapDrawer: true }, (h) => h.includes("place-card")],
   ["events mode with an event preview", { mapMode: "events", eventPreview: EV, events: [EV] }, (h) => h.includes("Smoke Show")],
@@ -72,7 +76,7 @@ for (const [label, over, check] of STATES) {
 // scoreLabel OBJECT to React. (The render above already proves it; this line
 // documents WHICH bug this smoke was born from.)
 const one = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ mapPreview: P() }) }));
-ok(one.includes("9.2/10 · Excellent") || one.includes("9.2/10 · Excellent"), "the score chip renders s + word, never the {s, word} object");
+ok(one.includes("9.2") && one.includes("wayfind-score-badge") && !one.includes("[object Object]"), "the score renders through the real WayfindScoreBadge, never the {s, word} object");
 
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
 console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen MOUNTED in ${STATES.length} states (pin-tap card with score/none/sparse, strip, drawer, events) — the #31 object-child class can no longer ship`);
