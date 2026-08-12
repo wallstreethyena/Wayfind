@@ -5,6 +5,7 @@ import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
   pleaAt, moodAt, yesScale, noScale, yesText, needsName, planFitsPlace, datedCardPath,
+  inviteKinds,
 } from "../../lib/dateInvite.js";
 
 // app/ask/AskClient.js — the five frames (v7.27).
@@ -233,8 +234,12 @@ export default function AskClient({ inv }) {
   };
 
   // Their suggestion first, everything else in its usual order.
+  // Resolved the same way the fit check resolves it — from the payload when it
+  // has one, from the place name when it does not. Reading inv.kind directly
+  // marked the wrong chip on every link made before kinds existed.
+  const suggested = inviteKinds(inv);
   const ordered = (() => {
-    const k = inv && inv.kind;
+    const k = suggested[0];
     if (!k) return ACTIVITIES;
     const hit = ACTIVITIES.filter((a) => a.id === k);
     return hit.length ? hit.concat(ACTIVITIES.filter((a) => a.id !== k)) : ACTIVITIES;
@@ -339,7 +344,7 @@ export default function AskClient({ inv }) {
                 <button key={a.id} className="wfx-chip" aria-pressed={activity === a.id}
                   onClick={() => setActivity(a.id)}>
                   {a.label}
-                  {inv && inv.kind === a.id
+                  {suggested.indexOf(a.id) === 0
                     ? <span className="wfx-tag">{from ? from + "’s idea" : "their idea"}</span>
                     : null}
                 </button>
