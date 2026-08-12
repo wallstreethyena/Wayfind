@@ -357,3 +357,4 @@ node scripts/test-map-render-smoke.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
+node scripts/check-share-card-art.mjs

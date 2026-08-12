@@ -87,7 +87,19 @@ ok(importsShared(gsrc), "lib/google.js takes the Wayfind Score from lib/wayfindS
 ok(importsShared(bsrc), "lib/beaches.js takes the Wayfind Score from lib/wayfindScore.js");
 ok(!/function wayfindScore\s*\(/.test(bsrc), "lib/beaches.js no longer declares its own copy of the formula");
 const og = readFileSync(new URL("../app/api/og/beaches/route.js", import.meta.url), "utf8");
-ok(og.includes("beach-adobestock-216195684.jpeg"), "share card matches the owned beach hero artwork");
+// SUPERSEDED 2026-08-12 (owner: "I want every image we have used for text share
+// deleted. I want to work on new ones."). The beaches OG card no longer paints a
+// photo at all, so pinning it to the beach hero JPEG would fail the build for
+// obeying that instruction. The image itself still ships — the beaches PAGE uses
+// it — it is only the SHARE render that went photo-free.
+//
+// The claim underneath was "the share card and the page do not drift apart".
+// That is now held one level up by check-share-card-art.mjs, which asserts NO
+// share/OG renderer references any photo — a stronger invariant than matching
+// one filename. What is left to assert here is that this route did not quietly
+// grow its own art while the rest went bare.
+ok(!/\/cards\/[a-zA-Z0-9._-]+\.(png|jpe?g|webp)/.test(og.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")),
+   "the beaches share card must stay photo-free until the new design lands (owner, 2026-08-12)");
 ok(og.includes("ImageResponse"), "real OG image, not a static fallback");
 
 

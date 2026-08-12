@@ -42,7 +42,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/share-card.png?v=11",
+        url: "/api/og",
         width: 1200,
         height: 630,
         alt: "Wayfind — local recommendations for things to do, places to eat, and travel planning",
@@ -53,7 +53,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Wayfind — Find the Best Things to Do Near You, Right Now",
     description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
-    images: ["/share-card.png?v=11"],
+    images: ["/api/og"],
   },
 };
 
