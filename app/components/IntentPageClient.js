@@ -14,7 +14,7 @@ import CollectionFilter from "./CollectionFilter";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { areaSeasonalContext } from "../../lib/areaSeasonalContext";
 import { currentSeason } from "../../lib/seasons";
-import { INTENT_PAGES, toRow, rankRows, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_MOMENT_ID } from "../../lib/intentPages";
+import { INTENT_PAGES, toRow, rankRows, resolvePlanAhead, intentEyebrow, intentVariantCount, INTENT_COUPON_BADGE, INTENT_MOMENT_ID } from "../../lib/intentPages";
 import { placeAllowed } from "../../lib/placeFilter";
 import { resolveMarqueeDayTrips } from "../../lib/marqueeDayTrips";
 import { editorialIntentHeader } from "../../lib/collectionHeader";
@@ -252,7 +252,11 @@ export default function IntentPageClient({ intent }) {
         // card you tapped and the card you landed on would be different cards
         // under the same heading. One rule, both surfaces.
         compose: def.compose || null,
-        planAhead: !!def.planAhead,
+        // v7.22 — resolved through the shared helper, because `tonight` now
+        // decides this per daypart. `!!def.planAhead` would have read a
+        // predicate FUNCTION as a permanent true and stopped "Tonight's Move"
+        // from ever demoting a closed bar at midnight.
+        planAhead: resolvePlanAhead(def, def.timeless ? null : now),
         minDistanceMi: def.minDistanceMi,
       });
       // THE MARQUEE LANE — same rule as the home rail (IntentRail.js), same

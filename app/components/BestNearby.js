@@ -215,7 +215,14 @@ const TOP40_MAX = 10;
 // ONE status read, shared by the open-now filter and the card's facts row — two
 // separate calls could show "Open" on a card the filter had judged closed.
 const top40Status = (r) => businessStatus({ ...r, oh: r.oh || r.regularOpeningHours || null, utcOffset: r.utcOffset != null ? r.utcOffset : r.utcOffsetMinutes });
-const TOP40_TYPE_EXCLUDE = /^(grocery_store|supermarket|convenience_store|liquor_store|drugstore|pharmacy|department_store|shopping_mall|clothing_store|furniture_store|home_goods_store|hardware_store|electronics_store|cell_phone_store|beauty_salon|hair_salon|hair_care|nail_salon|barber_shop|spa|gym|fitness_center|bank|atm|gas_station|car_.*|boat_(dealer|rental|repair|yard).*|marina|storage|self_storage|laundry|dry_cleaner|veterinary_care|doctor|dentist|optician|optometrist|eyewear_store|eye_care_center|hospital|real_estate_agency|insurance_agency|funeral_home|pawn_shop|.*_repair(_shop|_service)?|telecommunications_.*)$/i;
+// v7.22 (owner audit, 2026-08-12, from the live rail): `Sunshine Skyway Bridge`
+// ranked #4 and `Fisherman's Cove RV Resort` ranked #10 in "The Best Around
+// You". A bridge is infrastructure you drive over, not a place you go; an RV
+// park is lodging. Both are the same class as the marina, grocery and salon
+// leaks already listed here, and both are refused on IDENTITY (primary_type),
+// never on score — the Skyway is a genuinely beloved landmark and still scores
+// 9.6. `campground` is deliberately NOT excluded: camping is a real outing.
+const TOP40_TYPE_EXCLUDE = /^(grocery_store|supermarket|convenience_store|liquor_store|drugstore|pharmacy|department_store|shopping_mall|clothing_store|furniture_store|home_goods_store|hardware_store|electronics_store|cell_phone_store|beauty_salon|hair_salon|hair_care|nail_salon|barber_shop|spa|gym|fitness_center|bank|atm|gas_station|car_.*|boat_(dealer|rental|repair|yard).*|marina|bridge|rv_park|storage|self_storage|laundry|dry_cleaner|veterinary_care|doctor|dentist|optician|optometrist|eyewear_store|eye_care_center|hospital|real_estate_agency|insurance_agency|funeral_home|pawn_shop|.*_repair(_shop|_service)?|telecommunications_.*)$/i;
 // v7.10 (owner, 2026-08-11, from the live rail): Marsh Harbor Marina — category
 // SERVICE, 14 miles — sat at #6 of "The Best Around You", and uBreakiFix (a
 // phone-repair storefront) surfaced as a hidden gem. Two additional gates, both
@@ -438,6 +445,11 @@ export default function BestNearby({
       localHour: n.hour,
       tempF: weather && weather.temp != null ? weather.temp : null,
       condition: weather && weather.label ? weather.label : null,
+      // v7.22 — the fetchers need the gate, not just the temperature. When it is
+      // shut they top the pool up with indoor inventory, because gateOutdoor now
+      // actually removes the outdoor half (it could not read a DB row's
+      // primary_type before) and a correct empty shelf is still an empty shelf.
+      outdoorOK: n.outdoorOK,
     };
   };
 
