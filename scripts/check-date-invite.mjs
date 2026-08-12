@@ -26,7 +26,7 @@ import { fileURLToPath } from "node:url";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
-  yesText, invitePath, inviteSeed, CURIOUS_LINES,
+  yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
 } from "../lib/dateInvite.js";
 import { inviteModel } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
@@ -196,6 +196,73 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
 }
 
+// ── 6c. ONE LINK PER PERSON, AND A LEGIBLE ANSWER ──────────────────────────
+// Owner: "when the user confirms the date I don't know who confirmed it if I
+// sent it to multiple people."
+//
+// There is a worse version underneath the one he noticed: a single link sent to
+// three people can be ACCEPTED by all three, and all three now believe they have
+// a date on Friday. That is not an analytics gap, it is an embarrassment built
+// on purpose. Every send has to be its own invite.
+{
+  // Two shares of the identical plan must never produce the same URL.
+  const seen = new Set();
+  for (let i = 0; i < 400; i++) {
+    const c = encodeInvite({ place: "Ulele", city: "Tampa", when: "Friday", from: "Gabe" });
+    ok(!!c, "encodeInvite returned nothing");
+    seen.add(c);
+  }
+  ok(seen.size === 400,
+     `400 sends of the same plan produced ${seen.size} distinct links — a repeated link can be accepted by more than one person`);
+
+  // The key survives the round trip and is readable aloud.
+  const inv = decodeInvite(encodeInvite({ place: "Ulele", to: "Sam" }));
+  ok(inv && inv.key && inv.key.length === 7, `the invite key did not survive: ${inv && inv.key}`);
+  ok(!/[ilo01]/.test(inv.key), `the key contains a character people misread: ${inv.key}`);
+  ok(newInviteKey(() => 0) === newInviteKey(() => 0), "newInviteKey must be a pure function of its randomness");
+  ok(newInviteKey(() => 0) !== newInviteKey(() => 0.999), "newInviteKey ignores its randomness");
+
+  // The greeting uses their name when we have it, and still reads when we do not.
+  ok(askHeadline(inv) === "Sam, will you go out with me?", `greeting: ${askHeadline(inv)}`);
+  ok(askHeadline(null) === "Will you go out with me?", "the greeting must work with no invite at all");
+  ok(needsName(inv) === false && needsName(decodeInvite(encodeInvite({ place: "X" }))) === true,
+     "needsName must tell the page whether to ask");
+
+  // THE REPLY HAS TO SAY WHO IT IS FROM. This is the owner's actual complaint.
+  const named = yesText(inv, "dinner", "Fri, August 14", {});
+  ok(/^It's Sam — yes!/.test(named), `a named invite must come back named: "${named}"`);
+  ok(/Fri, August 14/.test(named), "the reply must carry the night they picked");
+
+  const anon = decodeInvite(encodeInvite({ place: "X" }));
+  const typed = yesText(anon, "tonight", "Sat", { name: "Alex", note: "cannot wait" });
+  ok(/^It's Alex — yes!/.test(typed), `a typed name must reach the reply: "${typed}"`);
+  ok(/cannot wait/.test(typed), "their own message must reach the reply — that was the second half of the ask");
+
+  // And it must still be a sentence when we know nothing.
+  for (const t of [yesText(null, "", "", {}), yesText(anon, "", "", {}), noText(null, {}), noText(anon, { name: "Sam" })]) {
+    ok(typeof t === "string" && t.length > 5, `a reply came back empty: "${t}"`);
+    ok(!/undefined|null|NaN|—\s*\./.test(t), `a missing value leaked into a reply: "${t}"`);
+    ok(!/\s{2,}/.test(t), `a reply has a hole where a missing field was: "${t}"`);
+  }
+  ok(!/It's\s+—/.test(yesText(anon, "dinner", "Sat", { name: "" })), "an empty name must not leave a dangling 'It's —'");
+
+  // The page must ASK for the name when the sender did not supply one, and must
+  // not ask twice when they did.
+  const clientRaw = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
+  // Comments stripped BEFORE matching: the first draft of the rule below found
+  // the word "required" inside its own explanatory comment and failed a page
+  // that has no required field on it. Fifth time this repo has hit that.
+  const client = clientRaw.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/needsName\(inv\)/.test(client),
+     "the page must only ask who is answering when the sender did not already say");
+  ok(/placeholder="Say something back \(optional\)"/.test(client),
+     "the invited person must be able to send a message back — the owner asked for it by name");
+  ok(/yesText\(inv, activity, dayLabel, \{ name: who, note \}\)/.test(client),
+     "the reply must be built from what they actually typed");
+  ok(!/\brequired\b/.test(client),
+     "nothing on this page may be required — a mandatory field between a yes and telling them is a place to lose the yes");
+}
+
 // ── 7. EVERY SHARE BUTTON ASKS ─────────────────────────────────────────────
 // The invite is worth nothing if nothing generates the link, and it is worth
 // almost nothing if only one of seven share buttons does. This pins the entry
@@ -206,8 +273,16 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(/encodeInvite/.test(sheet) && /invitePath/.test(sheet),
      "the sheet must build the link through lib/dateInvite.js rather than assembling a URL of its own");
   ok(/onPlain/.test(sheet) && /onInvite/.test(sheet), "the sheet must offer BOTH paths");
-  ok(!/createElement\("input"|createElement\("textarea"/.test(sheet),
-     "the invite must not ask the sender to fill anything in — a form in front of a share is how a share stops happening");
+  // RE-AIMED: this banned <input> outright. The hazard it was guarding — a form
+  // in front of a share is how a share stops happening — is real, but the owner
+  // hit the reason one field earns its place: send one link to three people and
+  // you cannot tell who accepted. The rule is now the property that matters:
+  // the field must be SKIPPABLE, and skipping must still send a working invite.
+  ok(/Skip/.test(sheet), "the name step must be skippable in one tap");
+  ok(/send\(""\)/.test(sheet), "skipping must still send a real invite, not abandon the share");
+  ok(!/createElement\("textarea"/.test(sheet), "one line, never a message box");
+  ok((sheet.match(/createElement\("input"/g) || []).length <= 1,
+     "one field is a question; two is a form");
   ok(/typeof document === "undefined"/.test(sheet),
      "with no DOM the sheet must fall through to the plain share rather than swallowing it");
   // THE ACTIVATION CHAIN. navigator.share() is refused on iOS unless it runs
