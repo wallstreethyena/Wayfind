@@ -80,14 +80,14 @@ function build(ears, eyes, mouth) {
 
 // mood -> drawing + motion + the thing floating above it.
 const MOODS = {
-  hopeful:     { grid: build("up", "dot", "smile"),     anim: "wfc-hop",     extra: "heart" },
-  worried:     { grid: build("droop", "big", "small"),  anim: "wfc-wobble",  extra: "sweat" },
-  teary:       { grid: build("droop", "wet", "wobble"), anim: "wfc-shiver",  extra: "tear" },
-  crying:      { grid: build("flat", "shut", "open"),   anim: "wfc-shiver",  extra: "tears" },
-  heartbroken: { grid: build("flat", "shut", "wobble"), anim: "wfc-slump",   extra: "broken" },
-  curled:      { grid: build("flat", "shut", "flat"),   anim: "wfc-tremble", extra: "none" },
-  happy:       { grid: build("up", "arc", "smile"),     anim: "wfc-bounce",  extra: "none" },
-  love:        { grid: build("up", "arc", "smile"),     anim: "wfc-bounce",  extra: "heart" },
+  hopeful:     { grid: build("up", "dot", "smile"),     anim: "wfc-hop",     extra: "heart", eyesOpen: true },
+  worried:     { grid: build("droop", "big", "small"),  anim: "wfc-wobble",  extra: "sweat", eyesOpen: true },
+  teary:       { grid: build("droop", "wet", "wobble"), anim: "wfc-shiver",  extra: "tear", eyesOpen: true },
+  crying:      { grid: build("flat", "shut", "open"),   anim: "wfc-shiver",  extra: "tears", eyesOpen: false },
+  heartbroken: { grid: build("flat", "shut", "wobble"), anim: "wfc-slump",   extra: "broken", eyesOpen: false },
+  curled:      { grid: build("flat", "shut", "flat"),   anim: "wfc-tremble", extra: "none", eyesOpen: false },
+  happy:       { grid: build("up", "arc", "smile"),     anim: "wfc-bounce",  extra: "none", eyesOpen: false },
+  love:        { grid: build("up", "arc", "smile"),     anim: "wfc-bounce",  extra: "heart", eyesOpen: false },
 };
 export const MOOD_KEYS = Object.keys(MOODS);
 
@@ -127,10 +127,20 @@ function Grid({ rows, pal, px, x = 0, y = 0, className, style }) {
   return <g className={className} style={style}>{out}</g>;
 }
 
-/** One cat. `mood` selects the drawing AND the motion. */
-export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0 }) {
+/**
+ * One cat. `mood` selects the drawing AND the motion.
+ *
+ * `look` is a unit vector (-1..1) toward whatever the person is doing — the
+ * pointer on a desktop, the last touch on a phone. The eyes shift a pixel or two
+ * along it and the whole body leans, which is the entire trick: a character that
+ * tracks you reads as ALIVE and interested, and one that does not reads as a
+ * sticker. `fidget` is 0..1 — how badly it wants an answer.
+ */
+export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0 }) {
   const pal = P[tone] || P.cream;
   const m = MOODS[mood] || MOODS.hopeful;
+  const lx = look && typeof look.x === "number" ? Math.max(-1, Math.min(1, look.x)) : 0;
+  const ly = look && typeof look.y === "number" ? Math.max(-1, Math.min(1, look.y)) : 0;
   // A WHOLE number of pixels per cell. size/22 gave a fractional cell, and the
   // browser then antialiased every rect edge — the cat rendered with scan lines
   // through it. crispEdges finishes the job: no smoothing on a pixel grid.
@@ -139,8 +149,19 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
   const top = px * 6;                          // the cat sits below the floating extra
   return (
     <svg width={box} height={box} viewBox={"0 0 " + box + " " + box} shapeRendering="crispEdges"
-      className={"wfc " + m.anim}
-      style={{ animationDelay: delay + "s", transform: flip ? "scaleX(-1)" : "none" }} aria-hidden="true">
+      className={"wfc " + m.anim + (fidget > 0 ? " wfc-eager" : "")}
+      style={{
+        animationDelay: delay + "s",
+        // Whole-body lean, capped at one pixel cell so it never stops looking
+        // drawn — a smooth 12px slide in a pixel scene is the thing that gives
+        // the illusion away.
+        "--lean": Math.round(lx * px) + "px",
+        "--liftv": Math.round(ly * px * 0.6) + "px",
+        // The fidget gets FASTER the longer they take, from a calm .5s down to a
+        // frantic .18s. Cute, not a seizure: the travel stays under two pixels.
+        "--fid": (0.5 - 0.32 * Math.max(0, Math.min(1, fidget))).toFixed(2) + "s",
+        transform: flip ? "scaleX(-1)" : "none",
+      }} aria-hidden="true">
       {m.extra === "heart" ? <Grid rows={HEART_GRID} pal={pal} px={px} x={px * 3} className="wfc-xheart" /> : null}
       {m.extra === "broken" ? <Grid rows={BREAK_GRID} pal={pal} px={px} x={px * 3} className="wfc-xbreak" /> : null}
       {m.extra === "sweat" ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 13} y={px * 2} className="wfc-xsweat" /> : null}
@@ -149,6 +170,20 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
       {m.extra === "tears"
         ? <Grid rows={DROP_GRID} pal={pal} px={px} x={px * 11} y={top + px * 9} className="wfc-tear2" /> : null}
       <Grid rows={m.grid} pal={pal} px={px} y={top} />
+      {/* THE PUPILS. The cat is one grid, so the eyes cannot be translated as a
+          group — instead a single light pixel is painted inside each eye and
+          SNAPPED to the pointer's direction. One cell of travel, quantised to the
+          grid: that is the whole trick, and it is why it still looks drawn. A
+          smooth sub-pixel slide in a pixel scene is what gives the illusion away.
+          Eye cells are columns 2-3 and 12-13 on rows 7-8 of BASE. */}
+      {m.eyesOpen !== false && (lx || ly) ? (
+        <g>
+          <rect width={px} height={px} fill={pal.w}
+            x={(2 + (lx > 0.25 ? 1 : 0)) * px} y={top + (7 + (ly > 0.25 ? 1 : 0)) * px} />
+          <rect width={px} height={px} fill={pal.w}
+            x={(12 + (lx > 0.25 ? 1 : 0)) * px} y={top + (7 + (ly > 0.25 ? 1 : 0)) * px} />
+        </g>
+      ) : null}
     </svg>
   );
 }

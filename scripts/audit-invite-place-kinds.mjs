@@ -26,7 +26,10 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { activityForPlace, kindsForPlace, ACTIVITIES } from "../lib/dateInvite.js";
+import {
+  activityForPlace, kindsForPlace, ACTIVITIES, planFitsPlace, inviteKinds,
+  encodeInvite, decodeInvite,
+} from "../lib/dateInvite.js";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 
@@ -78,6 +81,47 @@ export function contradictions(names) {
   return out;
 }
 
+// ══ THE PAIRING MATRIX ══════════════════════════════════════════════════════
+// Owner, on a LIVE invite after this was supposedly fixed: "Keke is being
+// offered for dinner out. I need to make sure the places match the categories
+// always."
+//
+// The first fix classified the place at SHARE time and put the answer in the
+// payload. Every link created before that carries none — and "no kinds" meant
+// "nothing to clash with", so a breakfast cafe sailed under Dinner out exactly
+// as before. Checking the classifier alone could never have caught that, because
+// the classifier was right; the PIPELINE was wrong.
+//
+// So this runs the real decision — planFitsPlace — over every real place name
+// crossed with all six activities, through BOTH link shapes:
+//
+//   fresh  the payload carries the kinds (a link made today)
+//   bare   the payload carries none (every link made before the feature, and
+//          any share path that forgets to pass the place object)
+//
+// Both must agree, and neither may print a pairing the name contradicts.
+export function pairings(names) {
+  const bad = [];
+  for (const n of names.keys()) {
+    const kinds = kindsForPlace({ name: n });
+    if (!kinds.length) continue;                    // genuinely unknown: nothing to contradict
+    const fresh = decodeInvite(encodeInvite({ place: n }));
+    const bare = { place: n, kinds: [], kind: "" };  // an old link
+    for (const a of ACTIVITIES) {
+      const should = kinds.indexOf(a.id) >= 0 || a.id === "surprise";
+      const gotFresh = planFitsPlace(fresh, a.id);
+      const gotBare = planFitsPlace(bare, a.id);
+      if (gotFresh !== should) bad.push({ name: n, activity: a.id, shape: "fresh", should, got: gotFresh, kinds });
+      if (gotBare !== should) bad.push({ name: n, activity: a.id, shape: "bare", should, got: gotBare, kinds });
+    }
+    // And the two shapes must never disagree with each other.
+    if (JSON.stringify(inviteKinds(fresh)) !== JSON.stringify(inviteKinds(bare))) {
+      bad.push({ name: n, activity: "-", shape: "mismatch", should: true, got: false, kinds });
+    }
+  }
+  return bad;
+}
+
 // ── the report, when run directly ──────────────────────────────────────────
 const isDirect = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (isDirect) {
@@ -98,6 +142,15 @@ if (isDirect) {
     if (!list.length) continue;
     console.log(`  ${a.id.padEnd(9)} ${String(list.length).padStart(4)}   e.g. ${list.slice(0, 5).join(" · ")}`);
   }
+
+  const pairs = pairings(names);
+  const checked = [...names.keys()].filter((n) => kindsForPlace({ name: n }).length).length;
+  console.log(`\n  PAIRING MATRIX — ${checked} classified places x ${ACTIVITIES.length} activities x 2 link shapes`);
+  console.log(`    ${checked * ACTIVITIES.length * 2} decisions, ${pairs.length} wrong`);
+  for (const b of pairs.slice(0, 20)) {
+    console.log(`    ${b.name.padEnd(34)} ${b.activity.padEnd(9)} ${b.shape.padEnd(9)} is ${JSON.stringify(b.kinds)} → said ${b.got}, should be ${b.should}`);
+  }
+  if (!pairs.length) console.log("    none — no place is ever offered under a category its own name contradicts");
 
   const bad = contradictions(names);
   const dual = rows.filter((n) => AMBIG.filter(([rx]) => rx.test(n)).length > 1).length;

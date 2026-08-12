@@ -219,6 +219,24 @@ export const ASK_CSS = `
 @keyframes wfcSweat{0%{transform:translateY(0);opacity:0}28%{opacity:1}100%{transform:translateY(13px);opacity:0}}
 @keyframes wfcBreak{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 
+/* EAGER. Owner: "make the little guy seem excited but also track the mouse,
+   anxious about the decision, shaking, literally bouncing off the walls with
+   excitement, but cute."
+
+   Three layers, deliberately: the mood's own loop keeps running underneath, a
+   fidget vibrates on top at a speed the page sets from how long they have been
+   deliberating (--fid, .5s calm down to .18s frantic), and --lean tips the whole
+   body a single pixel cell after the pointer. Capped at one cell on purpose —
+   a smooth 12px slide in a pixel scene is what gives the illusion away, and
+   "cute" and "seizure" are about four pixels apart. */
+.wfc-eager{will-change:transform}
+.wfc-eager .wfc-lean{transform:translate(var(--lean,0),var(--liftv,0))}
+.wfc-eager{animation:wfcEager var(--fid,.4s) steps(2,end) infinite}
+@keyframes wfcEager{
+  0%{transform:translate(calc(var(--lean,0px) - 1px),var(--liftv,0px))}
+  50%{transform:translate(calc(var(--lean,0px) + 1px),calc(var(--liftv,0px) - 2px))}
+  100%{transform:translate(calc(var(--lean,0px) - 1px),var(--liftv,0px))}}
+
 /* THE HUG. They lean in, squeeze, and a heart pops between them — on a loop,
    because a hug that happens once is a picture. */
 .wfc-couple{position:relative;display:flex;align-items:flex-end;justify-content:center}
@@ -231,7 +249,7 @@ export const ASK_CSS = `
 
 @media (prefers-reduced-motion: reduce){
   .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,
-  .wfc,.wfc-hugL,.wfc-hugR,.wfc-heart,
+  .wfc,.wfc-eager,.wfc-hugL,.wfc-hugR,.wfc-heart,
   .wfc-xheart,.wfc-xsweat,.wfc-xbreak,.wfc-tear1,.wfc-tear2{animation:none}
   .wfx-yes,.wfx-no{transition:none}
 }

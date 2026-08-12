@@ -27,12 +27,12 @@ import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, encodeInvite, decodeInvite,
   curiousLine, curiousFoot, MOOD_LADDER, moodAt, PLEAS, pleaAt, yesScale, noScale, SCALE,
   yesText, noText, invitePath, inviteSeed, CURIOUS_LINES, newInviteKey, askHeadline, needsName,
-  activityForPlace, kindsForPlace, planFitsPlace, datedCardPath,
+  activityForPlace, kindsForPlace, planFitsPlace, datedCardPath, inviteKinds,
 } from "../lib/dateInvite.js";
 import { inviteModel, dateModel, footFits } from "../lib/shareCardCopy.js";
 import { textWidth, CARD } from "../lib/shareCard.js";
 // The audit is imported, not just shipped alongside — its verdict gates the build.
-import { harvest, contradictions } from "./audit-invite-place-kinds.mjs";
+import { harvest, contradictions, pairings } from "./audit-invite-place-kinds.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 let n = 0;
@@ -277,6 +277,19 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      "the sent state is set before the share is attempted");
   ok(/aria-live/.test(client), "the result of sending has to be announced, not just coloured");
   // The burst and the resume both have to respect the person on the other end.
+  // THE CAT WATCHES THEM DECIDE. Owner: "make the little guy track the mouse,
+  // anxious about the decision, shaking, bouncing off the walls, but cute."
+  ok(/mousemove/.test(client) && /touchmove/.test(client),
+     "the cat must track a finger as well as a pointer — this page is opened on a phone, so the touch path cannot be the broken one");
+  ok(/requestAnimationFrame/.test(client),
+     "pointer tracking must be throttled to one state update per frame; setting state on every mousemove re-renders the whole pixel scene dozens of times a second");
+  ok(/setEager\(0\)/.test(client),
+     "the fidget must RESET when the step changes — a cat still frantic after the decision is a broken animation, not a character");
+  ok(/fidget=\{eager\}/.test(client), "the deliberation clock must actually reach the cat");
+  const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
+  ok(/eyesOpen/.test(px), "a cat with its eyes squeezed shut has no pupils to move");
+  ok(/lx > 0\.25 \? 1 : 0/.test(px),
+     "the pupil must SNAP to a whole grid cell — a smooth sub-pixel slide in a pixel scene is what gives the illusion away");
   ok(/prefers-reduced-motion/.test(client),
      "the heart burst must not fire for someone who asked the OS for less motion");
   ok(/localStorage/.test(client) && /wf_ask_/.test(client),
@@ -356,6 +369,34 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const corpus = harvest();
   ok(corpus.size > 400,
      `the audit harvested only ${corpus.size} place names — the corpus moved and this gate is now checking almost nothing`);
+  // ── THE PAIRING MATRIX ───────────────────────────────────────────────────
+  // The classifier being right is not the same as the PRODUCT being right, and
+  // that gap is exactly what shipped: kinds were baked into the payload at share
+  // time, so every link made before that carried none — and "no kinds" meant
+  // "nothing to clash with". A breakfast cafe went straight back under "Dinner
+  // out" on a live invite while every classifier assertion here passed.
+  //
+  // So the gate runs the real decision, planFitsPlace, over every classified
+  // place x all six activities x BOTH link shapes: one carrying kinds, one
+  // carrying none. Both must agree, and neither may allow a pairing the name
+  // contradicts.
+  const wrong = pairings(corpus);
+  ok(wrong.length === 0,
+     `${wrong.length} place/category pairing(s) are wrong — a place offered under a category its own name contradicts: ` +
+     wrong.slice(0, 5).map((w) => `"${w.name}" (${JSON.stringify(w.kinds)}) under ${w.activity} on a ${w.shape} link said ${w.got}`).join(" | "));
+
+  // AN OLD LINK MUST HEAL ITSELF. This is the owner's exact bug: a payload made
+  // before kinds existed, carrying only a name.
+  {
+    const bare = { place: "Keke's Breakfast Cafe", kinds: [], kind: "" };
+    ok(planFitsPlace(bare, "dinner") === false,
+       "a link with no kinds in its payload must still classify from the place NAME — otherwise every invite made before the feature offers a breakfast cafe for dinner");
+    ok(planFitsPlace(bare, "bite") === true, "and must still fit what it really is");
+    ok(inviteKinds(bare).join() === "bite", "the resolved kinds must come from the name when the payload is silent");
+    ok(inviteKinds({ place: "Ulele", kinds: [] }).length === 0, "a name that says nothing still resolves to nothing");
+    ok(planFitsPlace({ place: "" }, "dinner") === true, "an invite with no place at all cannot contradict anything");
+  }
+
   const clashes = contradictions(corpus);
   ok(clashes.length === 0,
      `${clashes.length} real place name(s) lose an identity their name carries, which is how a plan contradicts its place: ` +
@@ -386,8 +427,8 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   const askSrc = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
   ok(/planFitsPlace\(inv, activity\)/.test(askSrc),
      "the plan card must check the fit before printing the sender's place");
-  ok(/inv\.kind === a\.id/.test(askSrc),
-     "the sender's own suggestion must be marked in the list they choose from");
+  ok(/suggested\.indexOf\(a\.id\) === 0/.test(askSrc) && /inviteKinds\(inv\)/.test(askSrc),
+     "the sender's suggestion must be marked from the RESOLVED kinds, not read straight off the payload — reading inv.kind marked the wrong chip on every link made before kinds existed");
 
   // And every share button has to classify the place, or the payload never
   // carries a kind and the whole check silently passes on nothing.
