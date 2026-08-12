@@ -356,3 +356,4 @@ node scripts/check-map-search-area.mjs
 node scripts/test-map-render-smoke.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
+node scripts/check-no-sideways-scroll.mjs

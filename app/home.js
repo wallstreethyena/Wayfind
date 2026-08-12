@@ -285,7 +285,13 @@ function mapfpArrowKeys(node) {
     if (i < 0) return;
     e.preventDefault();
     const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
-    if (next) next.focus();
+    // preventScroll (2026-08-12): this is the arrow-key handler for the MAP's
+    // pill tablist — a horizontally scrolling row. Focusing the next pill
+    // without it lets the engine scroll the viewport sideways to reveal it,
+    // which is the mechanism behind the shifted-layout bug. The row still
+    // scrolls the pill into view itself; what is suppressed is the browser
+    // moving the PAGE to do it.
+    if (next) next.focus({ preventScroll: true });
   });
 }
 
@@ -9509,7 +9515,7 @@ function PageInner({ initialEvents = null }) {
                         <div style={{ display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%", background: "rgba(27,36,52,.78)", border: `1px solid ${C.border}`, borderRadius: 999, padding: "6px 9px 6px 11px" }}>
                           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: "50%", background: C.accent, flexShrink: 0 }} />
                           <span style={{ minWidth: 0, color: C.light, fontSize: 10.5, lineHeight: 1.2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Using {locName ? locName.split(",")[0] + " area" : "an approximate area"}</span>
-                          <button onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus(); el.scrollIntoView({ block: "center" }); } } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontSize: 10.5, fontWeight: 850, cursor: "pointer", padding: 0 }}>Change</button>
+                          <button onClick={() => { try { const el = document.querySelector('input[placeholder="Search a place or city"]'); if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: "center", inline: "nearest" }); } } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontSize: 10.5, fontWeight: 850, cursor: "pointer", padding: 0 }}>Change</button>
                           <button onClick={() => setLocBannerGone(true)} aria-label="Dismiss approximate location notice" style={{ background: "transparent", border: "none", color: C.muted, fontSize: 12, cursor: "pointer", padding: "0 2px", lineHeight: 1 }}>×</button>
                         </div>
                       </div>

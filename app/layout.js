@@ -80,8 +80,35 @@ export default function RootLayout({ children }) {
     // (/guides, /events, /best-of). The body then names --wf-sans ONCE here; because
     // font-family inherits and almost nothing in this tree sets it, that single
     // declaration is what carries the brand face across the entire app. See app/fonts.js.
-    <html lang="en" className={fontVariables}>
-      <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "hidden", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
+    // ── THE SIDEWAYS-SHIFT FIX (2026-08-12, owner: "I never want to see that on
+    // the site again"). ──────────────────────────────────────────────────────
+    //
+    // SYMPTOM: on iPhone the detail sheet rendered shifted left — the title read
+    // "n Hills Coffee any", the address started "E, Parrish, FL", "reviews" was
+    // clipped to "eviews" and Directions to "ns". Everything cut by the same
+    // ~55px, i.e. the whole PAGE was scrolled right and stayed there.
+    //
+    // ROOT CAUSE, and it is a classic: `overflow-x: hidden` was set on <body>
+    // ONLY. On iOS Safari the viewport's scrolling box is the ROOT element, not
+    // the body — so body-level overflow-x is a no-op against a horizontal
+    // viewport scroll. Anything that nudges the viewport sideways (a .focus() or
+    // scrollIntoView landing inside one of our horizontal rails, which is
+    // exactly what the detail sheet is full of) shifts the page and there is
+    // nothing to stop it. This is why the bug looked random and why it survived
+    // a body rule that everyone assumed was already handling it.
+    //
+    // FIX: constrain the ROOT as well, with `clip` rather than `hidden`.
+    // `overflow: hidden` on <html> would make it a scroll container and break
+    // every `position: sticky` on the site (the topbar, the bottom nav).
+    // `overflow: clip` clips without creating one, so sticky is untouched. The
+    // body keeps a rule too — belt and braces, and older engines that lack
+    // `clip` fall back to the `hidden` declared alongside it in globals.
+    //
+    // Asserted by scripts/check-no-sideways-scroll.mjs, which ALSO sweeps the
+    // live routes in headless Chromium and fails if documentElement.scrollWidth
+    // ever exceeds clientWidth. A CSS rule nobody measures is a rule that rots.
+    <html lang="en" className={fontVariables} style={{ overflowX: "clip", maxWidth: "100%" }}>
+      <body style={{ margin: 0, background: "#040810", minHeight: "100dvh", overflowX: "clip", overscrollBehaviorX: "none", maxWidth: "100vw", fontFamily: "var(--wf-sans)" }}>
         {/* Stale-tab watch: a long-lived tab silently runs yesterday's bundle
             forever, so shipped fixes never reach it (see the component's
             header for the 2026-08-07 incident). Renders nothing. */}
