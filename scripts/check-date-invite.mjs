@@ -182,8 +182,18 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(!/\.gif["'`)]/i.test(src), `${rel} references a .gif — the cast is drawn`);
     ok(!/<img\b/.test(src), `${rel} renders an <img> — the cast is SVG so it stays sharp and weighs nothing`);
   }
+  // RE-AIMED 2026-08-12: the cast moved from vector paths to a PIXEL GRID after
+  // the owner sent his reference frames, so requiring <path> would fail the
+  // build for doing what was asked. The claim underneath never changed — the
+  // characters are DRAWN here, not fetched — so it is asserted on the grids
+  // themselves, which is a stronger property than the element name.
   const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
-  ok(/<svg/.test(px) && /<path/.test(px), "the cast must be drawn as SVG paths");
+  ok(/<svg/.test(px) && /<rect/.test(px), "the cast must be drawn in the page, not fetched");
+  const grids = px.match(/"[.owsepEMmthd]{12,}"/g) || [];
+  ok(grids.length >= 20,
+     `the cast must be authored as readable pixel grids — found ${grids.length} rows. An asset nobody can edit one pixel at a time is the thing the owner rejected`);
+  const widths = new Set(grids.map((g) => g.length));
+  ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
 }
 
 if (fails.length) {
